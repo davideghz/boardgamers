@@ -1,5 +1,8 @@
-import dj_database_url
 from django.conf.global_settings import DATABASES, MIDDLEWARE
+import environ
+import dj_database_url
+
+env = environ.Env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
