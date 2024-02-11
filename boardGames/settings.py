@@ -152,4 +152,4 @@ if ENV == 'prod':
     except ImportError:
         pass
 
-print(env)
+print('local settings loaded')
