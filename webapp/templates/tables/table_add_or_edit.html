@@ -1,0 +1,138 @@
+{% extends "base_webapp.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block style %}
+  {% include 'partials/form_styles.html' %}
+{% endblock style %}
+
+{% block content %}
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  {{ form.media }}
+
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+        <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" action="" method="post">
+          {% csrf_token %}
+          <h1 class="fs-3 mb-4">
+            {% if form.instance.pk %}
+              {% trans "Edit table" %}
+            {% else %}
+              {% trans "Create a new table" %}
+            {% endif %}
+          </h1>
+
+          <div class="form-floating mb-3">
+            {{ form.state }}
+            {#            {{ form.state.label_tag|cut:":" }}#}
+          </div>
+
+          <div class="form-floating mb-3">
+            {{ form.location }}
+            {#            {{ form.state.location_tag|cut:":" }}#}
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="form-floating mb-3">
+                {{ form.date }}
+                {{ form.date.label_tag|cut:":" }}
+                {% if form.content.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.content.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-floating mb-3">
+                {{ form.time }}
+                {{ form.time.label_tag|cut:":" }}
+                {% if form.content.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.content.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-floating mb-3">
+            {{ form.title }}
+            {{ form.title.label_tag|cut:":" }}
+            {% if form.title.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.title.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-floating mb-3">
+            {{ form.content }}
+            {{ form.content.label_tag|cut:":" }}
+            {% if form.content.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.content.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-floating mb-3">
+            {{ form.games }}
+            {#            {{ form.games.label_tag|cut:":" }}#}
+          </div>
+
+          <div class="row">
+            {% if form.instance.pk %}
+              <div class="col">
+                <a class="btn btn-secondary btn-lg w-100" href="{% url "table-detail" table.slug %}">
+                  <i class="bi bi-arrow-left"></i> {% trans "Cancel" %}
+                </a>
+              </div>
+            {% endif %}
+            <div class="col">
+              <button class="btn btn-primary btn-lg w-100" type="submit">
+                <i class="bi bi-file-earmark-plus"></i> {% trans "Publish" %}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          var timeInputs = document.querySelectorAll('.time-input');
+          timeInputs.forEach(function (input) {
+              input.addEventListener('change', function () {
+                  var time = input.value.split(':');
+                  var hours = time[0];
+                  var minutes = time[1];
+
+                  // Arrotonda i minuti ai valori più vicini (00, 15, 30, 45)
+                  minutes = Math.round(minutes / 15) * 15;
+                  if (minutes === 60) {
+                      hours = parseInt(hours) + 1;
+                      minutes = 0;
+                  }
+
+                  // Aggiorna il valore del campo di input
+                  input.value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+              });
+          });
+      });
+  </script>
+{% endblock %}

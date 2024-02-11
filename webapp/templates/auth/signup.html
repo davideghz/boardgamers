@@ -1,0 +1,94 @@
+{% extends "base_webapp.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block style %}
+  {% include 'partials/form_styles.html' %}
+{% endblock style %}
+
+{% block content %}
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  {{ form.media }}
+
+  <div class="container py-4">
+    <div class="row">
+      <div class="col col-md-10 mx-auto col-lg-6 offset-md-1 offset-lg-3">
+      <form method="post" class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
+        {% csrf_token %}
+        <h1 class="fs-3 mb-4">Registrazione</h1>
+        <div class="form-floating mb-3">
+          {{ form.username }}
+          {{ form.username.label_tag|cut:":" }}
+          {% if form.username.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.username.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.password1 }}
+          {{ form.password1.label_tag|cut:":" }}
+          {% if form.password1.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.password1.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.password2 }}
+          {{ form.password2.label_tag|cut:":" }}
+          {% if form.password2.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.password2.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.email }}
+          {{ form.email.label_tag|cut:":" }}
+          {% if form.email.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.email.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.state }}
+          {#          {{ form.state.label_tag|cut:":" }}#}
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.city }}
+          {{ form.city.label_tag|cut:":" }}
+          {% if form.city.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.city.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.address }}
+          {{ form.address.label_tag|cut:":" }}
+          {% if form.address.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.address.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">Register</button>
+      </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,249 @@
+{% extends "base_webapp.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <div class="container-fluid px-0 bg-white border-bottom">
+    <div class="container">
+      <nav aria-label="breadcrumb" class="py-1">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item fs-6">
+            <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
+          </li>
+          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>{{ table.state }}</small></a>
+          </li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ table.title|truncatechars:25 }}</small>
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+    <div class="row">
+      <!-- table info -->
+      <div class="col-12 col-md-5 col-lg-4 col-xl-4">
+
+        <!-- table -->
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-white">
+            <div class="d-flex justify-content-between">
+              <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
+              {% if table.author.user == user %}
+                <a class="text-decoration-none" href="{% url "table-update" table.slug %}">
+                  <i class="bi bi-pencil-square"></i> Edit
+                </a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card-body">
+            <small><strong>{% trans "Date and time" %}</strong></small>
+            <br>
+            <i class="bi bi-calendar4-event"></i> <small>{{ table.date|date:"j F" }}</small>
+            <i class="bi bi-clock"></i> <small>{{ table.time|time:"H:i" }}</small>
+            <br><br>
+            <small><strong>{% trans "Address" %}</strong></small>
+            <br>
+            {% if table.location %}
+              <small>{{ table.location.address }}</small>
+            {% else %}
+              <small>
+                {% trans "No location set for this table." %}<br>
+                {% trans "Ask info to the organizer." %}
+              </small>
+            {% endif %}
+          </div>
+
+          <!-- games -->
+          <div class="card-body border-top">
+            <small><strong>{% trans "Games" %}</strong></small>
+            <br>
+            {% if table.games.exists %}
+              {% for game in table.games.all %}
+                <small><a href="{% url "game-detail" game.slug %}">{{ game }}</a> {% if not forloop.last %}
+                  <i class="bi bi-dot"></i>{% endif %}</small>
+              {% endfor %}
+            {% else %}
+              <small>
+                {% trans "No games set for this table." %}
+              </small>
+            {% endif %}
+          </div>
+          <div class="card-body border-top">
+            <small><strong>{% trans "Gamers" %}</strong> ({{ available_seats }} {% trans "available seats" %})</small>
+            <br>
+            {% for player in table.players.all %}
+              <i class="bi bi-person-fill"></i>
+              <small><a href="{% url "user-profile-detail" player %}">{{ player }}</a> {% if not forloop.last %}
+                <i class="bi bi-dot"></i>{% endif %}</small>
+            {% empty %}
+              <small>{% trans "No players yet." %}</small>
+            {% endfor %}
+          </div>
+          <div class="card-body border-top">
+            {% if user.user_profile in table.players.all %}
+              <form method="post" action="{% url 'leave_table' table.slug %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger w-100" type="submit">
+                  <i class="bi bi-person-x-fill"></i> {% trans "Leave this Table" %}
+                </button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'join_table' table.slug %}">
+                {% csrf_token %}
+                <button class="w-100 btn btn-primary" type="submit">
+                  <i class="bi bi-person-check-fill"></i> {% trans "Join this table" %}
+                </button>
+              </form>
+            {% endif %}
+          </div>
+          <div class="card-footer">
+            <small>
+              {% trans "By joining this table you agree to meet other gamers at the location at the given date and time." %}
+            </small>
+          </div>
+        </div>
+
+        <!-- location -->
+        {% if table.location %}
+          <a href="{% url "location-detail" table.location.slug %}"
+             class="card shadow-lg border-0 mb-4 text-decoration-none">
+            <div class="card-header bg-white">
+              <span class="h5">{% trans "Location" %}</span>
+            </div>
+            <img src="https://picsum.photos/800/400" class="card-img-mid img-fluid" alt="...">
+            <div class="card-body">
+              <span class="h5">{{ table.location.name }}</span>
+              <p class="card-text text-secondary"><small>{{ table.location.description }}</small></p>
+            </div>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- comment section -->
+      <div class="col-12 col-md-7 col-lg-8 col-xl-8">
+        <div class="row">
+          <!-- table description -->
+          <div class="col-12">
+            <h1>{{ table.title }}</h1>
+            <p>{{ table.content }}</p>
+            <i class="bi bi-person-fill"></i>
+            <small>
+              <a href="{% url "user-profile-detail" table.author.user.user_profile %}">
+                {{ table.author.user.username }}
+              </a>
+            </small>
+          </div>
+          <!-- comment form -->
+          <div class="col-12">
+            {% if user.user_profile in table.players.all %}
+              <form class="mb-4 mt-4" method="post">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                  {{ comment_form.content }}
+                  {{ comment_form.content.label_tag|cut:":" }}
+                </div>
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-chat-square-dots-fill"></i> {% trans "Send comment" %}
+                </button>
+              </form>
+            {% else %}
+              <p class="py-3">
+                <mark>
+                  <i class="bi bi-exclamation-circle-fill"></i>
+                  {% trans "Only gamers that joined the table can comment on this page." %}
+                </mark>
+              </p>
+            {% endif %}
+          </div>
+
+          <style>
+              .comments {
+                  max-height: 550px;
+                  overflow-y: auto;
+                  padding-right: 8px;
+              }
+
+              .comments::-webkit-scrollbar {
+                  -webkit-appearance: none;
+                  width: 7px;
+              }
+
+              .comments::-webkit-scrollbar-thumb {
+                  border-radius: 4px;
+                  background-color: rgba(0, 0, 0, .5);
+                  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+              }
+          </style>
+
+          <!-- comment list -->
+          <div class="comments">
+            {% for comment in table.comments.all %}
+              <div class="bg-light rounded p-3 mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div>
+                      <span class="badge text-bg-light p-0"><i
+                          class="bi bi-person-fill"></i> {{ comment.author }}</span>
+                    <span class="badge text-bg-light fw-normal p-0">{{ comment.created_at|date:"j F Y G:i" }}</span>
+                  </div>
+                  {% if request.user == comment.author.user %}
+                    <button type="button" class="btn btn-light btn-sm text-secondary" data-bs-toggle="modal"
+                            data-bs-target="#deleteCommentModal"
+                            data-comment-url="{% url 'comment-delete' comment.uuid %}">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  {% endif %}
+
+                </div>
+                <div class="text-secondary">{{ comment.content }}</div>
+              </div>
+            {% empty %}
+              <div class="bg-light rounded p-3 mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div class="text-secondary">{% trans "There are no comments yet." %}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-labelledby="deleteCommentModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="post" id="commentDeleteForm">
+        {% csrf_token %}
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteCommentModalLabel">{% trans "Confirm delete" %}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            {% trans "Are you sure you want to delete the comment?" %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+            <button type="submit" class="btn btn-danger">{% trans "Delete comment" %}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+      const deleteCommentModal = document.getElementById('deleteCommentModal');
+      deleteCommentModal.addEventListener('show.bs.modal', function (event) {
+          const button = event.relatedTarget;
+          const commentUrl = button.getAttribute('data-comment-url');
+          const form = deleteCommentModal.querySelector('form');
+          form.action = commentUrl
+      })
+  </script>
+{% endblock extrabodyjs %}

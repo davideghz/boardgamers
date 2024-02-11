@@ -1,0 +1,48 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <nav aria-label="breadcrumb" class="py-1">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item fs-6">
+        <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
+      </li>
+      <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>locations</small></a>
+      </li>
+      <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ location.name }}</small></li>
+    </ol>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+    <div class="row">
+      <!-- location info -->
+      <div class="col-12 col-md-5 col-lg-4 col-xl-4">
+
+        <div class="card shadow-lg border-0 mt-4 mb-4">
+          <img src="https://picsum.photos/800/400" class="card-img-top img-fluid" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ location.name }}</h5>
+            <p class="card-text text-secondary"><small>{{ location.description }}</small></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- table list -->
+      <div class="col-12 col-md-7 col-lg-8 col-xl-8">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4">
+          {% for table in tables %}
+            {% table_list_item table %}
+          {% empty %}
+            <p>{% trans "No tables found." %}</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extrabodyjs %}{% endblock extrabodyjs %}

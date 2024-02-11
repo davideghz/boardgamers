@@ -1,0 +1,55 @@
+{% extends "base_webapp.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container py-4">
+    <div class="row">
+      <div class="col col-md-10 mx-auto col-lg-6 offset-md-1 offset-lg-3">
+        {% if form.non_field_errors %}
+          <div class='px-4 px-md-5'>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if next %}
+          <div class='px-4 px-md-5'>
+            {% if user.is_authenticated %}
+              <p>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</p>
+            {% else %}
+              <p>Please login to see this page.</p>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" method="post"
+              action="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
+          {% csrf_token %}
+          <h1 class="fs-3 mb-4">Login</h1>
+          <div class="form-floating mb-3">
+            {{ form.username }}
+            {{ form.username.label_tag|cut:":" }}
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.password }}
+            {{ form.password.label_tag|cut:":" }}
+          </div>
+          <input class="btn btn-primary btn-lg w-100" type="submit" value="login">
+          <input type="hidden" name="next" value="{{ next }}">
+          <hr class="my-4">
+          <small class="text-body-secondary d-block mb-3">
+            Forgot your password?
+            <a class="link-offset-3" href="{% url 'custom_password_reset' %}">{% trans "Reset password" %}</a>.
+          </small>
+          <small class="text-body-secondary">
+            {% trans "Not a member?" %}
+            <a class="link-offset-3" href="{% url "signup" %}">{% trans "Create an account" %}</a>.
+          </small>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% load i18n %}
+
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center g-lg-5 py-5">
+    <div class="col-lg-7 text-center text-lg-start">
+      <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">
+        {% blocktrans %}
+          Find Board Gamers <br> near you
+        {% endblocktrans %}
+      </h1>
+      <p class="col-lg-10 fs-4">
+        {% blocktrans %}
+          Easily find board game enthusiasts in your area and share your passion with <i>like minded</i> people.
+        {% endblocktrans %}
+      </p>
+    </div>
+    <div class="col-md-10 mx-auto col-lg-5">
+      {% if not user.is_authenticated %}
+        <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="form-floating mb-3">
+            {{ login_form.username }}
+            {{ login_form.username.label_tag|cut:":" }}
+          </div>
+          <div class="form-floating mb-3">
+            {{ login_form.password }}
+            {{ login_form.password.label_tag|cut:":" }}
+          </div>
+          <input class="w-100 btn btn-lg btn-primary" type="submit" value="Login">
+          <hr class="my-4">
+          <small class="text-body-secondary">
+            {% trans "Not a member?" %}
+            <a class="link-offset-3" href="{% url "signup" %}">{% trans "Create an account" %}</a>.
+          </small>
+          <input type="hidden" name="next" value="{{ next }}">
+        </form>
+      {% else %}
+        <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow text-center">
+          <p class="fs-2 fw-bold mb-3">
+            {% trans "Welcome back" %}<br>
+            <span class="text-primary">{{ user.username }}</span>
+          </p>
+          <p class="fs-5">
+            {% trans "If there are no tables available near you, you can always create one!" %}
+          </p>
+          <a class="w-100 btn btn-lg btn-primary" href="{% url "table-create" %}">
+            <i class="bi bi-lightning-charge"></i> {% trans "Create table" %}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
