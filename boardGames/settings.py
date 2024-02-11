@@ -53,6 +53,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+print(MIDDLEWARE)
+
 ROOT_URLCONF = 'boardGames.urls'
 
 TEMPLATES = [
