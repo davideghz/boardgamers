@@ -5,7 +5,8 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, True),
-    DJANGO_SECRET_KEY=(str, secrets.token_urlsafe(nbytes=64)),
+    # DJANGO_SECRET_KEY=(str, secrets.token_urlsafe(nbytes=64)),
+    DJANGO_SECRET_KEY=(str, 'ciao'),
     ENV=(str, 'local'),
 )
 
