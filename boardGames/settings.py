@@ -45,9 +45,6 @@ INSTALLED_APPS = [
 
     # admin
     'django.contrib.admin',
-
-    # debug toolbar
-    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -58,9 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    # debug toolbar
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'boardGames.urls'
@@ -137,11 +131,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# required by debug toolbar
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
 DOMAIN = "localhost:8000"
 DOMAIN_PROTOCOL = 'http'
 DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
@@ -160,9 +149,15 @@ EMAIL_PORT = '2525'
 # Loading test/prod settings based on ENV settings
 ENV = env('ENV')
 
+if DEBUG:
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware',)
+
 if ENV == 'prod':
     try:
         from .production_settings import *
-        MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware',)
     except ImportError:
         pass
+
+
