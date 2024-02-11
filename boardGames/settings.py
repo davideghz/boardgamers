@@ -146,9 +146,9 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
-print(ENV)
-print(SECRET_KEY)
-print(DEBUG)
+print('ENV: ' + ENV)
+print('SECRET_KEY: ' + SECRET_KEY)
+print('DEBUG: ' + str(DEBUG))
 print('local settings loaded')
 
 if ENV == 'prod':
