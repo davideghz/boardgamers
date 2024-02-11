@@ -146,10 +146,13 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
+print(ENV)
+print(SECRET_KEY)
+print(DEBUG)
+print('local settings loaded')
+
 if ENV == 'prod':
     try:
         from .production_settings import *
     except ImportError:
         pass
-
-print('local settings loaded')

@@ -11,4 +11,11 @@ ALLOWED_HOSTS = ['boardgamers-b44b863a1d98.herokuapp.com']
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 MIDDLEWARE += ['whitenoise.middleware.WhiteNoiseMiddleware',]
 
+ENV = env('ENV')
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+DEBUG = env('DEBUG')
+
+print(ENV)
+print(SECRET_KEY)
+print(DEBUG)
 print('prod settings loaded')
