@@ -35,6 +35,9 @@ MIDDLEWARE = [
 # Application definition
 
 INSTALLED_APPS = [
+    # admin
+    'django.contrib.admin',
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -47,9 +50,6 @@ INSTALLED_APPS = [
     # autocompletes
     'dal',
     'dal_select2',
-
-    # admin
-    'django.contrib.admin',
 ]
 
 print(MIDDLEWARE)
