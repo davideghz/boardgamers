@@ -151,3 +151,5 @@ if ENV == 'prod':
         from .production_settings import *
     except ImportError:
         pass
+
+print(env)
