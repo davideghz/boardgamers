@@ -8,6 +8,9 @@ env = environ.Env(
     DJANGO_SECRET_KEY=(str, secrets.token_urlsafe(nbytes=64))
 )
 
+# Loading test/prod settings based on ENV settings
+ENV = env('ENV')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -145,9 +148,6 @@ EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = '8c0728e4c565c7'
 EMAIL_HOST_PASSWORD = '4370647c470f03'
 EMAIL_PORT = '2525'
-
-# Loading test/prod settings based on ENV settings
-ENV = env('ENV')
 
 if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)
