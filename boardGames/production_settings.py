@@ -1,4 +1,4 @@
-from settings import *
+from boardGames.settings import *
 import dj_database_url
 
 # Quick-start development settings - unsuitable for production
