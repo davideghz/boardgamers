@@ -1,6 +1,8 @@
 import os
 import secrets
 from pathlib import Path
+
+import dj_database_url
 import environ
 
 env = environ.Env(
