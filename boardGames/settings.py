@@ -142,12 +142,12 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
-if ENV == 'prod':
-    # Quick-start development settings - unsuitable for production
-    # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-    try:
-        ALLOWED_HOSTS = ['boardgamers-b44b863a1d98.herokuapp.com']
-        DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-        MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
-    except ImportError:
-        pass
+# if ENV == 'prod':
+#     # Quick-start development settings - unsuitable for production
+#     # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+#     try:
+#         ALLOWED_HOSTS = ['boardgamers-b44b863a1d98.herokuapp.com']
+#         DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+#         MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
+#     except ImportError:
+#         pass
