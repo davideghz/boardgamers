@@ -10,6 +10,4 @@ env = environ.Env()
 ALLOWED_HOSTS = ['boardgamers-b44b863a1d98.herokuapp.com']
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
-print(MIDDLEWARE)
-
 print('prod settings loaded')
