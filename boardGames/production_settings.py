@@ -1,4 +1,4 @@
-from django.conf.global_settings import DATABASES, MIDDLEWARE
+from django.conf.global_settings import DATABASES
 import environ
 import dj_database_url
 
