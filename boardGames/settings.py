@@ -5,8 +5,7 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, True),
-    # DJANGO_SECRET_KEY=(str, secrets.token_urlsafe(nbytes=64)),
-    DJANGO_SECRET_KEY=(str, 'ciao'),
+    DJANGO_SECRET_KEY=(str, secrets.token_urlsafe(nbytes=64)),
     ENV=(str, 'local'),
 )
 
@@ -51,8 +50,6 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
 ]
-
-print(MIDDLEWARE)
 
 ROOT_URLCONF = 'boardGames.urls'
 
@@ -109,11 +106,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -123,14 +117,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DOMAIN = "localhost:8000"
-DOMAIN_PROTOCOL = 'http'
-DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 
 # EMAILS
 ENABLE_EMAIL_SIGNALS = True
@@ -147,15 +139,3 @@ if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware',)
-
-print('ENV: ' + ENV)
-print('SECRET_KEY: ' + SECRET_KEY)
-print('DEBUG: ' + str(DEBUG))
-print('local settings loaded')
-
-if ENV == 'prod':
-    try:
-        from .production_settings import *
-        MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
-    except ImportError:
-        pass
