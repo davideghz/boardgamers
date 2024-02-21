@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView, LogoutView, RedirectURLMixin
@@ -13,7 +14,9 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.views import generic, View
 
+from webapp import emails
 from webapp.forms import UserRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm
+from webapp.messages import MSG_EMAIL_VERIFICATION_CODE_SENT
 
 
 # SIGNUP
@@ -40,7 +43,7 @@ class CustomLoginView(LoginView):
         next_url = self.request.GET.get('next')
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return next_url
-        return reverse("table-index")
+        return reverse("home")
 
 
 class CustomLogoutView(LogoutView):
@@ -95,4 +98,11 @@ class VerifyEmailView(View):
             return redirect('login')
         else:
             messages.error(request, "Error. Invalid verification code.", extra_tags="danger")
-            return redirect("table-index")
+            return redirect("home")
+
+
+def send_email_verification_code(request):
+    emails.send_user_email_verification_code(request.user)
+    messages.info(request, MSG_EMAIL_VERIFICATION_CODE_SENT)
+    return redirect('home')
+

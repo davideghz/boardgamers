@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Prefetch
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
@@ -12,21 +14,9 @@ from webapp.models import Table, Comment, Player, UserProfile, Game
 
 
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
-    permission_denied_message = "You do not have permission to perform this action."
-    success_url_name = ''
-
     def test_func(self):
         obj = self.get_object()
         return obj.author.user == self.request.user or self.request.user.is_staff
-
-    def handle_no_permission(self):
-        if self.raise_exception or self.request.user.is_authenticated:
-            messages.error(self.request, self.permission_denied_message, extra_tags="danger")
-            return redirect(self.success_url_name)
-        return super().handle_no_permission()
-
-    def get_success_url(self):
-        return reverse(self.success_url_name)
 
 
 class TableIndexView(generic.ListView):
@@ -131,9 +121,17 @@ class CommentDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMes
         return reverse_lazy('table-detail', kwargs={'slug': table.slug})
 
 
-class JoinTableView(LoginRequiredMixin, generic.CreateView):
+class JoinTableView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView):
     model = Player
     form_class = JoinTableForm
+    success_message = "Table joined!"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.user_profile.is_email_verified:
+            messages.error(request, 'Verify email to join table.', extra_tags='danger')
+            return redirect('table-detail', self.kwargs['slug'])
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         # Redirect to table detail page using slug

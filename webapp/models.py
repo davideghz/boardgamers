@@ -3,9 +3,14 @@ import uuid
 import random
 import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
 
 
@@ -104,6 +109,14 @@ class UserProfile(DateTimeModel):
     @property
     def username(self):
         return self.user.username
+
+    @staticmethod
+    def get_activation_link(user):
+        params = {
+            'uidb64': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': default_token_generator.make_token(user),
+        }
+        return settings.DOMAIN_URL + reverse('email_verify', kwargs=params)
 
     def __str__(self):
         return self.username

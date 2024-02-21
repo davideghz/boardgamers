@@ -125,6 +125,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DOMAIN = "localhost:8000"
+DOMAIN_PROTOCOL = 'http'
+DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 
 # EMAILS
 ENABLE_EMAIL_SIGNALS = True
@@ -141,13 +144,3 @@ if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware',)
-
-# if ENV == 'prod':
-#     # Quick-start development settings - unsuitable for production
-#     # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-#     try:
-#         ALLOWED_HOSTS = ['boardgamers-b44b863a1d98.herokuapp.com']
-#         DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-#         MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
-#     except ImportError:
-#         pass
