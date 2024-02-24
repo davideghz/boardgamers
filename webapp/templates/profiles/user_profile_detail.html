@@ -27,9 +27,24 @@
       <div class="col-12 col-md-5 col-lg-4 col-xl-3">
 
         <div class="card shadow border-0 mb-4">
-          <img src="https://picsum.photos/800/800" class="card-img-top img-fluid" alt="...">
+          <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{ userprofile.username }}</h5>
+
+            <form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
+              {% csrf_token %}
+              {{ form.avatar.label_tag }}
+              {{ form.avatar }}
+              {% if form.avatar.errors %}
+                {% for error in form.avatar.errors %}
+                  <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+              {% endif %}
+              <button type="submit" class="btn btn-primary">Carica</button>
+            </form>
+
+            {{ env }}
+
           </div>
         </div>
       </div>

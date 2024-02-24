@@ -1,9 +1,8 @@
 from django.urls import path
 
 from .forms import CustomLoginForm
-from .views import table_views, auth_views, location_views, game_views, static_page_views
+from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views
 from .views.autocompletes import StateAutocomplete, GamesAutocomplete, LocationAutocomplete
-from .views.profile_views import UserProfileDetailView
 
 urlpatterns = [
   # STATIC
@@ -26,7 +25,8 @@ urlpatterns = [
   path("games/<slug:slug>/", game_views.GameDetailView.as_view(), name="game-detail"),
 
   # USER PROFILES
-  path('users/<str:username>/', UserProfileDetailView.as_view(), name='user-profile-detail'),
+  path('users/<str:username>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
+  path('users/upload-avatar', profile_views.upload_avatar, name='upload-avatar'),
 
   # AUTOCOMPLETES
   path('state-autocomplete/', StateAutocomplete.as_view(), name='state-autocomplete'),

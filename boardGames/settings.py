@@ -1,15 +1,25 @@
 import os
 import secrets
 from pathlib import Path
-
-import dj_database_url
 import environ
 
 env = environ.Env(
     DEBUG=(bool, True),
-    DJANGO_SECRET_KEY=(str, secrets.token_urlsafe(nbytes=64)),
+    DJANGO_SECRET_KEY=(str, 'django-secret-key'),
     ENV=(str, 'local'),
+    AWS_S3_ACCESS_KEY_ID=(str, ''),
+    AWS_S3_SECRET_ACCESS_KEY=(str, '')
 )
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+# todo: che cazzo è sto .parent.parent ? rivedere...
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 ENV = env('ENV')
 SECRET_KEY = env('DJANGO_SECRET_KEY')
@@ -19,9 +29,6 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1'
 ]
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,6 +58,9 @@ INSTALLED_APPS = [
     # autocompletes
     'dal',
     'dal_select2',
+
+    # AWS S3
+    'storages',
 ]
 
 ROOT_URLCONF = 'boardGames.urls'
@@ -114,11 +124,22 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
 
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
+
+DEFAULT_AVATAR_URL = 'images/avatar.webp'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -139,6 +160,28 @@ EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = '8c0728e4c565c7'
 EMAIL_HOST_PASSWORD = '4370647c470f03'
 EMAIL_PORT = '2525'
+
+# FILES UPLOAD
+
+AWS_S3_ACCESS_KEY_ID = env('AWS_S3_SECRET_ACCESS_KEY')
+AWS_S3_SECRET_ACCESS_KEY = env('AWS_S3_SECRET_ACCESS_KEY')
+
+AWS_STORAGE_BUCKET_NAME = 'boardgamers-prod-public'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+
+# s3 static settings
+# AWS_LOCATION = 'static'
+# STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# s3 public media settings
+PUBLIC_MEDIA_LOCATION = 'media'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+DEFAULT_FILE_STORAGE = 'boardGames.storage_backends.PublicMediaStorage'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 15  # 5MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
 
 if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)

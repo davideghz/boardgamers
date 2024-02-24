@@ -12,12 +12,12 @@ from dal import autocomplete
 
 class CustomTextInputWidget(TextInput):
     def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
+        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, 'autocomplete': 'new-password', **(attrs or {})})
 
 
 class CustomPasswordInputWidget(PasswordInput):
     def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
+        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, 'autocomplete': 'new-password', **(attrs or {})})
 
 
 class CustomSelectWidget(Select):
@@ -194,6 +194,12 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
             state=self.cleaned_data['state'])
         user_profile.save()
         return user, user_profile
+
+
+class UserProfileAvatarForm(ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['avatar']
 
 
 class JoinTableForm(ModelForm, BootstrapForm):

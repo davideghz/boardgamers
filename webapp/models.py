@@ -10,8 +10,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
+from django.utils.functional import cached_property
 from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
+
+from webapp.storage_backends import PublicMediaStorage
 
 
 class DateTimeModel(models.Model):
@@ -101,6 +104,7 @@ class UserProfile(DateTimeModel):
     state = models.ForeignKey(State, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, storage=PublicMediaStorage())
 
     class Meta:
         verbose_name = "Profile"
@@ -109,6 +113,13 @@ class UserProfile(DateTimeModel):
     @property
     def username(self):
         return self.user.username
+
+    @cached_property
+    def avatar_url(self):
+        if self.avatar and hasattr(self.avatar, 'url'):
+            return self.avatar.url
+        else:
+            return settings.STATIC_URL + settings.DEFAULT_AVATAR_URL
 
     @staticmethod
     def get_activation_link(user):
