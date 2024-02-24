@@ -76,9 +76,10 @@ class Location(DateTimeModel, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
+    creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     description = models.TextField()
-    address = models.CharField(max_length=255)
-    city = models.CharField(max_length=144)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     is_private = models.BooleanField(default=True)

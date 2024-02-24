@@ -1,11 +1,9 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import transaction
-from django.forms import ModelForm, CharField, ModelChoiceField, DecimalField, TextInput, PasswordInput, Textarea, \
-    Select, ChoiceField, Form, EmailInput, NumberInput, DateInput, DateTimeInput, DateField, TimeInput, FileInput, \
-    ImageField, HiddenInput, CheckboxInput
-from webapp.models import Table, UserProfile, Comment, Player
+from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
+    Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput
+from webapp.models import Table, UserProfile, Comment, Player, Location
 
 from django.utils.translation import gettext_lazy as _
 from dal import autocomplete
@@ -13,12 +11,14 @@ from dal import autocomplete
 
 class CustomTextInputWidget(TextInput):
     def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, 'autocomplete': 'new-password', **(attrs or {})})
+        super().__init__(attrs={
+            'class': 'form-control', 'placeholder': placeholder, 'autocomplete': 'new-password', **(attrs or {})})
 
 
 class CustomPasswordInputWidget(PasswordInput):
     def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, 'autocomplete': 'new-password', **(attrs or {})})
+        super().__init__(attrs={
+            'class': 'form-control', 'placeholder': placeholder, 'autocomplete': 'new-password', **(attrs or {})})
 
 
 class CustomSelectWidget(Select):
@@ -50,7 +50,10 @@ class CustomNumberWidget(NumberInput):
 
 class CustomDateInputWidget(DateInput):
     def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={'type': 'date', 'class': 'form-control date-input', 'placeholder': placeholder, **(attrs or {})})
+        super().__init__(attrs={
+            'type': 'date',
+            'class': 'form-control date-input',
+            'placeholder': placeholder, **(attrs or {})})
 
 
 class CustomTimeInputWidget(TimeInput):
@@ -72,12 +75,11 @@ class CustomFileInputWidget(FileInput):
 
 
 class CustomCheckboxInputWidget(CheckboxInput):
-    def __init__(self, attrs=None, placeholder=""):
+    def __init__(self, attrs=None):
         super().__init__(attrs={
             'class': 'form-check-input',
             'role': 'switch',
             'autocomplete': 'new-password', **(attrs or {})})
-
 
 
 class BootstrapForm(Form):
@@ -113,7 +115,6 @@ class BootstrapForm(Form):
 
 
 class TableForm(ModelForm, BootstrapForm):
-
     class Meta:
         model = Table
         exclude = ['slug', 'author']
@@ -121,14 +122,14 @@ class TableForm(ModelForm, BootstrapForm):
             'location': autocomplete.ModelSelect2(
                 url='location-autocomplete',
                 attrs={
-                   'data-placeholder': _('Select Location'),
-                   # 'data-minimum-input-length': 3
+                    'data-placeholder': _('Select Location'),
+                    # 'data-minimum-input-length': 3
                 }),
             'games': autocomplete.ModelSelect2Multiple(
                 url='games-autocomplete',
                 attrs={
-                   'data-placeholder': _('Games'),
-                   # 'data-minimum-input-length': 1
+                    'data-placeholder': _('Games'),
+                    # 'data-minimum-input-length': 1
                 }),
         }
 
@@ -195,9 +196,9 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
 
 
 class UserProfileForm(ModelForm, BootstrapForm):
-    city = CharField(widget=HiddenInput(), required=False,)
-    latitude = CharField(widget=HiddenInput(), required=False,)
-    longitude = CharField(widget=HiddenInput(), required=False,)
+    city = CharField(widget=HiddenInput(), required=False, )
+    latitude = CharField(widget=HiddenInput(), required=False, )
+    longitude = CharField(widget=HiddenInput(), required=False, )
 
     class Meta:
         model = UserProfile
@@ -214,3 +215,9 @@ class JoinTableForm(ModelForm, BootstrapForm):
     class Meta:
         model = Player
         fields = []
+
+
+class LocationForm(ModelForm, BootstrapForm):
+    class Meta:
+        model = Location
+        fields = ['name', 'creator', 'description', 'address', 'city', 'latitude', 'longitude', 'is_private']

@@ -4,16 +4,20 @@
 {% load i18n %}
 
 {% block breadcrumbs %}
-  <nav aria-label="breadcrumb" class="py-1">
-    <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item fs-6">
-        <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
-      </li>
-      <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>locations</small></a>
-      </li>
-      <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ location.name }}</small></li>
-    </ol>
-  </nav>
+  <div class="container-fluid px-0 bg-white border-bottom">
+    <div class="container">
+      <nav aria-label="breadcrumb" class="py-1">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item fs-6">
+            <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
+          </li>
+          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>locations</small></a>
+          </li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ location.name }}</small></li>
+        </ol>
+      </nav>
+    </div>
+  </div>
 {% endblock %}
 
 {% block content %}

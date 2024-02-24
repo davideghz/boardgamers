@@ -19,6 +19,8 @@ urlpatterns = [
   path('comments/<uuid:uuid>/delete', table_views.CommentDeleteView.as_view(), name='comment-delete'),
 
   # LOCATIONS
+  path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
+  path("locations/<slug:slug>/edit", location_views.LocationUpdateView.as_view(), name="location-create"),
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
 
   # GAMES
