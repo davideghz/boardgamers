@@ -60,14 +60,6 @@ class SlugModel(models.Model):
         super().save(*args, **kwargs)
 
 
-class State(models.Model):
-    name = models.CharField(max_length=128, unique=True)
-    slug = models.SlugField(max_length=128, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
 class Game(DateTimeModel, SlugModel):
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
@@ -87,9 +79,9 @@ class Location(DateTimeModel, SlugModel):
     description = models.TextField()
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=144)
-    state = models.ForeignKey(State, on_delete=models.SET_NULL, related_name='locations', null=True, blank=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    is_private = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -99,11 +91,10 @@ class UserProfile(DateTimeModel):
     is_email_verified = models.BooleanField(default=False, db_index=True)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, related_name='user_profile', on_delete=models.CASCADE)
-    address = models.CharField(max_length=255)
-    city = models.CharField(max_length=144)
-    state = models.ForeignKey(State, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
-    latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    address = models.CharField(max_length=350)
+    city = models.CharField(max_length=144, null=True, blank=True)
+    latitude = models.CharField(max_length=12, null=True, blank=True)
+    longitude = models.CharField(max_length=13, null=True, blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, storage=PublicMediaStorage())
 
     class Meta:
@@ -139,7 +130,6 @@ class Table(DateTimeModel, SlugModel):
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
     content = models.TextField(null=False, blank=True)
-    state = models.ForeignKey(State, on_delete=models.SET_NULL, related_name='tables', null=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True)
 
     max_players = models.SmallIntegerField(null=False, blank=True, default=4)

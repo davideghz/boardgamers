@@ -1,5 +1,5 @@
 from django.contrib import admin
-from webapp.models import UserProfile, Table, Comment, State, Player, Location, Game
+from webapp.models import UserProfile, Table, Comment, Player, Location, Game
 
 
 @admin.register(UserProfile)
@@ -20,11 +20,6 @@ class TableAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ("uuid", "table", "author", "content")
-
-
-@admin.register(State)
-class StateAdmin(admin.ModelAdmin):
-    prepopulated_fields = {"slug": ["name"]}
 
 
 @admin.register(Player)

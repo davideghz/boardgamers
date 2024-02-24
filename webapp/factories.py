@@ -5,7 +5,7 @@ import factory
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 from django.contrib.auth.models import User
-from .models import UserProfile, State, Table, Comment, Player, Game, Location
+from .models import UserProfile, Table, Comment, Player, Game, Location
 from faker import Faker
 
 faker = Faker()
@@ -35,7 +35,6 @@ class UserProfileFactory(DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     address = factory.LazyFunction(faker.address)
     city = factory.LazyFunction(faker.city)
-    state = factory.LazyAttribute(lambda _: random.choice(State.objects.all()))
     latitude = 45
     longitude = 45
 
@@ -52,7 +51,6 @@ class LocationFactory(DjangoModelFactory):
     description = factory.LazyFunction(faker.sentence)
     address = factory.LazyFunction(faker.address)
     city = factory.LazyFunction(faker.city)
-    state = factory.LazyAttribute(lambda _: random.choice(State.objects.filter(name="Milano")))
     latitude = factory.LazyFunction(faker.latitude)
     longitude = factory.LazyFunction(faker.longitude)
 
@@ -85,7 +83,6 @@ class TableFactory(DjangoModelFactory):
     title = factory.LazyFunction(faker.sentence)
     content = factory.LazyFunction(faker.text)
     author = factory.LazyAttribute(lambda _: random.choice(UserProfile.objects.all()))
-    state = factory.LazyAttribute(lambda _: random.choice(State.objects.all()))
     location = factory.LazyAttribute(lambda _: random.choice(Location.objects.all()))
     date = factory.LazyFunction(generate_date_next_week)
     time = factory.LazyFunction(generate_random_time)

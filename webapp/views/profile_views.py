@@ -1,10 +1,13 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.models import User
 
 from boardGames.settings import env
-from webapp.forms import UserProfileAvatarForm
+from webapp.forms import UserProfileAvatarForm, UserProfileForm
 from webapp.models import UserProfile, Table
 
 
@@ -24,6 +27,19 @@ class UserProfileDetailView(DetailView):
         context['form'] = form = UserProfileAvatarForm(instance=user_profile)
         context['env'] = env('AWS_S3_SECRET_ACCESS_KEY')
         return context
+
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'profiles/user_profile_edit.html'
+
+    def get_object(self, queryset=None):
+        return UserProfile.objects.get(user=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('user-profile-detail', args=[self.request.user.username])
+
 
 
 @login_required

@@ -3,8 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import ModelForm, CharField, ModelChoiceField, DecimalField, TextInput, PasswordInput, Textarea, \
-    Select, ChoiceField, Form, EmailInput, NumberInput, DateInput, DateTimeInput, DateField, TimeInput, FileInput
-from webapp.models import Table, State, UserProfile, Comment, Player
+    Select, ChoiceField, Form, EmailInput, NumberInput, DateInput, DateTimeInput, DateField, TimeInput, FileInput, \
+    ImageField, HiddenInput
+from webapp.models import Table, UserProfile, Comment, Player
 
 from django.utils.translation import gettext_lazy as _
 from dal import autocomplete
@@ -95,7 +96,10 @@ class BootstrapForm(Form):
                 field.widget = CustomFileInputWidget()
 
             if self.errors.get(field_name):
-                field.widget.attrs['class'] += ' is-invalid'
+                if 'class' in field.widget.attrs:
+                    field.widget.attrs['class'] += ' is-invalid'
+                else:
+                    field.widget.attrs['class'] = 'is-invalid'
 
 
 class TableForm(ModelForm, BootstrapForm):
@@ -104,15 +108,8 @@ class TableForm(ModelForm, BootstrapForm):
         model = Table
         exclude = ['slug', 'author']
         widgets = {
-            'state': autocomplete.ModelSelect2(
-                url='state-autocomplete',
-                attrs={
-                   'data-placeholder': _('Select State'),
-                   # 'data-minimum-input-length': 3
-                }),
             'location': autocomplete.ModelSelect2(
                 url='location-autocomplete',
-                forward=['state'],
                 attrs={
                    'data-placeholder': _('Select Location'),
                    # 'data-minimum-input-length': 3
@@ -167,32 +164,13 @@ class CustomSetPasswordForm(SetPasswordForm):
         self.fields['new_password2'].widget = CustomPasswordInputWidget()
 
 
-
 class UserRegistrationForm(UserCreationForm, BootstrapForm):
     address = CharField(max_length=255)
     city = CharField(max_length=144)
-    state = ModelChoiceField(
-        queryset=State.objects.all(),
-        required=False,
-        widget=autocomplete.ModelSelect2(
-            url='state-autocomplete',
-            attrs={
-                'data-placeholder': _('Select State'),
-            },
-        )
-    )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'address', 'city', 'state']
-        # widgets = {
-        #     'state': autocomplete.ModelSelect2(
-        #         url='state-autocomplete',
-        #         attrs={
-        #             'data-placeholder': _('Select State'),
-        #             # 'data-minimum-input-length': 3
-        #         })
-        # }
+        fields = ['username', 'email', 'password1', 'password2', 'address', 'city']
 
     def save(self, commit=True):
         if not commit:
@@ -201,10 +179,19 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
         user_profile = UserProfile(
             user=user,
             address=self.cleaned_data['address'],
-            city=self.cleaned_data['city'],
-            state=self.cleaned_data['state'])
+            city=self.cleaned_data['city'])
         user_profile.save()
         return user, user_profile
+
+
+class UserProfileForm(ModelForm, BootstrapForm):
+    city = CharField(widget=HiddenInput(), required=False,)
+    latitude = CharField(widget=HiddenInput(), required=False,)
+    longitude = CharField(widget=HiddenInput(), required=False,)
+
+    class Meta:
+        model = UserProfile
+        fields = ['address', 'city', 'latitude', 'longitude']
 
 
 class UserProfileAvatarForm(ModelForm, BootstrapForm):

@@ -15,7 +15,7 @@ class HomepageView(generic.ListView):
         players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
         games_prefetch = Prefetch('games', queryset=Game.objects.all())
         today = timezone.now().date()
-        return Table.objects.select_related('state', 'author', 'author__user', 'location').prefetch_related(
+        return Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch,
             players_prefetch,
             games_prefetch,

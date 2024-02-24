@@ -10,8 +10,6 @@
           <li class="breadcrumb-item fs-6">
             <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
           </li>
-          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>{{ table.state }}</small></a>
-          </li>
           <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ table.title|truncatechars:25 }}</small>
           </li>
         </ol>

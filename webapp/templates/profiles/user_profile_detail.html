@@ -11,8 +11,6 @@
           <li class="breadcrumb-item fs-6">
             <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
           </li>
-          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>users</small></a>
-          </li>
           <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ userprofile.username }}</small></li>
         </ol>
       </nav>
@@ -25,28 +23,7 @@
     <div class="row">
       <!-- user avatar -->
       <div class="col-12 col-md-5 col-lg-4 col-xl-3">
-
-        <div class="card shadow border-0 mb-4">
-          <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{ userprofile.username }}</h5>
-
-            <form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
-              {% csrf_token %}
-              <div class="mb-3">
-                {{ form.avatar.label_tag }}
-                {{ form.avatar }}
-              </div>
-              {% if form.avatar.errors %}
-                {% for error in form.avatar.errors %}
-                  <div class="alert alert-danger">{{ error }}</div>
-                {% endfor %}
-              {% endif %}
-              <button type="submit" class="btn btn-primary">Carica</button>
-            </form>
-
-          </div>
-        </div>
+        {% include 'profiles/_avatar.html' %}
       </div>
 
       <!-- user data -->
@@ -56,7 +33,6 @@
             <h1>{{ userprofile.username }}</h1>
             <p>Indirizzo: {{ userprofile.address }}</p>
             <p>Città: {{ userprofile.city }}</p>
-            <p>Stato: {{ userprofile.state.name }}</p>
           </div>
         </div>
         <div class="row">
@@ -64,13 +40,25 @@
             <h2>{% trans "Joined tables" %}</h2>
           </div>
         </div>
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 g-4">
-          {% for table in tables %}
-            {% table_list_item table %}
-          {% empty %}
-            <p>{% trans "No tables found." %}</p>
-          {% endfor %}
-        </div>
+        {% if userprofile.is_email_verified %}
+          <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 g-4">
+            {% for table in tables %}
+              {% table_list_item table %}
+            {% empty %}
+              <p>{% trans "No tables found." %}</p>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p>
+            <i class="bi bi-exclamation-circle"></i>
+            {% trans "Your email is not verified. Verify your email to join tables." %}
+            <a href="{% url "send_email_verification_code" %}"
+               class="link-offset-3 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
+              {% trans "CLICK HERE" %}
+            </a>
+            {% trans "to receive a new verification email." %}
+          </p>
+        {% endif %}
       </div>
     </div>
   </div>

@@ -27,7 +27,7 @@ class TableIndexView(generic.ListView):
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
         games_prefetch = Prefetch('games', queryset=Game.objects.all())
-        return Table.objects.select_related('state', 'author', 'author__user', 'location').prefetch_related(
+        return Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch,
             players_prefetch,
             games_prefetch,

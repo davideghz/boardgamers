@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<div class="card shadow border-0 mb-4">
+  <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">{{ userprofile.username }}</h5>
+
+    <form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        {{ form.avatar.label_tag }}
+        {{ form.avatar }}
+      </div>
+      {% if form.avatar.errors %}
+        {% for error in form.avatar.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+      <button type="submit" class="btn btn-primary">Carica</button>
+    </form>
+
+    <a href="{% url "user-profile-edit" userprofile.username %}">{% trans 'EDIT PROFILE' %}</a>
+
+  </div>
+</div>
