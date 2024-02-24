@@ -33,8 +33,10 @@
 
             <form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
               {% csrf_token %}
-              {{ form.avatar.label_tag }}
-              {{ form.avatar }}
+              <div class="mb-3">
+                {{ form.avatar.label_tag }}
+                {{ form.avatar }}
+              </div>
               {% if form.avatar.errors %}
                 {% for error in form.avatar.errors %}
                   <div class="alert alert-danger">{{ error }}</div>
@@ -42,8 +44,6 @@
               {% endif %}
               <button type="submit" class="btn btn-primary">Carica</button>
             </form>
-
-            {{ env }}
 
           </div>
         </div>

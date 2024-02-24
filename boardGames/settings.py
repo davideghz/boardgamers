@@ -3,23 +3,22 @@ import secrets
 from pathlib import Path
 import environ
 
-env = environ.Env(
-    DEBUG=(bool, True),
-    DJANGO_SECRET_KEY=(str, 'django-secret-key'),
-    ENV=(str, 'local'),
-    AWS_S3_ACCESS_KEY_ID=(str, ''),
-    AWS_S3_SECRET_ACCESS_KEY=(str, '')
-)
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-# todo: che cazzo è sto .parent.parent ? rivedere...
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+print(BASE_DIR)
+print(PROJECT_ROOT)
+print(os.path.join(BASE_DIR, '.env'))
+
+print(env('AWS_S3_SECRET_ACCESS_KEY'))
 
 ENV = env('ENV')
 SECRET_KEY = env('DJANGO_SECRET_KEY')
@@ -90,7 +89,7 @@ WSGI_APPLICATION = 'boardGames.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -163,7 +162,7 @@ EMAIL_PORT = '2525'
 
 # FILES UPLOAD
 
-AWS_S3_ACCESS_KEY_ID = env('AWS_S3_SECRET_ACCESS_KEY')
+AWS_S3_ACCESS_KEY_ID = env('AWS_S3_ACCESS_KEY_ID')
 AWS_S3_SECRET_ACCESS_KEY = env('AWS_S3_SECRET_ACCESS_KEY')
 
 AWS_STORAGE_BUCKET_NAME = 'boardgamers-prod-public'

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import ModelForm, CharField, ModelChoiceField, DecimalField, TextInput, PasswordInput, Textarea, \
-    Select, ChoiceField, Form, EmailInput, NumberInput, DateInput, DateTimeInput, DateField, TimeInput
+    Select, ChoiceField, Form, EmailInput, NumberInput, DateInput, DateTimeInput, DateField, TimeInput, FileInput
 from webapp.models import Table, State, UserProfile, Comment, Player
 
 from django.utils.translation import gettext_lazy as _
@@ -62,6 +62,15 @@ class CustomTimeInputWidget(TimeInput):
         }, format=time_format)
 
 
+class CustomFileInputWidget(FileInput):
+    def __init__(self, attrs=None, placeholder=""):
+        super().__init__(attrs={
+            'class': 'form-control',
+            'placeholder': placeholder,
+            'autocomplete': 'new-password', **(attrs or {})})
+
+
+
 class BootstrapForm(Form):
     def __init__(self, *args, **kwargs):
         super(Form, self).__init__(*args, **kwargs)
@@ -82,6 +91,8 @@ class BootstrapForm(Form):
                 field.widget = CustomEmailWidget()
             elif isinstance(field.widget, NumberInput):
                 field.widget = CustomNumberWidget()
+            elif isinstance(field.widget, FileInput):
+                field.widget = CustomFileInputWidget()
 
             if self.errors.get(field_name):
                 field.widget.attrs['class'] += ' is-invalid'
@@ -196,7 +207,7 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
         return user, user_profile
 
 
-class UserProfileAvatarForm(ModelForm):
+class UserProfileAvatarForm(ModelForm, BootstrapForm):
     class Meta:
         model = UserProfile
         fields = ['avatar']
