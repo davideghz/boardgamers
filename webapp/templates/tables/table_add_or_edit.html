@@ -7,6 +7,38 @@
 {% endblock style %}
 
 {% block content %}
+
+  <style>
+      .custom-switch .form-check-input {
+          width: 3rem; /* Larghezza dello switch */
+          height: 1.5rem; /* Altezza dello switch */
+          margin-left: -2.25rem;
+      }
+
+      .custom-switch .form-check-input:checked + .form-check-label::before {
+          background-color: #0d6efd; /* Colore di sfondo quando è selezionato */
+          border-color: #0d6efd; /* Colore del bordo quando è selezionato */
+      }
+
+      .custom-switch .form-check-input::before {
+          height: 1.5rem; /* Altezza dell'indicatore dello switch */
+          width: 3rem; /* Larghezza dell'indicatore dello switch */
+          border-radius: 1rem; /* Raggio del bordo per rendere gli angoli arrotondati */
+      }
+
+      .custom-switch .form-check-input::after {
+          width: 1.25rem; /* Larghezza dell'interruttore interno */
+          height: 1.25rem; /* Altezza dell'interruttore interno */
+          border-radius: 50%; /* Rende l'interruttore interno circolare */
+      }
+
+      .custom-switch label {
+          width: 90%;
+          padding-left: 15px;
+      }
+  </style>
+
+
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"
           integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   {{ form.media }}
@@ -24,20 +56,15 @@
             {% endif %}
           </h1>
 
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "If you organized a table in a public location, you can select it here." %}</small>
-          <div class="form-floating mb-3">
-            {{ form.location }}
-          </div>
-
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert date and time of the game." %}</small>
+          <small class="d-block pb-2 text-secondary">{% trans "Insert the date and time of the game." %}</small>
           <div class="row">
             <div class="col">
               <div class="form-floating mb-3">
                 {{ form.date }}
                 {{ form.date.label_tag|cut:":" }}
-                {% if form.content.errors %}
+                {% if form.date.errors %}
                   <div class="invalid-feedback">
-                    {% for error in form.content.errors %}
+                    {% for error in form.date.errors %}
                       {{ error }}
                     {% endfor %}
                   </div>
@@ -48,9 +75,9 @@
               <div class="form-floating mb-3">
                 {{ form.time }}
                 {{ form.time.label_tag|cut:":" }}
-                {% if form.content.errors %}
+                {% if form.time.errors %}
                   <div class="invalid-feedback">
-                    {% for error in form.content.errors %}
+                    {% for error in form.time.errors %}
                       {{ error }}
                     {% endfor %}
                   </div>
@@ -59,7 +86,8 @@
             </div>
           </div>
 
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Give your table a name and a description so it can be recognised!" %}</small>
+          <small
+              class="d-block pt-3 pb-2 text-secondary">{% trans "Give your table a name and a description so it can be recognised!" %}</small>
           <div class="form-floating mb-3">
             {{ form.title }}
             {{ form.title.label_tag|cut:":" }}
@@ -73,20 +101,93 @@
           </div>
 
           <div class="form-floating mb-3">
-            {{ form.content }}
-            {{ form.content.label_tag|cut:":" }}
-            {% if form.content.errors %}
+            {{ form.description }}
+            {{ form.description.label_tag|cut:":" }}
+            {% if form.description.errors %}
               <div class="invalid-feedback">
-                {% for error in form.content.errors %}
+                {% for error in form.description.errors %}
                   {{ error }}
                 {% endfor %}
               </div>
             {% endif %}
           </div>
 
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Add the games that will be played at this table" %}</small>
+          <small
+              class="d-block pt-3 pb-2 text-secondary">{% trans "Add the games that will be played at this table." %}</small>
           <div class="form-floating mb-3">
             {{ form.games }}
+          </div>
+
+          <small class="d-block pt-3 pb-2 text-secondary">
+            {% trans "How many players are invited to this table?" %}
+          </small>
+          <div class="row">
+            <div class="col">
+              <div class="form-floating mb-3">
+                {{ form.min_players }}
+                {{ form.min_players.label_tag|cut:":" }}
+                {% if form.min_players.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.min_players.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-floating mb-3">
+                {{ form.max_players }}
+                {{ form.max_players.label_tag|cut:":" }}
+                {% if form.max_players.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.max_players.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="form-check form-switch pt-3 pb-3 custom-switch">
+            {{ form.is_public_location }}
+            <label class="form-check-label" for="id_is_public_location">
+              {% trans "Click here if the table is organized in a public location (like a bar, or a board games café)." %}</label>
+          </div>
+
+          <div id="public-location" class="d-none mb-3">
+            <small class="d-block text-secondary">
+              {% trans "If you organized a table in a public location, you can select it here." %}</small>
+            <small class="d-block pb-2 text-secondary">
+              {% trans "(Be sure to book the Location in advance. Creating a table here does not guarantee there will be space at the location at the desired date and time.)" %}
+            </small>
+            <div class="form-floating mb-3">
+              {{ form.location }}
+            </div>
+            <small class="text-secondary">
+              {% trans "Can't find the desired location?" %}
+              <a class="btn btn-sm btn-outline-secondary" href="#" target="_blank">
+                <i class="bi bi-box-arrow-up-right"></i> {% trans "CREATE A NEW LOCATION" %}
+              </a>
+            </small>
+          </div>
+
+          <div id="address">
+            <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert your Address. We will use it to show near tables." %}</small>
+            <div class="form-floating mb-3">
+              {{ form.address }}
+              {{ form.address.label_tag|cut:":" }}
+              {% if form.address.errors %}
+                <div class="invalid-feedback">
+                  {% for error in form.address.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
           </div>
 
           <div class="row">
@@ -130,6 +231,25 @@
                   input.value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
               });
           });
+      });
+  </script>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          var switchElement = document.getElementById('id_is_public_location');
+          var publicLocationDiv = document.getElementById('public-location');
+          var locationSelect = document.getElementById('id_location');
+
+          function togglePublicLocationVisibility() {
+              if (switchElement.checked) {
+                  publicLocationDiv.classList.remove('d-none');
+              } else {
+                  publicLocationDiv.classList.add('d-none');
+                  $(locationSelect).val(null).trigger('change');
+              }
+          }
+          switchElement.addEventListener('change', togglePublicLocationVisibility);
+          togglePublicLocationVisibility();
       });
   </script>
 {% endblock %}

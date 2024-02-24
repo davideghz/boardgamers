@@ -9,7 +9,7 @@
     </div>
     <a class="card-body text-decoration-none" href="{% url "table-detail" table.slug %}">
       <p class="h5 card-title">{{ table.title|truncatechars:50 }}</p>
-      <p class="card-text text-secondary"><small>{{ table.content|truncatechars:144 }}</small></p>
+      <p class="card-text text-secondary"><small>{{ table.description|truncatechars:144 }}</small></p>
     </a>
     <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">
       <i class="bi bi-person-fill"></i> <small>{{ table.author.user.username }}</small>

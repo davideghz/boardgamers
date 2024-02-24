@@ -129,12 +129,14 @@ class Table(DateTimeModel, SlugModel):
     title = models.CharField(max_length=144, null=False, blank=True)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    content = models.TextField(null=False, blank=True)
+    description = models.TextField(null=False, blank=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True)
 
-    max_players = models.SmallIntegerField(null=False, blank=True, default=4)
+    min_players = models.SmallIntegerField(null=False, blank=True, default=2)
+    max_players = models.SmallIntegerField(null=False, blank=True, default=5)
     date = models.DateField(default=datetime.date.today, null=False, blank=True)
     time = models.TimeField(default=timezone.now, null=False, blank=True)
+    is_public_location = models.BooleanField(default=False, null=False, blank=True)
 
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)

@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import ModelForm, CharField, ModelChoiceField, DecimalField, TextInput, PasswordInput, Textarea, \
     Select, ChoiceField, Form, EmailInput, NumberInput, DateInput, DateTimeInput, DateField, TimeInput, FileInput, \
-    ImageField, HiddenInput
+    ImageField, HiddenInput, CheckboxInput
 from webapp.models import Table, UserProfile, Comment, Player
 
 from django.utils.translation import gettext_lazy as _
@@ -71,6 +71,14 @@ class CustomFileInputWidget(FileInput):
             'autocomplete': 'new-password', **(attrs or {})})
 
 
+class CustomCheckboxInputWidget(CheckboxInput):
+    def __init__(self, attrs=None, placeholder=""):
+        super().__init__(attrs={
+            'class': 'form-check-input',
+            'role': 'switch',
+            'autocomplete': 'new-password', **(attrs or {})})
+
+
 
 class BootstrapForm(Form):
     def __init__(self, *args, **kwargs):
@@ -94,6 +102,8 @@ class BootstrapForm(Form):
                 field.widget = CustomNumberWidget()
             elif isinstance(field.widget, FileInput):
                 field.widget = CustomFileInputWidget()
+            elif isinstance(field.widget, CheckboxInput):
+                field.widget = CustomCheckboxInputWidget()
 
             if self.errors.get(field_name):
                 if 'class' in field.widget.attrs:
@@ -128,11 +138,11 @@ class TableForm(ModelForm, BootstrapForm):
             raise ValidationError("Title is too short")
         return title
 
-    def clean_content(self):
-        content = self.cleaned_data['content']
-        if content is None or len(content) < 30:
-            raise ValidationError("Content is too short")
-        return content
+    def clean_description(self):
+        description = self.cleaned_data['description']
+        if description is None or len(description) < 30:
+            raise ValidationError("Description is too short")
+        return description
 
 
 class CommentForm(ModelForm, BootstrapForm):

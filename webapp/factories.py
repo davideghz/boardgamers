@@ -81,7 +81,7 @@ class TableFactory(DjangoModelFactory):
         model = Table
 
     title = factory.LazyFunction(faker.sentence)
-    content = factory.LazyFunction(faker.text)
+    description = factory.LazyFunction(faker.text)
     author = factory.LazyAttribute(lambda _: random.choice(UserProfile.objects.all()))
     location = factory.LazyAttribute(lambda _: random.choice(Location.objects.all()))
     date = factory.LazyFunction(generate_date_next_week)
