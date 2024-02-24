@@ -1,0 +1,71 @@
+<script>
+    "use strict";
+
+    const CONFIGURATION = {
+        "mapOptions": {"center":{"lat":37.4221,"lng":-122.0841},"fullscreenControl":false,"mapTypeControl":false,"streetViewControl":false,"zoom":16,"zoomControl":true,"maxZoom":22,"mapId":""},
+    };
+
+    function getFormInputElement(componentType) {
+        return document.getElementById('id_address');
+    }
+
+    function renderAddress(place, map, marker) {
+        if (place.geometry && place.geometry.location) {
+            map.setCenter(place.geometry.location);
+            marker.position = place.geometry.location;
+        } else {
+            marker.position = null;
+        }
+    }
+    
+    function updateHiddenInputs(place) {
+        // Estrai la latitudine e la longitudine
+        const latitude = place.geometry.location.lat();
+        const longitude = place.geometry.location.lng();
+
+        // Trova il componente della città tra i componenti dell'indirizzo
+        let city = '';
+        for (const component of place.address_components) {
+            if (component.types.includes('locality')) {
+                city = component.long_name;
+                break;
+            }
+        }
+
+        // Assegna i valori ai campi nascosti
+        document.getElementById('id_city').value = city;
+        document.getElementById('id_latitude').value = latitude;
+        document.getElementById('id_longitude').value = longitude;
+    }
+
+    async function initMap() {
+        const {Map} = google.maps;
+        const {AdvancedMarkerElement} = google.maps.marker;
+        const {Autocomplete} = google.maps.places;
+
+        const mapOptions = CONFIGURATION.mapOptions;
+        mapOptions.mapId = mapOptions.mapId || 'DEMO_MAP_ID';
+        mapOptions.center = mapOptions.center || {lat: 37.4221, lng: -122.0841};
+
+        const map = new Map(document.getElementById('gmp-map'), mapOptions);
+        const marker = new AdvancedMarkerElement({map});
+        const autocomplete = new Autocomplete(getFormInputElement('location'), {
+            fields: ['address_components', 'geometry', 'name'],
+            types: ['address'],
+        });
+
+        autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            console.log(place);
+            if (!place.geometry) {
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                window.alert(`Please select an address from the autocomplete.`);
+                return;
+            }
+            renderAddress(place, map, marker);
+            updateHiddenInputs(place);
+        });
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-nP6SNj7I69cz67_5QyhwhmlzR5GiMl8&libraries=places,marker&callback=initMap" async defer></script>

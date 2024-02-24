@@ -24,10 +24,12 @@
             {% endif %}
           </h1>
 
+          <small class="d-block pt-3 pb-2 text-secondary">{% trans "If you organized a table in a public location, you can select it here." %}</small>
           <div class="form-floating mb-3">
             {{ form.location }}
           </div>
 
+          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert date and time of the game." %}</small>
           <div class="row">
             <div class="col">
               <div class="form-floating mb-3">
@@ -57,6 +59,7 @@
             </div>
           </div>
 
+          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Give your table a name and a description so it can be recognised!" %}</small>
           <div class="form-floating mb-3">
             {{ form.title }}
             {{ form.title.label_tag|cut:":" }}
@@ -81,9 +84,9 @@
             {% endif %}
           </div>
 
+          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Add the games that will be played at this table" %}</small>
           <div class="form-floating mb-3">
             {{ form.games }}
-            {#            {{ form.games.label_tag|cut:":" }}#}
           </div>
 
           <div class="row">
