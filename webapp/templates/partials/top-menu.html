@@ -27,8 +27,8 @@
               {{ user.username }} <i class="bi bi-person-circle"></i>
             </a>
             <ul class="dropdown-menu text-center text-lg-start dropdown-menu-md-end">
-              <li><a class="dropdown-item" href="{% url "user-profile-detail" user.user_profile %}">{% trans "Profile" %}</a></li>
-              <li><a class="dropdown-item" href="#">{% trans "Settings" %}</a></li>
+              <li><a class="dropdown-item" href="{% url "account-index" %}">{% trans "Account" %}</a></li>
+              <li><a class="dropdown-item" href="#">{% trans "Tables" %}</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
