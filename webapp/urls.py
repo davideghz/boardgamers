@@ -10,8 +10,8 @@ urlpatterns = [
 
   # TABLE
   path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
-  path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
   path("tables/new/", table_views.TableCreateView.as_view(), name="table-create"),
+  path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
   path("tables/<slug:slug>/edit/", table_views.TableUpdateView.as_view(), name="table-update"),
   path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
   path('tables/<slug:slug>/join/', table_views.JoinTableView.as_view(), name='join_table'),

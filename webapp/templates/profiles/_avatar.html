@@ -2,17 +2,21 @@
 
 <div class="card shadow border-0 mb-4 position-relative">
   <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">
-  <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
-          style="position: absolute; top:10px; right: 10px"
-          data-bs-target="#changeAvatarModal">
-    <i class="bi bi-camera-fill"></i>
-  </button>
+  {% if userprofile.user == user %}
+    <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
+            style="position: absolute; top:10px; right: 10px"
+            data-bs-target="#changeAvatarModal">
+      <i class="bi bi-camera-fill"></i>
+    </button>
+  {% endif %}
   <div class="card-body">
     <div class="d-flex align-items-center justify-content-between">
       <h5 class="card-title mb-0">{{ userprofile.username }}</h5>
-      <a class="btn btn-sm btn-dark" href="{% url "user-profile-edit" userprofile.username %}">
-        <i class="bi bi-gear-fill"></i> {% trans 'edit profile' %}
-      </a>
+      {% if userprofile.user == user %}
+        <a class="btn btn-sm btn-dark" href="{% url "user-profile-edit" userprofile.username %}">
+          <i class="bi bi-gear-fill"></i> {% trans 'edit profile' %}
+        </a>
+      {% endif %}
     </div>
   </div>
 </div>
