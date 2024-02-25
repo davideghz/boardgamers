@@ -26,7 +26,10 @@
 
         <!-- table -->
         <div class="card shadow border-0 mb-4">
-          <div class="card-header bg-white">
+          <div class="card-header" style="background-color: darkgoldenrod">
+
+          </div>
+          <div class="card-body">
             <div class="d-flex justify-content-between">
               <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
               {% if table.author.user == user %}
@@ -36,7 +39,7 @@
               {% endif %}
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body border-top">
             <small><strong>{% trans "Date and time" %}</strong></small>
             <br>
             <i class="bi bi-calendar4-event"></i> <small>{{ table.date|date:"j F" }}</small>

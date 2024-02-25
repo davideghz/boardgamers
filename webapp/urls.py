@@ -11,16 +11,16 @@ urlpatterns = [
   # TABLE
   path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
   path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
-  path("tables/new", table_views.TableCreateView.as_view(), name="table-create"),
-  path("tables/<slug:slug>/edit", table_views.TableUpdateView.as_view(), name="table-update"),
-  path("tables/<slug:slug>/delete", table_views.TableDeleteView.as_view(), name="table-delete"),
-  path('tables/<slug:slug>/join', table_views.JoinTableView.as_view(), name='join_table'),
-  path('tables/<slug:slug>/leave', table_views.LeaveTableView.as_view(), name='leave_table'),
-  path('comments/<uuid:uuid>/delete', table_views.CommentDeleteView.as_view(), name='comment-delete'),
+  path("tables/new/", table_views.TableCreateView.as_view(), name="table-create"),
+  path("tables/<slug:slug>/edit/", table_views.TableUpdateView.as_view(), name="table-update"),
+  path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
+  path('tables/<slug:slug>/join/', table_views.JoinTableView.as_view(), name='join_table'),
+  path('tables/<slug:slug>/leave/', table_views.LeaveTableView.as_view(), name='leave_table'),
+  path('comments/<uuid:uuid>/delete/', table_views.CommentDeleteView.as_view(), name='comment-delete'),
 
   # LOCATIONS
   path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
-  path("locations/<slug:slug>/edit", location_views.LocationUpdateView.as_view(), name="location-create"),
+  path("locations/<slug:slug>/edit/", location_views.LocationUpdateView.as_view(), name="location-create"),
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
 
   # GAMES
@@ -28,8 +28,8 @@ urlpatterns = [
 
   # USER PROFILES
   path('users/<str:username>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
-  path('users/<str:username>/edit', profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
-  path('users/upload-avatar/', profile_views.upload_avatar, name='upload-avatar'),
+  path('users/<str:username>/edit/', profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
+  path('users/upload/avatar/', profile_views.upload_avatar, name='upload-avatar'),
 
   # AUTOCOMPLETES
   path('location-autocomplete/', LocationAutocomplete.as_view(), name='location-autocomplete'),

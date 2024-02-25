@@ -3,6 +3,26 @@
 {% load static %}
 {% load i18n %}
 
+{% block style %}
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+  />
+  <style>
+      .swiper {}
+      .swiper-wrapper {
+      }
+      .swiper-slide {
+          max-width: 300px;
+          height: 420px;
+          padding: 0 4px;
+      }
+      .swiper-scrollbar {
+          margin-top: 15px;
+      }
+  </style>
+{% endblock %}
+
 {% block breadcrumbs %}
   <div class="container-fluid px-0 bg-white border-bottom">
     <div class="container">
@@ -30,36 +50,69 @@
       <div class="col-12 col-md-7 col-lg-8 col-xl-9">
         <div class="row">
           <div class="col">
-            <h1>{{ userprofile.username }}</h1>
-            <p>Indirizzo: {{ userprofile.address }}</p>
-            <p>Città: {{ userprofile.city }}</p>
+            <h2>{% trans "Joined tables" %}</h2>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <h2>{% trans "Joined tables" %}</h2>
+            {% if userprofile.is_email_verified %}
+              <div class="swiper">
+                <div class="swiper-wrapper">
+                  {% for table in tables %}
+                    <div class="swiper-slide">
+                      {% table_list_item table %}
+                    </div>
+                  {% empty %}
+                    <p>{% trans "No tables found." %}</p>
+                  {% endfor %}
+                </div>
+                <div class="swiper-scrollbar"></div>
+              </div>
+            {% else %}
+              <p>
+                <i class="bi bi-exclamation-circle"></i>
+                {% trans "Your email is not verified. Verify your email to join tables." %}
+                <a href="{% url "send_email_verification_code" %}"
+                   class="link-offset-3 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
+                  {% trans "CLICK HERE" %}
+                </a>
+                {% trans "to receive a new verification email." %}
+              </p>
+            {% endif %}
           </div>
         </div>
-        {% if userprofile.is_email_verified %}
-          <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 g-4">
-            {% for table in tables %}
-              {% table_list_item table %}
-            {% empty %}
-              <p>{% trans "No tables found." %}</p>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p>
-            <i class="bi bi-exclamation-circle"></i>
-            {% trans "Your email is not verified. Verify your email to join tables." %}
-            <a href="{% url "send_email_verification_code" %}"
-               class="link-offset-3 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
-              {% trans "CLICK HERE" %}
-            </a>
-            {% trans "to receive a new verification email." %}
-          </p>
-        {% endif %}
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extrabodyjs %}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+      const swiper = new Swiper('.swiper', {
+          // Optional parameters
+          loop: false,
+          mousewheel: true,
+          slidesPerView: 'auto',
+          freeMode: {
+              enabled: true,
+          },
+
+          // If we need pagination
+          pagination: {
+              el: '.swiper-pagination',
+          },
+
+          // Navigation arrows
+          navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+          },
+
+          // And if we need scrollbar
+          scrollbar: {
+              el: '.swiper-scrollbar',
+          },
+      });
+  </script>
 {% endblock %}

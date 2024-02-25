@@ -220,4 +220,4 @@ class JoinTableForm(ModelForm, BootstrapForm):
 class LocationForm(ModelForm, BootstrapForm):
     class Meta:
         model = Location
-        fields = ['name', 'creator', 'description', 'address', 'city', 'latitude', 'longitude', 'is_private']
+        fields = ['name', 'creator', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']

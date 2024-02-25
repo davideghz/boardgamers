@@ -175,21 +175,6 @@
             </small>
           </div>
 
-          <div id="address">
-            <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert your Address. We will use it to show near tables." %}</small>
-            <div class="form-floating mb-3">
-              {{ form.address }}
-              {{ form.address.label_tag|cut:":" }}
-              {% if form.address.errors %}
-                <div class="invalid-feedback">
-                  {% for error in form.address.errors %}
-                    {{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-          </div>
-
           <div class="row">
             {% if form.instance.pk %}
               <div class="col">

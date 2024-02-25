@@ -41,8 +41,6 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('user-profile-detail', args=[self.request.user.username])
 
 
-
-@login_required
 def upload_avatar(request):
     if request.method == 'POST':
         form = UserProfileAvatarForm(request.POST, request.FILES, instance=request.user.user_profile)

@@ -34,7 +34,7 @@ class LocationCreateView(CreateView):
 
     def get_success_url(self):
         location_slug = self.object.slug
-        return reverse("location-detail-detail", kwargs={"slug": location_slug})
+        return reverse("location-detail", kwargs={"slug": location_slug})
 
 
 class LocationUpdateView(SuccessMessageMixin, generic.UpdateView):

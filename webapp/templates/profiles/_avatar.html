@@ -1,25 +1,51 @@
 {% load i18n %}
 
-<div class="card shadow border-0 mb-4">
+<div class="card shadow border-0 mb-4 position-relative">
   <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">
+  <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
+          style="position: absolute; top:10px; right: 10px"
+          data-bs-target="#changeAvatarModal">
+    <i class="bi bi-camera-fill"></i>
+  </button>
   <div class="card-body">
-    <h5 class="card-title">{{ userprofile.username }}</h5>
+    <div class="d-flex align-items-center justify-content-between">
+      <h5 class="card-title mb-0">{{ userprofile.username }}</h5>
+      <a class="btn btn-sm btn-dark" href="{% url "user-profile-edit" userprofile.username %}">
+        <i class="bi bi-gear-fill"></i> {% trans 'edit profile' %}
+      </a>
+    </div>
+  </div>
+</div>
 
+<form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
+  {% csrf_token %}
+  {{ form.avatar.label_tag }}
+  {{ form.avatar }}
+  <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+</form>
+
+<div class="modal fade" id="changeAvatarModal" tabindex="-1" aria-labelledby="changeAvatarModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog">
     <form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
       {% csrf_token %}
-      <div class="mb-3">
-        {{ form.avatar.label_tag }}
-        {{ form.avatar }}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteCommentModalLabel">{% trans "Upload new avatar" %}</h5>
+        </div>
+        <div class="modal-body">
+          {{ form.avatar.label_tag }}
+          {{ form.avatar }}
+          {% if form.avatar.errors %}
+            {% for error in form.avatar.errors %}
+              <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        </div>
       </div>
-      {% if form.avatar.errors %}
-        {% for error in form.avatar.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
-      {% endif %}
-      <button type="submit" class="btn btn-primary">Carica</button>
     </form>
-
-    <a href="{% url "user-profile-edit" userprofile.username %}">{% trans 'EDIT PROFILE' %}</a>
-
   </div>
 </div>

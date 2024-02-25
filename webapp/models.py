@@ -82,7 +82,7 @@ class Location(DateTimeModel, SlugModel):
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
-    is_private = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
