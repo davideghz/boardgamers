@@ -17,13 +17,6 @@
   </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" action="{% url "upload-avatar" %}">
-  {% csrf_token %}
-  {{ form.avatar.label_tag }}
-  {{ form.avatar }}
-  <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-</form>
-
 <div class="modal fade" id="changeAvatarModal" tabindex="-1" aria-labelledby="changeAvatarModalLabel"
      aria-hidden="true">
   <div class="modal-dialog">
