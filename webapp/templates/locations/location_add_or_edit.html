@@ -6,6 +6,24 @@
   {% include 'partials/form_styles.html' %}
 {% endblock style %}
 
+{% block breadcrumbs %}
+  <div class="container-fluid px-0 bg-white border-bottom">
+    <div class="container">
+      <nav aria-label="breadcrumb" class="py-1">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item fs-6">
+            <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
+          </li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>
+            <a class="text-decoration-none" href="{% url "account-index" %}">account</a>
+          </small></li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>locations</small></li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
 {% block content %}
   <div class="container py-4">
     <div class="row">

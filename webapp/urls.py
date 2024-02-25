@@ -28,6 +28,10 @@ urlpatterns = [
 
   # ACCOUNT
   path("account/", account_views.index, name="account-index"),
+  path("account/edit-profile/", account_views.edit_profile, name="account-edit-profile"),
+  path("account/locations/", account_views.locations, name="account-locations"),
+  path("account/tables/", account_views.tables, name="account-tables"),
+  path("account/notifications/", account_views.notifications, name="account-notifications"),
 
   # USER PROFILES
   path('users/<str:username>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
