@@ -10,7 +10,7 @@
     </button>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel"></h5>
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Board Gamers</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
@@ -66,30 +66,59 @@
                 </div>
               </a>
 
-              <a href="{% url "account-index" %}" class="text-decoration-none col-12 mb-4">
-                <div class="card shadow border-0">
-                  <div class="card-body">
+              {% if user.is_authenticated %}
+
+                <a href="{% url "account-index" %}" class="text-decoration-none col-12 mb-4">
+                  <div class="card shadow border-0">
+                    <div class="card-body">
                     <span class="h3">
                       <i class="h1 bi bi-person-circle"></i>
                       {% trans "Account" %}
                     </span>
+                    </div>
                   </div>
-                </div>
-              </a>
+                </a>
 
 
-              <div class="text-decoration-none col-12 mb-4">
-                <div class="card shadow border-0">
-                  <div class="card-body">
-                    <form class="dropdown-item" action="{% url 'logout' %}" method="post">
-                      {% csrf_token %}
-                      <button class="btn text-decoration-none p-0" type="submit">
-                        <span class="h3">Logout</span>
-                      </button>
-                    </form>
+                <div class="text-decoration-none col-12 mb-4">
+                  <div class="card shadow border-0">
+                    <div class="card-body">
+                      <form class="dropdown-item" action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn text-decoration-none p-0" type="submit">
+                          <span class="h3">Logout</span>
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
-              </div>
+
+              {% else %}
+
+                <a href="{% url "signup" %}" class="text-decoration-none col-12 mb-4">
+                  <div class="card shadow border-0">
+                    <div class="card-body">
+                    <span class="h3">
+                      <i class="h1 bi bi-person-fill-add"></i>
+                      {% trans "Register" %}
+                    </span>
+                    </div>
+                  </div>
+                </a>
+
+
+                <a href="{% url "login" %}" class="text-decoration-none col-12 mb-4">
+                  <div class="card shadow border-0 text-bg-primary">
+                    <div class="card-body">
+                    <span class="h3">
+                      <i class="h1 bi bi-person-fill-check"></i>
+                      {% trans "Login" %}
+                    </span>
+                    </div>
+                  </div>
+                </a>
+
+              {% endif %}
 
             </div>
           </div>
