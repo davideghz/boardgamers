@@ -110,9 +110,14 @@
         <!-- location -->
         {% if table.location %}
           <a href="{% url "location-detail" table.location.slug %}"
-             class="card shadow-lg border-0 mb-4 text-decoration-none">
-            <div class="card-header bg-white">
-              <span class="h5">{% trans "Location" %}</span>
+             class="card shadow border-0 mb-4 text-decoration-none">
+            <div class="card-header" style="background-color: darkseagreen">
+
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <span class="h5 flex-grow-1">{% trans "Location info" %}</span>
+              </div>
             </div>
             <img src="https://picsum.photos/800/400" class="card-img-mid img-fluid" alt="...">
             <div class="card-body">
