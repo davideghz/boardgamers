@@ -31,6 +31,7 @@ class UserProfileFactory(DjangoModelFactory):
     class Meta:
         model = UserProfile
 
+    nickname = factory.LazyFunction(faker.user_name)
     is_email_verified = True
     user = factory.SubFactory(UserFactory)
     address = factory.LazyFunction(faker.address)

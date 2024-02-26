@@ -34,7 +34,7 @@ urlpatterns = [
   path("account/notifications/", account_views.notifications, name="account-notifications"),
 
   # USER PROFILES
-  path('users/<str:username>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
+  path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
   path('users/upload/avatar/', profile_views.upload_avatar, name='upload-avatar'),
 
   # AUTOCOMPLETES

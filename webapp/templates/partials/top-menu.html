@@ -27,7 +27,7 @@
             <li class="nav-item dropdown">
               <a class="nav-link btn btn-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                  aria-expanded="false">
-                {{ user.username }} <i class="bi bi-person-circle"></i>
+                {{ user.user_profile.nickname }} <i class="bi bi-person-circle"></i>
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url "account-index" %}">{% trans "Account" %}</a></li>

@@ -88,7 +88,11 @@ class Location(DateTimeModel, SlugModel):
         return self.name
 
 
-class UserProfile(DateTimeModel):
+class UserProfile(DateTimeModel, SlugModel):
+    slug_field_name = 'nickname'
+    nickname = models.CharField(max_length=255, null=False, blank=True)
+    slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
+
     is_email_verified = models.BooleanField(default=False, db_index=True)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, related_name='user_profile', on_delete=models.CASCADE)
@@ -104,7 +108,7 @@ class UserProfile(DateTimeModel):
 
     @property
     def username(self):
-        return self.user.username
+        return self.nickname
 
     @cached_property
     def avatar_url(self):

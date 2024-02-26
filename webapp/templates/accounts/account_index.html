@@ -11,7 +11,7 @@
     <div class="row">
       <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
         <div class="h1">Account</div>
-        {{ user.email }} · <a href="{% url "user-profile-detail" user.username %}">{% trans "See public profile" %}</a>
+        {{ user.email }} · <a href="{% url "user-profile-detail" user.user_profile.slug %}">{% trans "See public profile" %}</a>
 
         <div class="mt-4 row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3 g-4">
           <a href="{% url "user-profile-edit" %}" class="text-decoration-none col">

@@ -17,7 +17,7 @@ class UserProfileDetailView(DetailView):
     context_object_name = 'userprofile'
 
     def get_object(self):
-        return get_object_or_404(UserProfile, user__username=self.kwargs['username'])
+        return get_object_or_404(UserProfile, slug=self.kwargs['slug'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -38,7 +38,7 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         return UserProfile.objects.get(user=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('user-profile-detail', args=[self.request.user.username])
+        return reverse_lazy('user-profile-detail', args=[self.request.user.slug])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,6 +52,6 @@ def upload_avatar(request):
         form = UserProfileAvatarForm(request.POST, request.FILES, instance=request.user.user_profile)
         if form.is_valid():
             form.save()
-            return redirect('user-profile-detail', username=request.user.username)
+            return redirect('user-profile-detail', username=request.user.user_profile.slug)
 
-    return redirect('user-profile-detail', username=request.user.username)
+    return redirect('user-profile-detail', username=request.user.user_profile.slug)

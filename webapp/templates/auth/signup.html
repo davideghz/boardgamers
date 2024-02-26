@@ -16,14 +16,21 @@
       <div class="col col-lg-6">
         <form method="post" class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
           {% csrf_token %}
+
+          {{ form.city }}
+          {{ form.latitude }}
+          {{ form.longitude }}
+
           <h1 class="fs-3 mb-4">{% trans "Signup" %}</h1>
-          <small class="d-block pb-2 text-secondary">{% trans "Insert email and password. You will use them to login." %}</small>
+          <small class="d-block pb-2 text-secondary">
+            {% trans "Insert email and password. You will use them to login." %}
+          </small>
           <div class="form-floating mb-3">
-            {{ form.username }}
-            {{ form.username.label_tag|cut:":" }}
-            {% if form.username.errors %}
+            {{ form.email }}
+            {{ form.email.label_tag|cut:":" }}
+            {% if form.email.errors %}
               <div class="invalid-feedback">
-                {% for error in form.username.errors %}
+                {% for error in form.email.errors %}
                   {{ error }}
                 {% endfor %}
               </div>
@@ -51,19 +58,21 @@
               </div>
             {% endif %}
           </div>
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert your Nickname. Other gamers will call you this way." %}</small>
+          <small
+              class="d-block pt-3 pb-2 text-secondary">{% trans "Insert your Nickname. Other gamers will call you this way." %}</small>
           <div class="form-floating mb-3">
-            {{ form.email }}
-            {{ form.email.label_tag|cut:":" }}
-            {% if form.email.errors %}
+            {{ form.nickname }}
+            {{ form.nickname.label_tag|cut:":" }}
+            {% if form.nickname.errors %}
               <div class="invalid-feedback">
-                {% for error in form.email.errors %}
+                {% for error in form.nickname.errors %}
                   {{ error }}
                 {% endfor %}
               </div>
             {% endif %}
           </div>
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert your Address. We will use it to show near tables." %}</small>
+          <small
+              class="d-block pt-3 pb-2 text-secondary">{% trans "Insert your Address. We will use it to show near tables." %}</small>
           <div class="form-floating mb-3">
             {{ form.address }}
             {{ form.address.label_tag|cut:":" }}

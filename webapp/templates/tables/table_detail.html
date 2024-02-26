@@ -77,7 +77,7 @@
             <br>
             {% for player in table.players.all %}
               <i class="bi bi-person-fill"></i>
-              <small><a href="{% url "user-profile-detail" player %}">{{ player }}</a> {% if not forloop.last %}
+              <small><a href="{% url "user-profile-detail" player.slug %}">{{ player }}</a> {% if not forloop.last %}
                 <i class="bi bi-dot"></i>{% endif %}</small>
             {% empty %}
               <small>{% trans "No players yet." %}</small>
@@ -132,7 +132,7 @@
             <p>{{ table.description }}</p>
             <i class="bi bi-person-fill"></i>
             <small>
-              <a href="{% url "user-profile-detail" table.author.user.user_profile %}">
+              <a href="{% url "user-profile-detail" table.author.user.user_profile.slug %}">
                 {{ table.author.user.username }}
               </a>
             </small>

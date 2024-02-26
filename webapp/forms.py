@@ -176,21 +176,53 @@ class CustomSetPasswordForm(SetPasswordForm):
 
 
 class UserRegistrationForm(UserCreationForm, BootstrapForm):
+    nickname = CharField(max_length=255)
     address = CharField(max_length=255)
-    city = CharField(max_length=144)
+    city = CharField(widget=HiddenInput(), required=False)
+    latitude = CharField(widget=HiddenInput(), required=False)
+    longitude = CharField(widget=HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        base_attrs = {'required': 'required', 'type': "text", 'class': "form-control"}
+        self.fields['email'].widget.attrs.update({**base_attrs, 'placeholder': 'nome@email.com'})
+
+        # Controlla se il form è stato inviato e se ci sono errori, per aggiungere la classe 'is-invalid'
+        if self.is_bound:
+            for field_name, field in self.fields.items():
+                if field_name in self.errors:  # Controlla se il campo ha degli errori
+                    css_classes = self.fields[field_name].widget.attrs.get('class', '')
+                    if 'is-invalid' not in css_classes:
+                        self.fields[field_name].widget.attrs['class'] = f'{css_classes} is-invalid'
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'address', 'city']
+        fields = ['email', 'password1', 'password2', 'nickname', 'address', 'city', 'latitude', 'longitude']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exists():
+            raise ValidationError(_("Email already registered."))
+        return email
 
     def save(self, commit=True):
         if not commit:
             raise NotImplementedError("Can't create User and UserProfile without database save")
-        user = super(UserRegistrationForm, self).save(commit=True)
+
+        user = super(UserRegistrationForm, self).save(commit=False)
+        user.username = self.cleaned_data['email']
+
+        if commit:
+            user.save()
+
         user_profile = UserProfile(
             user=user,
+            nickname=self.cleaned_data['nickname'],
             address=self.cleaned_data['address'],
-            city=self.cleaned_data['city'])
+            city=self.cleaned_data['city'],
+            latitude=self.cleaned_data['latitude'],
+            longitude=self.cleaned_data['longitude'],
+        )
         user_profile.save()
         return user, user_profile
 
@@ -202,7 +234,7 @@ class UserProfileForm(ModelForm, BootstrapForm):
 
     class Meta:
         model = UserProfile
-        fields = ['address', 'city', 'latitude', 'longitude']
+        fields = ['nickname', 'address', 'city', 'latitude', 'longitude']
 
 
 class UserProfileAvatarForm(ModelForm, BootstrapForm):
@@ -221,7 +253,7 @@ class LocationForm(ModelForm, BootstrapForm):
     city = CharField(widget=HiddenInput(), required=False)
     latitude = CharField(widget=HiddenInput(), required=False)
     longitude = CharField(widget=HiddenInput(), required=False)
-    
+
     class Meta:
         model = Location
         fields = ['name', 'creator', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']
