@@ -8,7 +8,7 @@
             aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    <div class="offcanvas offcanvas-end show" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
         <span class="navbar-brand offcanvas-title" id="offcanvasNavbarLabel">
           <i class="bi bi-lightning-charge"></i>
@@ -56,69 +56,45 @@
         </ul>
         <div class="d-lg-none">
           <div class="container">
-            <div class="row">
-
-              <a href="{% url "table-create" %}" class="text-decoration-none col-12 mb-4">
-                <div class="card shadow border-0">
-                  <div class="card-body">
-                    <span class="h3">
-                      <i class="h1 bi bi-lightning-charge-fill"></i>
-                      {% trans "New table" %}
-                    </span>
-                  </div>
-                </div>
-              </a>
+            <div class="row flex-column justify-content-between" style="min-height: 70vh">
 
               {% if user.is_authenticated %}
 
-                <a href="{% url "account-index" %}" class="text-decoration-none col-12 mb-4">
-                  <div class="card shadow border-0">
-                    <div class="card-body">
-                    <span class="h3">
-                      <i class="h1 bi bi-person-circle"></i>
-                      {% trans "Account" %}
-                    </span>
-                    </div>
-                  </div>
-                </a>
+                <div style="padding-left: 0; padding-right: 0">
+                  <a href="{% url "table-create" %}" class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
+                    {% trans "New table" %}
+                    <i class="bi bi-arrow-right-circle-fill"></i>
+                  </a>
 
+                  <a href="{% url "account-index" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
+                    {% trans "Account" %}
+                    <i class="bi bi-arrow-right-circle"></i>
+                  </a>
 
-                <div class="text-decoration-none col-12 mb-4">
-                  <div class="card shadow border-0">
-                    <div class="card-body">
-                      <form class="dropdown-item" action="{% url 'logout' %}" method="post">
-                        {% csrf_token %}
-                        <button class="btn text-decoration-none p-0" type="submit">
-                          <span class="h3">Logout</span>
-                        </button>
-                      </form>
-                    </div>
-                  </div>
+                  <a href="{% url "account-tables" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
+                    {% trans "Tables" %}
+                    <i class="bi bi-arrow-right-circle"></i>
+                  </a>
                 </div>
+
+                <form action="{% url 'logout' %}" method="post" style="padding-left: 0; padding-right: 0">
+                  {% csrf_token %}
+                  <button class="btn btn-lg btn-dark mb-4 py-4 w-100 d-flex justify-content-between" type="submit">
+                    <span>Logout</span>
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                </form>
 
               {% else %}
 
-                <a href="{% url "signup" %}" class="text-decoration-none col-12 mb-4">
-                  <div class="card shadow border-0">
-                    <div class="card-body">
-                    <span class="h3">
-                      <i class="h1 bi bi-person-fill-add"></i>
-                      {% trans "Register" %}
-                    </span>
-                    </div>
-                  </div>
+                <a href="{% url "login" %}" class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
+                  {% trans "Login" %}
+                  <i class="bi bi-arrow-right-circle-fill"></i>
                 </a>
 
-
-                <a href="{% url "login" %}" class="text-decoration-none col-12 mb-4">
-                  <div class="card shadow border-0 text-bg-primary">
-                    <div class="card-body">
-                    <span class="h3">
-                      <i class="h1 bi bi-person-fill-check"></i>
-                      {% trans "Login" %}
-                    </span>
-                    </div>
-                  </div>
+                <a href="{% url "signup" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
+                  {% trans "Register" %}
+                  <i class="bi bi-arrow-right-circle"></i>
                 </a>
 
               {% endif %}
