@@ -46,12 +46,12 @@
               </ul>
             </li>
           {% else %}
-            <li class="nav-item ms-1">
-              <a class="nav-link btn btn-light" href="{% url "signup" %}">Register</a>
-            </li>
-            <li class="nav-item ms-1">
-              <a class="btn btn-primary" href="{% url "login" %}">Login</a>
-            </li>
+              <li class="nav-item ms-1">
+                <a class="nav-link btn btn-light" href="{% url "signup" %}">Register</a>
+              </li>
+              <li class="nav-item ms-1">
+                <a class="btn btn-primary" href="{% url "login" %}">Login</a>
+              </li>
           {% endif %}
         </ul>
         <div class="d-lg-none">
@@ -87,15 +87,17 @@
 
               {% else %}
 
-                <a href="{% url "login" %}" class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
-                  {% trans "Login" %}
-                  <i class="bi bi-arrow-right-circle-fill"></i>
-                </a>
+                <div>
+                  <a href="{% url "login" %}" class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
+                    {% trans "Login" %}
+                    <i class="bi bi-arrow-right-circle-fill"></i>
+                  </a>
 
-                <a href="{% url "signup" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
-                  {% trans "Register" %}
-                  <i class="bi bi-arrow-right-circle"></i>
-                </a>
+                  <a href="{% url "signup" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
+                    {% trans "Register" %}
+                    <i class="bi bi-arrow-right-circle"></i>
+                  </a>
+                </div>
 
               {% endif %}
 
