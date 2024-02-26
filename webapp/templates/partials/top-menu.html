@@ -57,24 +57,22 @@
 
               <a href="{% url "table-create" %}" class="text-decoration-none col-12 mb-4">
                 <div class="card shadow border-0">
-                  <div class="card-header d-flex justify-content-between align-items-center"
-                       style="background-color: darkseagreen"
-                  ></div>
                   <div class="card-body">
-                    <i class="h1 bi bi-lightning-charge-fill"></i>
-                    <small class="d-flex mt-4"><strong>{% trans "New table" %}</strong></small>
+                    <span class="h3">
+                      <i class="h1 bi bi-lightning-charge-fill"></i>
+                      {% trans "New table" %}
+                    </span>
                   </div>
                 </div>
               </a>
 
               <a href="{% url "account-index" %}" class="text-decoration-none col-12 mb-4">
                 <div class="card shadow border-0">
-                  <div class="card-header d-flex justify-content-between align-items-center"
-                       style="background-color: darkseagreen"
-                  ></div>
                   <div class="card-body">
-                    <i class="h1 bi bi-person-circle"></i>
-                    <small class="d-flex mt-4"><strong>{% trans "Account" %}</strong></small>
+                    <span class="h3">
+                      <i class="h1 bi bi-person-circle"></i>
+                      {% trans "Account" %}
+                    </span>
                   </div>
                 </div>
               </a>
@@ -86,7 +84,7 @@
                     <form class="dropdown-item" action="{% url 'logout' %}" method="post">
                       {% csrf_token %}
                       <button class="btn text-decoration-none p-0" type="submit">
-                        Logout
+                        <span class="h3">Logout</span>
                       </button>
                     </form>
                   </div>
