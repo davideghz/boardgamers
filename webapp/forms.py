@@ -218,6 +218,10 @@ class JoinTableForm(ModelForm, BootstrapForm):
 
 
 class LocationForm(ModelForm, BootstrapForm):
+    city = CharField(widget=HiddenInput(), required=False)
+    latitude = CharField(widget=HiddenInput(), required=False)
+    longitude = CharField(widget=HiddenInput(), required=False)
+    
     class Meta:
         model = Location
         fields = ['name', 'creator', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']

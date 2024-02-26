@@ -11,13 +11,19 @@
     <div class="container">
       <nav aria-label="breadcrumb" class="py-1">
         <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item fs-6">
-            <a class="text-decoration-none" href="{% url "table-index" %}"><small>Home</small></a>
+          <li class="breadcrumb-item fs-6 active" aria-current="page">
+            <small><a class="text-decoration-none" href="{% url "account-index" %}">Account</a></small>
           </li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>
-            <a class="text-decoration-none" href="{% url "account-index" %}">account</a>
-          </small></li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>locations</small></li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page">
+            <small><a class="text-decoration-none" href="{% url "account-locations" %}">Locations</a></small>
+          </li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page">
+            {% if form.instance.pk %}
+              <small>{% trans "Edit" %}</small>
+            {% else %}
+              <small>{% trans "New" %}</small>
+            {% endif %}
+          </li>
         </ol>
       </nav>
     </div>
@@ -30,6 +36,11 @@
       <div class="col-12 col-md-8 col-lg-6">
         <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" action="" method="post">
           {% csrf_token %}
+
+          {{ form.city }}
+          {{ form.latitude }}
+          {{ form.longitude }}
+        
           <h1 class="fs-3 mb-4">
             {% if form.instance.pk %}
               {% trans "Edit location" %}
@@ -69,7 +80,8 @@
             {% endif %}
           </div>
 
-          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert the location's address. We will use it to show the location on the map!" %}</small>
+          <small
+              class="d-block pt-3 pb-2 text-secondary">{% trans "Insert the location's address. We will use it to show the location on the map!" %}</small>
           <div class="form-floating mb-3">
             {{ form.address }}
             {{ form.address.label_tag|cut:":" }}
@@ -83,7 +95,8 @@
           </div>
 
           <small class="d-block text-secondary">{% trans "Is the location public or private?" %}</small>
-          <small class="d-block text-secondary">{% trans "Note: public locations can be used by other gamers to organize tables" %}</small>
+          <small
+              class="d-block text-secondary">{% trans "Note: public locations can be used by other gamers to organize tables" %}</small>
           <div class="form-check form-switch pt-3 pb-3 custom-switch">
             {{ form.is_public }}
             <label class="form-check-label" for="id_is_public">

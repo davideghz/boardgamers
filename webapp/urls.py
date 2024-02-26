@@ -20,7 +20,7 @@ urlpatterns = [
 
   # LOCATIONS
   path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
-  path("locations/<slug:slug>/edit/", location_views.LocationUpdateView.as_view(), name="location-create"),
+  path("locations/<slug:slug>/edit/", location_views.LocationUpdateView.as_view(), name="location-update"),
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
 
   # GAMES
@@ -28,14 +28,13 @@ urlpatterns = [
 
   # ACCOUNT
   path("account/", account_views.index, name="account-index"),
-  path("account/edit-profile/", account_views.edit_profile, name="account-edit-profile"),
+  path("account/edit-profile/", profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
   path("account/locations/", account_views.locations, name="account-locations"),
   path("account/tables/", account_views.tables, name="account-tables"),
   path("account/notifications/", account_views.notifications, name="account-notifications"),
 
   # USER PROFILES
   path('users/<str:username>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
-  path('users/<str:username>/edit/', profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
   path('users/upload/avatar/', profile_views.upload_avatar, name='upload-avatar'),
 
   # AUTOCOMPLETES

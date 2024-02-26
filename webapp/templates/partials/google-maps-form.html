@@ -2,7 +2,7 @@
     "use strict";
 
     const CONFIGURATION = {
-        "mapOptions": {"center":{"lat":37.4221,"lng":-122.0841},"fullscreenControl":false,"mapTypeControl":false,"streetViewControl":false,"zoom":16,"zoomControl":true,"maxZoom":22,"mapId":""},
+        "mapOptions": {"center":{"lat":37.4221,"lng":-122.0841},"fullscreenControl":false,"mapTypeControl":false,"streetViewControl":false,"zoom":16,"zoomControl":true,"maxZoom":22,"mapId":"booohhh"},
     };
 
     function getFormInputElement(componentType) {
@@ -17,7 +17,7 @@
             marker.position = null;
         }
     }
-    
+
     function updateHiddenInputs(place) {
         // Estrai la latitudine e la longitudine
         const latitude = place.geometry.location.lat();
@@ -48,7 +48,18 @@
         mapOptions.center = mapOptions.center || {lat: 37.4221, lng: -122.0841};
 
         const map = new Map(document.getElementById('gmp-map'), mapOptions);
-        const marker = new AdvancedMarkerElement({map});
+        const marker = new google.maps.marker.AdvancedMarkerElement({ map });
+
+        // Controlla se i campi latitude e longitude hanno valori
+        const latitudeInput = document.getElementById('id_latitude').value;
+        const longitudeInput = document.getElementById('id_longitude').value;
+
+        if (latitudeInput && longitudeInput) {
+            const latLng = new google.maps.LatLng(parseFloat(latitudeInput), parseFloat(longitudeInput));
+            map.setCenter(latLng);
+            marker.position = latLng;
+        }
+
         const autocomplete = new Autocomplete(getFormInputElement('location'), {
             fields: ['address_components', 'geometry', 'name'],
             types: ['address'],
@@ -68,4 +79,4 @@
         });
     }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-nP6SNj7I69cz67_5QyhwhmlzR5GiMl8&libraries=places,marker&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-nP6SNj7I69cz67_5QyhwhmlzR5GiMl8&libraries=places,marker&callback=initMap&loading=async" async defer></script>

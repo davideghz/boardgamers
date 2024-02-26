@@ -13,7 +13,7 @@
     <div class="d-flex align-items-center justify-content-between">
       <h5 class="card-title mb-0">{{ userprofile.username }}</h5>
       {% if userprofile.user == user %}
-        <a class="btn btn-sm btn-dark" href="{% url "user-profile-edit" userprofile.username %}">
+        <a class="btn btn-sm btn-dark" href="{% url "user-profile-edit" %}">
           <i class="bi bi-gear-fill"></i> {% trans 'edit profile' %}
         </a>
       {% endif %}

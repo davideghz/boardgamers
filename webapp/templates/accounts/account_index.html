@@ -14,8 +14,8 @@
         {{ user.email }} · <a href="{% url "user-profile-detail" user.username %}">{% trans "See public profile" %}</a>
 
         <div class="mt-4 row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3 g-4">
-          <a href="{% url "account-edit-profile" %}" class="text-decoration-none col">
-            <div class="card shadow-sm border-0">
+          <a href="{% url "user-profile-edit" %}" class="text-decoration-none col">
+            <div class="card shadow border-0">
               <div class="card-header d-flex justify-content-between align-items-center"
                    style="background-color: darkseagreen"
               ></div>
@@ -29,7 +29,7 @@
             </div>
           </a>
           <a href="{% url "account-locations" %}" class="text-decoration-none col">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow border-0">
               <div class="card-header d-flex justify-content-between align-items-center"
                    style="background-color: darkseagreen"
               ></div>
@@ -43,7 +43,7 @@
             </div>
           </a>
           <a href="{% url "account-tables" %}" class="text-decoration-none col">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow border-0">
               <div class="card-header d-flex justify-content-between align-items-center"
                    style="background-color: darkseagreen"
               ></div>
@@ -57,7 +57,7 @@
             </div>
           </a>
           <a href="{% url "account-notifications" %}" class="text-decoration-none col">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow border-0">
               <div class="card-header d-flex justify-content-between align-items-center"
                    style="background-color: darkseagreen"
               ></div>

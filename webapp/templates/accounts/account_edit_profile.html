@@ -26,11 +26,34 @@
     <div class="row">
       <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
         <div class="h1">{% trans "Edit profile" %}</div>
-        <p>Lorem ipsum</p>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="form-floating mb-3">
+            {{ form.address }}
+            {{ form.address.label_tag|cut:":" }}
+            {% if form.address.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.address.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="map border rounded-3 mb-3" id="gmp-map" style="width: 100%; height: 200px;"></div>
+
+          {{ form.city }}
+          {{ form.latitude }}
+          {{ form.longitude }}
+
+          <button type="submit" class="btn btn-primary">{% trans "Update profile" %}</button>
+        </form>
       </div>
     </div>
   </div>
 {% endblock %}
 
 {% block extrabodyjs %}
+  {% include "partials/google-maps-form.html" %}
 {% endblock %}
