@@ -102,7 +102,7 @@ class VerifyEmailView(View):
 
 
 def send_email_verification_code(request):
-    emails.send_user_email_verification_code(request.user)
+    emails.send_user_email_verification_code(request.user.user_profile)
     messages.info(request, MSG_EMAIL_VERIFICATION_CODE_SENT)
     return redirect('home')
 

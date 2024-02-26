@@ -6,10 +6,10 @@ from webapp import messages
 from webapp.models import UserProfile
 
 
-def send_user_email_verification_code(user):
+def send_user_email_verification_code(user_profile):
     context = {
-        'nickname': user.user_profile.nickname,
-        'button_href': UserProfile.get_activation_link(user),
+        'nickname': user_profile.nickname,
+        'button_href': UserProfile.get_activation_link(user_profile.user),
     }
     text_content = render_to_string('emails/email_verification_code.html', context=context)
     html_content = render_to_string('emails/email_verification_code_html.html', context=context)
@@ -17,6 +17,6 @@ def send_user_email_verification_code(user):
         messages.EMAIL_SUBJECT_VERIFICATION_CODE,
         text_content,
         settings.DEFAULT_FROM_EMAIL,
-        [user.email],
+        [user_profile.user.email],
         html_message=html_content,
     )

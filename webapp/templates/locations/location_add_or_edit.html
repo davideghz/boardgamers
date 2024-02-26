@@ -40,7 +40,7 @@
           {{ form.city }}
           {{ form.latitude }}
           {{ form.longitude }}
-        
+
           <h1 class="fs-3 mb-4">
             {% if form.instance.pk %}
               {% trans "Edit location" %}
@@ -95,12 +95,12 @@
           </div>
 
           <small class="d-block text-secondary">{% trans "Is the location public or private?" %}</small>
-          <small
-              class="d-block text-secondary">{% trans "Note: public locations can be used by other gamers to organize tables" %}</small>
           <div class="form-check form-switch pt-3 pb-3 custom-switch">
             {{ form.is_public }}
             <label class="form-check-label" for="id_is_public">
-              {% trans "Click here if you are creating a public location (like a bar, a pub, or a board games café)." %}</label>
+              {% trans "Click here if this is a public location (like a bar, a pub, or a board games café)." %}
+              <strong>Note: public locations can be used by other gamers to organize tables.</strong>
+            </label>
           </div>
 
           <div class="row">

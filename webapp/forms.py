@@ -224,6 +224,19 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
             longitude=self.cleaned_data['longitude'],
         )
         user_profile.save()
+
+        location = Location(
+            name="Default Location",
+            creator=user_profile,
+            description=f"#{self.cleaned_data['nickname']} Default Location",
+            address=self.cleaned_data['address'],
+            city=self.cleaned_data['city'],
+            latitude=self.cleaned_data['latitude'],
+            longitude=self.cleaned_data['longitude'],
+            is_public=False,
+        )
+        location.save()
+
         return user, user_profile
 
 

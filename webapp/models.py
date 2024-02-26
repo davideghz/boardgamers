@@ -85,7 +85,7 @@ class Location(DateTimeModel, SlugModel):
     is_public = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.city}"
 
 
 class UserProfile(DateTimeModel, SlugModel):
