@@ -4,16 +4,17 @@
   <div class="container">
     <a class="navbar-brand" href="{% url "home" %}"><i class="bi bi-lightning-charge"></i> Board Gamers</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel"></h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-none d-lg-flex">
           <li class="nav-item ms-1">
             <a class="nav-link btn btn-light" href="{% url 'table-create' %}">
               <i class="bi bi-lightning-charge"></i> {% trans "New table" %}
@@ -50,6 +51,51 @@
             </li>
           {% endif %}
         </ul>
+        <div class="d-lg-none">
+          <div class="container">
+            <div class="row">
+
+              <a href="{% url "table-create" %}" class="text-decoration-none col-12 mb-4">
+                <div class="card shadow border-0">
+                  <div class="card-header d-flex justify-content-between align-items-center"
+                       style="background-color: darkseagreen"
+                  ></div>
+                  <div class="card-body">
+                    <i class="h1 bi bi-lightning-charge-fill"></i>
+                    <small class="d-flex mt-4"><strong>{% trans "New table" %}</strong></small>
+                  </div>
+                </div>
+              </a>
+
+              <a href="{% url "account-index" %}" class="text-decoration-none col-12 mb-4">
+                <div class="card shadow border-0">
+                  <div class="card-header d-flex justify-content-between align-items-center"
+                       style="background-color: darkseagreen"
+                  ></div>
+                  <div class="card-body">
+                    <i class="h1 bi bi-person-circle"></i>
+                    <small class="d-flex mt-4"><strong>{% trans "Account" %}</strong></small>
+                  </div>
+                </div>
+              </a>
+
+
+              <div class="text-decoration-none col-12 mb-4">
+                <div class="card shadow border-0">
+                  <div class="card-body">
+                    <form class="dropdown-item" action="{% url 'logout' %}" method="post">
+                      {% csrf_token %}
+                      <button class="btn text-decoration-none p-0" type="submit">
+                        Logout
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
