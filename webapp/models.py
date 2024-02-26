@@ -126,7 +126,7 @@ class UserProfile(DateTimeModel, SlugModel):
         return settings.DOMAIN_URL + reverse('email_verify', kwargs=params)
 
     def __str__(self):
-        return self.username
+        return self.nickname
 
 
 class Table(DateTimeModel, SlugModel):

@@ -38,7 +38,7 @@
         <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow text-center">
           <p class="fs-2 fw-bold mb-3">
             {% trans "Welcome back" %}<br>
-            <span class="text-primary">{{ user.username }}</span>
+            <span class="text-primary">{{ user.user_profile.nickname }}</span>
           </p>
           <p class="fs-5">
             {% trans "If there are no tables available near you, you can always create one!" %}

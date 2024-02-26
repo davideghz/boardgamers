@@ -52,6 +52,6 @@ def upload_avatar(request):
         form = UserProfileAvatarForm(request.POST, request.FILES, instance=request.user.user_profile)
         if form.is_valid():
             form.save()
-            return redirect('user-profile-detail', username=request.user.user_profile.slug)
+            return redirect('user-profile-detail', slug=request.user.user_profile.slug)
 
-    return redirect('user-profile-detail', username=request.user.user_profile.slug)
+    return redirect('user-profile-detail', slug=request.user.user_profile.slug)

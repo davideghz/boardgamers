@@ -8,7 +8,7 @@ from webapp.models import UserProfile
 
 def send_user_email_verification_code(user):
     context = {
-        'username': user.username,
+        'nickname': user.user_profile.nickname,
         'button_href': UserProfile.get_activation_link(user),
     }
     text_content = render_to_string('emails/email_verification_code.html', context=context)
