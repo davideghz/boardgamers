@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
 from django.views import generic
@@ -20,18 +21,18 @@ class LocationDetailView(DetailView):
         return context
 
 
-class LocationCreateView(SuccessMessageMixin, CreateView):
+class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Location
     form_class = LocationForm
     template_name = 'locations/location_add_or_edit.html'
     success_message = "Location was created successfully"
 
     def form_valid(self, form):
-        location = form.save(commit=False)
-        creator = self.request.user.user_profile
-        location.creator = creator
-        location.save()
-        return super(LocationCreateView, self).form_valid(form)
+        form.instance.creator = self.request.user.user_profile
+        response = super(LocationCreateView, self).form_valid(form)
+        # with transaction.atomic():
+        #     self.object.players.add(self.request.user.user_profile)
+        return response
 
     def get_success_url(self):
         return reverse("account-locations")
