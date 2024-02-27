@@ -160,6 +160,7 @@ class CustomLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(CustomLoginForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget = CustomTextInputWidget()
+        self.fields['username'].label = "Email"
         self.fields['password'].widget = CustomPasswordInputWidget()
 
 
