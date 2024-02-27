@@ -38,7 +38,9 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         return UserProfile.objects.get(user=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('user-profile-detail', args=[self.request.user.slug])
+        return reverse_lazy('user-profile-detail', args=[self.request.user.user_profile.slug])
+
+    # todo: add success message
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
