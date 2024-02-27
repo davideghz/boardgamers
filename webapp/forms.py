@@ -210,10 +210,11 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
         nickname = self.cleaned_data['nickname']
         if nickname is None:
             raise ValidationError(_(f"Insert nickname"))
+        if nickname and UserProfile.objects.filter(nickname=nickname).exists():
+            raise ValidationError(_("Profile with this Nickname already exists."))
         if len(nickname) > 25:
             raise ValidationError(_(f"Nickname can have at most 25 characters (it has {len(nickname)})."))
         return nickname
-
 
     def save(self, commit=True):
         if not commit:

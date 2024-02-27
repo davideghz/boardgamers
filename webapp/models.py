@@ -94,7 +94,7 @@ class Location(DateTimeModel, SlugModel):
 
 class UserProfile(DateTimeModel, SlugModel):
     slug_field_name = 'nickname'
-    nickname = models.CharField(max_length=25, null=False, blank=True)
+    nickname = models.CharField(unique=True, max_length=25, null=False, blank=True)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
     is_email_verified = models.BooleanField(default=False, db_index=True)
