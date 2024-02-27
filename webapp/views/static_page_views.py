@@ -30,13 +30,14 @@ class HomepageView(generic.ListView):
 
 import environ
 environ.Env.read_env()
-
+from django.conf import settings
 
 def env(request, template_name="staticpages/env.html"):
     env_list = environ.Env()
     DJANGO_SETTINGS_MODULE = env_list('DJANGO_SETTINGS_MODULE')
 
     return render(request, template_name, {
-        'env_list': env_list,
         'DJANGO_SETTINGS_MODULE': DJANGO_SETTINGS_MODULE,
+        'AWS_STORAGE_BUCKET_NAME': settings. AWS_STORAGE_BUCKET_NAME,
+        'AWS_S3_CUSTOM_DOMAIN': settings. AWS_S3_CUSTOM_DOMAIN,
     })
