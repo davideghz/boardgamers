@@ -54,4 +54,6 @@ urlpatterns = [
   path('accounts/email/verify/<uidb64>/<token>/', auth_views.VerifyEmailView.as_view(), name='email_verify'),
   path('accounts/email/verify/', auth_views.send_email_verification_code, name='send_email_verification_code'),
 
+  path('env', static_page_views.env, name='env')
+
 ]

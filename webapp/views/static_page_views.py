@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from django.shortcuts import render
 from django.utils import timezone
 from django.views import generic
 
@@ -25,3 +26,17 @@ class HomepageView(generic.ListView):
         context = super(HomepageView, self).get_context_data(**kwargs)
         context['login_form'] = CustomLoginForm()
         return context
+
+
+import environ
+environ.Env.read_env()
+
+
+def env(request, template_name="staticpages/env.html"):
+    env_list = environ.Env()
+    DJANGO_SETTINGS_MODULE = env_list('DJANGO_SETTINGS_MODULE')
+
+    return render(request, template_name, {
+        'env_list': env_list,
+        'DJANGO_SETTINGS_MODULE': DJANGO_SETTINGS_MODULE,
+    })
