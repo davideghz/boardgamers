@@ -253,6 +253,7 @@
           function togglePublicLocationVisibility() {
               if (switchElement.checked) {
                   publicLocationDiv.classList.remove('d-none');
+                  $(locationSelect).val(null).trigger('change');
               } else {
                   publicLocationDiv.classList.add('d-none');
                   $(locationSelect).val(null).trigger('change');
@@ -260,7 +261,7 @@
           }
 
           switchElement.addEventListener('change', togglePublicLocationVisibility);
-          togglePublicLocationVisibility();
+          {#togglePublicLocationVisibility();#}
       });
   </script>
 {% endblock %}

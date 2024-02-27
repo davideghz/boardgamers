@@ -82,6 +82,7 @@ class Location(DateTimeModel, SlugModel):
 
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     description = models.TextField()
+    cover = models.ImageField(upload_to='location-covers/', null=True, blank=True, storage=PublicMediaStorage())
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=12, null=True, blank=True)

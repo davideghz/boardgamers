@@ -281,4 +281,4 @@ class LocationForm(ModelForm, BootstrapForm):
 
     class Meta:
         model = Location
-        fields = ['name', 'creator', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']
+        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']

@@ -119,8 +119,16 @@
                 <span class="h5 flex-grow-1">{% trans "Location info" %}</span>
               </div>
             </div>
-            <img src="https://picsum.photos/800/400" class="card-img-mid img-fluid" alt="...">
-            <div class="card-body">
+            {% if table.location.cover %}
+              <div class="border-top" style="background-image: url('{{ table.location.cover.url }}');
+                  background-size: cover;
+                  background-position: center;
+                  width: 100%;
+                  padding-top: 60%;
+                  ">
+              </div>
+            {% endif %}
+            <div class="card-body border-top">
               <span class="h5">{{ table.location.name }}</span>
               <p class="card-text text-secondary"><small>{{ table.location.description }}</small></p>
             </div>

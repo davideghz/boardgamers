@@ -1,14 +1,15 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView
 from django.views.generic.detail import DetailView
-from django.contrib.auth.models import User
 
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
-from webapp.models import UserProfile, Table
+from webapp.models import UserProfile
+
+from django.utils.translation import gettext_lazy as _
 
 
 class UserProfileDetailView(DetailView):
@@ -29,18 +30,17 @@ class UserProfileDetailView(DetailView):
         return context
 
 
-class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = UserProfile
     form_class = UserProfileForm
     template_name = 'accounts/account_edit_profile.html'
+    success_message = _("Profile updated successfully")
 
     def get_object(self, queryset=None):
         return UserProfile.objects.get(user=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('user-profile-detail', args=[self.request.user.user_profile.slug])
-
-    # todo: add success message
+        return reverse('user-profile-detail', args=[self.request.user.user_profile.slug])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

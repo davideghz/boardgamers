@@ -20,21 +20,22 @@ class LocationDetailView(DetailView):
         return context
 
 
-class LocationCreateView(CreateView):
+class LocationCreateView(SuccessMessageMixin, CreateView):
     model = Location
     form_class = LocationForm
     template_name = 'locations/location_add_or_edit.html'
+    success_message = "Location was created successfully"
 
     def form_valid(self, form):
         location = form.save(commit=False)
-        user_profile, created = UserProfile.objects.get_or_create(user=self.request.user)
-        location.user_profile = user_profile
+        creator = self.request.user.user_profile
+        location.creator = creator
         location.save()
         return super(LocationCreateView, self).form_valid(form)
 
     def get_success_url(self):
         location_slug = self.object.slug
-        return reverse("location-detail", kwargs={"slug": location_slug})
+        return reverse("account-locations")
 
 
 class LocationUpdateView(SuccessMessageMixin, generic.UpdateView):
@@ -45,11 +46,11 @@ class LocationUpdateView(SuccessMessageMixin, generic.UpdateView):
 
     def form_valid(self, form):
         location = form.save(commit=False)
-        user_profile, created = UserProfile.objects.get_or_create(user=self.request.user)
-        location.user_profile = user_profile
+        creator = self.request.user.user_profile
+        location.creator = creator
         location.save()
         return super(LocationUpdateView, self).form_valid(form)
 
     def get_success_url(self):
         location_slug = self.object.slug
-        return reverse("location-detail", kwargs={"slug": location_slug})
+        return reverse("account-locations")

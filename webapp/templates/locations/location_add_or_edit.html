@@ -34,7 +34,7 @@
   <div class="container py-4">
     <div class="row">
       <div class="col-12 col-md-8 col-lg-6">
-        <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" action="" method="post">
+        <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" enctype="multipart/form-data" action="" method="post">
           {% csrf_token %}
 
           {{ form.city }}
@@ -66,8 +66,9 @@
             </div>
           </div>
 
-          <small
-              class="d-block pt-3 pb-2 text-secondary">{% trans "Describe your location." %}</small>
+          <small class="d-block pt-3 pb-2 text-secondary">
+            {% trans "Describe your location." %}
+          </small>
           <div class="form-floating mb-3">
             {{ form.description }}
             {{ form.description.label_tag|cut:":" }}
@@ -79,6 +80,30 @@
               </div>
             {% endif %}
           </div>
+
+          <small class="d-block pt-3 pb-2 text-secondary">
+            {% trans "Add a cover image (optional)" %}
+          </small>
+            {% if form.instance.cover %}
+              <div style="background-image: url('{{ form.instance.cover.url }}');
+                  background-size: cover;
+                  background-position: center;
+                  width: 100%;
+                  padding-top: 60%;
+                  border-radius: 6px;
+                  ">
+              </div>
+            {% endif %}
+            <div class="mb-3 mt-3">
+              {{ form.cover }}
+              {% if form.cover.errors %}
+                <div class="invalid-feedback">
+                  {% for error in form.cover.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
 
           <small
               class="d-block pt-3 pb-2 text-secondary">{% trans "Insert the location's address. We will use it to show the location on the map!" %}</small>
