@@ -206,6 +206,15 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
             raise ValidationError(_("Email already registered."))
         return email
 
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname']
+        if nickname is None:
+            raise ValidationError(_(f"Insert nickname"))
+        if len(nickname) > 25:
+            raise ValidationError(_(f"Nickname can have at most 25 characters (it has {len(nickname)})."))
+        return nickname
+
+
     def save(self, commit=True):
         if not commit:
             raise NotImplementedError("Can't create User and UserProfile without database save")

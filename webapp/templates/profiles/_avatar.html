@@ -1,7 +1,17 @@
 {% load i18n %}
 
 <div class="card shadow border-0 mb-4 position-relative">
-  <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">
+{#  <img src="{{ userprofile.avatar_url }}" class="card-img-top img-fluid" alt="...">#}
+  <div class="avatar-pic"
+       style="background-image: url('{{ userprofile.avatar_url }}');
+              background-size: cover;
+              width: 100%;
+              padding-top: 100%;
+              border-top-left-radius: 6px;
+              border-top-right-radius: 6px;
+           ">
+
+  </div>
   {% if userprofile.user == user %}
     <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
             style="position: absolute; top:10px; right: 10px"
@@ -10,14 +20,14 @@
     </button>
   {% endif %}
   <div class="card-body">
-    <div class="d-flex align-items-center justify-content-between">
+{#    <div class="d-flex align-items-center justify-content-between">#}
       <h5 class="card-title mb-0">{{ userprofile.nickname }}</h5>
       {% if userprofile.user == user %}
-        <a class="btn btn-sm btn-dark" href="{% url "user-profile-edit" %}">
+        <a class="btn btn-sm btn-dark mt-1" href="{% url "user-profile-edit" %}">
           <i class="bi bi-gear-fill"></i> {% trans 'edit profile' %}
         </a>
       {% endif %}
-    </div>
+{#    </div>#}
   </div>
 </div>
 
