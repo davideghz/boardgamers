@@ -6,7 +6,11 @@
 
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
             aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+      {% if user.is_authenticated %}
+        <i class="bi bi-person-circle"></i>
+      {% else %}
+        <span class="navbar-toggler-icon"></span>
+      {% endif %}
     </button>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
@@ -27,7 +31,7 @@
             <li class="nav-item dropdown">
               <a class="nav-link btn btn-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                  aria-expanded="false">
-                {{ user.user_profile.nickname }} <i class="bi bi-person-circle"></i>
+                <i class="bi bi-person-circle"></i>
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url "account-index" %}">{% trans "Account" %}</a></li>
@@ -46,12 +50,12 @@
               </ul>
             </li>
           {% else %}
-              <li class="nav-item ms-1">
-                <a class="nav-link btn btn-light" href="{% url "signup" %}">Register</a>
-              </li>
-              <li class="nav-item ms-1">
-                <a class="btn btn-primary" href="{% url "login" %}">Login</a>
-              </li>
+            <li class="nav-item ms-1">
+              <a class="nav-link btn btn-light" href="{% url "signup" %}">Register</a>
+            </li>
+            <li class="nav-item ms-1">
+              <a class="btn btn-primary" href="{% url "login" %}">Login</a>
+            </li>
           {% endif %}
         </ul>
         <div class="d-lg-none">
@@ -61,17 +65,20 @@
               {% if user.is_authenticated %}
 
                 <div style="padding-left: 0; padding-right: 0">
-                  <a href="{% url "table-create" %}" class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
+                  <a href="{% url "table-create" %}"
+                     class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
                     {% trans "New table" %}
                     <i class="bi bi-arrow-right-circle-fill"></i>
                   </a>
 
-                  <a href="{% url "account-index" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
+                  <a href="{% url "account-index" %}"
+                     class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
                     {% trans "Account" %}
                     <i class="bi bi-arrow-right-circle"></i>
                   </a>
 
-                  <a href="{% url "account-tables" %}" class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
+                  <a href="{% url "account-tables" %}"
+                     class="btn btn-lg btn-light mb-4 py-4 d-flex justify-content-between">
                     {% trans "Tables" %}
                     <i class="bi bi-arrow-right-circle"></i>
                   </a>
