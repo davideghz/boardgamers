@@ -1,13 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Prefetch
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
+from django.utils.translation import gettext_lazy as _
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm
 from webapp.models import Table, Comment, Player, UserProfile, Game
@@ -74,7 +73,7 @@ class TableCreateView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateVie
     model = Table
     form_class = TableForm
     template_name = "tables/table_add_or_edit.html"
-    success_message = "Table was created successfully"
+    success_message = _("Table was created successfully")
 
     def form_valid(self, form):
         form.instance.author = self.request.user.user_profile
@@ -92,7 +91,7 @@ class TableUpdateView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMessa
     model = Table
     form_class = TableForm
     template_name = "tables/table_add_or_edit.html"
-    success_message = "Table was updated successfully"
+    success_message = _("Table was updated successfully")
 
     def get_success_url(self):
         table_slug = self.object.slug
