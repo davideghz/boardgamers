@@ -13,9 +13,8 @@
       .swiper-wrapper {
       }
       .swiper-slide {
-          max-width: 300px;
-          height: 420px;
-          margin: 0 15px;
+          padding: 0 15px;
+          margin-bottom: 30px;
       }
       .swiper-scrollbar {
           margin-top: 15px;
@@ -66,6 +65,8 @@
                     <p>{% trans "No tables found." %}</p>
                   {% endfor %}
                 </div>
+
+                <!-- If we need scrollbar -->
                 <div class="swiper-scrollbar"></div>
               </div>
             {% else %}
@@ -93,25 +94,20 @@
           // Optional parameters
           loop: false,
           mousewheel: true,
-          slidesPerView: 'auto',
           freeMode: {
               enabled: true,
           },
-
-          // If we need pagination
-          pagination: {
-              el: '.swiper-pagination',
-          },
-
-          // Navigation arrows
-          navigation: {
-              nextEl: '.swiper-button-next',
-              prevEl: '.swiper-button-prev',
-          },
-
-          // And if we need scrollbar
           scrollbar: {
               el: '.swiper-scrollbar',
+          },
+          slidesPerView: 1,
+          breakpoints: {
+              '992': {
+                  slidesPerView: 2,
+              },
+              '1200': {
+                  slidesPerView: 3,
+              }
           },
       });
   </script>
