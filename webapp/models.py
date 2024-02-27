@@ -6,7 +6,9 @@ import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
+from django.contrib.gis.geos import Point
 from django.db import models
+from django.contrib.gis.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -85,8 +87,8 @@ class Location(DateTimeModel, SlugModel):
     cover = models.ImageField(upload_to='location-covers', null=True, blank=True, storage=PublicMediaStorage())
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
-    latitude = models.CharField(max_length=12, null=True, blank=True)
-    longitude = models.CharField(max_length=13, null=True, blank=True)
+    latitude = models.CharField(max_length=25, null=True, blank=True)
+    longitude = models.CharField(max_length=25, null=True, blank=True)
     is_public = models.BooleanField(default=False)
 
     def __str__(self):
@@ -103,8 +105,8 @@ class UserProfile(DateTimeModel, SlugModel):
     user = models.OneToOneField(User, related_name='user_profile', on_delete=models.CASCADE)
     address = models.CharField(max_length=350)
     city = models.CharField(max_length=144, null=True, blank=True)
-    latitude = models.CharField(max_length=12, null=True, blank=True)
-    longitude = models.CharField(max_length=13, null=True, blank=True)
+    latitude = models.CharField(max_length=25, null=True, blank=True)
+    longitude = models.CharField(max_length=25, null=True, blank=True)
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
 
     class Meta:
@@ -151,6 +153,8 @@ class Table(DateTimeModel, SlugModel):
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     games = models.ManyToManyField(Game, related_name='tables', blank=True)
+
+    point = models.PointField(geography=True, default=Point(0.0, 0.0))
 
     def __str__(self):
         return self.title

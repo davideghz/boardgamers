@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # geoDjango
+    'django.contrib.gis',
+
     # webApp
     'webapp',
 
@@ -74,14 +77,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'boardGames.wsgi.application'
 
+# GeoDjango
+GDAL_LIBRARY_PATH = '/Applications/Postgres.app/Contents/Versions/16/lib/libgdal.dylib'
+GEOS_LIBRARY_PATH = os.path.join('/opt/homebrew/opt/geos/lib', 'libgeos_c.dylib')
+
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'boardgamers',
+        'USER': 'bg_user',
+        'PASSWORD': 'bg_password',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 

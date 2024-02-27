@@ -15,4 +15,7 @@ DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 AWS_STORAGE_BUCKET_NAME = 'boardgamers-prod-public'
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
+GDAL_LIBRARY_PATH = ''
+GEOS_LIBRARY_PATH = ''
+
 print('prod settings loaded')

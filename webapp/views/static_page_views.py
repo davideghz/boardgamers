@@ -1,3 +1,5 @@
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance
 from django.db.models import Prefetch
 from django.shortcuts import render
 from django.utils import timezone
@@ -29,15 +31,19 @@ class HomepageView(generic.ListView):
 
 
 import environ
+
 environ.Env.read_env()
 from django.conf import settings
 
-def env(request, template_name="staticpages/env.html"):
+
+def debug(request, template_name="staticpages/debug.html"):
     env_list = environ.Env()
     DJANGO_SETTINGS_MODULE = env_list('DJANGO_SETTINGS_MODULE')
+    tables = Table.objects.filter(point__distance_lt=(Point(9, 45), Distance(m=500000)))
 
     return render(request, template_name, {
         'DJANGO_SETTINGS_MODULE': DJANGO_SETTINGS_MODULE,
-        'AWS_STORAGE_BUCKET_NAME': settings. AWS_STORAGE_BUCKET_NAME,
-        'AWS_S3_CUSTOM_DOMAIN': settings. AWS_S3_CUSTOM_DOMAIN,
+        'AWS_STORAGE_BUCKET_NAME': settings.AWS_STORAGE_BUCKET_NAME,
+        'AWS_S3_CUSTOM_DOMAIN': settings.AWS_S3_CUSTOM_DOMAIN,
+        'tables': tables,
     })

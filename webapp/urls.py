@@ -55,5 +55,5 @@ urlpatterns = [
   path('accounts/email/verify/', auth_views.send_email_verification_code, name='send_email_verification_code'),
 
   # DEBUGGING UTILS
-  # path('env', static_page_views.env, name='env')
+  path('debug', static_page_views.debug, name='debug')
 ]

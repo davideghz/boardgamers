@@ -253,9 +253,11 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
 
 
 class UserProfileForm(ModelForm, BootstrapForm):
-    city = CharField(widget=HiddenInput(), required=False, )
-    latitude = CharField(widget=HiddenInput(), required=False, )
-    longitude = CharField(widget=HiddenInput(), required=False, )
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        self.fields['city'].widget = HiddenInput()
+        self.fields['latitude'].widget = HiddenInput()
+        self.fields['longitude'].widget = HiddenInput()
 
     class Meta:
         model = UserProfile

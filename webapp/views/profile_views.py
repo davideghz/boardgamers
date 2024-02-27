@@ -42,11 +42,11 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     def get_success_url(self):
         return reverse('user-profile-detail', args=[self.request.user.user_profile.slug])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.get_object().user
-        context['user'] = user
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     user = self.get_object().user
+    #     context['user'] = user
+    #     return context
 
 
 def upload_avatar(request):

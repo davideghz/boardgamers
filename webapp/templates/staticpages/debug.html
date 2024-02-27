@@ -9,6 +9,12 @@
       <div class="col">
         <p>{{ DJANGO_SETTINGS_MODULE }}</p>
         <p>{{ AWS_S3_CUSTOM_DOMAIN }}</p>
+
+        <ul>
+          {% for t in tables %}
+            <li>{{ t.slug }} - {{ t.point }}</li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </div>
