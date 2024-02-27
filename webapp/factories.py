@@ -54,6 +54,7 @@ class LocationFactory(DjangoModelFactory):
     city = factory.LazyFunction(faker.city)
     latitude = factory.LazyFunction(faker.latitude)
     longitude = factory.LazyFunction(faker.longitude)
+    is_public = True
 
 
 class GameFactory(DjangoModelFactory):

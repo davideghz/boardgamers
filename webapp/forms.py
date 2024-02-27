@@ -121,6 +121,7 @@ class TableForm(ModelForm, BootstrapForm):
         widgets = {
             'location': autocomplete.ModelSelect2(
                 url='location-autocomplete',
+                forward=['is_public_location'],
                 attrs={
                     'data-placeholder': _('Select Location'),
                     # 'data-minimum-input-length': 3

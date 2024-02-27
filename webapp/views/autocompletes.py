@@ -11,17 +11,18 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
         if not self.request.user.is_authenticated:
             return Location.objects.none()
 
-        qs = Location.objects.annotate(
-            is_user_location=Case(
-                When(creator=self.request.user.user_profile, then=Value(1)),
-                When(is_public=True, then=Value(2)),
-                default=Value(3),
-                output_field=IntegerField(),
-            )
-        ).order_by('is_user_location', Lower('name'))
+        qs = Location.objects.all()
+
+        is_public_location = self.forwarded.get('is_public_location', None)
+
+        if is_public_location:
+            qs = qs.filter(is_public=True)
+        else:
+            qs = qs.filter(creator=self.request.user.user_profile)
 
         if self.q:
             qs = qs.filter(name__istartswith=self.q)
+
         return qs
 
 
