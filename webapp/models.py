@@ -55,7 +55,11 @@ class SlugModel(models.Model):
         return unique_slug
 
     def save(self, *args, **kwargs):
-        if not self.slug:
+        if self.pk:
+            original = type(self).objects.get(pk=self.pk)
+            if getattr(original, self.slug_field_name) != self.get_slug_source_value():
+                self.slug = self.create_unique_slug()
+        else:
             self.slug = self.create_unique_slug()
         super().save(*args, **kwargs)
 
