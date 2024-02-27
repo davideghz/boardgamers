@@ -34,7 +34,6 @@ class LocationCreateView(SuccessMessageMixin, CreateView):
         return super(LocationCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        location_slug = self.object.slug
         return reverse("account-locations")
 
 
@@ -52,5 +51,4 @@ class LocationUpdateView(SuccessMessageMixin, generic.UpdateView):
         return super(LocationUpdateView, self).form_valid(form)
 
     def get_success_url(self):
-        location_slug = self.object.slug
         return reverse("account-locations")

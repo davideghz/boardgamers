@@ -12,4 +12,6 @@ DOMAIN = "boardgamers-b44b863a1d98.herokuapp.com"
 DOMAIN_PROTOCOL = 'https'
 DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 
+AWS_STORAGE_BUCKET_NAME = 'boardgamers-prod-public'
+
 print('prod settings loaded')
