@@ -2,6 +2,7 @@ import datetime
 import random
 
 import factory
+from django.contrib.gis.geos import Point
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 from django.contrib.auth.models import User
@@ -9,6 +10,14 @@ from .models import UserProfile, Table, Comment, Player, Game, Location
 from faker import Faker
 
 faker = Faker()
+
+
+def random_longitude():
+    return random.choice(['9'])
+
+
+def random_latitude():
+    return random.choice(['45', '89', '-89'])
 
 
 class UserFactory(DjangoModelFactory):
@@ -36,8 +45,8 @@ class UserProfileFactory(DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     address = factory.LazyFunction(faker.address)
     city = factory.LazyFunction(faker.city)
-    latitude = 45
-    longitude = 45
+    longitude = factory.LazyFunction(random_longitude)
+    latitude = factory.LazyFunction(random_latitude)
 
 
 class SuperUserProfileFactory(UserProfileFactory):
@@ -52,8 +61,8 @@ class LocationFactory(DjangoModelFactory):
     description = factory.LazyFunction(faker.sentence)
     address = factory.LazyFunction(faker.address)
     city = factory.LazyFunction(faker.city)
-    latitude = factory.LazyFunction(faker.latitude)
-    longitude = factory.LazyFunction(faker.longitude)
+    longitude = factory.LazyFunction(random_longitude)
+    latitude = factory.LazyFunction(random_latitude)
     is_public = True
 
 

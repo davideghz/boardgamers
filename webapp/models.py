@@ -89,6 +89,7 @@ class Location(DateTimeModel, SlugModel):
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
     longitude = models.CharField(max_length=25, null=True, blank=True)
+    point = models.PointField(geography=True, default=Point(0.0, 0.0))
     is_public = models.BooleanField(default=False)
 
     def __str__(self):
@@ -107,6 +108,7 @@ class UserProfile(DateTimeModel, SlugModel):
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
     longitude = models.CharField(max_length=25, null=True, blank=True)
+    point = models.PointField(geography=True, default=Point(0.0, 0.0))
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
 
     class Meta:
@@ -153,8 +155,6 @@ class Table(DateTimeModel, SlugModel):
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     games = models.ManyToManyField(Game, related_name='tables', blank=True)
-
-    point = models.PointField(geography=True, default=Point(0.0, 0.0))
 
     def __str__(self):
         return self.title

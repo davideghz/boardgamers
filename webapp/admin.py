@@ -9,7 +9,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
-    list_display = ("title", "slug", "author")
+    list_display = ("title", "location", "slug", "author")
 
     def save_model(self, request, obj, form, change):
         if not obj.slug:

@@ -82,6 +82,10 @@ if ENV == 'local':
     GDAL_LIBRARY_PATH = '/Applications/Postgres.app/Contents/Versions/16/lib/libgdal.dylib'
     GEOS_LIBRARY_PATH = os.path.join('/opt/homebrew/opt/geos/lib', 'libgeos_c.dylib')
 
+# GeoIP
+GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')
+
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
