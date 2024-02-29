@@ -1,13 +1,15 @@
+from django.contrib.gis.db.models.functions import GeometryDistance
 from django.contrib.gis.geoip2 import GeoIP2
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Point, fromstr
 from django.contrib.gis.measure import Distance
+from django.contrib.gis.db.models.functions import Distance as Distance2
 from django.db.models import Prefetch
 from django.shortcuts import render
 from django.utils import timezone
 from django.views import generic
 
 from webapp.forms import CustomLoginForm
-from webapp.models import Comment, UserProfile, Game, Table
+from webapp.models import Comment, UserProfile, Game, Table, Location
 
 
 class HomepageView(generic.ListView):
@@ -53,9 +55,28 @@ def debug(request, template_name="staticpages/debug.html"):
         user_ip = '93.66.88.167'
 
     city = g.city(user_ip)
-    point = g.geos(user_ip)
+    user_point = g.geos(user_ip)
+    tables = Table.objects.filter(location__point__distance_lt=(user_point, Distance(m=55000)))
 
-    tables = Table.objects.filter(location__point__distance_lt=(point, Distance(m=150000)))
+    pozzobonelli = Point(9.1948628, 45.5216581, srid=4326)
+    cherso = Point(9.1979062, 45.5206266, srid=4326)
+
+    # Query per ottenere gli oggetti ordinati per distanza dal punto di riferimento
+    print('--------- DB distance -----------')
+    objects_by_distance = tables.annotate(distance=Distance2('location__point', pozzobonelli)).order_by('distance')
+    for obj in objects_by_distance:
+        print(obj.location.point, obj.distance)
+
+    print('--------- Pozzobonelli > Cherso -----------')
+    print(pozzobonelli.distance(cherso)*111.139)
+
+    print('--------- .point.distance * 111.139 -----------')
+    # Calcola la distanza per ogni table e la aggiunge come attributo
+    for table in tables:
+        table.distance_from_ip = table.location.point.distance(user_point)
+        table.distance_from_pozzo = table.location.point.distance(pozzobonelli)
+        print(table.location.point, table.distance_from_ip*111.139, 'ip')
+        print(table.location.point, table.distance_from_pozzo*111.139, 'pozzo')
 
     return render(request, template_name, {
         'DJANGO_SETTINGS_MODULE': DJANGO_SETTINGS_MODULE,
@@ -63,6 +84,6 @@ def debug(request, template_name="staticpages/debug.html"):
         'AWS_S3_CUSTOM_DOMAIN': settings.AWS_S3_CUSTOM_DOMAIN,
         'user_ip': user_ip,
         'city': city,
-        'point': point,
+        'user_point': user_point,
         'tables': tables,
     })

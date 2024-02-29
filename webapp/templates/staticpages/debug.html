@@ -10,11 +10,15 @@
         <p>{{ DJANGO_SETTINGS_MODULE }}</p>
         <p>{{ AWS_S3_CUSTOM_DOMAIN }}</p>
         <p>user_ip: {{ user_ip }}</p>
-        <p>Point: {{ point }}</p>
+        <p>user_point: {{ user_point }}</p>
         <p>La città è: {{ city }}</p>
         <ul>
           {% for t in tables %}
-            <li>{{ t.slug }} - {{ t.location.point }}</li>
+            <li>
+              <p>{{ t.slug }}</p>
+              <p>{{ t.location.point }}</p>
+              <p>{{ table.distance_from_user }} metri</p>
+            </li>
           {% endfor %}
         </ul>
       </div>
