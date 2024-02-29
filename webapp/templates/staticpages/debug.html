@@ -17,10 +17,11 @@
             <li>
               <p>{{ t.slug }}</p>
               <p>{{ t.location.point }}</p>
-              <p>{{ table.distance_from_user }} metri</p>
+              <p>{{ t.distance.km|floatformat:"2" }} Km</p>
             </li>
           {% endfor %}
         </ul>
+
       </div>
     </div>
   </div>
