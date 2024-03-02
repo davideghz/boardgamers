@@ -25,6 +25,6 @@ EMAIL_BACKEND = 'django_ses.SESBackend'
 AWS_SES_ACCESS_KEY_ID = env('AWS_SES_ACCESS_KEY_ID')
 AWS_SES_SECRET_ACCESS_KEY = env('AWS_SES_SECRET_ACCESS_KEY')
 AWS_SES_REGION_NAME = 'eu-west-1'
-AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
+AWS_SES_REGION_ENDPOINT = 'email-smtp.eu-west-1.amazonaws.com'
 
 print('prod settings loaded')
