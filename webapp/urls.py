@@ -1,8 +1,16 @@
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 
 from .forms import CustomLoginForm
+from .sitemaps import LocationSitemap, GameSitemap, TableSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete
+
+sitemaps = {
+  'locations': LocationSitemap,
+  'games': GameSitemap,
+  'tables': TableSitemap,
+}
 
 urlpatterns = [
   # STATIC
@@ -53,6 +61,9 @@ urlpatterns = [
   path('accounts/reset/done/', auth_views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
   path('accounts/email/verify/<uidb64>/<token>/', auth_views.VerifyEmailView.as_view(), name='email_verify'),
   path('accounts/email/verify/', auth_views.send_email_verification_code, name='send_email_verification_code'),
+
+  # SITEMAP
+  path('sitemap.xml', sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
 
   # DEBUGGING UTILS
   path('debug', static_page_views.debug, name='debug')

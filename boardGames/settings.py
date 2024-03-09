@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # sitemap
+    'django.contrib.sitemaps',
+
     # geoDjango
     'django.contrib.gis',
 
