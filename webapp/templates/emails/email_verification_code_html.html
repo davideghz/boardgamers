@@ -1,3 +1,5 @@
-<p>Ciao {{ nickname }}</p>
-<p>Completa il processo di registrazione confermando il tuo indirizzo email: {{ button_href }}</p>
-<p>Il team di Board Gamers</p>
+{% load i18n %}
+
+<p>{% trans "Hey" %} {{ nickname }}</p>
+<p>{% trans "Complete the registration process by confirming your email address" %}: {{ button_href }}</p>
+<p><strong>Board-Gamers.com</strong></p>
