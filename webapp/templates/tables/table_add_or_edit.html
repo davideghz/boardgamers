@@ -249,6 +249,14 @@
           var switchElement = document.getElementById('id_is_public_location');
           var publicLocationDiv = document.getElementById('public-location');
           var locationSelect = document.getElementById('id_location');
+          
+          function initPublicLocationVisibility() {
+              if (switchElement.checked) {
+                  publicLocationDiv.classList.remove('d-none');
+              } else {
+                  publicLocationDiv.classList.add('d-none');
+              }
+          }
 
           function togglePublicLocationVisibility() {
               if (switchElement.checked) {
@@ -261,7 +269,7 @@
           }
 
           switchElement.addEventListener('change', togglePublicLocationVisibility);
-          {#togglePublicLocationVisibility();#}
+          initPublicLocationVisibility();
       });
   </script>
 {% endblock %}
