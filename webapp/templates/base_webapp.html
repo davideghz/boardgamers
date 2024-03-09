@@ -12,10 +12,10 @@
 
   {% block breadcrumbs %}{% endblock breadcrumbs %}
 
-  <main class="container-fluid p-0">
+{#  <main class="container-fluid p-0">#}
     {% include "partials/messages.html" %}
     {% block content %}{% endblock content %}
-  </main>
+{#  </main>#}
 
   {% block footer %}
     {% include "partials/footer.html" %}
@@ -40,7 +40,7 @@
         }).show())
     </script>
   {% endif %}
-  
+
   <!-- Put here custom JavaScript! -->
   {#  <script src="{% static prefix %}javascripts/scripts.js"></script>#}
   {% block extrabodyjs %}
