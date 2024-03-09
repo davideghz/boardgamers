@@ -9,7 +9,7 @@ class LocationSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Location.objects.filter(is_public=True)
+        return Location.objects.filter(is_public=True).order_by('-updated_at')
 
     def lastmod(self, obj):
         return obj.updated_at
@@ -23,7 +23,7 @@ class GameSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Game.objects.all()
+        return Game.objects.all().order_by('-updated_at')
 
     def lastmod(self, obj):
         return obj.updated_at
@@ -37,7 +37,7 @@ class TableSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Table.objects.all()
+        return Table.objects.all().order_by('-updated_at')
 
     def lastmod(self, obj):
         return obj.updated_at
