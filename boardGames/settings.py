@@ -158,7 +158,7 @@ DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 
 # EMAILS
 ENABLE_EMAIL_SIGNALS = True
-DEFAULT_FROM_EMAIL = "info@board-gamers.com"
+DEFAULT_FROM_EMAIL = "Board-Gamers <info@board-gamers.com>"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
