@@ -10,7 +10,7 @@
     <form method="post">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
-      <a href="{% url 'table-index' %}" class="btn btn-link">{% trans "Cancel" %}</a>
+      <a href="{% url 'table-detail' table.slug %}" class="btn btn-link">{% trans "Cancel" %}</a>
     </form>
   </div>
 {% endblock %}
