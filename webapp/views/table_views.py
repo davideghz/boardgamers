@@ -1,5 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.gis.geoip2 import GeoIP2
+from django.contrib.gis.measure import Distance
+from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.db.models import Prefetch
@@ -23,14 +26,32 @@ class TableIndexView(generic.ListView):
     context_object_name = "tables"
 
     def get_queryset(self):
+        g = GeoIP2()
+
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            user_ip = x_forwarded_for.split(',')[0]
+        else:
+            user_ip = self.request.META.get('REMOTE_ADDR')
+
+        if user_ip == '127.0.0.1':
+            user_ip = '93.66.88.167'
+
+        city = g.city(user_ip)
+        user_point = g.geos(user_ip)
+
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
         games_prefetch = Prefetch('games', queryset=Game.objects.all())
-        return Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
-            comments_prefetch,
-            players_prefetch,
-            games_prefetch,
-        ).all().order_by('date')
+
+        tables = Table.objects \
+            .select_related('author', 'author__user', 'location') \
+            .prefetch_related(comments_prefetch, players_prefetch, games_prefetch) \
+            .filter(location__point__distance_lt=(user_point, Distance(m=122222255000))) \
+            .annotate(distance=DbDistance('location__point', user_point)) \
+            .order_by('distance', 'date')
+
+        return tables
 
     def get_context_data(self, **kwargs):
         context = super(TableIndexView, self).get_context_data(**kwargs)
