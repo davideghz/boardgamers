@@ -48,7 +48,10 @@
             <small><strong>{% trans "Address" %}</strong></small>
             <br>
             {% if table.location %}
-              <small>{{ table.location.address }}</small>
+              {% if table.location.is_public %}
+                <small>{{ table.location.name }}</small><br>
+              {% endif %}
+              <small>{{ table.location.address }} (<a target="_blank" href="http://maps.google.com/maps?q={{ table.location.latitude }},{{ table.location.longitude }}">map</a>)</small>
             {% else %}
               <small>
                 {% trans "No location set for this table." %}<br>
