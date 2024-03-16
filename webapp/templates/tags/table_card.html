@@ -17,7 +17,11 @@
       <i class="bi bi-person-fill"></i> <small>{{ table.author.nickname }}</small>
       {% if table.location %}
         <br>
-        <i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small>
+        {% if table.location.is_public %}
+          <i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small>
+        {% else %}
+          <i class="bi bi-geo-alt-fill"></i> <small>{% trans "Private location" %}</small>
+        {% endif %}
       {% endif %}
     </a>
     {% if table.games.all.exists %}
