@@ -69,7 +69,7 @@
                 <!-- If we need scrollbar -->
                 <div class="swiper-scrollbar"></div>
               </div>
-            {% else %}
+            {% elif not userprofile.is_email_verified and userprofile == user.user_profile %}
               <p>
                 <i class="bi bi-exclamation-circle"></i>
                 {% trans "Your email is not verified. Verify your email to join tables." %}
