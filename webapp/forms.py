@@ -2,7 +2,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, Pass
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
-    Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput
+    Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
+    ModelMultipleChoiceField
 from webapp.models import Table, UserProfile, Comment, Player, Location
 
 from django.utils.translation import gettext_lazy as _
@@ -117,7 +118,7 @@ class BootstrapForm(Form):
 class TableForm(ModelForm, BootstrapForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author']
+        exclude = ['slug', 'author', 'players']
         widgets = {
             'location': autocomplete.ModelSelect2(
                 url='location-autocomplete',
@@ -145,6 +146,13 @@ class TableForm(ModelForm, BootstrapForm):
         if description is None or len(description) < 30:
             raise ValidationError("Description is too short")
         return description
+
+    def save(self, commit=True):
+        instance = super(TableForm, self).save(commit=False)
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
 
 
 class CommentForm(ModelForm, BootstrapForm):
