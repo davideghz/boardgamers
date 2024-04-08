@@ -91,6 +91,7 @@ class Location(DateTimeModel, SlugModel):
     longitude = models.CharField(max_length=25, null=True, blank=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     is_public = models.BooleanField(default=False)
+    website = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} - {self.city}"
