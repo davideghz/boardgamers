@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
-from django.db import models
 from django.contrib.gis.db import models
 from django.urls import reverse
 from django.utils import timezone
