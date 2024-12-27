@@ -96,6 +96,11 @@ class Location(DateTimeModel, SlugModel):
     def __str__(self):
         return f"{self.name} - {self.city}"
 
+    def save(self, *args, **kwargs):
+        if self.latitude is not None and self.longitude is not None:
+            self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
+        super().save(*args, **kwargs)
+
 
 class UserProfile(DateTimeModel, SlugModel):
     slug_field_name = 'nickname'

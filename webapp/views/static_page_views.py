@@ -1,7 +1,5 @@
-from django.contrib.gis.db.models.functions import GeometryDistance
 from django.contrib.gis.geoip2 import GeoIP2
-from django.contrib.gis.geos import Point, fromstr
-from django.contrib.gis.measure import Distance
+from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.db.models import Prefetch
 from django.shortcuts import render
@@ -17,15 +15,40 @@ class HomepageView(generic.ListView):
     context_object_name = "tables"
 
     def get_queryset(self):
+        user_location = self.get_user_location()
+
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
         games_prefetch = Prefetch('games', queryset=Game.objects.all())
         today = timezone.now().date()
-        return Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+        queryset = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch,
             players_prefetch,
             games_prefetch,
         ).filter(date__gte=today).order_by('date')
+
+        if user_location:
+            queryset = queryset.annotate(
+                distance=DbDistance('location__point', user_location)
+            ).order_by('date', 'distance')
+        else:
+            queryset = queryset.order_by('date')
+
+        return queryset
+
+    def get_user_location(self):
+        """
+        Determines the user's location using the UserProfile model.
+        Returns a Point object if latitude and longitude are present; otherwise, returns None.
+        """
+        if self.request.user.is_authenticated:
+            user_profile = getattr(self.request.user, 'user_profile', None)
+            if user_profile and user_profile.latitude and user_profile.longitude:
+                try:
+                    return Point(float(user_profile.longitude), float(user_profile.latitude), srid=4326)
+                except (TypeError, ValueError):
+                    return None
+        return None
 
     def get_context_data(self, **kwargs):
         context = super(HomepageView, self).get_context_data(**kwargs)

@@ -15,16 +15,9 @@ def on_user_logged_out(sender, request, user, **kwargs):
 
 
 @receiver(post_save, sender=UserProfile)
-def on_user_signed_up(sender, instance, created, **kwargs):
+def on_user_saved(sender, instance, created, **kwargs):
     if settings.ENABLE_EMAIL_SIGNALS and created:
         send_user_email_verification_code(instance)
     if created:
-        instance.point = Point(float(instance.longitude), float(instance.latitude))
-        instance.save()
-
-
-@receiver(post_save, sender=Location)
-def on_user_signed_up(sender, instance, created, **kwargs):
-    if created:
-        instance.point = Point(float(instance.longitude), float(instance.latitude))
+        instance.point = Point(float(instance.longitude), float(instance.latitude), srid=4326)
         instance.save()
