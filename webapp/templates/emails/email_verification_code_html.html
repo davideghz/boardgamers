@@ -1,5 +1,20 @@
+{% extends "emails/base/base_email_html.html" %}
+
 {% load i18n %}
 
-<p>{% trans "Hey" %} {{ nickname }}</p>
-<p>{% trans "Complete the registration process by confirming your email address" %}: {{ button_href }}</p>
-<p><strong>Board-Gamers.com</strong></p>
+{% block title %}
+  {% trans "Confirm your email" %}
+{% endblock title %}
+
+{% block main_content %}
+    {% trans "Hey" %} {{ nickname }},<br>
+    {% trans "Please click the button below to confirm your email address and finish setting up your account." %}
+{% endblock main_content %}
+
+{% block cta_label %}
+  Confirm
+{% endblock cta_label %}
+
+{% block cta_href %}
+  {{ button_href }}
+{% endblock cta_href %}
