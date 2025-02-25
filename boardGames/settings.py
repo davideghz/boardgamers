@@ -58,6 +58,9 @@ INSTALLED_APPS = [
 
     # AWS S3
     'storages',
+
+    # Social Login
+    'social_django',
 ]
 
 ROOT_URLCONF = 'boardGames.urls'
@@ -73,6 +76,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # django social auth
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -103,6 +110,16 @@ DATABASES = {
     }
 }
 
+# SOCIAL LOGIN
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '53033452479-m1e3ubpf593o585de69gvg7csmil12a9.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

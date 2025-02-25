@@ -9,6 +9,11 @@ from django.views import generic
 from webapp.forms import CustomLoginForm
 from webapp.models import Comment, UserProfile, Game, Table, Location
 
+# for debug page
+import environ
+environ.Env.read_env()
+from django.conf import settings
+
 
 class HomepageView(generic.ListView):
     template_name = "staticpages/home.html"
@@ -56,11 +61,15 @@ class HomepageView(generic.ListView):
         return context
 
 
-import environ
+def privacy(request, template_name="staticpages/privacy.html"):
+    return render(request, template_name, {})
 
-environ.Env.read_env()
-from django.conf import settings
 
+def terms(request, template_name="staticpages/terms.html"):
+    return render(request, template_name, {})
+
+def test_login(request, template_name="staticpages/test_login.html"):
+    return render(request, template_name, {})
 
 def debug(request, template_name="staticpages/debug.html"):
     env_list = environ.Env()

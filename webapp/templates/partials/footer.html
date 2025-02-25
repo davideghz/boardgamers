@@ -6,8 +6,9 @@
       </div>
       <div class="col-12 col-md-6 text-md-end pb-1">
         <!-- IUBENDA -->
-        <a href="https://www.iubenda.com/privacy-policy/88029000" class="iubenda-black iubenda-noiframe iubenda-embed iubenda-noiframe " title="Privacy Policy ">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
-        <a href="https://www.iubenda.com/privacy-policy/88029000/cookie-policy" class="iubenda-black iubenda-noiframe iubenda-embed iubenda-noiframe " title="Cookie Policy ">Cookie Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>      </div>
+        <a href="{% url 'privacy' %}" class="px-2 small text-light" title="Privacy Policy ">Privacy Policy</a>
+        <a href="{% url 'terms' %}" class="px-2 small text-light" title="Cookie Policy ">Cookie Policy</a>
+      </div>
     </div>
   </div>
 </footer>
