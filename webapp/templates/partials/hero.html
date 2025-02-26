@@ -35,6 +35,7 @@
     }
 </style>
 
+{# Google button styling #}
 <style>
     .g-sign-in-button {
         text-decoration: none;
@@ -93,7 +94,7 @@
 <div class="position-relative">
   <div class="container col-xl-10 col-xxl-8 px-4 py-5 z-3">
     <div class="row align-items-center g-lg-5 py-md-5">
-      <div class="col-lg-7 text-center text-lg-start">
+      <div class="col-lg-7 text-center text-lg-start {% if user.is_authenticated %}d-none d-md-block{% endif %}">
         <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">
           {% blocktrans %}
             Find Board Gamers <br> near you
