@@ -27,10 +27,25 @@
     </div>
     <div class="container py-4">
       <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 g-4">
-        {% for table in tables %}
+        {% for table in future_tables %}
           {% table_list_item table %}
         {% empty %}
-          <p>{% trans "No tables found." %}</p>
+          <p>{% trans "No upcoming tables found." %}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div style="background-color: #FAEBD7; min-height: 400px">
+    <div class="container col-xl-10 col-xxl-8 px-4 py-2 pt-4 pt-md-2">
+      <p class="h1">{% trans "Past tables" %}</p>
+    </div>
+    <div class="container py-4">
+      <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 g-4">
+        {% for table in past_tables %}
+          {% table_list_item table %}
+        {% empty %}
+          <p>{% trans "No past tables found." %}</p>
         {% endfor %}
       </div>
     </div>

@@ -20,26 +20,7 @@ class HomepageView(generic.ListView):
     context_object_name = "tables"
 
     def get_queryset(self):
-        user_location = self.get_user_location()
-
-        comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-        players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
-        games_prefetch = Prefetch('games', queryset=Game.objects.all())
-        today = timezone.now().date()
-        queryset = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
-            comments_prefetch,
-            players_prefetch,
-            games_prefetch,
-        ).filter(date__gte=today).order_by('date')
-
-        if user_location:
-            queryset = queryset.annotate(
-                distance=DbDistance('location__point', user_location)
-            ).order_by('date', 'distance')
-        else:
-            queryset = queryset.order_by('date')
-
-        return queryset
+        return Table.objects.none()  # Non usiamo get_queryset() per evitare un'unica lista.
 
     def get_user_location(self):
         """
@@ -47,17 +28,41 @@ class HomepageView(generic.ListView):
         Returns a Point object if latitude and longitude are present; otherwise, returns None.
         """
         if self.request.user.is_authenticated:
-            user_profile = getattr(self.request.user, 'user_profile', None)
-            if user_profile and user_profile.latitude and user_profile.longitude:
-                try:
-                    return Point(float(user_profile.longitude), float(user_profile.latitude), srid=4326)
-                except (TypeError, ValueError):
-                    return None
+            try:
+                profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=self.request.user).first()
+                if profile and profile.latitude is not None and profile.longitude is not None:
+                    return Point(profile.longitude, profile.latitude, srid=4326)
+            except (TypeError, ValueError):
+                return None
         return None
 
     def get_context_data(self, **kwargs):
-        context = super(HomepageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        user_location = self.get_user_location()
+        today = timezone.now().date()
+
+        comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
+        players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
+        games_prefetch = Prefetch('games', queryset=Game.objects.all())
+
+        # Query per i tavoli futuri
+        future_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+            comments_prefetch, players_prefetch, games_prefetch
+        ).filter(date__gte=today).order_by('date')
+
+        # Query per i tavoli passati
+        past_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+            comments_prefetch, players_prefetch, games_prefetch
+        ).filter(date__lt=today).order_by('-date')[:12]  # Ordinamento inverso
+
+        # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza
+        if user_location:
+            future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date', 'distance')
+
+        context['future_tables'] = future_tables
+        context['past_tables'] = past_tables
         context['login_form'] = CustomLoginForm()
+
         return context
 
 

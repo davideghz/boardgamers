@@ -108,11 +108,11 @@ class UserProfile(DateTimeModel, SlugModel):
 
     is_email_verified = models.BooleanField(default=False, db_index=True)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, related_name='user_profile', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='user_profile', on_delete=models.CASCADE, db_index=True)
     address = models.CharField(max_length=350)
     city = models.CharField(max_length=144, null=True, blank=True)
-    latitude = models.CharField(max_length=25, null=True, blank=True)
-    longitude = models.CharField(max_length=25, null=True, blank=True)
+    latitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
+    longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
 
