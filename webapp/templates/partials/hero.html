@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 
 <style>
     .shapedividers_com-2437 {
@@ -90,11 +91,10 @@
     }
 </style>
 
-
 <div class="position-relative">
-  <div class="container col-xl-10 col-xxl-8 px-4 py-5 z-3">
+  <div class="container col-xl-10 col-xxl-8 px-4 py-5 z-3 d-none d-md-block">
     <div class="row align-items-center g-lg-5 py-md-5">
-      <div class="col-lg-7 text-center text-lg-start {% if user.is_authenticated %}d-none d-md-block{% endif %}">
+      <div class="col-lg-7 text-center text-lg-start">
         <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">
           {% blocktrans %}
             Find Board Gamers <br> near you
@@ -125,13 +125,17 @@
             <a href="{% url "social:begin" "google-oauth2" %}" class='g-sign-in-button mt-2'>
               <div class=content-wrapper>
                 <div class='logo-wrapper'>
-{#                  <img src='https://developers.google.com/identity/images/g-logo.png'>#}
+                  {#                  <img src='https://developers.google.com/identity/images/g-logo.png'>#}
                   <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
                     <g fill="none" fill-rule="evenodd">
-                      <path d="M17.6 9.2l-.1-1.8H9v3.4h4.8c-.2 1-.8 1.8-1.8 2.8v2.2h3a8.8 8.8 0 0 0 2.6-6.6z" fill="#4285F4" fill-rule="nonzero"/>
-                      <path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853" fill-rule="nonzero"/>
-                      <path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05" fill-rule="nonzero"/>
-                      <path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z" fill="#EA4335" fill-rule="nonzero"/>
+                      <path d="M17.6 9.2l-.1-1.8H9v3.4h4.8c-.2 1-.8 1.8-1.8 2.8v2.2h3a8.8 8.8 0 0 0 2.6-6.6z"
+                            fill="#4285F4" fill-rule="nonzero"/>
+                      <path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853"
+                            fill-rule="nonzero"/>
+                      <path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05"
+                            fill-rule="nonzero"/>
+                      <path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z"
+                            fill="#EA4335" fill-rule="nonzero"/>
                       <path d="M0 0h18v18H0z"/>
                     </g>
                   </svg>
@@ -167,7 +171,108 @@
       </div>
     </div>
   </div>
+
+  {% if user.is_authenticated %}
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <style>
+        .swiper {
+        }
+
+        .swiper-wrapper {
+        }
+
+        .swiper-slide {
+            margin-bottom: 30px;
+        }
+
+        .swiper-slide > .card {
+        }
+
+
+        .swiper-scrollbar {
+            margin-top: 15px;
+        }
+    </style>
+
+    <div class="container mt-3">
+      <div class="row">
+        <div class="col">
+          <h1>{% trans "Create a Table" %}</h1>
+          <p>{% trans "Chose a near location to Create a table." %}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="swiper">
+            <div class="swiper-wrapper">
+              {% for location in nearby_locations %}
+                <div class="swiper-slide">
+                  <a class="card text-decoration-none" href="{% url 'location-detail' location.slug %}">
+                    <img src="{{ location.cover_url }}" class="card-img-top" alt="{{ location.name }}">
+                    <div class="card-body">
+                      <p class="card-text"><small>{{ location.name }}</small></p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+
+              <div class="swiper-slide">
+                <a class="card text-decoration-none" href="{% url 'location-create' %}">
+                  <img src="{% static '/images/add-location.webp' %}" class="card-img-top" alt="Add your location logo">
+                  <div class="card-body">
+                    <p class="card-text"><small><strong>{% trans "Add your location" %}</strong></small></p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- If we need scrollbar -->
+            <div class="swiper-scrollbar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   <div class="shapedividers_com-2437"
        style="width: 100%; height: 200px; position: absolute; bottom:0; z-index: -1"></div>
 </div>
 
+
+{% block extrabodyjs %}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+      const swiper = new Swiper('.swiper', {
+          // Optional parameters
+          loop: false,
+          mousewheel: false,
+          spaceBetween: 10,
+          freeMode: {
+              enabled: true,
+          },
+          slidesPerView: 2,
+          breakpoints: {
+              '500': {
+                  slidesPerView: 3,
+              },
+              '768': {
+                  slidesPerView: 4,
+              },
+              '992': {
+                  slidesPerView: 5,
+              },
+              '1200': {
+                  slidesPerView: 6,
+              },
+              '1400': {
+                  slidesPerView: 8,
+              }
+          },
+          scrollbar: {
+              el: '.swiper-scrollbar',
+          },
+      });
+  </script>
+{% endblock %}

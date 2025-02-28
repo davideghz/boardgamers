@@ -51,7 +51,8 @@
               {% if table.location.is_public %}
                 <small>{{ table.location.name }}</small><br>
               {% endif %}
-              <small>{{ table.location.address }} (<a target="_blank" href="http://maps.google.com/maps?q={{ table.location.latitude }},{{ table.location.longitude }}">map</a>)</small>
+              <small>{{ table.location.address }} (<a target="_blank"
+                                                      href="http://maps.google.com/maps?q={{ table.location.latitude }},{{ table.location.longitude }}">map</a>)</small>
             {% else %}
               <small>
                 {% trans "No location set for this table." %}<br>
@@ -122,17 +123,10 @@
                 <span class="h5 flex-grow-1">{% trans "Location info" %}</span>
               </div>
             </div>
-            {% if table.location.cover %}
-              <div class="border-top" style="background-image: url('{{ table.location.cover.url }}');
-                  background-size: cover;
-                  background-position: center;
-                  width: 100%;
-                  padding-top: 60%;
-                  ">
-              </div>
-            {% endif %}
             <div class="card-body border-top">
-              <span class="h5">{{ table.location.name }}</span>
+              <img class="img-thumbnail" style="width: 100px" src="{{ table.location.cover_url }}" alt="{{ table.location.name }} logo">
+              <br><br>
+              <p class="h5">{{ table.location.name }}</p>
               <p class="card-text text-secondary"><small>{{ table.location.description }}</small></p>
             </div>
           </a>

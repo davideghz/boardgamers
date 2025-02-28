@@ -95,6 +95,13 @@ class Location(DateTimeModel, SlugModel):
     def __str__(self):
         return f"{self.name} - {self.city}"
 
+    @cached_property
+    def cover_url(self):
+        if self.cover and hasattr(self.cover, 'url'):
+            return self.cover.url
+        else:
+            return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
+
     def save(self, *args, **kwargs):
         if self.latitude is not None and self.longitude is not None:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)

@@ -3,27 +3,13 @@
 {% load static %}
 {% load i18n %}
 
-{#{% block alert %}#}
-{#  <div class="alert alert-info alert-dismissible fade show p-0 m-0" role="alert">#}
-{#    <div class="container d-flex justify-content-between align-items-center">#}
-{#      <span>#}
-{#        <i class="bi bi-search-heart"></i>#}
-{#        <strong>We want you!</strong> Il team di <strong>Board Gamers</strong> cerca collaboratori.#}
-{#        <a href="#"#}
-{#           class="link-offset-3 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover">CLICCA QUI</a>#}
-{#        per maggiori info.#}
-{#      </span>#}
-{#      <button type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>#}
-{#    </div>#}
-{#  </div>#}
-{#{% endblock alert %}#}
-
 {% block content %}
   {% include "partials/hero.html" %}
 
   <div style="background-color: #FAEBD7;">
-    <div class="container col-xl-10 col-xxl-8 px-4 py-2 pt-4 pt-md-2">
+    <div class="container mt-4">
       <p class="h1">{% trans "Upcoming tables" %}</p>
+      <p class="mb-0">{% trans "Accept the challenge, join a table!" %}</p>
     </div>
     <div class="container py-4">
       <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 g-4">
@@ -37,7 +23,7 @@
   </div>
 
   <div style="background-color: #FAEBD7;">
-    <div class="container col-xl-10 col-xxl-8 px-4 py-2 pt-4 pt-md-2">
+    <div class="container mt-4">
       <p class="h1">{% trans "Past tables" %}</p>
     </div>
     <div class="container py-4">

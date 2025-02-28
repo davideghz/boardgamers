@@ -14,7 +14,7 @@ sitemaps = {
 
 urlpatterns = [
   # STATIC
-  path("", static_page_views.HomepageView.as_view(), name="home"),
+  path("", static_page_views.homepage_view, name="home"),
   path("privacy", static_page_views.privacy, name="privacy"),
   path("terms", static_page_views.terms, name="terms"),
   path("test-login", static_page_views.test_login, name="test-login"),

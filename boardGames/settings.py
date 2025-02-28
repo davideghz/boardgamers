@@ -2,6 +2,8 @@ import os
 import secrets
 from pathlib import Path
 import environ
+from django.utils.translation import gettext_lazy as _
+
 
 env = environ.Env()
 
@@ -191,7 +193,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGES = [
+    ('en', _('English')),
+    ('it', _('Italiano')),
+]
+
+LANGUAGE_CODE = 'en'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
@@ -214,6 +221,7 @@ STATICFILES_FINDERS = (
 )
 
 DEFAULT_AVATAR_URL = 'images/avatar.webp'
+DEFAULT_LOCATION_COVER_URL = 'images/location_cover.webp'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
