@@ -25,25 +25,30 @@
         }
 
         tables.forEach(table => {
-            const tableDiv = document.createElement("div");
-            tableDiv.classList.add("bg-table");
+            const tableCard = document.createElement("a");
+            tableCard.classList.add("bg-card");
+            tableCard.href = `https://board-gamers.com/tables/${table.slug}/`;
+            tableCard.target = "_blank";
+            tableCard.rel = "noopener noreferrer";
 
-            tableDiv.innerHTML = `
-                <h3 class="bg-title">${table.title}</h3>
-                <p class="bg-description">${table.description}</p>
-                <p class="bg-info">
-                    📍 <span class="bg-location">${table.location_name}</span> | 🕒 
-                    <span class="bg-date">${table.date}</span> ${table.time} | 👥 
-                    ${table.min_players}-${table.max_players} giocatori
-                </p>
-                ${table.games.length ? `<p class="bg-games">🎲 Giochi: ${table.games.map(g => g.name).join(', ')}</p>` : ""}
+            tableCard.innerHTML = `
+                <div class="bg-card-header">
+                    <h3 class="bg-title">${table.title}</h3>
+                    <p class="bg-date-time">${table.date} - ${table.time}</p>
+                </div>
+                <div class="bg-card-body">
+                    <p class="bg-description">${table.description}</p>
+                    <p class="bg-info">📍 ${table.location_name} | 👥 ${table.min_players}-${table.max_players} giocatori</p>
+                </div>
+                <div class="bg-card-footer">
+                    ${table.games.length ? `<p class="bg-games">🎲 Giochi: ${table.games.map(g => g.name).join(', ')}</p>` : ""}
+                </div>
             `;
 
-            container.appendChild(tableDiv);
+            container.appendChild(tableCard);
         });
     }
 
-    // Per caricare automaticamente i tavoli se c'è un div con ID e data-location
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById("board-gamers-tables");
         if (container && container.dataset.location) {
