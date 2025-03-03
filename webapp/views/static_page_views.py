@@ -4,9 +4,9 @@ from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.db.models import Prefetch, Count
 from django.shortcuts import render
 from django.utils import timezone
-from django.views import generic
 
 from webapp.forms import CustomLoginForm
+from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Comment, UserProfile, Game, Table, Location
 
 # for debug page
@@ -52,7 +52,7 @@ def homepage_view(request):
     else:
         # Se la posizione non è disponibile, mostra 10 locations randomiche
         nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
-        location_message = "Inserisci la tua posizione per trovare locations vicine."
+        location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
     context = {
         'future_tables': future_tables,
@@ -64,6 +64,7 @@ def homepage_view(request):
     }
 
     return render(request, "staticpages/home.html", context)
+
 
 def privacy(request, template_name="staticpages/privacy.html"):
     return render(request, template_name, {})

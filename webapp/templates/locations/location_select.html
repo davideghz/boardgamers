@@ -1,0 +1,41 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+  <div class="container mt-3">
+    <div class="row">
+      <div class="col">
+        <h1>{% trans "Create a Table" %}</h1>
+        <p>{% trans "Select a location to Create a table." %}</p>
+      </div>
+    </div>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 row-cols-xxl-8 g-3">
+      {% for location in user_created_locations %}
+        <div class="col">
+          <a class="card text-decoration-none" href="{% url 'location-detail' location.slug %}">
+            <img src="{{ location.cover_url }}" class="card-img-top img-fluid object-fit-cover" style="aspect-ratio: 1"
+                 alt="{{ location.name }}">
+            <div class="card-body">
+              <p class="card-text"><small>{{ location.name }}</small></p>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+
+      {% for location in nearby_locations %}
+        <div class="col">
+          <a class="card text-decoration-none" href="{% url 'location-detail' location.slug %}">
+            <div class="card-img-top">
+              <img src="{{ location.cover_url }}" class="card-img-top img-fluid object-fit-cover"
+                   style="aspect-ratio: 1" alt="{{ location.name }}">
+            </div>
+            <div class="card-body">
+              <p class="card-text"><small>{{ location.name }}</small></p>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

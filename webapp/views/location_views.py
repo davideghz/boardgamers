@@ -1,11 +1,45 @@
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
 from django.views.generic import DetailView, CreateView
 
 from webapp.forms import LocationForm
+from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile
+
+
+def index_view(request, template_name="locations/location_select.html"):
+    user_location = None
+    user_created_locations = None
+    location_message = None
+    nearby_locations = None
+
+    if request.user.is_authenticated:
+        user_created_locations = request.user.user_profile.locations.all()
+        try:
+            profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
+            if profile and profile.latitude is not None and profile.longitude is not None:
+                user_location = Point(float(profile.longitude), float(profile.latitude), srid=4326)
+        except (TypeError, ValueError):
+            pass
+
+    if user_location:
+        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+    else:
+        nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
+        location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
+
+    context = {
+        'nearby_locations': nearby_locations,
+        'location_message': location_message,
+        'user_created_locations': user_created_locations,
+    }
+
+    return render(request, template_name, context)
 
 
 class LocationDetailView(DetailView):

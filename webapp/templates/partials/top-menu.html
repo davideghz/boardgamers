@@ -47,7 +47,7 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-none d-lg-flex">
           <li class="nav-item ms-1">
-            <a class="nav-link btn btn-light" href="#">
+            <a class="nav-link btn btn-light" href="{% url 'locations-index' %}">
               <i class="bi bi-lightning-charge"></i> {% trans "New table" %}
             </a>
           </li>
@@ -100,7 +100,7 @@
               {% if user.is_authenticated %}
 
                 <div style="padding-left: 0; padding-right: 0">
-                  <a href="#"
+                  <a href="{% url 'locations-index' %}"
                      class="btn btn-lg btn-primary mb-4 py-4 d-flex justify-content-between">
                     {% trans "New table" %}
                     <i class="bi bi-arrow-right-circle-fill"></i>

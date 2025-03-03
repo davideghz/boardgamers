@@ -11,7 +11,6 @@ sitemaps = {
   'games': GameSitemap,
   'tables': TableSitemap,
 }
-
 urlpatterns = [
   # STATIC
   path("", static_page_views.homepage_view, name="home"),
@@ -28,6 +27,7 @@ urlpatterns = [
   path('comments/<uuid:uuid>/delete/', table_views.CommentDeleteView.as_view(), name='comment-delete'),
 
   # LOCATIONS
+  path("locations/", location_views.index_view, name="locations-index"),
   path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
   path("locations/<slug:slug>/edit/", location_views.LocationUpdateView.as_view(), name="location-update"),
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
@@ -74,3 +74,4 @@ urlpatterns = [
   # DEBUGGING UTILS
   path('debug', static_page_views.debug, name='debug')
 ]
+
