@@ -63,6 +63,9 @@ INSTALLED_APPS = [
 
     # Social Login
     'social_django',
+
+    # API
+    'rest_framework',
 ]
 
 ROOT_URLCONF = 'boardGames.urls'

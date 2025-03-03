@@ -1,5 +1,5 @@
 from django.contrib.sitemaps.views import sitemap
-from django.urls import path
+from django.urls import path, include
 
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap
@@ -12,6 +12,9 @@ sitemaps = {
   'tables': TableSitemap,
 }
 urlpatterns = [
+  # API
+  path('api/', include('webapp.api.urls')),  # Include le API
+
   # STATIC
   path("", static_page_views.homepage_view, name="home"),
   path("privacy", static_page_views.privacy, name="privacy"),
