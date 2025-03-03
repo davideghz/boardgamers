@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # Deve essere il primo middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
     'social_django',
 
     # API
+    'corsheaders',
     'rest_framework',
 ]
 
@@ -267,6 +269,21 @@ DEFAULT_FILE_STORAGE = 'boardGames.storage_backends.PublicMediaStorage'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 15  # 5MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
+
+# API
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',  # Limita le richieste anonime a 100 all'ora
+    }
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = [
+#     "https://board-gamers.com",
+#     "https://www.anonimagiocatori.it/",
+# ]
+
 
 if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)
