@@ -61,18 +61,17 @@
             {% endif %}
           </div>
 
-          <!-- games -->
+          <!-- game -->
           <div class="card-body border-top">
-            <small><strong>{% trans "Games" %}</strong></small>
+            <small><strong>{% trans "Game" %}</strong></small>
             <br>
-            {% if table.games.exists %}
-              {% for game in table.games.all %}
-                <small><a href="{% url "game-detail" game.slug %}">{{ game }}</a> {% if not forloop.last %}
-                  <i class="bi bi-dot"></i>{% endif %}</small>
-              {% endfor %}
+            {% if table.game %}
+                <small>
+                  <a href="{% url "game-detail" table.game.slug %}">{{ table.game }}</a>
+                </small>
             {% else %}
               <small>
-                {% trans "No games set for this table." %}
+                {% trans "No game set for this table." %}
               </small>
             {% endif %}
           </div>
