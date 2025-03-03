@@ -92,86 +92,6 @@
 </style>
 
 <div class="position-relative">
-  <div class="container col-xl-10 col-xxl-8 px-4 py-5 z-3 d-none d-md-block">
-    <div class="row align-items-center g-lg-5 py-md-5">
-      <div class="col-lg-7 text-center text-lg-start">
-        <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">
-          {% blocktrans %}
-            Find Board Gamers <br> near you
-          {% endblocktrans %}
-        </h1>
-        <p class="col-lg-10 fs-4">
-          {% blocktrans %}
-            Easily find board game enthusiasts in your area and share your passion with <i>like minded</i> people.
-          {% endblocktrans %}
-        </p>
-      </div>
-      <div class="col-md-10 mx-auto col-lg-5">
-        {% if not user.is_authenticated %}
-          <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" method="post" action="{% url 'login' %}">
-            {% csrf_token %}
-            <div class="form-floating mb-3">
-              {{ login_form.username }}
-              {{ login_form.username.label_tag|cut:":" }}
-            </div>
-            <div class="form-floating mb-3">
-              {{ login_form.password }}
-              {{ login_form.password.label_tag|cut:":" }}
-            </div>
-            <input class="w-100 btn btn-lg btn-primary" type="submit" value="Login">
-
-            <span class="small d-block w-100 text-center mt-2">{% trans 'Or' %}</span>
-
-            <a href="{% url "social:begin" "google-oauth2" %}" class='g-sign-in-button mt-2'>
-              <div class=content-wrapper>
-                <div class='logo-wrapper'>
-                  {#                  <img src='https://developers.google.com/identity/images/g-logo.png'>#}
-                  <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-                    <g fill="none" fill-rule="evenodd">
-                      <path d="M17.6 9.2l-.1-1.8H9v3.4h4.8c-.2 1-.8 1.8-1.8 2.8v2.2h3a8.8 8.8 0 0 0 2.6-6.6z"
-                            fill="#4285F4" fill-rule="nonzero"/>
-                      <path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853"
-                            fill-rule="nonzero"/>
-                      <path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05"
-                            fill-rule="nonzero"/>
-                      <path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z"
-                            fill="#EA4335" fill-rule="nonzero"/>
-                      <path d="M0 0h18v18H0z"/>
-                    </g>
-                  </svg>
-                </div>
-                <span class='text-container'>
-                  <span>{% trans 'Sign in with Google' %}</span>
-                </span>
-              </div>
-            </a>
-
-            <hr class="my-4">
-            <small class="text-body-secondary">
-              {% trans "Not a member?" %}
-              <a class="link-offset-3" href="{% url "signup" %}">{% trans "Create an account" %}</a>.
-            </small>
-            <input type="hidden" name="next" value="{{ next }}">
-          </form>
-
-        {% else %}
-          <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow text-center">
-            <p class="fs-2 fw-bold mb-3">
-              {% trans "Welcome back" %}<br>
-              <span class="text-primary">{{ user.user_profile.nickname }}</span>
-            </p>
-            <p class="fs-5">
-              {% trans "If there are no tables available near you, you can always create one!" %}
-            </p>
-            <a class="w-100 btn btn-lg btn-primary" href="{% url "table-create" %}">
-              <i class="bi bi-lightning-charge"></i> {% trans "Create table" %}
-            </a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
   {% if user.is_authenticated %}
     <link
         rel="stylesheet"
@@ -196,7 +116,6 @@
             margin-top: 15px;
         }
     </style>
-
     <div class="container mt-3">
       <div class="row">
         <div class="col">
@@ -208,10 +127,23 @@
         <div class="col">
           <div class="swiper">
             <div class="swiper-wrapper">
+              {% for location in user_created_locations %}
+                <div class="swiper-slide">
+                  <a class="card text-decoration-none" href="{% url 'location-detail' location.slug %}">
+                    <img src="{{ location.cover_url }}" class="card-img-top img-fluid object-fit-cover" style="aspect-ratio: 1" alt="{{ location.name }}">
+                    <div class="card-body">
+                      <p class="card-text"><small>{{ location.name }}</small></p>
+                    </div>
+                  </a>
+                </div>
+              {% endfor %}
+
               {% for location in nearby_locations %}
                 <div class="swiper-slide">
                   <a class="card text-decoration-none" href="{% url 'location-detail' location.slug %}">
-                    <img src="{{ location.cover_url }}" class="card-img-top" alt="{{ location.name }}">
+                    <div class="card-img-top">
+                      <img src="{{ location.cover_url }}" class="card-img-top img-fluid object-fit-cover" style="aspect-ratio: 1" alt="{{ location.name }}">
+                    </div>
                     <div class="card-body">
                       <p class="card-text"><small>{{ location.name }}</small></p>
                     </div>
@@ -232,6 +164,70 @@
             <!-- If we need scrollbar -->
             <div class="swiper-scrollbar"></div>
           </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="container col-xl-10 col-xxl-8 px-4 py-5 z-3">
+      <div class="row align-items-center g-lg-5 py-md-5">
+        <div class="col-lg-7 text-center text-lg-start">
+          <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">
+            {% blocktrans %}
+              Find Board Gamers <br> near you
+            {% endblocktrans %}
+          </h1>
+          <p class="col-lg-10 fs-4">
+            {% blocktrans %}
+              Easily find board game enthusiasts in your area and share your passion with <i>like minded</i> people.
+            {% endblocktrans %}
+          </p>
+        </div>
+        <div class="col-md-10 mx-auto col-lg-5">
+            <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" method="post" action="{% url 'login' %}">
+              {% csrf_token %}
+              <div class="form-floating mb-3">
+                {{ login_form.username }}
+                {{ login_form.username.label_tag|cut:":" }}
+              </div>
+              <div class="form-floating mb-3">
+                {{ login_form.password }}
+                {{ login_form.password.label_tag|cut:":" }}
+              </div>
+              <input class="w-100 btn btn-lg btn-primary" type="submit" value="Login">
+
+              <span class="small d-block w-100 text-center mt-2">{% trans 'Or' %}</span>
+
+              <a href="{% url "social:begin" "google-oauth2" %}" class='g-sign-in-button mt-2'>
+                <div class=content-wrapper>
+                  <div class='logo-wrapper'>
+                    {#                  <img src='https://developers.google.com/identity/images/g-logo.png'>#}
+                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                      <g fill="none" fill-rule="evenodd">
+                        <path d="M17.6 9.2l-.1-1.8H9v3.4h4.8c-.2 1-.8 1.8-1.8 2.8v2.2h3a8.8 8.8 0 0 0 2.6-6.6z"
+                              fill="#4285F4" fill-rule="nonzero"/>
+                        <path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853"
+                              fill-rule="nonzero"/>
+                        <path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05"
+                              fill-rule="nonzero"/>
+                        <path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z"
+                              fill="#EA4335" fill-rule="nonzero"/>
+                        <path d="M0 0h18v18H0z"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <span class='text-container'>
+                  <span>{% trans 'Sign in with Google' %}</span>
+                </span>
+                </div>
+              </a>
+
+              <hr class="my-4">
+              <small class="text-body-secondary">
+                {% trans "Not a member?" %}
+                <a class="link-offset-3" href="{% url "signup" %}">{% trans "Create an account" %}</a>.
+              </small>
+              <input type="hidden" name="next" value="{{ next }}">
+            </form>
         </div>
       </div>
     </div>

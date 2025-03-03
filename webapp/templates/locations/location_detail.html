@@ -37,6 +37,9 @@
           <div class="card-body">
             <h5 class="card-title">{{ location.name }}</h5>
             <p class="card-text text-secondary"><small>{{ location.description }}</small></p>
+            <a class="w-100 btn btn-lg btn-primary d-none d-sm-block" href="{% url 'location-table-create' location.slug %}">
+              <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
+            </a>
           </div>
         </div>
       </div>
@@ -50,6 +53,16 @@
             <p>{% trans "No tables found." %}</p>
           {% endfor %}
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container fixed-bottom bg-light p-3 border-top d-sm-none">
+    <div class="row">
+      <div class="col">
+        <a class="w-100 btn btn-lg btn-primary" href="{% url 'location-table-create' location.slug %}">
+          <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
+        </a>
       </div>
     </div>
   </div>

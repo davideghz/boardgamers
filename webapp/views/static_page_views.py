@@ -1,7 +1,7 @@
 from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 from django.shortcuts import render
 from django.utils import timezone
 from django.views import generic
@@ -17,8 +17,10 @@ from django.conf import settings
 
 def homepage_view(request):
     user_location = None
+    user_created_locations = None
 
     if request.user.is_authenticated:
+        user_created_locations = request.user.user_profile.locations.all()
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
             if profile and profile.latitude is not None and profile.longitude is not None:
@@ -48,8 +50,8 @@ def homepage_view(request):
         nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
         location_message = None  # Nessun messaggio se la posizione è presente
     else:
-        # Se la posizione non è disponibile, mostra locations randomiche
-        nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]  # Prende 10 locations casuali
+        # Se la posizione non è disponibile, mostra 10 locations randomiche
+        nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
         location_message = "Inserisci la tua posizione per trovare locations vicine."
 
     context = {
@@ -58,6 +60,7 @@ def homepage_view(request):
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'login_form': CustomLoginForm(),
+        'user_created_locations': user_created_locations,
     }
 
     return render(request, "staticpages/home.html", context)
