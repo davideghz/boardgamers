@@ -32,7 +32,7 @@ def homepage_view(request):
 
     comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
     players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
-    games_prefetch = Prefetch('games', queryset=Game.objects.all())
+    games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
     # Query per i tavoli futuri
     future_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
