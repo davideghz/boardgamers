@@ -1,7 +1,7 @@
 from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 from django.shortcuts import render
 from django.utils import timezone
 from django.views import generic
@@ -15,56 +15,55 @@ environ.Env.read_env()
 from django.conf import settings
 
 
-class HomepageView(generic.ListView):
-    template_name = "staticpages/home.html"
-    context_object_name = "tables"
+def homepage_view(request):
+    user_location = None
+    user_created_locations = None
 
-    def get_queryset(self):
-        return Table.objects.none()  # Non usiamo get_queryset() per evitare un'unica lista.
+    if request.user.is_authenticated:
+        user_created_locations = request.user.user_profile.locations.all()
+        try:
+            profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
+            if profile and profile.latitude is not None and profile.longitude is not None:
+                user_location = Point(float(profile.longitude), float(profile.latitude), srid=4326)
+        except (TypeError, ValueError):
+            pass
 
-    def get_user_location(self):
-        """
-        Determines the user's location using the UserProfile model.
-        Returns a Point object if latitude and longitude are present; otherwise, returns None.
-        """
-        if self.request.user.is_authenticated:
-            try:
-                profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=self.request.user).first()
-                if profile and profile.latitude is not None and profile.longitude is not None:
-                    return Point(profile.longitude, profile.latitude, srid=4326)
-            except (TypeError, ValueError):
-                return None
-        return None
+    today = timezone.now().date()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_location = self.get_user_location()
-        today = timezone.now().date()
+    comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
+    players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
+    games_prefetch = Prefetch('games', queryset=Game.objects.all())
 
-        comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-        players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
-        games_prefetch = Prefetch('games', queryset=Game.objects.all())
+    # Query per i tavoli futuri
+    future_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+        comments_prefetch, players_prefetch, games_prefetch
+    ).filter(date__gte=today).order_by('date')
 
-        # Query per i tavoli futuri
-        future_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
-            comments_prefetch, players_prefetch, games_prefetch
-        ).filter(date__gte=today).order_by('date')
+    # Query per i tavoli passati
+    past_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+        comments_prefetch, players_prefetch, games_prefetch
+    ).filter(date__lt=today).order_by('-date')[:12]
 
-        # Query per i tavoli passati
-        past_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
-            comments_prefetch, players_prefetch, games_prefetch
-        ).filter(date__lt=today).order_by('-date')[:12]  # Ordinamento inverso
+    # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza e filtra le locations vicine
+    if user_location:
+        future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date', 'distance')
+        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        location_message = None  # Nessun messaggio se la posizione è presente
+    else:
+        # Se la posizione non è disponibile, mostra 10 locations randomiche
+        nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
+        location_message = "Inserisci la tua posizione per trovare locations vicine."
 
-        # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza
-        if user_location:
-            future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date', 'distance')
+    context = {
+        'future_tables': future_tables,
+        'past_tables': past_tables,
+        'nearby_locations': nearby_locations,
+        'location_message': location_message,
+        'login_form': CustomLoginForm(),
+        'user_created_locations': user_created_locations,
+    }
 
-        context['future_tables'] = future_tables
-        context['past_tables'] = past_tables
-        context['login_form'] = CustomLoginForm()
-
-        return context
-
+    return render(request, "staticpages/home.html", context)
 
 def privacy(request, template_name="staticpages/privacy.html"):
     return render(request, template_name, {})

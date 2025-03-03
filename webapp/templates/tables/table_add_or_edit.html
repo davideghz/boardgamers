@@ -12,16 +12,16 @@
       <nav aria-label="breadcrumb" class="py-1">
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item fs-6 active" aria-current="page">
-            <small><a class="text-decoration-none" href="{% url "account-index" %}">Account</a></small>
+            <small><a class="text-decoration-none" href="{% url "home" %}">Home</a></small>
           </li>
           <li class="breadcrumb-item fs-6 active" aria-current="page">
-            <small><a class="text-decoration-none" href="{% url "account-tables" %}">Tables</a></small>
+            <small><a class="text-decoration-none" href="{% url 'location-detail' location.slug %}">{{ location.name }}</a></small>
           </li>
           <li class="breadcrumb-item fs-6 active" aria-current="page">
             {% if form.instance.pk %}
-              <small>{% trans "Edit" %}</small>
+              <small>{% trans "Edit table" %}</small>
             {% else %}
-              <small>{% trans "New" %}</small>
+              <small>{% trans "New Table" %}</small>
             {% endif %}
           </li>
         </ol>
@@ -176,29 +176,30 @@
           </div>
 
 
-          <div class="form-check form-switch pt-3 pb-3 custom-switch">
-            {{ form.is_public_location }}
-            <label class="form-check-label" for="id_is_public_location">
-              {% trans "Click here if the table is organized in a public location (like a bar, or a board games café)." %}</label>
-          </div>
+{#          <div class="form-check form-switch pt-3 pb-3 custom-switch">#}
+{#            {{ form.is_public_location }}#}
+{#            <label class="form-check-label" for="id_is_public_location">#}
+{#              {% trans "Click here if the table is organized in a public location (like a bar, or a board games café)." %}</label>#}
+{#          </div>#}
 
-          <div id="public-location">
-            <small class="d-block text-secondary">
-              {% trans "If you organized a table in a public location, you can select it here." %}</small>
-            <small class="d-block pb-2 text-secondary">
-              {% trans "(Be sure to book the Location in advance. Creating a table here does not guarantee there will be space at the location at the desired date and time.)" %}
-            </small>
-          </div>
+{#          <div id="public-location">#}
+{#            <small class="d-block text-secondary">#}
+{#              {% trans "If you organized a table in a public location, you can select it here." %}</small>#}
+{#            <small class="d-block pb-2 text-secondary">#}
+{#              {% trans "(Be sure to book the Location in advance. Creating a table here does not guarantee there will be space at the location at the desired date and time.)" %}#}
+{#            </small>#}
+{#          </div>#}
 
-          <div class="form-floating mb-3">
-            {{ form.location }}
-          </div>
-          <small class="text-secondary">
-            {% trans "Can't find the desired location?" %}
-            <a class="btn btn-sm btn-outline-secondary" href="{% url "location-create" %}" target="_blank">
-              <i class="bi bi-box-arrow-up-right"></i> {% trans "CREATE A NEW LOCATION" %}
-            </a>
-          </small>
+{#          <div class="form-floating mb-3">#}
+{#            {{ form.location }}#}
+{#          </div>#}
+
+{#          <small class="text-secondary">#}
+{#            {% trans "Can't find the desired location?" %}#}
+{#            <a class="btn btn-sm btn-outline-secondary" href="{% url "location-create" %}" target="_blank">#}
+{#              <i class="bi bi-box-arrow-up-right"></i> {% trans "CREATE A NEW LOCATION" %}#}
+{#            </a>#}
+{#          </small>#}
 
           <div class="row mt-4">
             {% if form.instance.pk %}
@@ -244,32 +245,32 @@
       });
   </script>
 
-  <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          var switchElement = document.getElementById('id_is_public_location');
-          var publicLocationDiv = document.getElementById('public-location');
-          var locationSelect = document.getElementById('id_location');
-          
-          function initPublicLocationVisibility() {
-              if (switchElement.checked) {
-                  publicLocationDiv.classList.remove('d-none');
-              } else {
-                  publicLocationDiv.classList.add('d-none');
-              }
-          }
-
-          function togglePublicLocationVisibility() {
-              if (switchElement.checked) {
-                  publicLocationDiv.classList.remove('d-none');
-                  $(locationSelect).val(null).trigger('change');
-              } else {
-                  publicLocationDiv.classList.add('d-none');
-                  $(locationSelect).val(null).trigger('change');
-              }
-          }
-
-          switchElement.addEventListener('change', togglePublicLocationVisibility);
-          initPublicLocationVisibility();
-      });
-  </script>
+{#  <script>#}
+{#      document.addEventListener('DOMContentLoaded', function () {#}
+{#          var switchElement = document.getElementById('id_is_public_location');#}
+{#          var publicLocationDiv = document.getElementById('public-location');#}
+{#          var locationSelect = document.getElementById('id_location');#}
+{#          #}
+{#          function initPublicLocationVisibility() {#}
+{#              if (switchElement.checked) {#}
+{#                  publicLocationDiv.classList.remove('d-none');#}
+{#              } else {#}
+{#                  publicLocationDiv.classList.add('d-none');#}
+{#              }#}
+{#          }#}
+{##}
+{#          function togglePublicLocationVisibility() {#}
+{#              if (switchElement.checked) {#}
+{#                  publicLocationDiv.classList.remove('d-none');#}
+{#                  $(locationSelect).val(null).trigger('change');#}
+{#              } else {#}
+{#                  publicLocationDiv.classList.add('d-none');#}
+{#                  $(locationSelect).val(null).trigger('change');#}
+{#              }#}
+{#          }#}
+{##}
+{#          switchElement.addEventListener('change', togglePublicLocationVisibility);#}
+{#          initPublicLocationVisibility();#}
+{#      });#}
+{#  </script>#}
 {% endblock %}

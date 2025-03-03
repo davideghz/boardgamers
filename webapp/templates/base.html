@@ -57,6 +57,14 @@
           font-weight: 600;
           font-style: normal;
       }
+
+      .iubenda-cs-preferences-link {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+      }
+
   </style>
 
   {% block style %}{% endblock style %}
@@ -82,7 +90,7 @@
     var _iub = _iub || [];
     _iub.csConfiguration = {
         "askConsentAtCookiePolicyUpdate": true,
-        "floatingPreferencesButtonDisplay": "bottom-right",
+        "floatingPreferencesButtonDisplay": false,
         "lang": "en",
         "perPurposeConsent": true,
         "siteId": 3545298,

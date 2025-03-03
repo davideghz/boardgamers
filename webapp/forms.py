@@ -120,13 +120,7 @@ class TableForm(ModelForm, BootstrapForm):
         model = Table
         exclude = ['slug', 'author', 'players']
         widgets = {
-            'location': autocomplete.ModelSelect2(
-                url='location-autocomplete',
-                forward=['is_public_location'],
-                attrs={
-                    'data-placeholder': _('Select Location'),
-                    # 'data-minimum-input-length': 3
-                }),
+            'location': HiddenInput(),
             'games': autocomplete.ModelSelect2Multiple(
                 url='games-autocomplete',
                 attrs={
@@ -245,17 +239,17 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
         )
         user_profile.save()
 
-        location = Location(
-            name="Default Location",
-            creator=user_profile,
-            description=f"#{self.cleaned_data['nickname']} Default Location",
-            address=self.cleaned_data['address'],
-            city=self.cleaned_data['city'],
-            latitude=self.cleaned_data['latitude'],
-            longitude=self.cleaned_data['longitude'],
-            is_public=False,
-        )
-        location.save()
+        # location = Location(
+        #     name="Default Location",
+        #     creator=user_profile,
+        #     description=f"#{self.cleaned_data['nickname']} Default Location",
+        #     address=self.cleaned_data['address'],
+        #     city=self.cleaned_data['city'],
+        #     latitude=self.cleaned_data['latitude'],
+        #     longitude=self.cleaned_data['longitude'],
+        #     is_public=False,
+        # )
+        # location.save()
 
         return user, user_profile
 

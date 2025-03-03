@@ -14,16 +14,14 @@ sitemaps = {
 
 urlpatterns = [
   # STATIC
-  path("", static_page_views.HomepageView.as_view(), name="home"),
+  path("", static_page_views.homepage_view, name="home"),
   path("privacy", static_page_views.privacy, name="privacy"),
   path("terms", static_page_views.terms, name="terms"),
   path("test-login", static_page_views.test_login, name="test-login"),
 
   # TABLE
   path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
-  path("tables/new/", table_views.TableCreateView.as_view(), name="table-create"),
   path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
-  path("tables/<slug:slug>/edit/", table_views.TableUpdateView.as_view(), name="table-update"),
   path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
   path('tables/<slug:slug>/join/', table_views.JoinTableView.as_view(), name='join_table'),
   path('tables/<slug:slug>/leave/', table_views.LeaveTableView.as_view(), name='leave_table'),
@@ -33,6 +31,11 @@ urlpatterns = [
   path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
   path("locations/<slug:slug>/edit/", location_views.LocationUpdateView.as_view(), name="location-update"),
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
+
+  # LOCATION TABLES
+  path("location/<slug:location_slug>/tables/new", table_views.table_create_view, name="location-table-create"),
+  path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view, name="location-table-update"),
+
 
   # GAMES
   path("games/<slug:slug>/", game_views.GameDetailView.as_view(), name="game-detail"),

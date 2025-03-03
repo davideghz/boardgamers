@@ -8,7 +8,8 @@
     <div class="container">
       <nav aria-label="breadcrumb" class="py-1">
         <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="{% url "home" %}"><small>Home</small></a>
+          <li class="breadcrumb-item fs-6"><a class="text-decoration-none"
+                                              href="{% url "home" %}"><small>Home</small></a>
           </li>
           <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ location.name }}</small></li>
         </ol>
@@ -24,20 +25,21 @@
       <div class="col-12 col-md-5 col-lg-4 col-xl-4">
 
         <div class="card shadow border-0 mb-4">
-          {% if location.cover %}
-            <div style="background-image: url('{{ location.cover.url }}');
-                background-size: cover;
-                background-position: center;
-                width: 100%;
-                padding-top: 60%;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
-                ">
-            </div>
-          {% endif %}
+          <div style="background-image: url('{{ location.cover_url }}');
+              background-size: cover;
+              background-position: center;
+              width: 100%;
+              padding-top: 60%;
+              border-top-left-radius: 6px;
+              border-top-right-radius: 6px;
+              ">
+          </div>
           <div class="card-body">
             <h5 class="card-title">{{ location.name }}</h5>
             <p class="card-text text-secondary"><small>{{ location.description }}</small></p>
+            <a class="w-100 btn btn-lg btn-primary d-none d-sm-block" href="{% url 'location-table-create' location.slug %}">
+              <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
+            </a>
           </div>
         </div>
       </div>
@@ -51,6 +53,16 @@
             <p>{% trans "No tables found." %}</p>
           {% endfor %}
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container fixed-bottom bg-light p-3 border-top d-sm-none">
+    <div class="row">
+      <div class="col">
+        <a class="w-100 btn btn-lg btn-primary" href="{% url 'location-table-create' location.slug %}">
+          <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
+        </a>
       </div>
     </div>
   </div>
