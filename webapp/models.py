@@ -164,9 +164,10 @@ class Table(DateTimeModel, SlugModel):
     time = models.TimeField(default=timezone.now, null=False, blank=True)
     is_public_location = models.BooleanField(default=False, null=False, blank=True)
 
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='created_tables', null=True)
+    author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     games = models.ManyToManyField(Game, related_name='tables', blank=True)
+    game = models.ForeignKey(Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True)
 
     def __str__(self):
         return self.title

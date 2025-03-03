@@ -11,7 +11,7 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
 
-    @action(detail=False, methods=['get'], url_path='by-location/(?P<location_slug>[-\w]+)')
+    @action(detail=False, methods=['get'], url_path=r'by-location/(?P<location_slug>[-\w]+)')
     def by_location(self, request, location_slug=None):
         location = get_object_or_404(Location, slug=location_slug)
         tables = Table.objects.filter(location=location).order_by('-date', '-time')

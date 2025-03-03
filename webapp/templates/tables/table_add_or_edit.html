@@ -150,11 +150,18 @@
             {% endif %}
           </div>
 
+{#          <small#}
+{#              class="d-block pt-3 pb-2 text-secondary">{% trans "Add the games that will be played at this table." %}</small>#}
+{#          <div class="form-floating mb-3">#}
+{#            {{ form.games }}#}
+{#          </div>#}
+
           <small
-              class="d-block pt-3 pb-2 text-secondary">{% trans "Add the games that will be played at this table." %}</small>
+              class="d-block pt-3 pb-2 text-secondary">{% trans "Add the game that will be played at this table." %}</small>
           <div class="form-floating mb-3">
-            {{ form.games }}
+            {{ form.game }}
           </div>
+
 
           <small class="d-block pt-3 pb-2 text-secondary">
             {% trans "How many players are invited to this table?" %}

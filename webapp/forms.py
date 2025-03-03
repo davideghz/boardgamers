@@ -127,6 +127,12 @@ class TableForm(ModelForm, BootstrapForm):
                     'data-placeholder': _('Games'),
                     # 'data-minimum-input-length': 1
                 }),
+            'game': autocomplete.ModelSelect2(
+                url='games-autocomplete',
+                attrs={
+                    'data-placeholder': _('Games'),
+                    # 'data-minimum-input-length': 1
+                }),
         }
 
     def clean_title(self):
