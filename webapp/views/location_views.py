@@ -12,7 +12,7 @@ from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile
 
 
-def index_view(request, template_name="locations/location_select.html"):
+def index_view(request, template_name="locations/location_index.html"):
     user_location = None
     user_created_locations = None
     location_message = None
