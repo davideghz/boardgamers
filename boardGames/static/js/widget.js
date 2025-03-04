@@ -41,7 +41,7 @@
                     <p class="bg-info">📍 ${table.location_name} | 👥 ${table.min_players}-${table.max_players} giocatori</p>
                 </div>
                 <div class="bg-card-footer">
-                    ${table.games.length ? `<p class="bg-games">🎲 Giochi: ${table.games.map(g => g.name).join(', ')}</p>` : ""}
+                    ${table.game ? `<p class="bg-games">🎲 Gioco: ${table.game.name}</p>` : "<p class='bg-no-game'>Nessun gioco specificato</p>"}
                 </div>
             `;
 

@@ -10,8 +10,8 @@ class GameSerializer(serializers.ModelSerializer):
 
 class TableSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(source='location.name', read_only=True)
-    games = GameSerializer(many=True, read_only=True)
+    game = GameSerializer(read_only=True)
 
     class Meta:
         model = Table
-        fields = ['title', 'slug', 'description', 'location_name', 'date', 'time', 'min_players', 'max_players', 'games']
+        fields = ['title', 'slug', 'description', 'location_name', 'date', 'time', 'min_players', 'max_players', 'game']
