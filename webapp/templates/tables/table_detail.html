@@ -32,11 +32,9 @@
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
-              {% if table.author.user == user or user.is_staff %}
-                <a class="text-decoration-none" href="{% url "location-table-update" table.location.slug table.slug %}">
-                  <i class="bi bi-pencil-square"></i> Edit
-                </a>
-              {% endif %}
+              <a class="text-decoration-none" href="{% url 'location-table-update' table.location.slug table.slug %}">
+                <i class="bi bi-pencil-square"></i> Edit
+              </a>
             </div>
           </div>
           <div class="card-body border-top">
@@ -66,9 +64,9 @@
             <small><strong>{% trans "Game" %}</strong></small>
             <br>
             {% if table.game %}
-                <small>
-                  <a href="{% url "game-detail" table.game.slug %}">{{ table.game }}</a>
-                </small>
+              <small>
+                <a href="{% url "game-detail" table.game.slug %}">{{ table.game }}</a>
+              </small>
             {% else %}
               <small>
                 {% trans "No game set for this table." %}

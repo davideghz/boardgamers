@@ -5,7 +5,39 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
-from django.shortcuts import resolve_url
+from django.shortcuts import resolve_url, get_object_or_404, redirect
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+
+from webapp.models import Table
+
+
+def only_admin_can_edit_old_table(view_func):
+    """
+    Decorator that allows only admin users to edit old tables (past dates).
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
+        table = get_object_or_404(Table, slug=table_slug)
+        if table.date < now().date() and not request.user.is_staff:
+            messages.error(request, _("Can't edit past tables."), extra_tags="danger")
+            return redirect("table-detail", slug=table_slug)
+        return view_func(request, location_slug, table_slug, *args, **kwargs)
+    return _wrapped_view
+
+
+def only_author_or_admin_can_edit(view_func):
+    """
+    Decorator that allows only the author or an admin to edit a table.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
+        table = get_object_or_404(Table, slug=table_slug)
+        if not (request.user == table.author.user or request.user.is_staff):
+            messages.error(request, _("You don't have permission to edit this table."), extra_tags="danger")
+            return redirect("table-detail", slug=table_slug)
+        return view_func(request, location_slug, table_slug, *args, **kwargs)
+    return _wrapped_view
 
 
 def user_passes_test_with_messages(
@@ -32,7 +64,7 @@ def user_passes_test_with_messages(
                     (not login_scheme or login_scheme == current_scheme) and
                     (not login_netloc or login_netloc == current_netloc)):
                 path = request.get_full_path()
-            messages.error(request, error_message)
+            messages.error(request, error_message, extra_tags="danger")
             return redirect_to_login(path, resolved_login_url, redirect_field_name)
         return _wrapped_view
     return decorator

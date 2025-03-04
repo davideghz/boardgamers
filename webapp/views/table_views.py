@@ -9,12 +9,14 @@ from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.timezone import now
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location
+from webapp.views.decorators import only_admin_can_edit_old_table, only_author_or_admin_can_edit
 
 
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
@@ -73,10 +75,12 @@ class TableDetailView(LoginRequiredMixin, generic.DetailView):
         table = self.get_object()
         max_players = table.max_players
         current_players = table.players.count()
+        today = now().date()
 
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
         context['available_seats'] = max_players - current_players
+        context['today'] = today
         return context
 
     def post(self, request, *args, **kwargs):
@@ -98,7 +102,7 @@ def table_create_view(request, location_slug):
     initial = {"location": location}
 
     if not (request.user.user_profile.is_email_verified or request.user.is_staff):
-        messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING)
+        messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
         return redirect("location-detail", location_slug)
 
     if request.method == "POST":
@@ -124,6 +128,8 @@ def table_create_view(request, location_slug):
 
 
 @login_required
+@only_admin_can_edit_old_table
+@only_author_or_admin_can_edit
 def table_update_view(request, location_slug, table_slug):
     table = get_object_or_404(Table, slug=table_slug)
 
@@ -132,10 +138,6 @@ def table_update_view(request, location_slug, table_slug):
         table.save()
 
     location = table.location  # Ora la location è sempre valida
-
-    if not (request.user == table.author.user or request.user.is_staff):
-        messages.error(request, _("You don't have permission to edit this table."))
-        return redirect("table-detail", slug=table_slug)
 
     if request.method == "POST":
         form = TableForm(request.POST, instance=table)
