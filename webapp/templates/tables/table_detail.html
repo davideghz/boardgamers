@@ -122,11 +122,11 @@
             </div>
             <div class="card-body border-top">
               <div class="row">
-                <div class="col-12 col-sm-3">
-                  <img class="img-thumbnail" style="width: 100px" src="{{ table.location.cover_url }}"
+                <div class="col-12">
+                  <img class="img-thumbnail object-fit-cover object-position-center" style="width: 100px; height: 100px;" src="{{ table.location.cover_url }}"
                        alt="{{ table.location.name }} logo">
                 </div>
-                <div class="col-12 col-sm-9 mt-2 mt-sm-0">
+                <div class="col-12 mt-3">
                   <p class="h5">{{ table.location.name }}</p>
                   <p class="card-text text-secondary"><small>{{ table.location.description }}</small></p>
                 </div>

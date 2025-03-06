@@ -2,14 +2,16 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.utils import timezone
 from django.urls import reverse
 from django.views import generic
 from django.views.generic import DetailView, CreateView
 
 from webapp.forms import LocationForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.models import Location, Table, UserProfile
+from webapp.models import Location, Table, UserProfile, Comment, Game
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -44,16 +46,45 @@ def index_view(request, template_name="locations/location_index.html"):
 
 class LocationDetailView(DetailView):
     model = Location
-    template_name = 'locations/location_detail.html'  # Assicurati di creare questo template
-    slug_field = 'slug'  # Specifica che userai il campo 'slug' per la ricerca
-    slug_url_kwarg = 'slug'  # Il nome del parametro keyword nell'URL che contiene lo slug
+    template_name = 'locations/location_detail.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        today = timezone.now().date()
         location = self.get_object()
-        context['tables'] = Table.objects.filter(location=location).order_by('-date', '-time')
-        return context
 
+        # Prefetching per ottimizzare le query
+        comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
+        players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
+        games_prefetch = Prefetch('game', queryset=Game.objects.all())
+
+        # Query per i tavoli futuri di questa location
+        future_tables = Table.objects.filter(
+            location=location,
+            # date__gte=today
+        ).select_related('author', 'author__user', 'location').prefetch_related(
+            comments_prefetch, players_prefetch, games_prefetch
+        ).order_by('date')
+
+        # Conteggio dei tavoli passati e futuri
+        past_tables_count = Table.objects.filter(location=location, date__lt=today).count()
+        future_tables_count = future_tables.count()
+
+        # Conta i giocatori unici che hanno partecipato a tavoli in questa location
+        total_gamers_count = UserProfile.objects.filter(
+            Q(joined_tables__location=location) | Q(created_tables__location=location)
+        ).distinct().count()
+
+        # Inserisco i dati nel contesto
+        context = super().get_context_data(**kwargs)
+        context['future_tables'] = future_tables
+        context['past_tables_count'] = past_tables_count
+        context['future_tables_count'] = future_tables_count
+        context['tables_count'] = past_tables_count + future_tables_count
+        context['total_gamers_count'] = total_gamers_count
+
+        return context
 
 class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Location

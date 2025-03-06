@@ -3,6 +3,33 @@
 {% load static %}
 {% load i18n %}
 
+{% block style %}
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+  />
+  <style>
+      .swiper {
+          overflow: visible;
+      }
+
+      .swiper-wrapper {
+          display: flex;
+      }
+
+      .swiper-slide {
+          flex-shrink: 0;
+          width: auto;
+          max-width: 260px;
+      }
+
+      .swiper-scrollbar {
+          margin-top: 15px;
+      }
+  </style>
+{% endblock %}
+
+
 {% block breadcrumbs %}
   <div class="container-fluid px-0 bg-white border-bottom">
     <div class="container">
@@ -19,42 +46,121 @@
 {% endblock %}
 
 {% block content %}
-  <div class="container py-4">
+  <div class="container-fluid" style="background-color: slategrey; height: 180px">
+    <div class="container d-flex mt-4" style="">
+      <p class="h2 text-light m-0">
+        <img class="img-thumbnail border-0 object-fit-cover object-position-center"
+             style="width: 80px; height: 80px; padding: 0.20rem" src="{{ location.cover_url }}"
+             alt="{{ location.name }} logo">
+        {{ location.name }}
+      </p>
+    </div>
+  </div>
+  <div class="container" style="position: relative; top: -50px">
     <div class="row">
-      <!-- location info -->
-      <div class="col-12 col-md-5 col-lg-4 col-xl-4">
-
-        <div class="card shadow border-0 mb-4">
-          <div style="background-image: url('{{ location.cover_url }}');
-              background-size: cover;
-              background-position: center;
-              width: 100%;
-              padding-top: 60%;
-              border-top-left-radius: 6px;
-              border-top-right-radius: 6px;
-              ">
+      <div class="col">
+        <div class="container">
+          <div class="row bg-white shadow rounded-4">
+            <div class="col">
+              <div class="d-flex align-items-center bg-body-tertiary rounded mt-3 mb-3 px-3 py-2">
+                <i class="bi bi-lightning-charge fs-1 ms-3"></i>
+                <div class="d-flex flex-column align-items-start ms-2">
+                  <span class="h3 m-0">{{ tables_count }}</span>
+                  <small>{% trans 'tables' %}</small>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="d-flex align-items-center bg-body-tertiary rounded mt-3 mb-3 px-3 py-2">
+                <i class="bi bi-people-fill fs-1 ms-3"></i>
+                <div class="d-flex flex-column align-items-start ms-2">
+                  <span class="h3 m-0">{{ total_gamers_count }}</span>
+                  <small>{% trans 'gamers' %}</small>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="d-flex align-items-center bg-body-tertiary rounded mt-3 mb-3 px-3 py-2">
+                <i class="bi bi-trophy-fill fs-1 ms-3"></i>
+                <div class="d-flex flex-column align-items-start ms-2">
+                  <span class="m-0">See all stats</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-auto d-flex align-items-center mb-3 mb-lg-0">
+              <a class="w-100 btn btn-lg btn-primary" href="{% url 'location-table-create' location.slug %}">
+                <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
+              </a>
+            </div>
           </div>
-          <div class="card-body">
-            <h5 class="card-title">{{ location.name }}</h5>
-            <p class="card-text text-secondary"><small>{{ location.description }}</small></p>
-            <a class="w-100 btn btn-lg btn-primary d-none d-sm-block" href="{% url 'location-table-create' location.slug %}">
-              <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- table list -->
-      <div class="col-12 col-md-7 col-lg-8 col-xl-8">
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4">
-          {% for table in tables %}
-            {% table_list_item table %}
-          {% empty %}
-            <p>{% trans "No tables found." %}</p>
-          {% endfor %}
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="container mt-4">
+    <p class="h1">{% trans "Upcoming tables" %}</p>
+    <p class="mb-0">{% trans "Accept the challenge, join a table!" %}</p>
+  </div>
+
+  <div class="container mt-4">
+    <div class="swiper">
+      <div class="swiper-wrapper">
+        {% for table in future_tables %}
+          <div class="swiper-slide">
+            <div class="card shadow border-0" style="height: 100%;">
+              <div class="card-header d-flex justify-content-between align-items-center"
+                   style="background-color: slategrey"
+              >
+                {% if user.user_profile in table.players.all %}
+                  <div><small>{% trans "joined" %}</small> <i class="bi bi-bookmark-check-fill"></i></div>
+                {% endif %}
+              </div>
+              <a class="card-body text-decoration-none" href="{% url "table-detail" table.slug %}">
+                <p class="h5 card-title">{{ table.title|truncatechars:50 }}</p>
+                <p class="card-text text-secondary"><small>{{ table.description|truncatechars:144 }}</small></p>
+              </a>
+              <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">
+                <i class="bi bi-person-fill"></i> <small>{{ table.author.nickname }}</small>
+                {% if table.location %}
+                  <br>
+                  {% if table.location.is_public %}
+                    <i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small>
+                  {% else %}
+                    <i class="bi bi-geo-alt-fill"></i> <small>{% trans "Private location" %}</small>
+                  {% endif %}
+                {% endif %}
+              </a>
+              {% if table.game %}
+                <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">
+                  <i class="bi bi-lightning-charge-fill"></i>
+                  <small>{{ table.game }}</small>
+                </a>
+              {% endif %}
+              <div
+                  class="card-footer text-body-secondary d-flex justify-content-between align-items-center bg-body-tertiary">
+                <small><i class="bi bi-calendar4-event"></i> {{ table.date|date:"j F" }}</small>
+                <small><i class="bi bi-clock"></i> {{ table.time|time:"H:i" }}</small>
+                <small>
+                  <i class="bi bi-people-fill"></i> {{ table.players.count }}/{{ table.max_players }}
+                </small>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <p>{% trans "No tables found." %}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="container mt-4">
+    <p class="h1">{% trans "About" %}</p>
+    <p class="mb-0">{% trans "Work in progres..." %}</p>
+  </div>
+  <div class="container mt-4 mb-5">
+    <p class="h1">{% trans "Stats" %}</p>
+    <p class="mb-0">{% trans "Work in progres..." %}</p>
+  </div>
   </div>
 
   <div class="container fixed-bottom bg-light p-3 border-top d-sm-none">
@@ -68,4 +174,21 @@
   </div>
 {% endblock content %}
 
-{% block extrabodyjs %}{% endblock extrabodyjs %}
+{% block extrabodyjs %}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+      const swiper = new Swiper('.swiper', {
+          // Optional parameters
+          loop: false,
+          mousewheel: true,
+          freeMode: {
+              enabled: true,
+          },
+          centeredSlides: false,
+          spaceBetween: 15,
+          watchOverflow: true,
+          slidesPerView: 'auto',
+      });
+  </script>
+{% endblock %}
+
