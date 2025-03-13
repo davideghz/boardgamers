@@ -2,7 +2,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch, Q, Count
 from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse
