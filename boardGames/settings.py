@@ -23,6 +23,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
 
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # Deve essere il primo middleware
     'django.middleware.security.SecurityMiddleware',
