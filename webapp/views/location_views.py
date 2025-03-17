@@ -67,8 +67,16 @@ class LocationDetailView(DetailView):
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('date')
 
+        # Query per i tavoli passati di questa location
+        past_tables = Table.objects.filter(
+            location=location,
+            date__lt=today
+        ).select_related('author', 'author__user', 'location').prefetch_related(
+            comments_prefetch, players_prefetch, games_prefetch
+        ).order_by('-date')
+
         # Conteggio dei tavoli passati e futuri
-        past_tables_count = Table.objects.filter(location=location, date__lt=today).count()
+        past_tables_count = past_tables.count()
         future_tables_count = future_tables.count()
 
         # Conta i giocatori unici che hanno partecipato a tavoli in questa location
@@ -79,12 +87,14 @@ class LocationDetailView(DetailView):
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)
         context['future_tables'] = future_tables
+        context['past_tables'] = past_tables
         context['past_tables_count'] = past_tables_count
         context['future_tables_count'] = future_tables_count
         context['tables_count'] = past_tables_count + future_tables_count
         context['total_gamers_count'] = total_gamers_count
 
         return context
+
 
 class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Location

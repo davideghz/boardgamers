@@ -3,6 +3,31 @@
 {% load static %}
 {% load i18n %}
 
+{% block style %}
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+  />
+  <style>
+      .swiper {
+          overflow: visible;
+          max-width: 100vw;
+      }
+
+      .swiper-wrapper {
+          display: flex;
+          padding-bottom: 30px;
+      }
+
+      .swiper-slide {
+          flex-shrink: 0;
+          width: auto;
+          max-width: 260px;
+      }
+  </style>
+{% endblock style %}
+
+
 {% block content %}
   {% include "partials/hero.html" %}
 
@@ -11,29 +36,53 @@
       <p class="h1">{% trans "Upcoming tables" %}</p>
       <p class="mb-0">{% trans "Accept the challenge, join a table!" %}</p>
     </div>
-    <div class="container py-4">
-      <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 g-4">
-        {% for table in future_tables %}
-          {% table_list_item table %}
-        {% empty %}
-          <p>{% trans "No upcoming tables found." %}</p>
-        {% endfor %}
+    <div class="container mt-4">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          {% for table in future_tables %}
+            {% swiper_table_slide table %}
+          {% empty %}
+            <p>{% trans "No tables found." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
+
   </div>
 
   <div style="background-color: #FAEBD7;">
     <div class="container mt-4">
       <p class="h1">{% trans "Past tables" %}</p>
+      <p class="mb-0">{% trans "Legends were made at these tables. Will you be next?" %}</p>
     </div>
-    <div class="container py-4">
-      <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 g-4">
-        {% for table in past_tables %}
-          {% table_list_item table %}
-        {% empty %}
-          <p>{% trans "No past tables found." %}</p>
-        {% endfor %}
+    <div class="container mt-4">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          {% for table in past_tables %}
+            {% swiper_table_slide table %}
+          {% empty %}
+            <p>{% trans "No tables found." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
 {% endblock content %}
+
+{% block extrabodyjs %}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+      const swiper = new Swiper('.swiper', {
+          // Optional parameters
+          loop: false,
+          mousewheel: false,
+          freeMode: {
+              enabled: true,
+          },
+          centeredSlides: false,
+          spaceBetween: 15,
+          watchOverflow: true,
+          slidesPerView: 'auto',
+      });
+  </script>
+{% endblock %}
