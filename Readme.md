@@ -34,3 +34,9 @@ Create a file in your application root called Aptfile with the gdal dependency:
 gdal-bin
 ```
 Heroku docs [HERE](https://help.heroku.com/Q0VCG3DE/how-do-i-install-gdal-on-heroku)
+
+## Translations
+To void to generate po file for dependencies, run:
+```
+python manage.py makemessages -l it -i "venv/*" -i "static/*" -i "migrations/*" -i "node_modules/*"
+```

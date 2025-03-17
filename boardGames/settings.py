@@ -24,10 +24,11 @@ ALLOWED_HOSTS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # Deve essere il primo middleware
+    'corsheaders.middleware.CorsMiddleware',  # Deve essere il primo middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -203,11 +204,15 @@ LANGUAGES = [
     ('it', _('Italiano')),
 ]
 
-LANGUAGE_CODE = 'en'
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'webapp', 'locale'),
+]
+
+LANGUAGE_CODE = 'it'
 TIME_ZONE = 'UTC'
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

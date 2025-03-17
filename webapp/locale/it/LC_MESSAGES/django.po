@@ -1,0 +1,587 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-17 21:33+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: boardGames/settings.py:203
+msgid "English"
+msgstr "English"
+
+#: boardGames/settings.py:204
+msgid "Italiano"
+msgstr "Italiano"
+
+#: webapp/forms.py:127 webapp/forms.py:133
+msgid "Games"
+msgstr "Games"
+
+#: webapp/forms.py:163
+msgid "Your comment..."
+msgstr "Il tuo commento..."
+
+#: webapp/forms.py:215
+msgid "Email already registered."
+msgstr "Email già registrata."
+
+#: webapp/forms.py:221
+msgid "Insert nickname"
+msgstr "Inserisci un nickname"
+
+#: webapp/forms.py:223
+msgid "Profile with this Nickname already exists."
+msgstr "Esiste già un profilo con questo nickname."
+
+#: webapp/messages.py:3
+msgid "Email verification"
+msgstr "Verifica email"
+
+#: webapp/messages.py:5
+msgid "Check your email and follow the link to verify your account."
+msgstr "Controlla la tua email e segui il link per verificare il tuo account."
+
+#: webapp/messages.py:7
+msgid "Please verify your email before proceeding"
+msgstr "Verifica la tua email prima di procedere."
+
+#: webapp/messages.py:9
+msgid "Insert your address to find near locations."
+msgstr "Inserisci il tuo indirizzo per trovare luoghi nelle vicinanze."
+
+#: webapp/templates/accounts/account_edit_profile.html:28
+#: webapp/templates/accounts/account_index.html:24
+msgid "Edit profile"
+msgstr "Modifica profilo"
+
+#: webapp/templates/accounts/account_edit_profile.html:62
+msgid "Update profile"
+msgstr "Aggiorna profilo"
+
+#: webapp/templates/accounts/account_index.html:14
+msgid "See public profile"
+msgstr "Vedi profilo pubblico"
+
+#: webapp/templates/accounts/account_index.html:26
+msgid "Edit your personal and account information"
+msgstr "Modifica le informazioni personali e dell'account"
+
+#: webapp/templates/accounts/account_index.html:38
+msgid "Manage locations"
+msgstr "Gestisci luoghi"
+
+#: webapp/templates/accounts/account_index.html:40
+msgid "Edit the information of your locations and create new ones"
+msgstr "Modifica le informazioni dei tuoi luoghi e creane di nuovi"
+
+#: webapp/templates/accounts/account_index.html:52
+msgid "Manage tables"
+msgstr "Gestisci tavoli"
+
+#: webapp/templates/accounts/account_index.html:54
+msgid "Edit the information of the tables your organized"
+msgstr "Modifica le informazioni dei tavoli che hai organizzato"
+
+#: webapp/templates/accounts/account_index.html:66
+#: webapp/templates/accounts/account_notifications.html:28
+msgid "Notifications"
+msgstr "Notifiche"
+
+#: webapp/templates/accounts/account_index.html:68
+msgid "Choose notification preferences and how you want to be contacted"
+msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
+
+#: webapp/templates/accounts/account_locations.html:28
+msgid "Locations"
+msgstr "Luoghi"
+
+#: webapp/templates/accounts/account_locations.html:51
+msgid "Add new location"
+msgstr "Aggiungi Location"
+
+#: webapp/templates/accounts/account_tables.html:28
+#: webapp/templates/partials/top-menu.html:73
+#: webapp/templates/partials/top-menu.html:117
+msgid "Tables"
+msgstr "Tavoli"
+
+#: webapp/templates/accounts/account_tables.html:29
+msgid "Joined tables"
+msgstr "Tavoli a cui hai aderito"
+
+#: webapp/templates/accounts/account_tables.html:34
+#: webapp/templates/accounts/account_tables.html:42
+#: webapp/templates/locations/location_detail.html:113
+#: webapp/templates/locations/location_detail.html:129
+#: webapp/templates/profiles/user_profile_detail.html:65
+#: webapp/templates/staticpages/home.html:45
+#: webapp/templates/staticpages/home.html:64
+#: webapp/templates/tables/table_index.html:21
+msgid "No tables found."
+msgstr "Nessun tavolo trovato."
+
+#: webapp/templates/accounts/account_tables.html:37
+msgid "Created tables"
+msgstr "Tavoli creati"
+
+#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:170
+msgid "Or"
+msgstr "Oppure"
+
+#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:191
+msgid "Sign in with Google"
+msgstr "Accedi con Google"
+
+#: webapp/templates/auth/login.html:121
+msgid "Forgot your password?"
+msgstr "Password dimenticata?"
+
+#: webapp/templates/auth/login.html:122
+#: webapp/templates/auth/password_reset_form.html:19
+msgid "Reset password"
+msgstr "Reimposta la password"
+
+#: webapp/templates/auth/login.html:125
+#: webapp/templates/auth/password_reset_form.html:33
+#: webapp/templates/partials/hero.html:198
+msgid "Not a member?"
+msgstr "Non sei ancora iscritto?"
+
+#: webapp/templates/auth/login.html:126
+#: webapp/templates/auth/password_reset_form.html:34
+#: webapp/templates/partials/hero.html:199
+msgid "Create an account"
+msgstr "Crea un account"
+
+#: webapp/templates/auth/password_reset_confirm.html:19
+msgid "Reset your password"
+msgstr "Reimposta la tua password"
+
+#: webapp/templates/auth/password_reset_confirm.html:43
+msgid "Reset my password"
+msgstr "Reimposta la mia password"
+
+#: webapp/templates/auth/password_reset_form.html:29
+msgid "Back to"
+msgstr "Torna a"
+
+#: webapp/templates/auth/password_reset_form.html:30
+#: webapp/templates/partials/top-menu.html:134
+msgid "Login"
+msgstr "Login"
+
+#: webapp/templates/auth/signup.html:24 webapp/templates/auth/signup.html:87
+#: webapp/templates/partials/top-menu.html:89
+msgid "Signup"
+msgstr "Registrati"
+
+#: webapp/templates/auth/signup.html:26
+msgid "Insert email and password. You will use them to login."
+msgstr "Inserisci email e password. Le userai per accedere."
+
+#: webapp/templates/auth/signup.html:62
+msgid "Insert your Nickname. Other gamers will call you this way."
+msgstr "Inserisci il tuo nickname. Gli altri gamers ti chiameranno così."
+
+#: webapp/templates/auth/signup.html:75
+msgid "Insert your Address. We will use it to show near tables."
+msgstr "Inserisci il tuo indirizzo. Lo useremo per mostrarti i tavoli vicini."
+
+#: webapp/templates/base.html:16
+msgid ""
+"Easily find board game enthusiasts in your area and share your passion with "
+"like minded people."
+msgstr ""
+"Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
+"la tua passione con persone simili a te."
+
+#: webapp/templates/emails/email_verification_code.html:3
+#: webapp/templates/emails/email_verification_code_html.html:10
+msgid "Hey"
+msgstr "Ciao"
+
+#: webapp/templates/emails/email_verification_code.html:4
+msgid ""
+"Please click the link to confirm your email address and finish setting up "
+"your account"
+msgstr ""
+"Clicca sul link per confermare il tuo indirizzo email e completare la "
+"configurazione del tuo account."
+
+#: webapp/templates/emails/email_verification_code_html.html:6
+msgid "Confirm your email"
+msgstr "Conferma il tuo indirizzo email"
+
+#: webapp/templates/emails/email_verification_code_html.html:11
+msgid ""
+"Please click the button below to confirm your email address and finish "
+"setting up your account."
+msgstr ""
+"Clicca sul pulsante qui sotto per confermare il tuo indirizzo email e "
+"completare la configurazione del tuo account."
+
+#: webapp/templates/locations/location_add_or_edit.html:22
+msgid "Edit"
+msgstr "Modifica"
+
+#: webapp/templates/locations/location_add_or_edit.html:24
+msgid "New"
+msgstr "Nuovo"
+
+#: webapp/templates/locations/location_add_or_edit.html:46
+msgid "Edit location"
+msgstr "Modifica luogo"
+
+#: webapp/templates/locations/location_add_or_edit.html:48
+msgid "Create a new location"
+msgstr "Crea un nuovo luogo"
+
+#: webapp/templates/locations/location_add_or_edit.html:52
+msgid "Insert the name of the location."
+msgstr "Inserisci il nome della location."
+
+#: webapp/templates/locations/location_add_or_edit.html:70
+msgid "Describe your location."
+msgstr "Descrivi la tua location."
+
+#: webapp/templates/locations/location_add_or_edit.html:85
+msgid "Add a cover image (optional)"
+msgstr "Aggiungi un'immagine di copertina (opzionale)"
+
+#: webapp/templates/locations/location_add_or_edit.html:109
+msgid ""
+"Insert the location's address. We will use it to show the location on the "
+"map!"
+msgstr "Inserisci l'indirizzo del luogo. Lo useremo per mostrarlo sulla mappa!"
+
+#: webapp/templates/locations/location_add_or_edit.html:122
+msgid "Is the location public or private?"
+msgstr "Il luogo è pubblico o privato?"
+
+#: webapp/templates/locations/location_add_or_edit.html:126
+msgid ""
+"Click here if this is a public location (like a bar, a pub, or a board games "
+"café)."
+msgstr ""
+"Clicca qui se si tratta di un luogo pubblico (come un bar, un pub o un caffè "
+"per giochi da tavolo)."
+
+#: webapp/templates/locations/location_add_or_edit.html:127
+msgid "Note: public locations can be used by other gamers to organize tables."
+msgstr ""
+"Nota: le location pubbliche possono essere usate da altri gamers per "
+"organizzare tavoli."
+
+#: webapp/templates/locations/location_add_or_edit.html:135
+#: webapp/templates/tables/table_add_or_edit.html:163
+#: webapp/templates/tables/table_delete.html:13
+#: webapp/templates/tables/table_detail.html:244
+msgid "Cancel"
+msgstr "Annulla"
+
+#: webapp/templates/locations/location_add_or_edit.html:141
+#: webapp/templates/tables/table_add_or_edit.html:169
+msgid "Publish"
+msgstr "Pubblica"
+
+#: webapp/templates/locations/location_detail.html:71
+msgid "tables"
+msgstr "tavoli"
+
+#: webapp/templates/locations/location_detail.html:80
+msgid "gamers"
+msgstr "gamers"
+
+#: webapp/templates/locations/location_detail.html:94
+#: webapp/templates/locations/location_detail.html:149
+msgid "Create table here"
+msgstr "Crea un tavolo"
+
+#: webapp/templates/locations/location_detail.html:104
+#: webapp/templates/staticpages/home.html:36
+msgid "Upcoming tables"
+msgstr "Tavoli in arrivo"
+
+#: webapp/templates/locations/location_detail.html:105
+#: webapp/templates/staticpages/home.html:37
+#: webapp/templates/tables/table_index.html:11
+msgid "Accept the challenge, join a table!"
+msgstr "Accetta la sfida, unisciti a un tavolo!"
+
+#: webapp/templates/locations/location_detail.html:120
+#: webapp/templates/staticpages/home.html:55
+msgid "Past tables"
+msgstr "Tavoli passati"
+
+#: webapp/templates/locations/location_detail.html:121
+msgid "Great games, greater memories. What’s your next move?"
+msgstr "Partite memorabili! Quale sarà la tua prossima mossa?"
+
+#: webapp/templates/locations/location_detail.html:136
+msgid "About"
+msgstr "Informazioni"
+
+#: webapp/templates/locations/location_detail.html:137
+#: webapp/templates/locations/location_detail.html:141
+msgid "Work in progres..."
+msgstr "Lavori in corso..."
+
+#: webapp/templates/locations/location_detail.html:140
+msgid "Stats"
+msgstr "Statistiche"
+
+#: webapp/templates/locations/location_index.html:9
+#: webapp/templates/partials/hero.html:99
+msgid "Create a Table"
+msgstr "Crea un Tavolo"
+
+#: webapp/templates/locations/location_index.html:10
+msgid "Select a location to Create a table in that location."
+msgstr "Seleziona una location per creare un tavolo."
+
+#: webapp/templates/partials/alerts.html:8
+msgid "Your email is not verified."
+msgstr "La tua email non è verificata."
+
+#: webapp/templates/partials/alerts.html:8
+msgid "Verify your email to join tables."
+msgstr "Verifica la tua email per unirti ai tavoli."
+
+#: webapp/templates/partials/alerts.html:11
+#: webapp/templates/profiles/user_profile_detail.html:78
+msgid "CLICK HERE"
+msgstr "CLICCA QUI"
+
+#: webapp/templates/partials/alerts.html:13
+#: webapp/templates/profiles/user_profile_detail.html:80
+msgid "to receive a new verification email."
+msgstr "per ricevere una nuova email di verifica."
+
+#: webapp/templates/partials/hero.html:100
+msgid "Select a near location to Create a table in that location."
+msgstr "Seleziona una location vicina per creare un tavolo."
+
+#: webapp/templates/partials/hero.html:137
+msgid "Add your location"
+msgstr "Aggiungi location"
+
+#: webapp/templates/partials/hero.html:151
+msgid "Find Board Gamers <br> near you"
+msgstr "Trova gamers da tavolo <br> vicino a te"
+
+#: webapp/templates/partials/hero.html:154
+msgid ""
+"Easily find board game enthusiasts in your area and share your passion with "
+"<i>like minded</i> people."
+msgstr ""
+"Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
+"la tua passione con persone che la pensano come te."
+
+#: webapp/templates/partials/top-menu.html:51
+#: webapp/templates/partials/top-menu.html:105
+msgid "New table"
+msgstr "Nuovo tavolo"
+
+#: webapp/templates/partials/top-menu.html:72
+#: webapp/templates/partials/top-menu.html:111
+msgid "Account"
+msgstr "Account"
+
+#: webapp/templates/partials/top-menu.html:139
+msgid "Register"
+msgstr "Registrati"
+
+#: webapp/templates/profiles/_avatar.html:25
+msgid "edit profile"
+msgstr "modifica profilo"
+
+#: webapp/templates/profiles/_avatar.html:38
+msgid "Upload new avatar"
+msgstr "Carica un nuovo avatar"
+
+#: webapp/templates/profiles/_avatar.html:62
+msgid "Save"
+msgstr "Salva"
+
+#: webapp/templates/profiles/user_profile_detail.html:52
+msgid "Latest tables"
+msgstr "Ultimi tavoli"
+
+#: webapp/templates/profiles/user_profile_detail.html:75
+msgid "Your email is not verified. Verify your email to join tables."
+msgstr ""
+"La tua email non è verificata. Verifica la tua email per unirti ai tavoli."
+
+#: webapp/templates/staticpages/home.html:56
+msgid "Legends were made at these tables. Will you be next?"
+msgstr "Ai nostri tavoli sono nate leggende. Sarai tu la prossima?"
+
+#: webapp/templates/tables/table_add_or_edit.html:23
+#: webapp/templates/tables/table_add_or_edit.html:47
+msgid "Edit table"
+msgstr "Modifica tavolo"
+
+#: webapp/templates/tables/table_add_or_edit.html:25
+msgid "New Table"
+msgstr "Nuovo tavolo"
+
+#: webapp/templates/tables/table_add_or_edit.html:49
+msgid "Create a new table"
+msgstr "Crea un nuovo tavolo"
+
+#: webapp/templates/tables/table_add_or_edit.html:65
+msgid "Insert the date and time of the game."
+msgstr "Inserisci la data e l'orario della partita."
+
+#: webapp/templates/tables/table_add_or_edit.html:96
+msgid "Give your table a name and a description so it can be recognised!"
+msgstr ""
+"Dai un nome e una descrizione al tuo tavolo per renderlo riconoscibile!"
+
+#: webapp/templates/tables/table_add_or_edit.html:122
+msgid "Add the game that will be played at this table."
+msgstr "Aggiungi il gioco che verrà giocato a questo tavolo."
+
+#: webapp/templates/tables/table_add_or_edit.html:128
+msgid "How many players are invited to this table?"
+msgstr "Quanti gamers sono invitati a questo tavolo?"
+
+#: webapp/templates/tables/table_delete.html:7
+#: webapp/templates/tables/table_detail.html:237
+msgid "Confirm delete"
+msgstr "Conferma eliminazione"
+
+#: webapp/templates/tables/table_delete.html:8
+msgid "Are you sure you want to delete"
+msgstr "Sei sicuro di voler eliminare"
+
+#: webapp/templates/tables/table_delete.html:12
+msgid "Delete"
+msgstr "Elimina"
+
+#: webapp/templates/tables/table_detail.html:34
+msgid "Table info"
+msgstr "Informazioni sul tavolo"
+
+#: webapp/templates/tables/table_detail.html:41
+msgid "Date and time"
+msgstr "Data e ora"
+
+#: webapp/templates/tables/table_detail.html:46
+msgid "Address"
+msgstr "Indirizzo"
+
+#: webapp/templates/tables/table_detail.html:56
+msgid "No location set for this table."
+msgstr "Nessuna location impostata per questo tavolo."
+
+#: webapp/templates/tables/table_detail.html:57
+msgid "Ask info to the organizer."
+msgstr "Chiedi informazioni all'organizzatore."
+
+#: webapp/templates/tables/table_detail.html:64
+msgid "Game"
+msgstr "Gioco"
+
+#: webapp/templates/tables/table_detail.html:72
+msgid "No game set for this table."
+msgstr "Nessun gioco impostato per questo tavolo."
+
+#: webapp/templates/tables/table_detail.html:77
+msgid "Gamers"
+msgstr "Gamers"
+
+#: webapp/templates/tables/table_detail.html:77
+msgid "available seats"
+msgstr "posti disponibili"
+
+#: webapp/templates/tables/table_detail.html:84
+msgid "No players yet."
+msgstr "Ancora nessun giocatore."
+
+#: webapp/templates/tables/table_detail.html:92
+msgid "Leave this Table"
+msgstr "Lascia questo tavolo"
+
+#: webapp/templates/tables/table_detail.html:99
+msgid "Join this table"
+msgstr "Unisciti a questo tavolo"
+
+#: webapp/templates/tables/table_detail.html:106
+msgid ""
+"By joining this table you agree to meet other gamers at the location at the "
+"given date and time."
+msgstr ""
+"Unendoti a questo tavolo accetti di incontrare gli altri gamers nel luogo e "
+"nell'orario stabiliti."
+
+#: webapp/templates/tables/table_detail.html:120
+msgid "Location info"
+msgstr "Info sulla Location"
+
+#: webapp/templates/tables/table_detail.html:164
+msgid "Send comment"
+msgstr "Invia commento"
+
+#: webapp/templates/tables/table_detail.html:171
+msgid "Only gamers that joined the table can comment on this page."
+msgstr ""
+"Solo i gamers che si sono uniti al tavolo possono commentare questa pagina."
+
+#: webapp/templates/tables/table_detail.html:220
+msgid "There are no comments yet."
+msgstr "Non ci sono ancora commenti."
+
+#: webapp/templates/tables/table_detail.html:241
+msgid "Are you sure you want to delete the comment?"
+msgstr "Sei sicuro di voler eliminare il commento?"
+
+#: webapp/templates/tables/table_detail.html:245
+msgid "Delete comment"
+msgstr "Elimina commento"
+
+#: webapp/templates/tables/table_index.html:10
+msgid "Upcoming Tables"
+msgstr "Tavoli in arrivo"
+
+#: webapp/templates/tags/swiper_table_slide.html:24
+#: webapp/templates/tags/table_card.html:23
+msgid "Private location"
+msgstr "Luogo privato"
+
+#: webapp/templates/tags/table_card.html:9
+msgid "joined"
+msgstr "partecipante"
+
+#: webapp/views/decorators.py:23
+msgid "Can't edit past tables."
+msgstr "Non è possibile modificare i tavoli passati."
+
+#: webapp/views/decorators.py:37
+msgid "You don't have permission to edit this table."
+msgstr "Non hai il permesso di modificare questo tavolo."
+
+#: webapp/views/profile_views.py:37
+msgid "Profile updated successfully"
+msgstr "Profilo aggiornato con successo"
+
+#: webapp/views/table_views.py:120
+msgid "Table was created successfully"
+msgstr "Il tavolo è stato creato con successo"
+
+#: webapp/views/table_views.py:149
+msgid "Table was updated successfully"
+msgstr "Il tavolo è stato aggiornato con successo"
