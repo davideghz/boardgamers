@@ -16,13 +16,6 @@ if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
 
 MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
-
 DOMAIN = "board-gamers.com"
 DOMAIN_PROTOCOL = 'https'
 DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
