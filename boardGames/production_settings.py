@@ -10,6 +10,7 @@ DEBUG = False
 
 # DATABASE
 
+
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
     DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
