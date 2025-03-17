@@ -110,35 +110,72 @@
       <div class="swiper-wrapper">
         {% for table in future_tables %}
           <div class="swiper-slide">
+            {#            <div class="card shadow border-0" style="height: 100%;">#}
+            {#              <div class="card-header d-flex justify-content-between align-items-center"#}
+            {#                   style="background-color: slategrey"#}
+            {#              >#}
+            {#                {% if user.user_profile in table.players.all %}#}
+            {#                  <div><small>{% trans "joined" %}</small> <i class="bi bi-bookmark-check-fill"></i></div>#}
+            {#                {% endif %}#}
+            {#              </div>#}
+            {#              <a class="card-body text-decoration-none" href="{% url "table-detail" table.slug %}">#}
+            {#                <p class="h5 card-title">{{ table.title|truncatechars:50 }}</p>#}
+            {#                <p class="card-text text-secondary"><small>{{ table.description|truncatechars:144 }}</small></p>#}
+            {#              </a>#}
+            {#              <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">#}
+            {#                <i class="bi bi-person-fill"></i> <small>{{ table.author.nickname }}</small>#}
+            {#                {% if table.location %}#}
+            {#                  <br>#}
+            {#                  {% if table.location.is_public %}#}
+            {#                    <i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small>#}
+            {#                  {% else %}#}
+            {#                    <i class="bi bi-geo-alt-fill"></i> <small>{% trans "Private location" %}</small>#}
+            {#                  {% endif %}#}
+            {#                {% endif %}#}
+            {#              </a>#}
+            {#              {% if table.game %}#}
+            {#                <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">#}
+            {#                  <i class="bi bi-lightning-charge-fill"></i>#}
+            {#                  <small>{{ table.game }}</small>#}
+            {#                </a>#}
+            {#              {% endif %}#}
+            {#              <div#}
+            {#                  class="card-footer text-body-secondary d-flex justify-content-between align-items-center bg-body-tertiary">#}
+            {#                <small><i class="bi bi-calendar4-event"></i> {{ table.date|date:"j F" }}</small>#}
+            {#                <small><i class="bi bi-clock"></i> {{ table.time|time:"H:i" }}</small>#}
+            {#                <small>#}
+            {#                  <i class="bi bi-people-fill"></i> {{ table.players.count }}/{{ table.max_players }}#}
+            {#                </small>#}
+            {#              </div>#}
+            {#            </div>#}
             <div class="card shadow border-0" style="height: 100%;">
-              <div class="card-header d-flex justify-content-between align-items-center"
-                   style="background-color: slategrey"
+              <a href="{% url "table-detail" table.slug %}" class="card-header text-decoration-none d-flex flex-column justify-content-end text-white border-bottom-0"
+                   style="background-image: linear-gradient(to top,
+                       rgba(0, 0, 0, 0.8) 0%,
+                       rgba(0, 0, 0, 0.3) 40%,
+                       rgba(0, 0, 0, 0) 100%),
+                       url('{{ table.cover_url }}');
+                       background-position: center;
+                       background-size: cover;
+                       width: 260px;
+                       height: 150px"
               >
-                {% if user.user_profile in table.players.all %}
-                  <div><small>{% trans "joined" %}</small> <i class="bi bi-bookmark-check-fill"></i></div>
+                {% if table.game %}
+                  <h5>{{ table.game }}</h5>
                 {% endif %}
-              </div>
-              <a class="card-body text-decoration-none" href="{% url "table-detail" table.slug %}">
-                <p class="h5 card-title">{{ table.title|truncatechars:50 }}</p>
-                <p class="card-text text-secondary"><small>{{ table.description|truncatechars:144 }}</small></p>
-              </a>
-              <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">
-                <i class="bi bi-person-fill"></i> <small>{{ table.author.nickname }}</small>
+
                 {% if table.location %}
-                  <br>
                   {% if table.location.is_public %}
-                    <i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small>
+                    <span><i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small></span>
                   {% else %}
-                    <i class="bi bi-geo-alt-fill"></i> <small>{% trans "Private location" %}</small>
+                    <span><i class="bi bi-geo-alt-fill"></i> <small>{% trans "Private location" %}</small></span>
                   {% endif %}
                 {% endif %}
               </a>
-              {% if table.game %}
-                <a class="card-body text-decoration-none border-top" href="{% url "table-detail" table.slug %}">
-                  <i class="bi bi-lightning-charge-fill"></i>
-                  <small>{{ table.game }}</small>
-                </a>
-              {% endif %}
+              <a class="card-body text-decoration-none border-0" href="{% url "table-detail" table.slug %}">
+                                <p class="h5 card-title">{{ table.title|truncatechars:50 }}</p>
+                <p class="card-text text-secondary"><small>{{ table.description|truncatechars:144 }}</small></p>
+              </a>
               <div
                   class="card-footer text-body-secondary d-flex justify-content-between align-items-center bg-body-tertiary">
                 <small><i class="bi bi-calendar4-event"></i> {{ table.date|date:"j F" }}</small>

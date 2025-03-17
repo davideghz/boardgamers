@@ -227,6 +227,7 @@ STATICFILES_FINDERS = (
 
 DEFAULT_AVATAR_URL = 'images/avatar.webp'
 DEFAULT_LOCATION_COVER_URL = 'images/location_cover.webp'
+DEFAULT_GAME_COVER_URL = 'images/game.webp'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -70,7 +70,15 @@ class Game(DateTimeModel, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
+    image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
     description = models.TextField()
+
+    @cached_property
+    def cover_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        else:
+            return settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
 
     def __str__(self):
         return self.name
@@ -167,6 +175,13 @@ class Table(DateTimeModel, SlugModel):
     author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     game = models.ForeignKey(Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True)
+
+    @cached_property
+    def cover_url(self):
+        if self.game and self.game.image and hasattr(self.game.image, 'url'):
+            return self.game.image.url
+        else:
+            return settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
 
     def __str__(self):
         return self.title
