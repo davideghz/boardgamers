@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-17 21:33+0000\n"
+"POT-Creation-Date: 2025-03-17 22:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,11 +137,11 @@ msgstr "Nessun tavolo trovato."
 msgid "Created tables"
 msgstr "Tavoli creati"
 
-#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:170
+#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:172
 msgid "Or"
 msgstr "Oppure"
 
-#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:191
+#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:193
 msgid "Sign in with Google"
 msgstr "Accedi con Google"
 
@@ -156,13 +156,13 @@ msgstr "Reimposta la password"
 
 #: webapp/templates/auth/login.html:125
 #: webapp/templates/auth/password_reset_form.html:33
-#: webapp/templates/partials/hero.html:198
+#: webapp/templates/partials/hero.html:200
 msgid "Not a member?"
 msgstr "Non sei ancora iscritto?"
 
 #: webapp/templates/auth/login.html:126
 #: webapp/templates/auth/password_reset_form.html:34
-#: webapp/templates/partials/hero.html:199
+#: webapp/templates/partials/hero.html:201
 msgid "Create an account"
 msgstr "Crea un account"
 
@@ -379,16 +379,16 @@ msgid "Add your location"
 msgstr "Aggiungi location"
 
 #: webapp/templates/partials/hero.html:151
-msgid "Find Board Gamers <br> near you"
-msgstr "Trova gamers da tavolo <br> vicino a te"
+msgid "Find Board Gamers"
+msgstr "Trova BoardGamers"
 
-#: webapp/templates/partials/hero.html:154
-msgid ""
-"Easily find board game enthusiasts in your area and share your passion with "
-"<i>like minded</i> people."
-msgstr ""
-"Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
-"la tua passione con persone che la pensano come te."
+#: webapp/templates/partials/hero.html:153
+msgid "near you"
+msgstr "vicino a te"
+
+#: webapp/templates/partials/hero.html:156
+msgid "Easily find board game enthusiasts in your area and share your passion."
+msgstr "Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi la tua passione."
 
 #: webapp/templates/partials/top-menu.html:51
 #: webapp/templates/partials/top-menu.html:105
@@ -585,3 +585,19 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:149
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid ""
+#~ "Easily find board game enthusiasts in your area and share your passion "
+#~ "with <i>like minded</i> people."
+#~ msgstr ""
+#~ "Trova facilmente appassionati di giochi da tavolo nella tua zona e "
+#~ "condividi la tua passione."
+
+#~ msgid ""
+#~ "\n"
+#~ "              Easily find board game enthusiasts in your area and share "
+#~ "your passion with <i>like minded</i> people.\n"
+#~ "            "
+#~ msgstr ""
+#~ "Trova facilmente appassionati di giochi da tavolo nella tua zona e "
+#~ "condividi la tua passione con persone simili a te."
