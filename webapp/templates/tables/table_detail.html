@@ -172,7 +172,7 @@
                 <form method="post">
                   {% csrf_token %}
                   {{ formset.management_form }}
-                
+
                   {% for form, player in players_with_forms %}
                     <div class="form-floating mb-3">
                       {{ form.score }}
@@ -181,10 +181,14 @@
                     {{ form.id }}
                   {% endfor %}
 
-                  <button type="submit" name="score_form" class="btn btn-primary w-100">
-                    <i class="bi bi-arrow-repeat"></i>
-                    {% trans "Update Scores" %}
-                  </button>
+                  {% if can_edit_scores %}
+                    <button type="submit" name="score_form" class="btn btn-primary w-100">
+                      <i class="bi bi-arrow-repeat"></i>
+                      {% trans "Update Scores" %}
+                    </button>
+                  {% else %}
+                    <p class="text-muted mb-0">{% trans "Only players of this table can update scores." %}</p>
+                  {% endif %}
                 </form>
               </div>
             </div>
