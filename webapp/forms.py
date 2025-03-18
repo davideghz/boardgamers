@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField
+    ModelMultipleChoiceField, modelformset_factory
 from webapp.models import Table, UserProfile, Comment, Player, Location
 
 from django.utils.translation import gettext_lazy as _
@@ -292,3 +292,19 @@ class LocationForm(ModelForm, BootstrapForm):
     class Meta:
         model = Location
         fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']
+
+
+class PlayerScoreForm(ModelForm, BootstrapForm):
+    class Meta:
+        model = Player
+        fields = ['score']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Modifica la label per mostrare il nome del giocatore
+        if self.instance and self.instance.user_profile:
+            self.fields['score'].label = self.instance.user_profile.nickname
+
+
+PlayerScoreFormSet = modelformset_factory(Player, form=PlayerScoreForm, fields=('score',), extra=0)

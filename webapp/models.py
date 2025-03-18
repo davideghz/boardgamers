@@ -195,6 +195,7 @@ class Table(DateTimeModel, SlugModel):
 class Player(DateTimeModel):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Player"

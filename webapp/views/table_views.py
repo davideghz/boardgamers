@@ -13,7 +13,7 @@ from django.utils.timezone import now
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 
-from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm
+from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location
 from webapp.views.decorators import only_admin_can_edit_old_table, only_author_or_admin_can_edit
@@ -77,22 +77,45 @@ class TableDetailView(LoginRequiredMixin, generic.DetailView):
         current_players = table.players.count()
         today = now().date()
 
+        # Recupero i giocatori ordinati per punteggio
+        players = Player.objects.filter(table=table).select_related('user_profile').order_by('-score')
+
+        # Creiamo un formset per tutti i player della partita
+        formset = PlayerScoreFormSet(queryset=players)
+
+        # Zip per creare la lista di tuple (form, player)
+        players_with_forms = list(zip(formset.forms, players))
+
         context = super().get_context_data(**kwargs)
-        context['comment_form'] = CommentForm()
-        context['available_seats'] = max_players - current_players
-        context['today'] = today
+        context.update({
+            'comment_form': CommentForm(),
+            'available_seats': max_players - current_players,
+            'today': today,
+            'players_with_forms': players_with_forms,  # Aggiungiamo la lista zip
+            'formset': formset,  # Manteniamo il formset per il submit
+        })
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.table = self.object
-            comment.author = request.user.user_profile
-            comment.save()
-            return redirect('table-detail', slug=self.object.slug)
-        context = self.get_context_data(object=self.object, comment_form=form)
+        formset = None
+
+        if 'comment_form' in request.POST:  # Se il form inviato è il form dei commenti
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.table = self.object
+                comment.author = request.user.user_profile
+                comment.save()
+                return redirect('table-detail', slug=self.object.slug)
+
+        elif 'score_form' in request.POST:  # Se il form inviato è il form dei punteggi
+            formset = PlayerScoreFormSet(request.POST)
+            if formset.is_valid():
+                formset.save()
+                return redirect('table-detail', slug=self.object.slug)
+
+        context = self.get_context_data(object=self.object, formset=formset)
         return self.render_to_response(context)
 
 
