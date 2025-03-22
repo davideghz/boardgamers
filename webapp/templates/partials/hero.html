@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load static %}
 
+{# Animation styling #}
 <style>
     .shapedividers_com-2437 {
         overflow: hidden;
@@ -88,6 +89,13 @@
         display: flex;
         align-items: center;
         padding-left: 15px;
+    }
+</style>
+
+{# Custom Swiper styling #}
+<style>
+    .location-swiper {
+        overflow: hidden;
     }
 </style>
 
@@ -218,7 +226,6 @@
           // Optional parameters
           loop: false,
           mousewheel: false,
-          spaceBetween: 10,
           freeMode: {
               enabled: true,
           },

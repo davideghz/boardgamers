@@ -14,14 +14,15 @@
       }
 
       .swiper-wrapper {
-          padding-left: 14px;
           padding-bottom: 30px;
       }
 
       .swiper-slide {
+          padding-left: 14px;
+          padding-right: 14px;
           flex-shrink: 0;
-          width: auto;
-          max-width: 260px;
+          width: 280px;
+          max-width: 280px;
       }
   </style>
 {% endblock style %}
@@ -116,7 +117,6 @@
               enabled: true,
           },
           centeredSlides: false,
-          spaceBetween: 15,
           watchOverflow: true,
           slidesPerView: 'auto',
       });
