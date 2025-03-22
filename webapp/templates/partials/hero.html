@@ -97,11 +97,15 @@
     .location-swiper {
         overflow: hidden;
     }
+    .location-swiper .swiper-slide {
+        width: 150px !important;
+        padding: 0px !important;
+    }
 </style>
 
 <div class="position-relative">
   {% if user.is_authenticated %}
-    <div class="container mt-3">
+    <div class="container-sm mt-3">
       <div class="row">
         <div class="col">
           <h1>{% trans "Create a Table" %}</h1>
@@ -226,27 +230,11 @@
           // Optional parameters
           loop: false,
           mousewheel: false,
+          spaceBetween: 10,
           freeMode: {
               enabled: true,
           },
           slidesPerView: 2,
-          breakpoints: {
-              '500': {
-                  slidesPerView: 3,
-              },
-              '768': {
-                  slidesPerView: 4,
-              },
-              '992': {
-                  slidesPerView: 5,
-              },
-              '1200': {
-                  slidesPerView: 6,
-              },
-              '1400': {
-                  slidesPerView: 6,
-              }
-          }
       });
   </script>
 {% endblock %}

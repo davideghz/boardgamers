@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div class="swiper-slide">
-  <div class="card shadow border-0" style="height: 100%;">
+  <div class="card shadow border-0" style="">
     <a href="{% url "table-detail" table.slug %}" class="card-header text-decoration-none d-flex flex-column justify-content-end text-white border-bottom-0"
        style="background-image: linear-gradient(to top,
            rgba(0, 0, 0, 0.8) 0%,
@@ -10,7 +10,7 @@
            url('{{ table.cover_url }}');
            background-position: center;
            background-size: cover;
-           height: 150px"
+           height: calc(48px + 72px);"
     >
       {% if table.game %}
         <h5>{{ table.game }}</h5>
