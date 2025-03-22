@@ -14,7 +14,7 @@
       .swiper-wrapper {}
 
       .swiper-slide {
-          padding: 10px 14px 20px 10px;
+          padding: 10px 14px 20px 12px;
           flex-shrink: 0;
           width: 280px;
           max-width: 280px;
@@ -73,7 +73,7 @@
             {% for table in future_tables %}
               {% swiper_table_slide table %}
             {% empty %}
-              <p>{% trans "No tables found." %}</p>
+              <p style="padding-left: 12px">{% trans "No tables found." %}</p>
             {% endfor %}
           </div>
         </div>
@@ -93,7 +93,7 @@
             {% for table in past_tables %}
               {% swiper_table_slide table %}
             {% empty %}
-              <p>{% trans "No tables found." %}</p>
+              <p style="padding-left: 12px">{% trans "No tables found." %}</p>
             {% endfor %}
           </div>
         </div>

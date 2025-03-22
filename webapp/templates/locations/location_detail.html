@@ -10,22 +10,16 @@
   />
   <style>
       .swiper {
-          max-width: 100vw;
       }
 
       .swiper-wrapper {
-          padding-left: 14px;
-          padding-bottom: 30px;
       }
 
       .swiper-slide {
+          padding: 10px 14px 20px 12px;
           flex-shrink: 0;
-          width: auto;
-          max-width: 260px;
-      }
-
-      .swiper-scrollbar {
-          margin-top: 15px;
+          width: 280px;
+          max-width: 280px;
       }
   </style>
 {% endblock %}
@@ -99,34 +93,38 @@
     </div>
   </div>
 
-  <div class="container mt-4">
+  <div class="container-sm mt-4">
     <p class="h1">{% trans "Upcoming tables" %}</p>
     <p class="mb-0">{% trans "Accept the challenge, join a table!" %}</p>
   </div>
-  <div class="container mt-4">
-    <div class="swiper">
-      <div class="swiper-wrapper">
-        {% for table in future_tables %}
-          {% swiper_table_slide table %}
-        {% empty %}
-          <p>{% trans "No tables found." %}</p>
-        {% endfor %}
+  <div class="container-sm mt-4">
+    <div class="row">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          {% for table in future_tables %}
+            {% swiper_table_slide table %}
+          {% empty %}
+            <p style="padding-left: 12px">{% trans "No tables found." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="container mt-4">
+  <div class="container-sm mt-4">
     <p class="h1">{% trans "Past tables" %}</p>
     <p class="mb-0">{% trans "Great games, greater memories. What’s your next move?" %}</p>
   </div>
-  <div class="container mt-4">
-    <div class="swiper">
-      <div class="swiper-wrapper">
-        {% for table in past_tables %}
-          {% swiper_table_slide table %}
-        {% empty %}
-          <p>{% trans "No tables found." %}</p>
-        {% endfor %}
+  <div class="container-sm mt-4">
+    <div class="row">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          {% for table in past_tables %}
+            {% swiper_table_slide table %}
+          {% empty %}
+            <p style="padding-left: 12px">{% trans "No tables found." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
@@ -163,7 +161,6 @@
               enabled: true,
           },
           centeredSlides: false,
-          spaceBetween: 15,
           watchOverflow: true,
           slidesPerView: 'auto',
       });
