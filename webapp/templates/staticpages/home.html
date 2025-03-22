@@ -10,12 +10,10 @@
   />
   <style>
       .swiper {
-          overflow: visible;
           max-width: 100vw;
       }
 
       .swiper-wrapper {
-          display: flex;
           padding-bottom: 30px;
       }
 
@@ -91,14 +89,16 @@
       <p class="mb-0">{% trans "Legends were made at these tables. Will you be next?" %}</p>
     </div>
     <div class="container mt-4">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          {% for table in past_tables %}
-            {% swiper_table_slide table %}
-          {% empty %}
-            <p>{% trans "No tables found." %}</p>
-          {% endfor %}
+        <div class="swiper">
+          <div class="swiper-wrapper">
+            {% for table in past_tables %}
+              {% swiper_table_slide table %}
+            {% empty %}
+              <p>{% trans "No tables found." %}</p>
+            {% endfor %}
+          </div>
         </div>
+
       </div>
     </div>
   </div>
