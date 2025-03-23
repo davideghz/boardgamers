@@ -77,30 +77,39 @@ class TableDetailView(LoginRequiredMixin, generic.DetailView):
         current_players = table.players.count()
         today = now().date()
 
-        # Controlliamo se l'utente è un player del tavolo o un admin
-        can_edit_scores = self.request.user.is_superuser or self.request.user.user_profile in table.players.all()
-
         # Recupero i giocatori ordinati per punteggio
-        players = Player.objects.filter(table=table).select_related('user_profile').order_by('-score')
+        players = Player.objects.filter(table=table).select_related('user_profile').order_by('position')
+
+        # Controlla se il gioco associato alla tabella ha la leaderboard abilitata
+        leaderboard_enabled = table.game and table.game.leaderboard_enabled
+
+        # Verifica se almeno un giocatore ha una posizione diversa da 99
+        leaderboard_visible = any(player.position != 99 for player in players)
+
+        # Controlliamo se l'utente è un player del tavolo o un admin
+        # can_edit_scores = self.request.user.is_superuser or self.request.user.user_profile in table.players.all()
 
         # Creiamo un formset per tutti i player della partita
-        formset = PlayerScoreFormSet(queryset=players)
+        # formset = PlayerScoreFormSet(queryset=players)
 
-        if not can_edit_scores:
-            for form in formset.forms:
-                form.fields['score'].widget.attrs['readonly'] = True  # Rende il campo in sola lettura
+        # if not can_edit_scores:
+        #     for form in formset.forms:
+        #         form.fields['score'].widget.attrs['readonly'] = True  # Rende il campo in sola lettura
 
         # Zip per creare la lista di tuple (form, player)
-        players_with_forms = list(zip(formset.forms, players))
+        # players_with_forms = list(zip(formset.forms, players))
 
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
             'available_seats': max_players - current_players,
             'today': today,
-            'players_with_forms': players_with_forms,  # Aggiungiamo la lista zip
-            'formset': formset,  # Manteniamo il formset per il submit
-            'can_edit_scores': can_edit_scores
+            'players': players,
+            'leaderboard_enabled': leaderboard_enabled,
+            'leaderboard_visible': leaderboard_visible,
+            # 'players_with_forms': players_with_forms,
+            # 'formset': formset,
+            # 'can_edit_scores': can_edit_scores
         })
         return context
 
@@ -119,22 +128,23 @@ class TableDetailView(LoginRequiredMixin, generic.DetailView):
                 return redirect('table-detail', slug=self.object.slug)
 
         # Gestione aggiornamento punteggi
-        elif 'score_form' in request.POST:
-            # Verifica se l'utente è un player del tavolo o un admin
-            if not request.user.is_superuser and request.user.user_profile not in self.object.players.all():
-                return redirect('table-detail', slug=self.object.slug)  # Blocca il salvataggio
-
-            # Se l'utente ha i permessi, processa il formset
-            formset = PlayerScoreFormSet(
-                request.POST,
-                queryset=Player.objects.filter(table=self.object)
-            )
-            if formset.is_valid():
-                formset.save()
-                return redirect('table-detail', slug=self.object.slug)
+        # elif 'score_form' in request.POST:
+        #     # Verifica se l'utente è un player del tavolo o un admin
+        #     if not request.user.is_superuser and request.user.user_profile not in self.object.players.all():
+        #         return redirect('table-detail', slug=self.object.slug)  # Blocca il salvataggio
+        #
+        #     # Se l'utente ha i permessi, processa il formset
+        #     formset = PlayerScoreFormSet(
+        #         request.POST,
+        #         queryset=Player.objects.filter(table=self.object)
+        #     )
+        #     if formset.is_valid():
+        #         formset.save()
+        #         return redirect('table-detail', slug=self.object.slug)
 
         context = self.get_context_data(object=self.object, formset=formset)
         return self.render_to_response(context)
+
 
 @login_required
 def table_create_view(request, location_slug):

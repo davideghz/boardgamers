@@ -153,46 +153,152 @@
             </small>
           </div>
 
-          <!-- classifica -->
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+          <!-- Classifica -->
           <div class="col-12 mt-3">
             <div class="card shadow border-0">
               <div class="card-header" style="background-color: slategrey"></div>
               <div class="card-body">
-                <div class="d-flex justify-content-between">
-                  <span class="h5 flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="h5 flex-grow-1 mb-0">
                     <i class="bi bi-trophy-fill"></i>
                     {% trans "Leaderboard" %}
                   </span>
                 </div>
-                <small>
-                  {% trans "Insert the score of each player at the table" %}
-                </small>
+                {% if not leaderboard_enabled %}
+                  <small>{% trans "Not enabled for this game." %}</small>
+                {% endif %}
               </div>
-              <div class="card-body border-top">
-                <form method="post">
-                  {% csrf_token %}
-                  {{ formset.management_form }}
-
-                  {% for form, player in players_with_forms %}
-                    <div class="form-floating mb-3">
-                      {{ form.score }}
-                      {{ form.score.label_tag|cut:":" }}
-                    </div>
-                    {{ form.id }}
-                  {% endfor %}
-
-                  {% if can_edit_scores %}
-                    <button type="submit" name="score_form" class="btn btn-primary w-100">
-                      <i class="bi bi-arrow-repeat"></i>
-                      {% trans "Update Scores" %}
+              {% if leaderboard_enabled %}
+                <div class="card-body border-top">
+                  {% if not leaderboard_visible %}
+                    <button id="createLeaderboard" class="btn btn-primary w-100">
+                      {% trans "Create Leaderboard" %}
                     </button>
-                  {% else %}
-                    <p class="text-muted mb-0">{% trans "Only players of this table can update scores." %}</p>
                   {% endif %}
-                </form>
-              </div>
+
+                  <div id="leaderboard" class="d-flex flex-column gap-2 {% if not leaderboard_visible %}d-none{% endif %}">
+                    {% for player in players %}
+                      <div class="card draggable" data-player-id="{{ player.id }}">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                          <!-- Handle per il drag & drop -->
+                          {% if request.user.is_superuser or user.user_profile in table.players.all %}
+                            <i class="bi bi-grip-vertical handle me-2" style="cursor: move;"></i>
+                          {% endif %}
+                          <!-- Nome del giocatore -->
+                          <span class="flex-grow-1">{{ player.user_profile.nickname }}</span>
+                          <!-- Posizione -->
+                          {% if player.position == 99 %}
+                            <span class="badge bg-secondary rounded-pill">NEW</span>
+                          {% else %}
+                            <span class="badge bg-primary rounded-pill">{{ player.position }}</span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+
+                  {% if request.user.is_superuser or user.user_profile in table.players.all %}
+                    <button id="saveOrder" class="btn btn-secondary w-100 mt-3 {% if not leaderboard_visible %}d-none{% endif %}" disabled>
+                      {% trans "Update Leaderboard" %}
+                    </button>
+                  {% endif %}
+
+                </div>
+              {% endif %}
             </div>
           </div>
+
+          <!-- Script per il Drag & Drop -->
+          {% if request.user.is_superuser or user.user_profile in table.players.all %}
+            <script>
+                const leaderboard = document.getElementById('leaderboard');
+                const saveOrderButton = document.getElementById('saveOrder');
+                const createLeaderboardButton = document.getElementById('createLeaderboard');
+
+                // Imposta lo stato iniziale del bottone
+                saveOrderButton.disabled = true;
+                saveOrderButton.classList.add('btn-secondary');
+
+                new Sortable(leaderboard, {
+                    animation: 150,
+                    handle: '.handle',  // Utilizza l'icona come handle per il drag
+                    ghostClass: 'sortable-ghost',
+                    fallbackOnBody: true, // Migliora il supporto mobile
+
+                    onEnd: function () {
+                        // Ricalcolo le posizioni dopo il drag
+                        Array.from(leaderboard.children).forEach((item, index) => {
+                            const badge = item.querySelector('.badge');
+                            if (badge) {
+                                badge.textContent = index + 1;
+                                badge.classList.remove('bg-secondary');
+                                badge.classList.add('bg-primary');
+                            } else {
+                                console.warn("Badge non trovato per l'elemento:", item);
+                            }
+                        });
+
+                        // Abilita il bottone e cambia stile e testo
+                        saveOrderButton.disabled = false;
+                        saveOrderButton.classList.remove('btn-light');
+                        saveOrderButton.classList.remove('btn-secondary');
+                        saveOrderButton.classList.add('btn-primary');
+                        saveOrderButton.textContent = '{% trans "Update Leaderboard" %}';
+                    }
+                });
+
+                saveOrderButton.addEventListener('click', function () {
+                    const players = Array.from(leaderboard.children).map((item, index) => ({
+                        id: item.getAttribute('data-player-id'),
+                        position: index + 1
+                    }));
+
+                    console.log("Sending data:", JSON.stringify({players: players}));
+
+                    fetch(`/api/tables/{{ table.id }}/update-player-position/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({players: players})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Disabilita il bottone e aggiorna lo stile dopo il salvataggio
+                                saveOrderButton.disabled = true;
+                                saveOrderButton.classList.remove('btn-primary');
+                                saveOrderButton.classList.add('btn-light');
+                                saveOrderButton.textContent = '{% trans "Leaderboard Updated" %}';
+                                console.log("Leaderboard updated successfully!");
+                            } else {
+                                console.error("Error response:", data);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Fetch error:", error);
+                        });
+                });
+
+                if (createLeaderboardButton) {
+                    createLeaderboardButton.addEventListener('click', function () {
+                        leaderboard.classList.remove('d-none');
+                        saveOrderButton.classList.remove('d-none');
+                        createLeaderboardButton.classList.add('d-none');
+                    });
+                }
+            </script>
+          {% endif %}
+
+          <!-- Stile aggiuntivo per migliorare l'aspetto del drag & drop -->
+          <style>
+              .handle {
+                  font-size: 1.5rem;
+              }
+          </style>
 
           <!-- comment form -->
           <div class="col-12 mt-3">

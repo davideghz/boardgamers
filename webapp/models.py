@@ -73,6 +73,8 @@ class Game(DateTimeModel, SlugModel):
     image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
     description = models.TextField()
 
+    leaderboard_enabled = models.BooleanField(default=False, db_index=True)
+
     @cached_property
     def cover_url(self):
         if self.image and hasattr(self.image, 'url'):
@@ -196,6 +198,7 @@ class Player(DateTimeModel):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
+    position = models.IntegerField(default=99, db_index=True)
 
     class Meta:
         verbose_name = "Player"

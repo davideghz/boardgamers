@@ -24,7 +24,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ("user_profile", "table", "score")
+    list_display = ("user_profile", "table", "position", "score")
     list_filter = ("user_profile", "table")
 
 
