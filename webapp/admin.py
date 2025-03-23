@@ -7,9 +7,17 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("nickname", "slug", "user", "is_email_verified")
 
 
+class PlayerInline(admin.TabularInline):
+    model = Player
+    extra = 0
+    fields = ('user_profile', 'position', 'score')
+    readonly_fields = ('user_profile',)
+
+
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
     list_display = ("title", "location", "slug", "author")
+    inlines = [PlayerInline]
 
     def save_model(self, request, obj, form, change):
         if not obj.slug:
