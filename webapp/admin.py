@@ -35,4 +35,5 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "leaderboard_enabled")
+    list_editable = ("leaderboard_enabled",)
