@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-23 18:29+0000\n"
+"POT-Creation-Date: 2025-03-24 23:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,31 +18,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: boardGames/settings.py:203
+#: boardGames/settings.py:206
 msgid "English"
 msgstr "English"
 
-#: boardGames/settings.py:204
+#: boardGames/settings.py:207
 msgid "Italiano"
 msgstr "Italiano"
 
-#: webapp/forms.py:127 webapp/forms.py:133
+#: webapp/forms.py:130 webapp/forms.py:136
 msgid "Games"
 msgstr "Games"
 
-#: webapp/forms.py:163
+#: webapp/forms.py:166
 msgid "Your comment..."
 msgstr "Il tuo commento..."
 
-#: webapp/forms.py:215
+#: webapp/forms.py:218
 msgid "Email already registered."
 msgstr "Email già registrata."
 
-#: webapp/forms.py:221
+#: webapp/forms.py:224
 msgid "Insert nickname"
 msgstr "Inserisci un nickname"
 
-#: webapp/forms.py:223
+#: webapp/forms.py:226
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
 
@@ -50,17 +50,29 @@ msgstr "Esiste già un profilo con questo nickname."
 msgid "Email verification"
 msgstr "Verifica email"
 
-#: webapp/messages.py:5
+#: webapp/messages.py:4
+msgid "New message from Contact form"
+msgstr ""
+
+#: webapp/messages.py:6
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
 
-#: webapp/messages.py:7
+#: webapp/messages.py:8
 msgid "Please verify your email before proceeding"
 msgstr "Verifica la tua email prima di procedere."
 
-#: webapp/messages.py:9
+#: webapp/messages.py:10
 msgid "Insert your address to find near locations."
 msgstr "Inserisci il tuo indirizzo per trovare luoghi nelle vicinanze."
+
+#: webapp/messages.py:14
+msgid "Message sent successfully!"
+msgstr "Messaggio inviato!"
+
+#: webapp/messages.py:15
+msgid "Form error. Please check the entered data."
+msgstr ""
 
 #: webapp/templates/accounts/account_edit_profile.html:28
 #: webapp/templates/accounts/account_index.html:24
@@ -137,11 +149,11 @@ msgstr "Nessun tavolo trovato."
 msgid "Created tables"
 msgstr "Tavoli creati"
 
-#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:184
+#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:188
 msgid "Or"
 msgstr "Oppure"
 
-#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:205
+#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:209
 msgid "Sign in with Google"
 msgstr "Accedi con Google"
 
@@ -156,13 +168,13 @@ msgstr "Reimposta la password"
 
 #: webapp/templates/auth/login.html:125
 #: webapp/templates/auth/password_reset_form.html:33
-#: webapp/templates/partials/hero.html:212
+#: webapp/templates/partials/hero.html:216
 msgid "Not a member?"
 msgstr "Non sei ancora iscritto?"
 
 #: webapp/templates/auth/login.html:126
 #: webapp/templates/auth/password_reset_form.html:34
-#: webapp/templates/partials/hero.html:213
+#: webapp/templates/partials/hero.html:217
 msgid "Create an account"
 msgstr "Crea un account"
 
@@ -207,6 +219,23 @@ msgid ""
 msgstr ""
 "Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
 "la tua passione con persone simili a te."
+
+#: webapp/templates/emails/email_contacts.html:3
+#: webapp/templates/emails/email_contacts_html.html:6
+msgid "New message from contact form"
+msgstr ""
+
+#: webapp/templates/emails/email_contacts_html.html:10
+msgid "name"
+msgstr ""
+
+#: webapp/templates/emails/email_contacts_html.html:13
+msgid "email"
+msgstr ""
+
+#: webapp/templates/emails/email_contacts_html.html:16
+msgid "message"
+msgstr ""
 
 #: webapp/templates/emails/email_verification_code.html:3
 #: webapp/templates/emails/email_verification_code_html.html:10
@@ -288,7 +317,7 @@ msgstr ""
 #: webapp/templates/locations/location_add_or_edit.html:135
 #: webapp/templates/tables/table_add_or_edit.html:163
 #: webapp/templates/tables/table_delete.html:13
-#: webapp/templates/tables/table_detail.html:399
+#: webapp/templates/tables/table_detail.html:394
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -392,6 +421,14 @@ msgstr ""
 "Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
 "la tua passione."
 
+#: webapp/templates/partials/hero.html:171
+msgid "To get in touch with us"
+msgstr ""
+
+#: webapp/templates/partials/hero.html:172
+msgid "Click here"
+msgstr ""
+
 #: webapp/templates/partials/top-menu.html:51
 #: webapp/templates/partials/top-menu.html:105
 msgid "New table"
@@ -427,9 +464,45 @@ msgid "Your email is not verified. Verify your email to join tables."
 msgstr ""
 "La tua email non è verificata. Verifica la tua email per unirti ai tavoli."
 
+#: webapp/templates/staticpages/contacts.html:10
+msgid "Contacts"
+msgstr ""
+
+#: webapp/templates/staticpages/contacts.html:11
+msgid "We'd love to hear from you! Fill out this form to get in touch."
+msgstr ""
+
+#: webapp/templates/staticpages/contacts.html:28
+msgid "Send message"
+msgstr ""
+
 #: webapp/templates/staticpages/home.html:87
 msgid "Legends were made at these tables. Will you be next?"
 msgstr "Ai nostri tavoli sono nate leggende. Sarai tu la prossima?"
+
+#: webapp/templates/staticpages/home.html:106
+msgid "About us"
+msgstr "Informazioni"
+
+#: webapp/templates/staticpages/home.html:117
+msgid ""
+"Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of "
+"a group of board game enthusiasts."
+msgstr ""
+
+#: webapp/templates/staticpages/home.html:120
+msgid ""
+"Our goal is to make it easier to meet up and play in person, supporting "
+"cultural associations and local game shops."
+msgstr ""
+
+#: webapp/templates/staticpages/home.html:123
+msgid "Want to be part of the project?"
+msgstr ""
+
+#: webapp/templates/staticpages/home.html:123
+msgid "Contact us"
+msgstr ""
 
 #: webapp/templates/tables/table_add_or_edit.html:23
 #: webapp/templates/tables/table_add_or_edit.html:47
@@ -462,7 +535,7 @@ msgid "How many players are invited to this table?"
 msgstr "Quanti gamers sono invitati a questo tavolo?"
 
 #: webapp/templates/tables/table_delete.html:7
-#: webapp/templates/tables/table_detail.html:392
+#: webapp/templates/tables/table_detail.html:387
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
 
@@ -547,36 +620,36 @@ msgid "Create Leaderboard"
 msgstr "Crea Classifica"
 
 #: webapp/templates/tables/table_detail.html:204
-#: webapp/templates/tables/table_detail.html:253
+#: webapp/templates/tables/table_detail.html:248
 msgid "Update Leaderboard"
 msgstr "Aggiorna Classifica"
 
-#: webapp/templates/tables/table_detail.html:280
+#: webapp/templates/tables/table_detail.html:275
 msgid "Leaderboard Updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/templates/tables/table_detail.html:310
+#: webapp/templates/tables/table_detail.html:305
 msgid "Comments"
 msgstr "Commenti"
 
-#: webapp/templates/tables/table_detail.html:319
+#: webapp/templates/tables/table_detail.html:314
 msgid "Send comment"
 msgstr "Invia commento"
 
-#: webapp/templates/tables/table_detail.html:326
+#: webapp/templates/tables/table_detail.html:321
 msgid "Only gamers that joined the table can comment on this page."
 msgstr ""
 "Solo i gamers che si sono uniti al tavolo possono commentare questa pagina."
 
-#: webapp/templates/tables/table_detail.html:375
+#: webapp/templates/tables/table_detail.html:370
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
-#: webapp/templates/tables/table_detail.html:396
+#: webapp/templates/tables/table_detail.html:391
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
 
-#: webapp/templates/tables/table_detail.html:400
+#: webapp/templates/tables/table_detail.html:395
 msgid "Delete comment"
 msgstr "Elimina commento"
 
