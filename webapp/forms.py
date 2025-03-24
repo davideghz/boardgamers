@@ -3,7 +3,10 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, modelformset_factory
+    ModelMultipleChoiceField, modelformset_factory, EmailField
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
+
 from webapp.models import Table, UserProfile, Comment, Player, Location
 
 from django.utils.translation import gettext_lazy as _
@@ -308,3 +311,21 @@ class PlayerScoreForm(ModelForm, BootstrapForm):
 
 
 PlayerScoreFormSet = modelformset_factory(Player, form=PlayerScoreForm, fields=('score',), extra=0)
+
+
+class ContactForm(BootstrapForm):
+    name = CharField(
+        label='Nome',
+        max_length=100,
+        widget=CustomTextInputWidget(placeholder="Nome")
+    )
+    email = EmailField(
+        label='Email',
+        widget=CustomEmailWidget(placeholder="nome@esempio.com")
+    )
+    message = CharField(
+        label='Messaggio',
+        widget=CustomTextareaWidget(placeholder="Scrivi il tuo messaggio qui...")
+    )
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+

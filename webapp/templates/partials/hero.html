@@ -167,6 +167,10 @@
           <p class="col-lg-10 fs-4">
               {% trans "Easily find board game enthusiasts in your area and share your passion." %}
           </p>
+          <p class="col-lg-10 fs-4">
+              {% trans "To get in touch with us" %}<br>
+            <a href="{% url "contacts" %}">{% trans "Click here" %}</a>.
+          </p>
         </div>
         <div class="col-md-10 mx-auto col-lg-5">
           <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow" method="post" action="{% url 'login' %}">

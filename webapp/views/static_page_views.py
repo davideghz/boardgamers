@@ -1,12 +1,14 @@
+from django.contrib import messages
 from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.db.models import Prefetch, Count
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 
-from webapp.forms import CustomLoginForm
-from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
+from webapp.forms import CustomLoginForm, ContactForm
+from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
+    MSG_CONTACT_MESSAGE_ERROR
 from webapp.models import Comment, UserProfile, Game, Table, Location
 
 # for debug page
@@ -73,8 +75,10 @@ def privacy(request, template_name="staticpages/privacy.html"):
 def terms(request, template_name="staticpages/terms.html"):
     return render(request, template_name, {})
 
+
 def test_login(request, template_name="staticpages/test_login.html"):
     return render(request, template_name, {})
+
 
 def debug(request, template_name="staticpages/debug.html"):
     env_list = environ.Env()
@@ -113,3 +117,26 @@ def debug(request, template_name="staticpages/debug.html"):
         'user_point': user_point,
         'tables': tables,
     })
+
+
+def contacts(request):
+    # Prepopola il form se l'utente è autenticato
+    initial_data = {}
+    if request.user.is_authenticated:
+        initial_data = {
+            'name': request.user.first_name or request.user.username,
+            'email': request.user.email,
+        }
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST, initial=initial_data)
+        if form.is_valid():
+            # Qui puoi gestire il messaggio (ad esempio inviare un'email)
+            messages.success(request, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY)
+            return redirect('contacts')
+        else:
+            messages.error(request, MSG_CONTACT_MESSAGE_ERROR, extra_tags='danger')
+    else:
+        form = ContactForm(initial=initial_data)
+
+    return render(request, 'staticpages/contacts.html', {'form': form})

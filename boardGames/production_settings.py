@@ -43,4 +43,8 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
+# GOOGLE RECAPTCHA
+RECAPTCHA_PUBLIC_KEY = '6Ld_rv4qAAAAADThVKzB_SG3bbYiPxq2ZAXq0Psy'
+RECAPTCHA_PRIVATE_KEY = '6Ld_rv4qAAAAAEMTjDwFIOuxyzVjBYISzU_ECS7A'
+
 print('prod settings loaded')

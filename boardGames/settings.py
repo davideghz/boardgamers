@@ -69,6 +69,9 @@ INSTALLED_APPS = [
     # API
     'corsheaders',
     'rest_framework',
+
+    # GOOGLE RECAPTCHA
+    'django_recaptcha',
 ]
 
 ROOT_URLCONF = 'boardGames.urls'
@@ -289,6 +292,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "https://board-gamers.com",
 #     "https://www.anonimagiocatori.it/",
 # ]
+
+# GOOGLE RECAPTCHA
+RECAPTCHA_PUBLIC_KEY = '6Ldorv4qAAAAAI0rhH7KKATy2ZiXdJG5dxZ-r0_A'
+RECAPTCHA_PRIVATE_KEY = '6Ldorv4qAAAAAGyezf4EhjgpcVHNbhv8gxLP6ckn'
 
 
 if DEBUG:
