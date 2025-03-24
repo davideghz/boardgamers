@@ -7,7 +7,12 @@
 {% endblock title %}
 
 {% block main_content %}
-    {% trans "name" %} {{ name }},<br>
-    {% trans "email" %} {{ email }},<br>
-    {% trans "message" %} {{ message }},<br>
+    <strong>{% trans "name" %}</strong><br>
+    {{ name }}<br><br>
+
+    <strong>{% trans "email" %}</strong><br>
+    {{ email }}<br><br>
+
+    <strong>{% trans "message" %}</strong><br>
+    {{ message }}
 {% endblock main_content %}

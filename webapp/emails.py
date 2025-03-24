@@ -24,9 +24,9 @@ def send_user_email_verification_code(user_profile):
 
 def send_admin_contact_message(cleaned_data):
     context = {
-        'name': cleaned_data.name,
-        'email': cleaned_data.email,
-        'message': cleaned_data.message,
+        'name': cleaned_data.get('name'),
+        'email': cleaned_data.get('email'),
+        'message': cleaned_data.get('message'),
     }
     text_content = render_to_string('emails/email_contacts.html', context=context)
     html_content = render_to_string('emails/email_contacts_html.html', context=context)
