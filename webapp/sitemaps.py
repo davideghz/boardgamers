@@ -43,4 +43,4 @@ class TableSitemap(Sitemap):
         return obj.updated_at
 
     def location(self, obj):
-        return reverse('location-table-detail', args=[obj.slug])
+        return reverse('location-detail', args=[obj.slug])
