@@ -1,0 +1,13 @@
+{% extends "emails/base/base_email_html.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% trans "New message from contact form" %}
+{% endblock title %}
+
+{% block main_content %}
+    {% trans "name" %} {{ name }},<br>
+    {% trans "email" %} {{ email }},<br>
+    {% trans "message" %} {{ message }},<br>
+{% endblock main_content %}

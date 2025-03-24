@@ -20,3 +20,20 @@ def send_user_email_verification_code(user_profile):
         [user_profile.user.email],
         html_message=html_content,
     )
+
+
+def send_admin_contact_message(cleaned_data):
+    context = {
+        'name': cleaned_data.name,
+        'email': cleaned_data.email,
+        'message': cleaned_data.message,
+    }
+    text_content = render_to_string('emails/email_contacts.html', context=context)
+    html_content = render_to_string('emails/email_contacts_html.html', context=context)
+    send_mail(
+        messages.EMAIL_SUBJECT_CONTACTS,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        ['davideghz@gmail.com'],
+        html_message=html_content,
+    )

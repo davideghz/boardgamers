@@ -6,6 +6,7 @@ from django.db.models import Prefetch, Count
 from django.shortcuts import render, redirect
 from django.utils import timezone
 
+from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
@@ -131,7 +132,7 @@ def contacts(request):
     if request.method == 'POST':
         form = ContactForm(request.POST, initial=initial_data)
         if form.is_valid():
-            # Qui puoi gestire il messaggio (ad esempio inviare un'email)
+            emails.send_admin_contact_message(form.cleaned_data)
             messages.success(request, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY)
             return redirect('contacts')
         else:
