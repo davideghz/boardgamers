@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-24 23:04+0000\n"
+"POT-Creation-Date: 2025-03-25 10:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -476,6 +476,14 @@ msgstr "Compila il form per mandarci un messaggio."
 msgid "Send message"
 msgstr "Invia messaggio"
 
+#: webapp/templates/staticpages/contacts.html:34
+msgid "or"
+msgstr "oppure"
+
+#: webapp/templates/staticpages/contacts.html:41
+msgid "Join us on Discord"
+msgstr "Unisci al canale Discord"
+
 #: webapp/templates/staticpages/home.html:87
 msgid "Legends were made at these tables. Will you be next?"
 msgstr "Ai nostri tavoli sono nate leggende. Sarai tu la prossima?"
@@ -489,9 +497,8 @@ msgid ""
 "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of "
 "a group of board game enthusiasts."
 msgstr ""
-"Board-Gamers.com è un progetto OPEN e NO-PROFIT nato dalla passione di "
-"un gruppo di amanti dei giochi da tavolo."
-
+"Board-Gamers.com è un progetto OPEN e NO-PROFIT nato dalla passione di un "
+"gruppo di amanti dei giochi da tavolo."
 
 #: webapp/templates/staticpages/home.html:120
 msgid ""
@@ -500,7 +507,6 @@ msgid ""
 msgstr ""
 "Il nostro obiettivo è rendere più facile incontrarsi per giocare dal vivo, "
 "supportando associazioni culturali e ludoteche."
-
 
 #: webapp/templates/staticpages/home.html:123
 msgid "Want to be part of the project?"
