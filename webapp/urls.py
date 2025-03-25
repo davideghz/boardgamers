@@ -37,11 +37,12 @@ urlpatterns = [
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
 
   # LOCATION TABLES
-  path("location/<slug:location_slug>/tables/new", table_views.table_create_view, name="location-table-create"),
+  path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
   path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view, name="location-table-update"),
 
 
   # GAMES
+  path("games/", game_views.GameListView.as_view(), name="game-list"),
   path("games/<slug:slug>/", game_views.GameDetailView.as_view(), name="game-detail"),
 
   # ACCOUNT

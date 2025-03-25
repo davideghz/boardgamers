@@ -1,0 +1,61 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load static %}
+{% load i18n %}bl
+
+{% block headtitle %}
+  {% trans "Game List" %} - Board-Gamers.com
+{% endblock headtitle %}
+
+{% block description %}
+  {% trans "Discover the complete list of board games available on Board-Gamers.com. Find your next favorite game and start playing today!" %}{% endblock description %}
+
+{% block breadcrumbs %}
+  <div class="container-fluid px-0 bg-white border-bottom">
+    <div class="container">
+      <nav aria-label="breadcrumb" class="py-1">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item fs-6">
+            <a class="text-decoration-none" href="{% url "home" %}"><small>Home</small></a>
+          </li>
+          <li class="breadcrumb-item fs-6 active">
+            <small>Games</small>
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-md-10 offset-md-1 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
+        <h2>{% trans "Game List" %}</h2>
+        <p>{% trans "Complete list of board games played on Board-Gamers.com. Find your next favorite game and start playing today!" %}</p>
+        {% for game in games %}
+          <a href="{% url "game-detail" game.slug %}" class="card mb-3 shadow text-decoration-none" style="max-width: 540px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="{{ game.cover_url }}" class="img-fluid rounded-start" alt="{{game.name}}">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{{ game.name }}</h5>
+                  <p class="card-text">
+                    <small>
+                      <i class="bi bi-lightning-charge"></i> {{ game.table_count }} {% trans "Played tables" %}
+                    </small>
+                    <small class="ms-3">
+                      <i class="bi bi-people-fill"></i> {{ game.player_count }} {% trans "Gamers" %}
+                    </small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

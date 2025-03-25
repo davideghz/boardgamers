@@ -17,7 +17,7 @@
           <li class="breadcrumb-item fs-6">
             <a class="text-decoration-none" href="{% url "home" %}"><small>Home</small></a>
           </li>
-          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="#"><small>Games</small></a>
+          <li class="breadcrumb-item fs-6"><a class="text-decoration-none" href="{% url "game-list" %}"><small>Games</small></a>
           </li>
           <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ game.name }}</small></li>
         </ol>
@@ -51,10 +51,10 @@
           <div
               class="card-footer text-body-secondary d-flex align-items-center bg-body-tertiary">
             <small>
-              <i class="bi bi-lightning-charge"></i> {{ table_count }} {% trans "Played tables" %}
+              <i class="bi bi-lightning-charge"></i> {{ game.table_count }} {% trans "Played tables" %}
             </small>
             <small class="ms-3">
-              <i class="bi bi-people-fill"></i> {{ player_count }} {% trans "Gamers" %}
+              <i class="bi bi-people-fill"></i> {{ game.player_count }} {% trans "Gamers" %}
             </small>
           </div>
         </div>
