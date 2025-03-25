@@ -13,8 +13,8 @@ class GameDetailView(DetailView):
 
     def get_queryset(self):
         return Game.objects.annotate(
-            table_count=Count('created_tables'),
-            player_count=Count('created_tables__players')
+            table_count=Count('created_tables', distinct=True),
+            player_count=Count('created_tables__players', distinct=True)
         )
 
     def get_context_data(self, **kwargs):
