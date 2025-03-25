@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-25 10:42+0000\n"
+"POT-Creation-Date: 2025-03-25 11:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -212,13 +212,13 @@ msgstr "Inserisci il tuo nickname. Gli altri gamers ti chiameranno così."
 msgid "Insert your Address. We will use it to show near tables."
 msgstr "Inserisci il tuo indirizzo. Lo useremo per mostrarti i tavoli vicini."
 
-#: webapp/templates/base.html:16
+#: webapp/templates/base.html:15
 msgid ""
-"Easily find board game enthusiasts in your area and share your passion with "
-"like minded people."
+"Discover the world of board games on Board-Gamers.com! Join the community to "
+"share your passion and find new players. Play, explore, and connect!"
 msgstr ""
-"Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
-"la tua passione con persone simili a te."
+"Scopri il mondo dei giochi da tavolo su Board-Gamers.com! Unisciti alla community "
+"per condividere la tua passione e trovare nuovi giocatori. Gioca, esplora e connettiti!"
 
 #: webapp/templates/emails/email_contacts.html:3
 #: webapp/templates/emails/email_contacts_html.html:6
@@ -261,6 +261,15 @@ msgid ""
 msgstr ""
 "Clicca sul pulsante qui sotto per confermare il tuo indirizzo email e "
 "completare la configurazione del tuo account."
+
+#: webapp/templates/games/game_detail.html:54
+msgid "Played tables"
+msgstr "Tavoli giocati"
+
+#: webapp/templates/games/game_detail.html:57
+#: webapp/templates/tables/table_detail.html:77
+msgid "Gamers"
+msgstr "Gamers"
 
 #: webapp/templates/locations/location_add_or_edit.html:22
 msgid "Edit"
@@ -588,10 +597,6 @@ msgid "No game set for this table."
 msgstr "Nessun gioco impostato per questo tavolo."
 
 #: webapp/templates/tables/table_detail.html:77
-msgid "Gamers"
-msgstr "Gamers"
-
-#: webapp/templates/tables/table_detail.html:77
 msgid "available seats"
 msgstr "posti disponibili"
 
@@ -697,3 +702,10 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:199
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid ""
+#~ "Easily find board game enthusiasts in your area and share your passion "
+#~ "with like minded people."
+#~ msgstr ""
+#~ "Trova facilmente appassionati di giochi da tavolo nella tua zona e "
+#~ "condividi la tua passione con persone simili a te."

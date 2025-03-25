@@ -1,7 +1,13 @@
 {% extends "base_webapp.html" %}
 {% load custom_tags %}
 {% load static %}
-{% load i18n %}
+{% load i18n %}bl
+
+{% block headtitle %}
+  {{ game.name }} - Board-Gamers.com
+{% endblock headtitle %}
+
+{% block description %}{{ game.description }}{% endblock description %}
 
 {% block breadcrumbs %}
   <div class="container-fluid px-0 bg-white border-bottom">
@@ -23,23 +29,33 @@
 {% block content %}
   <div class="container py-4">
     <div class="row">
-      <!-- user avatar -->
-      <div class="col-12 col-md-5 col-lg-4 col-xl-3">
-
-        <div class="card shadow border-0 mb-4">
-          <img src="https://picsum.photos/800/800" class="card-img-top img-fluid" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{ game.name }}</h5>
+      <div class="col-md-10 offset-md-1 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
+        <div class="card shadow border-0" style="">
+          <div
+              class="card-header text-decoration-none d-flex flex-column justify-content-end text-white border-bottom-0"
+              style="background-image: linear-gradient(to top,
+                  rgba(0, 0, 0, 0.8) 0%,
+                  rgba(0, 0, 0, 0.3) 40%,
+                  rgba(0, 0, 0, 0) 100%),
+                  url('{{ game.cover_url }}');
+                  background-position: center;
+                  background-size: cover;
+                  min-height: 150px;
+                  padding-top: 40%"
+          >
+            <h5>{{ game.name }}</h5>
           </div>
-        </div>
-      </div>
-
-      <!-- user data -->
-      <div class="col-12 col-md-7 col-lg-8 col-xl-9">
-        <div class="row">
-          <div class="col">
-            <h1>{{ game.name }}</h1>
-            <p>{{ game.description }}</p>
+          <div class="card-body text-decoration-none border-0">
+            <p class="card-text text-secondary">{{ game.description }}</p>
+          </div>
+          <div
+              class="card-footer text-body-secondary d-flex align-items-center bg-body-tertiary">
+            <small>
+              <i class="bi bi-lightning-charge"></i> {{ table_count }} {% trans "Played tables" %}
+            </small>
+            <small class="ms-3">
+              <i class="bi bi-people-fill"></i> {{ player_count }} {% trans "Gamers" %}
+            </small>
           </div>
         </div>
       </div>
