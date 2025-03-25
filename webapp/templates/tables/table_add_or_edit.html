@@ -118,8 +118,12 @@
             {% endif %}
           </div>
 
-          <small
-              class="d-block pt-3 pb-2 text-secondary">{% trans "Add the game that will be played at this table." %}</small>
+          <small class="d-block pt-3 pb-2 text-secondary">
+            {% trans "Add the game that will be played at this table." %}<br>
+            {% trans "Can't find the desired game?" %} {% trans "Create the table without the game, then" %}
+            <a href="{% url "contacts" %}" target="_blank">{% trans "contact us" %}</a>,
+            {% trans "we will add it for you." %}
+          </small>
           <div class="form-floating mb-3">
             {{ form.game }}
           </div>

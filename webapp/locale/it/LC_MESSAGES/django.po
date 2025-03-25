@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-25 12:24+0000\n"
+"POT-Creation-Date: 2025-03-25 13:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -264,18 +264,18 @@ msgstr ""
 "completare la configurazione del tuo account."
 
 #: webapp/templates/games/game_detail.html:54
-#: webapp/templates/games/game_list.html:47
+#: webapp/templates/games/game_list.html:62
 msgid "Played tables"
 msgstr "Tavoli giocati"
 
 #: webapp/templates/games/game_detail.html:57
-#: webapp/templates/games/game_list.html:50
+#: webapp/templates/games/game_list.html:65
 #: webapp/templates/tables/table_detail.html:77
 msgid "Gamers"
 msgstr "Gamers"
 
 #: webapp/templates/games/game_list.html:7
-#: webapp/templates/games/game_list.html:34
+#: webapp/templates/games/game_list.html:45
 msgid "Game List"
 msgstr "Lista dei giochi"
 
@@ -287,13 +287,13 @@ msgstr ""
 "Esplora l'elenco completo dei giochi da tavolo giocati su Board-Gamers.com. "
 "Trova il tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
 
-#: webapp/templates/games/game_list.html:35
+#: webapp/templates/games/game_list.html:46
 msgid ""
 "Complete list of board games played on Board-Gamers.com. Find your next "
 "favorite game and start playing today!"
 msgstr ""
-"Elenco completo dei giochi da tavolo giocati su Board-Gamers.com. "
-"Trova il tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
+"Elenco completo dei giochi da tavolo giocati su Board-Gamers.com. Trova il "
+"tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
 
 #: webapp/templates/locations/location_add_or_edit.html:22
 msgid "Edit"
@@ -348,14 +348,14 @@ msgstr ""
 "organizzare tavoli."
 
 #: webapp/templates/locations/location_add_or_edit.html:135
-#: webapp/templates/tables/table_add_or_edit.html:163
+#: webapp/templates/tables/table_add_or_edit.html:167
 #: webapp/templates/tables/table_delete.html:13
 #: webapp/templates/tables/table_detail.html:394
 msgid "Cancel"
 msgstr "Annulla"
 
 #: webapp/templates/locations/location_add_or_edit.html:141
-#: webapp/templates/tables/table_add_or_edit.html:169
+#: webapp/templates/tables/table_add_or_edit.html:173
 msgid "Publish"
 msgstr "Pubblica"
 
@@ -575,7 +575,23 @@ msgstr ""
 msgid "Add the game that will be played at this table."
 msgstr "Aggiungi il gioco che verrà giocato a questo tavolo."
 
-#: webapp/templates/tables/table_add_or_edit.html:128
+#: webapp/templates/tables/table_add_or_edit.html:123
+msgid "Can't find the desired game?"
+msgstr "Non trovi il gioco?"
+
+#: webapp/templates/tables/table_add_or_edit.html:123
+msgid "Create the table without the game, then"
+msgstr " Crea il tavolo senza specificare il gioco e"
+
+#: webapp/templates/tables/table_add_or_edit.html:124
+msgid "contact us"
+msgstr "contattaci"
+
+#: webapp/templates/tables/table_add_or_edit.html:125
+msgid "we will add it for you."
+msgstr "lo staff lo aggiungerà subito!"
+
+#: webapp/templates/tables/table_add_or_edit.html:132
 msgid "How many players are invited to this table?"
 msgstr "Quanti gamers sono invitati a questo tavolo?"
 
