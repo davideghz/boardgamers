@@ -28,33 +28,42 @@
 {% endblock %}
 
 {% block content %}
+  <style>
+    .GameCard .card-header {
+        padding-bottom: 50%;
+    }
+    @media (min-width: 768px) {
+        .GameCard .card-header {
+            padding-bottom: 23%;
+        }
+    }
+  </style>
+
   <div class="container py-4">
     <div class="row">
       <div class="col-md-10 offset-md-1 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
         <h2>{% trans "Game List" %}</h2>
         <p>{% trans "Complete list of board games played on Board-Gamers.com. Find your next favorite game and start playing today!" %}</p>
         {% for game in games %}
-          <a href="{% url "game-detail" game.slug %}" class="card mb-3 shadow text-decoration-none" style="max-width: 540px;">
-            <div class="row g-0 rounded-start">
-              <div class="col-md-4 rounded-start" style="
-                  padding-bottom: 22%;
+          <a href="{% url "game-detail" game.slug %}" class="GameCard card mb-3 shadow border-0 text-decoration-none rounded-0"
+             style="max-width: 540px;">
+            <div class="row g-0">
+              <div class="col-md-4 card-header rounded-0" style="
                   background-image: url({{ game.cover_url }});
                   background-size: cover;
                   background-position: center;
                   ">
               </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">{{ game.name }}</h5>
-                  <p class="card-text">
-                    <small>
-                      <i class="bi bi-lightning-charge"></i> {{ game.table_count }} {% trans "Played tables" %}
-                    </small>
-                    <small class="ms-3">
-                      <i class="bi bi-people-fill"></i> {{ game.player_count }} {% trans "Gamers" %}
-                    </small>
-                  </p>
-                </div>
+              <div class="col-md-8 card-body">
+                <h5 class="card-title">{{ game.name }}</h5>
+                <p class="card-text">
+                  <small>
+                    <i class="bi bi-lightning-charge"></i> {{ game.table_count }} {% trans "Played tables" %}
+                  </small>
+                  <small class="ms-3">
+                    <i class="bi bi-people-fill"></i> {{ game.player_count }} {% trans "Gamers" %}
+                  </small>
+                </p>
               </div>
             </div>
           </a>
