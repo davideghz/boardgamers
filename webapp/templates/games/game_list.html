@@ -36,8 +36,12 @@
         {% for game in games %}
           <a href="{% url "game-detail" game.slug %}" class="card mb-3 shadow text-decoration-none" style="max-width: 540px;">
             <div class="row g-0">
-              <div class="col-md-4">
-                <img src="{{ game.cover_url }}" class="img-fluid rounded-start" alt="{{game.name}}">
+              <div class="col-md-4" style="
+                  padding-bottom: 22%;
+                  background-image: url({{ game.cover_url }});
+                  background-size: cover;
+                  background-position: center;
+                  ">
               </div>
               <div class="col-md-8">
                 <div class="card-body">
