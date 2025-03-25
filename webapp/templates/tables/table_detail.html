@@ -215,7 +215,7 @@
 
                   {% if request.user.is_superuser or user.user_profile in table.players.all %}
                     <button id="saveOrder"
-                            class="btn btn-secondary w-100 mt-3 {% if not leaderboard_visible %}d-none{% endif %}"
+                            class="btn btn-secondary w-100 mt-3 d-none"
                             disabled>
                       {% trans "Update Leaderboard" %}
                     </button>
@@ -283,6 +283,7 @@
                         e.preventDefault(); // Previene il comportamento predefinito del link
                         toggleDrag(true); // Abilita il drag
                         editLeaderboardInstructions.classList.remove('d-none');
+                        saveOrderButton.classList.remove('d-none');
                         console.log("Drag & Drop abilitato!");
                     });
                 }
@@ -312,6 +313,7 @@
                                 saveOrderButton.classList.add('btn-light');
                                 saveOrderButton.textContent = '{% trans "Leaderboard Updated" %}';
                                 toggleDrag(false); // Disabilita il drag dopo il salvataggio
+                                editLeaderboardInstructions.classList.add('d-none');
                                 console.log("Leaderboard updated successfully!");
                             } else {
                                 console.error("Error response:", data);
