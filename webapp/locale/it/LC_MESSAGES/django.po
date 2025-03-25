@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-25 11:49+0000\n"
+"POT-Creation-Date: 2025-03-25 12:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -217,8 +217,9 @@ msgid ""
 "Discover the world of board games on Board-Gamers.com! Join the community to "
 "share your passion and find new players. Play, explore, and connect!"
 msgstr ""
-"Scopri il mondo dei giochi da tavolo su Board-Gamers.com! Unisciti alla community "
-"per condividere la tua passione e trovare nuovi giocatori. Gioca, esplora e connettiti!"
+"Scopri il mondo dei giochi da tavolo su Board-Gamers.com! Unisciti alla "
+"community per condividere la tua passione e trovare nuovi giocatori. Gioca, "
+"esplora e connettiti!"
 
 #: webapp/templates/emails/email_contacts.html:3
 #: webapp/templates/emails/email_contacts_html.html:6
@@ -263,13 +264,36 @@ msgstr ""
 "completare la configurazione del tuo account."
 
 #: webapp/templates/games/game_detail.html:54
+#: webapp/templates/games/game_list.html:47
 msgid "Played tables"
 msgstr "Tavoli giocati"
 
 #: webapp/templates/games/game_detail.html:57
+#: webapp/templates/games/game_list.html:50
 #: webapp/templates/tables/table_detail.html:77
 msgid "Gamers"
 msgstr "Gamers"
+
+#: webapp/templates/games/game_list.html:7
+#: webapp/templates/games/game_list.html:34
+msgid "Game List"
+msgstr "Lista dei giochi"
+
+#: webapp/templates/games/game_list.html:11
+msgid ""
+"Discover the complete list of board games available on Board-Gamers.com. "
+"Find your next favorite game and start playing today!"
+msgstr ""
+"Esplora l'elenco completo dei giochi da tavolo giocati su Board-Gamers.com. "
+"Trova il tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
+
+#: webapp/templates/games/game_list.html:35
+msgid ""
+"Complete list of board games played on Board-Gamers.com. Find your next "
+"favorite game and start playing today!"
+msgstr ""
+"Elenco completo dei giochi da tavolo giocati su Board-Gamers.com. "
+"Trova il tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
 
 #: webapp/templates/locations/location_add_or_edit.html:22
 msgid "Edit"
