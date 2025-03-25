@@ -35,8 +35,8 @@
         <p>{% trans "Complete list of board games played on Board-Gamers.com. Find your next favorite game and start playing today!" %}</p>
         {% for game in games %}
           <a href="{% url "game-detail" game.slug %}" class="card mb-3 shadow text-decoration-none" style="max-width: 540px;">
-            <div class="row g-0">
-              <div class="col-md-4" style="
+            <div class="row g-0 rounded-start">
+              <div class="col-md-4 rounded-start" style="
                   padding-bottom: 22%;
                   background-image: url({{ game.cover_url }});
                   background-size: cover;
