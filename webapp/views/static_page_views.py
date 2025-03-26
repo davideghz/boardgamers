@@ -50,7 +50,8 @@ def homepage_view(request):
     # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza e filtra le locations vicine
     if user_location:
         future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date', 'distance')
-        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        # nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True).order_by('distance')
         location_message = None  # Nessun messaggio se la posizione è presente
     else:
         # Se la posizione non è disponibile, mostra 10 locations randomiche
