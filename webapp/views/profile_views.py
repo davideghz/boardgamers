@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Count, Q, Subquery, OuterRef
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView
@@ -7,7 +8,7 @@ from django.views.generic.detail import DetailView
 
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
-from webapp.models import UserProfile
+from webapp.models import UserProfile, Game, Player, Table
 
 from django.utils.translation import gettext_lazy as _
 
@@ -23,12 +24,36 @@ class UserProfileDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_profile = self.get_object()
-        # Modifica qui: utilizza la relazione corretta attraverso il modello 'Player'
-        context['tables'] = user_profile.joined_tables.all()
-        context['form'] = form = UserProfileAvatarForm(instance=user_profile)
-        context['env'] = env('AWS_S3_SECRET_ACCESS_KEY')
-        return context
 
+        # Sottoquery per contare le partite giocate per ogni gioco
+        played_count = Table.objects.filter(
+            game=OuterRef('pk'),
+            players=user_profile
+        ).values('game').annotate(
+            count=Count('id', distinct=True)
+        ).values('count')
+
+        # Sottoquery per contare le vittorie per ogni gioco
+        win_count = Table.objects.filter(
+            game=OuterRef('pk'),
+            players=user_profile,
+            player__position=1
+        ).values('game').annotate(
+            count=Count('id', distinct=True)
+        ).values('count')
+
+        # Query principale per i giochi giocati
+        games_played = Game.objects.annotate(
+            play_count=Subquery(played_count),
+            win_count=Subquery(win_count)
+        ).filter(play_count__gt=0).order_by('-play_count')
+
+        context.update({
+            'tables': user_profile.joined_tables.all(),
+            'form': UserProfileAvatarForm(instance=user_profile),
+            'games_played': games_played,
+        })
+        return context
 
 class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = UserProfile
