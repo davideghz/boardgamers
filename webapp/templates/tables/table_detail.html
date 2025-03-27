@@ -167,7 +167,7 @@
                   </span>
                   {% if leaderboard_enabled and user.user_profile in table.players.all %}
                     <a class="text-decoration-none {% if not leaderboard_visible %}d-none{% endif %}" href="#" id="editLeaderboard">
-                      <i class="bi bi-pencil-square"></i> Edit
+                      <i class="bi bi-pencil-square"></i> {% trans "Edit" %}
                     </a>
                   {% endif %}
                 </div>
@@ -187,7 +187,7 @@
 
                   {% if user.user_profile in table.players.all %}
                     <small class="d-flex align-items-center mb-2 d-none" id="editLeaderboardInstructions">
-                      Use the <i class="bi bi-grip-vertical fs-5"></i> to adjust the positions.
+                      {% trans "Use the" %} <i class="bi bi-grip-vertical fs-5"></i> {% trans "to adjust the positions" %}.
                     </small>
                   {% endif %}
 
