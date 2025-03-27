@@ -46,7 +46,7 @@ class UserProfileDetailView(DetailView):
         games_played = Game.objects.annotate(
             play_count=Subquery(played_count),
             win_count=Subquery(win_count)
-        ).filter(play_count__gt=0).order_by('-play_count')
+        ).filter(play_count__gt=0).order_by('-win_count')
 
         context.update({
             'tables': user_profile.joined_tables.all(),
