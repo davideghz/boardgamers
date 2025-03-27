@@ -237,6 +237,11 @@ class JoinTableView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView)
             messages.error(request, 'Verify email to join table.', extra_tags='danger')
             return redirect('table-detail', self.kwargs['slug'])
 
+        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        if table.status == Table.CLOSED:
+            messages.error(request, 'The table is closed. You cannot join.', extra_tags='danger')
+            return redirect('table-detail', self.kwargs['slug'])
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -252,6 +257,14 @@ class JoinTableView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView)
 
 class LeaveTableView(LoginRequiredMixin, generic.DeleteView):
     model = Player
+
+    def dispatch(self, request, *args, **kwargs):
+        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        if table.status == Table.CLOSED:
+            messages.error(request, 'The table is closed. You cannot leave.', extra_tags='danger')
+            return redirect('table-detail', self.kwargs['slug'])
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse_lazy('table-detail', kwargs={'slug': self.kwargs['slug']})

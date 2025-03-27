@@ -16,7 +16,7 @@ class PlayerInline(admin.TabularInline):
 
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
-    list_display = ("title", "location", "slug", "author")
+    list_display = ("title", "location", "author", "date", "time", "status", "leaderboard_status")
     inlines = [PlayerInline]
 
     def save_model(self, request, obj, form, change):

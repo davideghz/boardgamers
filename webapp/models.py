@@ -14,6 +14,7 @@ from django.utils.encoding import force_bytes
 from django.utils.functional import cached_property
 from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 
 from webapp.storage_backends import PublicMediaStorage
 
@@ -161,6 +162,24 @@ class UserProfile(DateTimeModel, SlugModel):
 
 
 class Table(DateTimeModel, SlugModel):
+    OPEN = 'open'
+    ONGOING = 'ongoing'
+    CLOSED = 'closed'
+    TABLE_STATUS_DEFAULT = OPEN
+    TABLE_STATUS_CHOICES = [
+        (OPEN, _('Open')),
+        (ONGOING, _('On Going')),
+        (CLOSED, _('Closed')),
+    ]
+
+    NOT_EDITABLE = 'not_editable'
+    EDITABLE = 'editable'
+    LEADERBOARD_STATUS_DEAFULT = EDITABLE
+    LEADERBOARD_STATUS_CHOICES = [
+        (NOT_EDITABLE, _('Not Editable')),
+        (EDITABLE, _('Editable')),
+    ]
+
     slug_field_name = 'title'
     title = models.CharField(max_length=144, null=False, blank=True)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -177,6 +196,13 @@ class Table(DateTimeModel, SlugModel):
     author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     game = models.ForeignKey(Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True)
+
+    status = models.CharField(max_length=20, choices=TABLE_STATUS_CHOICES, default=TABLE_STATUS_DEFAULT)
+    leaderboard_status = models.CharField(
+        max_length=20,
+        choices=LEADERBOARD_STATUS_CHOICES,
+        default=LEADERBOARD_STATUS_DEAFULT
+    )
 
     @cached_property
     def cover_url(self):
