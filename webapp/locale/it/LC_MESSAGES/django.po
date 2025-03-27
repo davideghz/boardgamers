@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 09:51+0000\n"
+"POT-Creation-Date: 2025-03-27 14:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,7 +138,6 @@ msgstr "Tavoli a cui hai aderito"
 #: webapp/templates/accounts/account_tables.html:42
 #: webapp/templates/locations/location_detail.html:107
 #: webapp/templates/locations/location_detail.html:125
-#: webapp/templates/profiles/user_profile_detail.html:65
 #: webapp/templates/staticpages/home.html:76
 #: webapp/templates/staticpages/home.html:96
 #: webapp/templates/tables/table_index.html:21
@@ -361,6 +360,7 @@ msgid "Publish"
 msgstr "Pubblica"
 
 #: webapp/templates/locations/location_detail.html:64
+#: webapp/templates/profiles/user_profile_detail.html:69
 msgid "tables"
 msgstr "tavoli"
 
@@ -424,12 +424,10 @@ msgid "Verify your email to join tables."
 msgstr "Verifica la tua email per unirti ai tavoli."
 
 #: webapp/templates/partials/alerts.html:11
-#: webapp/templates/profiles/user_profile_detail.html:78
 msgid "CLICK HERE"
 msgstr "CLICCA QUI"
 
 #: webapp/templates/partials/alerts.html:13
-#: webapp/templates/profiles/user_profile_detail.html:80
 msgid "to receive a new verification email."
 msgstr "per ricevere una nuova email di verifica."
 
@@ -489,14 +487,9 @@ msgstr "Carica un nuovo avatar"
 msgid "Save"
 msgstr "Salva"
 
-#: webapp/templates/profiles/user_profile_detail.html:52
-msgid "Latest tables"
-msgstr "Ultimi tavoli"
-
-#: webapp/templates/profiles/user_profile_detail.html:75
-msgid "Your email is not verified. Verify your email to join tables."
-msgstr ""
-"La tua email non è verificata. Verifica la tua email per unirti ai tavoli."
+#: webapp/templates/profiles/user_profile_detail.html:73
+msgid "victories"
+msgstr "vittorie"
 
 #: webapp/templates/staticpages/contacts.html:10
 msgid "Contacts"
@@ -744,7 +737,7 @@ msgstr "Non è possibile modificare i tavoli passati."
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
-#: webapp/views/profile_views.py:37
+#: webapp/views/profile_views.py:62
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
@@ -755,6 +748,13 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:199
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "Latest tables"
+#~ msgstr "Ultimi tavoli"
+
+#~ msgid "Your email is not verified. Verify your email to join tables."
+#~ msgstr ""
+#~ "La tua email non è verificata. Verifica la tua email per unirti ai tavoli."
 
 #~ msgid ""
 #~ "Easily find board game enthusiasts in your area and share your passion "
