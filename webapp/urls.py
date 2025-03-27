@@ -19,7 +19,6 @@ urlpatterns = [
   path("", static_page_views.homepage_view, name="home"),
   path("privacy", static_page_views.privacy, name="privacy"),
   path("terms", static_page_views.terms, name="terms"),
-  path("test-login", static_page_views.test_login, name="test-login"),
   path("contacts", static_page_views.contacts, name="contacts"),
 
   # TABLE

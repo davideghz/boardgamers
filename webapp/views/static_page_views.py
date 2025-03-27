@@ -21,9 +21,11 @@ from django.conf import settings
 def homepage_view(request):
     user_location = None
     user_created_locations = None
+    user_created_locations_ids = []
 
     if request.user.is_authenticated:
         user_created_locations = request.user.user_profile.locations.all()
+        user_created_locations_ids = user_created_locations.values_list('id', flat=True) if user_created_locations else []
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
             if profile and profile.latitude is not None and profile.longitude is not None:
@@ -51,11 +53,16 @@ def homepage_view(request):
     if user_location:
         future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date', 'distance')
         # nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
-        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True).order_by('distance')
+        nearby_locations = (Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True)
+                            .exclude(id__in=user_created_locations_ids)
+                            .order_by('distance'))
         location_message = None  # Nessun messaggio se la posizione è presente
     else:
         # Se la posizione non è disponibile, mostra 10 locations randomiche
-        nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
+        nearby_locations = (Location.objects.annotate(random_order=Count('id'))
+                            .filter(is_public=True)
+                            .exclude(id__in=user_created_locations_ids)
+                            .order_by('?')[:10])
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
     context = {
@@ -75,10 +82,6 @@ def privacy(request, template_name="staticpages/privacy.html"):
 
 
 def terms(request, template_name="staticpages/terms.html"):
-    return render(request, template_name, {})
-
-
-def test_login(request, template_name="staticpages/test_login.html"):
     return render(request, template_name, {})
 
 
@@ -122,7 +125,7 @@ def debug(request, template_name="staticpages/debug.html"):
 
 
 def contacts(request):
-    # Prepopola il form se l'utente è autenticato
+    # Pre-popola il form se l'utente è autenticato
     initial_data = {}
     if request.user.is_authenticated:
         initial_data = {
