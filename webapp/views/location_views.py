@@ -99,7 +99,7 @@ class LocationDetailView(DetailView):
             joined_tables__location=location
         ).annotate(
             win_count=Count('joined_tables', distinct=True)
-        ).order_by('-win_count').values('user__username')[:1]
+        ).order_by('-win_count').values('nickname')[:1]
 
         # Query principale per i giochi più giocati
         popular_games = Game.objects.annotate(
