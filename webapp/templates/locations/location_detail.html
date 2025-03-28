@@ -130,28 +130,45 @@
   </div>
 
   <div class="container mt-4">
-    <p class="h1">{% trans "About" %}</p>
+    <h2>{% trans "About" %}</h2>
     <p class="mb-0">{{ location.description }}</p>
   </div>
   <div class="container mt-4 mb-5">
-    <p class="h1">{% trans "Stats" %}</p>
-    <h2>Giochi più giocati</h2>
-    <ul>
-      {% for game in popular_games %}
-        <li>{{ game.name }} - Partite giocate: {{ game.play_count }}
-          {% if game.top_winner %}
-            | Giocatore con più vittorie: {{ game.top_winner }}
-          {% endif %}
-        </li>
-      {% empty %}
-        <li>Nessun gioco giocato in questa location.</li>
-      {% endfor %}
-    </ul>
+    <h2 id="stats">{% trans "Stats" %}</h2>
+    <h3 class="mt-3">{% trans "Most played games" %}</h3>
+    {% for game in popular_games %}
+      <div class="">
+        <div class="mt-2">
+          <div class="row">
+            <div class="col d-flex align-items-center">
+              <img class="img-thumbnail object-fit-cover object-position-center" style="height: 75px; width: 75px;"
+                   src="{{ game.cover_url }}"
+                   alt="{{ game.name }} logo">
+              <div class="ms-3">
+                <div class="h5 mb-1">{{ game.name }}</div>
+                <div class="">
+                  <small><i
+                      class="bi bi-lightning-charge-fill"></i> {{ game.play_count|default:0 }} {% trans "tables" %}
+                  </small>
+                  {% if game.top_winner %}
+                    <small class="ms-2"><i
+                        class="bi bi-trophy-fill"></i> {{ game.top_winner }}
+                    </small>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <li>Nessun gioco giocato in questa location.</li>
+    {% endfor %}
 
-    <h2 id="stats">{% trans "Gamers' stats" %}</h2>
+    <h3 class="mt-3">{% trans "Gamers' stats" %}</h3>
     <div class="table-responsive">
       <table class="table table-hover caption-top">
-        <caption>{% trans "20 most active gamers" %}</caption>
+        <caption>{% trans "Most active gamers" %}</caption>
         <thead class="table-light">
         <tr>
           <th class="text-nowrap">{% trans "Gamer" %}</th>
