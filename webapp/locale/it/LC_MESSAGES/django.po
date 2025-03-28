@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 14:55+0000\n"
+"POT-Creation-Date: 2025-03-28 17:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,26 @@ msgstr "Messaggio inviato!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore. Controlla i dati inseriti"
 
+#: webapp/models.py:170
+msgid "Open"
+msgstr "Aperto"
+
+#: webapp/models.py:171
+msgid "On Going"
+msgstr "In corso"
+
+#: webapp/models.py:172
+msgid "Closed"
+msgstr "Chiuso"
+
+#: webapp/models.py:179
+msgid "Not Editable"
+msgstr "Non modificabile"
+
+#: webapp/models.py:180
+msgid "Editable"
+msgstr "Editabile"
+
 #: webapp/templates/accounts/account_edit_profile.html:28
 #: webapp/templates/accounts/account_index.html:24
 msgid "Edit profile"
@@ -125,6 +145,7 @@ msgid "Add new location"
 msgstr "Aggiungi Location"
 
 #: webapp/templates/accounts/account_tables.html:28
+#: webapp/templates/locations/location_detail.html:178
 #: webapp/templates/partials/top-menu.html:73
 #: webapp/templates/partials/top-menu.html:117
 msgid "Tables"
@@ -136,8 +157,8 @@ msgstr "Tavoli a cui hai aderito"
 
 #: webapp/templates/accounts/account_tables.html:34
 #: webapp/templates/accounts/account_tables.html:42
-#: webapp/templates/locations/location_detail.html:107
-#: webapp/templates/locations/location_detail.html:125
+#: webapp/templates/locations/location_detail.html:110
+#: webapp/templates/locations/location_detail.html:128
 #: webapp/templates/staticpages/home.html:76
 #: webapp/templates/staticpages/home.html:96
 #: webapp/templates/tables/table_index.html:21
@@ -359,52 +380,88 @@ msgstr "Annulla"
 msgid "Publish"
 msgstr "Pubblica"
 
-#: webapp/templates/locations/location_detail.html:64
-#: webapp/templates/profiles/user_profile_detail.html:69
+#: webapp/templates/locations/location_detail.html:7
+msgid "Join us at"
+msgstr "Unisciti alla community di"
+
+#: webapp/templates/locations/location_detail.html:7
+msgid ""
+"and experience the thrill of challenging your friends with the best board "
+"games. We’re waiting for you at:"
+msgstr ""
+"e sfida i tuoi amici ai migliori giochi da tavolo. "
+"Ti aspettiamo in:"
+
+#: webapp/templates/locations/location_detail.html:67
+#: webapp/templates/locations/location_detail.html:154
+#: webapp/templates/profiles/user_profile_detail.html:68
 msgid "tables"
 msgstr "tavoli"
 
-#: webapp/templates/locations/location_detail.html:73
+#: webapp/templates/locations/location_detail.html:76
 msgid "gamers"
 msgstr "gamers"
 
-#: webapp/templates/locations/location_detail.html:87
-#: webapp/templates/locations/location_detail.html:146
+#: webapp/templates/locations/location_detail.html:90
+#: webapp/templates/locations/location_detail.html:211
 msgid "Create table here"
 msgstr "Crea un tavolo"
 
-#: webapp/templates/locations/location_detail.html:97
+#: webapp/templates/locations/location_detail.html:100
 #: webapp/templates/staticpages/home.html:66
 msgid "Upcoming tables"
 msgstr "Tavoli in arrivo"
 
-#: webapp/templates/locations/location_detail.html:98
+#: webapp/templates/locations/location_detail.html:101
 #: webapp/templates/staticpages/home.html:67
 #: webapp/templates/tables/table_index.html:11
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
-#: webapp/templates/locations/location_detail.html:115
+#: webapp/templates/locations/location_detail.html:118
 #: webapp/templates/staticpages/home.html:86
 msgid "Past tables"
 msgstr "Tavoli passati"
 
-#: webapp/templates/locations/location_detail.html:116
+#: webapp/templates/locations/location_detail.html:119
 msgid "Great games, greater memories. What’s your next move?"
 msgstr "Partite memorabili! Quale sarà la tua prossima mossa?"
 
-#: webapp/templates/locations/location_detail.html:133
+#: webapp/templates/locations/location_detail.html:136
 msgid "About"
 msgstr "Informazioni"
 
-#: webapp/templates/locations/location_detail.html:134
-#: webapp/templates/locations/location_detail.html:138
-msgid "Work in progres..."
-msgstr "Lavori in corso..."
-
-#: webapp/templates/locations/location_detail.html:137
+#: webapp/templates/locations/location_detail.html:140
 msgid "Stats"
 msgstr "Statistiche"
+
+#: webapp/templates/locations/location_detail.html:141
+msgid "Most played games"
+msgstr "Giochi più apprezzati"
+
+#: webapp/templates/locations/location_detail.html:171
+msgid "Gamers' stats"
+msgstr "Leaderboard"
+
+#: webapp/templates/locations/location_detail.html:174
+msgid "Most active gamers"
+msgstr "Giocatori più attivi"
+
+#: webapp/templates/locations/location_detail.html:177
+msgid "Gamer"
+msgstr "Gamer"
+
+#: webapp/templates/locations/location_detail.html:179
+msgid "1st place"
+msgstr "1° posto"
+
+#: webapp/templates/locations/location_detail.html:180
+msgid "2nd place"
+msgstr "2° posto"
+
+#: webapp/templates/locations/location_detail.html:181
+msgid "3rd place"
+msgstr "3° posto"
 
 #: webapp/templates/locations/location_index.html:9
 #: webapp/templates/partials/hero.html:111
@@ -487,7 +544,7 @@ msgstr "Carica un nuovo avatar"
 msgid "Save"
 msgstr "Salva"
 
-#: webapp/templates/profiles/user_profile_detail.html:73
+#: webapp/templates/profiles/user_profile_detail.html:72
 msgid "victories"
 msgstr "vittorie"
 
@@ -748,6 +805,9 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:199
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "Work in progres..."
+#~ msgstr "Lavori in corso..."
 
 #~ msgid "Latest tables"
 #~ msgstr "Ultimi tavoli"

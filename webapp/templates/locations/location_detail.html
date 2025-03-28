@@ -3,6 +3,9 @@
 {% load static %}
 {% load i18n %}
 
+{% block headtitle %}{{ location.name }} - Board-Gamers.com{% endblock headtitle %}
+{% block description %}{% trans "Join us at" %} {{ location.name }} {% trans "and experience the thrill of challenging your friends with the best board games. We’re waiting for you at:" %} {{ location.address }}{% endblock description %}
+
 {% block style %}
   <link
       rel="stylesheet"
