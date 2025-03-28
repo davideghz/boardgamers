@@ -43,12 +43,12 @@
 {% block content %}
   <div class="container-fluid" style="background-color: slategrey; height: 180px">
     <div class="container d-flex mt-4" style="">
-      <p class="h2 text-light m-0">
+      <h1 class="h2 text-light m-0">
         <img class="img-thumbnail border-0 object-fit-cover object-position-center"
              style="width: 80px; height: 80px; padding: 0.20rem" src="{{ location.cover_url }}"
              alt="{{ location.name }} logo">
         {{ location.name }}
-      </p>
+      </h1>
     </div>
   </div>
   <div class="container" style="position: relative; top: -50px">
@@ -94,7 +94,7 @@
   </div>
 
   <div class="container-sm mt-4">
-    <p class="h1">{% trans "Upcoming tables" %}</p>
+    <h2>{% trans "Upcoming tables" %}</h2>
     <p class="mb-0">{% trans "Accept the challenge, join a table!" %}</p>
   </div>
   <div class="container-sm mt-4">
@@ -112,7 +112,7 @@
   </div>
 
   <div class="container-sm mt-4">
-    <p class="h1">{% trans "Past tables" %}</p>
+    <h2>{% trans "Past tables" %}</h2>
     <p class="mb-0">{% trans "Great games, greater memories. What’s your next move?" %}</p>
   </div>
   <div class="container-sm mt-4">
@@ -135,7 +135,7 @@
   </div>
   <div class="container mt-4 mb-5">
     <h2 id="stats">{% trans "Stats" %}</h2>
-    <h3 class="mt-3">{% trans "Most played games" %}</h3>
+    <h3 class="h4 mt-3">{% trans "Most played games" %}</h3>
     {% for game in popular_games %}
       <div class="">
         <div class="mt-2">
@@ -165,7 +165,7 @@
       <li>Nessun gioco giocato in questa location.</li>
     {% endfor %}
 
-    <h3 class="mt-3">{% trans "Gamers' stats" %}</h3>
+    <h3 class="h4 mt-3">{% trans "Gamers' stats" %}</h3>
     <div class="table-responsive">
       <table class="table table-hover caption-top">
         <caption>{% trans "Most active gamers" %}</caption>
