@@ -78,7 +78,7 @@
               <div class="d-flex align-items-center bg-body-tertiary rounded mt-0 mt-sm-3 mb-3 px-3 py-2">
                 <i class="bi bi-trophy-fill fs-1 ms-3"></i>
                 <div class="d-flex flex-column align-items-start ms-2">
-                  <small class="m-0">(coming soon)</small>
+                  <a href="#stats" class="h3 m-0">Stats</a>
                 </div>
               </div>
             </div>
@@ -131,12 +131,57 @@
 
   <div class="container mt-4">
     <p class="h1">{% trans "About" %}</p>
-    <p class="mb-0">{% trans "Work in progres..." %}</p>
+    <p class="mb-0">{{ location.description }}</p>
   </div>
   <div class="container mt-4 mb-5">
     <p class="h1">{% trans "Stats" %}</p>
-    <p class="mb-0">{% trans "Work in progres..." %}</p>
-  </div>
+    <h2>Giochi più giocati</h2>
+    <ul>
+      {% for game in popular_games %}
+        <li>{{ game.name }} - Partite giocate: {{ game.play_count }}
+          {% if game.top_winner %}
+            | Giocatore con più vittorie: {{ game.top_winner }}
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>Nessun gioco giocato in questa location.</li>
+      {% endfor %}
+    </ul>
+
+    <h2 id="stats">{% trans "Gamers' stats" %}</h2>
+    <div class="table-responsive">
+      <table class="table table-hover caption-top">
+        <caption>{% trans "20 most active gamers" %}</caption>
+        <thead class="table-light">
+        <tr>
+          <th class="text-nowrap">{% trans "Gamer" %}</th>
+          <th class="text-nowrap">{% trans "Tables" %}</th>
+          <th class="text-nowrap">{% trans "1st place" %}</th>
+          <th class="text-nowrap">{% trans "2nd place" %}</th>
+          <th class="text-nowrap">{% trans "3rd place" %}</th>
+        </tr>
+        </thead>
+        <tbody class="table-group-divider">
+        {% for player in player_stats %}
+          <tr>
+            <td>
+              <a href="{% url "user-profile-detail" player.slug %}" class="text-decoration-none">
+                {{ player.nickname|truncatechars:15 }}
+              </a>
+            </td>
+            <td>{{ player.play_count }}</td>
+            <td>{{ player.first_place }}</td>
+            <td>{{ player.second_place }}</td>
+            <td>{{ player.third_place }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Nessun giocatore registrato in questa location.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="container fixed-bottom bg-light p-3 border-top d-sm-none">

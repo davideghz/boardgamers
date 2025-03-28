@@ -2,7 +2,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Prefetch, Q, Count
+from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
 from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse
@@ -84,6 +84,39 @@ class LocationDetailView(DetailView):
             Q(joined_tables__location=location) | Q(created_tables__location=location)
         ).distinct().count()
 
+        # Sottoquery per contare le partite giocate per ogni gioco nella location
+        played_count = Table.objects.filter(
+            game=OuterRef('pk'),
+            location=location
+        ).values('game').annotate(
+            count=Count('id', distinct=True)
+        ).values('count')
+
+        # Sottoquery per trovare il giocatore con più vittorie per ogni gioco
+        top_player = UserProfile.objects.filter(
+            joined_tables__game=OuterRef('pk'),
+            player__position=1,
+            joined_tables__location=location
+        ).annotate(
+            win_count=Count('joined_tables', distinct=True)
+        ).order_by('-win_count').values('user__username')[:1]
+
+        # Query principale per i giochi più giocati
+        popular_games = Game.objects.annotate(
+            play_count=Subquery(played_count),
+            top_winner=Subquery(top_player)
+        ).filter(play_count__gt=0).order_by('-play_count')
+
+        # Query per i giocatori con numero di partite e posizioni
+        player_stats = UserProfile.objects.filter(
+            Q(joined_tables__location=location)
+        ).annotate(
+            play_count=Count('joined_tables', distinct=True),
+            first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
+            second_place=Count('joined_tables', filter=Q(player__position=2), distinct=True),
+            third_place=Count('joined_tables', filter=Q(player__position=3), distinct=True)
+        ).order_by('-first_place', '-second_place', '-third_place', '-play_count')
+
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)
         context['future_tables'] = future_tables
@@ -92,6 +125,8 @@ class LocationDetailView(DetailView):
         context['future_tables_count'] = future_tables_count
         context['tables_count'] = past_tables_count + future_tables_count
         context['total_gamers_count'] = total_gamers_count
+        context['popular_games'] = popular_games
+        context['player_stats'] = player_stats
 
         return context
 
