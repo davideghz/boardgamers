@@ -21,6 +21,14 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
     def update_player_position(self, request, pk=None):
         try:
             table = self.get_object()
+
+            # Verifica se la classifica è modificabile
+            if table.leaderboard_status == Table.NOT_EDITABLE:
+                print(f"Errore: La classifica per il tavolo '{table.title}' non è modificabile.")
+                return Response({'success': False, 'error': 'Leaderboard is not editable'},
+                                status=status.HTTP_403_FORBIDDEN)
+
+
             players = request.data.get('players', [])
 
             # Log per verificare i dati ricevuti
