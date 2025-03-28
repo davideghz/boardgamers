@@ -121,7 +121,7 @@ class BootstrapForm(Form):
 class TableForm(ModelForm, BootstrapForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status']
         widgets = {
             'location': HiddenInput(),
             'games': autocomplete.ModelSelect2Multiple(
