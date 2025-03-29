@@ -199,7 +199,8 @@ def table_update_view(request, location_slug, table_slug):
             messages.success(request, _("Table was updated successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        form = TableForm(instance=table)
+        initial_data = {'date': table.date.strftime('%Y-%m-%d')}
+        form = TableForm(instance=table, initial=initial_data)
 
     context = {"form": form, "location": location, "table": table}
     return render(request, "tables/table_add_or_edit.html", context)

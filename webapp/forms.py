@@ -140,13 +140,13 @@ class TableForm(ModelForm, BootstrapForm):
 
     def clean_title(self):
         title = self.cleaned_data['title']
-        if title is None or len(title) < 10:
+        if title is None or len(title) < 2:
             raise ValidationError("Title is too short")
         return title
 
     def clean_description(self):
         description = self.cleaned_data['description']
-        if description is None or len(description) < 30:
+        if description is None or len(description) < 2:
             raise ValidationError("Description is too short")
         return description
 
