@@ -15,7 +15,7 @@ class Command(BaseCommand):
         tables = Table.objects.filter(
             Q(status=Table.OPEN) |
             Q(status=Table.ONGOING) |
-            Q(status=Table.CLOSED, leaderboard_status=Table.EDITABLE)
+            Q(status=Table.CLOSED, leaderboard_status=Table.LEADERBOARD_NOT_EDITABLE)
         )
 
         for table in tables:
@@ -24,22 +24,22 @@ class Command(BaseCommand):
             # Caso 1: Partita non ancora iniziata
             if current_time < game_datetime:
                 table.status = Table.OPEN
-                table.leaderboard_status = Table.NOT_EDITABLE
+                table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
 
             # Caso 2: Partita in corso
             elif game_datetime <= current_time < game_datetime + timedelta(days=1):
                 table.status = Table.ONGOING
-                table.leaderboard_status = Table.EDITABLE
+                table.leaderboard_status = Table.LEADERBOARD_EDITABLE
 
             # Caso 3: Partita terminata da 1 giorno
             elif game_datetime + timedelta(days=1) <= current_time < game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
-                table.leaderboard_status = Table.EDITABLE
+                table.leaderboard_status = Table.LEADERBOARD_EDITABLE
 
             # Caso 4: Partita terminata da 2 giorni
             elif current_time >= game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
-                table.leaderboard_status = Table.NOT_EDITABLE
+                table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
 
             table.save()
 
