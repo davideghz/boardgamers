@@ -10,9 +10,10 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         current_time = now()
 
-        # Aggiorna i tavoli aperti
-        open_tables = Table.objects.filter(status=Table.OPEN)
-        for table in open_tables:
+        # Aggiorna i tavoli aperti o in corso
+        open_or_ongoing_tables = Table.objects.filter(status__in=[Table.OPEN, Table.ONGOING])
+
+        for table in open_or_ongoing_tables:
             game_datetime = make_aware(datetime.combine(table.date, table.time))
 
             # Caso 1: Partita non ancora iniziata
