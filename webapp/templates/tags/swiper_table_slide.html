@@ -2,7 +2,8 @@
 
 <div class="swiper-slide">
   <div class="card shadow border-0" style="">
-    <a href="{% url "table-detail" table.slug %}" class="card-header text-decoration-none d-flex flex-column justify-content-end text-white border-bottom-0"
+    <a href="{% url "table-detail" table.slug %}"
+       class="card-header text-decoration-none d-flex flex-column justify-content-end text-white border-bottom-0"
        style="background-image: linear-gradient(to top,
            rgba(0, 0, 0, 0.8) 0%,
            rgba(0, 0, 0, 0.3) 40%,
@@ -12,6 +13,10 @@
            background-size: cover;
            height: 150px;"
     >
+      <span class="badge rounded-pill {{ table.status_badge_class }}" style="position: absolute; top:8px; right:16px">
+        {{ table.get_status_display }}
+      </span>
+
       {% if table.game %}
         <h5>{{ table.game }}</h5>
       {% endif %}

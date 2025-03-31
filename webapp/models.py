@@ -211,6 +211,14 @@ class Table(DateTimeModel, SlugModel):
         else:
             return settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
 
+    @property
+    def status_badge_class(self):
+        return {
+            self.CLOSED: 'text-bg-secondary',
+            self.ONGOING: 'text-bg-warning',
+            self.OPEN: 'text-bg-primary',
+        }.get(self.status, 'text-bg-light')
+
     def __str__(self):
         return self.title
 
