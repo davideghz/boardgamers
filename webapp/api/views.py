@@ -23,7 +23,7 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
             table = self.get_object()
 
             # Verifica se la classifica è modificabile
-            if table.leaderboard_status == Table.NOT_EDITABLE:
+            if table.leaderboard_status == Table.LEADERBOARD_NOT_EDITABLE and not request.user.is_superuser:
                 print(f"Errore: La classifica per il tavolo '{table.title}' non è modificabile.")
                 return Response({'success': False, 'error': 'Leaderboard is not editable'},
                                 status=status.HTTP_403_FORBIDDEN)

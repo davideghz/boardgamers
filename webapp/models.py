@@ -172,12 +172,12 @@ class Table(DateTimeModel, SlugModel):
         (CLOSED, _('Closed')),
     ]
 
-    NOT_EDITABLE = 'not_editable'
-    EDITABLE = 'editable'
-    LEADERBOARD_STATUS_DEAFULT = EDITABLE
+    LEADERBOARD_NOT_EDITABLE = 'not_editable'
+    LEADERBOARD_EDITABLE = 'editable'
+    LEADERBOARD_STATUS_DEAFULT = LEADERBOARD_EDITABLE
     LEADERBOARD_STATUS_CHOICES = [
-        (NOT_EDITABLE, _('Not Editable')),
-        (EDITABLE, _('Editable')),
+        (LEADERBOARD_NOT_EDITABLE, _('Not Editable')),
+        (LEADERBOARD_EDITABLE, _('Editable')),
     ]
 
     slug_field_name = 'title'
@@ -217,6 +217,13 @@ class Table(DateTimeModel, SlugModel):
             self.CLOSED: 'text-bg-secondary',
             self.ONGOING: 'text-bg-warning',
             self.OPEN: 'text-bg-primary',
+        }.get(self.status, 'text-bg-light')
+
+    @property
+    def leaderboard_status_badge_class(self):
+        return {
+            self.LEADERBOARD_NOT_EDITABLE: 'text-bg-secondary',
+            self.LEADERBOARD_EDITABLE: 'text-bg-primary',
         }.get(self.status, 'text-bg-light')
 
     def __str__(self):

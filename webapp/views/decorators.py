@@ -19,7 +19,7 @@ def only_admin_can_edit_closed_table(view_func):
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
         table = get_object_or_404(Table, slug=table_slug)
-        if table.status == table.CLOSED and not request.user.is_staff:
+        if table.status == table.CLOSED and not request.user.is_superuser:
             messages.error(request, _("Can't edit closed tables."), extra_tags="danger")
             return redirect("table-detail", slug=table_slug)
         return view_func(request, location_slug, table_slug, *args, **kwargs)

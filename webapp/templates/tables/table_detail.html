@@ -32,7 +32,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
-              {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_staff %}
+              {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
                 <a class="text-decoration-none" href="{% url 'location-table-update' table.location.slug table.slug %}">
                   <i class="bi bi-pencil-square"></i> Edit
                 </a>
@@ -169,11 +169,18 @@
               <div class="card-header" style="background-color: slategrey"></div>
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="h5 flex-grow-1 mb-0">
+                  <div>
+                    <span class="h5 flex-grow-1 mb-0">
                     <i class="bi bi-trophy-fill"></i>
                     {% trans "Leaderboard" %}
-                  </span>
-                  {% if leaderboard_enabled and user.user_profile in table.players.all %}
+                    </span>
+                    {% if leaderboard_enabled %}
+                      <span class="badge rounded-pill {{ table.leaderboard_status_badge_class }}">
+                        {{ table.get_leaderboard_status_display }}
+                      </span>
+                    {% endif %}
+                  </div>
+                  {% if leaderboard_enabled and user_can_edit_leaderboard %}
                     <a class="text-decoration-none {% if not leaderboard_visible %}d-none{% endif %}" href="#"
                        id="editLeaderboard">
                       <i class="bi bi-pencil-square"></i> {% trans "Edit" %}
@@ -186,15 +193,15 @@
               </div>
               {% if leaderboard_enabled %}
                 <div class="card-body border-top">
-                  {% if not leaderboard_visible and user.user_profile in table.players.all %}
+                  {% if user_can_edit_leaderboard and not leaderboard_visible %}
                     <button id="createLeaderboard" class="btn btn-primary w-100">
                       {% trans "Create Leaderboard" %}
                     </button>
-                  {% elif not leaderboard_visible and user.user_profile not in table.players.all %}
+                  {% elif not leaderboard_visible %}
                     <p class="m-0">{% trans "Leaderboard not created yet." %}</p>
                   {% endif %}
 
-                  {% if user.user_profile in table.players.all %}
+                  {% if user_can_edit_leaderboard %}
                     <small class="d-flex align-items-center mb-2 d-none" id="editLeaderboardInstructions">
                       {% trans "Use the" %} <i
                         class="bi bi-grip-vertical fs-5"></i> {% trans "to adjust the positions" %}.
@@ -237,7 +244,7 @@
           </div>
 
           <!-- Script per il Drag & Drop -->
-          {% if request.user.is_superuser or user.user_profile in table.players.all %}
+          {% if leaderboard_enabled and user_can_edit_leaderboard %}
             <script>
                 const leaderboard = document.getElementById('leaderboard');
                 const saveOrderButton = document.getElementById('saveOrder');

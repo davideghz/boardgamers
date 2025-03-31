@@ -12,6 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
+from urllib3 import request
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
@@ -22,7 +23,7 @@ from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_ca
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
     def test_func(self):
         obj = self.get_object()
-        return obj.author.user == self.request.user or self.request.user.is_staff
+        return obj.author.user == self.request.user or self.request.user.is_superuser
 
 
 class TableIndexView(generic.ListView):
@@ -86,6 +87,14 @@ class TableDetailView(LoginRequiredMixin, generic.DetailView):
         # Verifica se almeno un giocatore ha una posizione diversa da 99
         leaderboard_visible = any(player.position != 99 for player in players)
 
+        # Verifica se utente può modificare leaderboard
+        user_can_edit_leaderboard = (
+            (leaderboard_enabled and
+             ((table.leaderboard_status == table.LEADERBOARD_EDITABLE) and
+              self.request.user.user_profile in table.players.all()) or
+             self.request.user.is_superuser)
+        )
+
         # Controlliamo se l'utente è un player del tavolo o un admin
         # can_edit_scores = self.request.user.is_superuser or self.request.user.user_profile in table.players.all()
 
@@ -107,6 +116,7 @@ class TableDetailView(LoginRequiredMixin, generic.DetailView):
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
             'leaderboard_visible': leaderboard_visible,
+            'user_can_edit_leaderboard': user_can_edit_leaderboard
             # 'players_with_forms': players_with_forms,
             # 'formset': formset,
             # 'can_edit_scores': can_edit_scores
@@ -151,7 +161,7 @@ def table_create_view(request, location_slug):
     location = get_object_or_404(Location, slug=location_slug)
     initial = {"location": location}
 
-    if not (request.user.user_profile.is_email_verified or request.user.is_staff):
+    if not (request.user.user_profile.is_email_verified or request.user.is_superuser):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
         return redirect("location-detail", location_slug)
 
