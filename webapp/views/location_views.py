@@ -30,7 +30,8 @@ def index_view(request, template_name="locations/location_index.html"):
             pass
 
     if user_location:
-        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        # nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True).order_by('distance')
     else:
         nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS

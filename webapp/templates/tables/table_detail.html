@@ -32,9 +32,11 @@
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
-              <a class="text-decoration-none" href="{% url 'location-table-update' table.location.slug table.slug %}">
-                <i class="bi bi-pencil-square"></i> Edit
-              </a>
+              {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_staff %}
+                <a class="text-decoration-none" href="{% url 'location-table-update' table.location.slug table.slug %}">
+                  <i class="bi bi-pencil-square"></i> Edit
+                </a>
+              {% endif %}
             </div>
           </div>
           <div class="card-body border-top">
@@ -172,7 +174,8 @@
                     {% trans "Leaderboard" %}
                   </span>
                   {% if leaderboard_enabled and user.user_profile in table.players.all %}
-                    <a class="text-decoration-none {% if not leaderboard_visible %}d-none{% endif %}" href="#" id="editLeaderboard">
+                    <a class="text-decoration-none {% if not leaderboard_visible %}d-none{% endif %}" href="#"
+                       id="editLeaderboard">
                       <i class="bi bi-pencil-square"></i> {% trans "Edit" %}
                     </a>
                   {% endif %}
@@ -193,7 +196,8 @@
 
                   {% if user.user_profile in table.players.all %}
                     <small class="d-flex align-items-center mb-2 d-none" id="editLeaderboardInstructions">
-                      {% trans "Use the" %} <i class="bi bi-grip-vertical fs-5"></i> {% trans "to adjust the positions" %}.
+                      {% trans "Use the" %} <i
+                        class="bi bi-grip-vertical fs-5"></i> {% trans "to adjust the positions" %}.
                     </small>
                   {% endif %}
 
@@ -301,7 +305,7 @@
                         position: index + 1
                     }));
 
-                    console.log("Sending data:", JSON.stringify({ players: players }));
+                    console.log("Sending data:", JSON.stringify({players: players}));
 
                     fetch(`/api/tables/{{ table.id }}/update-player-position/`, {
                         method: 'POST',
@@ -309,7 +313,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRFToken': '{{ csrf_token }}'
                         },
-                        body: JSON.stringify({ players: players })
+                        body: JSON.stringify({players: players})
                     })
                         .then(response => response.json())
                         .then(data => {

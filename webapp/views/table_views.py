@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location
-from webapp.views.decorators import only_admin_can_edit_old_table, only_author_or_admin_can_edit
+from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table
 
 
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
@@ -178,7 +178,7 @@ def table_create_view(request, location_slug):
 
 
 @login_required
-@only_admin_can_edit_old_table
+@only_admin_can_edit_closed_table
 @only_author_or_admin_can_edit
 def table_update_view(request, location_slug, table_slug):
     table = get_object_or_404(Table, slug=table_slug)

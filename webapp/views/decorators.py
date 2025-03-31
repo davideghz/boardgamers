@@ -12,15 +12,15 @@ from django.utils.translation import gettext as _
 from webapp.models import Table
 
 
-def only_admin_can_edit_old_table(view_func):
+def only_admin_can_edit_closed_table(view_func):
     """
     Decorator that allows only admin users to edit old tables (past dates).
     """
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
         table = get_object_or_404(Table, slug=table_slug)
-        if table.date < now().date() and not request.user.is_staff:
-            messages.error(request, _("Can't edit past tables."), extra_tags="danger")
+        if table.status == table.CLOSED and not request.user.is_staff:
+            messages.error(request, _("Can't edit closed tables."), extra_tags="danger")
             return redirect("table-detail", slug=table_slug)
         return view_func(request, location_slug, table_slug, *args, **kwargs)
     return _wrapped_view
