@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.utils.timezone import now, make_aware
 from datetime import datetime, timedelta  # Import corretto
 from webapp.models import Table  # Sostituisci con il percorso corretto del tuo modello
@@ -11,9 +12,13 @@ class Command(BaseCommand):
         current_time = now()
 
         # Aggiorna i tavoli aperti o in corso
-        open_or_ongoing_tables = Table.objects.filter(status__in=[Table.OPEN, Table.ONGOING])
+        tables = Table.objects.filter(
+            Q(status=Table.OPEN) |
+            Q(status=Table.ONGOING) |
+            Q(status=Table.CLOSED, leaderboard_status=Table.EDITABLE)
+        )
 
-        for table in open_or_ongoing_tables:
+        for table in tables:
             game_datetime = make_aware(datetime.combine(table.date, table.time))
 
             # Caso 1: Partita non ancora iniziata
