@@ -139,67 +139,90 @@
     <p class="mb-0">{{ location.description }}</p>
   </div>
   <div class="container mt-4 mb-5">
-    <h2 id="stats">{% trans "Stats" %}</h2>
-    <h3 class="h4 mt-4">{% trans "Most played games" %}</h3>
-    <a href="#" class="text-decoration-none"><small>({% trans "See all played games" %})</small></a>
     <div class="row">
-    {% for game in popular_games %}
-        <div class="col-12 d-flex align-items-center mt-3">
-          <img class="img-thumbnail object-fit-cover object-position-center" style="height: 75px; width: 75px;"
-               src="{{ game.cover_url }}"
-               alt="{{ game.name }} logo">
-          <div class="ms-3">
-            <div class="h5 mb-1">{{ game.name }}</div>
-            <div class="">
-              <small><i
-                  class="bi bi-lightning-charge-fill"></i> {{ game.play_count|default:0 }} {% trans "tables" %}
-              </small>
-              {% if game.top_winner %}
-                <small class="ms-2"><i
-                    class="bi bi-trophy-fill"></i> {{ game.top_winner }}
-                </small>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-    {% empty %}
-      <p>Nessun gioco giocato in questa location.</p>
-    {% endfor %}
+      <h2 id="stats">{% trans "Stats" %}</h2>
     </div>
-
-    <h3 class="h4 mt-4">{% trans "Gamers' stats" %}</h3>
-    <div class="table-responsive">
-      <table class="table table-hover caption-top">
-        <caption>{% trans "Most active gamers" %}</caption>
-        <thead class="table-light">
-        <tr>
-          <th class="text-nowrap">{% trans "Gamer" %}</th>
-          <th class="text-nowrap">{% trans "Tables" %}</th>
-          <th class="text-nowrap">{% trans "1st place" %}</th>
-          <th class="text-nowrap">{% trans "2nd place" %}</th>
-          <th class="text-nowrap">{% trans "3rd place" %}</th>
-        </tr>
-        </thead>
-        <tbody class="table-group-divider">
-        {% for player in player_stats %}
+    <div class="row">
+      <h3 class="h4 mt-4">{% trans "Most played games" %}</h3>
+    </div>
+    <div class="row">
+      <div class="col-12 col-lg-10">
+        <div class="row">
+          {% for game in popular_games %}
+            <div class="col-12 col-md-6 d-flex align-items-center mt-3">
+              <img class="img-thumbnail object-fit-cover object-position-center" style="height: 75px; width: 75px;"
+                   src="{{ game.cover_url }}"
+                   alt="{{ game.name }} logo">
+              <div class="ms-3">
+                <div class="h5 mb-1">{{ game.name|truncatechars:22 }}</div>
+                <div class="">
+                  <small><i
+                      class="bi bi-lightning-charge-fill"></i> {{ game.play_count|default:0 }} {% trans "tables" %}
+                  </small>
+                  {% if game.top_winner %}
+                    <small class="ms-2"><i
+                        class="bi bi-trophy-fill"></i> {{ game.top_winner }}
+                    </small>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <p>Nessun gioco giocato in questa location.</p>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-12 mt-3">
+        <a href="#" class="text-decoration-none">
+          <small>
+            <i class="bi bi-box-arrow-up-right"></i> {% trans "See all played games" %}
+          </small>
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <h3 class="h4 mt-4">{% trans "Gamers' stats" %}</h3>
+    </div>
+    <div class="row">
+      <div class="table-responsive mt-3">
+        <table class="table table-hover">
+          <thead class="table-light">
           <tr>
-            <td>
-              <a href="{% url "user-profile-detail" player.slug %}" class="text-decoration-none">
-                {{ player.nickname|truncatechars:15 }}
-              </a>
-            </td>
-            <td>{{ player.play_count }}</td>
-            <td>{{ player.first_place }}</td>
-            <td>{{ player.second_place }}</td>
-            <td>{{ player.third_place }}</td>
+            <th class="text-nowrap">{% trans "Gamer" %}</th>
+            <th class="text-nowrap">{% trans "Tables" %}</th>
+            <th class="text-nowrap">{% trans "1st place" %}</th>
+            <th class="text-nowrap">{% trans "2nd place" %}</th>
+            <th class="text-nowrap">{% trans "3rd place" %}</th>
           </tr>
-        {% empty %}
-          <tr>
-            <td colspan="5">Nessun giocatore registrato in questa location.</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody class="table-group-divider">
+          {% for player in player_stats %}
+            <tr>
+              <td>
+                <a href="{% url "user-profile-detail" player.slug %}" class="text-decoration-none">
+                  {{ player.nickname|truncatechars:15 }}
+                </a>
+              </td>
+              <td>{{ player.play_count }}</td>
+              <td>{{ player.first_place }}</td>
+              <td>{{ player.second_place }}</td>
+              <td>{{ player.third_place }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">Nessun giocatore registrato in questa location.</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <a href="#" class="text-decoration-none">
+        <small>
+          <i class="bi bi-box-arrow-up-right"></i> {% trans "See all played games" %}
+        </small>
+      </a>
     </div>
   </div>
 
