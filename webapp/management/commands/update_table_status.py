@@ -27,7 +27,7 @@ class Command(BaseCommand):
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
 
             # Caso 2: Partita in corso
-            elif game_datetime <= current_time < game_datetime + timedelta(days=0.5):
+            elif game_datetime <= current_time < game_datetime + timedelta(hours=6):
                 table.status = Table.ONGOING
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
 
