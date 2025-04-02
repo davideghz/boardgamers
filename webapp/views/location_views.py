@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -93,20 +95,54 @@ class LocationDetailView(DetailView):
             count=Count('id', distinct=True)
         ).values('count')
 
-        # Sottoquery per trovare il giocatore con più vittorie per ogni gioco
-        top_player = UserProfile.objects.filter(
-            joined_tables__game=OuterRef('pk'),
-            player__position=1,
-            joined_tables__location=location
+        # # Sottoquery per trovare il giocatore con più vittorie per ogni gioco
+        # top_player = UserProfile.objects.filter(
+        #     joined_tables__game=OuterRef('pk'),
+        #     player__position=1,
+        #     joined_tables__location=location
+        # ).annotate(
+        #     win_count=Count('joined_tables', distinct=True)
+        # ).order_by('-win_count').values('nickname')[:1]
+        #
+        # # Query principale per i giochi più giocati
+        # popular_games = Game.objects.annotate(
+        #     play_count=Subquery(played_count),
+        #     top_winner=Subquery(top_player)
+        # ).filter(play_count__gt=0).order_by('-play_count')[:10]
+
+        popular_games = Game.objects.annotate(
+            play_count=Subquery(played_count)
+        ).filter(play_count__gt=0).order_by('-play_count')[:10]
+
+        # Calcolo dei top winner con ex aequo
+        winners = UserProfile.objects.filter(
+            joined_tables__location=location,
+            player__position=1
+        ).values(
+            'joined_tables__game', 'nickname'
         ).annotate(
             win_count=Count('joined_tables', distinct=True)
-        ).order_by('-win_count').values('nickname')[:1]
+        )
 
-        # Query principale per i giochi più giocati
-        popular_games = Game.objects.annotate(
-            play_count=Subquery(played_count),
-            top_winner=Subquery(top_player)
-        ).filter(play_count__gt=0).order_by('-play_count')[:10]
+        winners_by_game = defaultdict(lambda: {'max': 0, 'winners': []})
+
+        for entry in winners:
+            game_id = entry['joined_tables__game']
+            nickname = entry['nickname']
+            win_count = entry['win_count']
+
+            current_max = winners_by_game[game_id]['max']
+            if win_count > current_max:
+                winners_by_game[game_id]['max'] = win_count
+                winners_by_game[game_id]['winners'] = [nickname]
+            elif win_count == current_max:
+                winners_by_game[game_id]['winners'].append(nickname)
+
+        print(winners_by_game)
+
+        for game in popular_games:
+            top = winners_by_game.get(game.id)
+            game.top_winners = top['winners'] if top else []
 
         # Query per i giocatori con numero di partite e posizioni
         player_stats = UserProfile.objects.filter(

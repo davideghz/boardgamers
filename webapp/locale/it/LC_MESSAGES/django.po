@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-02 21:19+0000\n"
+"POT-Creation-Date: 2025-04-02 22:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,28 +26,28 @@ msgstr "English"
 msgid "Italiano"
 msgstr "Italiano"
 
-#: webapp/forms.py:130
+#: webapp/forms.py:134
 msgid "Games"
 msgstr "Games"
 
-#: webapp/forms.py:136 webapp/models.py:200
+#: webapp/forms.py:140 webapp/models.py:200
 #: webapp/templates/tables/table_detail.html:66
 msgid "Game"
 msgstr "Gioco"
 
-#: webapp/forms.py:166
+#: webapp/forms.py:174
 msgid "Your comment..."
 msgstr "Il tuo commento..."
 
-#: webapp/forms.py:218
+#: webapp/forms.py:226
 msgid "Email already registered."
 msgstr "Email già registrata."
 
-#: webapp/forms.py:224
+#: webapp/forms.py:232
 msgid "Insert nickname"
 msgstr "Inserisci un nickname"
 
-#: webapp/forms.py:226
+#: webapp/forms.py:234
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
 
@@ -178,7 +178,7 @@ msgid "Add new location"
 msgstr "Aggiungi Location"
 
 #: webapp/templates/accounts/account_tables.html:28
-#: webapp/templates/locations/location_detail.html:193
+#: webapp/templates/locations/location_detail.html:191
 #: webapp/templates/partials/top-menu.html:73
 #: webapp/templates/partials/top-menu.html:117
 msgid "Tables"
@@ -265,7 +265,7 @@ msgstr "Inserisci il tuo nickname. Gli altri gamers ti chiameranno così."
 msgid "Insert your Address. We will use it to show near tables."
 msgstr "Inserisci il tuo indirizzo. Lo useremo per mostrarti i tavoli vicini."
 
-#: webapp/templates/base.html:15
+#: webapp/templates/base.html:14
 msgid ""
 "Discover the world of board games on Board-Gamers.com! Join the community to "
 "share your passion and find new players. Play, explore, and connect!"
@@ -424,7 +424,7 @@ msgid ""
 msgstr "e sfida i tuoi amici ai migliori giochi da tavolo. Ti aspettiamo in:"
 
 #: webapp/templates/locations/location_detail.html:69
-#: webapp/templates/locations/location_detail.html:161
+#: webapp/templates/locations/location_detail.html:158
 #: webapp/templates/profiles/user_profile_detail.html:68
 msgid "tables"
 msgstr "tavoli"
@@ -434,7 +434,7 @@ msgid "gamers"
 msgstr "gamers"
 
 #: webapp/templates/locations/location_detail.html:92
-#: webapp/templates/locations/location_detail.html:234
+#: webapp/templates/locations/location_detail.html:232
 msgid "Create table here"
 msgstr "Crea un tavolo"
 
@@ -463,42 +463,41 @@ msgid "About"
 msgstr "Informazioni"
 
 #: webapp/templates/locations/location_detail.html:143
-msgid "Stats"
-msgstr "Statistiche"
-
-#: webapp/templates/locations/location_detail.html:146
 msgid "Most played games"
 msgstr "Giochi più apprezzati"
 
-#: webapp/templates/locations/location_detail.html:147
-msgid "For each game, the player with the most wins is shown."
-msgstr "Per ogni gioco è indicato il gamer con più vittorie."
+#: webapp/templates/locations/location_detail.html:144
+msgid ""
+"For each game, the player with the most wins is shown. In case of a tie, all "
+"top players are displayed."
+msgstr "Per ogni gioco è indicato il gamer con più vittorie. In caso di pareggio, sono "
+"indicati tutti i gamers con il numero massimo di vittorie."
 
-#: webapp/templates/locations/location_detail.html:179
+#: webapp/templates/locations/location_detail.html:177
 msgid "See all played games"
 msgstr "Vedi lista giochi completa"
 
-#: webapp/templates/locations/location_detail.html:185
+#: webapp/templates/locations/location_detail.html:183
 msgid "Gamers' stats"
 msgstr "Leaderboard"
 
-#: webapp/templates/locations/location_detail.html:192
+#: webapp/templates/locations/location_detail.html:190
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/templates/locations/location_detail.html:194
+#: webapp/templates/locations/location_detail.html:192
 msgid "1st place"
 msgstr "1° posto"
 
-#: webapp/templates/locations/location_detail.html:195
+#: webapp/templates/locations/location_detail.html:193
 msgid "2nd place"
 msgstr "2° posto"
 
-#: webapp/templates/locations/location_detail.html:196
+#: webapp/templates/locations/location_detail.html:194
 msgid "3rd place"
 msgstr "3° posto"
 
-#: webapp/templates/locations/location_detail.html:224
+#: webapp/templates/locations/location_detail.html:222
 msgid "See all gamers"
 msgstr "Vedi tutti i gamers di questa location"
 
@@ -844,3 +843,6 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:209
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "Stats"
+#~ msgstr "Statistiche"
