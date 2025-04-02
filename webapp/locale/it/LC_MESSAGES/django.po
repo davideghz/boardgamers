@@ -186,7 +186,7 @@ msgstr "Tavoli"
 
 #: webapp/templates/accounts/account_tables.html:29
 msgid "Joined tables"
-msgstr "Tavoli a cui hai aderito"
+msgstr "Tavoli giocati!"
 
 #: webapp/templates/accounts/account_tables.html:34
 #: webapp/templates/accounts/account_tables.html:42
@@ -633,7 +633,7 @@ msgstr ""
 
 #: webapp/templates/staticpages/home.html:123
 msgid "Want to be part of the project?"
-msgstr "Vuoi far arte del progetto?"
+msgstr "Vuoi far parte del progetto?"
 
 #: webapp/templates/staticpages/home.html:123
 msgid "Contact us"
@@ -671,7 +671,7 @@ msgstr "Non trovi il gioco?"
 
 #: webapp/templates/tables/table_add_or_edit.html:123
 msgid "Create the table without the game, then"
-msgstr " Crea il tavolo senza specificare il gioco e"
+msgstr " Crea il tavolo senza specificarlo e"
 
 #: webapp/templates/tables/table_add_or_edit.html:124
 msgid "contact us"
