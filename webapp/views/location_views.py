@@ -116,7 +116,7 @@ class LocationDetailView(DetailView):
             first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
             second_place=Count('joined_tables', filter=Q(player__position=2), distinct=True),
             third_place=Count('joined_tables', filter=Q(player__position=3), distinct=True)
-        ).order_by('-first_place', '-second_place', '-third_place', '-play_count')
+        ).order_by('-first_place', '-second_place', '-third_place', '-play_count')[:15]
 
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)

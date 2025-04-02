@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-02 17:02+0000\n"
+"POT-Creation-Date: 2025-04-02 21:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,7 +178,7 @@ msgid "Add new location"
 msgstr "Aggiungi Location"
 
 #: webapp/templates/accounts/account_tables.html:28
-#: webapp/templates/locations/location_detail.html:178
+#: webapp/templates/locations/location_detail.html:193
 #: webapp/templates/partials/top-menu.html:73
 #: webapp/templates/partials/top-menu.html:117
 msgid "Tables"
@@ -190,8 +190,8 @@ msgstr "Tavoli a cui hai aderito"
 
 #: webapp/templates/accounts/account_tables.html:34
 #: webapp/templates/accounts/account_tables.html:42
-#: webapp/templates/locations/location_detail.html:110
-#: webapp/templates/locations/location_detail.html:128
+#: webapp/templates/locations/location_detail.html:112
+#: webapp/templates/locations/location_detail.html:130
 #: webapp/templates/staticpages/home.html:76
 #: webapp/templates/staticpages/home.html:96
 #: webapp/templates/tables/table_index.html:21
@@ -417,82 +417,90 @@ msgstr "Pubblica"
 msgid "Join us at"
 msgstr "Unisciti alla community di"
 
-#: webapp/templates/locations/location_detail.html:7
+#: webapp/templates/locations/location_detail.html:8
 msgid ""
 "and experience the thrill of challenging your friends with the best board "
 "games. We’re waiting for you at:"
 msgstr "e sfida i tuoi amici ai migliori giochi da tavolo. Ti aspettiamo in:"
 
-#: webapp/templates/locations/location_detail.html:67
-#: webapp/templates/locations/location_detail.html:154
+#: webapp/templates/locations/location_detail.html:69
+#: webapp/templates/locations/location_detail.html:161
 #: webapp/templates/profiles/user_profile_detail.html:68
 msgid "tables"
 msgstr "tavoli"
 
-#: webapp/templates/locations/location_detail.html:76
+#: webapp/templates/locations/location_detail.html:78
 msgid "gamers"
 msgstr "gamers"
 
-#: webapp/templates/locations/location_detail.html:90
-#: webapp/templates/locations/location_detail.html:211
+#: webapp/templates/locations/location_detail.html:92
+#: webapp/templates/locations/location_detail.html:234
 msgid "Create table here"
 msgstr "Crea un tavolo"
 
-#: webapp/templates/locations/location_detail.html:100
+#: webapp/templates/locations/location_detail.html:102
 #: webapp/templates/staticpages/home.html:66
 msgid "Upcoming tables"
 msgstr "Tavoli in arrivo"
 
-#: webapp/templates/locations/location_detail.html:101
+#: webapp/templates/locations/location_detail.html:103
 #: webapp/templates/staticpages/home.html:67
 #: webapp/templates/tables/table_index.html:11
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
-#: webapp/templates/locations/location_detail.html:118
+#: webapp/templates/locations/location_detail.html:120
 #: webapp/templates/staticpages/home.html:86
 msgid "Past tables"
 msgstr "Tavoli passati"
 
-#: webapp/templates/locations/location_detail.html:119
+#: webapp/templates/locations/location_detail.html:121
 msgid "Great games, greater memories. What’s your next move?"
 msgstr "Partite memorabili! Quale sarà la tua prossima mossa?"
 
-#: webapp/templates/locations/location_detail.html:136
+#: webapp/templates/locations/location_detail.html:138
 msgid "About"
 msgstr "Informazioni"
 
-#: webapp/templates/locations/location_detail.html:140
+#: webapp/templates/locations/location_detail.html:143
 msgid "Stats"
 msgstr "Statistiche"
 
-#: webapp/templates/locations/location_detail.html:141
+#: webapp/templates/locations/location_detail.html:146
 msgid "Most played games"
 msgstr "Giochi più apprezzati"
 
-#: webapp/templates/locations/location_detail.html:171
+#: webapp/templates/locations/location_detail.html:147
+msgid "For each game, the player with the most wins is shown."
+msgstr "Per ogni gioco è indicato il gamer con più vittorie."
+
+#: webapp/templates/locations/location_detail.html:179
+msgid "See all played games"
+msgstr "Vedi lista giochi completa"
+
+#: webapp/templates/locations/location_detail.html:185
 msgid "Gamers' stats"
 msgstr "Leaderboard"
 
-#: webapp/templates/locations/location_detail.html:174
-msgid "Most active gamers"
-msgstr "Giocatori più attivi"
-
-#: webapp/templates/locations/location_detail.html:177
+#: webapp/templates/locations/location_detail.html:192
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/templates/locations/location_detail.html:179
+#: webapp/templates/locations/location_detail.html:194
 msgid "1st place"
 msgstr "1° posto"
 
-#: webapp/templates/locations/location_detail.html:180
+#: webapp/templates/locations/location_detail.html:195
 msgid "2nd place"
 msgstr "2° posto"
 
-#: webapp/templates/locations/location_detail.html:181
+#: webapp/templates/locations/location_detail.html:196
 msgid "3rd place"
 msgstr "3° posto"
+
+#: webapp/templates/locations/location_detail.html:224
+msgid "See all gamers"
+msgstr "Vedi tutti i gamers di questa location"
 
 #: webapp/templates/locations/location_index.html:9
 #: webapp/templates/partials/hero.html:111
@@ -836,23 +844,3 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:209
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
-
-#~ msgid "Time"
-#~ msgstr "Ora"
-
-#~ msgid "Work in progres..."
-#~ msgstr "Lavori in corso..."
-
-#~ msgid "Latest tables"
-#~ msgstr "Ultimi tavoli"
-
-#~ msgid "Your email is not verified. Verify your email to join tables."
-#~ msgstr ""
-#~ "La tua email non è verificata. Verifica la tua email per unirti ai tavoli."
-
-#~ msgid ""
-#~ "Easily find board game enthusiasts in your area and share your passion "
-#~ "with like minded people."
-#~ msgstr ""
-#~ "Trova facilmente appassionati di giochi da tavolo nella tua zona e "
-#~ "condividi la tua passione con persone simili a te."
