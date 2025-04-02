@@ -106,7 +106,7 @@ class LocationDetailView(DetailView):
         popular_games = Game.objects.annotate(
             play_count=Subquery(played_count),
             top_winner=Subquery(top_player)
-        ).filter(play_count__gt=0).order_by('-play_count')
+        ).filter(play_count__gt=0).order_by('-play_count')[:10]
 
         # Query per i giocatori con numero di partite e posizioni
         player_stats = UserProfile.objects.filter(
