@@ -140,11 +140,11 @@
   </div>
   <div class="container mt-4 mb-5">
     <h2 id="stats">{% trans "Stats" %}</h2>
-    <h3 class="h4 mt-3">{% trans "Most played games" %}</h3>
+    <h3 class="h4 mt-4">{% trans "Most played games" %}</h3>
     <a href="#" class="text-decoration-none"><small>({% trans "See all played games" %})</small></a>
-    <div class="row row-cols-1 row-cols-lg-2">
+    <div class="row">
     {% for game in popular_games %}
-        <div class="col d-flex align-items-center mt-2">
+        <div class="col-12 d-flex align-items-center mt-3">
           <img class="img-thumbnail object-fit-cover object-position-center" style="height: 75px; width: 75px;"
                src="{{ game.cover_url }}"
                alt="{{ game.name }} logo">
@@ -167,7 +167,7 @@
     {% endfor %}
     </div>
 
-    <h3 class="h4 mt-3">{% trans "Gamers' stats" %}</h3>
+    <h3 class="h4 mt-4">{% trans "Gamers' stats" %}</h3>
     <div class="table-responsive">
       <table class="table table-hover caption-top">
         <caption>{% trans "Most active gamers" %}</caption>
