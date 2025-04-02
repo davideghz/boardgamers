@@ -181,21 +181,23 @@ class Table(DateTimeModel, SlugModel):
     ]
 
     slug_field_name = 'title'
-    title = models.CharField(max_length=144, null=False, blank=True)
+    title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    description = models.TextField(null=False, blank=True)
-    location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True)
+    description = models.TextField(null=False, blank=True, verbose_name=_('Description'))
+    location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Location'))
 
-    min_players = models.SmallIntegerField(null=False, blank=True, default=2)
-    max_players = models.SmallIntegerField(null=False, blank=True, default=5)
-    date = models.DateField(default=datetime.date.today, null=False, blank=True)
-    time = models.TimeField(default=timezone.now, null=False, blank=True)
+    min_players = models.SmallIntegerField(null=False, blank=True, default=2, verbose_name=_('Minimum players'))
+    max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
+    date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
+    time = models.TimeField(default=timezone.now, null=False, blank=True, verbose_name=_('Time'))
     is_public_location = models.BooleanField(default=False, null=False, blank=True)
 
     author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
-    game = models.ForeignKey(Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True)
+    game = models.ForeignKey(
+        Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
 
     status = models.CharField(max_length=20, choices=TABLE_STATUS_CHOICES, default=TABLE_STATUS_DEFAULT)
     leaderboard_status = models.CharField(
