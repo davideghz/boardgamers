@@ -54,10 +54,14 @@ class CustomNumberWidget(NumberInput):
 
 class CustomDateInputWidget(DateInput):
     def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={
-            'type': 'date',
-            'class': 'form-control date-input',
-            'placeholder': placeholder, **(attrs or {})})
+        super().__init__(
+            attrs={
+                'type': 'date',
+                'class': 'form-control date-input',
+                'placeholder': placeholder, **(attrs or {})
+            },
+            format='%Y-%m-%d'
+        )
 
 
 class CustomTimeInputWidget(TimeInput):
@@ -137,6 +141,10 @@ class TableForm(ModelForm, BootstrapForm):
                     # 'data-minimum-input-length': 1
                 }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].input_formats = ['%Y-%m-%d']
 
     def clean_title(self):
         title = self.cleaned_data['title']
@@ -328,4 +336,3 @@ class ContactForm(BootstrapForm):
         widget=CustomTextareaWidget(placeholder="Scrivi il tuo messaggio qui...")
     )
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
-
