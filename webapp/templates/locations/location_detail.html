@@ -141,13 +141,13 @@
   <div class="container mt-4 mb-5" id="stats">
     <div class="row">
       <h3 class="h4 mt-4">{% trans "Most played games" %}</h3>
-      <p>{% trans "For each game, the player with the most wins is shown. In case of a tie, all top players are displayed." %}</p>
+      <p class="m-0">{% trans "For each game, the player with the most wins is shown. In case of a tie, all top players are displayed." %}</p>
     </div>
     <div class="row">
       <div class="col-12 col-lg-10">
         <div class="row">
           {% for game in popular_games %}
-            <div class="col-12 col-md-6 d-flex align-items-center">
+            <div class="col-12 col-md-6 d-flex align-items-center mt-3">
               <img class="img-thumbnail object-fit-cover object-position-center" style="height: 75px; width: 75px;"
                    src="{{ game.cover_url }}"
                    alt="{{ game.name }} logo">
