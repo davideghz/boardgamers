@@ -133,7 +133,7 @@ class TableForm(ModelForm, BootstrapForm):
             'game': autocomplete.ModelSelect2(
                 url='games-autocomplete',
                 attrs={
-                    'data-placeholder': _('Games'),
+                    'data-placeholder': _('Game'),
                     # 'data-minimum-input-length': 1
                 }),
         }
