@@ -4,7 +4,7 @@ from webapp.models import UserProfile, Table, Comment, Player, Location, Game
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("nickname", "slug", "user", "is_email_verified")
+    list_display = ("nickname", "created_at", "user", "is_email_verified")
 
 
 class PlayerInline(admin.TabularInline):
