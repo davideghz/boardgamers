@@ -50,6 +50,7 @@ urlpatterns = [
   path("account/locations/", account_views.locations, name="account-locations"),
   path("account/tables/", account_views.tables, name="account-tables"),
   path("account/notifications/", account_views.notifications, name="account-notifications"),
+  path("account/notifications/edit", account_views.edit_notification_preferences, name="account-notifications-edit"),
 
   # USER PROFILES
   path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),

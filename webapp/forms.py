@@ -336,3 +336,24 @@ class ContactForm(BootstrapForm):
         widget=CustomTextareaWidget(placeholder="Scrivi il tuo messaggio qui...")
     )
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+
+
+class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
+    def __init__(self, *args, **kwargs):
+        super(UserNotificationPreferencesForm, self).__init__(*args, **kwargs)
+
+        # Sovrascrivi i widget per usare CustomCheckboxInputWidget (non gestito di default da BootstrapForm)
+        for field_name in [
+            'notification_new_player',
+            'notification_leaderboard_reminder',
+            'notification_leaderboard_update',
+        ]:
+            self.fields[field_name].widget = CustomCheckboxInputWidget()
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'notification_new_player',
+            'notification_leaderboard_reminder',
+            'notification_leaderboard_update',
+        ]

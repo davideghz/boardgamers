@@ -12,7 +12,6 @@ from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
-from urllib3 import request
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING

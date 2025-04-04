@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 
-from webapp.forms import UserProfileForm
+from webapp.forms import UserProfileForm, UserNotificationPreferencesForm
 from webapp.models import Notification
 
 
@@ -63,3 +65,18 @@ def notifications(request, template_name='accounts/account_notifications.html'):
     return render(request, template_name, {
         'notifications': user_notifications,
     })
+
+
+@login_required
+def edit_notification_preferences(request):
+    profile = request.user.user_profile
+    if request.method == 'POST':
+        form = UserNotificationPreferencesForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Notification preferences updated"))
+            render(request, 'accounts/account_notifications_preferences.html', {'form': form})
+    else:
+        form = UserNotificationPreferencesForm(instance=profile)
+
+    return render(request, 'accounts/account_notifications_preferences.html', {'form': form})
