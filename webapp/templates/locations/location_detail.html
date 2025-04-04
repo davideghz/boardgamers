@@ -87,7 +87,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-lg-3 d-flex align-items-center mb-3 mb-lg-0">
+            <div class="col-12 col-lg-3 align-items-center mb-3 mb-lg-0 d-none d-sm-flex">
               <a class="w-100 btn btn-lg btn-primary" href="{% url 'location-table-create' location.slug %}">
                 <i class="bi bi-lightning-charge"></i> {% trans "Create table here" %}
               </a>
@@ -96,6 +96,20 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="container-sm mt-4">
+    <p>{% trans "Follow" %} {{ location.name }} {% trans "to be notified about new tables." %}</p>
+    <form method="post" action="{% url 'follow-location' slug=location.slug %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-lg btn-dark">
+        {% if is_following %}
+          <small><i class="bi bi-heartbreak-fill"></i> {% trans "Unfollow" %}</small>
+        {% else %}
+          <small><i class="bi bi-heart-fill"></i> {% trans "Follow" %}</small>
+        {% endif %}
+      </button>
+    </form>
   </div>
 
   <div class="container-sm mt-4">

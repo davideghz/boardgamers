@@ -5,6 +5,7 @@ from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete
+from .views.location_views import FollowLocationView
 
 sitemaps = {
   'locations': LocationSitemap,
@@ -38,6 +39,7 @@ urlpatterns = [
   # LOCATION TABLES
   path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
   path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view, name="location-table-update"),
+  path('locations/<slug:slug>/follow/', FollowLocationView.as_view(), name='follow-location'),
 
 
   # GAMES

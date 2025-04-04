@@ -1,19 +1,20 @@
 from collections import defaultdict
 
+from django.contrib import messages
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
-from django.views import generic
+from django.views import generic, View
 from django.views.generic import DetailView, CreateView
 
 from webapp.forms import LocationForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.models import Location, Table, UserProfile, Comment, Game
+from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -56,6 +57,13 @@ class LocationDetailView(DetailView):
     def get_context_data(self, **kwargs):
         today = timezone.now().date()
         location = self.get_object()
+
+        # Check if user is following location
+        user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        is_following = False
+
+        if user_profile:
+            is_following = LocationFollower.objects.filter(user_profile=user_profile, location=location).exists()
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -138,8 +146,6 @@ class LocationDetailView(DetailView):
             elif win_count == current_max:
                 winners_by_game[game_id]['winners'].append(nickname)
 
-        print(winners_by_game)
-
         for game in popular_games:
             top = winners_by_game.get(game.id)
             game.top_winners = top['winners'] if top else []
@@ -164,6 +170,7 @@ class LocationDetailView(DetailView):
         context['total_gamers_count'] = total_gamers_count
         context['popular_games'] = popular_games
         context['player_stats'] = player_stats
+        context['is_following'] = is_following
 
         return context
 
@@ -200,3 +207,24 @@ class LocationUpdateView(SuccessMessageMixin, generic.UpdateView):
 
     def get_success_url(self):
         return reverse("account-locations")
+
+
+class FollowLocationView(LoginRequiredMixin, View):
+    @staticmethod
+    def post(request, *args, **kwargs):
+        location = get_object_or_404(Location, slug=kwargs['slug'])
+        profile = request.user.user_profile
+
+        follow, created = LocationFollower.objects.get_or_create(
+            user_profile=profile, location=location
+        )
+
+        if created:
+            # Nuovo follow
+            messages.success(request, f"Hai iniziato a seguire {location.name}.")
+        else:
+            # Già seguiva → unfollow
+            follow.delete()
+            messages.success(request, f"Hai smesso di seguire {location.name}.")
+
+        return redirect('location-detail', slug=location.slug)
