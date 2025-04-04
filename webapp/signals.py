@@ -32,7 +32,8 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
             Notification.objects.create(
                 recipient=follower.user,
                 notification_type=NotificationType.NEW_TABLE,
-                table=instance
+                table=instance,
+                location=instance.location,
             )
 
 
@@ -42,19 +43,21 @@ def notify_players_on_new_player(sender, instance, created, **kwargs):
         players = instance.table.players.exclude(id=instance.user_profile.id)
         for player in players:
             Notification.objects.create(
-                recipient=player.user,
+                recipient=player,
                 notification_type=NotificationType.NEW_PLAYER,
-                table=instance.table
+                table=instance.table,
+                location=instance.table.location,
             )
 
 
 @receiver(post_save, sender=Player)
-def notify_players_on_leaderboard_update(sender, instance, **kwargs):
+def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
     if instance.position != 99:  # Assumendo che 99 significhi posizione non assegnata
         players = instance.table.players.exclude(id=instance.user_profile.id)
         for player in players:
             Notification.objects.create(
-                recipient=player.user,
+                recipient=player,
                 notification_type=NotificationType.LEADERBOARD_UPDATE,
-                table=instance.table
+                table=instance.table,
+                location=instance.table.location,
             )

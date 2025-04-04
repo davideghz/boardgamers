@@ -314,4 +314,4 @@ class Notification(DateTimeModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"To {self.recipient.nickname} [{self.type}]"
+        return f"To {self.recipient.nickname} [{self.notification_type}]"
