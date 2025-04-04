@@ -1,5 +1,5 @@
 from django.contrib import admin
-from webapp.models import UserProfile, Table, Comment, Player, Location, Game
+from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification
 
 
 @admin.register(UserProfile)
@@ -45,3 +45,14 @@ class LocationAdmin(admin.ModelAdmin):
 class GameAdmin(admin.ModelAdmin):
     list_display = ("name", "leaderboard_enabled")
     list_editable = ("leaderboard_enabled",)
+
+
+@admin.register(LocationFollower)
+class LocationFollowerAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    pass
+

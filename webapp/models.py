@@ -134,6 +134,13 @@ class UserProfile(DateTimeModel, SlugModel):
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
 
+    # Notifications
+    notification_new_table = models.BooleanField(default=True, verbose_name="Notification New Table")
+    notification_new_player = models.BooleanField(default=True, verbose_name="Notification New Player")
+    notification_leaderboard_reminder = models.BooleanField(default=True, verbose_name="Notification Leaderboard Reminder")
+    notification_leaderboard_update = models.BooleanField(default=True, verbose_name="Notification Leaderboard Update")
+
+
     class Meta:
         verbose_name = "Profile"
         verbose_name_plural = "Profiles"
@@ -265,3 +272,46 @@ class Comment(DateTimeModel):
         verbose_name_plural = "Comments"
         ordering = ['-created_at']
         index_together = ('table', 'author')
+
+
+class LocationFollower(DateTimeModel):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='followed_locations')
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='followers')
+
+    class Meta:
+        unique_together = ('user_profile', 'location')
+        verbose_name = _('Location Follower')
+        verbose_name_plural = _('Location Followers')
+
+    def __str__(self):
+        return f"{self.user_profile.nickname} follows {self.location.name}"
+
+
+class NotificationType(models.TextChoices):
+    NEW_TABLE = 'new_table', _('New table created')
+    NEW_PLAYER = 'new_player', _('New player joined')
+    LEADERBOARD_REMINDER = 'leaderboard_reminder', _('Create leaderboard')
+    LEADERBOARD_UPDATE = 'leaderboard_update', _('Leaderboard updated')
+
+
+class Notification(DateTimeModel):
+    recipient = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='notifications')
+    table = models.ForeignKey(Table, null=True, blank=True, on_delete=models.SET_NULL)
+    location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL)
+
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+
+    notification_type = models.CharField(max_length=50, choices=NotificationType.choices)
+
+    sent = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = _('Notification')
+        verbose_name_plural = _('Notifications')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"To {self.recipient.nickname} [{self.type}]"
