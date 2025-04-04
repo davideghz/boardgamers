@@ -299,8 +299,8 @@ class Notification(DateTimeModel):
     table = models.ForeignKey(Table, null=True, blank=True, on_delete=models.SET_NULL)
     location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL)
 
-    subject = models.CharField(max_length=255)
-    message = models.TextField()
+    subject = models.CharField(max_length=255, blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
 
     notification_type = models.CharField(max_length=50, choices=NotificationType.choices)
 

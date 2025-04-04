@@ -91,6 +91,9 @@ TEMPLATES = [
                 # django social auth
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+
+                # notifications
+                'webapp.context_processors.unread_notifications_count',
             ],
         },
     },

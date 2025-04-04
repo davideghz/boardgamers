@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-02 22:21+0000\n"
+"POT-Creation-Date: 2025-04-04 09:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: boardGames/settings.py:206
+#: boardGames/settings.py:209
 msgid "English"
 msgstr "English"
 
-#: boardGames/settings.py:207
+#: boardGames/settings.py:210
 msgid "Italiano"
 msgstr "Italiano"
 
@@ -30,7 +30,7 @@ msgstr "Italiano"
 msgid "Games"
 msgstr "Games"
 
-#: webapp/forms.py:140 webapp/models.py:200
+#: webapp/forms.py:140 webapp/models.py:207
 #: webapp/templates/tables/table_detail.html:66
 msgid "Game"
 msgstr "Gioco"
@@ -79,53 +79,86 @@ msgstr "Messaggio inviato!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore. Controlla i dati inseriti"
 
-#: webapp/models.py:170
+#: webapp/models.py:177
 msgid "Open"
 msgstr "Aperto"
 
-#: webapp/models.py:171
+#: webapp/models.py:178
 msgid "On Going"
 msgstr "In corso"
 
-#: webapp/models.py:172
+#: webapp/models.py:179
 msgid "Closed"
 msgstr "Chiuso"
 
-#: webapp/models.py:179
+#: webapp/models.py:186
 msgid "Not Editable"
 msgstr "Non modificabile"
 
-#: webapp/models.py:180
+#: webapp/models.py:187
 msgid "Editable"
 msgstr "Editabile"
 
-#: webapp/models.py:184
+#: webapp/models.py:191
 msgid "Title"
 msgstr "Titolo"
 
-#: webapp/models.py:187
+#: webapp/models.py:194
 msgid "Description"
 msgstr "Descrizione"
 
-#: webapp/models.py:189
+#: webapp/models.py:196
 msgid "Location"
 msgstr "Location"
 
-#: webapp/models.py:191
+#: webapp/models.py:198
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
-#: webapp/models.py:192
+#: webapp/models.py:199
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
-#: webapp/models.py:193
+#: webapp/models.py:200
 msgid "Date"
 msgstr "Data"
 
-#: webapp/models.py:194
+#: webapp/models.py:201
 msgid "Hour"
 msgstr "Orario"
+
+#: webapp/models.py:283
+msgid "Location Follower"
+msgstr "Location Follower"
+
+#: webapp/models.py:284
+msgid "Location Followers"
+msgstr "Location Followers"
+
+#: webapp/models.py:291
+msgid "New table created"
+msgstr "Nuovo tavolo creato"
+
+#: webapp/models.py:292
+msgid "New player joined"
+msgstr "Nuovo gamer al tavolo"
+
+#: webapp/models.py:293
+msgid "Create leaderboard"
+msgstr "Classifica creata"
+
+#: webapp/models.py:294
+msgid "Leaderboard updated"
+msgstr "Classifica aggiornata"
+
+#: webapp/models.py:312
+msgid "Notification"
+msgstr "Notifica"
+
+#: webapp/models.py:313 webapp/templates/accounts/account_index.html:66
+#: webapp/templates/accounts/account_notifications.html:28
+msgid "Notifications"
+msgstr "Notifiche"
 
 #: webapp/templates/accounts/account_edit_profile.html:28
 #: webapp/templates/accounts/account_index.html:24
@@ -160,11 +193,6 @@ msgstr "Gestisci tavoli"
 msgid "Edit the information of the tables your organized"
 msgstr "Modifica le informazioni dei tavoli che hai organizzato"
 
-#: webapp/templates/accounts/account_index.html:66
-#: webapp/templates/accounts/account_notifications.html:28
-msgid "Notifications"
-msgstr "Notifiche"
-
 #: webapp/templates/accounts/account_index.html:68
 msgid "Choose notification preferences and how you want to be contacted"
 msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
@@ -177,10 +205,14 @@ msgstr "Luoghi"
 msgid "Add new location"
 msgstr "Aggiungi Location"
 
+#: webapp/templates/accounts/account_notifications.html:51
+msgid "You have no notifications at the moment."
+msgstr ""
+
 #: webapp/templates/accounts/account_tables.html:28
 #: webapp/templates/locations/location_detail.html:191
-#: webapp/templates/partials/top-menu.html:73
-#: webapp/templates/partials/top-menu.html:117
+#: webapp/templates/partials/top-menu.html:88
+#: webapp/templates/partials/top-menu.html:132
 msgid "Tables"
 msgstr "Tavoli"
 
@@ -244,12 +276,12 @@ msgid "Back to"
 msgstr "Torna a"
 
 #: webapp/templates/auth/password_reset_form.html:30
-#: webapp/templates/partials/top-menu.html:134
+#: webapp/templates/partials/top-menu.html:149
 msgid "Login"
 msgstr "Login"
 
 #: webapp/templates/auth/signup.html:24 webapp/templates/auth/signup.html:87
-#: webapp/templates/partials/top-menu.html:89
+#: webapp/templates/partials/top-menu.html:104
 msgid "Signup"
 msgstr "Registrati"
 
@@ -470,8 +502,9 @@ msgstr "Giochi più apprezzati"
 msgid ""
 "For each game, the player with the most wins is shown. In case of a tie, all "
 "top players are displayed."
-msgstr "Per ogni gioco è indicato il gamer con più vittorie. In caso di pareggio, sono "
-"indicati tutti i gamers con il numero massimo di vittorie."
+msgstr ""
+"Per ogni gioco è indicato il gamer con più vittorie. In caso di pareggio, "
+"sono indicati tutti i gamers con il numero massimo di vittorie."
 
 #: webapp/templates/locations/location_detail.html:177
 msgid "See all played games"
@@ -556,17 +589,17 @@ msgstr "Per mandarci un messaggio"
 msgid "Click here"
 msgstr "Clicca qui"
 
-#: webapp/templates/partials/top-menu.html:51
-#: webapp/templates/partials/top-menu.html:105
+#: webapp/templates/partials/top-menu.html:62
+#: webapp/templates/partials/top-menu.html:120
 msgid "New table"
 msgstr "Nuovo tavolo"
 
-#: webapp/templates/partials/top-menu.html:72
-#: webapp/templates/partials/top-menu.html:111
+#: webapp/templates/partials/top-menu.html:87
+#: webapp/templates/partials/top-menu.html:126
 msgid "Account"
 msgstr "Account"
 
-#: webapp/templates/partials/top-menu.html:139
+#: webapp/templates/partials/top-menu.html:154
 msgid "Register"
 msgstr "Registrati"
 

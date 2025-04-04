@@ -2,26 +2,37 @@
 
 <style>
     @keyframes blink {
-        0% { opacity: 0; }
-        50% { opacity: 1; }
-        100% { opacity: 0; }
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
     }
 </style>
 
 
-<nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom border-body" data-bs-theme="light" style="z-index: 1050;">
+<nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom border-body" data-bs-theme="light"
+     style="z-index: 1050;">
   <div class="container">
     <a class="navbar-brand" href="{% url "home" %}"><i class="bi bi-lightning-charge"></i> Board Gamers</a>
 
     <div class="d-flex">
       <ul class="navbar-nav mx-2 d-lg-none">
         <li class="nav-item">
-          <a class="btn btn-light" href="#" role="button">
-            <i class="bi bi-bell"></i>
-{#            <i class="bi bi-bell-fill"></i>#}
-{#            <span style="padding: 0.25rem; animation: blink 2s infinite;" class="position-absolute translate-middle bg-danger border border-light rounded-circle">#}
-{#              <span class="visually-hidden">New alerts</span>#}
-{#            </span>#}
+          <a class="btn btn-light position-relative" href="{% url "account-notifications" %}" role="button">
+            {% if unread_notifications_count > 0 %}
+              <i class="bi bi-bell-fill"></i>
+              <span style="padding: 0.25rem; animation: blink 2s infinite;"
+                    class="position-absolute top-0 start-100 translate-middle bg-danger border border-light rounded-circle">
+          <span class="visually-hidden">New alerts</span>
+        </span>
+            {% else %}
+              <i class="bi bi-bell"></i>
+            {% endif %}
           </a>
         </li>
       </ul>
@@ -54,12 +65,16 @@
           {% if user.is_authenticated %}
 
             <li class="nav-item">
-              <a class="nav-link btn btn-light" href="#" role="button">
-                <i class="bi bi-bell mx-1"></i>
-{#                <i class="bi bi-bell-fill mx-1"></i>#}
-{#                <span style="padding: 0.25rem; animation: blink 2s infinite;" class="position-absolute translate-middle bg-danger border border-light rounded-circle">#}
-{#                  <span class="visually-hidden">New alerts</span>#}
-{#                </span>#}
+              <a class="btn btn-light position-relative" href="{% url "account-notifications" %}" role="button">
+                {% if unread_notifications_count > 0 %}
+                  <i class="bi bi-bell-fill"></i>
+                  <span style="padding: 0.25rem; animation: blink 2s infinite;"
+                        class="position-absolute top-0 start-100 translate-middle bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">New alerts</span>
+                  </span>
+                {% else %}
+                  <i class="bi bi-bell"></i>
+                {% endif %}
               </a>
             </li>
 
