@@ -30,7 +30,7 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
         followers = instance.location.followers.all()
         for follower in followers:
             Notification.objects.create(
-                recipient=follower,
+                recipient=follower.user_profile,
                 notification_type=NotificationType.NEW_TABLE,
                 table=instance,
                 location=instance.location,
