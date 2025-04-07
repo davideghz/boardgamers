@@ -292,6 +292,7 @@ class NotificationType(models.TextChoices):
     NEW_PLAYER = 'new_player', _('New player joined')
     LEADERBOARD_REMINDER = 'leaderboard_reminder', _('Create leaderboard')
     LEADERBOARD_UPDATE = 'leaderboard_update', _('Leaderboard updated')
+    NEW_COMMENT = 'new_comment', _('New comment')
 
 
 class Notification(DateTimeModel):

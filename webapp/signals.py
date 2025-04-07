@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.conf import settings
 
 from webapp.emails import send_user_email_verification_code
-from webapp.models import UserProfile, Location, Player, Table, Notification, NotificationType
+from webapp.models import UserProfile, Location, Player, Table, Notification, NotificationType, Comment
 
 
 @receiver(user_logged_out)
@@ -60,4 +60,18 @@ def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
                 notification_type=NotificationType.LEADERBOARD_UPDATE,
                 table=instance.table,
                 location=instance.table.location,
+            )
+
+
+@receiver(post_save, sender=Comment)
+def notify_players_on_new_message(sender, instance, created, **kwargs):
+    if created:
+        players = instance.table.players.exclude(id=instance.author.id)
+        for player in players:
+            Notification.objects.create(
+                recipient=player,
+                notification_type=NotificationType.NEW_COMMENT,
+                table=instance.table,
+                location=instance.table.location,
+                message=instance.content,
             )
