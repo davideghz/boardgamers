@@ -424,8 +424,7 @@ msgid ""
 "Click here if this is a public location (like a bar, a pub, or a board games "
 "café)."
 msgstr ""
-"Clicca qui se si tratta di un luogo pubblico (come un bar, un pub o un caffè "
-"per giochi da tavolo)."
+"Clicca qui se si tratta di un luogo pubblico (come un'associazione, una ludoteca, un pub, ...)"
 
 #: webapp/templates/locations/location_add_or_edit.html:127
 msgid "Note: public locations can be used by other gamers to organize tables."
