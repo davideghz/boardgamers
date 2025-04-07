@@ -684,7 +684,7 @@ msgstr "oppure"
 
 #: webapp/templates/staticpages/contacts.html:41
 msgid "Join us on Discord"
-msgstr "Unisci al canale Discord"
+msgstr "Unisciti al canale Discord"
 
 #: webapp/templates/staticpages/home.html:87
 msgid "Legends were made at these tables. Will you be next?"
