@@ -33,18 +33,20 @@
         {% if notifications %}
           <div class="list-group mt-3">
             {% for notification in notifications %}
-              <a href="{% url 'table-detail' slug=notification.table.slug %}" class="list-group-item list-group-item-action">
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <strong>{{ notification.get_notification_type_display }}</strong><br>
-{#                    <small>{{ notification.message }}</small><br>#}
-                    <small>{{ notification.table.title }} - {{ notification.location.name }}</small>
+              {% if notification.table %}
+                <a href="{% url 'table-detail' slug=notification.table.slug %}" class="list-group-item list-group-item-action">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <strong>{{ notification.get_notification_type_display }}</strong><br>
+                      {#                    <small>{{ notification.message }}</small><br>#}
+                      <small>{{ notification.table.title }} - {{ notification.location.name }}</small>
+                    </div>
+                    <div class="text-end text-muted small">
+                      {{ notification.created_at|date:"SHORT_DATETIME_FORMAT" }}
+                    </div>
                   </div>
-                  <div class="text-end text-muted small">
-                    {{ notification.created_at|date:"SHORT_DATETIME_FORMAT" }}
-                  </div>
-                </div>
-              </a>
+                </a>
+              {% endif %}
             {% endfor %}
           </div>
         {% else %}
