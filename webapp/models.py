@@ -296,8 +296,8 @@ class NotificationType(models.TextChoices):
 
 class Notification(DateTimeModel):
     recipient = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='notifications')
-    table = models.ForeignKey(Table, null=True, blank=True, on_delete=models.SET_NULL)
-    location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL)
+    table = models.ForeignKey(Table, null=True, blank=True, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.CASCADE)
 
     subject = models.CharField(max_length=255, blank=True, null=True)
     message = models.TextField(blank=True, null=True)

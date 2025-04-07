@@ -54,5 +54,5 @@ class LocationFollowerAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('recipient', 'notification_type', 'table', 'location')
 
