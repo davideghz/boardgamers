@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-04 09:35+0000\n"
+"POT-Creation-Date: 2025-04-07 17:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,12 +151,17 @@ msgstr "Classifica creata"
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:312
+#: webapp/models.py:295
+#, fuzzy
+#| msgid "Send comment"
+msgid "New comment"
+msgstr "Invia commento"
+
+#: webapp/models.py:313
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:313 webapp/templates/accounts/account_index.html:66
-#: webapp/templates/accounts/account_notifications.html:28
+#: webapp/models.py:314 webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
 
@@ -193,6 +198,14 @@ msgstr "Gestisci tavoli"
 msgid "Edit the information of the tables your organized"
 msgstr "Modifica le informazioni dei tavoli che hai organizzato"
 
+#: webapp/templates/accounts/account_index.html:66
+#: webapp/templates/accounts/account_notifications_preferences.html:18
+#: webapp/templates/accounts/account_notifications_preferences.html:29
+#, fuzzy
+#| msgid "Notifications"
+msgid "Notifications Preferences"
+msgstr "Notifiche"
+
 #: webapp/templates/accounts/account_index.html:68
 msgid "Choose notification preferences and how you want to be contacted"
 msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
@@ -205,12 +218,30 @@ msgstr "Luoghi"
 msgid "Add new location"
 msgstr "Aggiungi Location"
 
-#: webapp/templates/accounts/account_notifications.html:51
+#: webapp/templates/accounts/account_notifications.html:56
 msgid "You have no notifications at the moment."
 msgstr ""
 
+#: webapp/templates/accounts/account_notifications_preferences.html:40
+msgid ""
+"Receive a notification when a new player joins a table you’re participating "
+"in"
+msgstr ""
+
+#: webapp/templates/accounts/account_notifications_preferences.html:47
+msgid "Receive a reminder to update the table leaderboard"
+msgstr ""
+
+#: webapp/templates/accounts/account_notifications_preferences.html:54
+msgid "Receive a notification when the table leaderboard is updated"
+msgstr ""
+
+#: webapp/templates/accounts/account_notifications_preferences.html:59
+msgid "Save preferences"
+msgstr ""
+
 #: webapp/templates/accounts/account_tables.html:28
-#: webapp/templates/locations/location_detail.html:191
+#: webapp/templates/locations/location_detail.html:205
 #: webapp/templates/partials/top-menu.html:88
 #: webapp/templates/partials/top-menu.html:132
 msgid "Tables"
@@ -222,8 +253,8 @@ msgstr "Tavoli giocati!"
 
 #: webapp/templates/accounts/account_tables.html:34
 #: webapp/templates/accounts/account_tables.html:42
-#: webapp/templates/locations/location_detail.html:112
-#: webapp/templates/locations/location_detail.html:130
+#: webapp/templates/locations/location_detail.html:126
+#: webapp/templates/locations/location_detail.html:144
 #: webapp/templates/staticpages/home.html:76
 #: webapp/templates/staticpages/home.html:96
 #: webapp/templates/tables/table_index.html:21
@@ -395,7 +426,7 @@ msgstr "Modifica luogo"
 
 #: webapp/templates/locations/location_add_or_edit.html:48
 msgid "Create a new location"
-msgstr "Crea un nuovo luogo"
+msgstr "Crea una nuova location"
 
 #: webapp/templates/locations/location_add_or_edit.html:52
 msgid "Insert the name of the location."
@@ -407,24 +438,26 @@ msgstr "Descrivi la tua location."
 
 #: webapp/templates/locations/location_add_or_edit.html:85
 msgid "Add a cover image (optional)"
-msgstr "Aggiungi un'immagine di copertina (opzionale)"
+msgstr "Aggiungi un'immagine di copertina (opzionale)."
 
 #: webapp/templates/locations/location_add_or_edit.html:109
 msgid ""
 "Insert the location's address. We will use it to show the location on the "
 "map!"
-msgstr "Inserisci l'indirizzo del luogo. Lo useremo per mostrarlo sulla mappa!"
+msgstr ""
+"Inserisci l'indirizzo. Lo useremo per mostrare la location sulla mappa!"
 
 #: webapp/templates/locations/location_add_or_edit.html:122
 msgid "Is the location public or private?"
-msgstr "Il luogo è pubblico o privato?"
+msgstr "È una location pubblica o privata?"
 
 #: webapp/templates/locations/location_add_or_edit.html:126
 msgid ""
 "Click here if this is a public location (like a bar, a pub, or a board games "
 "café)."
 msgstr ""
-"Clicca qui se si tratta di un luogo pubblico (come un'associazione, una ludoteca, un pub, ...)"
+"Clicca qui se si tratta di un luogo pubblico (come un'associazione, una "
+"ludoteca, un pub, ...)"
 
 #: webapp/templates/locations/location_add_or_edit.html:127
 msgid "Note: public locations can be used by other gamers to organize tables."
@@ -455,7 +488,7 @@ msgid ""
 msgstr "e sfida i tuoi amici ai migliori giochi da tavolo. Ti aspettiamo in:"
 
 #: webapp/templates/locations/location_detail.html:69
-#: webapp/templates/locations/location_detail.html:158
+#: webapp/templates/locations/location_detail.html:172
 #: webapp/templates/profiles/user_profile_detail.html:68
 msgid "tables"
 msgstr "tavoli"
@@ -465,39 +498,54 @@ msgid "gamers"
 msgstr "gamers"
 
 #: webapp/templates/locations/location_detail.html:92
-#: webapp/templates/locations/location_detail.html:232
+#: webapp/templates/locations/location_detail.html:246
 msgid "Create table here"
 msgstr "Crea un tavolo"
 
 #: webapp/templates/locations/location_detail.html:102
+#: webapp/templates/locations/location_detail.html:109
+msgid "Follow"
+msgstr ""
+
+#: webapp/templates/locations/location_detail.html:102
+#, fuzzy
+#| msgid "Create a new table"
+msgid "to be notified about new tables."
+msgstr "Crea un nuovo tavolo"
+
+#: webapp/templates/locations/location_detail.html:107
+msgid "Unfollow"
+msgstr ""
+
+#: webapp/templates/locations/location_detail.html:116
 #: webapp/templates/staticpages/home.html:66
 msgid "Upcoming tables"
 msgstr "Tavoli in arrivo"
 
-#: webapp/templates/locations/location_detail.html:103
+#: webapp/templates/locations/location_detail.html:117
 #: webapp/templates/staticpages/home.html:67
 #: webapp/templates/tables/table_index.html:11
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
-#: webapp/templates/locations/location_detail.html:120
+#: webapp/templates/locations/location_detail.html:134
 #: webapp/templates/staticpages/home.html:86
 msgid "Past tables"
 msgstr "Tavoli passati"
 
-#: webapp/templates/locations/location_detail.html:121
+#: webapp/templates/locations/location_detail.html:135
 msgid "Great games, greater memories. What’s your next move?"
 msgstr "Partite memorabili! Quale sarà la tua prossima mossa?"
 
-#: webapp/templates/locations/location_detail.html:138
+#: webapp/templates/locations/location_detail.html:152
 msgid "About"
 msgstr "Informazioni"
 
-#: webapp/templates/locations/location_detail.html:143
+#: webapp/templates/locations/location_detail.html:157
 msgid "Most played games"
 msgstr "Giochi più apprezzati"
 
-#: webapp/templates/locations/location_detail.html:144
+#: webapp/templates/locations/location_detail.html:158
 msgid ""
 "For each game, the player with the most wins is shown. In case of a tie, all "
 "top players are displayed."
@@ -505,31 +553,31 @@ msgstr ""
 "Per ogni gioco è indicato il gamer con più vittorie. In caso di pareggio, "
 "sono indicati tutti i gamers con il numero massimo di vittorie."
 
-#: webapp/templates/locations/location_detail.html:177
+#: webapp/templates/locations/location_detail.html:191
 msgid "See all played games"
 msgstr "Vedi lista giochi completa"
 
-#: webapp/templates/locations/location_detail.html:183
+#: webapp/templates/locations/location_detail.html:197
 msgid "Gamers' stats"
 msgstr "Leaderboard"
 
-#: webapp/templates/locations/location_detail.html:190
+#: webapp/templates/locations/location_detail.html:204
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/templates/locations/location_detail.html:192
+#: webapp/templates/locations/location_detail.html:206
 msgid "1st place"
 msgstr "1° posto"
 
-#: webapp/templates/locations/location_detail.html:193
+#: webapp/templates/locations/location_detail.html:207
 msgid "2nd place"
 msgstr "2° posto"
 
-#: webapp/templates/locations/location_detail.html:194
+#: webapp/templates/locations/location_detail.html:208
 msgid "3rd place"
 msgstr "3° posto"
 
-#: webapp/templates/locations/location_detail.html:222
+#: webapp/templates/locations/location_detail.html:236
 msgid "See all gamers"
 msgstr "Vedi tutti i gamers di questa location"
 
@@ -856,6 +904,12 @@ msgstr "Luogo privato"
 msgid "joined"
 msgstr "partecipante"
 
+#: webapp/views/account_views.py:77
+#, fuzzy
+#| msgid "Choose notification preferences and how you want to be contacted"
+msgid "Notification preferences updated"
+msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
+
 #: webapp/views/decorators.py:23
 msgid "Can't edit closed tables."
 msgstr "Non è possibile modificare i tavoli passati."
@@ -868,11 +922,11 @@ msgstr "Non hai il permesso di modificare questo tavolo."
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-#: webapp/views/table_views.py:180
+#: webapp/views/table_views.py:179
 msgid "Table was created successfully"
 msgstr "Il tavolo è stato creato con successo"
 
-#: webapp/views/table_views.py:209
+#: webapp/views/table_views.py:208
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
 
