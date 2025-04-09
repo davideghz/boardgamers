@@ -38,7 +38,7 @@
           <li class="breadcrumb-item fs-6"><a class="text-decoration-none"
                                               href="{% url "home" %}"><small>Home</small></a>
           </li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ location.name }}</small></li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{{ location.name|truncatechars:40 }}</small></li>
         </ol>
       </nav>
     </div>
@@ -47,12 +47,12 @@
 
 {% block content %}
   <div class="container-fluid" style="background-color: slategrey; height: 180px">
-    <div class="container d-flex mt-4" style="">
-      <h1 class="h2 text-light m-0">
-        <img class="img-thumbnail border-0 object-fit-cover object-position-center"
-             style="width: 80px; height: 80px; padding: 0.20rem" src="{{ location.cover_url }}"
-             alt="{{ location.name }} logo">
-        {{ location.name }}
+    <div class="container d-flex mt-4 align-items-center" style="">
+      <img class="img-thumbnail border-0 object-fit-cover object-position-center"
+           style="width: 80px; height: 80px; padding: 0.20rem" src="{{ location.cover_url }}"
+           alt="{{ location.name }} logo">
+      <h1 class="h2 text-light m-0 ms-3">
+        {{ location.name|truncatechars:50 }}
       </h1>
     </div>
   </div>
