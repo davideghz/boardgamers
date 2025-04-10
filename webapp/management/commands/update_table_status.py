@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Q
-from django.utils.timezone import now, make_aware
-from datetime import datetime, timedelta  # Import corretto
-from webapp.models import Table  # Sostituisci con il percorso corretto del tuo modello
+from django.utils.timezone import now
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+from webapp.models import Table
 
 
 class Command(BaseCommand):
@@ -10,36 +11,43 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         current_time = now()
+        italy_tz = ZoneInfo("Europe/Rome")
 
         # Aggiorna i tavoli aperti o in corso
         tables = Table.objects.filter(
             Q(status=Table.OPEN) |
             Q(status=Table.ONGOING) |
-            Q(status=Table.CLOSED, leaderboard_status=Table.LEADERBOARD_NOT_EDITABLE)
+            Q(status=Table.CLOSED, leaderboard_status=Table.LEADERBOARD_EDITABLE)
         )
 
+        print(tables)
+
         for table in tables:
-            game_datetime = make_aware(datetime.combine(table.date, table.time))
+            game_datetime = datetime.combine(table.date, table.time).replace(tzinfo=italy_tz)
 
             # Caso 1: Partita non ancora iniziata
             if current_time < game_datetime:
                 table.status = Table.OPEN
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
+                print(f"#{table.title} - caso 1 - #{game_datetime}")
 
             # Caso 2: Partita in corso
             elif game_datetime <= current_time < game_datetime + timedelta(hours=6):
                 table.status = Table.ONGOING
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
+                print(f"#{table.title} - caso 2 - #{game_datetime}")
 
-            # Caso 3: Partita terminata da 1 giorno
-            elif game_datetime + timedelta(days=1) <= current_time < game_datetime + timedelta(days=2):
+            # Caso 3: Partita terminata da 6 ore
+            elif game_datetime + timedelta(hours=6) <= current_time < game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
+                print(f"#{table.title} - caso 3 - #{game_datetime}")
 
             # Caso 4: Partita terminata da 2 giorni
             elif current_time >= game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
+                print(f"#{table.title} - caso 4 - #{game_datetime}")
 
             table.save()
 
