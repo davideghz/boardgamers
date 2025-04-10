@@ -61,6 +61,7 @@ class LocationDetailView(DetailView):
         # Check if user is following location
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
         is_following = False
+        followers_count = location.followers.count()
 
         if user_profile:
             is_following = LocationFollower.objects.filter(user_profile=user_profile, location=location).exists()
@@ -171,6 +172,7 @@ class LocationDetailView(DetailView):
         context['popular_games'] = popular_games
         context['player_stats'] = player_stats
         context['is_following'] = is_following
+        context['followers_count'] = followers_count
 
         return context
 

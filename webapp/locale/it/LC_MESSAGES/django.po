@@ -505,17 +505,15 @@ msgstr "Crea un tavolo"
 #: webapp/templates/locations/location_detail.html:102
 #: webapp/templates/locations/location_detail.html:109
 msgid "Follow"
-msgstr ""
+msgstr "Segui"
 
 #: webapp/templates/locations/location_detail.html:102
-#, fuzzy
-#| msgid "Create a new table"
 msgid "to be notified about new tables."
-msgstr "Crea un nuovo tavolo"
+msgstr "per ricevere una notifica alla creazione di nuovi tavoli."
 
 #: webapp/templates/locations/location_detail.html:107
 msgid "Unfollow"
-msgstr ""
+msgstr "Non seguire più"
 
 #: webapp/templates/locations/location_detail.html:116
 #: webapp/templates/staticpages/home.html:66
