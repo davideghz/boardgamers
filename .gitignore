@@ -1,6 +1,10 @@
 # Local ENV
 .env
 
+# compiled python files
+__pycache__/
+.pyc
+
 # Python Packages
 venv/
 
