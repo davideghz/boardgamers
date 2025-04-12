@@ -33,11 +33,11 @@ CREATE EXTENSION postgis;
 source venv/bin/activate
 pip install
 ```
-6. Run migrations
+7. Run migrations
 ```bash
 python manage.py migrate
 ```
-7. Run Django Server
+8. Run Django Server
 ```bash
 python manage.py runserver
 ```
