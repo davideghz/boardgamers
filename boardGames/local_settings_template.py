@@ -1,5 +1,5 @@
 # IMPORTANT
-# Create a new file named loca_settings.py and override settings
+# Create a new file named local_settings.py and override settings
 
 from .settings import *
 
