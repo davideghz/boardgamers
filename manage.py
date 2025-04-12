@@ -2,11 +2,23 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import environ
+
+if os.environ.get('RUN_MAIN') != 'true':
+    print('▶️ Esecuzione iniziale (pre-autoreloader)')
+else:
+    print('🔁 Esecuzione monitorata (autoreloader attivo)')
+
+
+env = environ.Env()
+environ.Env.read_env()
+print(env('DJANGO_SETTINGS_MODULE'))
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', env('DJANGO_SETTINGS_MODULE'))
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'boardGames.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
