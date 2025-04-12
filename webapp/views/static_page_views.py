@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
+from django.contrib.gis.measure import Distance
+
 from django.db.models import Prefetch, Count
 from django.shortcuts import render, redirect
 from django.utils import timezone
