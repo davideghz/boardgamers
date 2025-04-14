@@ -10,7 +10,7 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
-from django.views import generic
+from django.views import generic, View
 from django.utils.translation import gettext_lazy as _
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
@@ -63,7 +63,7 @@ class TableIndexView(generic.ListView):
         return context
 
 
-class TableDetailView(LoginRequiredMixin, generic.DetailView):
+class TableDetailView(generic.DetailView):
     model = Table
     template_name = "tables/table_detail.html"
 
@@ -236,32 +236,24 @@ class CommentDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMes
         return reverse_lazy('table-detail', kwargs={'slug': table.slug})
 
 
-class JoinTableView(LoginRequiredMixin, SuccessMessageMixin, generic.CreateView):
-    model = Player
-    form_class = JoinTableForm
-    success_message = "Table joined!"
-
-    def dispatch(self, request, *args, **kwargs):
+class JoinTableView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
         if not request.user.user_profile.is_email_verified:
             messages.error(request, 'Verify email to join table.', extra_tags='danger')
-            return redirect('table-detail', self.kwargs['slug'])
+            return redirect('table-detail', slug=self.kwargs['slug'])
 
         table = get_object_or_404(Table, slug=self.kwargs['slug'])
         if table.status == Table.CLOSED:
             messages.error(request, 'The table is closed. You cannot join.', extra_tags='danger')
-            return redirect('table-detail', self.kwargs['slug'])
+            return redirect('table-detail', slug=self.kwargs['slug'])
 
-        return super().dispatch(request, *args, **kwargs)
+        Player.objects.create(
+            user_profile=request.user.user_profile,
+            table=table
+        )
 
-    def get_success_url(self):
-        # Redirect to table detail page using slug
-        return reverse_lazy('table-detail', kwargs={'slug': self.kwargs['slug']})
-
-    def form_valid(self, form):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
-        form.instance.user_profile = self.request.user.user_profile
-        form.instance.table = table
-        return super().form_valid(form)
+        messages.success(request, 'Table joined!')
+        return redirect('table-detail', slug=self.kwargs['slug'])
 
 
 class LeaveTableView(LoginRequiredMixin, generic.DeleteView):

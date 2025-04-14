@@ -88,20 +88,24 @@
           </div>
           <div class="card-body border-top">
             {% if table.status == table.OPEN %}
-              {% if user.user_profile in table.players.all %}
-                <form method="post" action="{% url 'leave_table' table.slug %}">
-                  {% csrf_token %}
-                  <button class="btn btn-outline-danger w-100" type="submit">
-                    <i class="bi bi-person-x-fill"></i> {% trans "Leave this Table" %}
-                  </button>
-                </form>
+              {% if user.is_authenticated %}
+                {% if user.user_profile in table.players.all %}
+                  <form method="post" action="{% url 'leave_table' table.slug %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger w-100" type="submit">
+                      <i class="bi bi-person-x-fill"></i> {% trans "Leave this Table" %}
+                    </button>
+                  </form>
+                {% else %}
+                  <form method="post" action="{% url 'join_table' table.slug %}">
+                    {% csrf_token %}
+                    <button class="w-100 btn btn-primary" type="submit">
+                      <i class="bi bi-person-check-fill"></i> {% trans "Join this table" %}
+                    </button>
+                  </form>
+                {% endif %}
               {% else %}
-                <form method="post" action="{% url 'join_table' table.slug %}">
-                  {% csrf_token %}
-                  <button class="w-100 btn btn-primary" type="submit">
-                    <i class="bi bi-person-check-fill"></i> {% trans "Join this table" %}
-                  </button>
-                </form>
+                <a class="btn btn-primary w-100" href="{% url "login" %}?next={% url 'table-detail' slug=table.slug %}">{% trans "Login to join table" %}</a>
               {% endif %}
             {% else %}
               <button class="w-100 btn btn-secondary disabled">
