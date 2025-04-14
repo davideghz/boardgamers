@@ -88,7 +88,7 @@ class TableDetailView(generic.DetailView):
 
         # Verifica se utente può modificare leaderboard
         user_can_edit_leaderboard = (
-            (leaderboard_enabled and
+            (self.request.user.is_authenticated and leaderboard_enabled and
              ((table.leaderboard_status == table.LEADERBOARD_EDITABLE) and
               self.request.user.user_profile in table.players.all()) or
              self.request.user.is_superuser)
