@@ -18,9 +18,9 @@
     color: inherit;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     transition: all 0.2s ease-in-out;
     border: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 16px;
     position: relative;
 }
 
@@ -30,14 +30,17 @@
     box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.9);
 }
 
-/* Header della card */
-.bg-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    padding-bottom: 12px;
-    margin-bottom: 12px;
+.bg-card-status-open {
+    background-color: #007bff;
+}
+
+/* Corpo della card */
+.bg-card-body {
+    height: 175px;
+    font-family: sans-serif;
+    padding: 12px;
+    font-size: 0.95rem;
+    color: #444;
 }
 
 /* Titolo */
@@ -47,28 +50,6 @@
     color: #333;
     margin: 0;
     line-height: 1.4;
-}
-
-/* Data e ora */
-.bg-date-time {
-    font-size: 0.9rem;
-    color: #666;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 6px 10px;
-    border-radius: 6px;
-}
-
-/* Corpo della card */
-.bg-card-body {
-    font-size: 0.95rem;
-    color: #444;
-}
-
-/* Info principali */
-.bg-info {
-    font-weight: 600;
-    color: #222;
-    margin-top: 6px;
 }
 
 /* Descrizione */
@@ -81,25 +62,12 @@
 
 /* Footer della card */
 .bg-card-footer {
-    margin-top: auto;
-    padding-top: 12px;
+    padding: 12px;
     font-size: 0.9rem;
+    font-family: sans-serif;
     font-weight: 500;
     color: #444;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Pulsante per giochi */
-.bg-games {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: #007bff;
-    background: rgba(0, 123, 255, 0.1);
-    padding: 6px 10px;
-    border-radius: 8px;
-    text-align: center;
 }
 
 /* Testo quando non ci sono tavoli */
