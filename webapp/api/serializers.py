@@ -14,4 +14,4 @@ class TableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Table
-        fields = ['title', 'slug', 'description', 'location_name', 'date', 'time', 'min_players', 'max_players', 'game']
+        fields = ['title', 'status', 'slug', 'cover_url', 'description', 'location_name', 'date', 'time', 'min_players', 'max_players', 'game']
