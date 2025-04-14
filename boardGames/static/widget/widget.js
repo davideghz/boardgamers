@@ -85,7 +85,7 @@
             <div class="bg-card-footer" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>📅 ${day}</div>
                 <div>⏰ ${time}</div>
-                <div>👾 ${table.min_players}/${table.max_players}</div>
+                <div>👾 ${table.current_players}/${table.max_players}</div>
             </div>
             `;
 
