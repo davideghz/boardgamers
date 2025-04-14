@@ -4,6 +4,37 @@ from django.urls import reverse
 from .models import Location, Game, Table
 
 
+class StaticViewSitemap(Sitemap):
+    def items(self):
+        return ['home', 'locations-index', 'privacy', 'terms', 'contacts']
+
+    def changefreq(self, item):
+        if item == 'home':
+            return 'daily'
+        if item == 'locations-index':
+            return 'weekly'
+        return 'never'
+
+    def priority(self, item):
+        if item == 'home':
+            return 0.8
+        if item == 'locations-index':
+            return 0.5
+        return 0.3
+
+    def location(self, item):
+        return reverse(item)
+
+    def lastmod(self, item):
+        if item == 'home':
+            last_table = Table.objects.order_by('-updated_at').first()
+            return last_table.updated_at if last_table else None
+        if item == 'locations-index':
+            last_location = Location.objects.order_by('-created_at').first()
+            return last_location.created_at if last_location else None
+        return None
+
+
 class LocationSitemap(Sitemap):
     changefreq = "weekly"
     priority = 0.5
@@ -19,7 +50,7 @@ class LocationSitemap(Sitemap):
 
 
 class GameSitemap(Sitemap):
-    changefreq = "weekly"
+    changefreq = "monthly"
     priority = 0.5
 
     def items(self):

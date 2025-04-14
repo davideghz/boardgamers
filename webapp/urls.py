@@ -2,12 +2,13 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 
 from .forms import CustomLoginForm
-from .sitemaps import LocationSitemap, GameSitemap, TableSitemap
+from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete
 from .views.location_views import FollowLocationView
 
 sitemaps = {
+  'static': StaticViewSitemap,
   'locations': LocationSitemap,
   'games': GameSitemap,
   'tables': TableSitemap,
