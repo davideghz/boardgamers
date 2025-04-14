@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TITOLO DELLA PAGINA</title>
+    <style>
+        /* Board-Gamers styling. Modificare a piacimento */
+        /* Contenitore generale */
+        #board-gamers-tables {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Card principale */
+        .bg-card {
+            width: 320px;
+            background: #f8f9fa; /* Colore chiaro per lo sfondo */
+            border-radius: 12px; /* Angoli arrotondati */
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.08), -4px -4px 10px rgba(255, 255, 255, 0.8); /* Effetto neumorfismo */
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            position: relative;
+        }
+
+        /* Effetto hover */
+        .bg-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.9);
+        }
+
+        /* Header della card */
+        .bg-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Titolo */
+        .bg-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Data e ora */
+        .bg-date-time {
+            font-size: 0.9rem;
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        /* Corpo della card */
+        .bg-card-body {
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        /* Info principali */
+        .bg-info {
+            font-weight: 600;
+            color: #222;
+            margin-top: 6px;
+        }
+
+        /* Descrizione */
+        .bg-description {
+            color: #555;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Footer della card */
+        .bg-card-footer {
+            margin-top: auto;
+            padding-top: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #444;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pulsante per giochi */
+        .bg-games {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            padding: 6px 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Testo quando non ci sono tavoli */
+        .bg-no-tables {
+            text-align: center;
+            font-size: 1rem;
+            color: #777;
+            font-weight: 500;
+            padding: 20px;
+        }
+
+    </style>
+
+  </head>
+  <body>
+
+    <!-- Board-Gamers.com Widget-->
+	<div id="board-gamers-tables" data-location="anonima-giocatori"></div>
+    <script src="https://board-gamers.com/static/widget/widget.js"></script>
+  </body>
+</html>
