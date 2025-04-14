@@ -80,6 +80,6 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'], url_path=r'by-location/(?P<location_slug>[-\w]+)')
     def by_location(self, request, location_slug=None):
         location = get_object_or_404(Location, slug=location_slug)
-        tables = Table.objects.filter(location=location).order_by('-date', '-time')
+        tables = Table.objects.filter(location=location).order_by('-date', '-time')[:12]
         serializer = self.get_serializer(tables, many=True)
         return Response(serializer.data)

@@ -48,16 +48,16 @@
                        rgba(0, 0, 0, 0.8) 0%,
                        rgba(0, 0, 0, 0.3) 40%,
                        rgba(0, 0, 0, 0) 100%),
-                       url('https://board-gamers.com/${table.cover_url}');
+                       url('${table.cover_url}');
                        background-position: center;
                        background-size: cover;
                        height: 150px;
             ">
-                <span class="bg-card-status-${table.status}"
+                <span class="bg-card-status bg-card-status-${table.status}"
                   style="
                     position: absolute;
                     top: 8px;
-                    right: 8px;
+                    right: 12px;
                     color: white;
                     font-size: 0.75rem;
                     font-family: sans-serif;
@@ -67,7 +67,7 @@
                 <div style="
                     position: absolute;
                     bottom: 8px;
-                    left: 8px;
+                    left: 12px;
                     color: white;
                     font-weight: bold;
                     text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
@@ -78,14 +78,14 @@
             </div>
 
             <div class="bg-card-body">
-                <h3 class="bg-title">${table.title}</h3>
+                <p class="bg-title">${table.title}</p>
                 <p class="bg-description">${shortDescription}</p>
             </div>
 
             <div class="bg-card-footer" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>📅 ${day}</div>
                 <div>⏰ ${time}</div>
-                <div>👥 ${table.min_players}/${table.max_players}</div>
+                <div>👾 ${table.min_players}/${table.max_players}</div>
             </div>
             `;
 

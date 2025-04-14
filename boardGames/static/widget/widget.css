@@ -30,13 +30,16 @@
     box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.9);
 }
 
+.bg-card-status {
+    background-color: #000000;
+}
 .bg-card-status-open {
     background-color: #007bff;
 }
 
 /* Corpo della card */
 .bg-card-body {
-    height: 175px;
+    height: 120px;
     font-family: sans-serif;
     padding: 12px;
     font-size: 0.95rem;
@@ -45,7 +48,7 @@
 
 /* Titolo */
 .bg-title {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #333;
     margin: 0;
@@ -55,9 +58,9 @@
 /* Descrizione */
 .bg-description {
     color: #555;
-    margin-bottom: 12px;
     font-size: 0.95rem;
     line-height: 1.5;
+    margin: 0;
 }
 
 /* Footer della card */
