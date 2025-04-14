@@ -2,7 +2,7 @@ import logging
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
@@ -16,6 +16,12 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        # Rendi pubblica solo l'azione by_location
+        if self.action == 'by_location':
+            return [AllowAny()]
+        return super().get_permissions()
 
     @action(detail=True, methods=['post'], url_path='update-player-position')
     def update_player_position(self, request, pk=None):
