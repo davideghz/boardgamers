@@ -12,9 +12,9 @@
       <nav aria-label="breadcrumb" class="py-1">
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item fs-6 active" aria-current="page"><small>
-            <a class="text-decoration-none" href="{% url "account-index" %}">Account</a>
+            <a class="text-decoration-none" href="{% url "account-index" %}">{% trans "Account" %}</a>
           </small></li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>Notifications</small></li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{% trans "Notifications" %}</small></li>
         </ol>
       </nav>
     </div>
@@ -25,38 +25,40 @@
   <div class="container py-4">
     <div class="row">
       <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
-        <div class="h1">{% trans "Notifications" %}</div>
+        <h1 class="h1">{% trans "Notifications" %}</h1>
       </div>
     </div>
-  <div class="row">
+    <div class="row">
       <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
         {% if notifications %}
-          <div class="list-group mt-3">
+          <ul class="list-unstyled mt-3">
             {% for notification in notifications %}
               {% if notification.table %}
-                <a href="{% url 'table-detail' slug=notification.table.slug %}" class="list-group-item list-group-item-action">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <strong>{{ notification.get_notification_type_display }}</strong><br>
-                      {% if notification.message %}
-                        <small class="fst-italic border-start border-primary border-3 ps-2 d-block mt-1 mb-1">{{ notification.message|truncatechars:115 }}</small>
-                      {% endif %}
-                      <small><i class="bi bi-lightning-charge-fill"></i> {{ notification.table.title }}</small>
-{#                      <small><i class="bi bi-geo-alt-fill"></i> {{ notification.location.name }}</small>#}
+                <li class="alert border">
+                  <a href="{% url 'table-detail' slug=notification.table.slug %}" class="text-decoration-none text-reset">
+                    <div class="row">
+                      <div class="col-12 col-lg order-last order-lg-first">
+                        <h2 class="h5 mb-0"><i class="bi bi-bell-o"></i> {{ notification.get_notification_type_display }}</h2>
+                        {% if notification.message %}
+                          <small class="fst-italic border-start border-primary border-3 ps-2 d-block mt-1 mb-1">{{ notification.message|truncatechars:115 }}</small>
+                        {% endif %}
+                        <small>{{ notification.table.title }}</small>
+                        {# <small><i class="bi bi-geo-alt-fill"></i> {{ notification.location.name }}</small>#}
+                      </div>
+                      <div class="col-auto">
+                        <small class="text-muted">{{ notification.created_at|date:"SHORT_DATETIME_FORMAT" }}</small>
+                      </div>
                     </div>
-                    <div class="text-end text-muted small">
-                      <small>{{ notification.created_at|date:"SHORT_DATETIME_FORMAT" }}</small>
-                    </div>
-                  </div>
-                </a>
+                  </a>
+                </li>
               {% endif %}
             {% endfor %}
-          </div>
+          </ul>
         {% else %}
           <p class="text-muted mt-4">{% trans "You have no notifications at the moment." %}</p>
         {% endif %}
       </div>
-  </div>
+    </div>
   </div>
 {% endblock %}
 
