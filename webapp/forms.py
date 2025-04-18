@@ -344,6 +344,7 @@ class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
 
         # Sovrascrivi i widget per usare CustomCheckboxInputWidget (non gestito di default da BootstrapForm)
         for field_name in [
+            'notification_new_table',
             'notification_new_player',
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',
@@ -353,6 +354,7 @@ class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
     class Meta:
         model = UserProfile
         fields = [
+            'notification_new_table',
             'notification_new_player',
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',

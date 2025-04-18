@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
 
-from webapp.emails import send_user_email_verification_code
+from webapp.emails import send_user_email_verification_code, send_notification_new_table
 from webapp.models import UserProfile, Location, Player, Table, Notification, NotificationType, Comment
 
 
@@ -35,6 +35,8 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
                 table=instance,
                 location=instance.location,
             )
+            if follower.user_profile.notification_new_table:
+                send_notification_new_table(follower.user_profile, instance)
 
 
 @receiver(post_save, sender=Player)

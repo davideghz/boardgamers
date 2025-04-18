@@ -15,7 +15,8 @@
           <li class="breadcrumb-item fs-6 active" aria-current="page"><small>
             <a class="text-decoration-none" href="{% url "account-index" %}">Account</a>
           </small></li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page"><small>{% trans "Notifications Preferences" %}</small></li>
+          <li class="breadcrumb-item fs-6 active" aria-current="page">
+            <small>{% trans "Notifications Preferences" %}</small></li>
         </ol>
       </nav>
     </div>
@@ -29,38 +30,49 @@
         <div class="h1">{% trans "Notifications Preferences" %}</div>
       </div>
     </div>
-  <div class="row">
+    <div class="row">
+      <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
+        <strong>{% trans "Email notifications" %}</strong><br>
+        <small>{% trans "Enable or disable email notifications for the following activities." %}</small>
+      </div>
       <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
         <form method="post">
           {% csrf_token %}
 
           <div class="form-check form-switch pt-3 pb-3 custom-switch">
-            {{ form.notification_new_player }}
-            <label class="form-check-label" for="{{ form.notification_new_player.id_for_label }}">
-              {% trans "Receive a notification when a new player joins a table you’re participating in" %}
+            {{ form.notification_new_table }}
+            <label class="form-check-label" for="{{ form.notification_new_table.id_for_label }}">
+              {% trans "A new table is created in a location you follow" %}
             </label>
           </div>
 
-          <div class="form-check form-switch pt-3 pb-3 custom-switch">
-            {{ form.notification_leaderboard_reminder }}
-            <label class="form-check-label" for="{{ form.notification_leaderboard_reminder.id_for_label }}">
-              {% trans "Receive a reminder to update the table leaderboard" %}
-            </label>
-          </div>
-
-          <div class="form-check form-switch pt-3 pb-3 custom-switch">
-            {{ form.notification_leaderboard_update }}
-            <label class="form-check-label" for="{{ form.notification_leaderboard_update.id_for_label }}">
-              {% trans "Receive a notification when the table leaderboard is updated" %}
-            </label>
-          </div>
+{#          <div class="form-check form-switch pt-3 pb-3 custom-switch">#}
+{#            {{ form.notification_new_player }}#}
+{#            <label class="form-check-label" for="{{ form.notification_new_player.id_for_label }}">#}
+{#              {% trans "A new player joins a table you’re participating in" %}#}
+{#            </label>#}
+{#          </div>#}
+{##}
+{#          <div class="form-check form-switch pt-3 pb-3 custom-switch">#}
+{#            {{ form.notification_leaderboard_reminder }}#}
+{#            <label class="form-check-label" for="{{ form.notification_leaderboard_reminder.id_for_label }}">#}
+{#              {% trans "Receive a reminder to update the table leaderboard" %}#}
+{#            </label>#}
+{#          </div>#}
+{##}
+{#          <div class="form-check form-switch pt-3 pb-3 custom-switch">#}
+{#            {{ form.notification_leaderboard_update }}#}
+{#            <label class="form-check-label" for="{{ form.notification_leaderboard_update.id_for_label }}">#}
+{#              {% trans "The table leaderboard is updated" %}#}
+{#            </label>#}
+{#          </div>#}
 
           <button type="submit" class="btn btn-primary mt-4">
             {% trans "Save preferences" %}
           </button>
         </form>
       </div>
-  </div>
+    </div>
   </div>
 {% endblock %}
 

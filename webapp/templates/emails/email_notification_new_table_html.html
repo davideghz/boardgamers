@@ -1,0 +1,22 @@
+{% extends "emails/base/base_email_html.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% trans "NEW TABLE" %}
+{% endblock title %}
+
+{% block main_content %}
+  {% trans "Hey" %} {{ user_profile.nickname }},<br>
+  {% trans "A new table has been created in " %}{{ location_name }}.<br><br>
+  <strong>{% trans "Game:" %}</strong> {{ game }}<br>
+  <strong>{% trans "Date and time:" %}</strong> {{ date }}, {{ time }}
+{% endblock main_content %}
+
+{% block cta_label %}
+  {% trans "See table" %}
+{% endblock cta_label %}
+
+{% block cta_href %}
+  {{ button_href }}
+{% endblock cta_href %}
