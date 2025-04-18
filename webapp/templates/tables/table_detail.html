@@ -37,7 +37,7 @@
               <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
               {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
                 <a class="text-decoration-none" href="{% url 'location-table-update' table.location.slug table.slug %}">
-                  <i class="bi bi-pencil-square"></i> Edit
+                  <i class="bi bi-pencil-square"></i> {% trans "Edit" %}
                 </a>
               {% endif %}
             </div>
@@ -55,7 +55,7 @@
                 <small>{{ table.location.name }}</small><br>
               {% endif %}
               <small>{{ table.location.address }} (<a target="_blank"
-                                                      href="http://maps.google.com/maps?q={{ table.location.latitude }},{{ table.location.longitude }}">map</a>)</small>
+                                                      href="http://maps.google.com/maps?q={{ table.location.latitude }},{{ table.location.longitude }}">{% trans "Map" %}</a>)</small>
             {% else %}
               <small>
                 {% trans "No location set for this table." %}<br>
@@ -161,7 +161,7 @@
             <p>{{ table.description }}</p>
             <i class="bi bi-person-fill"></i>
             <small>
-              Table created by:
+              {% trans "Table created by" %}:
               <a href="{% url "user-profile-detail" table.author.user.user_profile.slug %}">
                 {{ table.author.nickname }}
               </a>
@@ -187,7 +187,7 @@
             </div>
           </div>
 
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+          <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 
           <!-- Classifica -->
           <div class="col-12 mt-3">
@@ -247,7 +247,7 @@
                           <span class="flex-grow-1">{{ player.user_profile.nickname }}</span>
                           <!-- Posizione -->
                           {% if player.position == 99 %}
-                            <span class="badge bg-secondary rounded-pill">NEW</span>
+                            <span class="badge bg-secondary rounded-pill">{% trans "NEW" %}</span>
                           {% else %}
                             <span class="badge bg-primary rounded-pill">{{ player.position }}</span>
                           {% endif %}
