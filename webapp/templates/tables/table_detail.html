@@ -153,10 +153,10 @@
       </div>
 
       <!-- comment section -->
-      <div class="col-12 col-md-7 col-lg-8 col-xl-8">
+      <div class="col-12 col-md-7 col-lg-8">
         <div class="row">
           <!-- table description -->
-          <div class="col-12">
+          <div class="col-12 col-lg">
             <h1>{{ table.title }}</h1>
             <p>{{ table.description }}</p>
             <i class="bi bi-person-fill"></i>
@@ -166,6 +166,25 @@
                 {{ table.author.nickname }}
               </a>
             </small>
+          </div>
+
+          {% comment %} Share button {% endcomment %}
+          <div class="col-auto">
+            <button class="btn btn-sm btn-outline-primary btn-share" id="shareButton" aria-label="{% trans 'Share this table' %}">
+              <i class="bi bi-share-fill"></i> {% trans "Share" %}
+            </button>
+          </div>
+
+          {% comment %} Toast for copied link (share button fallback) {% endcomment %}
+          <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="copyToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body">
+                  {% trans "Link copied" %}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+              </div>
+            </div>
           </div>
 
           <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
@@ -470,6 +489,7 @@
 
 {% block extrabodyjs %}
   <script>
+      {% comment %} Delete comment {% endcomment %}
       const deleteCommentModal = document.getElementById('deleteCommentModal');
       deleteCommentModal.addEventListener('show.bs.modal', function (event) {
           const button = event.relatedTarget;
@@ -477,5 +497,32 @@
           const form = deleteCommentModal.querySelector('form');
           form.action = commentUrl
       })
+
+      {% comment %} Share button {% endcomment %}
+      const shareButtons = document.querySelectorAll('.btn-share');
+      shareButtons.forEach(button => {
+          button.addEventListener('click', function () {
+              const url = window.location.href;
+              const title = "{{ table.title }} - {{ table.date|date:'j F' }} - Board-Gamers.com";
+              const text = "{% trans "Let's play" %} {{ table.game }}";
+              if (navigator.share) {
+                  navigator.share({
+                      title: title,
+                      text: text,
+                      url: url
+                  }).catch(error => {
+                      console.error('Error sharing:', error);
+                  });
+              } else {
+                navigator.clipboard.writeText(url).then(() => {
+                  const toastElement = document.getElementById('copyToast');
+                  const toast = new bootstrap.Toast(toastElement);
+                  toast.show();
+                }).catch(err => {
+                  console.error('Failed to copy link:', err);
+                });
+              }
+          });
+      });
   </script>
 {% endblock extrabodyjs %}
