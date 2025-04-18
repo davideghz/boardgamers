@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-18 15:42+0000\n"
+"POT-Creation-Date: 2025-04-18 22:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,6 +50,10 @@ msgstr "Inserisci un nickname"
 #: webapp/forms.py:234
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
+
+#: webapp/forms.py:236
+msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
+msgstr ""
 
 #: webapp/messages.py:3
 msgid "Email verification"
@@ -163,7 +167,8 @@ msgstr "Nuovo commento"
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:314 webapp/templates/accounts/account_notifications.html:28
+#: webapp/models.py:314 webapp/templates/accounts/account_notifications.html:17
+#: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
 
@@ -218,7 +223,13 @@ msgstr "Luoghi"
 msgid "Add new location"
 msgstr "Aggiungi Location"
 
-#: webapp/templates/accounts/account_notifications.html:56
+#: webapp/templates/accounts/account_notifications.html:15
+#: webapp/templates/partials/top-menu.html:87
+#: webapp/templates/partials/top-menu.html:126
+msgid "Account"
+msgstr "Account"
+
+#: webapp/templates/accounts/account_notifications.html:58
 msgid "You have no notifications at the moment."
 msgstr "Non ci sono notifiche."
 
@@ -233,18 +244,6 @@ msgstr "Attiva o disattiva le notifiche email per queste azioni."
 #: webapp/templates/accounts/account_notifications_preferences.html:45
 msgid "A new table is created in a location you follow"
 msgstr "Un tavolo viene creato in una location che segui"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:52
-msgid "A new player joins a table you’re participating in"
-msgstr "Un gamer si unisce a un tavolo a cui partecipi"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:59
-msgid "Receive a reminder to update the table leaderboard"
-msgstr "Ricevi un promemoria per aggiornare la classifica di un tavolo a cui hai partecipato"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:66
-msgid "The table leaderboard is updated"
-msgstr "La classifica di un tavolo a cui hai partecipato viene aggiornata"
 
 #: webapp/templates/accounts/account_notifications_preferences.html:71
 msgid "Save preferences"
@@ -275,15 +274,15 @@ msgstr "Nessun tavolo trovato."
 msgid "Created tables"
 msgstr "Tavoli creati"
 
-#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:188
+#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:193
 msgid "Or"
 msgstr "Oppure"
 
-#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:209
+#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:214
 msgid "Sign in with Google"
 msgstr "Accedi con Google"
 
-#: webapp/templates/auth/login.html:121
+#: webapp/templates/auth/login.html:121 webapp/templates/partials/hero.html:188
 msgid "Forgot your password?"
 msgstr "Password dimenticata?"
 
@@ -294,13 +293,13 @@ msgstr "Reimposta la password"
 
 #: webapp/templates/auth/login.html:125
 #: webapp/templates/auth/password_reset_form.html:33
-#: webapp/templates/partials/hero.html:216
+#: webapp/templates/partials/hero.html:221
 msgid "Not a member?"
 msgstr "Non sei ancora iscritto?"
 
 #: webapp/templates/auth/login.html:126
 #: webapp/templates/auth/password_reset_form.html:34
-#: webapp/templates/partials/hero.html:217
+#: webapp/templates/partials/hero.html:222
 msgid "Create an account"
 msgstr "Crea un account"
 
@@ -311,6 +310,10 @@ msgstr "Reimposta la tua password"
 #: webapp/templates/auth/password_reset_confirm.html:43
 msgid "Reset my password"
 msgstr "Reimposta la mia password"
+
+#: webapp/templates/auth/password_reset_form.html:25
+msgid "Send me reset instructions"
+msgstr "Inviami istruzioni per il reset"
 
 #: webapp/templates/auth/password_reset_form.html:29
 msgid "Back to"
@@ -682,11 +685,6 @@ msgstr "Clicca qui"
 msgid "New table"
 msgstr "Nuovo tavolo"
 
-#: webapp/templates/partials/top-menu.html:87
-#: webapp/templates/partials/top-menu.html:126
-msgid "Account"
-msgstr "Account"
-
 #: webapp/templates/partials/top-menu.html:154
 msgid "Register"
 msgstr "Registrati"
@@ -972,6 +970,17 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:208
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "A new player joins a table you’re participating in"
+#~ msgstr "Un gamer si unisce a un tavolo a cui partecipi"
+
+#~ msgid "Receive a reminder to update the table leaderboard"
+#~ msgstr ""
+#~ "Ricevi un promemoria per aggiornare la classifica di un tavolo a cui hai "
+#~ "partecipato"
+
+#~ msgid "The table leaderboard is updated"
+#~ msgstr "La classifica di un tavolo a cui hai partecipato viene aggiornata"
 
 #~ msgid "Stats"
 #~ msgstr "Statistiche"
