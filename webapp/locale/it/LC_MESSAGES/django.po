@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-19 14:00+0000\n"
+"POT-Creation-Date: 2025-04-19 14:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -270,15 +270,15 @@ msgstr "Nessun tavolo trovato."
 msgid "Created tables"
 msgstr "Tavoli creati"
 
-#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:188
+#: webapp/templates/auth/login.html:97 webapp/templates/partials/hero.html:193
 msgid "Or"
 msgstr "Oppure"
 
-#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:209
+#: webapp/templates/auth/login.html:114 webapp/templates/partials/hero.html:214
 msgid "Sign in with Google"
 msgstr "Accedi con Google"
 
-#: webapp/templates/auth/login.html:121
+#: webapp/templates/auth/login.html:121 webapp/templates/partials/hero.html:188
 msgid "Forgot your password?"
 msgstr "Password dimenticata?"
 
@@ -289,13 +289,13 @@ msgstr "Reimposta la password"
 
 #: webapp/templates/auth/login.html:125
 #: webapp/templates/auth/password_reset_form.html:33
-#: webapp/templates/partials/hero.html:216
+#: webapp/templates/partials/hero.html:221
 msgid "Not a member?"
 msgstr "Non sei ancora iscritto?"
 
 #: webapp/templates/auth/login.html:126
 #: webapp/templates/auth/password_reset_form.html:34
-#: webapp/templates/partials/hero.html:217
+#: webapp/templates/partials/hero.html:222
 msgid "Create an account"
 msgstr "Crea un account"
 
@@ -306,6 +306,10 @@ msgstr "Reimposta la tua password"
 #: webapp/templates/auth/password_reset_confirm.html:43
 msgid "Reset my password"
 msgstr "Reimposta la mia password"
+
+#: webapp/templates/auth/password_reset_form.html:25
+msgid "Send me reset instructions"
+msgstr "Inviami istruzioni per il reset"
 
 #: webapp/templates/auth/password_reset_form.html:29
 msgid "Back to"
@@ -995,3 +999,6 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:208
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "Stats"
+#~ msgstr "Statistiche"
