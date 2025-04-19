@@ -6,9 +6,9 @@
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 
-<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
   <meta charset='utf-8'>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>{% block headtitle %}Board-Gamers.com{% endblock headtitle %}</title>
   <meta name="description" content="{% block description %}{% trans "Discover the world of board games on Board-Gamers.com! Join the community to share your passion and find new players. Play, explore, and connect!" %}{% endblock description %}"/>
@@ -43,31 +43,23 @@
   <!-- End Google Tag Manager -->
 
   <style>
-      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap');
-      @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
 
-      html {
-          color-scheme: light;
-      }
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
 
-      body {
-          font-family: 'Roboto', sans-serif;
-      }
+    h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4, .h5 {
+        font-family: "Roboto Slab", serif;
+        font-weight: 600;
+        font-style: normal;
+    }
 
-      h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4, .h5 {
-          font-family: "Roboto Slab", serif;
-          font-optical-sizing: auto;
-          font-weight: 600;
-          font-style: normal;
-      }
-
-      .iubenda-cs-preferences-link {
-          display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-      }
-
+    body .iubenda-tp-btn.iubenda-cs-preferences-link {
+        display: none !important;
+        visibility: hidden !important;
+    }
   </style>
 
   {% block style %}{% endblock style %}
@@ -96,8 +88,9 @@
         "lang": "en",
         "perPurposeConsent": true,
         "siteId": 3545298,
-        "whitelabel": false,
+        "whitelabel": true,
         "cookiePolicyId": 88029000,
+        "localConsentDomain": "127.0.0.1",
         "banner": {
             "acceptButtonDisplay": true,
             "closeButtonDisplay": false,
