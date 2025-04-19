@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-18 21:21+0000\n"
+"POT-Creation-Date: 2025-04-19 14:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,10 +50,6 @@ msgstr "Inserisci un nickname"
 #: webapp/forms.py:234
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
-
-#: webapp/forms.py:236
-msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
-msgstr "Il nickname può avere al massimo 25 caratteri (ne ha {len(nickname)})."
 
 #: webapp/messages.py:3
 msgid "Email verification"
@@ -878,14 +874,10 @@ msgid "Location info"
 msgstr "Info sulla Location"
 
 #: webapp/templates/tables/table_detail.html:164
-#, fuzzy
-#| msgid "New table created"
 msgid "Table created by"
 msgstr "Tavolo creato da"
 
 #: webapp/templates/tables/table_detail.html:174
-#, fuzzy
-#| msgid "Leave this Table"
 msgid "Share this table"
 msgstr "Condividi questo tavolo"
 
@@ -898,8 +890,6 @@ msgid "Link copied"
 msgstr "Link copiato"
 
 #: webapp/templates/tables/table_detail.html:187
-#, fuzzy
-#| msgid "Closed"
 msgid "Close"
 msgstr "Chiudi"
 
@@ -929,7 +919,7 @@ msgstr "per modificare la classifica"
 
 #: webapp/templates/tables/table_detail.html:252
 msgid "NEW"
-msgstr ""
+msgstr "NUOVO"
 
 #: webapp/templates/tables/table_detail.html:265
 #: webapp/templates/tables/table_detail.html:321
@@ -1005,17 +995,3 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:208
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
-
-#~ msgid "A new player joins a table you’re participating in"
-#~ msgstr "Un gamer si unisce a un tavolo a cui partecipi"
-
-#~ msgid "Receive a reminder to update the table leaderboard"
-#~ msgstr ""
-#~ "Ricevi un promemoria per aggiornare la classifica di un tavolo a cui hai "
-#~ "partecipato"
-
-#~ msgid "The table leaderboard is updated"
-#~ msgstr "La classifica di un tavolo a cui hai partecipato viene aggiornata"
-
-#~ msgid "Stats"
-#~ msgstr "Statistiche"
