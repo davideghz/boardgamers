@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-18 15:42+0000\n"
+"POT-Creation-Date: 2025-04-19 14:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,7 +163,8 @@ msgstr "Nuovo commento"
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:314 webapp/templates/accounts/account_notifications.html:28
+#: webapp/models.py:314 webapp/templates/accounts/account_notifications.html:17
+#: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
 
@@ -218,7 +219,13 @@ msgstr "Luoghi"
 msgid "Add new location"
 msgstr "Aggiungi Location"
 
-#: webapp/templates/accounts/account_notifications.html:56
+#: webapp/templates/accounts/account_notifications.html:15
+#: webapp/templates/partials/top-menu.html:87
+#: webapp/templates/partials/top-menu.html:126
+msgid "Account"
+msgstr "Account"
+
+#: webapp/templates/accounts/account_notifications.html:58
 msgid "You have no notifications at the moment."
 msgstr "Non ci sono notifiche."
 
@@ -233,18 +240,6 @@ msgstr "Attiva o disattiva le notifiche email per queste azioni."
 #: webapp/templates/accounts/account_notifications_preferences.html:45
 msgid "A new table is created in a location you follow"
 msgstr "Un tavolo viene creato in una location che segui"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:52
-msgid "A new player joins a table you’re participating in"
-msgstr "Un gamer si unisce a un tavolo a cui partecipi"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:59
-msgid "Receive a reminder to update the table leaderboard"
-msgstr "Ricevi un promemoria per aggiornare la classifica di un tavolo a cui hai partecipato"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:66
-msgid "The table leaderboard is updated"
-msgstr "La classifica di un tavolo a cui hai partecipato viene aggiornata"
 
 #: webapp/templates/accounts/account_notifications_preferences.html:71
 msgid "Save preferences"
@@ -455,7 +450,8 @@ msgstr ""
 "tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
 
 #: webapp/templates/locations/location_add_or_edit.html:22
-#: webapp/templates/tables/table_detail.html:193
+#: webapp/templates/tables/table_detail.html:40
+#: webapp/templates/tables/table_detail.html:214
 msgid "Edit"
 msgstr "Modifica"
 
@@ -511,7 +507,7 @@ msgstr ""
 #: webapp/templates/locations/location_add_or_edit.html:135
 #: webapp/templates/tables/table_add_or_edit.html:167
 #: webapp/templates/tables/table_delete.html:13
-#: webapp/templates/tables/table_detail.html:462
+#: webapp/templates/tables/table_detail.html:483
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -682,11 +678,6 @@ msgstr "Clicca qui"
 msgid "New table"
 msgstr "Nuovo tavolo"
 
-#: webapp/templates/partials/top-menu.html:87
-#: webapp/templates/partials/top-menu.html:126
-msgid "Account"
-msgstr "Account"
-
 #: webapp/templates/partials/top-menu.html:154
 msgid "Register"
 msgstr "Registrati"
@@ -806,7 +797,7 @@ msgid "How many players are invited to this table?"
 msgstr "Quanti gamers sono invitati a questo tavolo?"
 
 #: webapp/templates/tables/table_delete.html:7
-#: webapp/templates/tables/table_detail.html:455
+#: webapp/templates/tables/table_detail.html:476
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
 
@@ -829,6 +820,10 @@ msgstr "Data e ora"
 #: webapp/templates/tables/table_detail.html:51
 msgid "Address"
 msgstr "Indirizzo"
+
+#: webapp/templates/tables/table_detail.html:58
+msgid "Map"
+msgstr "Mappa"
 
 #: webapp/templates/tables/table_detail.html:61
 msgid "No location set for this table."
@@ -878,63 +873,91 @@ msgstr ""
 msgid "Location info"
 msgstr "Info sulla Location"
 
-#: webapp/templates/tables/table_detail.html:182
+#: webapp/templates/tables/table_detail.html:164
+msgid "Table created by"
+msgstr "Tavolo creato da"
+
+#: webapp/templates/tables/table_detail.html:174
+msgid "Share this table"
+msgstr "Condividi questo tavolo"
+
+#: webapp/templates/tables/table_detail.html:175
+msgid "Share"
+msgstr "Condividi"
+
+#: webapp/templates/tables/table_detail.html:185
+msgid "Link copied"
+msgstr "Link copiato"
+
+#: webapp/templates/tables/table_detail.html:187
+msgid "Close"
+msgstr "Chiudi"
+
+#: webapp/templates/tables/table_detail.html:203
 msgid "Leaderboard"
 msgstr "Classifica"
 
-#: webapp/templates/tables/table_detail.html:198
+#: webapp/templates/tables/table_detail.html:219
 msgid "Not enabled for this game."
 msgstr "Non abilitata per questo gioco."
 
-#: webapp/templates/tables/table_detail.html:205
+#: webapp/templates/tables/table_detail.html:226
 msgid "Create Leaderboard"
 msgstr "Crea Classifica"
 
-#: webapp/templates/tables/table_detail.html:208
+#: webapp/templates/tables/table_detail.html:229
 msgid "Leaderboard not created yet."
 msgstr "Classifica non ancora creata."
 
-#: webapp/templates/tables/table_detail.html:213
+#: webapp/templates/tables/table_detail.html:234
 msgid "Use the"
 msgstr "Trascina l'icona"
 
-#: webapp/templates/tables/table_detail.html:214
+#: webapp/templates/tables/table_detail.html:235
 msgid "to adjust the positions"
 msgstr "per modificare la classifica"
 
-#: webapp/templates/tables/table_detail.html:244
-#: webapp/templates/tables/table_detail.html:300
+#: webapp/templates/tables/table_detail.html:252
+msgid "NEW"
+msgstr "NUOVO"
+
+#: webapp/templates/tables/table_detail.html:265
+#: webapp/templates/tables/table_detail.html:321
 msgid "Update Leaderboard"
 msgstr "Aggiorna Classifica"
 
-#: webapp/templates/tables/table_detail.html:338
+#: webapp/templates/tables/table_detail.html:359
 msgid "Leaderboard Updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/templates/tables/table_detail.html:373
+#: webapp/templates/tables/table_detail.html:394
 msgid "Comments"
 msgstr "Commenti"
 
-#: webapp/templates/tables/table_detail.html:382
+#: webapp/templates/tables/table_detail.html:403
 msgid "Send comment"
 msgstr "Invia commento"
 
-#: webapp/templates/tables/table_detail.html:389
+#: webapp/templates/tables/table_detail.html:410
 msgid "Only gamers that joined the table can comment on this page."
 msgstr ""
 "Solo i gamers che si sono uniti al tavolo possono commentare questa pagina."
 
-#: webapp/templates/tables/table_detail.html:438
+#: webapp/templates/tables/table_detail.html:459
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
-#: webapp/templates/tables/table_detail.html:459
+#: webapp/templates/tables/table_detail.html:480
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
 
-#: webapp/templates/tables/table_detail.html:463
+#: webapp/templates/tables/table_detail.html:484
 msgid "Delete comment"
 msgstr "Elimina commento"
+
+#: webapp/templates/tables/table_detail.html:511
+msgid "Let's play"
+msgstr "Giochiamo"
 
 #: webapp/templates/tables/table_index.html:10
 msgid "Upcoming Tables"
@@ -972,6 +995,3 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:208
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
-
-#~ msgid "Stats"
-#~ msgstr "Statistiche"
