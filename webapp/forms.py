@@ -346,6 +346,7 @@ class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
         for field_name in [
             'notification_new_table',
             'notification_new_player',
+            'notification_new_comments',
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',
         ]:
@@ -356,6 +357,7 @@ class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
         fields = [
             'notification_new_table',
             'notification_new_player',
+            'notification_new_comments',
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',
         ]

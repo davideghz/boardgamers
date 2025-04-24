@@ -8,6 +8,11 @@ from webapp.models import UserProfile
 
 
 def send_user_email_verification_code(user_profile):
+    """
+    Sends an email to the user with a verification code for account activation.
+
+    :param user_profile: The UserProfile instance of the user receiving the email.
+    """
     context = {
         'nickname': user_profile.nickname,
         'button_href': UserProfile.get_activation_link(user_profile.user),
@@ -24,6 +29,11 @@ def send_user_email_verification_code(user_profile):
 
 
 def send_admin_contact_message(cleaned_data):
+    """
+    Sends an email to the admin with a contact message submitted by a user.
+
+    :param cleaned_data: A dictionary containing the name, email, and message from the contact form.
+    """
     context = {
         'name': cleaned_data.get('name'),
         'email': cleaned_data.get('email'),
@@ -41,10 +51,17 @@ def send_admin_contact_message(cleaned_data):
 
 
 def send_notification_new_table(user_profile, new_table):
+    """
+    Sends a notification email to the user about a newly created game table.
+
+    :param user_profile: The UserProfile instance of the user receiving the email.
+    :param new_table: The new table instance containing details about the new table.
+    """
     table_url = settings.DOMAIN_URL + reverse('table-detail', kwargs={'slug': new_table.slug})
 
     context = {
         'user_profile': user_profile,
+        'title': new_table.title,
         'game': new_table.game,
         'date': new_table.date,
         'time': new_table.time,
@@ -61,3 +78,31 @@ def send_notification_new_table(user_profile, new_table):
         [user_profile.user.email],
         html_message=html_content,
     )
+
+
+def send_batch_notification_new_messages(user_profile, total_unread, table_details):
+    """
+    Sends a batch email notification to the user about unread messages.
+
+    :param user_profile: The UserProfile instance of the user receiving the email.
+    :param total_unread: The total number of unread messages.
+    :param table_details: A list of details about tables with unread messages.
+    """
+    subject = f"Hai {total_unread} nuovi messaggi non letti"
+    context = {
+        'user_profile': user_profile,
+        'total_unread': total_unread,
+        'table_details': table_details,
+    }
+    text_content = render_to_string('emails/email_batch_notification_new_comments.html', context=context)
+    html_content = render_to_string('emails/email_batch_notification_new_comments_html.html', context=context)
+
+    send_mail(
+        subject=subject,
+        message=text_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_profile.user.email],
+        html_message=html_content,
+        fail_silently=False,
+    )
+

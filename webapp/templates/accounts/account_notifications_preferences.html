@@ -46,6 +46,13 @@
             </label>
           </div>
 
+          <div class="form-check form-switch pt-3 pb-3 custom-switch">
+            {{ form.notification_new_comments }}
+            <label class="form-check-label" for="{{ form.notification_new_comments.id_for_label }}">
+              {% trans "A new comment is written in a table you're participating in" %}
+            </label>
+          </div>
+
 {#          <div class="form-check form-switch pt-3 pb-3 custom-switch">#}
 {#            {{ form.notification_new_player }}#}
 {#            <label class="form-check-label" for="{{ form.notification_new_player.id_for_label }}">#}
