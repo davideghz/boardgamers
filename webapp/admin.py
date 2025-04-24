@@ -54,5 +54,6 @@ class LocationFollowerAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('recipient', 'notification_type', 'table', 'location')
+    list_display = ('recipient', 'notification_type', 'table', 'location', 'is_read', 'sent')
+    list_editable = ('is_read', 'sent',)
 

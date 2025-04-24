@@ -66,7 +66,7 @@ def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Comment)
-def notify_players_on_new_message(sender, instance, created, **kwargs):
+def notify_players_on_new_comments(sender, instance, created, **kwargs):
     if created:
         players = instance.table.players.exclude(id=instance.author.id)
         for player in players:

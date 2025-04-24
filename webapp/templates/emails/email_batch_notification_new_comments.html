@@ -1,0 +1,12 @@
+Ciao {{ user_profile.nickame }},
+
+Hai {{ total_unread }} nuovi messaggi non letti nei seguenti tavoli:
+
+{% for detail in table_details %}
+  - Tavolo: {{ detail.table.title }} ({{ detail.count }} nuovi messaggi)
+  Link: {{ detail.link }}
+{% endfor %}
+
+Accedi per leggere i tuoi messaggi: {{ settings.DOMAIN_URL }}
+
+Board-Gamers.com

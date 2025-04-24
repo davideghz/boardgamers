@@ -137,6 +137,7 @@ class UserProfile(DateTimeModel, SlugModel):
     # Notifications
     notification_new_table = models.BooleanField(default=True, verbose_name="Notification New Table")
     notification_new_player = models.BooleanField(default=True, verbose_name="Notification New Player")
+    notification_new_comments = models.BooleanField(default=True, verbose_name="Notification New Comments")
     notification_leaderboard_reminder = models.BooleanField(default=True, verbose_name="Notification Leaderboard Reminder")
     notification_leaderboard_update = models.BooleanField(default=True, verbose_name="Notification Leaderboard Update")
 

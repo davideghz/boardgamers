@@ -6,7 +6,7 @@ from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
@@ -73,6 +73,13 @@ class TableDetailView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         table = self.get_object()
+
+        # Mark all NEW_COMMENT notifications for this table as read
+        if self.request.user.is_authenticated:
+            self.request.user.user_profile.notifications.filter(
+                Q(notification_type='new_comment') & Q(table=table)
+            ).update(is_read=True)
+
         max_players = table.max_players
         current_players = table.players.count()
         today = now().date()
