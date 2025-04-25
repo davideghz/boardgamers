@@ -42,7 +42,7 @@
                         {% if notification.message %}
                           <small class="fst-italic border-start border-primary border-3 ps-2 d-block mt-1 mb-1">{{ notification.message|truncatechars:115 }}</small>
                         {% endif %}
-                        <small>{{ notification.table.title }}</small>
+                        <small><strong>{% trans "Table" %}</strong>: {{ notification.table.title }}</small>
                         {# <small><i class="bi bi-geo-alt-fill"></i> {{ notification.location.name }}</small>#}
                       </div>
                       <div class="col-auto">

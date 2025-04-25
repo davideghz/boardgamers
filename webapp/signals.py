@@ -4,9 +4,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table
-from webapp.models import UserProfile, Location, Player, Table, Notification, NotificationType, Comment
+from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment
 
 
 @receiver(user_logged_out)
@@ -77,3 +78,61 @@ def notify_players_on_new_comments(sender, instance, created, **kwargs):
                 location=instance.table.location,
                 message=instance.content,
             )
+
+
+@receiver(post_save, sender=Table)
+def table_status_change_notifications(sender, instance, created, **kwargs):
+    if created:
+        return
+
+    # 1) leaderboard_status → EDITABLE / NOT_EDITABLE
+    if instance.tracker.has_changed('leaderboard_status'):
+        old_lb = instance.tracker.previous('leaderboard_status')
+        new_lb = instance.leaderboard_status
+
+        if new_lb == Table.LEADERBOARD_EDITABLE:
+            subject = _("Time to fill in the leaderboard!")
+            message = _("The table “%(title)s” is now open for leaderboard entry.") % {
+                'title': instance.title
+            }
+            for player in instance.players.all():
+                Notification.objects.create(
+                    recipient=player,
+                    table=instance,
+                    notification_type=NotificationType.LEADERBOARD_EDITABLE,
+                    subject=subject,
+                    message=message,
+                )
+
+        elif new_lb == Table.LEADERBOARD_NOT_EDITABLE:
+            subject = _("Leaderboard locked")
+            message = _("The leaderboard for table “%(title)s” has been locked. Check your score!") % {
+                'title': instance.title
+            }
+            for player in instance.players.all():
+                Notification.objects.create(
+                    recipient=player,
+                    table=instance,
+                    notification_type=NotificationType.LEADERBOARD_CLOSED,
+                    subject=subject,
+                    message=message,
+                )
+
+    # 2) status → CLOSED
+    if instance.tracker.has_changed('status'):
+        old_status = instance.tracker.previous('status')
+        new_status = instance.status
+
+        if new_status == Table.CLOSED:
+            subject = _("Table closed")
+            message = _("The table “%(title)s” has been closed.") % {
+                'title': instance.title
+            }
+            for player in instance.players.all():
+                Notification.objects.create(
+                    recipient=player,
+                    table=instance,
+                    notification_type=NotificationType.TABLE_CLOSED,
+                    subject=subject,
+                    message=message,
+                )
