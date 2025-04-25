@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-19 14:07+0000\n"
+"POT-Creation-Date: 2025-04-25 16:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "Italiano"
 msgid "Games"
 msgstr "Games"
 
-#: webapp/forms.py:140 webapp/models.py:207
+#: webapp/forms.py:140 webapp/models.py:208
 #: webapp/templates/tables/table_detail.html:69
 msgid "Game"
 msgstr "Gioco"
@@ -83,87 +83,87 @@ msgstr "Messaggio inviato!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore. Controlla i dati inseriti"
 
-#: webapp/models.py:177
+#: webapp/models.py:178
 msgid "Open"
 msgstr "Aperto"
 
-#: webapp/models.py:178
+#: webapp/models.py:179
 msgid "On Going"
 msgstr "In corso"
 
-#: webapp/models.py:179
+#: webapp/models.py:180
 msgid "Closed"
 msgstr "Chiuso"
 
-#: webapp/models.py:186
+#: webapp/models.py:187
 msgid "Not Editable"
 msgstr "Non modificabile"
 
-#: webapp/models.py:187
+#: webapp/models.py:188
 msgid "Editable"
 msgstr "Editabile"
 
-#: webapp/models.py:191
+#: webapp/models.py:192
 msgid "Title"
 msgstr "Titolo"
 
-#: webapp/models.py:194
+#: webapp/models.py:195
 msgid "Description"
 msgstr "Descrizione"
 
-#: webapp/models.py:196
+#: webapp/models.py:197
 msgid "Location"
 msgstr "Location"
 
-#: webapp/models.py:198
+#: webapp/models.py:199
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
-#: webapp/models.py:199
+#: webapp/models.py:200
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
-#: webapp/models.py:200
+#: webapp/models.py:201
 msgid "Date"
 msgstr "Data"
 
-#: webapp/models.py:201
+#: webapp/models.py:202
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:283
+#: webapp/models.py:284
 msgid "Location Follower"
 msgstr "Location Follower"
 
-#: webapp/models.py:284
+#: webapp/models.py:285
 msgid "Location Followers"
 msgstr "Location Followers"
 
-#: webapp/models.py:291
+#: webapp/models.py:292
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:292
+#: webapp/models.py:293
 msgid "New player joined"
 msgstr "Nuovo gamer al tavolo"
 
-#: webapp/models.py:293
+#: webapp/models.py:294
 msgid "Create leaderboard"
 msgstr "Classifica creata"
 
-#: webapp/models.py:294
+#: webapp/models.py:295
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:295
+#: webapp/models.py:296
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:313
+#: webapp/models.py:314
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:314 webapp/templates/accounts/account_notifications.html:17
+#: webapp/models.py:315 webapp/templates/accounts/account_notifications.html:17
 #: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
@@ -241,7 +241,11 @@ msgstr "Attiva o disattiva le notifiche email per queste azioni."
 msgid "A new table is created in a location you follow"
 msgstr "Un tavolo viene creato in una location che segui"
 
-#: webapp/templates/accounts/account_notifications_preferences.html:71
+#: webapp/templates/accounts/account_notifications_preferences.html:52
+msgid "A new comment is written in a table you're participating in"
+msgstr "Nuovo commento in un tavolo a cui partecipi"
+
+#: webapp/templates/accounts/account_notifications_preferences.html:78
 msgid "Save preferences"
 msgstr "Salva preferenze"
 
@@ -346,13 +350,37 @@ msgstr ""
 "community per condividere la tua passione e trovare nuovi giocatori. Gioca, "
 "esplora e connettiti!"
 
-#: webapp/templates/emails/base/base_email_html.html:193
+#: webapp/templates/emails/base/base_email_html.html:186
 msgid "You can manage your email notification preferences in your profile"
 msgstr "Puoi gestire le notifiche email"
 
-#: webapp/templates/emails/base/base_email_html.html:193
+#: webapp/templates/emails/base/base_email_html.html:187
 msgid "at this link"
 msgstr "a questo link"
+
+#: webapp/templates/emails/email_batch_notification_new_comments_html.html:6
+msgid "New Messages"
+msgstr "Nuovi Messaggi"
+
+#: webapp/templates/emails/email_batch_notification_new_comments_html.html:10
+msgid "Hi"
+msgstr "Ciao"
+
+#: webapp/templates/emails/email_batch_notification_new_comments_html.html:11
+msgid "You have"
+msgstr "Hai"
+
+#: webapp/templates/emails/email_batch_notification_new_comments_html.html:11
+msgid "new unread messages in the following tables:"
+msgstr "nuovi messaggi non letti nei seguenti tavoli:"
+
+#: webapp/templates/emails/email_batch_notification_new_comments_html.html:20
+msgid "new messages"
+msgstr "nuovi messaggi"
+
+#: webapp/templates/emails/email_batch_notification_new_comments_html.html:22
+msgid "Link to table"
+msgstr "Link al tavolo"
 
 #: webapp/templates/emails/email_contacts.html:3
 #: webapp/templates/emails/email_contacts_html.html:6
@@ -384,20 +412,29 @@ msgid "A new table has been created in "
 msgstr "Un nuovo tavolo è stato creato creato presso "
 
 #: webapp/templates/emails/email_notification_new_table.html:6
-#: webapp/templates/emails/email_notification_new_table_html.html:12
+#: webapp/templates/emails/email_notification_new_table_html.html:17
 msgid "Game:"
 msgstr "Gioco:"
 
 #: webapp/templates/emails/email_notification_new_table.html:7
-#: webapp/templates/emails/email_notification_new_table_html.html:13
+#: webapp/templates/emails/email_notification_new_table_html.html:18
 msgid "Date and time:"
 msgstr "Data e ora:"
 
 #: webapp/templates/emails/email_notification_new_table_html.html:6
-msgid "NEW TABLE"
-msgstr "NUOVO TAVOLO"
+#: webapp/templates/tables/table_add_or_edit.html:25
+msgid "New Table"
+msgstr "Nuovo tavolo"
+
+#: webapp/templates/emails/email_notification_new_table_html.html:16
+msgid "Title:"
+msgstr "Titolo:"
 
 #: webapp/templates/emails/email_notification_new_table_html.html:17
+msgid "Not decided yet"
+msgstr "Non ancora deciso"
+
+#: webapp/templates/emails/email_notification_new_table_html.html:25
 msgid "See table"
 msgstr "Vai al tavolo"
 
@@ -759,10 +796,6 @@ msgstr "Contattaci"
 msgid "Edit table"
 msgstr "Modifica tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:25
-msgid "New Table"
-msgstr "Nuovo tavolo"
-
 #: webapp/templates/tables/table_add_or_edit.html:49
 msgid "Create a new table"
 msgstr "Crea un nuovo tavolo"
@@ -992,13 +1025,16 @@ msgstr "Non hai il permesso di modificare questo tavolo."
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-#: webapp/views/table_views.py:179
+#: webapp/views/table_views.py:186
 msgid "Table was created successfully"
 msgstr "Il tavolo è stato creato con successo"
 
-#: webapp/views/table_views.py:208
+#: webapp/views/table_views.py:215
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "NEW TABLE"
+#~ msgstr "NUOVO TAVOLO"
 
 #~ msgid "Stats"
 #~ msgstr "Statistiche"
