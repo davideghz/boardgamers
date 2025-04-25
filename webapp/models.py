@@ -15,6 +15,7 @@ from django.utils.functional import cached_property
 from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from model_utils import FieldTracker
 
 from webapp.storage_backends import PublicMediaStorage
 
@@ -192,6 +193,8 @@ class Table(DateTimeModel, SlugModel):
     title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
+    tracker = FieldTracker(fields=['status', 'leaderboard_status'])
+
     description = models.TextField(null=False, blank=True, verbose_name=_('Description'))
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Location'))
@@ -291,8 +294,9 @@ class LocationFollower(DateTimeModel):
 class NotificationType(models.TextChoices):
     NEW_TABLE = 'new_table', _('New table created')
     NEW_PLAYER = 'new_player', _('New player joined')
-    LEADERBOARD_REMINDER = 'leaderboard_reminder', _('Create leaderboard')
-    LEADERBOARD_UPDATE = 'leaderboard_update', _('Leaderboard updated')
+    LEADERBOARD_EDITABLE = 'leaderboard_reminder', _('Leaderboard is now editable')
+    LEADERBOARD_CLOSED = 'leaderboard_update', _('Leaderboard closed')
+    TABLE_CLOSED = 'table_closed', _('Table closed')
     NEW_COMMENT = 'new_comment', _('New comment')
 
 

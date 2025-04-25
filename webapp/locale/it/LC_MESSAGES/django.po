@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-25 16:00+0000\n"
+"POT-Creation-Date: 2025-04-25 17:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "Italiano"
 msgid "Games"
 msgstr "Games"
 
-#: webapp/forms.py:140 webapp/models.py:208
+#: webapp/forms.py:140 webapp/models.py:211
 #: webapp/templates/tables/table_detail.html:69
 msgid "Game"
 msgstr "Gioco"
@@ -83,90 +83,119 @@ msgstr "Messaggio inviato!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore. Controlla i dati inseriti"
 
-#: webapp/models.py:178
+#: webapp/models.py:179
 msgid "Open"
 msgstr "Aperto"
 
-#: webapp/models.py:179
+#: webapp/models.py:180
 msgid "On Going"
 msgstr "In corso"
 
-#: webapp/models.py:180
+#: webapp/models.py:181
 msgid "Closed"
 msgstr "Chiuso"
 
-#: webapp/models.py:187
+#: webapp/models.py:188
 msgid "Not Editable"
 msgstr "Non modificabile"
 
-#: webapp/models.py:188
+#: webapp/models.py:189
 msgid "Editable"
 msgstr "Editabile"
 
-#: webapp/models.py:192
+#: webapp/models.py:193
 msgid "Title"
 msgstr "Titolo"
 
-#: webapp/models.py:195
+#: webapp/models.py:198
 msgid "Description"
 msgstr "Descrizione"
 
-#: webapp/models.py:197
+#: webapp/models.py:200
 msgid "Location"
 msgstr "Location"
 
-#: webapp/models.py:199
+#: webapp/models.py:202
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
-#: webapp/models.py:200
+#: webapp/models.py:203
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
-#: webapp/models.py:201
+#: webapp/models.py:204
 msgid "Date"
 msgstr "Data"
 
-#: webapp/models.py:202
+#: webapp/models.py:205
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:284
+#: webapp/models.py:287
 msgid "Location Follower"
 msgstr "Location Follower"
 
-#: webapp/models.py:285
+#: webapp/models.py:288
 msgid "Location Followers"
 msgstr "Location Followers"
 
-#: webapp/models.py:292
+#: webapp/models.py:295
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:293
+#: webapp/models.py:296
 msgid "New player joined"
 msgstr "Nuovo gamer al tavolo"
 
-#: webapp/models.py:294
-msgid "Create leaderboard"
-msgstr "Classifica creata"
+#: webapp/models.py:297
+msgid "Leaderboard is now editable"
+msgstr "Classifica modificabile"
 
-#: webapp/models.py:295
-msgid "Leaderboard updated"
-msgstr "Classifica aggiornata"
+#: webapp/models.py:298
+msgid "Leaderboard closed"
+msgstr "Classifica chiusa"
 
-#: webapp/models.py:296
+#: webapp/models.py:299 webapp/signals.py:127
+msgid "Table closed"
+msgstr "Tavolo chiuso"
+
+#: webapp/models.py:300
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:314
+#: webapp/models.py:318
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:315 webapp/templates/accounts/account_notifications.html:17
+#: webapp/models.py:319 webapp/templates/accounts/account_notifications.html:17
 #: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
+
+#: webapp/signals.py:94
+msgid "Time to fill in the leaderboard!"
+msgstr "È tempo di compilare la classifica!"
+
+#: webapp/signals.py:95
+#, python-format
+msgid "The table “%(title)s” is now open for leaderboard entry."
+msgstr "Il tavolo “%(title)s” è pronto per l'inserimento della classifica."
+
+#: webapp/signals.py:108
+msgid "Leaderboard locked"
+msgstr "Classifica chiusa"
+
+#: webapp/signals.py:109
+#, python-format
+msgid ""
+"The leaderboard for table “%(title)s” has been locked. Check your score!"
+msgstr ""
+"La classifica per il tavolo “%(title)s” è stata chiusa. Controlla il tuo punteggio!"
+
+#: webapp/signals.py:128
+#, python-format
+msgid "The table “%(title)s” has been closed."
+msgstr "Il tavolo “%(title)s” è stato chiuso."
 
 #: webapp/templates/accounts/account_edit_profile.html:28
 #: webapp/templates/accounts/account_index.html:24
@@ -224,6 +253,10 @@ msgstr "Aggiungi Location"
 #: webapp/templates/partials/top-menu.html:126
 msgid "Account"
 msgstr "Account"
+
+#: webapp/templates/accounts/account_notifications.html:45
+msgid "Table"
+msgstr "Tavolo"
 
 #: webapp/templates/accounts/account_notifications.html:58
 msgid "You have no notifications at the moment."
@@ -1032,6 +1065,9 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:215
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "Leaderboard updated"
+#~ msgstr "Classifica aggiornata"
 
 #~ msgid "NEW TABLE"
 #~ msgstr "NUOVO TAVOLO"

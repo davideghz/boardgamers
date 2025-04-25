@@ -20,8 +20,6 @@ class Command(BaseCommand):
             Q(status=Table.CLOSED, leaderboard_status=Table.LEADERBOARD_EDITABLE)
         )
 
-        print(tables)
-
         for table in tables:
             game_datetime = datetime.combine(table.date, table.time).replace(tzinfo=italy_tz)
 
@@ -29,25 +27,21 @@ class Command(BaseCommand):
             if current_time < game_datetime:
                 table.status = Table.OPEN
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
-                print(f"#{table.title} - caso 1 - #{game_datetime}")
 
             # Caso 2: Partita in corso
             elif game_datetime <= current_time < game_datetime + timedelta(hours=6):
                 table.status = Table.ONGOING
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
-                print(f"#{table.title} - caso 2 - #{game_datetime}")
 
             # Caso 3: Partita terminata da 6 ore
             elif game_datetime + timedelta(hours=6) <= current_time < game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
-                print(f"#{table.title} - caso 3 - #{game_datetime}")
 
             # Caso 4: Partita terminata da 2 giorni
             elif current_time >= game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
-                print(f"#{table.title} - caso 4 - #{game_datetime}")
 
             table.save()
 
