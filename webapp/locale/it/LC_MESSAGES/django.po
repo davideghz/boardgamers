@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-25 17:01+0000\n"
+"POT-Creation-Date: 2025-04-26 10:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,6 +50,10 @@ msgstr "Inserisci un nickname"
 #: webapp/forms.py:234
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
+
+#: webapp/forms.py:236
+msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
+msgstr "Il nickname può avere al massimo 25 caratteri (ne ha {len(nickname)})."
 
 #: webapp/messages.py:3
 msgid "Email verification"
@@ -315,24 +319,25 @@ msgstr "Oppure"
 msgid "Sign in with Google"
 msgstr "Accedi con Google"
 
-#: webapp/templates/auth/login.html:121 webapp/templates/partials/hero.html:188
+#: webapp/templates/auth/login.html:121 webapp/templates/partials/hero.html:221
 msgid "Forgot your password?"
 msgstr "Password dimenticata?"
 
 #: webapp/templates/auth/login.html:122
 #: webapp/templates/auth/password_reset_form.html:19
+#: webapp/templates/partials/hero.html:222
 msgid "Reset password"
 msgstr "Reimposta la password"
 
 #: webapp/templates/auth/login.html:125
 #: webapp/templates/auth/password_reset_form.html:33
-#: webapp/templates/partials/hero.html:221
+#: webapp/templates/partials/hero.html:225
 msgid "Not a member?"
 msgstr "Non sei ancora iscritto?"
 
 #: webapp/templates/auth/login.html:126
 #: webapp/templates/auth/password_reset_form.html:34
-#: webapp/templates/partials/hero.html:222
+#: webapp/templates/partials/hero.html:226
 msgid "Create an account"
 msgstr "Crea un account"
 
@@ -629,7 +634,6 @@ msgid "Unfollow"
 msgstr "Non seguire più"
 
 #: webapp/templates/locations/location_detail.html:117
-#: webapp/templates/staticpages/home.html:66
 msgid "Upcoming tables"
 msgstr "Tavoli in arrivo"
 
@@ -693,7 +697,6 @@ msgid "See all gamers"
 msgstr "Vedi tutti i gamers di questa location"
 
 #: webapp/templates/locations/location_index.html:9
-#: webapp/templates/partials/hero.html:111
 msgid "Create a Table"
 msgstr "Crea un Tavolo"
 
@@ -717,33 +720,47 @@ msgstr "CLICCA QUI"
 msgid "to receive a new verification email."
 msgstr "per ricevere una nuova email di verifica."
 
+#: webapp/templates/partials/hero.html:111
+#, fuzzy
+#| msgid "Create a new location"
+msgid "All locations"
+msgstr "Tutte le location"
+
 #: webapp/templates/partials/hero.html:112
-msgid "Select a near location to Create a table in that location."
-msgstr "Seleziona una location vicina per creare un tavolo."
+#, fuzzy
+#| msgid "Select a near location to Create a table in that location."
+msgid "Select a nearby location to look for a table or create one there"
+msgstr "Seleziona una location vicina a te per trovare o creare un tavolo."
 
-#: webapp/templates/partials/hero.html:149
-msgid "Add your location"
-msgstr "Aggiungi location"
+#: webapp/templates/partials/hero.html:152
+msgid "Do you have a new location to add? Create it now!"
+msgstr "Hai una nuova location da aggiungere? Creala ora!"
 
-#: webapp/templates/partials/hero.html:163
+#: webapp/templates/partials/hero.html:156
+#, fuzzy
+#| msgid "Location"
+msgid "Add Location"
+msgstr "Aggiungi Location"
+
+#: webapp/templates/partials/hero.html:167
 msgid "Find Board Gamers"
 msgstr "Trova BoardGamers"
 
-#: webapp/templates/partials/hero.html:165
+#: webapp/templates/partials/hero.html:169
 msgid "near you"
 msgstr "vicino a te"
 
-#: webapp/templates/partials/hero.html:168
+#: webapp/templates/partials/hero.html:172
 msgid "Easily find board game enthusiasts in your area and share your passion."
 msgstr ""
 "Trova facilmente appassionati di giochi da tavolo nella tua zona e condividi "
 "la tua passione."
 
-#: webapp/templates/partials/hero.html:171
+#: webapp/templates/partials/hero.html:175
 msgid "To get in touch with us"
 msgstr "Per mandarci un messaggio"
 
-#: webapp/templates/partials/hero.html:172
+#: webapp/templates/partials/hero.html:176
 msgid "Click here"
 msgstr "Clicca qui"
 
@@ -791,6 +808,12 @@ msgstr "oppure"
 #: webapp/templates/staticpages/contacts.html:41
 msgid "Join us on Discord"
 msgstr "Unisciti al canale Discord"
+
+#: webapp/templates/staticpages/home.html:66
+#, fuzzy
+#| msgid "tables"
+msgid "Open tables"
+msgstr "Tavoli aperti"
 
 #: webapp/templates/staticpages/home.html:87
 msgid "Legends were made at these tables. Will you be next?"
