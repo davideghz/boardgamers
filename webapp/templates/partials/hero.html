@@ -179,14 +179,10 @@
               {{ login_form.username }}
               {{ login_form.username.label_tag|cut:":" }}
             </div>
-            <div class="form-floating mb-1">
+            <div class="form-floating mb-3">
               {{ login_form.password }}
               {{ login_form.password.label_tag|cut:":" }}
             </div>
-
-            <small class="text-body-secondary d-block mb-3 text-center">
-              <a class="link-offset-3" href="{% url 'custom_password_reset' %}">{% trans "Forgot your password?" %}</a>
-            </small>
 
             <input class="w-100 btn btn-lg btn-primary" type="submit" value="Login">
 
@@ -217,6 +213,10 @@
             </a>
 
             <hr class="my-4">
+            <small class="text-body-secondary d-block mb-3">
+              {% trans "Forgot your password?" %}
+              <a class="link-offset-3" href="{% url 'custom_password_reset' %}">{% trans "Reset password" %}</a>.
+            </small>
             <small class="text-body-secondary">
               {% trans "Not a member?" %}
               <a class="link-offset-3" href="{% url "signup" %}">{% trans "Create an account" %}</a>
