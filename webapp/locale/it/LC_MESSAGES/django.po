@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 10:23+0000\n"
+"POT-Creation-Date: 2025-04-26 11:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -190,11 +190,11 @@ msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
 #: webapp/signals.py:109
-#, python-format
+#, fuzzy, python-format
+#| msgid "The table “%(title)s” has been closed."
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
-msgstr ""
-"La classifica per il tavolo “%(title)s” è stata chiusa. Controlla il tuo punteggio!"
+msgstr "Il tavolo “%(title)s” è stato chiuso."
 
 #: webapp/signals.py:128
 #, python-format
@@ -737,10 +737,8 @@ msgid "Do you have a new location to add? Create it now!"
 msgstr "Hai una nuova location da aggiungere? Creala ora!"
 
 #: webapp/templates/partials/hero.html:156
-#, fuzzy
-#| msgid "Location"
-msgid "Add Location"
-msgstr "Aggiungi Location"
+msgid "Add your location"
+msgstr "Aggiungi location"
 
 #: webapp/templates/partials/hero.html:167
 msgid "Find Board Gamers"
@@ -1088,6 +1086,11 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:215
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#, fuzzy
+#~| msgid "Location"
+#~ msgid "Add Location"
+#~ msgstr "Aggiungi Location"
 
 #~ msgid "Leaderboard updated"
 #~ msgstr "Classifica aggiornata"
