@@ -60,7 +60,7 @@ def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
         for player in players:
             Notification.objects.create(
                 recipient=player,
-                notification_type=NotificationType.LEADERBOARD_UPDATE,
+                notification_type=NotificationType.LEADERBOARD_UPDATED,
                 table=instance.table,
                 location=instance.table.location,
             )

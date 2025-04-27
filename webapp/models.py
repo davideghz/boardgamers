@@ -294,8 +294,9 @@ class LocationFollower(DateTimeModel):
 class NotificationType(models.TextChoices):
     NEW_TABLE = 'new_table', _('New table created')
     NEW_PLAYER = 'new_player', _('New player joined')
-    LEADERBOARD_EDITABLE = 'leaderboard_reminder', _('Leaderboard is now editable')
-    LEADERBOARD_CLOSED = 'leaderboard_update', _('Leaderboard closed')
+    LEADERBOARD_EDITABLE = 'leaderboard_editable', _('Leaderboard is now editable')
+    LEADERBOARD_UPDATED = 'leaderboard_updated', _('Leaderboard updated')
+    LEADERBOARD_CLOSED = 'leaderboard_closed', _('Leaderboard closed')
     TABLE_CLOSED = 'table_closed', _('Table closed')
     NEW_COMMENT = 'new_comment', _('New comment')
 
