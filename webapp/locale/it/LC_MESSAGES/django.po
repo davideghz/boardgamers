@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 11:11+0000\n"
+"POT-Creation-Date: 2025-04-27 09:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,10 +50,6 @@ msgstr "Inserisci un nickname"
 #: webapp/forms.py:234
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
-
-#: webapp/forms.py:236
-msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
-msgstr "Il nickname può avere al massimo 25 caratteri (ne ha {len(nickname)})."
 
 #: webapp/messages.py:3
 msgid "Email verification"
@@ -190,11 +186,9 @@ msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
 #: webapp/signals.py:109
-#, fuzzy, python-format
-#| msgid "The table “%(title)s” has been closed."
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
-msgstr "Il tavolo “%(title)s” è stato chiuso."
+msgstr "La classifica per il tavolo “%(title)s” è stata chiusa. Controlla il tuo punteggio!"
 
 #: webapp/signals.py:128
 #, python-format
@@ -721,16 +715,12 @@ msgid "to receive a new verification email."
 msgstr "per ricevere una nuova email di verifica."
 
 #: webapp/templates/partials/hero.html:111
-#, fuzzy
-#| msgid "Create a new location"
 msgid "All locations"
 msgstr "Tutte le location"
 
 #: webapp/templates/partials/hero.html:112
-#, fuzzy
-#| msgid "Select a near location to Create a table in that location."
 msgid "Select a nearby location to look for a table or create one there"
-msgstr "Seleziona una location vicina a te per trovare o creare un tavolo."
+msgstr "Seleziona una location vicina per trovare o creare un tavolo."
 
 #: webapp/templates/partials/hero.html:152
 msgid "Do you have a new location to add? Create it now!"
@@ -808,8 +798,6 @@ msgid "Join us on Discord"
 msgstr "Unisciti al canale Discord"
 
 #: webapp/templates/staticpages/home.html:66
-#, fuzzy
-#| msgid "tables"
 msgid "Open tables"
 msgstr "Tavoli aperti"
 
@@ -1086,17 +1074,3 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:215
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
-
-#, fuzzy
-#~| msgid "Location"
-#~ msgid "Add Location"
-#~ msgstr "Aggiungi Location"
-
-#~ msgid "Leaderboard updated"
-#~ msgstr "Classifica aggiornata"
-
-#~ msgid "NEW TABLE"
-#~ msgstr "NUOVO TAVOLO"
-
-#~ msgid "Stats"
-#~ msgstr "Statistiche"
