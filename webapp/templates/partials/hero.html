@@ -108,8 +108,8 @@
     <div class="container-sm mt-3">
       <div class="row">
         <div class="col">
-          <h1>{% trans "Create a Table" %}</h1>
-          <p>{% trans "Select a near location to Create a table in that location." %}</p>
+          <h2 class="h1">{% trans "All locations" %}</h2>
+            <p>{% trans "Select a nearby location to look for a table or create one there" %}</p>
         </div>
       </div>
       <div class="row">
@@ -141,16 +141,20 @@
                   </a>
                 </div>
               {% endfor %}
-
-              <div class="swiper-slide">
-                <a class="card text-decoration-none" href="{% url 'location-create' %}">
-                  <img src="{% static '/images/add-location.webp' %}" class="card-img-top" alt="Add your location logo">
-                  <div class="card-body">
-                    <p class="card-text"><small><strong>{% trans "Add your location" %}</strong></small></p>
-                  </div>
-                </a>
-              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-light my-4 d-inline-block">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="h5 mb-0">{% trans "Do you have a new location to add? Create it now!" %}</h3>
+          </div>
+          <div class="col-lg-auto mt-3 mt-lg-0">
+            <a class="btn btn-primary w-100" href="{% url 'location-create' %}">
+              <i class="bi bi-plus-circle"></i> {% trans "Add your location" %}
+            </a>
           </div>
         </div>
       </div>
@@ -159,11 +163,11 @@
     <div class="container col-xl-10 col-xxl-8 px-4 py-5 z-3">
       <div class="row align-items-center g-lg-5 py-md-5">
         <div class="col-lg-7 text-center text-lg-start">
-          <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">
+          <h2 class="h1 fw-bold lh-1 text-body-emphasis mb-3">
             {% trans "Find Board Gamers" %}
             <br>
             {% trans "near you" %}
-          </h1>
+          </h2>
           <p class="col-lg-10 fs-4">
               {% trans "Easily find board game enthusiasts in your area and share your passion." %}
           </p>
