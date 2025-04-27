@@ -272,109 +272,111 @@
           <!-- Script per il Drag & Drop -->
           {% if leaderboard_enabled and user_can_edit_leaderboard %}
             <script>
-                const leaderboard = document.getElementById('leaderboard');
-                const saveOrderButton = document.getElementById('saveOrder');
-                const createLeaderboardButton = document.getElementById('createLeaderboard');
-                const editLeaderboardButton = document.getElementById('editLeaderboard');
-                const editLeaderboardInstructions = document.getElementById('editLeaderboardInstructions');
-                let sortableInstance; // Variabile per memorizzare l'istanza di SortableJS
+                window.addEventListener('DOMContentLoaded', () => {
+                  const leaderboard = document.getElementById('leaderboard');
+                  const saveOrderButton = document.getElementById('saveOrder');
+                  const createLeaderboardButton = document.getElementById('createLeaderboard');
+                  const editLeaderboardButton = document.getElementById('editLeaderboard');
+                  const editLeaderboardInstructions = document.getElementById('editLeaderboardInstructions');
+                  let sortableInstance; // Variabile per memorizzare l'istanza di SortableJS
 
-                // Funzione per abilitare/disabilitare il drag & drop
-                function toggleDrag(enabled) {
-                    if (sortableInstance) {
-                        sortableInstance.option("disabled", !enabled); // Abilita/disabilita il drag
-                    }
+                  // Funzione per abilitare/disabilitare il drag & drop
+                  function toggleDrag(enabled) {
+                      if (sortableInstance) {
+                          sortableInstance.option("disabled", !enabled); // Abilita/disabilita il drag
+                      }
 
-                    const handles = document.querySelectorAll('.handle');
-                    handles.forEach(handle => {
-                        handle.style.display = enabled ? 'inline-block' : 'none'; // Mostra/nasconde l'handle
-                    });
-                }
+                      const handles = document.querySelectorAll('.handle');
+                      handles.forEach(handle => {
+                          handle.style.display = enabled ? 'inline-block' : 'none'; // Mostra/nasconde l'handle
+                      });
+                  }
 
-                // Inizializzazione di SortableJS
-                sortableInstance = new Sortable(leaderboard, {
-                    animation: 150,
-                    handle: '.handle',
-                    ghostClass: 'sortable-ghost',
-                    fallbackOnBody: true,
-                    disabled: true, // Disabilita il drag all'inizio
+                  // Inizializzazione di SortableJS
+                  sortableInstance = new Sortable(leaderboard, {
+                      animation: 150,
+                      handle: '.handle',
+                      ghostClass: 'sortable-ghost',
+                      fallbackOnBody: true,
+                      disabled: true, // Disabilita il drag all'inizio
 
-                    onEnd: function () {
-                        // Ricalcolo le posizioni dopo il drag
-                        Array.from(leaderboard.children).forEach((item, index) => {
-                            const badge = item.querySelector('.badge');
-                            if (badge) {
-                                badge.textContent = index + 1;
-                                badge.classList.remove('bg-secondary');
-                                badge.classList.add('bg-primary');
-                            } else {
-                                console.warn("Badge non trovato per l'elemento:", item);
-                            }
-                        });
+                      onEnd: function () {
+                          // Ricalcolo le posizioni dopo il drag
+                          Array.from(leaderboard.children).forEach((item, index) => {
+                              const badge = item.querySelector('.badge');
+                              if (badge) {
+                                  badge.textContent = index + 1;
+                                  badge.classList.remove('bg-secondary');
+                                  badge.classList.add('bg-primary');
+                              } else {
+                                  console.warn("Badge non trovato per l'elemento:", item);
+                              }
+                          });
 
-                        // Abilita il bottone e cambia stile e testo
-                        saveOrderButton.disabled = false;
-                        saveOrderButton.classList.remove('btn-light', 'btn-secondary');
-                        saveOrderButton.classList.add('btn-primary');
-                        saveOrderButton.textContent = '{% trans "Update Leaderboard" %}';
-                    }
+                          // Abilita il bottone e cambia stile e testo
+                          saveOrderButton.disabled = false;
+                          saveOrderButton.classList.remove('btn-light', 'btn-secondary');
+                          saveOrderButton.classList.add('btn-primary');
+                          saveOrderButton.textContent = '{% trans "Update Leaderboard" %}';
+                      }
+                  });
+
+                  // Event listener per il link "Edit"
+                  if (editLeaderboardButton) {
+                      editLeaderboardButton.addEventListener('click', function (e) {
+                          e.preventDefault(); // Previene il comportamento predefinito del link
+                          toggleDrag(true); // Abilita il drag
+                          editLeaderboardInstructions.classList.remove('d-none');
+                          saveOrderButton.classList.remove('d-none');
+                          console.log("Drag & Drop abilitato!");
+                      });
+                  }
+
+                  // Event listener per il bottone "Save"
+                  saveOrderButton.addEventListener('click', function () {
+                      const players = Array.from(leaderboard.children).map((item, index) => ({
+                          id: item.getAttribute('data-player-id'),
+                          position: index + 1
+                      }));
+
+                      console.log("Sending data:", JSON.stringify({players: players}));
+
+                      fetch(`/api/tables/{{ table.id }}/update-player-position/`, {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'X-CSRFToken': '{{ csrf_token }}'
+                          },
+                          body: JSON.stringify({players: players})
+                      })
+                          .then(response => response.json())
+                          .then(data => {
+                              if (data.success) {
+                                  saveOrderButton.disabled = true;
+                                  saveOrderButton.classList.remove('btn-primary');
+                                  saveOrderButton.classList.add('btn-light');
+                                  saveOrderButton.textContent = '{% trans "Leaderboard Updated" %}';
+                                  toggleDrag(false); // Disabilita il drag dopo il salvataggio
+                                  editLeaderboardInstructions.classList.add('d-none');
+                                  console.log("Leaderboard updated successfully!");
+                              } else {
+                                  console.error("Error response:", data);
+                              }
+                          })
+                          .catch(error => {
+                              console.error("Fetch error:", error);
+                          });
+                  });
+
+                  if (createLeaderboardButton) {
+                      createLeaderboardButton.addEventListener('click', function () {
+                          leaderboard.classList.remove('d-none');
+                          saveOrderButton.classList.remove('d-none');
+                          editLeaderboardButton.classList.remove('d-none');
+                          createLeaderboardButton.classList.add('d-none');
+                      });
+                  }
                 });
-
-                // Event listener per il link "Edit"
-                if (editLeaderboardButton) {
-                    editLeaderboardButton.addEventListener('click', function (e) {
-                        e.preventDefault(); // Previene il comportamento predefinito del link
-                        toggleDrag(true); // Abilita il drag
-                        editLeaderboardInstructions.classList.remove('d-none');
-                        saveOrderButton.classList.remove('d-none');
-                        console.log("Drag & Drop abilitato!");
-                    });
-                }
-
-                // Event listener per il bottone "Save"
-                saveOrderButton.addEventListener('click', function () {
-                    const players = Array.from(leaderboard.children).map((item, index) => ({
-                        id: item.getAttribute('data-player-id'),
-                        position: index + 1
-                    }));
-
-                    console.log("Sending data:", JSON.stringify({players: players}));
-
-                    fetch(`/api/tables/{{ table.id }}/update-player-position/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        },
-                        body: JSON.stringify({players: players})
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                saveOrderButton.disabled = true;
-                                saveOrderButton.classList.remove('btn-primary');
-                                saveOrderButton.classList.add('btn-light');
-                                saveOrderButton.textContent = '{% trans "Leaderboard Updated" %}';
-                                toggleDrag(false); // Disabilita il drag dopo il salvataggio
-                                editLeaderboardInstructions.classList.add('d-none');
-                                console.log("Leaderboard updated successfully!");
-                            } else {
-                                console.error("Error response:", data);
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Fetch error:", error);
-                        });
-                });
-
-                if (createLeaderboardButton) {
-                    createLeaderboardButton.addEventListener('click', function () {
-                        leaderboard.classList.remove('d-none');
-                        saveOrderButton.classList.remove('d-none');
-                        editLeaderboardButton.classList.remove('d-none');
-                        createLeaderboardButton.classList.add('d-none');
-                    });
-                }
             </script>
           {% endif %}
 
