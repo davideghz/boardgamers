@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 09:43+0000\n"
+"POT-Creation-Date: 2025-04-28 05:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -152,22 +152,26 @@ msgid "Leaderboard is now editable"
 msgstr "Classifica modificabile"
 
 #: webapp/models.py:298
+msgid "Leaderboard updated"
+msgstr "Classifica aggiornata"
+
+#: webapp/models.py:299
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:299 webapp/signals.py:127
+#: webapp/models.py:300 webapp/signals.py:127
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
-#: webapp/models.py:300
+#: webapp/models.py:301
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:318
+#: webapp/models.py:319
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:319 webapp/templates/accounts/account_notifications.html:17
+#: webapp/models.py:320 webapp/templates/accounts/account_notifications.html:17
 #: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
@@ -186,9 +190,12 @@ msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
 #: webapp/signals.py:109
+#, python-format
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
-msgstr "La classifica per il tavolo “%(title)s” è stata chiusa. Controlla il tuo punteggio!"
+msgstr ""
+"La classifica per il tavolo “%(title)s” è stata chiusa. Controlla il tuo "
+"punteggio!"
 
 #: webapp/signals.py:128
 #, python-format
@@ -580,7 +587,7 @@ msgstr ""
 #: webapp/templates/locations/location_add_or_edit.html:135
 #: webapp/templates/tables/table_add_or_edit.html:167
 #: webapp/templates/tables/table_delete.html:13
-#: webapp/templates/tables/table_detail.html:483
+#: webapp/templates/tables/table_detail.html:485
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -876,7 +883,7 @@ msgid "How many players are invited to this table?"
 msgstr "Quanti gamers sono invitati a questo tavolo?"
 
 #: webapp/templates/tables/table_delete.html:7
-#: webapp/templates/tables/table_detail.html:476
+#: webapp/templates/tables/table_detail.html:478
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
 
@@ -1001,40 +1008,40 @@ msgid "NEW"
 msgstr "NUOVO"
 
 #: webapp/templates/tables/table_detail.html:265
-#: webapp/templates/tables/table_detail.html:321
+#: webapp/templates/tables/table_detail.html:322
 msgid "Update Leaderboard"
 msgstr "Aggiorna Classifica"
 
-#: webapp/templates/tables/table_detail.html:359
+#: webapp/templates/tables/table_detail.html:360
 msgid "Leaderboard Updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/templates/tables/table_detail.html:394
+#: webapp/templates/tables/table_detail.html:396
 msgid "Comments"
 msgstr "Commenti"
 
-#: webapp/templates/tables/table_detail.html:403
+#: webapp/templates/tables/table_detail.html:405
 msgid "Send comment"
 msgstr "Invia commento"
 
-#: webapp/templates/tables/table_detail.html:410
+#: webapp/templates/tables/table_detail.html:412
 msgid "Only gamers that joined the table can comment on this page."
 msgstr ""
 "Solo i gamers che si sono uniti al tavolo possono commentare questa pagina."
 
-#: webapp/templates/tables/table_detail.html:459
+#: webapp/templates/tables/table_detail.html:461
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
-#: webapp/templates/tables/table_detail.html:480
+#: webapp/templates/tables/table_detail.html:482
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
 
-#: webapp/templates/tables/table_detail.html:484
+#: webapp/templates/tables/table_detail.html:486
 msgid "Delete comment"
 msgstr "Elimina commento"
 
-#: webapp/templates/tables/table_detail.html:511
+#: webapp/templates/tables/table_detail.html:513
 msgid "Let's play"
 msgstr "Giochiamo"
 
