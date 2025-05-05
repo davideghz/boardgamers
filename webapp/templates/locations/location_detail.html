@@ -175,8 +175,8 @@
                   <span class="bi bi-geo-alt-fill"></span>
                 </div>
                 <div class="col">
-                  <p class="card-title mb-0 fw-bold">
-                    <a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ location.address|urlencode }}">{{ location.name }} - {{ location.address }}</a>
+                  <p class="card-title mb-0">
+                    <a class="text-decoration-none" target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ location.address|urlencode }}">{{ location.name }} - {{ location.address }}</a>
                   </p>
                 </div>
               </div>
@@ -188,22 +188,22 @@
                   const CONFIGURATION = {
                     "mapOptions": {"center":{"lat":{{ location.latitude }}, "lng":{{ location.longitude }} }, "fullscreenControl":false,"mapTypeControl":false,"streetViewControl":false,"zoom":16,"zoomControl":true,"maxZoom":22}
                   };
-              
+
                   async function initMap() {
                     const {Map} = google.maps;
                     const {AdvancedMarkerElement} = google.maps.marker;
                     const {Autocomplete} = google.maps.places;
-            
+
                     const mapOptions = CONFIGURATION.mapOptions;
                     mapOptions.mapId = mapOptions.mapId || 'DEMO_MAP_ID';
                     mapOptions.center = mapOptions.center || {lat: {{ location.latitude }}, lng: {{ location.longitude }}};
-            
+
                     const map = new Map(document.getElementById('gmp-map'), mapOptions);
                     const marker = new google.maps.marker.AdvancedMarkerElement({ map });
 
                     const latLng = new google.maps.LatLng(parseFloat({{ location.latitude }}), parseFloat({{location.longitude}}));
                     marker.position = latLng;
-            
+
                     map.setCenter(latLng);
                   }
                 </script>
@@ -217,7 +217,10 @@
         <h3 class="h4">{{ location.name }}</h3>
         <p class="mb-0">{{ location.description }}</p>
         {% if location.website %}
-          <p class="mb-0"><a href="{{ location.website }}" target="_blank" rel="noopener noreferrer"><span class="bi bi-website"><span> {{ location.website }}</a></p>
+          <p class="mb-0">
+            <i class="bi bi-globe"></i>
+            <a class="text-decoration-none" href="{{ location.website }}" target="_blank" rel="noopener noreferrer">{{ location.website }}</a>
+          </p>
         {% endif %}
       </div>
     </div>
@@ -255,7 +258,7 @@
           {% endfor %}
         </div>
       </div>
-      
+
       {% comment %} <div class="col-12 mt-3">
         <a href="#" class="text-decoration-none">
           <small>
@@ -301,14 +304,14 @@
         </table>
       </div>
     </div>
-    {% comment %} 
+    {% comment %}
       <div class="row mt-3">
         <a href="#" class="text-decoration-none">
           <small>
             <i class="bi bi-box-arrow-up-right"></i> {% trans "See all gamers" %}
           </small>
         </a>
-      </div> 
+      </div>
     {% endcomment %}
   </div>
 
