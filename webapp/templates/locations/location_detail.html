@@ -47,13 +47,22 @@
 
 {% block content %}
   <div class="container-fluid" style="background-color: slategrey; height: 180px">
-    <div class="container d-flex mt-4 align-items-center" style="">
-      <img class="img-thumbnail border-0 object-fit-cover object-position-center"
-           style="width: 80px; height: 80px; padding: 0.20rem" src="{{ location.cover_url }}"
-           alt="{{ location.name }} logo">
-      <h1 class="h2 text-light m-0 ms-3">
-        {{ location.name|truncatechars:50 }}
-      </h1>
+    <div class="container mt-4 align-items-center">
+      <div class="row">
+        <div class="col-auto">
+          <img class="img-thumbnail border-0 object-fit-cover object-position-center"
+               style="width: 80px; height: 80px; padding: 0.20rem" src="{{ location.cover_url }}"
+               alt="{{ location.name }} logo">
+        </div>
+        <div class="col align-self-center">
+          <h1 class="h2 text-light">
+            {{ location.name|truncatechars:50 }}
+          </h1>
+          {% if location.city %}
+            <p class="mb-0 text-light"><a class="text-light" href="#info">{{ location.city }}</a></p>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
   <div class="container" style="position: relative; top: -50px; margin-bottom: -50px">
@@ -101,15 +110,19 @@
   <div class="container-sm mt-4">
     <p>{% trans "Follow" %} {{ location.name }} {% trans "to be notified about new tables." %}</p>
     <form method="post" action="{% url 'follow-location' slug=location.slug %}">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-lg btn-dark">
-        {% if is_following %}
-          <small><i class="bi bi-heartbreak-fill"></i> {% trans "Unfollow" %}</small>
-        {% else %}
-          <small><i class="bi bi-heart-fill"></i> {% trans "Follow" %}</small>
-        {% endif %}
-      </button>
-      <small><i class="bi bi-heart-fill"></i> {{ followers_count }} followers</small>
+      <div class="row align-items-center">
+        {% csrf_token %}
+        <div class="col-auto">
+          <button type="submit" class="btn btn-lg btn-dark">
+            {% if is_following %}
+              <small><i class="bi bi-heartbreak-fill"></i> {% trans "Unfollow" %}</small>
+            {% else %}
+              <small><i class="bi bi-heart-fill"></i> {% trans "Follow" %}</small>
+            {% endif %}
+          </button>
+        </div>
+        <div class="col"><small><i class="bi bi-heart-fill"></i> {{ followers_count }} followers</small></div>
+      </div>
     </form>
   </div>
 
@@ -142,20 +155,79 @@
           {% for table in past_tables %}
             {% swiper_table_slide table %}
           {% empty %}
-            <p style="padding-left: 12px">{% trans "No tables found." %}</p>
+            <p class="text-muted" style="padding-left: 12px">{% trans "No tables found." %}</p>
           {% endfor %}
         </div>
       </div>
     </div>
   </div>
 
-  <div class="container mt-4">
+  <div class="container mt-4" id="info">
     <h2>{% trans "About" %}</h2>
-    <p class="mb-0">{{ location.description }}</p>
+    <div class="row mt-3">
+      <div class="col-lg-6 mb-3">
+        {# Location Map #}
+        {% if location.address %}
+          <div class="card shadow border-0">
+            <div class="card-header bg-white py-3">
+              <div class="row gx-2 align-items-center">
+                <div class="col-auto">
+                  <span class="bi bi-geo-alt-fill"></span>
+                </div>
+                <div class="col">
+                  <p class="card-title mb-0">
+                    <a class="text-decoration-none" target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ location.address|urlencode }}">{{ location.name }} - {{ location.address }}</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              {% if location.latitude and location.longitude %}
+                <div class="ratio ratio-16x9 rounded-bottom" id="gmp-map"></div>
+                <script>
+                  const CONFIGURATION = {
+                    "mapOptions": {"center":{"lat":{{ location.latitude }}, "lng":{{ location.longitude }} }, "fullscreenControl":false,"mapTypeControl":false,"streetViewControl":false,"zoom":16,"zoomControl":true,"maxZoom":22}
+                  };
+
+                  async function initMap() {
+                    const {Map} = google.maps;
+                    const {AdvancedMarkerElement} = google.maps.marker;
+                    const {Autocomplete} = google.maps.places;
+
+                    const mapOptions = CONFIGURATION.mapOptions;
+                    mapOptions.mapId = mapOptions.mapId || 'DEMO_MAP_ID';
+                    mapOptions.center = mapOptions.center || {lat: {{ location.latitude }}, lng: {{ location.longitude }}};
+
+                    const map = new Map(document.getElementById('gmp-map'), mapOptions);
+                    const marker = new google.maps.marker.AdvancedMarkerElement({ map });
+
+                    const latLng = new google.maps.LatLng(parseFloat({{ location.latitude }}), parseFloat({{location.longitude}}));
+                    marker.position = latLng;
+
+                    map.setCenter(latLng);
+                  }
+                </script>
+                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-nP6SNj7I69cz67_5QyhwhmlzR5GiMl8&libraries=places,marker&callback=initMap&loading=async" async defer></script>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-lg-6">
+        <h3 class="h4">{{ location.name }}</h3>
+        <p class="mb-0">{{ location.description }}</p>
+        {% if location.website %}
+          <p class="mb-0">
+            <i class="bi bi-globe"></i>
+            <a class="text-decoration-none" href="{{ location.website }}" target="_blank" rel="noopener noreferrer">{{ location.website }}</a>
+          </p>
+        {% endif %}
+      </div>
+    </div>
   </div>
   <div class="container mt-4 mb-5" id="stats">
     <div class="row">
-      <h3 class="h4 mt-4">{% trans "Most played games" %}</h3>
+      <h2 class="h2 mt-4">{% trans "Most played games" %}</h2>
       <p class="m-0">{% trans "For each game, the player with the most wins is shown. In case of a tie, all top players are displayed." %}</p>
     </div>
     <div class="row">
@@ -182,20 +254,21 @@
               </div>
             </div>
           {% empty %}
-            <p>Nessun gioco giocato in questa location.</p>
+            <p class="text-muted mt-3 mb-0">{% trans "No games played at this location." %}</p>
           {% endfor %}
         </div>
       </div>
-      <div class="col-12 mt-3">
+
+      {% comment %} <div class="col-12 mt-3">
         <a href="#" class="text-decoration-none">
           <small>
             <i class="bi bi-box-arrow-up-right"></i> {% trans "See all played games" %}
           </small>
         </a>
-      </div>
+      </div> {% endcomment %}
     </div>
     <div class="row">
-      <h3 class="h4 mt-4">{% trans "Gamers' stats" %}</h3>
+      <h2 class="mt-5">{% trans "Gamers' stats" %}</h2>
     </div>
     <div class="row">
       <div class="table-responsive mt-3">
@@ -224,20 +297,22 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="5">Nessun giocatore registrato in questa location.</td>
+              <td colspan="5">{% trans "No players registered for this location" %}</td>
             </tr>
           {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-    <div class="row mt-3">
-      <a href="#" class="text-decoration-none">
-        <small>
-          <i class="bi bi-box-arrow-up-right"></i> {% trans "See all gamers" %}
-        </small>
-      </a>
-    </div>
+    {% comment %}
+      <div class="row mt-3">
+        <a href="#" class="text-decoration-none">
+          <small>
+            <i class="bi bi-box-arrow-up-right"></i> {% trans "See all gamers" %}
+          </small>
+        </a>
+      </div>
+    {% endcomment %}
   </div>
 
   <div class="container fixed-bottom bg-light p-3 border-top d-sm-none">
