@@ -34,8 +34,13 @@
             {% trans "Remove Gamers" %}
           </h1>
           <p class="d-block text-danger">
-            <i class="bi bi-exclamation-circle"></i>
-            {% trans "This action cannot be undone." %}
+            {% if table.status == table.CLOSED %}
+              <i class="bi bi-exclamation-circle"></i>
+              {% trans "This table is closed and it's not possible to remove gamers." %}
+            {% else %}
+              <i class="bi bi-exclamation-circle"></i>
+              {% trans "This action cannot be undone." %}
+            {% endif %}
           </p>
           {% for player in players %}
             <div class="row">
@@ -46,22 +51,24 @@
                      alt="{{ player.user_profile.nickname }} logo">
                 <div class="w-100">
 
-                    <div class="input-group mb-3">
-                      <input type="text"
-                             class="form-control text-truncate"
-                             value="{{ player.user_profile.nickname }}"
-                             style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; cursor: default"
-                             aria-label="{{ player.user_profile.nickname }}" readonly>
-                      <button class="btn btn-danger btn-lg"
-                              type="button"
-                              style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0;"
-                              data-bs-toggle="modal"
-                              data-bs-target="#deletePlayerModal"
-                              data-comment-url="{% url 'remove-player' table.slug player.id %}">
-                        <i class="bi bi-x-circle-fill"></i>
-                      </button>
-                    </div>
+                  <div class="input-group mb-3">
+                    <input type="text"
+                           class="form-control text-truncate"
+                           value="{{ player.user_profile.nickname }}"
+                           style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; cursor: default"
+                           aria-label="{{ player.user_profile.nickname }}"
+                           {% if table.status == table.CLOSED %}disabled{% endif %}>
 
+                    <button class="btn btn-danger btn-lg"
+                            type="button"
+                            style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deletePlayerModal"
+                            data-comment-url="{% url 'remove-player' table.slug player.id %}"
+                            {% if table.status == "closed" %}disabled{% endif %}>
+                      <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

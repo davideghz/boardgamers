@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-11 15:41+0000\n"
+"POT-Creation-Date: 2025-05-11 16:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -589,7 +589,7 @@ msgstr ""
 #: webapp/templates/tables/table_add_or_edit.html:167
 #: webapp/templates/tables/table_delete.html:13
 #: webapp/templates/tables/table_detail.html:485
-#: webapp/templates/tables/table_players.html:88
+#: webapp/templates/tables/table_players.html:95
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -886,13 +886,13 @@ msgstr "Quanti gamers sono invitati a questo tavolo?"
 
 #: webapp/templates/tables/table_delete.html:7
 #: webapp/templates/tables/table_detail.html:478
-#: webapp/templates/tables/table_players.html:81
+#: webapp/templates/tables/table_players.html:88
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
 
 #: webapp/templates/tables/table_delete.html:8
 msgid "Are you sure you want to delete"
-msgstr "Sei sicuro di voler eliminare"
+msgstr "Procedere con eliminazione"
 
 #: webapp/templates/tables/table_delete.html:12
 msgid "Delete"
@@ -1038,7 +1038,7 @@ msgstr "Non ci sono ancora commenti."
 
 #: webapp/templates/tables/table_detail.html:482
 msgid "Are you sure you want to delete the comment?"
-msgstr "Sei sicuro di voler eliminare il commento?"
+msgstr "Procedere con eliminazione del commento?"
 
 #: webapp/templates/tables/table_detail.html:486
 msgid "Delete comment"
@@ -1056,15 +1056,19 @@ msgstr "Tavoli in arrivo"
 msgid "Remove Gamers"
 msgstr "Rimuovi Gamers"
 
-#: webapp/templates/tables/table_players.html:38
+#: webapp/templates/tables/table_players.html:39
+msgid "This table is closed and it's not possible to remove gamers."
+msgstr ""
+
+#: webapp/templates/tables/table_players.html:42
 msgid "This action cannot be undone."
 msgstr "Questa azione non può essere annullata."
 
-#: webapp/templates/tables/table_players.html:85
+#: webapp/templates/tables/table_players.html:92
 msgid "Are you sure you want to delete this gamer?"
-msgstr "Sei sicuro di voler eliminare il gamer?"
+msgstr "Procedere con rimozione gamer dal tavolo?"
 
-#: webapp/templates/tables/table_players.html:89
+#: webapp/templates/tables/table_players.html:96
 msgid "Delete gamer"
 msgstr "Elimina gamer"
 
@@ -1093,11 +1097,19 @@ msgstr "Non hai il permesso di modificare questo tavolo."
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-#: webapp/views/table_views.py:219
+#: webapp/views/table_views.py:189
+msgid "Non hai i permessi per rimuovere giocatori da questo tavolo."
+msgstr ""
+
+#: webapp/views/table_views.py:194
+msgid "Puoi rimuovere i giocatori solo da tavoli aperti o in corso."
+msgstr ""
+
+#: webapp/views/table_views.py:225
 msgid "Table was created successfully"
 msgstr "Il tavolo è stato creato con successo"
 
-#: webapp/views/table_views.py:248
+#: webapp/views/table_views.py:254
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
 
