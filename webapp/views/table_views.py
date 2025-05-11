@@ -163,6 +163,39 @@ class TableDetailView(generic.DetailView):
 
 
 @login_required
+def table_players_view(request, slug):
+    table = get_object_or_404(Table, slug=slug)
+
+    # Solo l'autore del tavolo o l'admin può accedere
+    if not (request.user.is_superuser or table.author.user == request.user):
+        messages.error(request, "You do not have permission to manage players for this table.", extra_tags="danger")
+        return redirect("table-detail", slug=slug)
+
+    players = Player.objects.filter(table=table).select_related("user_profile")
+
+    return render(request, "tables/table_players.html", {
+        "table": table,
+        "players": players,
+    })
+
+
+@login_required
+def remove_player_view(request, slug, player_id):
+    table = get_object_or_404(Table, slug=slug)
+    player = get_object_or_404(Player, id=player_id, table=table)
+
+    # Autorizzazione specifica: autore o admin
+    if not (request.user.is_superuser or table.author.user == request.user):
+        messages.error(request, "You do not have permission to remove players.", extra_tags="danger")
+        return redirect("table-players", slug=slug)
+
+    player.delete()
+    messages.success(request, f"{player.user_profile.nickname} has been removed from the table.")
+
+    return redirect("table-players", slug=slug)
+
+
+@login_required
 def table_create_view(request, location_slug):
     location = get_object_or_404(Location, slug=location_slug)
     initial = {"location": location}

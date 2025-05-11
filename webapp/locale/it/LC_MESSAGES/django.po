@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-28 05:49+0000\n"
+"POT-Creation-Date: 2025-05-11 15:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -288,7 +288,7 @@ msgid "Save preferences"
 msgstr "Salva preferenze"
 
 #: webapp/templates/accounts/account_tables.html:28
-#: webapp/templates/locations/location_detail.html:206
+#: webapp/templates/locations/location_detail.html:280
 #: webapp/templates/partials/top-menu.html:88
 #: webapp/templates/partials/top-menu.html:132
 msgid "Tables"
@@ -300,8 +300,8 @@ msgstr "Tavoli giocati!"
 
 #: webapp/templates/accounts/account_tables.html:34
 #: webapp/templates/accounts/account_tables.html:42
-#: webapp/templates/locations/location_detail.html:127
-#: webapp/templates/locations/location_detail.html:145
+#: webapp/templates/locations/location_detail.html:140
+#: webapp/templates/locations/location_detail.html:158
 #: webapp/templates/staticpages/home.html:76
 #: webapp/templates/staticpages/home.html:96
 #: webapp/templates/tables/table_index.html:21
@@ -505,6 +505,7 @@ msgstr "Tavoli giocati"
 #: webapp/templates/games/game_detail.html:57
 #: webapp/templates/games/game_list.html:65
 #: webapp/templates/tables/table_detail.html:82
+#: webapp/templates/tables/table_players.html:20
 msgid "Gamers"
 msgstr "Gamers"
 
@@ -588,6 +589,7 @@ msgstr ""
 #: webapp/templates/tables/table_add_or_edit.html:167
 #: webapp/templates/tables/table_delete.html:13
 #: webapp/templates/tables/table_detail.html:485
+#: webapp/templates/tables/table_players.html:88
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -606,62 +608,62 @@ msgid ""
 "games. We’re waiting for you at:"
 msgstr "e sfida i tuoi amici ai migliori giochi da tavolo. Ti aspettiamo in:"
 
-#: webapp/templates/locations/location_detail.html:69
-#: webapp/templates/locations/location_detail.html:173
+#: webapp/templates/locations/location_detail.html:78
+#: webapp/templates/locations/location_detail.html:245
 #: webapp/templates/profiles/user_profile_detail.html:68
 msgid "tables"
 msgstr "tavoli"
 
-#: webapp/templates/locations/location_detail.html:78
+#: webapp/templates/locations/location_detail.html:87
 msgid "gamers"
 msgstr "gamers"
 
-#: webapp/templates/locations/location_detail.html:92
-#: webapp/templates/locations/location_detail.html:247
+#: webapp/templates/locations/location_detail.html:101
+#: webapp/templates/locations/location_detail.html:324
 msgid "Create table here"
 msgstr "Crea un tavolo"
 
-#: webapp/templates/locations/location_detail.html:102
-#: webapp/templates/locations/location_detail.html:109
+#: webapp/templates/locations/location_detail.html:111
+#: webapp/templates/locations/location_detail.html:120
 msgid "Follow"
 msgstr "Segui"
 
-#: webapp/templates/locations/location_detail.html:102
+#: webapp/templates/locations/location_detail.html:111
 msgid "to be notified about new tables."
 msgstr "per ricevere una notifica alla creazione di nuovi tavoli."
 
-#: webapp/templates/locations/location_detail.html:107
+#: webapp/templates/locations/location_detail.html:118
 msgid "Unfollow"
 msgstr "Non seguire più"
 
-#: webapp/templates/locations/location_detail.html:117
+#: webapp/templates/locations/location_detail.html:130
 msgid "Upcoming tables"
 msgstr "Tavoli in arrivo"
 
-#: webapp/templates/locations/location_detail.html:118
+#: webapp/templates/locations/location_detail.html:131
 #: webapp/templates/staticpages/home.html:67
 #: webapp/templates/tables/table_index.html:11
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
-#: webapp/templates/locations/location_detail.html:135
+#: webapp/templates/locations/location_detail.html:148
 #: webapp/templates/staticpages/home.html:86
 msgid "Past tables"
 msgstr "Tavoli passati"
 
-#: webapp/templates/locations/location_detail.html:136
+#: webapp/templates/locations/location_detail.html:149
 msgid "Great games, greater memories. What’s your next move?"
 msgstr "Partite memorabili! Quale sarà la tua prossima mossa?"
 
-#: webapp/templates/locations/location_detail.html:153
+#: webapp/templates/locations/location_detail.html:166
 msgid "About"
 msgstr "Informazioni"
 
-#: webapp/templates/locations/location_detail.html:158
+#: webapp/templates/locations/location_detail.html:230
 msgid "Most played games"
 msgstr "Giochi più apprezzati"
 
-#: webapp/templates/locations/location_detail.html:159
+#: webapp/templates/locations/location_detail.html:231
 msgid ""
 "For each game, the player with the most wins is shown. In case of a tie, all "
 "top players are displayed."
@@ -669,33 +671,33 @@ msgstr ""
 "Per ogni gioco è indicato il gamer con più vittorie. In caso di pareggio, "
 "sono indicati tutti i gamers con il numero massimo di vittorie."
 
-#: webapp/templates/locations/location_detail.html:192
-msgid "See all played games"
-msgstr "Vedi lista giochi completa"
+#: webapp/templates/locations/location_detail.html:257
+msgid "No games played at this location."
+msgstr "Nessun gioco per questo tavolo."
 
-#: webapp/templates/locations/location_detail.html:198
+#: webapp/templates/locations/location_detail.html:272
 msgid "Gamers' stats"
 msgstr "Leaderboard"
 
-#: webapp/templates/locations/location_detail.html:205
+#: webapp/templates/locations/location_detail.html:279
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/templates/locations/location_detail.html:207
+#: webapp/templates/locations/location_detail.html:281
 msgid "1st place"
 msgstr "1° posto"
 
-#: webapp/templates/locations/location_detail.html:208
+#: webapp/templates/locations/location_detail.html:282
 msgid "2nd place"
 msgstr "2° posto"
 
-#: webapp/templates/locations/location_detail.html:209
+#: webapp/templates/locations/location_detail.html:283
 msgid "3rd place"
 msgstr "3° posto"
 
-#: webapp/templates/locations/location_detail.html:237
-msgid "See all gamers"
-msgstr "Vedi tutti i gamers di questa location"
+#: webapp/templates/locations/location_detail.html:301
+msgid "No players registered for this location"
+msgstr "Non ci sono gamers in questa location"
 
 #: webapp/templates/locations/location_index.html:9
 msgid "Create a Table"
@@ -884,6 +886,7 @@ msgstr "Quanti gamers sono invitati a questo tavolo?"
 
 #: webapp/templates/tables/table_delete.html:7
 #: webapp/templates/tables/table_detail.html:478
+#: webapp/templates/tables/table_players.html:81
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
 
@@ -1049,6 +1052,22 @@ msgstr "Giochiamo"
 msgid "Upcoming Tables"
 msgstr "Tavoli in arrivo"
 
+#: webapp/templates/tables/table_players.html:34
+msgid "Remove Gamers"
+msgstr "Rimuovi Gamers"
+
+#: webapp/templates/tables/table_players.html:38
+msgid "This action cannot be undone."
+msgstr "Questa azione non può essere annullata."
+
+#: webapp/templates/tables/table_players.html:85
+msgid "Are you sure you want to delete this gamer?"
+msgstr "Sei sicuro di voler eliminare il gamer?"
+
+#: webapp/templates/tables/table_players.html:89
+msgid "Delete gamer"
+msgstr "Elimina gamer"
+
 #: webapp/templates/tags/swiper_table_slide.html:28
 #: webapp/templates/tags/table_card.html:23
 msgid "Private location"
@@ -1074,10 +1093,16 @@ msgstr "Non hai il permesso di modificare questo tavolo."
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-#: webapp/views/table_views.py:186
+#: webapp/views/table_views.py:219
 msgid "Table was created successfully"
 msgstr "Il tavolo è stato creato con successo"
 
-#: webapp/views/table_views.py:215
+#: webapp/views/table_views.py:248
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "See all played games"
+#~ msgstr "Vedi lista giochi completa"
+
+#~ msgid "See all gamers"
+#~ msgstr "Vedi tutti i gamers di questa location"
