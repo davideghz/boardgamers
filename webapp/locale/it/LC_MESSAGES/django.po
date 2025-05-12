@@ -935,9 +935,7 @@ msgid "No players yet."
 msgstr "Ancora nessun giocatore."
 
 #: webapp/templates/tables/table_detail.html:94
-#, fuzzy
-#| msgid "Remove Gamers"
-msgid "Invite/Remove Gamers"
+msgid "Invita/Rimuovi Gamers"
 msgstr "Rimuovi Gamers"
 
 #: webapp/templates/tables/table_detail.html:105
