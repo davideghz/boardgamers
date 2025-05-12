@@ -88,6 +88,12 @@
             {% empty %}
               <small>{% trans "No players yet." %}</small>
             {% endfor %}
+
+            {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
+              <a class="btn btn-outline-primary w-100 mt-2" href="{% url 'table-players' table.slug %}">
+                <i class="bi bi-person-x-fill"></i> {% trans "Invite/Remove Gamers" %}
+              </a>
+            {% endif %}
           </div>
           <div class="card-body border-top">
             {% if table.status == table.OPEN %}

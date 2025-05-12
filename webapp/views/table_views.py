@@ -163,6 +163,45 @@ class TableDetailView(generic.DetailView):
 
 
 @login_required
+def table_players_view(request, slug):
+    table = get_object_or_404(Table, slug=slug)
+
+    # Solo l'autore del tavolo o l'admin può accedere
+    if not (request.user.is_superuser or table.author.user == request.user):
+        messages.error(request, "You do not have permission to manage players for this table.", extra_tags="danger")
+        return redirect("table-detail", slug=slug)
+
+    players = Player.objects.filter(table=table).select_related("user_profile")
+
+    return render(request, "tables/table_players.html", {
+        "table": table,
+        "players": players,
+    })
+
+
+@login_required
+def remove_player_view(request, slug, player_id):
+    table = get_object_or_404(Table, slug=slug)
+    player = get_object_or_404(Player, id=player_id, table=table)
+
+    # Controllo permessi
+    if not (request.user.is_superuser or table.author.user == request.user):
+        messages.error(request, _("Non hai i permessi per rimuovere giocatori da questo tavolo."), extra_tags="danger")
+        return redirect("table-players", slug=slug)
+
+    # Controllo stato tavolo
+    if table.status not in [Table.OPEN, Table.ONGOING]:
+        messages.error(request, _("Puoi rimuovere i giocatori solo da tavoli aperti o in corso."), extra_tags="danger")
+        return redirect("table-players", slug=slug)
+
+    # Rimuovi il player
+    player.delete()
+    messages.success(request, _(f"{player.user_profile.nickname} è stato rimosso dal tavolo."))
+
+    return redirect("table-players", slug=slug)
+
+
+@login_required
 def table_create_view(request, location_slug):
     location = get_object_or_404(Location, slug=location_slug)
     initial = {"location": location}
