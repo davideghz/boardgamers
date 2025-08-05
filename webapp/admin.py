@@ -1,13 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification
 
 
-@admin.register(UserAdmin)
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'date_joined', 'is_staff')
     ordering = ('-date_joined',)  # opzionale: ordina per data
+
+
+# Deregistra l'admin default e registra il nostro
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
 
 
 @admin.register(UserProfile)
