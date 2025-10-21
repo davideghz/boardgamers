@@ -18,13 +18,13 @@ admin.site.register(User, CustomUserAdmin)
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("nickname", "created_at", "user", "is_email_verified")
+    search_fields = ("nickname", "user__username", "user__email")
 
 
 class PlayerInline(admin.TabularInline):
     model = Player
     extra = 0
     fields = ('user_profile', 'position', 'score')
-    readonly_fields = ('user_profile',)
 
 
 @admin.register(Table)
@@ -58,6 +58,7 @@ class LocationAdmin(admin.ModelAdmin):
 class GameAdmin(admin.ModelAdmin):
     list_display = ("name", "leaderboard_enabled", "created_at")
     list_editable = ("leaderboard_enabled",)
+    search_fields = ("name",)
 
 
 @admin.register(LocationFollower)
