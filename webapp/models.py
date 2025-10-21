@@ -87,6 +87,9 @@ class Game(DateTimeModel, SlugModel):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
 
 class Location(DateTimeModel, SlugModel):
     slug_field_name = 'name'
