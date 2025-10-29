@@ -82,7 +82,7 @@ class Game(DateTimeModel, SlugModel):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
         else:
-            return settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
+            return settings.DOMAIN_URL + settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
 
     def __str__(self):
         return self.name
