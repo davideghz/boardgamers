@@ -38,7 +38,11 @@
             tableCard.target = "_blank";
             tableCard.rel = "noopener noreferrer";
 
-            // Troncatura descrizione
+            // Troncatura titolo e descrizione
+            const shortTitle = table.title.length > 65
+                ? table.title.slice(0, 65).trim() + "…"
+                : table.title;
+
             const shortDescription = table.description.length > 75
                 ? table.description.slice(0, 75).trim() + "…"
                 : table.description;
@@ -85,7 +89,7 @@
             </div>
 
             <div class="bg-card-body">
-                <p class="bg-title">${table.title}</p>
+                <p class="bg-title">${shortTitle}</p>
                 <p class="bg-description">${shortDescription}</p>
             </div>
 
