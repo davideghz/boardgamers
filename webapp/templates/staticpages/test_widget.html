@@ -1,0 +1,30 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>TITOLO DELLA PAGINA</title>
+</head>
+<body>
+
+<!-- Board-Gamers.com Widget-->
+
+<link rel="stylesheet" href="{% static 'widget/widget.css' %}">
+
+{#<div id="board-gamers-tables"#}
+{#     data-location="location-a-torino-iefgdl,location-a-milano-gqnkee"#}
+{#     data-api-base="http://localhost:8000"#}
+{#>#}
+
+<div id="board-gamers-tables"
+     data-location="anonima-giocatori"
+>
+</div>
+
+<script src="{% static 'widget/widget.js' %}"></script>
+
+</body>
+</html>

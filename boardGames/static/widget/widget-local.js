@@ -21,9 +21,6 @@
         const container = document.getElementById('board-gamers-tables');
         if (!container) return;
 
-        const apiBase = container?.dataset.apiBase || 'https://board-gamers.com';
-        const baseUrl = apiBase.replace(/\/$/, '');  // Rimuove lo slash finale se presente
-
         container.innerHTML = ""; // Pulizia della lista precedente
 
         if (tables.length === 0) {
@@ -34,13 +31,13 @@
         tables.forEach(table => {
             const tableCard = document.createElement("a");
             tableCard.classList.add("bg-card");
-            tableCard.href = `${baseUrl}/tables/${table.slug}/`;
+            tableCard.href = `http://localhost:8000/tables/${table.slug}/`;
             tableCard.target = "_blank";
             tableCard.rel = "noopener noreferrer";
 
             // Troncatura descrizione
-            const shortDescription = table.description.length > 100
-                ? table.description.slice(0, 100).trim() + "…"
+            const shortDescription = table.description.length > 75
+                ? table.description.slice(0, 75).trim() + "…"
                 : table.description;
 
             // Data e ora leggibili
@@ -88,7 +85,6 @@
                 <p class="bg-title">${table.title}</p>
                 <p class="bg-description">${shortDescription}</p>
             </div>
-
             <div class="bg-card-footer">
                 <small>${table.location_name}</small>
             </div>

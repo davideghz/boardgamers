@@ -71,22 +71,33 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'success': True}, status=status.HTTP_200_OK)
 
         except Table.DoesNotExist:
-            print(f"Errore: Tavolo con ID {pk} non trovato.")
             return Response({'success': False, 'error': 'Table not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(f"Errore inaspettato: {str(e)}")
             return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['get'], url_path=r'by-location/(?P<location_slug>[-\w]+)')
-    def by_location(self, request, location_slug=None):
-        location = get_object_or_404(Location, slug=location_slug)
+    @action(detail=False, methods=['get'], url_path=r'by-location/(?P<location_slugs>[\w,-]+)')
+    def by_location(self, request, location_slugs=None):
+        # Split the comma-separated slugs and remove any empty strings
+        slugs = [slug.strip() for slug in location_slugs.split(',') if slug.strip()]
+        
+        # Get all valid locations
+        locations = Location.objects.filter(slug__in=slugs)
+        
+        # If no valid locations found, return 404
+        if not locations.exists():
+            return Response(
+                {'error': 'No valid locations found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
+        # Get tables from all specified locations
         tables = (
             Table.objects
-            .filter(location=location)
+            .filter(location__in=locations)
             .select_related('location', 'game')
             .prefetch_related('players')
-            .order_by('-date', '-time')[:12]
+            .order_by('date', 'time')[:24]  # Increased limit since we're combining locations
         )
 
         serializer = self.get_serializer(tables, many=True)

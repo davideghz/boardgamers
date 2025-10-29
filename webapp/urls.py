@@ -83,6 +83,7 @@ urlpatterns = [
   path('sitemap.xml', sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
 
   # DEBUGGING UTILS
-  path('debug', static_page_views.debug, name='debug')
+  path('debug', static_page_views.debug, name='debug'),
+  path('test-widget', static_page_views.test_widget, name='test_widget')
 ]
 

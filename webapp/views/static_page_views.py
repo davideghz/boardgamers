@@ -87,6 +87,29 @@ def terms(request, template_name="staticpages/terms.html"):
     return render(request, template_name, {})
 
 
+def contacts(request):
+    # Pre-popola il form se l'utente è autenticato
+    initial_data = {}
+    if request.user.is_authenticated:
+        initial_data = {
+            'name': request.user.first_name or request.user.username,
+            'email': request.user.email,
+        }
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST, initial=initial_data)
+        if form.is_valid():
+            emails.send_admin_contact_message(form.cleaned_data)
+            messages.success(request, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY)
+            return redirect('contacts')
+        else:
+            messages.error(request, MSG_CONTACT_MESSAGE_ERROR, extra_tags='danger')
+    else:
+        form = ContactForm(initial=initial_data)
+
+    return render(request, 'staticpages/contacts.html', {'form': form})
+
+
 def debug(request, template_name="staticpages/debug.html"):
     env_list = environ.Env()
     DJANGO_SETTINGS_MODULE = env_list('DJANGO_SETTINGS_MODULE')
@@ -126,24 +149,5 @@ def debug(request, template_name="staticpages/debug.html"):
     })
 
 
-def contacts(request):
-    # Pre-popola il form se l'utente è autenticato
-    initial_data = {}
-    if request.user.is_authenticated:
-        initial_data = {
-            'name': request.user.first_name or request.user.username,
-            'email': request.user.email,
-        }
-
-    if request.method == 'POST':
-        form = ContactForm(request.POST, initial=initial_data)
-        if form.is_valid():
-            emails.send_admin_contact_message(form.cleaned_data)
-            messages.success(request, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY)
-            return redirect('contacts')
-        else:
-            messages.error(request, MSG_CONTACT_MESSAGE_ERROR, extra_tags='danger')
-    else:
-        form = ContactForm(initial=initial_data)
-
-    return render(request, 'staticpages/contacts.html', {'form': form})
+def test_widget(request, template_name="staticpages/test_widget.html"):
+    return render(request, template_name, {})
