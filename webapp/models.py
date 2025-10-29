@@ -225,7 +225,7 @@ class Table(DateTimeModel, SlugModel):
         if self.game and self.game.image and hasattr(self.game.image, 'url'):
             return self.game.image.url
         else:
-            return settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
+            return settings.DOMAIN_URL + settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
 
     @property
     def status_badge_class(self):
