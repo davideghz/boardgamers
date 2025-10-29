@@ -39,8 +39,8 @@
             tableCard.rel = "noopener noreferrer";
 
             // Troncatura descrizione
-            const shortDescription = table.description.length > 100
-                ? table.description.slice(0, 100).trim() + "…"
+            const shortDescription = table.description.length > 75
+                ? table.description.slice(0, 75).trim() + "…"
                 : table.description;
 
             // Data e ora leggibili

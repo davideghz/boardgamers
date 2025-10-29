@@ -80,14 +80,14 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
     def by_location(self, request, location_slugs=None):
         # Split the comma-separated slugs and remove any empty strings
         slugs = [slug.strip() for slug in location_slugs.split(',') if slug.strip()]
-        
+
         # Get all valid locations
         locations = Location.objects.filter(slug__in=slugs)
-        
+
         # If no valid locations found, return 404
         if not locations.exists():
             return Response(
-                {'error': 'No valid locations found'}, 
+                {'error': 'No valid locations found'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -97,7 +97,7 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
             .filter(location__in=locations)
             .select_related('location', 'game')
             .prefetch_related('players')
-            .order_by('date', 'time')[:24]  # Increased limit since we're combining locations
+            .order_by('-date', '-time')[:12]  # Increased limit since we're combining locations
         )
 
         serializer = self.get_serializer(tables, many=True)
