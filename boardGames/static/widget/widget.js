@@ -27,7 +27,7 @@
         container.innerHTML = ""; // Pulizia della lista precedente
 
         if (tables.length === 0) {
-            container.innerHTML = "<p class='bg-no-tables'>Nessun tavolo disponibile.</p>";
+            container.innerHTML = "<p class='bg-no-tables'>No tables available.</p>";
             return;
         }
 
