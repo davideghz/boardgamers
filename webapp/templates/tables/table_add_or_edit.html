@@ -11,14 +11,11 @@
     <div class="container">
       <nav aria-label="breadcrumb" class="py-1">
         <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item fs-6 active" aria-current="page">
-            <small><a class="text-decoration-none" href="{% url "home" %}">Home</a></small>
-          </li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page">
+          <li class="breadcrumb-item fs-6">
             <small><a class="text-decoration-none"
-                      href="{% url 'location-detail' location.slug %}">{{ location.name }}</a></small>
+                      href="{% url 'table-detail' table.slug %}">{{ table.title|truncatechars:20 }}</a></small>
           </li>
-          <li class="breadcrumb-item fs-6 active" aria-current="page">
+          <li class="breadcrumb-item fs-6">
             {% if form.instance.pk %}
               <small>{% trans "Edit table" %}</small>
             {% else %}
@@ -52,10 +49,13 @@
 
           <div class="row">
             <div class="col d-flex">
-              <img class="img-thumbnail object-fit-cover object-position-center" style="height: 58px; width: 58px; border-top-right-radius: 0; border-bottom-right-radius: 0;" src="{{ location.cover_url }}"
+              <img class="img-thumbnail object-fit-cover object-position-center"
+                   style="height: 58px; width: 58px; border-top-right-radius: 0; border-bottom-right-radius: 0;"
+                   src="{{ location.cover_url }}"
                    alt="{{ location.name }} logo">
               <div class="form-floating mb-3 w-100">
-                <input type="email" class="form-control text-truncate" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none"
+                <input type="email" class="form-control text-truncate"
+                       style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none"
                        id="floatingInput" placeholder="name@example.com" value="{{ location.name }}" readonly disabled>
                 <label for="floatingInput">Location</label>
               </div>
@@ -177,7 +177,33 @@
         </form>
       </div>
     </div>
+
+    <div class="row my-4 py-2">
+      <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+        <div class="border-top border-danger border-2 position-relative" style="border-style: dashed !important;">
+          <span class="bg-white px-3 text-danger position-absolute"
+                style="top: -0.75rem; left: 50%; transform: translateX(-50%);">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {% trans "Danger Zone" %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+        {% if table.status != 'closed' %}
+          <a href="{% url "table-delete" table.slug %}" class="btn btn-danger btn-lg w-100" type="submit">
+            <i class="bi bi-trash"></i> {% trans "Delete table" %}
+          </a>
+        {% else %}
+          {% trans 'This table is closed and cannot be deleted.' %}
+          <a href="{% url "contacts" %}">{% trans "Contact us" %}</a>
+          {% trans 'if you still want to delete this table.' %}
+        {% endif %}
+      </div>
+    </div>
   </div>
+
 {% endblock content %}
 
 {% block extrabodyjs %}

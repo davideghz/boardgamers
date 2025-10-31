@@ -80,6 +80,35 @@ def send_notification_new_table(user_profile, new_table):
     )
 
 
+def send_email_notification_deleted_table(user_profile, deleted_table):
+    """
+    Sends a notification email to the user about a deleted game table.
+
+    :param user_profile: The UserProfile instance of the user receiving the email.
+    :param new_table: The new table instance containing details about the deleted table.
+    """
+    location_url = settings.DOMAIN_URL + reverse('location-detail', kwargs={'slug': deleted_table.location.slug})
+
+    context = {
+        'user_profile': user_profile,
+        'title': deleted_table.title,
+        'game': deleted_table.game,
+        'date': deleted_table.date,
+        'location_name': deleted_table.location.name,
+        'button_href': location_url,
+    }
+    text_content = render_to_string('emails/email_notification_deleted_table.html', context=context)
+    html_content = render_to_string('emails/email_notification_deleted_table_html.html', context=context)
+
+    send_mail(
+        messages.EMAIL_SUBJECT_NOTIFICATION_DELETED_TABLE,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [user_profile.user.email],
+        html_message=html_content,
+    )
+
+
 def send_batch_notification_new_messages(user_profile, total_unread, table_details):
     """
     Sends a batch email notification to the user about unread messages.

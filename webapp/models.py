@@ -301,6 +301,7 @@ class NotificationType(models.TextChoices):
     LEADERBOARD_UPDATED = 'leaderboard_updated', _('Leaderboard updated')
     LEADERBOARD_CLOSED = 'leaderboard_closed', _('Leaderboard closed')
     TABLE_CLOSED = 'table_closed', _('Table closed')
+    TABLE_DELETED = 'table_deleted', _('Table deleted')
     NEW_COMMENT = 'new_comment', _('New comment')
 
 

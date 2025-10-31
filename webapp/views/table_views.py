@@ -5,6 +5,7 @@ from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -23,6 +24,25 @@ class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
     def test_func(self):
         obj = self.get_object()
         return obj.author.user == self.request.user or self.request.user.is_superuser
+
+
+class IsNotClosedMixin(UserPassesTestMixin):
+    """
+    Impedisce l'accesso (GET/POST) se l'oggetto è in stato CLOSED.
+    Da usare insieme a IsAuthorOrAdminTestMixin.
+    """
+    closed_status = Table.CLOSED  # così è override-abile se mai cambiasse
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.status != self.closed_status
+
+    def handle_no_permission(self):
+        # Se oggetto esiste ed è chiuso, rendi chiaro il motivo
+        obj = getattr(self, "object", None)
+        if obj and obj.status == self.closed_status:
+            raise PermissionDenied("Non è possibile eliminare un tavolo chiuso.")
+        return super().handle_no_permission()
 
 
 class TableIndexView(generic.ListView):
@@ -186,17 +206,17 @@ def remove_player_view(request, slug, player_id):
 
     # Controllo permessi
     if not (request.user.is_superuser or table.author.user == request.user):
-        messages.error(request, _("Non hai i permessi per rimuovere giocatori da questo tavolo."), extra_tags="danger")
+        messages.error(request, _("You don’t have permission to remove players from this table."), extra_tags="danger")
         return redirect("table-players", slug=slug)
 
     # Controllo stato tavolo
     if table.status not in [Table.OPEN, Table.ONGOING]:
-        messages.error(request, _("Puoi rimuovere i giocatori solo da tavoli aperti o in corso."), extra_tags="danger")
+        messages.error(request, _("You can remove players only from tables that are open or ongoing."), extra_tags="danger")
         return redirect("table-players", slug=slug)
 
     # Rimuovi il player
     player.delete()
-    messages.success(request, _(f"{player.user_profile.nickname} è stato rimosso dal tavolo."))
+    messages.success(request, _(f"{player.user_profile.nickname} has been removed from the table."))
 
     return redirect("table-players", slug=slug)
 
@@ -260,11 +280,21 @@ def table_update_view(request, location_slug, table_slug):
     return render(request, "tables/table_add_or_edit.html", context)
 
 
-class TableDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMessageMixin, generic.DeleteView):
+class TableDeleteView(
+    LoginRequiredMixin,
+    IsAuthorOrAdminTestMixin,
+    IsNotClosedMixin,
+    SuccessMessageMixin,
+    generic.DeleteView
+):
     model = Table
     template_name = "tables/table_delete.html"
+
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    success_url = reverse_lazy("home")
     success_message = "Table was deleted successfully"
-    success_url_name = 'table-index'
 
 
 class CommentDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMessageMixin, generic.DeleteView):

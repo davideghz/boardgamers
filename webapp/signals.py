@@ -1,12 +1,15 @@
+from time import sleep
+
 from django.contrib.auth.signals import user_logged_out
 from django.contrib.gis.geos import Point
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from webapp.emails import send_user_email_verification_code, send_notification_new_table
+from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
+    send_email_notification_deleted_table
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment
 
 
@@ -38,6 +41,22 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
             )
             if follower.user_profile.notification_new_table:
                 send_notification_new_table(follower.user_profile, instance)
+
+
+@receiver(pre_delete, sender=Table)
+def notify_players_on_table_delete(sender, instance, **kwargs):
+    """Invia una notifica a tutti i giocatori quando un tavolo viene cancellato"""
+    players = Player.objects.filter(table=instance).select_related('user_profile__user')
+    for player in players:
+        Notification.objects.create(
+            recipient=player.user_profile,
+            notification_type=NotificationType.TABLE_DELETED,
+            message=_('The table "%(table_title)s" has been deleted by the organizer') % {
+                'table_title': instance.title
+            },
+            location=instance.location,
+        )
+        send_email_notification_deleted_table(player.user_profile, instance)
 
 
 @receiver(post_save, sender=Player)

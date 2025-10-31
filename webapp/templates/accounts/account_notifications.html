@@ -35,12 +35,15 @@
             {% for notification in notifications %}
               {% if notification.table %}
                 <li class="alert border">
-                  <a href="{% url 'table-detail' slug=notification.table.slug %}" class="text-decoration-none text-reset">
+                  <a href="{% url 'table-detail' slug=notification.table.slug %}"
+                     class="text-decoration-none text-reset">
                     <div class="row">
                       <div class="col-12 col-lg order-last order-lg-first">
-                        <h2 class="h5 mb-0"><i class="bi bi-bell-o"></i> {{ notification.get_notification_type_display }}</h2>
+                        <h2 class="h5 mb-0"><i
+                            class="bi bi-bell-o"></i> {{ notification.get_notification_type_display }}</h2>
                         {% if notification.message %}
-                          <small class="fst-italic border-start border-primary border-3 ps-2 d-block mt-1 mb-1">{{ notification.message|truncatechars:115 }}</small>
+                          <small
+                              class="fst-italic border-start border-primary border-3 ps-2 d-block mt-1 mb-1">{{ notification.message|truncatechars:115 }}</small>
                         {% endif %}
                         <small><strong>{% trans "Table" %}</strong>: {{ notification.table.title }}</small>
                         {# <small><i class="bi bi-geo-alt-fill"></i> {{ notification.location.name }}</small>#}
@@ -50,6 +53,26 @@
                       </div>
                     </div>
                   </a>
+                </li>
+              {% else %}
+                <li class="alert border">
+                  <div class="text-decoration-none text-reset">
+                    <div class="row">
+                      <div class="col-12 col-lg order-last order-lg-first">
+                        <h2 class="h5 mb-0"><i
+                            class="bi bi-bell-o"></i> {{ notification.get_notification_type_display }}</h2>
+                        {% if notification.message %}
+                          <small class="fst-italic border-start border-primary border-3 ps-2 d-block mt-1 mb-1">
+                            {{ notification.message|truncatechars:115 }}
+                          </small>
+                        {% endif %}
+                        <small><i class="bi bi-geo-alt-fill"></i> {{ notification.location.name }}</small>
+                      </div>
+                      <div class="col-auto">
+                        <small class="text-muted">{{ notification.created_at|date:"SHORT_DATETIME_FORMAT" }}</small>
+                      </div>
+                    </div>
+                  </div>
                 </li>
               {% endif %}
             {% endfor %}

@@ -1,0 +1,31 @@
+{% extends "emails/base/base_email_html.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% trans "Table deleted" %}
+{% endblock title %}
+
+{% block main_content %}
+  {% trans "Hey" %} {{ user_profile.nickname }},<br>
+  {% trans "We are sorry to inform you that a table you were participating in has been deleted." %}.<br><br>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px; background-color:#f9f9f9; border-radius:4px;">
+    <tr>
+      <td style="padding:12px 16px; font-family:sans-serif; font-size:14px; line-height:1.4;">
+        <strong>{% trans "Title:" %}</strong> {{ title }}<br>
+        <strong>{% trans "Game:" %}</strong> {% if game %}{{ game }}{% else %}{% trans "Not decided yet" %}{% endif %}<br>
+        <strong>{% trans "Date and time:" %}</strong> {{ date }}, {{ time }}<br>
+        <strong>{% trans "Location:" %}</strong> {{ location_name }}
+      </td>
+    </tr>
+  </table>
+{% endblock main_content %}
+
+{% block cta_label %}
+  {% trans "Check other tables" %}
+{% endblock cta_label %}
+
+{% block cta_href %}
+  {{ button_href }}
+{% endblock cta_href %}
