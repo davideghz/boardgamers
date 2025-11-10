@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n i18n_urls %}
 
 <style>
     @keyframes blink {
@@ -21,23 +21,33 @@
     <a class="navbar-brand" href="{% url "home" %}"><i class="bi bi-lightning-charge"></i> Board Gamers</a>
 
     <div class="d-flex">
-      <ul class="navbar-nav mx-2 d-lg-none">
-        <li class="nav-item">
-          <a class="btn btn-light position-relative" href="{% url "account-notifications" %}" role="button">
-            {% if unread_notifications_count > 0 %}
-              <i class="bi bi-bell-fill"></i>
-              <span style="padding: 0.25rem; animation: blink 2s infinite;"
-                    class="position-absolute top-0 start-100 translate-middle bg-danger border border-light rounded-circle">
+      {% if user.is_authenticated %}
+        <ul class="navbar-nav mx-1 d-lg-none">
+          <li class="nav-item">
+            <a class="btn btn-light position-relative" href="{% url "account-notifications" %}" role="button">
+              {% if unread_notifications_count > 0 %}
+                <i class="bi bi-bell-fill"></i>
+                <span style="padding: 0.25rem; animation: blink 2s infinite;"
+                      class="position-absolute top-0 start-100 translate-middle bg-danger border border-light rounded-circle">
           <span class="visually-hidden">New alerts</span>
         </span>
-            {% else %}
-              <i class="bi bi-bell"></i>
-            {% endif %}
+              {% else %}
+                <i class="bi bi-bell"></i>
+              {% endif %}
+            </a>
+          </li>
+        </ul>
+      {% endif %}
+
+      <ul class="navbar-nav mx-1 d-lg-none">
+        <li class="nav-item">
+          <a class="btn btn-light" href="{% url 'select-language' %}?next={{ request.get_full_path|urlencode }}">
+            <i class="bi bi-translate"></i>
           </a>
         </li>
       </ul>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+      <button class="navbar-toggler ms-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
               aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
         {% if user.is_authenticated %}
           <i class="bi bi-person-circle"></i>
@@ -62,8 +72,8 @@
               <i class="bi bi-lightning-charge"></i> {% trans "New table" %}
             </a>
           </li>
-          {% if user.is_authenticated %}
 
+          {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="btn btn-light position-relative" href="{% url "account-notifications" %}" role="button">
                 {% if unread_notifications_count > 0 %}
@@ -77,9 +87,36 @@
                 {% endif %}
               </a>
             </li>
+          {% endif %}
+
+          <li class="nav-item dropdown">
+            <a class="nav-link btn btn-light dropdown-toggle ms-1" href="#" role="button" data-bs-toggle="dropdown"
+               aria-expanded="false">
+              <i class="bi bi-translate"></i>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for code, name in LANGUAGES %}
+                  <form class="dropdown-item" action="{% url 'set_language' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="language" value="{{ code }}">
+                    <input type="hidden" name="next" value="{% alternate_url code %}">
+                    <button class="btn text-decoration-none p-0">
+                      {{ name }}
+                    </button>
+                  </form>
+                {% endfor %}
+              </li>
+            </ul>
+          </li>
+
+
+          {% if user.is_authenticated %}
 
             <li class="nav-item dropdown">
-              <a class="nav-link btn btn-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+              <a class="nav-link btn btn-light dropdown-toggle ms-1" href="#" role="button" data-bs-toggle="dropdown"
                  aria-expanded="false">
                 <i class="bi bi-person-circle"></i>
               </a>
@@ -107,6 +144,7 @@
               <a class="btn btn-primary" href="{% url "login" %}">Login</a>
             </li>
           {% endif %}
+
         </ul>
         <div class="d-lg-none">
           <div class="container">

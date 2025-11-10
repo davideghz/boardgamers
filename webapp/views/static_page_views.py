@@ -6,7 +6,10 @@ from django.contrib.gis.measure import Distance
 
 from django.db.models import Prefetch, Count
 from django.shortcuts import render, redirect
+from django.urls import reverse, translate_url
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import get_language_info
 
 from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
@@ -108,6 +111,38 @@ def contacts(request):
         form = ContactForm(initial=initial_data)
 
     return render(request, 'staticpages/contacts.html', {'form': form})
+
+
+def select_language(request):
+    next_param = request.GET.get("next")  # es. "/tables/..." oppure None
+
+    # Fallback a home se next non c'è o non è un path interno sicuro
+    if not next_param or not url_has_allowed_host_and_scheme(
+        next_param, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        next_path = reverse("home")
+    else:
+        # Consenti solo path interni (se arriva assoluto, estrai il path)
+        if next_param.startswith(("http://", "https://")):
+            # In casi estremi potresti voler normalizzare qui
+            next_path = reverse("home")
+        else:
+            next_path = next_param
+
+    absolute_next = request.build_absolute_uri(next_path)
+
+    languages = []
+    for code, name in settings.LANGUAGES:
+        info = get_language_info(code)  # per avere il nome locale, se vuoi
+        languages.append({
+            "code": code,
+            "name": info.get("name_local") or name,   # es. “Italiano”, “English”
+            "next": translate_url(absolute_next, code)
+        })
+
+    return render(request, "staticpages/select_language.html", {
+        "languages": languages,
+    })
 
 
 def debug(request, template_name="staticpages/debug.html"):
