@@ -201,8 +201,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGES = [
-    ('en', _('English')),
-    ('it', _('Italiano')),
+    ('en', 'English'),
+    ('it', 'Italiano'),
 ]
 
 LOCALE_PATHS = [

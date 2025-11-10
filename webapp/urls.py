@@ -15,7 +15,7 @@ sitemaps = {
 }
 urlpatterns = [
   # API
-  path('api/', include('webapp.api.urls')),  # Include le API
+  # path('api/', include('webapp.api.urls')),  # Include le API
 
   # STATIC
   path("", static_page_views.homepage_view, name="home"),

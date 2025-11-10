@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-31 11:51+0000\n"
+"POT-Creation-Date: 2025-11-10 10:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,7 +163,7 @@ msgstr "Classifica aggiornata"
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:303 webapp/signals.py:144
+#: webapp/models.py:303 webapp/signals.py:146
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
@@ -185,25 +185,25 @@ msgstr "Notifica"
 msgid "Notifications"
 msgstr "Notifiche"
 
-#: webapp/signals.py:52
+#: webapp/signals.py:54
 #, python-format
 msgid "The table \"%(table_title)s\" has been deleted by the organizer"
 msgstr "Il tavolo \"%(table_title)s\" è stato eliminato dall'organizzatore."
 
-#: webapp/signals.py:111
+#: webapp/signals.py:113
 msgid "Time to fill in the leaderboard!"
 msgstr "È tempo di compilare la classifica!"
 
-#: webapp/signals.py:112
+#: webapp/signals.py:114
 #, python-format
 msgid "The table “%(title)s” is now open for leaderboard entry."
 msgstr "Il tavolo “%(title)s” è pronto per l'inserimento della classifica."
 
-#: webapp/signals.py:125
+#: webapp/signals.py:127
 msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
-#: webapp/signals.py:126
+#: webapp/signals.py:128
 #, python-format
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
@@ -211,7 +211,7 @@ msgstr ""
 "La classifica per il tavolo “%(title)s” è stata chiusa. Controlla il tuo "
 "punteggio!"
 
-#: webapp/signals.py:145
+#: webapp/signals.py:147
 #, python-format
 msgid "The table “%(title)s” has been closed."
 msgstr "Il tavolo “%(title)s” è stato chiuso."
@@ -403,11 +403,11 @@ msgstr ""
 "community per condividere la tua passione e trovare nuovi giocatori. Gioca, "
 "esplora e connettiti!"
 
-#: webapp/templates/emails/base/base_email_html.html:186
+#: webapp/templates/emails/base/base_email_html.html:173
 msgid "You can manage your email notification preferences in your profile"
 msgstr "Puoi gestire le notifiche email"
 
-#: webapp/templates/emails/base/base_email_html.html:187
+#: webapp/templates/emails/base/base_email_html.html:174
 msgid "at this link"
 msgstr "a questo link"
 
@@ -509,7 +509,7 @@ msgid "A new table has been created in "
 msgstr "Un nuovo tavolo è stato creato creato presso "
 
 #: webapp/templates/emails/email_notification_new_table_html.html:6
-#: webapp/templates/tables/table_add_or_edit.html:22
+#: webapp/templates/tables/table_add_or_edit.html:27
 msgid "New Table"
 msgstr "Nuovo tavolo"
 
@@ -626,7 +626,7 @@ msgstr ""
 "organizzare tavoli."
 
 #: webapp/templates/locations/location_add_or_edit.html:135
-#: webapp/templates/tables/table_add_or_edit.html:167
+#: webapp/templates/tables/table_add_or_edit.html:172
 #: webapp/templates/tables/table_delete.html:13
 #: webapp/templates/tables/table_detail.html:491
 #: webapp/templates/tables/table_players.html:104
@@ -634,7 +634,7 @@ msgid "Cancel"
 msgstr "Annulla"
 
 #: webapp/templates/locations/location_add_or_edit.html:141
-#: webapp/templates/tables/table_add_or_edit.html:173
+#: webapp/templates/tables/table_add_or_edit.html:178
 msgid "Publish"
 msgstr "Pubblica"
 
@@ -846,6 +846,22 @@ msgstr "oppure"
 msgid "Join us on Discord"
 msgstr "Unisciti al canale Discord"
 
+#: webapp/templates/staticpages/home.html:31
+msgid "Hey!"
+msgstr "Hey tu!"
+
+#: webapp/templates/staticpages/home.html:32
+msgid ""
+"Do you know your way around code and want to contribute to Board-Gamers?"
+msgstr ""
+"te ne intendi di codice e vuoi contribuire a Board-Gamers?"
+
+#: webapp/templates/staticpages/home.html:33
+#: webapp/templates/staticpages/home.html:123
+#: webapp/templates/tables/table_add_or_edit.html:206
+msgid "Contact us"
+msgstr "Contattaci"
+
 #: webapp/templates/staticpages/home.html:66
 msgid "Open tables"
 msgstr "Tavoli aperti"
@@ -878,66 +894,61 @@ msgstr ""
 msgid "Want to be part of the project?"
 msgstr "Vuoi far parte del progetto?"
 
-#: webapp/templates/staticpages/home.html:123
-#: webapp/templates/tables/table_add_or_edit.html:200
-msgid "Contact us"
-msgstr "Contattaci"
-
-#: webapp/templates/tables/table_add_or_edit.html:20
-#: webapp/templates/tables/table_add_or_edit.html:44
+#: webapp/templates/tables/table_add_or_edit.html:25
+#: webapp/templates/tables/table_add_or_edit.html:49
 msgid "Edit table"
 msgstr "Modifica tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:46
+#: webapp/templates/tables/table_add_or_edit.html:51
 msgid "Create a new table"
 msgstr "Crea un nuovo tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:65
+#: webapp/templates/tables/table_add_or_edit.html:70
 msgid "Insert the date and time of the game."
 msgstr "Inserisci la data e l'orario della partita."
 
-#: webapp/templates/tables/table_add_or_edit.html:96
+#: webapp/templates/tables/table_add_or_edit.html:101
 msgid "Give your table a name and a description so it can be recognised!"
 msgstr ""
 "Dai un nome e una descrizione al tuo tavolo per renderlo riconoscibile!"
 
-#: webapp/templates/tables/table_add_or_edit.html:122
+#: webapp/templates/tables/table_add_or_edit.html:127
 msgid "Add the game that will be played at this table."
 msgstr "Aggiungi il gioco che verrà giocato a questo tavolo."
 
-#: webapp/templates/tables/table_add_or_edit.html:123
+#: webapp/templates/tables/table_add_or_edit.html:128
 msgid "Can't find the desired game?"
 msgstr "Non trovi il gioco?"
 
-#: webapp/templates/tables/table_add_or_edit.html:123
+#: webapp/templates/tables/table_add_or_edit.html:128
 msgid "Create the table without the game, then"
 msgstr " Crea il tavolo senza specificarlo e"
 
-#: webapp/templates/tables/table_add_or_edit.html:124
+#: webapp/templates/tables/table_add_or_edit.html:129
 msgid "contact us"
 msgstr "contattaci"
 
-#: webapp/templates/tables/table_add_or_edit.html:125
+#: webapp/templates/tables/table_add_or_edit.html:130
 msgid "we will add it for you."
 msgstr "lo staff lo aggiungerà subito!"
 
-#: webapp/templates/tables/table_add_or_edit.html:132
+#: webapp/templates/tables/table_add_or_edit.html:137
 msgid "How many players are invited to this table?"
 msgstr "Quanti gamers sono invitati a questo tavolo?"
 
-#: webapp/templates/tables/table_add_or_edit.html:186
+#: webapp/templates/tables/table_add_or_edit.html:192
 msgid "Danger Zone"
 msgstr "Danger Zone"
 
-#: webapp/templates/tables/table_add_or_edit.html:196
+#: webapp/templates/tables/table_add_or_edit.html:202
 msgid "Delete table"
 msgstr "Cancella tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:199
+#: webapp/templates/tables/table_add_or_edit.html:205
 msgid "This table is closed and cannot be deleted."
 msgstr "Il tavolo è chiuso e non può essere cancellato."
 
-#: webapp/templates/tables/table_add_or_edit.html:201
+#: webapp/templates/tables/table_add_or_edit.html:207
 msgid "if you still want to delete this table."
 msgstr "se vuoi cancellarlo."
 
@@ -1176,6 +1187,17 @@ msgstr "Il tavolo è stato creato con successo"
 #: webapp/views/table_views.py:274
 msgid "Table was updated successfully"
 msgstr "Il tavolo è stato aggiornato con successo"
+
+#~ msgid "Hey tu!"
+#~ msgstr "Hey!"
+
+#~ msgid "Te ne intendi di codice e vuoi contribuire al progetto Board-Gamers?"
+#~ msgstr ""
+#~ "Do you know your way around code and want to contribute to the Board-"
+#~ "Gamers project?"
+
+#~ msgid "Scrivici"
+#~ msgstr "Contact us"
 
 #~ msgid "See all played games"
 #~ msgstr "Vedi lista giochi completa"

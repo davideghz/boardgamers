@@ -138,6 +138,12 @@ class UserProfile(DateTimeModel, SlugModel):
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
 
+    preferred_language = models.CharField(
+        max_length=7,
+        choices=settings.LANGUAGES,   # [("it","Italiano"), ("en","English"), ...]
+        default="it",
+    )
+
     # Notifications
     notification_new_table = models.BooleanField(default=True, verbose_name="Notification New Table")
     notification_new_player = models.BooleanField(default=True, verbose_name="Notification New Player")

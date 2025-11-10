@@ -1,5 +1,5 @@
 {% load static %}
-{% load i18n %}
+{% load i18n i18n_urls %}
 {% get_current_language as LANGUAGE_CODE %}
 
 
@@ -10,10 +10,15 @@
   <meta charset='utf-8'>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- SEO -->
   <title>{% block headtitle %}Board-Gamers.com{% endblock headtitle %}</title>
   <meta name="description" content="{% block description %}{% trans "Discover the world of board games on Board-Gamers.com! Join the community to share your passion and find new players. Play, explore, and connect!" %}{% endblock description %}"/>
-  {#        {% block seo %}{% include "tags/seo.html" %}{% endblock seo %}#}
-  {#        {% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{{ request.path }}" />{% endblock canonical %}#}
+  <link rel="canonical" href="{% canonical_url %}">
+
+  <!-- LANGUAGES -->
+  <link rel="alternate" hreflang="it" href="{% alternate_url 'it' %}">
+  <link rel="alternate" hreflang="en" href="{% alternate_url 'en' %}">
+  <link rel="alternate" hreflang="x-default" href="{% alternate_url 'it' %}">
 
   <!-- FAVICON -->
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">

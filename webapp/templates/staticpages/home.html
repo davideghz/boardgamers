@@ -28,9 +28,9 @@
   {% if user.is_authenticated %}
     <div class="container mt-4" id="alert-container" style="display: none;">
       <div id="custom-alert" class="alert alert-light alert-dismissible fade show" role="alert">
-        <strong>Hey tu!</strong> 🫵
-        <span>Te ne intendi di codice e vuoi contribuire al progetto Board-Gamers?</span>
-        <a href="{% url "contacts" %}">Scrivici</a> 😎
+        <strong>{% trans "Hey!" %}</strong> 🫵
+        <span>{% trans "Do you know your way around code and want to contribute to Board-Gamers?" %}</span>
+        <a href="{% url "contacts" %}">{% trans "Contact us" %}</a> 😎
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     </div>
