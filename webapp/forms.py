@@ -203,6 +203,8 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
     latitude = CharField(widget=HiddenInput(), required=False)
     longitude = CharField(widget=HiddenInput(), required=False)
 
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         base_attrs = {'required': 'required', 'type': "text", 'class': "form-control"}
@@ -218,7 +220,7 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
 
     class Meta:
         model = User
-        fields = ['email', 'password1', 'password2', 'nickname', 'address', 'city', 'latitude', 'longitude']
+        fields = ['email', 'password1', 'password2', 'nickname', 'address', 'city', 'latitude', 'longitude', 'captcha']
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
