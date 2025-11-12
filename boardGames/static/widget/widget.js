@@ -11,9 +11,7 @@
     function getLangCode(container) {
         // Legge la lingua da data-lang o <html lang>
         const raw = (container?.dataset.lang || document.documentElement.lang || 'it').toLowerCase().trim();
-        // Normalizza (es. 'en-US' -> 'en')
-        const code = raw.split(/[-_]/)[0];
-        return code;
+        return raw;
     }
 
     function cleanBase(url) {
