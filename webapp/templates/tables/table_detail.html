@@ -108,10 +108,13 @@
                 {% else %}
                   <form method="post" action="{% url 'join_table' table.slug %}">
                     {% csrf_token %}
-                    <button class="w-100 btn btn-primary" type="submit">
-                      <i class="bi bi-person-check-fill"></i> {% trans "Join this table" %}
+                    <button class="w-100 btn btn-primary" type="submit" {% if available_seats <= 0 %}disabled{% endif %}>
+                      <i class="bi bi-person-check-fill"></i> {% if available_seats <= 0 %}{% trans "Table is full" %}{% else %}{% trans "Join this table" %}{% endif %}
                     </button>
                   </form>
+                  {% if available_seats <= 0 %}
+                    <small class="text-muted d-block mt-1">{% trans "This table has reached its maximum number of players" %}</small>
+                  {% endif %}
                 {% endif %}
               {% else %}
                 <a class="btn btn-primary w-100" href="{% url "login" %}?next={% url 'table-detail' slug=table.slug %}">{% trans "Login to join table" %}</a>
