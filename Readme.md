@@ -1,11 +1,17 @@
-## Project requirements
+## Table of Contents
+
+- [Project Requirements](#project-requirements)
+- [Setup Without Docker (Linux/MacOS)](#setup-without-docker-linuxmacos)
+- [Setup With Docker (Windows)](#setup-with-docker-windows)
+
+## Project Requirements
 - Python 3.9+
 - PostgreSQL 16 (**important note**: Postgres 17+ is NOT SUPPORTED) with `postgis` extension enabled (see below)
 - virtualenv
 - Docker Desktop (required on Windows)
 - PyCharm (recommended) or any IDE of your choice
 
-## First time setup (Linux/MacOS)
+## Setup Without Docker (Linux/MacOS)
 1. Install PostgreSQL (versions 17+ are NOT SUPPORTED) with `pg_config` (PostgreSQL dev tools)
 2. Install GDAL
 ```bash
@@ -71,7 +77,7 @@ python manage.py compilemessages
 
 ---
 
-## First Time Setup (Windows)
+## Setup With Docker (Windows)
 
 ### 1. Environment variables
 
