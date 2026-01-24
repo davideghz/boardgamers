@@ -20,7 +20,8 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = [
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    '0.0.0.0'
 ]
 
 MIDDLEWARE = [
@@ -111,11 +112,11 @@ GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'boardgamers',
-        'USER': 'bg_user',
-        'PASSWORD': 'bg_password',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'NAME': env('DB_NAME', default='boardgamers'),
+        'USER': env('DB_USER', default='bg_user'),
+        'PASSWORD': env('DB_PASSWORD', default='bg_password'),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT', default='5432'),
     }
 }
 
