@@ -8,6 +8,7 @@ __pycache__/
 
 # Python Packages
 venv/
+.venv/
 
 # dev db
 db.sqlite3

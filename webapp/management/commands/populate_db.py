@@ -50,8 +50,8 @@ class Command(BaseCommand):
             random_user_profile = UserProfile.objects.exclude(id=author.id).order_by("?").first()
             Player.objects.create(table=table, user_profile=random_user_profile)
             Player.objects.create(table=table, user_profile=author)
-            random_games = Game.objects.order_by("?")[:2]
-            table.games.add(*random_games)
+            random_game = Game.objects.order_by("?")[:1]
+            table.game.add(*random_game)
 
         self.stdout.write(self.style.SUCCESS('Database populated successfully!'))
 
