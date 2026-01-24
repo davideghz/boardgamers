@@ -6,8 +6,15 @@ from .settings import *
 print('dentro local_settings.py')
 
 # Geospatial libraries
-GDAL_LIBRARY_PATH = '/Applications/Postgres.app/Contents/Versions/16/lib/libgdal.dylib'
-GEOS_LIBRARY_PATH = os.path.join('/opt/homebrew/opt/geos/lib', 'libgeos_c.dylib')
+GDAL_LIBRARY_PATH = os.getenv(
+    "GDAL_LIBRARY_PATH",
+    "/Applications/Postgres.app/Contents/Versions/16/lib/libgdal.dylib"
+)
+
+GEOS_LIBRARY_PATH = os.getenv(
+    "GEOS_LIBRARY_PATH",
+    os.path.join('/opt/homebrew/opt/geos/lib', 'libgeos_c.dylib')
+)
 
 # Django Toolbar
 INTERNAL_IPS = ('127.0.0.1',)

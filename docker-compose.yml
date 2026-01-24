@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: boardgamers-db
+    restart: always
+    environment:
+      POSTGRES_DB: boardgamers
+      POSTGRES_USER: bg_user
+      POSTGRES_PASSWORD: bg_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: boardgamers-web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env_docker
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
