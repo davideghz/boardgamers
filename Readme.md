@@ -35,17 +35,16 @@ CREATE EXTENSION postgis;
 \q
 ```
 4. Make a copy of `.env_template`, name it `.env`, and add the right values.
-5. Make a copy of `local_settings_template.py`, name it `local_settings.py`, and add the right values.
-6. Activate virtual environment and install project's dependencies
+5. Activate virtual environment and install project's dependencies
 ```
 source venv/bin/activate
 pip install
 ```
-7. Run migrations
+6. Run migrations
 ```bash
 python manage.py migrate
 ```
-8. Run Django Server
+7. Run Django Server
 ```bash
 python manage.py runserver
 ```
@@ -121,10 +120,11 @@ python manage.py populate_db
 ### 4. PyCharm configuration (recommended)
 The following steps are recommended for proper debugging and execution using **PyCharm**.
 
-#### 4.1 Open the project
-Open the project folder in **PyCharm**.
+#### 4.1 Open the project folder in **PyCharm**.
 
-#### 4.2 Configure Docker Compose interprete
+#### 4.2 Make a copy of `.env_template`, name it `.env`, and add the right values.
+
+#### 4.3 Configure Docker Compose interprete
 Go to:
 ```bash
 Settings → Project → Python Interpreter → Add Interpreter
