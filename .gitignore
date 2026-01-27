@@ -1,6 +1,5 @@
 # Local ENV
 .env
-boardGames/local_settings.py
 
 # compiled python files
 __pycache__/
