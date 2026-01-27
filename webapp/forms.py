@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, modelformset_factory, EmailField
+    ModelMultipleChoiceField, modelformset_factory, EmailField, ModelChoiceField, BooleanField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -363,3 +363,38 @@ class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',
         ]
+
+
+class AddLocationManagerForm(BootstrapForm):
+    """Form for adding a manager to a location"""
+    manager = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        label=_('Manager'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+
+
+class TransferOwnershipForm(BootstrapForm):
+    """Form for transferring location ownership"""
+    new_owner = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        label=_('New Owner'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+    add_as_manager = BooleanField(
+        required=False,
+        label=_('Add me as manager after transfer'),
+        widget=CustomCheckboxInputWidget()
+    )

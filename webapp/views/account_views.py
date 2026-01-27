@@ -30,11 +30,18 @@ def edit_profile(request, template_name='accounts/account_edit_profile.html'):
 @login_required
 def locations(request, template_name='accounts/account_locations.html'):
     user = request.user
-    locations = user.user_profile.locations.all()
+    user_profile = user.user_profile
+    
+    # Separate owned locations from managed locations
+    owned_locations = user_profile.locations.all()
+    managed_locations = user_profile.managed_locations.all().exclude(
+        id__in=owned_locations.values_list('id', flat=True)
+    )
 
     return render(request, template_name, {
         'user': user,
-        'locations': locations,
+        'owned_locations': owned_locations,
+        'managed_locations': managed_locations,
     })
 
 

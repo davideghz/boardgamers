@@ -5,6 +5,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -12,7 +13,7 @@ from django.urls import reverse
 from django.views import generic, View
 from django.views.generic import DetailView, CreateView
 
-from webapp.forms import LocationForm
+from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower
 
@@ -194,16 +195,28 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return reverse("account-locations")
 
 
-class LocationUpdateView(SuccessMessageMixin, generic.UpdateView):
+class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
     model = Location
     form_class = LocationForm
     template_name = 'locations/location_add_or_edit.html'
     success_message = "Location was updated successfully"
 
+    def dispatch(self, request, *args, **kwargs):
+        # First check authentication (handled by LoginRequiredMixin)
+        response = super().dispatch(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return response
+            
+        location = self.get_object()
+        user_profile = request.user.user_profile
+        # Check if user is owner or manager
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied("You don't have permission to edit this location.")
+        return response
+
     def form_valid(self, form):
         location = form.save(commit=False)
-        creator = self.request.user.user_profile
-        location.creator = creator
+        # Don't change the creator
         location.save()
         return super(LocationUpdateView, self).form_valid(form)
 
@@ -228,5 +241,134 @@ class FollowLocationView(LoginRequiredMixin, View):
             # Già seguiva → unfollow
             follow.delete()
             messages.success(request, f"Hai smesso di seguire {location.name}.")
+
+        return redirect('location-detail', slug=location.slug)
+
+
+class LocationManagersView(LoginRequiredMixin, generic.DetailView):
+    """View to manage location managers (owner only)"""
+    model = Location
+    template_name = 'locations/location_managers.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def dispatch(self, request, *args, **kwargs):
+        location = self.get_object()
+        user_profile = request.user.user_profile
+        # Only owner can manage managers
+        if location.creator != user_profile:
+            raise PermissionDenied("Only the owner can manage managers.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        location = self.get_object()
+        context['managers'] = location.managers.all()
+        context['is_owner'] = location.creator == self.request.user.user_profile
+        context['add_manager_form'] = AddLocationManagerForm()
+        context['transfer_ownership_form'] = TransferOwnershipForm()
+        return context
+
+
+class AddLocationManagerView(LoginRequiredMixin, View):
+    """View to add a manager to a location (owner only)"""
+
+    def post(self, request, *args, **kwargs):
+        location = get_object_or_404(Location, slug=kwargs['slug'])
+        user_profile = request.user.user_profile
+
+        # Only owner can add managers
+        if location.creator != user_profile:
+            raise PermissionDenied("Only the owner can add managers.")
+
+        # Get the manager to add from POST data
+        manager_id = request.POST.get('manager')
+        if not manager_id:
+            messages.error(request, "No manager selected.")
+            return redirect('location-managers', slug=location.slug)
+
+        try:
+            manager = UserProfile.objects.get(id=manager_id)
+
+            # Don't add owner as manager
+            if manager == location.creator:
+                messages.warning(request, "The owner is already the owner.")
+                return redirect('location-managers', slug=location.slug)
+
+            # Add manager
+            location.managers.add(manager)
+            messages.success(request, f"{manager.nickname} has been added as a manager.")
+        except UserProfile.DoesNotExist:
+            messages.error(request, "User not found.")
+
+        return redirect('location-managers', slug=location.slug)
+
+
+class RemoveLocationManagerView(LoginRequiredMixin, View):
+    """View to remove a manager from a location (owner only)"""
+
+    def post(self, request, *args, **kwargs):
+        location = get_object_or_404(Location, slug=kwargs['slug'])
+        user_profile = request.user.user_profile
+        manager_id = kwargs.get('manager_id')
+
+        # Only owner can remove managers
+        if location.creator != user_profile:
+            raise PermissionDenied("Only the owner can remove managers.")
+
+        try:
+            manager = UserProfile.objects.get(id=manager_id)
+
+            # Don't allow removing the owner
+            if manager == location.creator:
+                messages.error(request, "Cannot remove the owner.")
+                return redirect('location-managers', slug=location.slug)
+
+            # Remove manager
+            location.managers.remove(manager)
+            messages.success(request, f"{manager.nickname} has been removed as a manager.")
+        except UserProfile.DoesNotExist:
+            messages.error(request, "Manager not found.")
+
+        return redirect('location-managers', slug=location.slug)
+
+
+class TransferOwnershipView(LoginRequiredMixin, View):
+    """View to transfer ownership of a location (owner only)"""
+
+    def post(self, request, *args, **kwargs):
+        location = get_object_or_404(Location, slug=kwargs['slug'])
+        user_profile = request.user.user_profile
+
+        # Only owner can transfer ownership
+        if location.creator != user_profile:
+            raise PermissionDenied("Only the owner can transfer ownership.")
+
+        # Get the new owner from POST data
+        new_owner_id = request.POST.get('new_owner')
+        if not new_owner_id:
+            messages.error(request, "No new owner selected.")
+            return redirect('location-managers', slug=location.slug)
+
+        try:
+            new_owner = UserProfile.objects.get(id=new_owner_id)
+
+            # Transfer ownership
+            old_owner = location.creator
+            location.creator = new_owner
+
+            # Remove new owner from managers if they were a manager
+            if new_owner in location.managers.all():
+                location.managers.remove(new_owner)
+
+            # Optionally add old owner as manager
+            add_old_owner_as_manager = request.POST.get('add_as_manager') == 'on'
+            if add_old_owner_as_manager:
+                location.managers.add(old_owner)
+
+            location.save()
+            messages.success(request, f"Ownership transferred to {new_owner.nickname}.")
+        except UserProfile.DoesNotExist:
+            messages.error(request, "User not found.")
 
         return redirect('location-detail', slug=location.slug)

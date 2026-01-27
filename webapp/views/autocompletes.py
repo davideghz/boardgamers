@@ -2,7 +2,7 @@ from dal import autocomplete
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models.functions import Lower
 
-from webapp.models import Game, Location
+from webapp.models import Game, Location, UserProfile
 
 
 class LocationAutocomplete(autocomplete.Select2QuerySetView):
@@ -35,4 +35,18 @@ class GamesAutocomplete(autocomplete.Select2QuerySetView):
         qs = Game.objects.all()
         if self.q:
             qs = qs.filter(name__istartswith=self.q)
+        return qs
+
+
+class UserProfileAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return UserProfile.objects.none()
+
+        qs = UserProfile.objects.all()
+
+        if self.q:
+            qs = qs.filter(nickname__istartswith=self.q)
+
         return qs

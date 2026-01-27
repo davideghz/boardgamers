@@ -97,6 +97,7 @@ class Location(DateTimeModel, SlugModel):
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
+    managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
     description = models.TextField()
     cover = models.ImageField(upload_to='location-covers', null=True, blank=True, storage=PublicMediaStorage())
     address = models.CharField(max_length=255, null=True, blank=True)

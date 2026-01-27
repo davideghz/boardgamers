@@ -4,7 +4,7 @@ from django.urls import path, include
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
-from .views.autocompletes import GamesAutocomplete, LocationAutocomplete
+from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete
 from .views.location_views import FollowLocationView
 
 sitemaps = {
@@ -45,6 +45,10 @@ urlpatterns = [
   path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
   path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view, name="location-table-update"),
   path('locations/<slug:slug>/follow/', FollowLocationView.as_view(), name='follow-location'),
+  path('locations/<slug:slug>/managers/', location_views.LocationManagersView.as_view(), name='location-managers'),
+  path('locations/<slug:slug>/managers/add/', location_views.AddLocationManagerView.as_view(), name='location-add-manager'),
+  path('locations/<slug:slug>/managers/remove/<int:manager_id>/', location_views.RemoveLocationManagerView.as_view(), name='location-remove-manager'),
+  path('locations/<slug:slug>/transfer-ownership/', location_views.TransferOwnershipView.as_view(), name='location-transfer-ownership'),
 
 
   # GAMES
@@ -66,6 +70,7 @@ urlpatterns = [
   # AUTOCOMPLETES
   path('location-autocomplete/', LocationAutocomplete.as_view(), name='location-autocomplete'),
   path('games-autocomplete/', GamesAutocomplete.as_view(), name='games-autocomplete'),
+  path('userprofile-autocomplete/', UserProfileAutocomplete.as_view(), name='userprofile-autocomplete'),
 
   # AUTH
   path('accounts/login/', auth_views.CustomLoginView.as_view(authentication_form=CustomLoginForm), name='login'),

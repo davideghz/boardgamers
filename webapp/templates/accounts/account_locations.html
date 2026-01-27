@@ -26,26 +26,74 @@
     <div class="row">
       <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
         <div class="h1">{% trans "Locations" %}</div>
-        <div class="mt-4 row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3 g-4">
-          {% for location in locations %}
-            <a href="{% url "location-update" location.slug %}" class="text-decoration-none col">
-              <div class="card shadow border-0">
-                <div class="card-header d-flex justify-content-between align-items-center"
-                     style="background-color: slategrey"
-                ></div>
-                <div class="card-body">
-                  <i class="h1 bi bi-geo-alt-fill"></i>
-                  <small class="d-flex mt-4"><strong>{{ location.name }}</strong></small>
-                  <small class="card-text text-secondary">
-                    {{ location.address }}
-                  </small>
+        
+        <!-- Owned Locations -->
+        <div class="mb-5">
+          <h3 class="h4 mb-3">
+            <i class="bi bi-star-fill text-warning me-2"></i>{% trans "My Locations" %}
+          </h3>
+          <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3 g-4">
+            {% for location in owned_locations %}
+              <a href="{% url "location-update" location.slug %}" class="text-decoration-none col">
+                <div class="card shadow border-0 h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center"
+                       style="background-color: slategrey"
+                  ></div>
+                  <div class="card-body">
+                    <i class="h1 bi bi-geo-alt-fill"></i>
+                    <small class="d-flex mt-4"><strong>{{ location.name }}</strong></small>
+                    <small class="card-text text-secondary">
+                      {{ location.address }}
+                    </small>
+                    <div class="mt-2">
+                      <span class="badge bg-warning text-dark">
+                        <i class="bi bi-star-fill"></i> {% trans "Owner" %}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              </a>
+            {% empty %}
+              <div class="col-12">
+                <p class="text-muted">{% trans "You don't own any locations yet." %}</p>
               </div>
-            </a>
-          {% empty %}
-            <p>No locations available</p>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
+
+        <!-- Managed Locations -->
+        {% if managed_locations %}
+        <div class="mb-5">
+          <h3 class="h4 mb-3">
+            <i class="bi bi-person-badge-fill text-primary me-2"></i>{% trans "Managed Locations" %}
+          </h3>
+          <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3 g-4">
+            {% for location in managed_locations %}
+              <a href="{% url "location-update" location.slug %}" class="text-decoration-none col">
+                <div class="card shadow border-0 h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center"
+                       style="background-color: slategrey"
+                  ></div>
+                  <div class="card-body">
+                    <i class="h1 bi bi-geo-alt-fill"></i>
+                    <small class="d-flex mt-4"><strong>{{ location.name }}</strong></small>
+                    <small class="card-text text-secondary">
+                      {{ location.address }}
+                    </small>
+                    <div class="mt-2">
+                      <span class="badge bg-primary">
+                        <i class="bi bi-person-badge-fill"></i> {% trans "Manager" %}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Add New Location Button -->
         <div class="col-12 pt-4">
           <a class="btn btn-primary width-auto" href="{% url "location-create" %}">
             {% trans "Add new location" %}
