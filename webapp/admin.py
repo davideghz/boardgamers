@@ -51,7 +51,9 @@ class PlayerAdmin(admin.ModelAdmin):
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "city", "creator", "created_at")
+    list_filter = ("city", "is_public", "created_at")
+    search_fields = ("name", "city", "creator__nickname")
 
 
 @admin.register(Game)
