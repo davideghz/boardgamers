@@ -138,6 +138,7 @@ class TableDetailView(generic.DetailView):
         context.update({
             'comment_form': CommentForm(),
             'available_seats': max_players - current_players,
+            'availability_percent': round(current_players / max_players * 100),
             'today': today,
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
