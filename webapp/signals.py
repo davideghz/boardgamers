@@ -39,8 +39,8 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
                 table=instance,
                 location=instance.location,
             )
-            if follower.user_profile.notification_new_table:
-                send_notification_new_table(follower.user_profile, instance)
+            # if follower.user_profile.notification_new_table:
+            #     send_notification_new_table(follower.user_profile, instance)
 
 
 @receiver(pre_delete, sender=Table)
