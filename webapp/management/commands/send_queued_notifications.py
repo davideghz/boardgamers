@@ -15,6 +15,20 @@ class Command(BaseCommand):
     help = 'Invia le notifiche in coda via AWS SES Batch'
 
     def handle(self, *args, **kwargs):
+        # Verifica che le impostazioni AWS SES siano configurate
+        # Questo comando è pensato solo per l'ambiente di produzione
+        required_settings = ['AWS_SES_REGION_NAME', 'AWS_SES_ACCESS_KEY_ID', 'AWS_SES_SECRET_ACCESS_KEY']
+        missing_settings = [s for s in required_settings if not hasattr(settings, s) or not getattr(settings, s, None)]
+        
+        if missing_settings:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Comando non eseguito: mancano le seguenti impostazioni AWS SES: {', '.join(missing_settings)}\n"
+                    f"Questo comando è pensato per essere eseguito solo in produzione."
+                )
+            )
+            return
+        
         # Configura client SES
         client = boto3.client(
             'ses',
