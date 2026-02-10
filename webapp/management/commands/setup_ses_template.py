@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         template = {
             'TemplateName': template_name,
-            'SubjectPart': "Nuovo tavolo: {{title}}",
+            'SubjectPart': "Nuovo tavolo",
             'HtmlPart': html_part,
             'TextPart': text_part
         }
