@@ -1,12 +1,12 @@
 from time import sleep
 
-from django.contrib.auth.signals import user_logged_out
+from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.gis.geos import Point
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, activate
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table
@@ -16,6 +16,18 @@ from webapp.models import UserProfile, Player, Table, Notification, Notification
 @receiver(user_logged_out)
 def on_user_logged_out(sender, request, user, **kwargs):
     messages.add_message(request, messages.SUCCESS, 'Successfully logged out.')
+
+
+@receiver(user_logged_in)
+def on_user_logged_in(sender, request, user, **kwargs):
+    """Apply user's preferred language to session when they log in."""
+    try:
+        if hasattr(user, 'user_profile') and user.user_profile.preferred_language:
+            lang_code = user.user_profile.preferred_language
+            activate(lang_code)
+            request.session['_language'] = lang_code
+    except Exception:
+        pass
 
 
 @receiver(post_save, sender=UserProfile)
