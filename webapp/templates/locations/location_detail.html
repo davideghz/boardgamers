@@ -169,14 +169,14 @@
         {# Location Map #}
         {% if location.address %}
           <div class="card shadow border-0">
-            <div class="card-header bg-white py-3">
+            <div class="card-header bg-dark py-3">
               <div class="row gx-2 align-items-center">
                 <div class="col-auto">
-                  <span class="bi bi-geo-alt-fill"></span>
+                  <span class="bi bi-geo-alt-fill text-light"></span>
                 </div>
                 <div class="col">
                   <p class="card-title mb-0">
-                    <a class="text-decoration-none" target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ location.address|urlencode }}">{{ location.name }} - {{ location.address }}</a>
+                    <a class="text-decoration-none text-light" target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ location.address|urlencode }}">{{ location.address }}</a>
                   </p>
                 </div>
               </div>

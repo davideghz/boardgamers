@@ -55,7 +55,7 @@
             {% endif %}
           </div>
           {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
-            <div class="card-body py-3" style="background-color: #212529">
+            <div class="card-body py-3 bg-dark">
               <a class="btn btn-outline-light w-100"
                  href="{% url 'location-table-update' table.location.slug table.slug %}"
               >
@@ -67,8 +67,7 @@
             </div>
           {% endif %}
 
-          <div class="card-body text-light d-flex justify-content-between align-items-center"
-               style="background-color: #212529">
+          <div class="card-body bg-dark text-light d-flex justify-content-between align-items-center">
             <small><i class="bi bi-calendar4-event"></i> {{ table.date|date:"j F" }}</small>
             <small><i class="bi bi-clock"></i> {{ table.time|time:"H:i" }}</small>
             <small>
@@ -159,7 +158,12 @@
               <div class="card-header" style="background-color: slategrey"></div>
               <div class="card-body">
                 <p class="h5">{{ table.title }}</p>
-                <small class="text-secondary">{{ table.description }}</small>
+                <small class="text-secondary">{{ table.description }}</small><br><br>
+                <a href="{% url "location-detail" table.location.slug %}" class="d-flex align-items-center text-decoration-none">
+                  <img class="img-thumbnail object-fit-cover object-position-center"
+                       style="height: 40px; width: 40px;" src="{{ table.location.cover_url }}" alt="{{ table.location }}">
+                  <small class="ms-2">{{ table.location.name }}</small>
+                </a>
               </div>
             </div>
           </div>
