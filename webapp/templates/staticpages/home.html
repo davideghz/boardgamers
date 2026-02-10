@@ -9,9 +9,11 @@
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
   />
   <style>
-      .swiper {}
+      .swiper {
+      }
 
-      .swiper-wrapper {}
+      .swiper-wrapper {
+      }
 
       .swiper-slide {
           padding: 10px 14px 20px 12px;
@@ -99,29 +101,29 @@
   </div>
 
   <div style="background-color: #FAEBD7;">
-    <div class="container mt-4">
-      <p class="h1">{% trans "About us" %}</p>
-    </div>
-    <div class="container-sm mt-4 mb-4">
-      <div class="row">
-        <div class="col-md-8 col-lg-7 col-xl-6">
-{#          <div class="card">#}
-{#            <div class="card-header">#}
-{#              A proposito di Board-Gamers.com#}
-{#            </div>#}
-{#            <div class="card-body">#}
-              <p class="">
-                {% trans "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of a group of board game enthusiasts." %}
-              </p>
-              <p class="">
-                {% trans "Our goal is to make it easier to meet up and play in person, supporting cultural associations and local game shops." %}
-              </p>
-              <p class="">
-                {% trans "Want to be part of the project?" %} <a href="{% url "contacts" %}">{% trans "Contact us" %}</a>.
-              </p>
-{#            </div>#}
-{#          </div>#}
-{#        </div>#}
+  <div class="container mt-4">
+    <p class="h1">{% trans "About us" %}</p>
+  </div>
+  <div class="container-sm mt-4 mb-4">
+    <div class="row">
+      <div class="col-md-8 col-lg-7 col-xl-6">
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header" style="background-color: slategrey"></div>
+          <div class="card-body">
+            <span class="h5 mb-0">{% trans "A proposito di Board-Gamers.com" %}</span>
+          </div>
+          <div class="card-body border-top">
+            <p class="">
+              {% trans "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of a group of board game enthusiasts." %}
+            </p>
+            <p class="">
+              {% trans "Our goal is to make it easier to meet up and play in person, supporting cultural associations and local game shops." %}
+            </p>
+            <p class="">
+              {% trans "Want to be part of the project?" %} <a href="{% url "contacts" %}">{% trans "Contact us" %}</a>.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
