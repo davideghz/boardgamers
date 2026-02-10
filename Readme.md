@@ -177,3 +177,24 @@ If you need to access the container terminal, you can use:
 docker compose exec web bash
 ```
 
+
+## Management Commands
+
+### Production Cron Jobs
+In production, the following commands are scheduled via cron:
+- `update_table_status`: Runs **Hourly at :00**
+- `batch_notification`: Runs **Hourly at :30**
+- `send_queued_notifications`: Runs **Every 10 minutes**
+
+### Utility Commands
+
+- `setup_ses_template`
+  - Used to update AWS SES templates for new table notifications.
+  - **Usage**: Run this ONLY if the base template or the `email_notification_new_table` template has been modified.
+
+- `populate_db`
+  - **Usage**: Run this **only locally** to generate test data in your local database.
+
+- `manage_notifications`
+  - Used to manage and clean up notifications.
+  - **Functionality**: Can set notifications as read, sent, or delete them.
