@@ -34,16 +34,18 @@ urlpatterns = [
   path("tables/<slug:slug>/players/", table_views.table_players_view, name="table-players"),
   path("tables/<slug:slug>/players/remove/<int:player_id>/", table_views.remove_player_view, name="remove-player"),
 
-
   # LOCATIONS
   path("locations/", location_views.index_view, name="locations-index"),
   path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
-  
+
   # Management
   path("locations/<slug:slug>/manage/", location_views.LocationManageIndexView.as_view(), name="location-manage"),
-  path("locations/<slug:slug>/manage/managers/", location_views.LocationManageManagersView.as_view(), name="location-manage-managers"),
   path("locations/<slug:slug>/manage/data/", location_views.LocationManageDataView.as_view(), name="location-manage-data"),
-  
+  path("locations/<slug:slug>/manage/managers/", location_views.LocationManageManagersView.as_view(), name="location-manage-managers"),
+  path("locations/<slug:slug>/manage/managers/add/", location_views.AddLocationManagerView.as_view(), name="location-add-manager"),
+  path("locations/<slug:slug>/manage/managers/remove/<int:manager_id>/", location_views.RemoveLocationManagerView.as_view(), name="location-remove-manager"),
+  path("locations/<slug:slug>/manage/managers/transfer-ownership/", location_views.TransferOwnershipView.as_view(), name="location-transfer-ownership"),
+
   # Detail
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
 
@@ -51,11 +53,6 @@ urlpatterns = [
   path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
   path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view, name="location-table-update"),
   path('locations/<slug:slug>/follow/', FollowLocationView.as_view(), name='follow-location'),
-  path('locations/<slug:slug>/managers/', location_views.LocationManagersView.as_view(), name='location-managers'),
-  path('locations/<slug:slug>/managers/add/', location_views.AddLocationManagerView.as_view(), name='location-add-manager'),
-  path('locations/<slug:slug>/managers/remove/<int:manager_id>/', location_views.RemoveLocationManagerView.as_view(), name='location-remove-manager'),
-  path('locations/<slug:slug>/transfer-ownership/', location_views.TransferOwnershipView.as_view(), name='location-transfer-ownership'),
-
 
   # GAMES
   path("games/", game_views.GameListView.as_view(), name="game-list"),
