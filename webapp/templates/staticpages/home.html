@@ -25,39 +25,36 @@
 
 {% block content %}
 
-  {% if user.is_authenticated %}
-    <div class="container mt-4" id="alert-container" style="display: none;">
-      <div id="custom-alert" class="alert alert-light alert-dismissible fade show" role="alert">
-        <strong>{% trans "Hey!" %}</strong> 🫵
-        <span>{% trans "Do you know your way around code and want to contribute to Board-Gamers?" %}</span>
-        <a href="{% url "contacts" %}">{% trans "Contact us" %}</a> 😎
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+  <div class="container mt-4" id="alert-container" style="display: none;">
+    <div id="custom-alert" class="alert alert-light alert-dismissible fade show" role="alert">
+      <strong>{% trans "Hey!" %}</strong> 🫵
+      <span>{% trans "Do you know your way around code and want to contribute to Board-Gamers?" %}</span>
+      <a href="{% url "contacts" %}">{% trans "Contact us" %}</a> 😎
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+  </div>
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const alertContainer = document.getElementById("alert-container");
+          const alertBox = document.getElementById("custom-alert");
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const alertContainer = document.getElementById("alert-container");
-            const alertBox = document.getElementById("custom-alert");
+          function isHiddenForThreeDays() {
+              const lastClosed = localStorage.getItem("alertClosedTimestamp");
+              if (!lastClosed) return false; // Nessun dato salvato, mostra il messaggio
+              const now = Date.now();
+              return (now - parseInt(lastClosed, 10)) < (24 * 60 * 60 * 1000);
+          }
 
-            function isHiddenForThreeDays() {
-                const lastClosed = localStorage.getItem("alertClosedTimestamp");
-                if (!lastClosed) return false; // Nessun dato salvato, mostra il messaggio
-                const now = Date.now();
-                return (now - parseInt(lastClosed, 10)) < (24 * 60 * 60 * 1000);
-            }
+          if (!isHiddenForThreeDays()) {
+              alertContainer.style.display = "block"; // Mostra l'intero container
+          }
 
-            if (!isHiddenForThreeDays()) {
-                alertContainer.style.display = "block"; // Mostra l'intero container
-            }
-
-            alertBox.addEventListener("closed.bs.alert", function () {
-                localStorage.setItem("alertClosedTimestamp", Date.now().toString());
-                alertContainer.style.display = "none"; // Nasconde tutto il container
-            });
-        });
-    </script>
-  {% endif %}
+          alertBox.addEventListener("closed.bs.alert", function () {
+              localStorage.setItem("alertClosedTimestamp", Date.now().toString());
+              alertContainer.style.display = "none"; // Nasconde tutto il container
+          });
+      });
+  </script>
 
   {% include "partials/hero.html" %}
 
