@@ -38,7 +38,13 @@ urlpatterns = [
   # LOCATIONS
   path("locations/", location_views.index_view, name="locations-index"),
   path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
-  path("locations/<slug:slug>/edit/", location_views.LocationUpdateView.as_view(), name="location-update"),
+  
+  # Management
+  path("locations/<slug:slug>/manage/", location_views.LocationManageIndexView.as_view(), name="location-manage"),
+  path("locations/<slug:slug>/manage/managers/", location_views.LocationManageManagersView.as_view(), name="location-manage-managers"),
+  path("locations/<slug:slug>/manage/data/", location_views.LocationManageDataView.as_view(), name="location-manage-data"),
+  
+  # Detail
   path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
 
   # LOCATION TABLES
