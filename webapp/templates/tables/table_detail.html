@@ -2,7 +2,7 @@
 {% load static %}
 {% load i18n %}
 
-{% block headtitle %}{{ table.game }} - {{ table.date }} - Board-Gamers.com{% endblock headtitle %}
+{% block headtitle %}{% if table.game %}{{ table.game }}{% else %}{{ table.title }}{% endif %} - {{ table.date }} - Board-Gamers.com{% endblock headtitle %}
 {% block description %}Unisciti al tavolo{% if table.game %} di {{ table.game }}{% endif %}! Giocheremo il
   {{ table.date }} alle {{ table.time }} presso {{ table.location.name }}{% endblock description %}
 
