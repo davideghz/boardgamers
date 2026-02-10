@@ -332,31 +332,6 @@ class FollowLocationView(LoginRequiredMixin, View):
         return redirect('location-detail', slug=location.slug)
 
 
-# class LocationManagersView(LoginRequiredMixin, generic.DetailView):
-#     """View to manage location managers (owner only)"""
-#     model = Location
-#     template_name = 'locations/location_managers.html'
-#     slug_field = 'slug'
-#     slug_url_kwarg = 'slug'
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         location = self.get_object()
-#         user_profile = request.user.user_profile
-#         # Only owner can manage managers
-#         if location.creator != user_profile:
-#             raise PermissionDenied("Only the owner can manage managers.")
-#         return super().dispatch(request, *args, **kwargs)
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         location = self.get_object()
-#         context['managers'] = location.managers.all()
-#         context['is_owner'] = location.creator == self.request.user.user_profile
-#         context['add_manager_form'] = AddLocationManagerForm()
-#         context['transfer_ownership_form'] = TransferOwnershipForm()
-#         return context
-
-
 class AddLocationManagerView(LoginRequiredMixin, View):
     """View to add a manager to a location (owner and managers)"""
 
