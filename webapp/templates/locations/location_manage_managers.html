@@ -1,0 +1,216 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block style %}
+{% include 'partials/form_styles.html' %}
+{% endblock style %}
+
+{% block breadcrumbs %}
+<div class="container-fluid px-0 bg-white border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="py-1">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item fs-6" aria-current="page">
+                    <small><a class="text-decoration-none" href="{% url "location-detail" location.slug %}">
+                            {{ location.name }}</a>
+                    </small>
+                </li>
+                <li class="breadcrumb-item fs-6 active" aria-current="page">
+                    <small><a class="text-decoration-none" href="{% url "location-manage" location.slug %}">
+                            {% trans "Gestione" %}</a>
+                    </small>
+                </li>
+                <li class="breadcrumb-item fs-6 active" aria-current="page">
+                    <small>{% trans "Managers" %}</small>
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+{{ add_manager_form.media }}
+{{ transfer_ownership_form.media }}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+            <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
+                <h1 class="fs-3 mb-4">
+                    {% trans "Location Managers" %}
+                </h1>
+
+                <!-- Owner Section -->
+                <div class="mb-4">
+                    <h2 class="fs-5">{% trans "Owner" %}</h2>
+                    <div class="row">
+                        <div class="col d-flex">
+                            <img class="img-thumbnail object-fit-cover object-position-center"
+                                style="height: 58px; width: 58px; border-top-right-radius: 0; border-bottom-right-radius: 0;"
+                                src="{{ location.creator.avatar_url }}" alt="{{ location.creator.nickname }} avatar">
+                            <div class="w-100">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control text-truncate"
+                                        value="{{ location.creator.nickname }}"
+                                        style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; cursor: default"
+                                        aria-label="{{ location.creator.nickname }}" disabled>
+                                    <span class="input-group-text" style="height: 58px;">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Managers Section -->
+                <h2 class="fs-5 mt-4">{% trans "Managers" %}</h2>
+                {% for manager in managers %}
+                <div class="row">
+                    <div class="col d-flex">
+                        <img class="img-thumbnail object-fit-cover object-position-center"
+                            style="height: 58px; width: 58px; border-top-right-radius: 0; border-bottom-right-radius: 0;"
+                            src="{{ manager.avatar_url }}" alt="{{ manager.nickname }} avatar">
+                        <div class="w-100">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control text-truncate" value="{{ manager.nickname }}"
+                                    style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; cursor: default"
+                                    aria-label="{{ manager.nickname }}">
+
+                                <button class="btn btn-danger btn-lg" type="button"
+                                    style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                                    data-bs-toggle="modal" data-bs-target="#deleteManagerModal"
+                                    data-manager-url="{% url 'location-remove-manager' location.slug manager.id %}">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">{% trans "No managers assigned yet." %}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Add Manager Section -->
+        <div class="mt-3 col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+            <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
+                <h1 class="fs-3 mb-4">
+                    {% trans "Add Manager" %}
+                </h1>
+                <form method="post" action="{% url 'location-add-manager' location.slug %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_manager" class="form-label">{% trans "Search by username" %}</label>
+                        {{ add_manager_form.manager }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> {% trans "Add Manager" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transfer Ownership Section (Owner Only) -->
+        {% if is_owner %}
+        <div class="mt-3 col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+            <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
+                <h1 class="fs-3 mb-4">
+                    {% trans "Transfer Ownership" %}
+                </h1>
+                <form method="post" action="{% url 'location-transfer-ownership' location.slug %}"
+                    id="transferOwnershipForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_new_owner" class="form-label">{% trans "Select new owner" %}</label>
+                        {{ transfer_ownership_form.new_owner }}
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ transfer_ownership_form.add_as_manager }}
+                        <label class="form-check-label" for="id_add_as_manager">
+                            {% trans "Add me as manager after transfer" %}
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#transferOwnershipModal">
+                        <i class="bi bi-arrow-left-right"></i> {% trans "Transfer Ownership" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Manager Modal -->
+<div class="modal fade" id="deleteManagerModal" tabindex="-1" aria-labelledby="deleteManagerModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" id="managerDeleteForm">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteManagerModalLabel">{% trans "Confirm removal" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% trans "Are you sure you want to remove this manager? This action cannot be undone." %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        {% trans "Cancel" %}
+                    </button>
+                    <button type="submit" class="btn btn-danger">{% trans "Remove Manager" %}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if is_owner %}
+<!-- Transfer Ownership Modal -->
+<div class="modal fade" id="transferOwnershipModal" tabindex="-1" aria-labelledby="transferOwnershipModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transferOwnershipModalLabel">{% trans "Confirm ownership transfer" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% trans "Are you sure you want to transfer ownership? You will no longer be the owner of this
+                location." %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="button" class="btn btn-warning"
+                    onclick="document.getElementById('transferOwnershipForm').submit();">
+                    {% trans "Transfer Ownership" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+<script>
+    const deleteManagerModal = document.getElementById('deleteManagerModal');
+    if (deleteManagerModal) {
+        deleteManagerModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const managerUrl = button.getAttribute('data-manager-url');
+            const form = deleteManagerModal.querySelector('form');
+            form.action = managerUrl;
+        });
+    }
+</script>
+{% endblock extrabodyjs %}

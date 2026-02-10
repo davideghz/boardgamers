@@ -62,10 +62,12 @@ class LocationDetailView(DetailView):
         # Check if user is following location
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
         is_following = False
+        is_manager = False
         followers_count = location.followers.count()
 
         if user_profile:
             is_following = LocationFollower.objects.filter(user_profile=user_profile, location=location).exists()
+            is_manager = location.creator == user_profile or user_profile in location.managers.all()
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -173,6 +175,7 @@ class LocationDetailView(DetailView):
         context['popular_games'] = popular_games
         context['player_stats'] = player_stats
         context['is_following'] = is_following
+        context['is_manager'] = is_manager
         context['followers_count'] = followers_count
 
         return context
@@ -206,7 +209,7 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
         response = super().dispatch(request, *args, **kwargs)
         if not request.user.is_authenticated:
             return response
-            
+
         location = self.get_object()
         user_profile = request.user.user_profile
         # Check if user is owner or manager
@@ -222,6 +225,90 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
 
     def get_success_url(self):
         return reverse("account-locations")
+
+
+class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
+    """Landing page for location management with navigation to sub-sections"""
+    model = Location
+    template_name = 'locations/location_manage_index.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return response
+
+        location = self.get_object()
+        user_profile = request.user.user_profile
+        # Check if user is owner or manager
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied("You don't have permission to manage this location.")
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        location = self.get_object()
+        context['is_owner'] = location.creator == self.request.user.user_profile
+        return context
+
+
+class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
+    """View to manage location managers (accessible to owners and managers)"""
+    model = Location
+    template_name = 'locations/location_manage_managers.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return response
+
+        location = self.get_object()
+        user_profile = request.user.user_profile
+        # Check if user is owner or manager
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied("You don't have permission to manage this location.")
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        location = self.get_object()
+        context['managers'] = location.managers.all()
+        context['is_owner'] = location.creator == self.request.user.user_profile
+        context['add_manager_form'] = AddLocationManagerForm()
+        context['transfer_ownership_form'] = TransferOwnershipForm()
+        return context
+
+
+class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
+    """View to edit location data (accessible to owners and managers)"""
+    model = Location
+    form_class = LocationForm
+    template_name = 'locations/location_manage_data.html'
+    success_message = "Location was updated successfully"
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return response
+
+        location = self.get_object()
+        user_profile = request.user.user_profile
+        # Check if user is owner or manager
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied("You don't have permission to edit this location.")
+        return response
+
+    def form_valid(self, form):
+        location = form.save(commit=False)
+        # Don't change the creator
+        location.save()
+        return super(LocationManageDataView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("location-manage", kwargs={'slug': self.object.slug})
 
 
 class FollowLocationView(LoginRequiredMixin, View):
@@ -245,47 +332,47 @@ class FollowLocationView(LoginRequiredMixin, View):
         return redirect('location-detail', slug=location.slug)
 
 
-class LocationManagersView(LoginRequiredMixin, generic.DetailView):
-    """View to manage location managers (owner only)"""
-    model = Location
-    template_name = 'locations/location_managers.html'
-    slug_field = 'slug'
-    slug_url_kwarg = 'slug'
-
-    def dispatch(self, request, *args, **kwargs):
-        location = self.get_object()
-        user_profile = request.user.user_profile
-        # Only owner can manage managers
-        if location.creator != user_profile:
-            raise PermissionDenied("Only the owner can manage managers.")
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        location = self.get_object()
-        context['managers'] = location.managers.all()
-        context['is_owner'] = location.creator == self.request.user.user_profile
-        context['add_manager_form'] = AddLocationManagerForm()
-        context['transfer_ownership_form'] = TransferOwnershipForm()
-        return context
+# class LocationManagersView(LoginRequiredMixin, generic.DetailView):
+#     """View to manage location managers (owner only)"""
+#     model = Location
+#     template_name = 'locations/location_managers.html'
+#     slug_field = 'slug'
+#     slug_url_kwarg = 'slug'
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         location = self.get_object()
+#         user_profile = request.user.user_profile
+#         # Only owner can manage managers
+#         if location.creator != user_profile:
+#             raise PermissionDenied("Only the owner can manage managers.")
+#         return super().dispatch(request, *args, **kwargs)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         location = self.get_object()
+#         context['managers'] = location.managers.all()
+#         context['is_owner'] = location.creator == self.request.user.user_profile
+#         context['add_manager_form'] = AddLocationManagerForm()
+#         context['transfer_ownership_form'] = TransferOwnershipForm()
+#         return context
 
 
 class AddLocationManagerView(LoginRequiredMixin, View):
-    """View to add a manager to a location (owner only)"""
+    """View to add a manager to a location (owner and managers)"""
 
     def post(self, request, *args, **kwargs):
         location = get_object_or_404(Location, slug=kwargs['slug'])
         user_profile = request.user.user_profile
 
-        # Only owner can add managers
-        if location.creator != user_profile:
-            raise PermissionDenied("Only the owner can add managers.")
+        # Allow owner and managers to add managers
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied("You don't have permission to add managers.")
 
         # Get the manager to add from POST data
         manager_id = request.POST.get('manager')
         if not manager_id:
             messages.error(request, "No manager selected.")
-            return redirect('location-managers', slug=location.slug)
+            return redirect('location-manage-managers', slug=location.slug)
 
         try:
             manager = UserProfile.objects.get(id=manager_id)
@@ -293,7 +380,7 @@ class AddLocationManagerView(LoginRequiredMixin, View):
             # Don't add owner as manager
             if manager == location.creator:
                 messages.warning(request, "The owner is already the owner.")
-                return redirect('location-managers', slug=location.slug)
+                return redirect('location-manage-managers', slug=location.slug)
 
             # Add manager
             location.managers.add(manager)
@@ -301,20 +388,20 @@ class AddLocationManagerView(LoginRequiredMixin, View):
         except UserProfile.DoesNotExist:
             messages.error(request, "User not found.")
 
-        return redirect('location-managers', slug=location.slug)
+        return redirect('location-manage-managers', slug=location.slug)
 
 
 class RemoveLocationManagerView(LoginRequiredMixin, View):
-    """View to remove a manager from a location (owner only)"""
+    """View to remove a manager from a location (owner and managers)"""
 
     def post(self, request, *args, **kwargs):
         location = get_object_or_404(Location, slug=kwargs['slug'])
         user_profile = request.user.user_profile
         manager_id = kwargs.get('manager_id')
 
-        # Only owner can remove managers
-        if location.creator != user_profile:
-            raise PermissionDenied("Only the owner can remove managers.")
+        # Allow owner and managers to remove managers
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied("You don't have permission to remove managers.")
 
         try:
             manager = UserProfile.objects.get(id=manager_id)
@@ -322,7 +409,7 @@ class RemoveLocationManagerView(LoginRequiredMixin, View):
             # Don't allow removing the owner
             if manager == location.creator:
                 messages.error(request, "Cannot remove the owner.")
-                return redirect('location-managers', slug=location.slug)
+                return redirect('location-manage-managers', slug=location.slug)
 
             # Remove manager
             location.managers.remove(manager)
@@ -330,7 +417,7 @@ class RemoveLocationManagerView(LoginRequiredMixin, View):
         except UserProfile.DoesNotExist:
             messages.error(request, "Manager not found.")
 
-        return redirect('location-managers', slug=location.slug)
+        return redirect('location-manage-managers', slug=location.slug)
 
 
 class TransferOwnershipView(LoginRequiredMixin, View):
