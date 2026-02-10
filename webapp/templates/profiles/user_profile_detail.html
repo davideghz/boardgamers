@@ -79,47 +79,9 @@
             </div>
           </div>
         {% empty %}
-          <li>Nessun gioco giocato</li>
+          <li>{% trans "No tables available" %}</li>
         {% endfor %}
       </div>
-
-      {#      <div class="col-12 col-md-7 col-lg-8 col-xl-9">#}
-      {#        <div class="row">#}
-      {#          <div class="col">#}
-      {#            <h2>{% trans "Latest tables" %}</h2>#}
-      {#          </div>#}
-      {#        </div>#}
-      {#        <div class="row">#}
-      {#          <div class="col">#}
-      {#            {% if userprofile.is_email_verified %}#}
-      {#              <div class="swiper">#}
-      {#                <div class="swiper-wrapper">#}
-      {#                  {% for table in tables %}#}
-      {#                    <div class="swiper-slide">#}
-      {#                      {% table_list_item table %}#}
-      {#                    </div>#}
-      {#                  {% empty %}#}
-      {#                    <p>{% trans "No tables found." %}</p>#}
-      {#                  {% endfor %}#}
-      {#                </div>#}
-      {##}
-      {#                <!-- If we need scrollbar -->#}
-      {#                <div class="swiper-scrollbar"></div>#}
-      {#              </div>#}
-      {#            {% elif not userprofile.is_email_verified and userprofile == user.user_profile %}#}
-      {#              <p>#}
-      {#                <i class="bi bi-exclamation-circle"></i>#}
-      {#                {% trans "Your email is not verified. Verify your email to join tables." %}#}
-      {#                <a href="{% url "send_email_verification_code" %}"#}
-      {#                   class="link-offset-3 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover">#}
-      {#                  {% trans "CLICK HERE" %}#}
-      {#                </a>#}
-      {#                {% trans "to receive a new verification email." %}#}
-      {#              </p>#}
-      {#            {% endif %}#}
-      {#          </div>#}
-      {#        </div>#}
-      {#      </div>#}
 
     </div>
   </div>
