@@ -59,7 +59,7 @@
                                         value="{{ location.creator.nickname }}"
                                         style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; cursor: default"
                                         aria-label="{{ location.creator.nickname }}" disabled>
-                                    <span class="input-group-text" style="height: 58px;">
+                                    <span class="btn btn-dark btn-lg d-flex align-items-center" style="height: 58px;">
                                         <i class="bi bi-star-fill text-warning"></i>
                                     </span>
                                 </div>
@@ -83,7 +83,7 @@
                                     aria-label="{{ manager.nickname }}">
 
                                 <button class="btn btn-danger btn-lg" type="button"
-                                    style="height: 58px; border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                                    style="height: 58px;"
                                     data-bs-toggle="modal" data-bs-target="#deleteManagerModal"
                                     data-manager-url="{% url 'location-remove-manager' location.slug manager.id %}">
                                     <i class="bi bi-x-circle-fill"></i>
