@@ -185,7 +185,7 @@ In production, the following commands are scheduled via cron:
 - `update_table_status`: Runs **Hourly at :00**
 - `batch_notification`: Runs **Hourly at :30**
 - `send_queued_notifications`: Runs **Every 10 minutes**
-- `cleanup_old_notifications`: Runs **Daily at 3:00 AM UTC
+- `cleanup_old_notifications`: Runs **Daily at 3:00 AM UTC**
 
 ### Utility Commands
 
