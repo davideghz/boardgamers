@@ -174,7 +174,7 @@
               </div>
             {% endif %}
             <div class="col">
-              <button class="btn btn-primary btn-lg w-100" type="submit">
+              <button id="publish-btn" class="btn btn-primary btn-lg w-100" type="submit">
                 <i class="bi bi-file-earmark-plus"></i> {% trans "Publish" %}
               </button>
             </div>
@@ -234,6 +234,35 @@
                   input.value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
               });
           });
+
+          // Prevenire click multipli sul pulsante Publish
+          var submitBtn = document.getElementById('publish-btn');
+
+          if (submitBtn) {
+              submitBtn.addEventListener('click', function(e) {
+                  console.log('Click sul pulsante submit');
+                  // Disabilita il pulsante e cambia l'aspetto immediatamente
+                  submitBtn.disabled = true;
+                  submitBtn.innerHTML = '<i class="bi bi-gear bi-spin"></i> {% trans "Publishing..." %}';
+
+                  // Aggiunge stile per indicare che sta caricando
+                  submitBtn.classList.add('disabled');
+
+                  // Lascia che il form proceda normalmente con il submit
+              });
+          }
       });
   </script>
+
+  <style>
+      @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+      }
+
+      .bi-spin {
+          animation: spin 1s linear infinite;
+          display: inline-block;
+      }
+  </style>
 {% endblock %}
