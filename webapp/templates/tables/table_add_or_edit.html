@@ -239,16 +239,12 @@
           var submitBtn = document.getElementById('publish-btn');
 
           if (submitBtn) {
-              submitBtn.addEventListener('click', function(e) {
-                  console.log('Click sul pulsante submit');
-                  // Disabilita il pulsante e cambia l'aspetto immediatamente
+              var form = document.querySelector('form');
+              form.addEventListener('submit', function(e) {
+                  // Disabilita il pulsante e cambia l'aspetto
                   submitBtn.disabled = true;
                   submitBtn.innerHTML = '<i class="bi bi-gear bi-spin"></i> {% trans "Publishing..." %}';
-
-                  // Aggiunge stile per indicare che sta caricando
                   submitBtn.classList.add('disabled');
-
-                  // Lascia che il form proceda normalmente con il submit
               });
           }
       });
