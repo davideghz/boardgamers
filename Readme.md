@@ -188,6 +188,8 @@ In production, the following commands are scheduled via cron:
 
 ### Utility Commands
 
+Run with `python manage.py [command-name]`
+
 - `setup_ses_template`
   - Used to update AWS SES templates for new table notifications.
   - **Usage**: Run this ONLY if the base template or the `email_notification_new_table` template has been modified.
@@ -198,3 +200,6 @@ In production, the following commands are scheduled via cron:
 - `manage_notifications`
   - Used to manage and clean up notifications.
   - **Functionality**: Can set notifications as read, sent, or delete them.
+
+- `cleanup_old_notifications`
+  - Used to delete notifications older than a specified number of days.
