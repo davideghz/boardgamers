@@ -1137,10 +1137,10 @@ msgid "Invite Gamers to the table"
 msgstr "Invita Gamers al tavolo"
 
 msgid "External players"
-msgstr "Invita Gamers al tavolo"
+msgstr "Giocatori esterni"
 
 msgid "({{ count }} external players)"
-msgstr "({{ count }} jugadores externos)"
+msgstr "({{ count }} giocatori esterni)"
 
 #: webapp/templates/tables/table_players.html:101
 msgid ""
