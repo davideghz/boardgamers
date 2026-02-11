@@ -33,7 +33,9 @@ urlpatterns = [
   path('comments/<uuid:uuid>/delete/', table_views.CommentDeleteView.as_view(), name='comment-delete'),
   path("tables/<slug:slug>/players/", table_views.table_players_view, name="table-players"),
   path("tables/<slug:slug>/players/remove/<int:player_id>/", table_views.remove_player_view, name="remove-player"),
-
+  path("tables/<slug:slug>/add_external/<int:available_seats>/", table_views.add_external_player, name="add_external_player"),
+  path("tables/<slug:slug>/remove_external/", table_views.remove_external_player, name="remove_external_player"),
+  path("tables/<slug:slug>/clear_external/", table_views.clear_external_players, name="clear_external_players"),
 
   # LOCATIONS
   path("locations/", location_views.index_view, name="locations-index"),

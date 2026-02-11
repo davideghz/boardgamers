@@ -84,6 +84,56 @@
           </p>
         </div>
       </div>
+
+      <div class="mt-3 col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+        <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
+            <div class="d-flex align-items-center">
+                <h1 class="fs-3 mb-4">
+                    {% trans "External players" %}
+                </h1>
+                <p class="mb-4 ms-2">
+                  {% blocktrans with count=table.external_players %}
+                    ({{ count }} external players)
+                  {% endblocktrans %}
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 align-items-center">
+
+                <form method="post" action="{% url 'add_external_player' table.slug available_seats %}" class="d-inline me-4">
+                    {% csrf_token %}
+                    <button class="btn rounded-circle d-flex align-items-center justify-content-center
+                            {% if available_seats <= 0 %}btn-secondary
+                            {% else %}btn-outline-primary{% endif %}"
+                            style="width: 40px; height: 40px;"
+                            {% if available_seats <= 0 %}disabled{% endif %}>
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </form>
+
+
+                <form method="post" action="{% url 'remove_external_player' table.slug %}" class="d-inline me-4">
+                  {% csrf_token %}
+                  <button class="btn rounded-circle d-flex align-items-center justify-content-center
+                            {% if table.external_players <= 0 %}btn-secondary
+                            {% else %}btn-outline-primary{% endif %}"
+                          style="width: 40px; height: 40px;"
+                          {% if table.external_players <= 0 %}disabled{% endif %}>
+                    <i class="bi bi-dash-lg"></i>
+                  </button>
+                </form>
+
+                <form method="post" action="{% url 'clear_external_players' table.slug %}" class="d-inline me-4">
+                    {% csrf_token %}
+                    <button class="btn btn-secondary px-3" {% if table.external_players <= 0 %}disabled{% endif %}>
+                        Clear
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+      </div>
     </div>
   </div>
 

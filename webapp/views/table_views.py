@@ -101,6 +101,7 @@ class TableDetailView(generic.DetailView):
             ).update(is_read=True)
 
         max_players = table.max_players
+        external_players = table.external_players
         current_players = table.players.count()
         today = now().date()
 
@@ -137,7 +138,7 @@ class TableDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
-            'available_seats': max_players - current_players,
+            'available_seats': max_players - current_players - external_players,
             'today': today,
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
@@ -196,6 +197,7 @@ def table_players_view(request, slug):
     return render(request, "tables/table_players.html", {
         "table": table,
         "players": players,
+        'available_seats': table.max_players - players.count() - table.external_players,
     })
 
 
@@ -278,6 +280,39 @@ def table_update_view(request, location_slug, table_slug):
 
     context = {"form": form, "location": location, "table": table}
     return render(request, "tables/table_add_or_edit.html", context)
+
+@login_required
+def add_external_player(request, slug, available_seats):
+    table = get_object_or_404(Table, slug=slug)
+
+    if request.method == "POST":
+        if available_seats > 0:
+            table.external_players += 1
+            table.save()
+
+    return redirect("table-players", slug=slug)
+
+@login_required
+def remove_external_player(request, slug):
+    table = get_object_or_404(Table, slug=slug)
+
+    if request.method == "POST":
+        if table.external_players > 0:
+            table.external_players -= 1
+            table.save()
+
+    return redirect("table-players", slug=slug)
+
+@login_required
+def clear_external_players(request, slug):
+    table = get_object_or_404(Table, slug=slug)
+
+    if request.method == "POST":
+        if table.external_players > 0:
+            table.external_players = 0
+            table.save()
+
+    return redirect("table-players", slug=slug)
 
 
 class TableDeleteView(
