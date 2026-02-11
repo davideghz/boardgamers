@@ -234,19 +234,42 @@
                   input.value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
               });
           });
+      });
+  </script>
 
-          // Prevenire click multipli sul pulsante Publish
-          var submitBtn = document.getElementById('publish-btn');
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const submitBtn = document.getElementById('publish-btn');
+          const form = submitBtn?.closest('form');
+          if (!submitBtn || !form) return;
 
-          if (submitBtn) {
-              var form = document.querySelector('form');
-              form.addEventListener('submit', function(e) {
-                  // Disabilita il pulsante e cambia l'aspetto
-                  submitBtn.disabled = true;
-                  submitBtn.innerHTML = '<i class="bi bi-gear bi-spin"></i> {% trans "Publishing..." %}';
-                  submitBtn.classList.add('disabled');
-              });
-          }
+          let locked = false;
+
+          submitBtn.addEventListener('click', function (e) {
+              e.preventDefault(); // controlliamo noi
+
+              if (locked) return;
+
+              // Se non valido, mostra gli errori e NON bloccare tutto
+              if (!form.checkValidity()) {
+                  form.reportValidity();
+                  return;
+              }
+
+              locked = true;
+
+              submitBtn.disabled = true;
+              submitBtn.classList.add('disabled');
+              submitBtn.innerHTML = '<i class="bi bi-gear bi-spin"></i> Publishing...';
+
+              // Submit esplicito (rispetta validation, onsubmit, csrf, ecc.)
+              form.requestSubmit(submitBtn);
+          });
+
+          // Safety: se la pagina non naviga per qualche errore JS, riabilita dopo un attimo
+          form.addEventListener('submit', function () {
+              // qui puoi anche loggare, oppure lasciarlo vuoto
+          });
       });
   </script>
 
