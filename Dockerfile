@@ -20,6 +20,7 @@ ENV GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
 
 COPY requirements.txt .
 
+RUN apt-get update && apt-get install -y gettext
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 

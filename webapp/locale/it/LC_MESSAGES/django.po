@@ -1139,8 +1139,8 @@ msgstr "Invita Gamers al tavolo"
 msgid "External players"
 msgstr "Giocatori esterni"
 
-msgid "({{ count }} external players)"
-msgstr "({{ count }} giocatori esterni)"
+msgid "(%(count)s external players)"
+msgstr "(%(count)s giocatori esterni)"
 
 #: webapp/templates/tables/table_players.html:101
 msgid ""
