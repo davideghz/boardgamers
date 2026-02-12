@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-11 15:07+0000\n"
+"POT-Creation-Date: 2026-02-12 12:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,43 +18,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: webapp/forms.py:134
+#: webapp/forms.py:141
 msgid "Games"
 msgstr "Games"
 
-#: webapp/forms.py:140 webapp/models.py:221
+#: webapp/forms.py:147 webapp/models.py:221
 msgid "Game"
 msgstr "Gioco"
 
-#: webapp/forms.py:174
+#: webapp/forms.py:181
 msgid "Your comment..."
 msgstr "Il tuo commento..."
 
-#: webapp/forms.py:228
+#: webapp/forms.py:235
 msgid "Email already registered."
 msgstr "Email già registrata."
 
-#: webapp/forms.py:234
+#: webapp/forms.py:241
 msgid "Insert nickname"
 msgstr "Inserisci un nickname"
 
-#: webapp/forms.py:236
+#: webapp/forms.py:243
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
 
-#: webapp/forms.py:372 webapp/templates/accounts/account_locations.html:85
+#: webapp/forms.py:379 webapp/templates/accounts/account_locations.html:85
 msgid "Manager"
 msgstr "Manager"
 
-#: webapp/forms.py:376 webapp/forms.py:391
+#: webapp/forms.py:383 webapp/forms.py:398
 msgid "Search by username..."
 msgstr "Cerca per username"
 
-#: webapp/forms.py:387
+#: webapp/forms.py:394
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
-#: webapp/forms.py:398
+#: webapp/forms.py:405
 #: webapp/templates/locations/location_manage_managers.html:137
 #: webapp/templates/locations/location_managers.html:131
 msgid "Add me as manager after transfer"
@@ -144,52 +144,60 @@ msgstr "Data"
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:297
+#: webapp/models.py:276
+msgid "User Comment"
+msgstr "User Comment"
+
+#: webapp/models.py:277
+msgid "System Comment"
+msgstr "System Comment"
+
+#: webapp/models.py:303
 msgid "Location Follower"
 msgstr "Location Follower"
 
-#: webapp/models.py:298
+#: webapp/models.py:304
 msgid "Location Followers"
 msgstr "Location Followers"
 
-#: webapp/models.py:305
+#: webapp/models.py:311
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:306
+#: webapp/models.py:312
 msgid "New player joined"
 msgstr "Nuovo gamer al tavolo"
 
-#: webapp/models.py:307
+#: webapp/models.py:313
 msgid "Leaderboard is now editable"
 msgstr "Classifica modificabile"
 
-#: webapp/models.py:308
+#: webapp/models.py:314
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:309
+#: webapp/models.py:315
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:310 webapp/signals.py:158
+#: webapp/models.py:316 webapp/signals.py:158
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
-#: webapp/models.py:311
+#: webapp/models.py:317
 #: webapp/templates/emails/email_notification_deleted_table_html.html:6
 msgid "Table deleted"
 msgstr "Tavolo eliminato"
 
-#: webapp/models.py:312
+#: webapp/models.py:318
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:330
+#: webapp/models.py:336
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:331 webapp/templates/accounts/account_notifications.html:17
+#: webapp/models.py:337 webapp/templates/accounts/account_notifications.html:17
 #: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
@@ -631,10 +639,15 @@ msgstr ""
 "Inserisci l'indirizzo. Lo useremo per mostrare la location sulla mappa!"
 
 #: webapp/templates/locations/location_add_or_edit.html:122
+
+msgid "Insert the location's website (optional)."
+msgstr "Inserisci il sito we della location (opzionale)."
+
+#: webapp/templates/locations/location_add_or_edit.html:135
 msgid "Is the location public or private?"
 msgstr "È una location pubblica o privata?"
 
-#: webapp/templates/locations/location_add_or_edit.html:126
+#: webapp/templates/locations/location_add_or_edit.html:139
 msgid ""
 "Click here if this is a public location (like a bar, a pub, or a board games "
 "café)."
@@ -642,25 +655,25 @@ msgstr ""
 "Clicca qui se si tratta di un luogo pubblico (come un'associazione, una "
 "ludoteca, un pub, ...)"
 
-#: webapp/templates/locations/location_add_or_edit.html:127
+#: webapp/templates/locations/location_add_or_edit.html:140
 msgid "Note: public locations can be used by other gamers to organize tables."
 msgstr ""
 "Nota: le location pubbliche possono essere usate da altri gamers per "
 "organizzare tavoli."
 
-#: webapp/templates/locations/location_add_or_edit.html:135
+#: webapp/templates/locations/location_add_or_edit.html:148
 #: webapp/templates/locations/location_manage_managers.html:167
 #: webapp/templates/locations/location_manage_managers.html:191
 #: webapp/templates/locations/location_managers.html:160
 #: webapp/templates/locations/location_managers.html:182
 #: webapp/templates/tables/table_add_or_edit.html:172
 #: webapp/templates/tables/table_delete.html:13
-#: webapp/templates/tables/table_detail.html:465
+#: webapp/templates/tables/table_detail.html:489
 #: webapp/templates/tables/table_players.html:104
 msgid "Cancel"
 msgstr "Annulla"
 
-#: webapp/templates/locations/location_add_or_edit.html:141
+#: webapp/templates/locations/location_add_or_edit.html:154
 #: webapp/templates/tables/table_add_or_edit.html:178
 msgid "Publish"
 msgstr "Pubblica"
@@ -792,7 +805,7 @@ msgstr "Informazioni"
 msgid "Edit Location"
 msgstr "Modifica Location"
 
-#: webapp/templates/locations/location_manage_data.html:111
+#: webapp/templates/locations/location_manage_data.html:123
 msgid "Salva modifiche"
 msgstr ""
 
@@ -884,7 +897,8 @@ msgid ""
 "Are you sure you want to transfer ownership? You will no longer be the owner "
 "of this location."
 msgstr ""
-"Procedere con trasferimento ownership? Non sarai più l'owner di questa location."
+"Procedere con trasferimento ownership? Non sarai più l'owner di questa "
+"location."
 
 #: webapp/templates/partials/alerts.html:8
 msgid "Your email is not verified."
@@ -1085,7 +1099,7 @@ msgid "if you still want to delete this table."
 msgstr "se vuoi cancellarlo."
 
 #: webapp/templates/tables/table_delete.html:7
-#: webapp/templates/tables/table_detail.html:458
+#: webapp/templates/tables/table_detail.html:482
 #: webapp/templates/tables/table_players.html:97
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
@@ -1203,19 +1217,27 @@ msgid "Only gamers that joined the table can comment on this page."
 msgstr ""
 "Solo i gamers che si sono uniti al tavolo possono commentare questa pagina."
 
-#: webapp/templates/tables/table_detail.html:441
+#: webapp/templates/tables/table_detail.html:425
+msgid "%(nickname)s joined the table"
+msgstr "%(nickname)s si unisce al tavolo"
+
+#: webapp/templates/tables/table_detail.html:433
+msgid "%(nickname)s left the table"
+msgstr "%(nickname)s lascia il tavolo"
+
+#: webapp/templates/tables/table_detail.html:465
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
-#: webapp/templates/tables/table_detail.html:462
+#: webapp/templates/tables/table_detail.html:486
 msgid "Are you sure you want to delete the comment?"
 msgstr "Procedere con eliminazione del commento?"
 
-#: webapp/templates/tables/table_detail.html:466
+#: webapp/templates/tables/table_detail.html:490
 msgid "Delete comment"
 msgstr "Elimina commento"
 
-#: webapp/templates/tables/table_detail.html:493
+#: webapp/templates/tables/table_detail.html:517
 msgid "Let's play"
 msgstr "Giochiamo"
 

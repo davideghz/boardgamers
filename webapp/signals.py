@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _, activate
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table
-from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment
+from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType
 
 
 @receiver(user_logged_out)
@@ -99,7 +99,7 @@ def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def notify_players_on_new_comments(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.comment_type == CommentType.USER:
         players = instance.table.players.exclude(id=instance.author.id)
         for player in players:
             Notification.objects.create(
