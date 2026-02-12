@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, modelformset_factory, EmailField, ModelChoiceField, BooleanField
+    ModelMultipleChoiceField, modelformset_factory, EmailField, ModelChoiceField, BooleanField, URLInput
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -44,6 +44,11 @@ class CustomTextareaWidget(Textarea):
 
 class CustomEmailWidget(EmailInput):
     def __init__(self, attrs=None, placeholder=""):
+        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
+
+
+class CustomURLWidget(EmailInput):
+    def __init__(self, attrs=None, placeholder="https://example.com"):
         super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
 
 
@@ -108,6 +113,8 @@ class BootstrapForm(Form):
             #     field.widget = CustomSelectWidget(choices=field.choices)
             elif isinstance(field.widget, EmailInput):
                 field.widget = CustomEmailWidget()
+            elif isinstance(field.widget, URLInput):
+                field.widget = CustomURLWidget()
             elif isinstance(field.widget, NumberInput):
                 field.widget = CustomNumberWidget()
             elif isinstance(field.widget, FileInput):
@@ -304,7 +311,7 @@ class LocationForm(ModelForm, BootstrapForm):
 
     class Meta:
         model = Location
-        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'is_public']
+        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public']
 
 
 class PlayerScoreForm(ModelForm, BootstrapForm):

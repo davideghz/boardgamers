@@ -2,8 +2,9 @@
 {% load static %}
 {% load i18n %}
 
-{% block headtitle %}{{ table.game }} - {{ table.date }} - Board-Gamers.com{% endblock headtitle %}
-{% block description %}Unisciti al tavolo{% if table.game %} di {{ table.game }}{% endif %}! Giocheremo il {{ table.date }} alle {{ table.time }} presso {{ table.location.name }}{% endblock description %}
+{% block headtitle %}{% if table.game %}{{ table.game }}{% else %}{{ table.title }}{% endif %} - {{ table.date }} - Board-Gamers.com{% endblock headtitle %}
+{% block description %}Unisciti al tavolo{% if table.game %} di {{ table.game }}{% endif %}! Giocheremo il
+  {{ table.date }} alle {{ table.time }} presso {{ table.location.name }}{% endblock description %}
 
 {% block breadcrumbs %}
   <div class="container-fluid px-0 bg-white border-bottom">
@@ -24,78 +25,56 @@
 {% block content %}
   <div class="container py-4">
     <div class="row">
-      <!-- table info -->
+      <!-- LEFT -->
       <div class="col-12 col-md-5 col-lg-4 col-xl-4">
+        <div class="card shadow border-0 mb-4" style="">
+          <div class="card-header text-decoration-none d-flex flex-column justify-content-end text-white border-0"
+               style="background-image: linear-gradient(to top,
+                   rgba(0, 0, 0, 0.8) 0%,
+                   rgba(0, 0, 0, 0.3) 40%,
+                   rgba(0, 0, 0, 0) 100%),
+                   url('{{ table.cover_url }}');
+                   background-position: center;
+                   background-size: cover;
+                   height: 175px;"
+          >
+      <span class="badge rounded-pill {{ table.status_badge_class }}" style="position: absolute; top:8px; right:16px">
+        {{ table.get_status_display }}
+      </span>
 
-        <!-- table -->
-        <div class="card shadow border-0 mb-4">
-          <div class="card-header" style="background-color: slategrey">
+            {% if table.game %}
+              <h5>{{ table.game }}</h5>
+            {% endif %}
 
-          </div>
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <span class="h5 flex-grow-1">{% trans "Table info" %}</span>
-              {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
-                <a class="text-decoration-none" href="{% url 'location-table-update' table.location.slug table.slug %}">
-                  <i class="bi bi-pencil-square"></i> {% trans "Edit" %}
-                </a>
-              {% endif %}
-            </div>
-          </div>
-          <div class="card-body border-top">
-            <small><strong>{% trans "Date and time" %}</strong></small>
-            <br>
-            <i class="bi bi-calendar4-event"></i> <small>{{ table.date|date:"j F" }}</small>
-            <i class="bi bi-clock"></i> <small>{{ table.time|time:"H:i" }}</small>
-            <br><br>
-            <small><strong>{% trans "Address" %}</strong></small>
-            <br>
             {% if table.location %}
               {% if table.location.is_public %}
-                <small>{{ table.location.name }}</small><br>
+                <span><i class="bi bi-geo-alt-fill"></i> <small>{{ table.location }}</small></span>
+              {% else %}
+                <span><i class="bi bi-geo-alt-fill"></i> <small>{% trans "Private location" %}</small></span>
               {% endif %}
-              <small>{{ table.location.address }} (<a target="_blank"
-                                                      href="http://maps.google.com/maps?q={{ table.location.latitude }},{{ table.location.longitude }}">{% trans "Map" %}</a>)</small>
-            {% else %}
-              <small>
-                {% trans "No location set for this table." %}<br>
-                {% trans "Ask info to the organizer." %}
-              </small>
             {% endif %}
           </div>
-
-          <!-- game -->
-          <div class="card-body border-top">
-            <small><strong>{% trans "Game" %}</strong></small>
-            <br>
-            {% if table.game %}
-              <small>
-                <a href="{% url "game-detail" table.game.slug %}">{{ table.game }}</a>
-              </small>
-            {% else %}
-              <small>
-                {% trans "No game set for this table." %}
-              </small>
-            {% endif %}
-          </div>
-          <div class="card-body border-top">
-            <small><strong>{% trans "Gamers" %}</strong> ({{ available_seats }} {% trans "available seats" %})</small>
-            <br>
-            {% for player in table.players.all %}
-              <i class="bi bi-person-fill"></i>
-              <small><a href="{% url "user-profile-detail" player.slug %}">{{ player }}</a> {% if not forloop.last %}
-                <i class="bi bi-dot"></i>{% endif %}</small>
-            {% empty %}
-              <small>{% trans "No players yet." %}</small>
-            {% endfor %}
-
-            {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
-              <a class="btn btn-outline-primary w-100 mt-2" href="{% url 'table-players' table.slug %}">
+          {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
+            <div class="card-body py-3 bg-dark">
+              <a class="btn btn-outline-light w-100"
+                 href="{% url 'location-table-update' table.location.slug table.slug %}"
+              >
+                <i class="bi bi-pencil-square"></i> {% trans "Edit table info" %}
+              </a>
+              <a class="btn btn-outline-light w-100 mt-2" href="{% url 'table-players' table.slug %}">
                 <i class="bi bi-person-x-fill"></i> {% trans "Invite/Remove Gamers" %}
               </a>
-            {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="card-body bg-dark text-light d-flex justify-content-between align-items-center">
+            <small><i class="bi bi-calendar4-event"></i> {{ table.date|date:"j F" }}</small>
+            <small><i class="bi bi-clock"></i> {{ table.time|time:"H:i" }}</small>
+            <small>
+              <i class="bi bi-people-fill"></i> {{ table.players.count }}/{{ table.max_players }}
+            </small>
           </div>
-          <div class="card-body border-top">
+          <div class="card-body border-0">
             {% if table.status == table.OPEN %}
               {% if user.is_authenticated %}
                 {% if user.user_profile in table.players.all %}
@@ -108,16 +87,21 @@
                 {% else %}
                   <form method="post" action="{% url 'join_table' table.slug %}">
                     {% csrf_token %}
-                    <button class="w-100 btn btn-primary" type="submit" {% if available_seats <= 0 %}disabled{% endif %}>
-                      <i class="bi bi-person-check-fill"></i> {% if available_seats <= 0 %}{% trans "Table is full" %}{% else %}{% trans "Join this table" %}{% endif %}
+                    <button class="w-100 btn btn-primary" type="submit"
+                            {% if available_seats <= 0 %}disabled{% endif %}>
+                      <i class="bi bi-person-check-fill"></i>
+                      {% if available_seats <= 0 %}{% trans "Table is full" %}{% else %}
+                        {% trans "Join this table" %}{% endif %}
                     </button>
                   </form>
                   {% if available_seats <= 0 %}
-                    <small class="text-muted d-block mt-1">{% trans "This table has reached its maximum number of players" %}</small>
+                    <small
+                        class="text-muted d-block mt-1">{% trans "This table has reached its maximum number of players" %}</small>
                   {% endif %}
                 {% endif %}
               {% else %}
-                <a class="btn btn-primary w-100" href="{% url "login" %}?next={% url 'table-detail' slug=table.slug %}">{% trans "Login to join table" %}</a>
+                <a class="btn btn-primary w-100"
+                   href="{% url "login" %}?next={% url 'table-detail' slug=table.slug %}">{% trans "Login to join table" %}</a>
               {% endif %}
             {% else %}
               <button class="w-100 btn btn-secondary disabled">
@@ -132,74 +116,63 @@
           </div>
         </div>
 
-        <!-- location -->
-        {% if table.location %}
-          <a href="{% url "location-detail" table.location.slug %}"
-             class="card shadow border-0 mb-4 text-decoration-none">
-            <div class="card-header" style="background-color: slategrey">
-
-            </div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between">
-                <span class="h5 flex-grow-1">{% trans "Location info" %}</span>
-              </div>
-            </div>
-            <div class="card-body border-top">
-              <div class="row">
-                <div class="col-12">
-                  <img class="img-thumbnail object-fit-cover object-position-center"
-                       style="width: 100px; height: 100px;" src="{{ table.location.cover_url }}"
-                       alt="{{ table.location.name }} logo">
-                </div>
-                <div class="col-12 mt-3">
-                  <p class="h5">{{ table.location.name }}</p>
-                  <p class="card-text text-secondary"><small>{{ table.location.description }}</small></p>
-                </div>
-              </div>
-            </div>
-          </a>
-        {% endif %}
-      </div>
-
-      <!-- comment section -->
-      <div class="col-12 col-md-7 col-lg-8">
-        <div class="row">
-          <!-- table description -->
-          <div class="col-12 col-lg">
-            <h1>{{ table.title }}</h1>
-            <p>{{ table.description }}</p>
-            <i class="bi bi-person-fill"></i>
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header" style="background-color: slategrey"></div>
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <span class="h5 mb-0">{% trans "Gamers" %}</span>
             <small>
-              {% trans "Table created by" %}:
-              <a href="{% url "user-profile-detail" table.author.user.user_profile.slug %}">
-                {{ table.author.nickname }}
-              </a>
+              <i class="bi bi-people-fill"></i> {{ table.players.count }}/{{ table.max_players }}
             </small>
           </div>
-
-          {% comment %} Share button {% endcomment %}
-          <div class="col-auto">
-            <button class="btn btn-sm btn-outline-primary btn-share" id="shareButton" aria-label="{% trans 'Share this table' %}">
-              <i class="bi bi-share-fill"></i> {% trans "Share" %}
-            </button>
+          <div class="card-body border-top">
+            {% for player in table.players.all %}
+              <a href="{% url "user-profile-detail" player.slug %}"
+                 class="d-flex align-items-center text-decoration-none {% if not forloop.last %}mb-2{% endif %}">
+                <img class="img-thumbnail object-fit-cover object-position-center"
+                     style="height: 40px; width: 40px;" src="{{ player.avatar_url }}" alt="{{ player }}">
+                <small class="ms-2">{{ player }}</small>
+              </a>
+            {% empty %}
+              <small>{% trans "No players yet." %}</small>
+            {% endfor %}
           </div>
-
-          {% comment %} Toast for copied link (share button fallback) {% endcomment %}
-          <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="copyToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-              <div class="d-flex">
-                <div class="toast-body">
-                  {% trans "Link copied" %}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-              </div>
+          <div class="card-body border-top">
+            <div class="progress" role="progressbar"
+                 aria-label="{% trans "available seats" %}"
+                 aria-valuenow="{{ availability_percent }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+              <div class="progress-bar" style="width: {{ availability_percent }}%"></div>
             </div>
+            <small>{{ available_seats }} {% trans "available seats" %}</small>
           </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="col-12 col-md-7 col-lg-8">
+        <div class="row">
 
           <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 
-          <!-- Classifica -->
-          <div class="col-12 mt-3">
+          <div class="col-12">
+            <!-- Descrizione -->
+            <div class="card shadow border-0 mb-4">
+              <div class="card-header" style="background-color: slategrey"></div>
+              <div class="card-body">
+                <p class="h5">{{ table.title }}</p>
+                <small class="text-secondary">{{ table.description }}</small><br><br>
+                <a href="{% url "location-detail" table.location.slug %}" class="d-flex align-items-center text-decoration-none">
+                  <img class="img-thumbnail object-fit-cover object-position-center"
+                       style="height: 40px; width: 40px;" src="{{ table.location.cover_url }}" alt="{{ table.location }}">
+                  <small class="ms-2">{{ table.location.name }}</small>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <!-- Classifica -->
             <div class="card shadow border-0">
               <div class="card-header" style="background-color: slategrey"></div>
               <div class="card-body">
@@ -282,109 +255,109 @@
           {% if leaderboard_enabled and user_can_edit_leaderboard %}
             <script>
                 window.addEventListener('DOMContentLoaded', () => {
-                  const leaderboard = document.getElementById('leaderboard');
-                  const saveOrderButton = document.getElementById('saveOrder');
-                  const createLeaderboardButton = document.getElementById('createLeaderboard');
-                  const editLeaderboardButton = document.getElementById('editLeaderboard');
-                  const editLeaderboardInstructions = document.getElementById('editLeaderboardInstructions');
-                  let sortableInstance; // Variabile per memorizzare l'istanza di SortableJS
+                    const leaderboard = document.getElementById('leaderboard');
+                    const saveOrderButton = document.getElementById('saveOrder');
+                    const createLeaderboardButton = document.getElementById('createLeaderboard');
+                    const editLeaderboardButton = document.getElementById('editLeaderboard');
+                    const editLeaderboardInstructions = document.getElementById('editLeaderboardInstructions');
+                    let sortableInstance; // Variabile per memorizzare l'istanza di SortableJS
 
-                  // Funzione per abilitare/disabilitare il drag & drop
-                  function toggleDrag(enabled) {
-                      if (sortableInstance) {
-                          sortableInstance.option("disabled", !enabled); // Abilita/disabilita il drag
-                      }
+                    // Funzione per abilitare/disabilitare il drag & drop
+                    function toggleDrag(enabled) {
+                        if (sortableInstance) {
+                            sortableInstance.option("disabled", !enabled); // Abilita/disabilita il drag
+                        }
 
-                      const handles = document.querySelectorAll('.handle');
-                      handles.forEach(handle => {
-                          handle.style.display = enabled ? 'inline-block' : 'none'; // Mostra/nasconde l'handle
-                      });
-                  }
+                        const handles = document.querySelectorAll('.handle');
+                        handles.forEach(handle => {
+                            handle.style.display = enabled ? 'inline-block' : 'none'; // Mostra/nasconde l'handle
+                        });
+                    }
 
-                  // Inizializzazione di SortableJS
-                  sortableInstance = new Sortable(leaderboard, {
-                      animation: 150,
-                      handle: '.handle',
-                      ghostClass: 'sortable-ghost',
-                      fallbackOnBody: true,
-                      disabled: true, // Disabilita il drag all'inizio
+                    // Inizializzazione di SortableJS
+                    sortableInstance = new Sortable(leaderboard, {
+                        animation: 150,
+                        handle: '.handle',
+                        ghostClass: 'sortable-ghost',
+                        fallbackOnBody: true,
+                        disabled: true, // Disabilita il drag all'inizio
 
-                      onEnd: function () {
-                          // Ricalcolo le posizioni dopo il drag
-                          Array.from(leaderboard.children).forEach((item, index) => {
-                              const badge = item.querySelector('.badge');
-                              if (badge) {
-                                  badge.textContent = index + 1;
-                                  badge.classList.remove('bg-secondary');
-                                  badge.classList.add('bg-primary');
-                              } else {
-                                  console.warn("Badge non trovato per l'elemento:", item);
-                              }
-                          });
+                        onEnd: function () {
+                            // Ricalcolo le posizioni dopo il drag
+                            Array.from(leaderboard.children).forEach((item, index) => {
+                                const badge = item.querySelector('.badge');
+                                if (badge) {
+                                    badge.textContent = index + 1;
+                                    badge.classList.remove('bg-secondary');
+                                    badge.classList.add('bg-primary');
+                                } else {
+                                    console.warn("Badge non trovato per l'elemento:", item);
+                                }
+                            });
 
-                          // Abilita il bottone e cambia stile e testo
-                          saveOrderButton.disabled = false;
-                          saveOrderButton.classList.remove('btn-light', 'btn-secondary');
-                          saveOrderButton.classList.add('btn-primary');
-                          saveOrderButton.textContent = '{% trans "Update Leaderboard" %}';
-                      }
-                  });
+                            // Abilita il bottone e cambia stile e testo
+                            saveOrderButton.disabled = false;
+                            saveOrderButton.classList.remove('btn-light', 'btn-secondary');
+                            saveOrderButton.classList.add('btn-primary');
+                            saveOrderButton.textContent = '{% trans "Update Leaderboard" %}';
+                        }
+                    });
 
-                  // Event listener per il link "Edit"
-                  if (editLeaderboardButton) {
-                      editLeaderboardButton.addEventListener('click', function (e) {
-                          e.preventDefault(); // Previene il comportamento predefinito del link
-                          toggleDrag(true); // Abilita il drag
-                          editLeaderboardInstructions.classList.remove('d-none');
-                          saveOrderButton.classList.remove('d-none');
-                          console.log("Drag & Drop abilitato!");
-                      });
-                  }
+                    // Event listener per il link "Edit"
+                    if (editLeaderboardButton) {
+                        editLeaderboardButton.addEventListener('click', function (e) {
+                            e.preventDefault(); // Previene il comportamento predefinito del link
+                            toggleDrag(true); // Abilita il drag
+                            editLeaderboardInstructions.classList.remove('d-none');
+                            saveOrderButton.classList.remove('d-none');
+                            console.log("Drag & Drop abilitato!");
+                        });
+                    }
 
-                  // Event listener per il bottone "Save"
-                  saveOrderButton.addEventListener('click', function () {
-                      const players = Array.from(leaderboard.children).map((item, index) => ({
-                          id: item.getAttribute('data-player-id'),
-                          position: index + 1
-                      }));
+                    // Event listener per il bottone "Save"
+                    saveOrderButton.addEventListener('click', function () {
+                        const players = Array.from(leaderboard.children).map((item, index) => ({
+                            id: item.getAttribute('data-player-id'),
+                            position: index + 1
+                        }));
 
-                      console.log("Sending data:", JSON.stringify({players: players}));
+                        console.log("Sending data:", JSON.stringify({players: players}));
 
-                      fetch(`/api/tables/{{ table.id }}/update-player-position/`, {
-                          method: 'POST',
-                          headers: {
-                              'Content-Type': 'application/json',
-                              'X-CSRFToken': '{{ csrf_token }}'
-                          },
-                          body: JSON.stringify({players: players})
-                      })
-                          .then(response => response.json())
-                          .then(data => {
-                              if (data.success) {
-                                  saveOrderButton.disabled = true;
-                                  saveOrderButton.classList.remove('btn-primary');
-                                  saveOrderButton.classList.add('btn-light');
-                                  saveOrderButton.textContent = '{% trans "Leaderboard Updated" %}';
-                                  toggleDrag(false); // Disabilita il drag dopo il salvataggio
-                                  editLeaderboardInstructions.classList.add('d-none');
-                                  console.log("Leaderboard updated successfully!");
-                              } else {
-                                  console.error("Error response:", data);
-                              }
-                          })
-                          .catch(error => {
-                              console.error("Fetch error:", error);
-                          });
-                  });
+                        fetch(`/api/tables/{{ table.id }}/update-player-position/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({players: players})
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    saveOrderButton.disabled = true;
+                                    saveOrderButton.classList.remove('btn-primary');
+                                    saveOrderButton.classList.add('btn-light');
+                                    saveOrderButton.textContent = '{% trans "Leaderboard Updated" %}';
+                                    toggleDrag(false); // Disabilita il drag dopo il salvataggio
+                                    editLeaderboardInstructions.classList.add('d-none');
+                                    console.log("Leaderboard updated successfully!");
+                                } else {
+                                    console.error("Error response:", data);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Fetch error:", error);
+                            });
+                    });
 
-                  if (createLeaderboardButton) {
-                      createLeaderboardButton.addEventListener('click', function () {
-                          leaderboard.classList.remove('d-none');
-                          saveOrderButton.classList.remove('d-none');
-                          editLeaderboardButton.classList.remove('d-none');
-                          createLeaderboardButton.classList.add('d-none');
-                      });
-                  }
+                    if (createLeaderboardButton) {
+                        createLeaderboardButton.addEventListener('click', function () {
+                            leaderboard.classList.remove('d-none');
+                            saveOrderButton.classList.remove('d-none');
+                            editLeaderboardButton.classList.remove('d-none');
+                            createLeaderboardButton.classList.add('d-none');
+                        });
+                    }
                 });
             </script>
           {% endif %}
@@ -444,24 +417,48 @@
           <!-- comment list -->
           <div class="comments">
             {% for comment in table.comments.all %}
-              <div class="bg-light rounded p-3 mb-2">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <div>
-                      <span class="badge text-bg-light p-0"><i
-                          class="bi bi-person-fill"></i> {{ comment.author }}</span>
-                    <span class="badge text-bg-light fw-normal p-0">{{ comment.created_at|date:"j F Y G:i" }}</span>
-                  </div>
-                  {% if request.user == comment.author.user %}
-                    <button type="button" class="btn btn-light btn-sm text-secondary" data-bs-toggle="modal"
-                            data-bs-target="#deleteCommentModal"
-                            data-comment-url="{% url 'comment-delete' comment.uuid %}">
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  {% endif %}
+              {% if comment.comment_type == 'system' %}
+                {% if "PLAYER_IN:" in comment.content %}
+                  {% with player_nickname=comment.content|cut:"PLAYER_IN:" %}
+                    <div class="bg-light rounded px-3 py-1 mb-2 text-secondary mb-1">
+                      <span class="badge text-secondary fw-normal p-0">
+                        {% blocktrans with nickname=player_nickname %}{{ nickname }} joined the table{% endblocktrans %} - {{ comment.created_at|date:"j F Y G:i" }}
+                      </span>
+                    </div>
+                  {% endwith %}
+                {% elif "PLAYER_OUT:" in comment.content %}
+                  {% with player_nickname=comment.content|cut:"PLAYER_OUT:" %}
+                    <div class="bg-light rounded px-3 py-1 mb-2 text-secondary mb-1">
+                      <span class="badge text-secondary fw-normal p-0">
+                        {% blocktrans with nickname=player_nickname %}{{ nickname }} left the table{% endblocktrans %} - {{ comment.created_at|date:"j F Y G:i" }}
+                      </span>
+                    </div>
+                  {% endwith %}
+                {% endif %}
+              {% else %}
+                <div class="bg-light rounded p-3 mb-2">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div>
+                        <span class="badge text-bg-light p-0">
+                          <i class="bi bi-person-fill"></i>
+                          {{ comment.author }}
+                        </span>
+                      <span class="badge text-bg-light fw-normal p-0">
+                        {{ comment.created_at|date:"j F Y G:i" }}
+                      </span>
+                    </div>
+                    {% if request.user == comment.author.user %}
+                      <button type="button" class="btn btn-light btn-sm text-secondary" data-bs-toggle="modal"
+                              data-bs-target="#deleteCommentModal"
+                              data-comment-url="{% url 'comment-delete' comment.uuid %}">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    {% endif %}
 
+                  </div>
+                  <div class="text-secondary">{{ comment.content }}</div>
                 </div>
-                <div class="text-secondary">{{ comment.content }}</div>
-              </div>
+              {% endif %}
             {% empty %}
               <div class="bg-light rounded p-3 mb-2">
                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -525,13 +522,13 @@
                       console.error('Error sharing:', error);
                   });
               } else {
-                navigator.clipboard.writeText(url).then(() => {
-                  const toastElement = document.getElementById('copyToast');
-                  const toast = new bootstrap.Toast(toastElement);
-                  toast.show();
-                }).catch(err => {
-                  console.error('Failed to copy link:', err);
-                });
+                  navigator.clipboard.writeText(url).then(() => {
+                      const toastElement = document.getElementById('copyToast');
+                      const toast = new bootstrap.Toast(toastElement);
+                      toast.show();
+                  }).catch(err => {
+                      console.error('Failed to copy link:', err);
+                  });
               }
           });
       });

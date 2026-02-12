@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, Comment, Player, UserProfile, Game, Location
+from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table
 
 
@@ -139,6 +139,7 @@ class TableDetailView(generic.DetailView):
         context.update({
             'comment_form': CommentForm(),
             'available_seats': max_players - current_players - external_players,
+            'availability_percent': round(current_players / max_players * 100),
             'today': today,
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
@@ -363,25 +364,39 @@ class JoinTableView(LoginRequiredMixin, View):
             table=table
         )
 
+        # Create simple comment for player joining
+        Comment.objects.create(
+            table=table,
+            content=f"PLAYER_IN:{request.user.user_profile.nickname}",
+            comment_type=CommentType.SYSTEM
+        )
+
         messages.success(request, 'Table joined!')
         return redirect('table-detail', slug=self.kwargs['slug'])
 
 
-class LeaveTableView(LoginRequiredMixin, generic.DeleteView):
-    model = Player
-
-    def dispatch(self, request, *args, **kwargs):
+class LeaveTableView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=self.kwargs['slug'])
         if table.status == Table.CLOSED:
             messages.error(request, 'The table is closed. You cannot leave.', extra_tags='danger')
             return redirect('table-detail', self.kwargs['slug'])
 
-        return super().dispatch(request, *args, **kwargs)
+        try:
+            player = get_object_or_404(Player, user_profile=request.user.user_profile, table=table)
+            nickname = player.user_profile.nickname
 
-    def get_success_url(self):
-        return reverse_lazy('table-detail', kwargs={'slug': self.kwargs['slug']})
+            # Create simple comment for player leaving before deleting the player
+            Comment.objects.create(
+                table=table,
+                content=f"PLAYER_OUT:{nickname}",
+                comment_type=CommentType.SYSTEM
+            )
 
-    def get_object(self):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
-        user_profile = self.request.user.user_profile
-        return get_object_or_404(Player, user_profile=user_profile, table=table)
+            # Delete the player after creating the comment
+            player.delete()
+
+        except Player.DoesNotExist:
+            pass  # Player non trovato, non fare nulla
+
+        return redirect('table-detail', slug=self.kwargs['slug'])

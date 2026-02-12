@@ -174,7 +174,7 @@
               </div>
             {% endif %}
             <div class="col">
-              <button class="btn btn-primary btn-lg w-100" type="submit">
+              <button id="publish-btn" class="btn btn-primary btn-lg w-100" type="submit">
                 <i class="bi bi-file-earmark-plus"></i> {% trans "Publish" %}
               </button>
             </div>
@@ -236,4 +236,52 @@
           });
       });
   </script>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const submitBtn = document.getElementById('publish-btn');
+          const form = submitBtn?.closest('form');
+          if (!submitBtn || !form) return;
+
+          let locked = false;
+
+          submitBtn.addEventListener('click', function (e) {
+              e.preventDefault(); // controlliamo noi
+
+              if (locked) return;
+
+              // Se non valido, mostra gli errori e NON bloccare tutto
+              if (!form.checkValidity()) {
+                  form.reportValidity();
+                  return;
+              }
+
+              locked = true;
+
+              submitBtn.disabled = true;
+              submitBtn.classList.add('disabled');
+              submitBtn.innerHTML = '<i class="bi bi-gear bi-spin"></i> Publishing...';
+
+              // Submit esplicito (rispetta validation, onsubmit, csrf, ecc.)
+              form.requestSubmit(submitBtn);
+          });
+
+          // Safety: se la pagina non naviga per qualche errore JS, riabilita dopo un attimo
+          form.addEventListener('submit', function () {
+              // qui puoi anche loggare, oppure lasciarlo vuoto
+          });
+      });
+  </script>
+
+  <style>
+      @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+      }
+
+      .bi-spin {
+          animation: spin 1s linear infinite;
+          display: inline-block;
+      }
+  </style>
 {% endblock %}

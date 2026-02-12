@@ -119,6 +119,19 @@
             {% endif %}
           </div>
 
+          <small class="d-block pt-3 pb-2 text-secondary">{% trans "Insert the location's website (optional)." %}</small>
+          <div class="form-floating mb-3">
+            {{ form.website }}
+            {{ form.website.label_tag|cut:":" }}
+            {% if form.website.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.website.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
           <small class="d-block text-secondary">{% trans "Is the location public or private?" %}</small>
           <div class="form-check form-switch pt-3 pb-3 custom-switch">
             {{ form.is_public }}

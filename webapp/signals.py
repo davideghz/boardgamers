@@ -1,21 +1,33 @@
 from time import sleep
 
-from django.contrib.auth.signals import user_logged_out
+from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.gis.geos import Point
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, activate
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table
-from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment
+from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType
 
 
 @receiver(user_logged_out)
 def on_user_logged_out(sender, request, user, **kwargs):
     messages.add_message(request, messages.SUCCESS, 'Successfully logged out.')
+
+
+@receiver(user_logged_in)
+def on_user_logged_in(sender, request, user, **kwargs):
+    """Apply user's preferred language to session when they log in."""
+    try:
+        if hasattr(user, 'user_profile') and user.user_profile.preferred_language:
+            lang_code = user.user_profile.preferred_language
+            activate(lang_code)
+            request.session['_language'] = lang_code
+    except Exception:
+        pass
 
 
 @receiver(post_save, sender=UserProfile)
@@ -39,8 +51,8 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
                 table=instance,
                 location=instance.location,
             )
-            if follower.user_profile.notification_new_table:
-                send_notification_new_table(follower.user_profile, instance)
+            # if follower.user_profile.notification_new_table:
+            #     send_notification_new_table(follower.user_profile, instance)
 
 
 @receiver(pre_delete, sender=Table)
@@ -87,7 +99,7 @@ def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def notify_players_on_new_comments(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.comment_type == CommentType.USER:
         players = instance.table.players.exclude(id=instance.author.id)
         for player in players:
             Notification.objects.create(

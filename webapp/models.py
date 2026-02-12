@@ -273,11 +273,17 @@ class Player(DateTimeModel):
         index_together = ('user_profile', 'table')
 
 
+class CommentType(models.TextChoices):
+    USER = 'user', _('User Comment')
+    SYSTEM = 'system', _('System Comment')
+
+
 class Comment(DateTimeModel):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     table = models.ForeignKey(Table, related_name='comments', on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='comments', null=True)
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
     content = models.TextField()
+    comment_type = models.CharField(max_length=10, choices=CommentType.choices, default=CommentType.USER)
 
     def __str__(self):
         return self.content

@@ -9,9 +9,11 @@
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
   />
   <style>
-      .swiper {}
+      .swiper {
+      }
 
-      .swiper-wrapper {}
+      .swiper-wrapper {
+      }
 
       .swiper-slide {
           padding: 10px 14px 20px 12px;
@@ -25,39 +27,36 @@
 
 {% block content %}
 
-  {% if user.is_authenticated %}
-    <div class="container mt-4" id="alert-container" style="display: none;">
-      <div id="custom-alert" class="alert alert-light alert-dismissible fade show" role="alert">
-        <strong>{% trans "Hey!" %}</strong> 🫵
-        <span>{% trans "Do you know your way around code and want to contribute to Board-Gamers?" %}</span>
-        <a href="{% url "contacts" %}">{% trans "Contact us" %}</a> 😎
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+  <div class="container mt-4" id="alert-container" style="display: none;">
+    <div id="custom-alert" class="alert alert-light alert-dismissible fade show" role="alert">
+      <strong>{% trans "Hey!" %}</strong> 🫵
+      <span>{% trans "Do you know your way around code and want to contribute to Board-Gamers?" %}</span>
+      <a href="{% url "contacts" %}">{% trans "Contact us" %}</a> 😎
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+  </div>
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const alertContainer = document.getElementById("alert-container");
+          const alertBox = document.getElementById("custom-alert");
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const alertContainer = document.getElementById("alert-container");
-            const alertBox = document.getElementById("custom-alert");
+          function isHiddenForThreeDays() {
+              const lastClosed = localStorage.getItem("alertClosedTimestamp");
+              if (!lastClosed) return false; // Nessun dato salvato, mostra il messaggio
+              const now = Date.now();
+              return (now - parseInt(lastClosed, 10)) < (24 * 60 * 60 * 1000);
+          }
 
-            function isHiddenForThreeDays() {
-                const lastClosed = localStorage.getItem("alertClosedTimestamp");
-                if (!lastClosed) return false; // Nessun dato salvato, mostra il messaggio
-                const now = Date.now();
-                return (now - parseInt(lastClosed, 10)) < (24 * 60 * 60 * 1000);
-            }
+          if (!isHiddenForThreeDays()) {
+              alertContainer.style.display = "block"; // Mostra l'intero container
+          }
 
-            if (!isHiddenForThreeDays()) {
-                alertContainer.style.display = "block"; // Mostra l'intero container
-            }
-
-            alertBox.addEventListener("closed.bs.alert", function () {
-                localStorage.setItem("alertClosedTimestamp", Date.now().toString());
-                alertContainer.style.display = "none"; // Nasconde tutto il container
-            });
-        });
-    </script>
-  {% endif %}
+          alertBox.addEventListener("closed.bs.alert", function () {
+              localStorage.setItem("alertClosedTimestamp", Date.now().toString());
+              alertContainer.style.display = "none"; // Nasconde tutto il container
+          });
+      });
+  </script>
 
   {% include "partials/hero.html" %}
 
@@ -102,29 +101,29 @@
   </div>
 
   <div style="background-color: #FAEBD7;">
-    <div class="container mt-4">
-      <p class="h1">{% trans "About us" %}</p>
-    </div>
-    <div class="container-sm mt-4 mb-4">
-      <div class="row">
-        <div class="col-md-8 col-lg-7 col-xl-6">
-{#          <div class="card">#}
-{#            <div class="card-header">#}
-{#              A proposito di Board-Gamers.com#}
-{#            </div>#}
-{#            <div class="card-body">#}
-              <p class="">
-                {% trans "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of a group of board game enthusiasts." %}
-              </p>
-              <p class="">
-                {% trans "Our goal is to make it easier to meet up and play in person, supporting cultural associations and local game shops." %}
-              </p>
-              <p class="">
-                {% trans "Want to be part of the project?" %} <a href="{% url "contacts" %}">{% trans "Contact us" %}</a>.
-              </p>
-{#            </div>#}
-{#          </div>#}
-{#        </div>#}
+  <div class="container mt-4">
+    <p class="h1">{% trans "About us" %}</p>
+  </div>
+  <div class="container-sm mt-4 mb-4">
+    <div class="row">
+      <div class="col-md-8 col-lg-7 col-xl-6">
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header" style="background-color: slategrey"></div>
+          <div class="card-body">
+            <span class="h5 mb-0">{% trans "A proposito di Board-Gamers.com" %}</span>
+          </div>
+          <div class="card-body border-top">
+            <p class="">
+              {% trans "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of a group of board game enthusiasts." %}
+            </p>
+            <p class="">
+              {% trans "Our goal is to make it easier to meet up and play in person, supporting cultural associations and local game shops." %}
+            </p>
+            <p class="">
+              {% trans "Want to be part of the project?" %} <a href="{% url "contacts" %}">{% trans "Contact us" %}</a>.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

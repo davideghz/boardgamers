@@ -4,11 +4,11 @@ from django.conf.urls.static import static
 
 from django.contrib import admin
 from django.urls import path, include
-from django.views.i18n import set_language
+from webapp.views.i18n import custom_set_language
 
 urlpatterns = [
     # Lingua: endpoint per cambiare lingua (cookie + redirect)
-    path("i18n/setlang/", set_language, name="set_language"),
+    path("i18n/setlang/", custom_set_language, name="set_language"),
 
     # --- URL NON localizzati (niente prefisso /en)
     # API: meglio evitare di cambiare path in base alla lingua
