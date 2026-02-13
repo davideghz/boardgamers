@@ -13,8 +13,8 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.functional import cached_property
 from django.utils.http import urlsafe_base64_encode
-from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
 
@@ -79,10 +79,16 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
 
     _metadata = {
-        'title': 'name',
-        'description': 'description',
+        'title': 'get_meta_title',
+        'description': 'get_meta_description',
         'image': 'cover_url',
     }
+
+    def get_meta_title(self):
+                return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+
+    def get_meta_description(self):
+        return self.description
 
     @cached_property
     def cover_url(self):
@@ -116,10 +122,16 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     website = models.URLField(null=True, blank=True)
 
     _metadata = {
-        'title': 'name',
-        'description': 'description',
+        'title': 'get_meta_title',
+        'description': 'get_meta_description',
         'image': 'cover_url',
     }
+
+    def get_meta_title(self):
+                return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+
+    def get_meta_description(self):
+                return _("Game nights in %(address)s") % {'address': self.address}
 
     def __str__(self):
         return f"{self.name} - {self.city}"
@@ -166,10 +178,16 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     notification_leaderboard_update = models.BooleanField(default=True, verbose_name="Notification Leaderboard Update")
 
     _metadata = {
-        'title': 'nickname',
-        'description': '',
+        'title': 'get_meta_title',
+        'description': 'get_meta_description',
         'image': 'avatar_url',
     }
+
+    def get_meta_title(self):
+                return _("%(nickname)s - Board-Gamers.com") % {'nickname': self.nickname}
+
+    def get_meta_description(self):
+                return _("Profile of %(nickname)s on Board-Gamers.com") % {'nickname': self.nickname}
 
     class Meta:
         verbose_name = "Profile"
@@ -271,10 +289,37 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         return self.title
 
     _metadata = {
-        'title': 'title',
-        'description': 'description',
+        'title': 'get_meta_title',
+        'description': 'get_meta_description',
         'image': 'get_meta_image',
     }
+
+    def get_meta_title(self):
+        if self.game:
+            return _("%(game)s - %(date)s - Board-Gamers.com") % {
+                'game': self.game.name,
+                'date': self.date.strftime('%d/%m/%Y')
+            }
+        else:
+            return _("%(title)s - %(date)s - Board-Gamers.com") % {
+                'title': self.title,
+                'date': self.date.strftime('%d/%m/%Y')
+            }
+
+    def get_meta_description(self):
+        if self.game:
+            return _("Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s") % {
+                'game': self.game.name,
+                'date': self.date.strftime('%d/%m/%Y'),
+                'time': self.time.strftime('%H:%M'),
+                'location': self.location.name
+            }
+        else:
+            return _("Join the table! We'll play on %(date)s at %(time)s at %(location)s") % {
+                'date': self.date.strftime('%d/%m/%Y'),
+                'time': self.time.strftime('%H:%M'),
+                'location': self.location.name
+            }
 
     def get_meta_image(self):
         return self.game.cover_url if self.game else self.location.cover_url
