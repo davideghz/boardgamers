@@ -1,6 +1,7 @@
 from django.db.models import Count
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
+from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
@@ -27,8 +28,8 @@ class GameListView(ListView):
         context = super().get_context_data(**kwargs)
         context['total_games'] = self.get_queryset().count()
         context['meta'] = Meta(
-            title='Giochi da Tavolo',
-            description='Scopri tutti i giochi da tavolo disponibili e crea nuovi tavoli di gioco!',
+            title=_("Board Games - Board-Gamers.com"),
+            description=_("Discover all available board games and create new game tables!"),
         )
         return context
 

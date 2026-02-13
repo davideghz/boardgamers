@@ -16,8 +16,8 @@ def index(request, template_name='accounts/account_index.html'):
     return render(request, template_name, {
         'user': user,
         'meta': Meta(
-            title='Il Mio Account - Boardgamers',
-            description='Gestisci il tuo profilo boardgamers: visualizza le tue attività, notifiche e impostazioni.',
+            title=_("My Account - Board-Gamers.com"),
+            description=_("Manage your profile: view your activities, notifications and settings."),
         )
     })
 
@@ -31,8 +31,8 @@ def edit_profile(request, template_name='accounts/account_edit_profile.html'):
         'user': user,
         'form': form,
         'meta': Meta(
-            title='Modifica Profilo - Boardgamers',
-            description='Modifica il tuo profilo boardgamers: aggiorna foto, bio e preferenze di gioco.',
+            title=_("Edit Profile - Board-Gamers.com"),
+            description=_("Edit your profile: update photo, bio and game preferences."),
         )
     })
 
@@ -41,7 +41,7 @@ def edit_profile(request, template_name='accounts/account_edit_profile.html'):
 def locations(request, template_name='accounts/account_locations.html'):
     user = request.user
     user_profile = user.user_profile
-    
+
     # Separate owned locations from managed locations
     owned_locations = user_profile.locations.all()
     managed_locations = user_profile.managed_locations.all().exclude(
@@ -53,8 +53,8 @@ def locations(request, template_name='accounts/account_locations.html'):
         'owned_locations': owned_locations,
         'managed_locations': managed_locations,
         'meta': Meta(
-            title='Le Mie Location - Boardgamers',
-            description='Gestisci le tue location: crea nuove location, modifica dati e gestisci i tuoi tavoli di gioco.',
+            title=_("My Locations - Board-Gamers.com"),
+            description=_("Manage your locations: create new locations, edit data and manage your game tables."),
         )
     })
 
@@ -70,8 +70,8 @@ def tables(request, template_name='accounts/account_tables.html'):
         'created_tables': created_tables,
         'joined_tables': joined_tables,
         'meta': Meta(
-            title='I Miei Tavoli - Boardgamers',
-            description='Gestisci i tuoi tavoli di gioco: crea nuove partite, modifica tavoli esistenti e visualizza le tue statistiche.',
+            title=_("My Tables - Board-Gamers.com"),
+            description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),
         )
     })
 
@@ -90,8 +90,8 @@ def notifications(request, template_name='accounts/account_notifications.html'):
     return render(request, template_name, {
         'notifications': user_notifications,
         'meta': Meta(
-            title='Notifiche - Boardgamers',
-            description='Visualizza le tue notifiche: nuovi tavoli, commenti, inviti e aggiornamenti della community.',
+            title=_("Notifications - Board-Gamers.com"),
+            description=_("View your notifications: new tables, comments, invitations and community updates."),
         )
     })
 
@@ -111,7 +111,7 @@ def edit_notification_preferences(request):
     return render(request, 'accounts/account_notifications_preferences.html', {
         'form': form,
         'meta': Meta(
-            title='Preferenze Notifiche - Boardgamers',
-            description='Configura le tue preferenze di notifica: scegli quali aggiornamenti ricevere e come.',
+            title=_("Notification Preferences - Board-Gamers.com"),
+            description=_("Configure your notification preferences: choose which updates to receive and how."),
         )
     })

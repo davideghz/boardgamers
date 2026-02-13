@@ -10,6 +10,7 @@ from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from django.views.generic import DetailView, CreateView
 
@@ -47,8 +48,8 @@ def index_view(request, template_name="locations/location_index.html"):
         'location_message': location_message,
         'user_created_locations': user_created_locations,
         'meta': Meta(
-            title='Locations di Gioco',
-            description='Scopri tutte le location di gioco da tavolo vicino a te. Trova il posto perfetto per la tua prossima partita!',
+            title=_("Game Locations - Board-Gamers.com"),
+            description=_("Discover all board game locations near you. Find the perfect place for your next game!"),
         )
     }
 
@@ -258,8 +259,8 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
         location = self.get_object()
         context['is_owner'] = location.creator == self.request.user.user_profile
         context['meta'] = Meta(
-            title=f'Gestione {location.name}',
-            description=f'Gestisci la location {location.name}: modifica dati, gestisci manager e tavoli di gioco.',
+            title=_("Management %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Game nights in %(address)s") % {'address': location.address},
         )
         return context
 
@@ -291,8 +292,8 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
         context['add_manager_form'] = AddLocationManagerForm()
         context['transfer_ownership_form'] = TransferOwnershipForm()
         context['meta'] = Meta(
-            title=f'Manager {location.name}',
-            description=f'Gestisci i manager della location {location.name}: aggiungi, rimuovi e trasferisci proprietà.',
+            title=_("Managers %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Manage managers of %(name)s location: add, remove and transfer ownership.") % {'name': location.name},
         )
         return context
 
@@ -329,8 +330,8 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
         context = super().get_context_data(**kwargs)
         location = self.get_object()
         context['meta'] = Meta(
-            title=f'Modifica {location.name}',
-            description=f'Modifica i dati della location {location.name}: indirizzo, contatti, descrizione e impostazioni.',
+            title=_("Edit %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Game nights in %(address)s") % {'address': location.address},
         )
         return context
 

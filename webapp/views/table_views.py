@@ -11,8 +11,8 @@ from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
-from django.views import generic, View
 from django.utils.translation import gettext_lazy as _
+from django.views import generic, View
 from meta.views import Meta
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
@@ -82,8 +82,8 @@ class TableIndexView(generic.ListView):
         context = super(TableIndexView, self).get_context_data(**kwargs)
         context['login_form'] = CustomLoginForm()
         context['meta'] = Meta(
-            title='Tavoli di Gioco',
-            description='Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!',
+            title=_("Game Tables - Board-Gamers.com"),
+            description=_("Discover all available game tables and join the game!"),
         )
         return context
 

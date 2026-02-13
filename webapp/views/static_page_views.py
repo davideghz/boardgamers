@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import get_language_info
+from django.utils.translation import get_language_info, gettext_lazy as _
 
 from meta.views import Meta
 
@@ -80,8 +80,8 @@ def homepage_view(request):
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
         'meta': Meta(
-            title='Boardgamers - Trova Tavoli di Gioco Vicino a Te',
-            description='Scopri tavoli di gioco da tavolo vicino a te, crea nuove partite e incontra altri giocatori. Unisciti alla community di boardgamers!',
+            title=_("Find Board Game Tables Near You - Board-Gamers.com"),
+            description=_("Discover board game tables near you, create new games and meet other players."),
         )
     }
 
@@ -91,8 +91,8 @@ def homepage_view(request):
 def privacy(request, template_name="staticpages/privacy.html"):
     return render(request, template_name, {
         'meta': Meta(
-            title='Privacy Policy - Boardgamers',
-            description='Leggi la nostra privacy policy: come raccogliamo, utilizziamo e proteggiamo i tuoi dati personali.',
+            title=_("Privacy Policy - Board-Gamers.com"),
+            description=_("Read our privacy policy: how we collect, use and protect your personal data."),
         )
     })
 
@@ -100,8 +100,8 @@ def privacy(request, template_name="staticpages/privacy.html"):
 def terms(request, template_name="staticpages/terms.html"):
     return render(request, template_name, {
         'meta': Meta(
-            title='Termini di Servizio - Boardgamers',
-            description='Leggi i nostri termini di servizio: regole, responsabilità e condizioni di utilizzo della piattaforma.',
+            title=_("Terms of Service - Board-Gamers.com"),
+            description=_("Read our terms of service: rules, responsibilities and platform usage conditions."),
         )
     })
 
@@ -129,8 +129,8 @@ def contacts(request):
     return render(request, 'staticpages/contacts.html', {
         'form': form,
         'meta': Meta(
-            title='Contatti - Boardgamers',
-            description='Contatta il team di boardgamers: segnalazioni, suggerimenti o domande sulla piattaforma.',
+            title=_("Contacts - Board-Gamers.com"),
+            description=_("Contact the boardgamers team: reports, suggestions or questions about the platform."),
         )
     })
 

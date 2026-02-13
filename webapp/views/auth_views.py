@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 
 from meta.views import Meta
@@ -30,8 +31,8 @@ class SignupView(generic.CreateView, RedirectURLMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['meta'] = Meta(
-            title='Registrati - Boardgamers',
-            description='Registrati alla community di boardgamers per trovare tavoli di gioco, creare partite e conoscere altri giocatori.',
+            title=_("Register - Board-Gamers.com"),
+            description=_("Join the community to find game tables nd meet other players."),
         )
         return context
 
@@ -52,8 +53,8 @@ class CustomLoginView(LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['meta'] = Meta(
-            title='Login - Boardgamers',
-            description='Accedi al tuo account boardgamers per gestire i tuoi tavoli di gioco e la tua profilatura.',
+            title=_("Login - Board-Gamers.com"),
+            description=_("Access your account to manage your game tables and profile."),
         )
         return context
 
