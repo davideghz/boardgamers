@@ -52,8 +52,10 @@ class UserProfileDetailView(DetailView):
             'tables': user_profile.joined_tables.all(),
             'form': UserProfileAvatarForm(instance=user_profile),
             'games_played': games_played,
+            'meta': self.get_object().as_meta(self.request)
         })
         return context
+
 
 class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = UserProfile

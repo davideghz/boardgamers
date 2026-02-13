@@ -9,7 +9,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import get_language_info
+from django.utils.translation import get_language_info, gettext_lazy as _
+
+from meta.views import Meta
 
 from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
@@ -77,17 +79,31 @@ def homepage_view(request):
         'location_message': location_message,
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
+        'meta': Meta(
+            title=_("Find Board Game Tables Near You - Board-Gamers.com"),
+            description=_("Discover board game tables near you, create new games and meet other players."),
+        )
     }
 
     return render(request, "staticpages/home.html", context)
 
 
 def privacy(request, template_name="staticpages/privacy.html"):
-    return render(request, template_name, {})
+    return render(request, template_name, {
+        'meta': Meta(
+            title=_("Privacy Policy - Board-Gamers.com"),
+            description=_("Read our privacy policy: how we collect, use and protect your personal data."),
+        )
+    })
 
 
 def terms(request, template_name="staticpages/terms.html"):
-    return render(request, template_name, {})
+    return render(request, template_name, {
+        'meta': Meta(
+            title=_("Terms of Service - Board-Gamers.com"),
+            description=_("Read our terms of service: rules, responsibilities and platform usage conditions."),
+        )
+    })
 
 
 def contacts(request):
@@ -110,7 +126,13 @@ def contacts(request):
     else:
         form = ContactForm(initial=initial_data)
 
-    return render(request, 'staticpages/contacts.html', {'form': form})
+    return render(request, 'staticpages/contacts.html', {
+        'form': form,
+        'meta': Meta(
+            title=_("Contacts - Board-Gamers.com"),
+            description=_("Contact the boardgamers team: reports, suggestions or questions about the platform."),
+        )
+    })
 
 
 def select_language(request):

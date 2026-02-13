@@ -1,13 +1,7 @@
 {% extends "base_webapp.html" %}
 {% load custom_tags %}
 {% load static %}
-{% load i18n %}bl
-
-{% block headtitle %}
-  {{ game.name }} - Board-Gamers.com
-{% endblock headtitle %}
-
-{% block description %}{{ game.description }}{% endblock description %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   <div class="container-fluid px-0 bg-white border-bottom">
