@@ -103,7 +103,7 @@ msgstr "%(name)s - Board-Gamers.com"
 #: webapp/models.py:134 webapp/views/location_views.py:263
 #: webapp/views/location_views.py:334
 msgid "Game nights in %(address)s"
-msgstr "%(name)s - Board-Gamers.com"
+msgstr "Serate di gioco a %(address)s"
 
 #: webapp/models.py:187
 msgid "%(nickname)s - Board-Gamers.com"
