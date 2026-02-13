@@ -14,6 +14,8 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.views import generic, View
 
+from meta.views import Meta
+
 from webapp import emails
 from webapp.forms import UserRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm
 from webapp.messages import MSG_EMAIL_VERIFICATION_CODE_SENT
@@ -24,6 +26,14 @@ from webapp.messages import MSG_EMAIL_VERIFICATION_CODE_SENT
 class SignupView(generic.CreateView, RedirectURLMixin):
     form_class = UserRegistrationForm
     template_name = 'auth/signup.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['meta'] = Meta(
+            title='Registrati - Boardgamers',
+            description='Registrati alla community di boardgamers per trovare tavoli di gioco, creare partite e conoscere altri giocatori.',
+        )
+        return context
 
     def form_valid(self, form):
         user = form.save()
@@ -38,6 +48,14 @@ class SignupView(generic.CreateView, RedirectURLMixin):
 class CustomLoginView(LoginView):
     template_name = 'auth/login.html'
     redirect_authenticated_user = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['meta'] = Meta(
+            title='Login - Boardgamers',
+            description='Accedi al tuo account boardgamers per gestire i tuoi tavoli di gioco e la tua profilatura.',
+        )
+        return context
 
     def get_success_url(self):
         next_url = self.request.GET.get('next')

@@ -277,7 +277,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_image(self):
-        self.game.cover_url
+        return self.game.cover_url if self.game else self.location.cover_url
 
     class Meta:
         verbose_name = "Table"

@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import get_language_info
 
+from meta.views import Meta
+
 from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
@@ -77,17 +79,31 @@ def homepage_view(request):
         'location_message': location_message,
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
+        'meta': Meta(
+            title='Boardgamers - Trova Tavoli di Gioco Vicino a Te',
+            description='Scopri tavoli di gioco da tavolo vicino a te, crea nuove partite e incontra altri giocatori. Unisciti alla community di boardgamers!',
+        )
     }
 
     return render(request, "staticpages/home.html", context)
 
 
 def privacy(request, template_name="staticpages/privacy.html"):
-    return render(request, template_name, {})
+    return render(request, template_name, {
+        'meta': Meta(
+            title='Privacy Policy - Boardgamers',
+            description='Leggi la nostra privacy policy: come raccogliamo, utilizziamo e proteggiamo i tuoi dati personali.',
+        )
+    })
 
 
 def terms(request, template_name="staticpages/terms.html"):
-    return render(request, template_name, {})
+    return render(request, template_name, {
+        'meta': Meta(
+            title='Termini di Servizio - Boardgamers',
+            description='Leggi i nostri termini di servizio: regole, responsabilità e condizioni di utilizzo della piattaforma.',
+        )
+    })
 
 
 def contacts(request):
@@ -110,7 +126,13 @@ def contacts(request):
     else:
         form = ContactForm(initial=initial_data)
 
-    return render(request, 'staticpages/contacts.html', {'form': form})
+    return render(request, 'staticpages/contacts.html', {
+        'form': form,
+        'meta': Meta(
+            title='Contatti - Boardgamers',
+            description='Contatta il team di boardgamers: segnalazioni, suggerimenti o domande sulla piattaforma.',
+        )
+    })
 
 
 def select_language(request):
