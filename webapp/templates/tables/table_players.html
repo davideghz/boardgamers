@@ -100,18 +100,6 @@
 
             <div class="d-flex gap-2 align-items-center">
 
-                <form method="post" action="{% url 'add_external_player' table.slug available_seats %}" class="d-inline me-4">
-                    {% csrf_token %}
-                    <button class="btn rounded-circle d-flex align-items-center justify-content-center
-                            {% if available_seats <= 0 %}btn-secondary
-                            {% else %}btn-outline-primary{% endif %}"
-                            style="width: 40px; height: 40px;"
-                            {% if available_seats <= 0 %}disabled{% endif %}>
-                        <i class="bi bi-plus-lg"></i>
-                    </button>
-                </form>
-
-
                 <form method="post" action="{% url 'remove_external_player' table.slug %}" class="d-inline me-4">
                   {% csrf_token %}
                   <button class="btn rounded-circle d-flex align-items-center justify-content-center
@@ -121,6 +109,17 @@
                           {% if table.external_players <= 0 %}disabled{% endif %}>
                     <i class="bi bi-dash-lg"></i>
                   </button>
+                </form>
+
+                <form method="post" action="{% url 'add_external_player' table.slug available_seats %}" class="d-inline me-4">
+                    {% csrf_token %}
+                    <button class="btn rounded-circle d-flex align-items-center justify-content-center
+                            {% if available_seats <= 0 %}btn-secondary
+                            {% else %}btn-outline-primary{% endif %}"
+                            style="width: 40px; height: 40px;"
+                            {% if available_seats <= 0 %}disabled{% endif %}>
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
                 </form>
 
                 <form method="post" action="{% url 'clear_external_players' table.slug %}" class="d-inline me-4">

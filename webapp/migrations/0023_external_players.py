@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('webapp', '0021_location_managers'),
+        ('webapp', '0022_comment_comment_type_alter_comment_author'),
     ]
 
     operations = [
