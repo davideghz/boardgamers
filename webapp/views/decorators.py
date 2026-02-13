@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
+from django.http import HttpResponseForbidden
 from django.shortcuts import resolve_url, get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -68,3 +69,12 @@ def user_passes_test_with_messages(
             return redirect_to_login(path, resolved_login_url, redirect_field_name)
         return _wrapped_view
     return decorator
+
+def author_or_admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        table = get_object_or_404(Table, slug=kwargs['slug'])
+        if table.author.user == request.user or request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        return HttpResponseForbidden("Request not allowed")
+    return _wrapped_view

@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
-from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table
+from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
 
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
@@ -284,6 +284,7 @@ def table_update_view(request, location_slug, table_slug):
     return render(request, "tables/table_add_or_edit.html", context)
 
 @login_required
+@author_or_admin_required
 def add_external_player(request, slug, available_seats):
     table = get_object_or_404(Table, slug=slug)
 
@@ -295,6 +296,7 @@ def add_external_player(request, slug, available_seats):
     return redirect("table-players", slug=slug)
 
 @login_required
+@author_or_admin_required
 def remove_external_player(request, slug):
     table = get_object_or_404(Table, slug=slug)
 
@@ -306,6 +308,7 @@ def remove_external_player(request, slug):
     return redirect("table-players", slug=slug)
 
 @login_required
+@author_or_admin_required
 def clear_external_players(request, slug):
     table = get_object_or_404(Table, slug=slug)
 
