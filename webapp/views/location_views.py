@@ -177,6 +177,7 @@ class LocationDetailView(DetailView):
         context['is_following'] = is_following
         context['is_manager'] = is_manager
         context['followers_count'] = followers_count
+        context['meta'] = self.get_object().as_meta(self.request)
 
         return context
 

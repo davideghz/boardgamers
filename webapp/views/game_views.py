@@ -24,6 +24,10 @@ class GameListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_games'] = self.get_queryset().count()
+        context['meta'] = {
+            'title': 'Giochi da Tavolo',
+            'description': 'Scopri tutti i giochi da tavolo disponibili e crea nuovi tavoli di gioco!',
+        }
         return context
 
 
@@ -43,4 +47,5 @@ class GameDetailView(DetailView):
         game = self.get_object()
         context['table_count'] = game.table_count
         context['player_count'] = game.player_count
+        context['meta'] = self.get_object().as_meta(self.request)
         return context

@@ -15,6 +15,7 @@ from django.utils.functional import cached_property
 from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from meta.models import ModelMeta
 from model_utils import FieldTracker
 
 from webapp.storage_backends import PublicMediaStorage
@@ -67,7 +68,7 @@ class SlugModel(models.Model):
         super().save(*args, **kwargs)
 
 
-class Game(DateTimeModel, SlugModel):
+class Game(DateTimeModel, ModelMeta, SlugModel):
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -76,6 +77,12 @@ class Game(DateTimeModel, SlugModel):
     description = models.TextField()
 
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
+
+    _metadata = {
+        'title': 'name',
+        'description': 'description',
+        'image': 'cover_url',
+    }
 
     @cached_property
     def cover_url(self):
@@ -91,7 +98,7 @@ class Game(DateTimeModel, SlugModel):
         ordering = ['name']
 
 
-class Location(DateTimeModel, SlugModel):
+class Location(DateTimeModel, ModelMeta, SlugModel):
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -107,6 +114,12 @@ class Location(DateTimeModel, SlugModel):
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     is_public = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
+
+    _metadata = {
+        'title': 'name',
+        'description': 'description',
+        'image': 'cover_url',
+    }
 
     def __str__(self):
         return f"{self.name} - {self.city}"
@@ -124,7 +137,7 @@ class Location(DateTimeModel, SlugModel):
         super().save(*args, **kwargs)
 
 
-class UserProfile(DateTimeModel, SlugModel):
+class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     slug_field_name = 'nickname'
     nickname = models.CharField(unique=True, max_length=25, null=False, blank=True)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -152,6 +165,11 @@ class UserProfile(DateTimeModel, SlugModel):
     notification_leaderboard_reminder = models.BooleanField(default=True, verbose_name="Notification Leaderboard Reminder")
     notification_leaderboard_update = models.BooleanField(default=True, verbose_name="Notification Leaderboard Update")
 
+    _metadata = {
+        'title': 'nickname',
+        'description': '',
+        'image': 'avatar_url',
+    }
 
     class Meta:
         verbose_name = "Profile"
@@ -180,7 +198,7 @@ class UserProfile(DateTimeModel, SlugModel):
         return self.nickname
 
 
-class Table(DateTimeModel, SlugModel):
+class Table(DateTimeModel, ModelMeta, SlugModel):
     OPEN = 'open'
     ONGOING = 'ongoing'
     CLOSED = 'closed'
@@ -251,6 +269,15 @@ class Table(DateTimeModel, SlugModel):
 
     def __str__(self):
         return self.title
+
+    _metadata = {
+        'title': 'title',
+        'description': 'description',
+        'image': 'get_meta_image',
+    }
+
+    def get_meta_image(self):
+        self.game.cover_url
 
     class Meta:
         verbose_name = "Table"

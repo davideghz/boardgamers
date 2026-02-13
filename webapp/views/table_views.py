@@ -80,6 +80,10 @@ class TableIndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(TableIndexView, self).get_context_data(**kwargs)
         context['login_form'] = CustomLoginForm()
+        context['meta'] = {
+            'title': 'Tavoli di Gioco',
+            'description': 'Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!',
+        }
         return context
 
 
@@ -143,7 +147,8 @@ class TableDetailView(generic.DetailView):
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
             'leaderboard_visible': leaderboard_visible,
-            'user_can_edit_leaderboard': user_can_edit_leaderboard
+            'user_can_edit_leaderboard': user_can_edit_leaderboard,
+            'meta': self.get_object().as_meta(self.request)
             # 'players_with_forms': players_with_forms,
             # 'formset': formset,
             # 'can_edit_scores': can_edit_scores
