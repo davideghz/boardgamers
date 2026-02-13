@@ -270,7 +270,6 @@ class Player(DateTimeModel):
         verbose_name_plural = "Players"
         ordering = ['-created_at']
         unique_together = ('user_profile', 'table')
-        index_together = ('user_profile', 'table')
 
 
 class CommentType(models.TextChoices):
@@ -292,7 +291,6 @@ class Comment(DateTimeModel):
         verbose_name = "Comment"
         verbose_name_plural = "Comments"
         ordering = ['-created_at']
-        index_together = ('table', 'author')
 
 
 class LocationFollower(DateTimeModel):
