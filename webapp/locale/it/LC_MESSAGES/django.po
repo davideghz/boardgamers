@@ -1257,11 +1257,9 @@ msgstr "Questo tavolo è chiuso e non è possibile rimuovere giocatori."
 msgid "Invite Gamers to the table"
 msgstr "Invita Gamers al tavolo"
 
-msgid "External players"
-msgstr "Giocatori esterni"
+msgid "External Players"
+msgstr "Giocatori Esterni"
 
-msgid "(%(count)s external players)"
-msgstr "(%(count)s giocatori esterni)"
 
 #: webapp/templates/tables/table_players.html:101
 msgid ""

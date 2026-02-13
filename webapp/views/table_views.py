@@ -102,7 +102,7 @@ class TableDetailView(generic.DetailView):
 
         max_players = table.max_players
         external_players = table.external_players
-        current_players = table.players.count()
+        current_players = table.players.count() + external_players
         today = now().date()
 
         # Recupero i giocatori ordinati per punteggio
@@ -138,7 +138,8 @@ class TableDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
-            'available_seats': max_players - current_players - external_players,
+            'available_seats': max_players - current_players,
+            'current_players': current_players,
             'availability_percent': round(current_players / max_players * 100),
             'today': today,
             'players': players,
