@@ -18,7 +18,7 @@ from meta.views import Meta
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
-from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table
+from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
 
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
@@ -106,7 +106,8 @@ class TableDetailView(generic.DetailView):
             ).update(is_read=True)
 
         max_players = table.max_players
-        current_players = table.players.count()
+        external_players = table.external_players
+        current_players = table.players.count() + external_players
         today = now().date()
 
         # Recupero i giocatori ordinati per punteggio
@@ -143,6 +144,7 @@ class TableDetailView(generic.DetailView):
         context.update({
             'comment_form': CommentForm(),
             'available_seats': max_players - current_players,
+            'current_players': current_players,
             'availability_percent': round(current_players / max_players * 100),
             'today': today,
             'players': players,
@@ -203,6 +205,7 @@ def table_players_view(request, slug):
     return render(request, "tables/table_players.html", {
         "table": table,
         "players": players,
+        'available_seats': table.max_players - players.count() - table.external_players,
     })
 
 
@@ -285,6 +288,42 @@ def table_update_view(request, location_slug, table_slug):
 
     context = {"form": form, "location": location, "table": table}
     return render(request, "tables/table_add_or_edit.html", context)
+
+@login_required
+@author_or_admin_required
+def add_external_player(request, slug, available_seats):
+    table = get_object_or_404(Table, slug=slug)
+
+    if request.method == "POST":
+        if available_seats > 0:
+            table.external_players += 1
+            table.save()
+
+    return redirect("table-players", slug=slug)
+
+@login_required
+@author_or_admin_required
+def remove_external_player(request, slug):
+    table = get_object_or_404(Table, slug=slug)
+
+    if request.method == "POST":
+        if table.external_players > 0:
+            table.external_players -= 1
+            table.save()
+
+    return redirect("table-players", slug=slug)
+
+@login_required
+@author_or_admin_required
+def clear_external_players(request, slug):
+    table = get_object_or_404(Table, slug=slug)
+
+    if request.method == "POST":
+        if table.external_players > 0:
+            table.external_players = 0
+            table.save()
+
+    return redirect("table-players", slug=slug)
 
 
 class TableDeleteView(

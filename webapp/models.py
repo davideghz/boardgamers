@@ -247,6 +247,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
 
     min_players = models.SmallIntegerField(null=False, blank=True, default=2, verbose_name=_('Minimum players'))
     max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
+    external_players = models.PositiveIntegerField(null=False, blank=True, default=0, verbose_name=_('External players'))
     date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
     time = models.TimeField(default=timezone.now, null=False, blank=True, verbose_name=_('Hour'))
     is_public_location = models.BooleanField(default=False, null=False, blank=True)
