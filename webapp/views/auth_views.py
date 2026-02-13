@@ -12,7 +12,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
+
+from meta.views import Meta
 
 from webapp import emails
 from webapp.forms import UserRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm
@@ -24,6 +27,14 @@ from webapp.messages import MSG_EMAIL_VERIFICATION_CODE_SENT
 class SignupView(generic.CreateView, RedirectURLMixin):
     form_class = UserRegistrationForm
     template_name = 'auth/signup.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['meta'] = Meta(
+            title=_("Register - Board-Gamers.com"),
+            description=_("Join the community to find game tables nd meet other players."),
+        )
+        return context
 
     def form_valid(self, form):
         user = form.save()
@@ -38,6 +49,14 @@ class SignupView(generic.CreateView, RedirectURLMixin):
 class CustomLoginView(LoginView):
     template_name = 'auth/login.html'
     redirect_authenticated_user = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['meta'] = Meta(
+            title=_("Login - Board-Gamers.com"),
+            description=_("Access your account to manage your game tables and profile."),
+        )
+        return context
 
     def get_success_url(self):
         next_url = self.request.GET.get('next')

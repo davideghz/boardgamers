@@ -11,8 +11,9 @@ from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
-from django.views import generic, View
 from django.utils.translation import gettext_lazy as _
+from django.views import generic, View
+from meta.views import Meta
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
@@ -80,6 +81,10 @@ class TableIndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(TableIndexView, self).get_context_data(**kwargs)
         context['login_form'] = CustomLoginForm()
+        context['meta'] = Meta(
+            title=_("Game Tables - Board-Gamers.com"),
+            description=_("Discover all available game tables and join the game!"),
+        )
         return context
 
 
@@ -143,7 +148,8 @@ class TableDetailView(generic.DetailView):
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
             'leaderboard_visible': leaderboard_visible,
-            'user_can_edit_leaderboard': user_can_edit_leaderboard
+            'user_can_edit_leaderboard': user_can_edit_leaderboard,
+            'meta': self.get_object().as_meta(self.request)
             # 'players_with_forms': players_with_forms,
             # 'formset': formset,
             # 'can_edit_scores': can_edit_scores
@@ -350,18 +356,18 @@ class LeaveTableView(LoginRequiredMixin, View):
         try:
             player = get_object_or_404(Player, user_profile=request.user.user_profile, table=table)
             nickname = player.user_profile.nickname
-            
+
             # Create simple comment for player leaving before deleting the player
             Comment.objects.create(
                 table=table,
                 content=f"PLAYER_OUT:{nickname}",
                 comment_type=CommentType.SYSTEM
             )
-            
+
             # Delete the player after creating the comment
             player.delete()
-            
+
         except Player.DoesNotExist:
             pass  # Player non trovato, non fare nulla
-        
+
         return redirect('table-detail', slug=self.kwargs['slug'])

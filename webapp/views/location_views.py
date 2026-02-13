@@ -10,8 +10,11 @@ from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from django.views.generic import DetailView, CreateView
+
+from meta.views import Meta
 
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
@@ -44,6 +47,10 @@ def index_view(request, template_name="locations/location_index.html"):
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'user_created_locations': user_created_locations,
+        'meta': Meta(
+            title=_("Game Locations - Board-Gamers.com"),
+            description=_("Discover all board game locations near you. Find the perfect place for your next game!"),
+        )
     }
 
     return render(request, template_name, context)
@@ -177,6 +184,7 @@ class LocationDetailView(DetailView):
         context['is_following'] = is_following
         context['is_manager'] = is_manager
         context['followers_count'] = followers_count
+        context['meta'] = self.get_object().as_meta(self.request)
 
         return context
 
@@ -250,6 +258,10 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         location = self.get_object()
         context['is_owner'] = location.creator == self.request.user.user_profile
+        context['meta'] = Meta(
+            title=_("Management %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Game nights in %(address)s") % {'address': location.address},
+        )
         return context
 
 
@@ -279,6 +291,10 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
         context['is_owner'] = location.creator == self.request.user.user_profile
         context['add_manager_form'] = AddLocationManagerForm()
         context['transfer_ownership_form'] = TransferOwnershipForm()
+        context['meta'] = Meta(
+            title=_("Managers %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Manage managers of %(name)s location: add, remove and transfer ownership.") % {'name': location.name},
+        )
         return context
 
 
@@ -309,6 +325,15 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
 
     def get_success_url(self):
         return reverse("location-manage", kwargs={'slug': self.object.slug})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        location = self.get_object()
+        context['meta'] = Meta(
+            title=_("Edit %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Game nights in %(address)s") % {'address': location.address},
+        )
+        return context
 
 
 class FollowLocationView(LoginRequiredMixin, View):
