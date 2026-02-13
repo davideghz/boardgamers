@@ -71,7 +71,7 @@
             <small><i class="bi bi-calendar4-event"></i> {{ table.date|date:"j F" }}</small>
             <small><i class="bi bi-clock"></i> {{ table.time|time:"H:i" }}</small>
             <small>
-              <i class="bi bi-people-fill"></i> {{ table.players.count }}/{{ table.max_players }}
+              <i class="bi bi-people-fill"></i> {{ current_players }}/{{ table.max_players }}
             </small>
           </div>
           <div class="card-body border-0">
