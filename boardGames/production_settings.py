@@ -33,14 +33,10 @@ AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
 
 # SENTRY
 sentry_sdk.init(
-    dsn="https://9e20218ac6979cd5bc4ef57c44082902@o4506841965133824.ingest.sentry.io/4506841968017408",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
+    dsn="https://33011e036835387caf005ea63685f8fe@o90644.ingest.us.sentry.io/4510884885102592",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
 )
 
 # GOOGLE RECAPTCHA
