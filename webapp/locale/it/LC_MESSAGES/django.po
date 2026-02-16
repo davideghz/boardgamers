@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 19:14+0000\n"
+"POT-Creation-Date: 2026-02-16 19:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -101,23 +101,19 @@ msgid "Form error. Please check the entered data."
 msgstr "Errore nel form. Controlla i dati inseriti."
 
 #: webapp/models.py:88 webapp/models.py:131
-#, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
 
 #: webapp/models.py:134 webapp/views/location_views.py:263
 #: webapp/views/location_views.py:334
-#, python-format
 msgid "Game nights in %(address)s"
 msgstr "Serate di gioco a %(address)s"
 
 #: webapp/models.py:187
-#, python-format
 msgid "%(nickname)s - Board-Gamers.com"
 msgstr "%(nickname)s - Board-Gamers.com"
 
 #: webapp/models.py:190
-#, python-format
 msgid "Profile of %(nickname)s on Board-Gamers.com"
 msgstr "Profilo di %(nickname)s su Board-Gamers.com"
 
@@ -174,17 +170,14 @@ msgid "Hour"
 msgstr "Orario"
 
 #: webapp/models.py:312
-#, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
 msgstr "%(game)s - %(date)s - Board-Gamers.com"
 
 #: webapp/models.py:317
-#, python-format
 msgid "%(title)s - %(date)s - Board-Gamers.com"
 msgstr "%(title)s - %(date)s - Board-Gamers.com"
 
 #: webapp/models.py:324
-#, python-format
 msgid ""
 "Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
@@ -192,7 +185,6 @@ msgstr ""
 "%(location)s"
 
 #: webapp/models.py:331
-#, python-format
 msgid "Join the table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
 "Unisciti al tavolo! Giocheremo il %(date)s alle %(time)s presso %(location)s"
@@ -256,7 +248,6 @@ msgid "Notifications"
 msgstr "Notifiche"
 
 #: webapp/signals.py:66
-#, python-format
 msgid "The table \"%(table_title)s\" has been deleted by the organizer"
 msgstr "Il tavolo \"%(table_title)s\" è stato eliminato dall'organizzatore"
 
@@ -265,7 +256,6 @@ msgid "Time to fill in the leaderboard!"
 msgstr "È tempo di compilare la classifica!"
 
 #: webapp/signals.py:126
-#, python-format
 msgid "The table “%(title)s” is now open for leaderboard entry."
 msgstr "Il tavolo %(title)s è pronto per l'inserimento della classifica."
 
@@ -274,7 +264,6 @@ msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
 #: webapp/signals.py:140
-#, python-format
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
 msgstr ""
@@ -282,7 +271,6 @@ msgstr ""
 "punteggio!"
 
 #: webapp/signals.py:159
-#, python-format
 msgid "The table “%(title)s” has been closed."
 msgstr "Il tavolo %(title)s è stato chiuso."
 
@@ -1249,12 +1237,10 @@ msgstr ""
 "pagina."
 
 #: webapp/templates/tables/table_detail.html:435
-#, python-format
 msgid "%(nickname)s joined the table"
 msgstr "%(nickname)s si è unito al tavolo"
 
 #: webapp/templates/tables/table_detail.html:443
-#, python-format
 msgid "%(nickname)s left the table"
 msgstr "%(nickname)s ha lasciato il tavolo"
 
@@ -1445,17 +1431,14 @@ msgstr ""
 "perfetto per la tua prossima partita!"
 
 #: webapp/views/location_views.py:262
-#, python-format
 msgid "Management %(name)s - Boardgamers.com"
 msgstr "Gestione %(name)s - Boardgamers.com"
 
 #: webapp/views/location_views.py:295
-#, python-format
 msgid "Managers %(name)s - Boardgamers.com"
 msgstr "Managers %(name)s - Boardgamers.com"
 
 #: webapp/views/location_views.py:296
-#, python-format
 msgid ""
 "Manage managers of %(name)s location: add, remove and transfer ownership."
 msgstr ""
@@ -1463,7 +1446,6 @@ msgstr ""
 "l'ownership."
 
 #: webapp/views/location_views.py:333
-#, python-format
 msgid "Edit %(name)s - Boardgamers.com"
 msgstr "Modifica %(name)s - Boardgamers.com"
 
