@@ -47,7 +47,7 @@ class CustomEmailWidget(EmailInput):
         super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
 
 
-class CustomURLWidget(EmailInput):
+class CustomURLWidget(URLInput):
     def __init__(self, attrs=None, placeholder="https://example.com"):
         super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
 
