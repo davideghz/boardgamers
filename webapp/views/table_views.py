@@ -216,7 +216,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=kwargs['slug'])
-        
+
         # Permission check
         if not (request.user.is_superuser or table.author.user == request.user):
             messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
@@ -235,23 +235,23 @@ class AddTablePlayerView(LoginRequiredMixin, View):
             if Player.objects.filter(table=table, user_profile=user_profile).exists():
                 messages.warning(request, _(f"{user_profile.nickname} is already at the table."))
                 return redirect("table-players", slug=table.slug)
-                
+
             # Check available seats
             current_players = table.players.count() + table.external_players
             if current_players >= table.max_players:
-                 messages.error(request, _("The table is full."), extra_tags="danger")
-                 return redirect("table-players", slug=table.slug)
+                messages.error(request, _("The table is full."), extra_tags="danger")
+                return redirect("table-players", slug=table.slug)
 
             # Add player
             Player.objects.create(table=table, user_profile=user_profile)
-            
+
             # Create system comment
             Comment.objects.create(
                 table=table,
                 content=f"PLAYER_ADDED:{user_profile.nickname}",
                 comment_type=CommentType.SYSTEM
             )
-            
+
             messages.success(request, _(f"{user_profile.nickname} added to the table."))
         else:
             messages.error(request, _("Invalid selection."), extra_tags="danger")
@@ -276,6 +276,14 @@ def remove_player_view(request, slug, player_id):
 
     # Rimuovi il player
     player.delete()
+
+    # Create system comment
+    Comment.objects.create(
+        table=table,
+        content=f"PLAYER_REMOVED:{player.user_profile.nickname}",
+        comment_type=CommentType.SYSTEM
+    )
+
     messages.success(request, _(f"{player.user_profile.nickname} has been removed from the table."))
 
     return redirect("table-players", slug=slug)
@@ -339,6 +347,7 @@ def table_update_view(request, location_slug, table_slug):
     context = {"form": form, "location": location, "table": table}
     return render(request, "tables/table_add_or_edit.html", context)
 
+
 @login_required
 @author_or_admin_required
 def add_external_player(request, slug, available_seats):
@@ -351,6 +360,7 @@ def add_external_player(request, slug, available_seats):
 
     return redirect("table-players", slug=slug)
 
+
 @login_required
 @author_or_admin_required
 def remove_external_player(request, slug):
@@ -362,6 +372,7 @@ def remove_external_player(request, slug):
             table.save()
 
     return redirect("table-players", slug=slug)
+
 
 @login_required
 @author_or_admin_required

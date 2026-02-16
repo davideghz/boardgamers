@@ -444,6 +444,22 @@
                       </span>
                     </div>
                   {% endwith %}
+                {% elif "PLAYER_ADDED:" in comment.content %}
+                  {% with player_nickname=comment.content|cut:"PLAYER_ADDED:" %}
+                    <div class="bg-light rounded px-3 py-1 mb-2 text-secondary mb-1">
+                      <span class="badge text-secondary fw-normal p-0">
+                        {% blocktrans with nickname=player_nickname %}{{ nickname }} added to the table{% endblocktrans %} - {{ comment.created_at|date:"j F Y G:i" }}
+                      </span>
+                    </div>
+                  {% endwith %}
+                {% elif "PLAYER_REMOVED:" in comment.content %}
+                  {% with player_nickname=comment.content|cut:"PLAYER_REMOVED:" %}
+                    <div class="bg-light rounded px-3 py-1 mb-2 text-secondary mb-1">
+                      <span class="badge text-secondary fw-normal p-0">
+                        {% blocktrans with nickname=player_nickname %}{{ nickname }} removed from the table{% endblocktrans %} - {{ comment.created_at|date:"j F Y G:i" }}
+                      </span>
+                    </div>
+                  {% endwith %}
                 {% endif %}
               {% else %}
                 <div class="bg-light rounded p-3 mb-2">

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 18:51+0000\n"
+"POT-Creation-Date: 2026-02-16 19:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -702,7 +702,7 @@ msgstr ""
 #: webapp/templates/locations/location_managers.html:182
 #: webapp/templates/tables/table_add_or_edit.html:172
 #: webapp/templates/tables/table_delete.html:13
-#: webapp/templates/tables/table_detail.html:499
+#: webapp/templates/tables/table_detail.html:515
 #: webapp/templates/tables/table_players.html:162
 msgid "Cancel"
 msgstr "Annulla"
@@ -1120,7 +1120,7 @@ msgid "if you still want to delete this table."
 msgstr "se vuoi comunque eliminare questo tavolo."
 
 #: webapp/templates/tables/table_delete.html:7
-#: webapp/templates/tables/table_detail.html:492
+#: webapp/templates/tables/table_detail.html:508
 #: webapp/templates/tables/table_players.html:155
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
@@ -1258,19 +1258,27 @@ msgstr "%(nickname)s si è unito al tavolo"
 msgid "%(nickname)s left the table"
 msgstr "%(nickname)s ha lasciato il tavolo"
 
-#: webapp/templates/tables/table_detail.html:475
+#: webapp/templates/tables/table_detail.html:451
+msgid "%(nickname)s added to the table"
+msgstr "%(nickname)s aggiunto al tavolo"
+
+#: webapp/templates/tables/table_detail.html:459
+msgid "%(nickname)s removed from the table"
+msgstr "%(nickname)s rimosso dal tavolo"
+
+#: webapp/templates/tables/table_detail.html:491
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
-#: webapp/templates/tables/table_detail.html:496
+#: webapp/templates/tables/table_detail.html:512
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
 
-#: webapp/templates/tables/table_detail.html:500
+#: webapp/templates/tables/table_detail.html:516
 msgid "Delete comment"
 msgstr "Elimina commento"
 
-#: webapp/templates/tables/table_detail.html:527
+#: webapp/templates/tables/table_detail.html:543
 msgid "Let's play"
 msgstr "Giochiamo"
 
@@ -1541,10 +1549,10 @@ msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
 msgid "You can remove players only from tables that are open or ongoing."
 msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
 
-#: webapp/views/table_views.py:305
+#: webapp/views/table_views.py:313
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
 
-#: webapp/views/table_views.py:334
+#: webapp/views/table_views.py:342
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
