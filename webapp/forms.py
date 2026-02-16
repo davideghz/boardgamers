@@ -405,3 +405,18 @@ class TransferOwnershipForm(BootstrapForm):
         label=_('Add me as manager after transfer'),
         widget=CustomCheckboxInputWidget()
     )
+
+
+class AddTablePlayerForm(BootstrapForm):
+    """Form for adding a player to a table"""
+    player = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        label=_('Gamer'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )

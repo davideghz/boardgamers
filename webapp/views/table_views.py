@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet
+from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
@@ -201,12 +201,62 @@ def table_players_view(request, slug):
         return redirect("table-detail", slug=slug)
 
     players = Player.objects.filter(table=table).select_related("user_profile")
+    add_player_form = AddTablePlayerForm()
 
     return render(request, "tables/table_players.html", {
         "table": table,
         "players": players,
         'available_seats': table.max_players - players.count() - table.external_players,
+        'add_player_form': add_player_form,
     })
+
+
+class AddTablePlayerView(LoginRequiredMixin, View):
+    """View to manually add a player to a table (author/admin only)"""
+
+    def post(self, request, *args, **kwargs):
+        table = get_object_or_404(Table, slug=kwargs['slug'])
+        
+        # Permission check
+        if not (request.user.is_superuser or table.author.user == request.user):
+            messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
+            return redirect("table-players", slug=table.slug)
+
+        # Table status check
+        if table.status == Table.CLOSED:
+            messages.error(request, _("Cannot add players to a closed table."), extra_tags="danger")
+            return redirect("table-players", slug=table.slug)
+
+        form = AddTablePlayerForm(request.POST)
+        if form.is_valid():
+            user_profile = form.cleaned_data['player']
+
+            # Check if already in table
+            if Player.objects.filter(table=table, user_profile=user_profile).exists():
+                messages.warning(request, _(f"{user_profile.nickname} is already at the table."))
+                return redirect("table-players", slug=table.slug)
+                
+            # Check available seats
+            current_players = table.players.count() + table.external_players
+            if current_players >= table.max_players:
+                 messages.error(request, _("The table is full."), extra_tags="danger")
+                 return redirect("table-players", slug=table.slug)
+
+            # Add player
+            Player.objects.create(table=table, user_profile=user_profile)
+            
+            # Create system comment
+            Comment.objects.create(
+                table=table,
+                content=f"PLAYER_ADDED:{user_profile.nickname}",
+                comment_type=CommentType.SYSTEM
+            )
+            
+            messages.success(request, _(f"{user_profile.nickname} added to the table."))
+        else:
+            messages.error(request, _("Invalid selection."), extra_tags="danger")
+
+        return redirect("table-players", slug=table.slug)
 
 
 @login_required
