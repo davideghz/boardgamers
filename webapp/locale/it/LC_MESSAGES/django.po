@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-13 15:52+0000\n"
+"POT-Creation-Date: 2026-02-16 16:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -157,7 +157,7 @@ msgstr "Minimo giocatori"
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
-#: webapp/models.py:250
+#: webapp/models.py:250 webapp/templates/tables/table_detail.html:137
 msgid "External players"
 msgstr "Giocatori Esterni"
 
@@ -169,17 +169,17 @@ msgstr "Data"
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:300
+#: webapp/models.py:312
 #, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
 msgstr "%(game)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:305
+#: webapp/models.py:317
 #, python-format
 msgid "%(title)s - %(date)s - Board-Gamers.com"
 msgstr "%(title)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:312
+#: webapp/models.py:324
 #, python-format
 msgid ""
 "Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s"
@@ -187,66 +187,66 @@ msgstr ""
 "Unisciti al tavolo di %(game)s! Giocheremo il %(date)s alle %(time)s presso "
 "%(location)s"
 
-#: webapp/models.py:319
+#: webapp/models.py:331
 #, python-format
 msgid "Join the table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
 "Unisciti al tavolo! Giocheremo il %(date)s alle %(time)s presso %(location)s"
 
-#: webapp/models.py:348
+#: webapp/models.py:360
 msgid "User Comment"
 msgstr "Commento Utente"
 
-#: webapp/models.py:349
+#: webapp/models.py:361
 msgid "System Comment"
 msgstr "Commento di Sistema"
 
-#: webapp/models.py:374
+#: webapp/models.py:386
 msgid "Location Follower"
 msgstr "Follower Location"
 
-#: webapp/models.py:375
+#: webapp/models.py:387
 msgid "Location Followers"
 msgstr "Follower Location"
 
-#: webapp/models.py:382
+#: webapp/models.py:394
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:383
+#: webapp/models.py:395
 msgid "New player joined"
 msgstr "Nuovo gamer al tavolo"
 
-#: webapp/models.py:384
+#: webapp/models.py:396
 msgid "Leaderboard is now editable"
 msgstr "Classifica modificabile"
 
-#: webapp/models.py:385
+#: webapp/models.py:397
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:386
+#: webapp/models.py:398
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:387 webapp/signals.py:158
+#: webapp/models.py:399 webapp/signals.py:158
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
-#: webapp/models.py:388
+#: webapp/models.py:400
 #: webapp/templates/emails/email_notification_deleted_table_html.html:6
 msgid "Table deleted"
 msgstr "Tavolo eliminato"
 
-#: webapp/models.py:389
+#: webapp/models.py:401
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:407
+#: webapp/models.py:419
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:408 webapp/templates/accounts/account_notifications.html:17
+#: webapp/models.py:420 webapp/templates/accounts/account_notifications.html:17
 #: webapp/templates/accounts/account_notifications.html:28
 msgid "Notifications"
 msgstr "Notifiche"
@@ -261,6 +261,7 @@ msgid "Time to fill in the leaderboard!"
 msgstr "È tempo di compilare la classifica!"
 
 #: webapp/signals.py:126
+#, python-format
 msgid "The table “%(title)s” is now open for leaderboard entry."
 msgstr "Il tavolo %(title)s è pronto per l'inserimento della classifica."
 
@@ -269,6 +270,7 @@ msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
 #: webapp/signals.py:140
+#, python-format
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
 msgstr ""
@@ -276,6 +278,7 @@ msgstr ""
 "punteggio!"
 
 #: webapp/signals.py:159
+#, python-format
 msgid "The table “%(title)s” has been closed."
 msgstr "Il tavolo %(title)s è stato chiuso."
 
@@ -631,7 +634,7 @@ msgstr ""
 "tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
 
 #: webapp/templates/locations/location_add_or_edit.html:22
-#: webapp/templates/tables/table_detail.html:190
+#: webapp/templates/tables/table_detail.html:204
 msgid "Edit"
 msgstr "Modifica"
 
@@ -695,7 +698,7 @@ msgstr ""
 #: webapp/templates/locations/location_managers.html:182
 #: webapp/templates/tables/table_add_or_edit.html:172
 #: webapp/templates/tables/table_delete.html:13
-#: webapp/templates/tables/table_detail.html:485
+#: webapp/templates/tables/table_detail.html:499
 #: webapp/templates/tables/table_players.html:151
 msgid "Cancel"
 msgstr "Annulla"
@@ -1116,7 +1119,7 @@ msgid "if you still want to delete this table."
 msgstr "se vuoi comunque eliminare questo tavolo."
 
 #: webapp/templates/tables/table_delete.html:7
-#: webapp/templates/tables/table_detail.html:478
+#: webapp/templates/tables/table_detail.html:492
 #: webapp/templates/tables/table_players.html:144
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
@@ -1130,7 +1133,7 @@ msgid "Delete"
 msgstr "Elimina"
 
 #: webapp/templates/tables/table_detail.html:49
-#: webapp/templates/tags/swiper_table_slide.html:28
+#: webapp/templates/tags/swiper_table_slide.html:26
 #: webapp/templates/tags/table_card.html:23
 msgid "Private location"
 msgstr "Luogo privato"
@@ -1179,85 +1182,93 @@ msgstr ""
 msgid "No players yet."
 msgstr "Ancora nessun giocatore."
 
-#: webapp/templates/tables/table_detail.html:137
+#: webapp/templates/tables/table_detail.html:141
+msgid "external gamer"
+msgstr "gamer anonimo"
+
 #: webapp/templates/tables/table_detail.html:143
+msgid "external gamers"
+msgstr "gamers anonimi"
+
+#: webapp/templates/tables/table_detail.html:151
+#: webapp/templates/tables/table_detail.html:157
 msgid "available seats"
 msgstr "posti disponibili"
 
-#: webapp/templates/tables/table_detail.html:179
+#: webapp/templates/tables/table_detail.html:193
 msgid "Leaderboard"
 msgstr "Classifica"
 
-#: webapp/templates/tables/table_detail.html:195
+#: webapp/templates/tables/table_detail.html:209
 msgid "Not enabled for this game."
 msgstr "Non abilitata per questo gioco."
 
-#: webapp/templates/tables/table_detail.html:202
+#: webapp/templates/tables/table_detail.html:216
 msgid "Create Leaderboard"
 msgstr "Crea Classifica"
 
-#: webapp/templates/tables/table_detail.html:205
+#: webapp/templates/tables/table_detail.html:219
 msgid "Leaderboard not created yet."
 msgstr "Classifica non ancora creata."
 
-#: webapp/templates/tables/table_detail.html:210
+#: webapp/templates/tables/table_detail.html:224
 msgid "Use the"
 msgstr "Usa l'icona"
 
-#: webapp/templates/tables/table_detail.html:211
+#: webapp/templates/tables/table_detail.html:225
 msgid "to adjust the positions"
 msgstr "per modificare le posizioni"
 
-#: webapp/templates/tables/table_detail.html:228
+#: webapp/templates/tables/table_detail.html:242
 msgid "NEW"
 msgstr "NUOVO"
 
-#: webapp/templates/tables/table_detail.html:241
-#: webapp/templates/tables/table_detail.html:298
+#: webapp/templates/tables/table_detail.html:255
+#: webapp/templates/tables/table_detail.html:312
 msgid "Update Leaderboard"
 msgstr "Aggiorna Classifica"
 
-#: webapp/templates/tables/table_detail.html:336
+#: webapp/templates/tables/table_detail.html:350
 msgid "Leaderboard Updated"
 msgstr "Classifica Aggiornata"
 
-#: webapp/templates/tables/table_detail.html:372
+#: webapp/templates/tables/table_detail.html:386
 msgid "Comments"
 msgstr "Commenti"
 
-#: webapp/templates/tables/table_detail.html:381
+#: webapp/templates/tables/table_detail.html:395
 msgid "Send comment"
 msgstr "Invia commento"
 
-#: webapp/templates/tables/table_detail.html:388
+#: webapp/templates/tables/table_detail.html:402
 msgid "Only gamers that joined the table can comment on this page."
 msgstr ""
 "Solo i gamers che si sono uniti al tavolo possono commentare in questa "
 "pagina."
 
-#: webapp/templates/tables/table_detail.html:421
+#: webapp/templates/tables/table_detail.html:435
 #, python-format
 msgid "%(nickname)s joined the table"
 msgstr "%(nickname)s si è unito al tavolo"
 
-#: webapp/templates/tables/table_detail.html:429
+#: webapp/templates/tables/table_detail.html:443
 #, python-format
 msgid "%(nickname)s left the table"
 msgstr "%(nickname)s ha lasciato il tavolo"
 
-#: webapp/templates/tables/table_detail.html:461
+#: webapp/templates/tables/table_detail.html:475
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
-#: webapp/templates/tables/table_detail.html:482
+#: webapp/templates/tables/table_detail.html:496
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
 
-#: webapp/templates/tables/table_detail.html:486
+#: webapp/templates/tables/table_detail.html:500
 msgid "Delete comment"
 msgstr "Elimina commento"
 
-#: webapp/templates/tables/table_detail.html:513
+#: webapp/templates/tables/table_detail.html:527
 msgid "Let's play"
 msgstr "Giochiamo"
 
