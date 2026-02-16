@@ -257,6 +257,18 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
 
+    @property
+    def total_players(self):
+        """
+        Returns the total number of players: registered players + external players.
+        optimizes database access if `players` are prefetched.
+        """
+        # Using len() on a queryset that is prefetched will not hit the database again.
+        # If not prefetched, it will execute the query.
+        if hasattr(self, '_prefetched_objects_cache') and 'players' in self._prefetched_objects_cache:
+             return len(self.players.all()) + self.external_players
+        return self.players.count() + self.external_players
+
     status = models.CharField(max_length=20, choices=TABLE_STATUS_CHOICES, default=TABLE_STATUS_DEFAULT)
     leaderboard_status = models.CharField(
         max_length=20,
