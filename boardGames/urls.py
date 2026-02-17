@@ -13,15 +13,16 @@ urlpatterns = [
     # --- URL NON localizzati (niente prefisso /en)
     # API: meglio evitare di cambiare path in base alla lingua
     path("api/", include("webapp.api.urls")),
-
-    # Social auth: spesso i redirect URI sono fissi
-    path("", include("social_django.urls", namespace="social")),
 ]
 
 # --- URL localizzati (IT su '/', EN su '/en/...') ---
 urlpatterns += i18n_patterns(
     # Admin (opzionale dentro i18n; così avrai /admin e /en/admin)
     path("admin/", admin.site.urls),
+
+    # Social auth: ora con supporto per i18n (/ e /en/)
+    path("", include("social_django.urls", namespace="social")),
+
 
     # Tutto il sito “umano” (pagine, tabelle, profili, ecc.)
     path("", include("webapp.urls")),
