@@ -181,6 +181,9 @@ SOCIAL_AUTH_PIPELINE = (
 
     # Update the user record with any changed info from the auth service.
     'social_core.pipeline.user.user_details',
+
+    # Save language preference from OAuth state to user profile
+    'webapp.pipeline.save_language_from_state',
 )
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '53033452479-m1e3ubpf593o585de69gvg7csmil12a9.apps.googleusercontent.com'

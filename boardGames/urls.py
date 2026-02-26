@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from webapp.views.i18n import custom_set_language
+from webapp.views.social_auth import auth_with_language
 
 urlpatterns = [
     # Lingua: endpoint per cambiare lingua (cookie + redirect)
@@ -13,15 +14,19 @@ urlpatterns = [
     # --- URL NON localizzati (niente prefisso /en)
     # API: meglio evitare di cambiare path in base alla lingua
     path("api/", include("webapp.api.urls")),
+
+    # Social auth: custom view che salva la lingua nella sessione
+    # Deve essere PRIMA dell'include social_django per avere priorità su /login/
+    path("login/<str:backend>/", auth_with_language, name="custom_social_login"),
+
+    # Social auth: complete/disconnect con namespace per @psa decorator
+    path("", include("social_django.urls", namespace="social")),
 ]
 
 # --- URL localizzati (IT su '/', EN su '/en/...') ---
 urlpatterns += i18n_patterns(
     # Admin (opzionale dentro i18n; così avrai /admin e /en/admin)
     path("admin/", admin.site.urls),
-
-    # Social auth: ora con supporto per i18n (/ e /en/)
-    path("", include("social_django.urls", namespace="social")),
 
 
     # Tutto il sito “umano” (pagine, tabelle, profili, ecc.)
