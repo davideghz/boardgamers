@@ -1,5 +1,7 @@
 from django import template
-from django.urls import translate_url
+from django.urls import translate_url, reverse
+from django.utils.translation import get_language
+from urllib.parse import urlencode
 
 register = template.Library()
 
@@ -30,3 +32,28 @@ def canonical_url(context):
     """Restituisce l'URL canonico nella lingua corrente."""
     request = context["request"]
     return request.build_absolute_uri()
+
+
+@register.simple_tag(takes_context=True)
+def social_auth_url(context, backend):
+    """
+    Genera l'URL per l'autenticazione social con la lingua corrente salvata nello state.
+    Questo permette di preservare la lingua dell'utente durante il flusso OAuth
+    senza dover configurare redirect URI multipli in Google Console.
+    
+    Usage: {% social_auth_url 'google-oauth2' %}
+    """
+    from django.utils.translation import get_language, override
+    
+    current_lang = get_language()
+    
+    # Forza la generazione di un URL non localizzato
+    # usando override(None) per disattivare temporaneamente i18n
+    with override(None):
+        base_url = reverse('social:begin', args=[backend])
+    
+    # Aggiungi la lingua come parametro 'lang'
+    # La custom view auth_with_language lo salverà nella sessione
+    params = {'lang': current_lang}
+    
+    return f"{base_url}?{urlencode(params)}"

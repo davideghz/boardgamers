@@ -27,7 +27,10 @@ class UserLanguageRedirectMiddleware:
             request.path.startswith('/static/') or
             request.path.startswith('/media/') or
             request.path.startswith('/__debug__/') or
-            request.path.startswith('/i18n/')):
+            request.path.startswith('/i18n/') or
+            request.path.startswith('/login/') or  # Social auth URLs
+            request.path.startswith('/complete/') or  # Social auth callback URLs
+            request.path.startswith('/disconnect/')):  # Social auth disconnect URLs
             return self.get_response(request)
 
         preferred_lang = None
