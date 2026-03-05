@@ -136,6 +136,15 @@ def contacts(request):
     })
 
 
+def about(request):
+    return render(request, get_v2_template(request, 'staticpages/about.html'), {
+        'meta': Meta(
+            title=_("About Board-Gamers.com - For Clubs & Associations"),
+            description=_("Discover why board game clubs and associations choose Board-Gamers.com: free forever, open source, member management, tables, rankings and more."),
+        )
+    })
+
+
 def select_language(request):
     next_param = request.GET.get("next")  # es. "/tables/..." oppure None
 

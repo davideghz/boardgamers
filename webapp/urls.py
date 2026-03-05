@@ -22,6 +22,7 @@ urlpatterns = [
     path("privacy", static_page_views.privacy, name="privacy"),
     path("terms", static_page_views.terms, name="terms"),
     path("contacts", static_page_views.contacts, name="contacts"),
+    path("about", static_page_views.about, name="about"),
     path("select-language", static_page_views.select_language, name="select-language"),
 
     # TABLE
