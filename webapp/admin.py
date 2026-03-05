@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification
+from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
+    Membership
 
 
 class CustomUserAdmin(UserAdmin):
@@ -52,8 +53,9 @@ class PlayerAdmin(admin.ModelAdmin):
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ("name", "city", "creator", "created_at")
-    list_filter = ("city", "is_public", "created_at")
+    list_display = ("name", "city", "creator", "is_public", "enable_membership", "created_at")
+    list_filter = ("city", "is_public", "enable_membership", "created_at")
+    list_editable = ("enable_membership",)
     search_fields = ("name", "city", "creator__nickname")
 
 
@@ -74,3 +76,23 @@ class NotificationAdmin(admin.ModelAdmin):
     list_display = ('recipient', 'notification_type', 'table', 'location', 'is_read', 'sent')
     list_editable = ('is_read', 'sent',)
 
+
+class MembershipInline(admin.TabularInline):
+    model = Membership
+    extra = 0
+    fields = ('status', 'start_date', 'end_date', 'approved_by', 'notes')
+
+
+@admin.register(Member)
+class MemberAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'code', 'location', 'user_profile', 'email')
+    list_filter = ('location',)
+    search_fields = ('first_name', 'last_name', 'code', 'email')
+    inlines = [MembershipInline]
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('member', 'status', 'start_date', 'end_date', 'approved_by')
+    list_filter = ('status', 'member__location')
+    search_fields = ('member__first_name', 'member__last_name')

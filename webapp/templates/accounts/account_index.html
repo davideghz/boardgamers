@@ -56,6 +56,20 @@
               </div>
             </div>
           </a>
+          <a href="{% url "account-memberships" %}" class="text-decoration-none col">
+            <div class="card shadow border-0">
+              <div class="card-header d-flex justify-content-between align-items-center"
+                   style="background-color: slategrey"
+              ></div>
+              <div class="card-body">
+                <i class="h1 bi bi-patch-check-fill"></i>
+                <small class="d-flex mt-4"><strong>{% trans "My memberships" %}</strong></small>
+                <small class="card-text text-secondary">
+                  {% trans "View your active and past memberships at locations" %}
+                </small>
+              </div>
+            </div>
+          </a>
           <a href="{% url "account-notifications-edit" %}" class="text-decoration-none col">
             <div class="card shadow border-0">
               <div class="card-header d-flex justify-content-between align-items-center"

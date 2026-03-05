@@ -17,6 +17,7 @@ from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
+from webapp.middleware import get_v2_template
 from webapp.models import Comment, UserProfile, Game, Table, Location
 
 # for debug page
@@ -85,7 +86,7 @@ def homepage_view(request):
         )
     }
 
-    return render(request, "staticpages/home.html", context)
+    return render(request, get_v2_template(request, "staticpages/home.html"), context)
 
 
 def privacy(request, template_name="staticpages/privacy.html"):
@@ -208,3 +209,19 @@ def debug(request, template_name="staticpages/debug.html"):
 
 def test_widget(request, template_name="staticpages/test_widget.html"):
     return render(request, template_name, {})
+
+
+def enable_new_ui(request):
+    """Set the v2 UI cookie and redirect back."""
+    next_url = request.META.get('HTTP_REFERER', '/')
+    response = redirect(next_url)
+    response.set_cookie('ui_version', 'v2', max_age=60 * 60 * 24 * 30)  # 30 days
+    return response
+
+
+def disable_new_ui(request):
+    """Clear the v2 UI cookie and redirect back."""
+    next_url = request.META.get('HTTP_REFERER', '/')
+    response = redirect(next_url)
+    response.delete_cookie('ui_version')
+    return response

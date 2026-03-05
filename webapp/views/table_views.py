@@ -15,8 +15,9 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet, AddTablePlayerForm
+from webapp.forms import TableForm, TableFormV2, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
+from webapp.middleware import get_v2_template
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -92,6 +93,9 @@ class TableDetailView(generic.DetailView):
     model = Table
     template_name = "tables/table_detail.html"
 
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
+
     def get_queryset(self):
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         return super().get_queryset().prefetch_related(comments_prefetch)
@@ -144,6 +148,7 @@ class TableDetailView(generic.DetailView):
         context.update({
             'comment_form': CommentForm(),
             'available_seats': max_players - current_players,
+            'available_seats_range': range(max(0, max_players - current_players)),
             'current_players': current_players,
             'availability_percent': round(current_players / max_players * 100),
             'today': today,
@@ -298,8 +303,10 @@ def table_create_view(request, location_slug):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
         return redirect("location-detail", location_slug)
 
+    FormClass = TableFormV2 if getattr(request, 'use_new_ui', False) else TableForm
+
     if request.method == "POST":
-        form = TableForm(request.POST)
+        form = FormClass(request.POST)
         if form.is_valid():
             table = form.save(commit=False)
             table.author = request.user.user_profile
@@ -313,11 +320,11 @@ def table_create_view(request, location_slug):
             messages.success(request, _("Table was created successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        form = TableForm(initial=initial)
+        form = FormClass(initial=initial)
 
     context = {"form": form, "location": location}
 
-    return render(request, "tables/table_add_or_edit.html", context)
+    return render(request, get_v2_template(request, "tables/table_add_or_edit.html"), context)
 
 
 @login_required
@@ -332,8 +339,10 @@ def table_update_view(request, location_slug, table_slug):
 
     location = table.location  # Ora la location è sempre valida
 
+    FormClass = TableFormV2 if getattr(request, 'use_new_ui', False) else TableForm
+
     if request.method == "POST":
-        form = TableForm(request.POST, instance=table)
+        form = FormClass(request.POST, instance=table)
         if form.is_valid():
             table = form.save(commit=False)
             table.location = location  # Assegna manualmente la location
@@ -342,10 +351,10 @@ def table_update_view(request, location_slug, table_slug):
             messages.success(request, _("Table was updated successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        form = TableForm(instance=table)
+        form = FormClass(instance=table)
 
     context = {"form": form, "location": location, "table": table}
-    return render(request, "tables/table_add_or_edit.html", context)
+    return render(request, get_v2_template(request, "tables/table_add_or_edit.html"), context)
 
 
 @login_required

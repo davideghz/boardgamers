@@ -3,6 +3,36 @@ from django.utils.translation import get_language
 from django.conf import settings
 
 
+class NewUIMiddleware:
+    """
+    Reads the 'ui_version' cookie and sets request.use_new_ui = True when the
+    value is 'v2'. Views and templates use this flag to serve v2 assets.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.use_new_ui = request.COOKIES.get('ui_version') == 'v2'
+        return self.get_response(request)
+
+
+def get_v2_template(request, template_name):
+    """
+    Return the v2 variant of a template when v2 UI is active and the template
+    exists, otherwise fall back to the original.
+
+    Usage in FBVs:
+        return render(request, get_v2_template(request, 'staticpages/home.html'), context)
+    """
+    if getattr(request, 'use_new_ui', False):
+        from django.template.loader import select_template
+        v2_name = f'v2/{template_name}'
+        tpl = select_template([v2_name, template_name])
+        return tpl.template.name
+    return template_name
+
+
 class UserLanguageRedirectMiddleware:
     """
     Middleware to redirect users to their preferred language version of the site.

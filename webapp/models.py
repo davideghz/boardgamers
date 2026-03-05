@@ -119,6 +119,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     longitude = models.CharField(max_length=25, null=True, blank=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     is_public = models.BooleanField(default=False)
+    enable_membership = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
 
     _metadata = {
@@ -422,3 +423,88 @@ class Notification(DateTimeModel):
 
     def __str__(self):
         return f"To {self.recipient.nickname} [{self.notification_type}]"
+
+
+class Member(DateTimeModel):
+    """
+    Rappresenta una persona fisica associata a una location.
+    Può essere collegata a un UserProfile (utente registrato) oppure no.
+    """
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='members',
+        verbose_name=_('Location')
+    )
+    user_profile = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='memberships',
+        verbose_name=_('User Profile')
+    )
+
+    first_name = models.CharField(max_length=100, verbose_name=_('First Name'))
+    last_name = models.CharField(max_length=100, verbose_name=_('Last Name'))
+    code = models.CharField(max_length=50, blank=True, verbose_name=_('Member Code'))
+    email = models.EmailField(blank=True, verbose_name=_('Email'))
+    phone_number = models.CharField(max_length=30, blank=True, verbose_name=_('Phone Number'))
+
+    class Meta:
+        verbose_name = _('Member')
+        verbose_name_plural = _('Members')
+        ordering = ['last_name', 'first_name']
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def active_membership(self):
+        """Returns the current active membership, or None."""
+        import datetime
+        return self.memberships.filter(
+            status=Membership.ACTIVE,
+            end_date__gte=datetime.date.today()
+        ).first()
+
+
+class Membership(DateTimeModel):
+    """
+    Periodo di validità della membership di un Member per una location.
+    """
+    PENDING = 'pending'
+    ACTIVE = 'active'
+    EXPIRED = 'expired'
+    REJECTED = 'rejected'
+
+    STATUS_CHOICES = [
+        (PENDING, _('Pending')),
+        (ACTIVE, _('Active')),
+        (EXPIRED, _('Expired')),
+        (REJECTED, _('Rejected')),
+    ]
+
+    member = models.ForeignKey(
+        Member, on_delete=models.CASCADE, related_name='memberships',
+        verbose_name=_('Member')
+    )
+    start_date = models.DateField(null=True, blank=True, verbose_name=_('Start Date'))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_('End Date'))
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=PENDING,
+        db_index=True, verbose_name=_('Status')
+    )
+    notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    approved_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='approved_memberships',
+        verbose_name=_('Approved By')
+    )
+
+    class Meta:
+        verbose_name = _('Membership')
+        verbose_name_plural = _('Memberships')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.member} [{self.status}]"

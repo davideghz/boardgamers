@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm
-from webapp.models import Notification
+from webapp.models import Notification, Membership
 
 
 @login_required
@@ -92,6 +92,30 @@ def notifications(request, template_name='accounts/account_notifications.html'):
         'meta': Meta(
             title=_("Notifications - Board-Gamers.com"),
             description=_("View your notifications: new tables, comments, invitations and community updates."),
+        )
+    })
+
+
+@login_required
+def memberships(request, template_name='accounts/account_memberships.html'):
+    user_profile = request.user.user_profile
+    base_qs = Membership.objects.filter(
+        member__user_profile=user_profile
+    ).select_related('member__location')
+
+    active_memberships = base_qs.filter(
+        status__in=[Membership.ACTIVE, Membership.PENDING]
+    ).order_by('-start_date')
+    past_memberships = base_qs.filter(
+        status__in=[Membership.EXPIRED, Membership.REJECTED]
+    ).order_by('-end_date')
+
+    return render(request, template_name, {
+        'active_memberships': active_memberships,
+        'past_memberships': past_memberships,
+        'meta': Meta(
+            title=_("My Memberships - Board-Gamers.com"),
+            description=_("View your active and past memberships."),
         )
     })
 

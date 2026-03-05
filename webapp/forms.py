@@ -129,6 +129,81 @@ class BootstrapForm(Form):
                     field.widget.attrs['class'] = 'is-invalid'
 
 
+_TW_INPUT = (
+    'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 '
+    'placeholder:text-slate-400 focus:outline-none focus:ring-2 '
+    'focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors'
+)
+_TW_INPUT_ERR = (
+    'w-full rounded-xl border border-red-400 px-4 py-3 text-sm text-slate-700 '
+    'placeholder:text-slate-400 focus:outline-none focus:ring-2 '
+    'focus:ring-red-400/20 focus:border-red-400 bg-white transition-colors'
+)
+
+
+class TailwindForm(Form):
+    def __init__(self, *args, **kwargs):
+        super(Form, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            w = field.widget
+            if isinstance(w, HiddenInput):
+                continue
+            if hasattr(w, 'url'):  # dal autocomplete — leave untouched
+                continue
+            has_err = bool(self.errors.get(field_name))
+            css = _TW_INPUT_ERR if has_err else _TW_INPUT
+            if isinstance(w, TimeInput):
+                field.widget = TimeInput(format='%H:%M', attrs={'type': 'time', 'class': css})
+            elif isinstance(w, DateInput):
+                field.widget = DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': css})
+            elif isinstance(w, Textarea):
+                field.widget = Textarea(attrs={'class': f'{css} resize-none', 'rows': 4})
+            elif isinstance(w, CheckboxInput):
+                field.widget.attrs['class'] = 'w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500'
+            elif isinstance(w, (TextInput, EmailInput, URLInput, NumberInput)):
+                field.widget.attrs['class'] = css
+
+
+class TableFormV2(ModelForm, TailwindForm):
+    class Meta:
+        model = Table
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status']
+        widgets = {
+            'location': HiddenInput(),
+            'games': autocomplete.ModelSelect2Multiple(
+                url='games-autocomplete',
+                attrs={'data-placeholder': _('Games')},
+            ),
+            'game': autocomplete.ModelSelect2(
+                url='games-autocomplete',
+                attrs={'data-placeholder': _('Game')},
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].input_formats = ['%Y-%m-%d']
+
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if title is None or len(title) < 2:
+            raise ValidationError("Title is too short")
+        return title
+
+    def clean_description(self):
+        description = self.cleaned_data['description']
+        if description is None or len(description) < 2:
+            raise ValidationError("Description is too short")
+        return description
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
+
+
 class TableForm(ModelForm, BootstrapForm):
     class Meta:
         model = Table
@@ -419,4 +494,51 @@ class AddTablePlayerForm(BootstrapForm):
                 'data-minimum-input-length': 1,
             }
         )
+    )
+
+
+class MemberForm(ModelForm, BootstrapForm):
+    """Form to create or edit a Member's anagrafica."""
+    user_profile = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        required=False,
+        label=_('Linked User Profile'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+
+    class Meta:
+        from webapp.models import Member
+        model = Member
+        fields = ['first_name', 'last_name', 'code', 'email', 'phone_number', 'user_profile']
+
+
+class MembershipRequestForm(BootstrapForm):
+    """Form for a logged-in user to request a membership for a location."""
+    notes = CharField(
+        required=False,
+        label=_('Notes'),
+        widget=CustomTextareaWidget(placeholder=_('Optional message to the manager...')),
+    )
+
+
+class ApproveMembershipForm(BootstrapForm):
+    """Form for a manager to approve a membership, setting start/end dates."""
+    start_date = CharField(
+        label=_('Start Date'),
+        widget=CustomDateInputWidget(),
+    )
+    end_date = CharField(
+        label=_('End Date'),
+        widget=CustomDateInputWidget(),
+    )
+    notes = CharField(
+        required=False,
+        label=_('Notes'),
+        widget=CustomTextareaWidget(),
     )

@@ -58,6 +58,18 @@ urlpatterns = [
     path("locations/<slug:slug>/manage/managers/transfer-ownership/", location_views.TransferOwnershipView.as_view(),
          name="location-transfer-ownership"),
 
+    # LOCATION MEMBERS
+    path("locations/<slug:slug>/manage/members/", location_views.LocationManageMembersView.as_view(),
+         name="location-manage-members"),
+    path("locations/<slug:slug>/manage/members/add/", location_views.AddMemberView.as_view(),
+         name="location-add-member"),
+    path("locations/<slug:slug>/manage/members/<int:member_id>/", location_views.MemberDetailEditView.as_view(),
+         name="location-member-detail"),
+    path("locations/<slug:slug>/manage/members/<int:member_id>/approve/",
+         location_views.ApproveMembershipView.as_view(), name="location-approve-membership"),
+    path("locations/<slug:slug>/request-membership/", location_views.RequestMembershipView.as_view(),
+         name="location-request-membership"),
+
     # LOCATION TABLES
     path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
     path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view,
@@ -74,6 +86,7 @@ urlpatterns = [
     path("account/tables/", account_views.tables, name="account-tables"),
     path("account/notifications/", account_views.notifications, name="account-notifications"),
     path("account/notifications/edit", account_views.edit_notification_preferences, name="account-notifications-edit"),
+    path("account/memberships/", account_views.memberships, name="account-memberships"),
 
     # USER PROFILES
     path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
@@ -104,5 +117,9 @@ urlpatterns = [
 
     # DEBUGGING UTILS
     path('debug', static_page_views.debug, name='debug'),
-    path('test-widget', static_page_views.test_widget, name='test_widget')
+    path('test-widget', static_page_views.test_widget, name='test_widget'),
+
+    # UI V2 TOGGLE (dev only)
+    path('dev/ui/enable/', static_page_views.enable_new_ui, name='ui-v2-enable'),
+    path('dev/ui/disable/', static_page_views.disable_new_ui, name='ui-v2-disable'),
 ]
