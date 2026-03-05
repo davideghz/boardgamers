@@ -51,6 +51,9 @@ class TableIndexView(generic.ListView):
     template_name = "tables/table_index.html"
     context_object_name = "tables"
 
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
+
     def get_queryset(self):
         g = GeoIP2()
 
@@ -208,7 +211,7 @@ def table_players_view(request, slug):
     players = Player.objects.filter(table=table).select_related("user_profile")
     add_player_form = AddTablePlayerForm()
 
-    return render(request, "tables/table_players.html", {
+    return render(request, get_v2_template(request, "tables/table_players.html"), {
         "table": table,
         "players": players,
         'available_seats': table.max_players - players.count() - table.external_players,
@@ -405,6 +408,9 @@ class TableDeleteView(
 ):
     model = Table
     template_name = "tables/table_delete.html"
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
 
     slug_field = "slug"
     slug_url_kwarg = "slug"

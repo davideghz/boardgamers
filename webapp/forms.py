@@ -367,6 +367,18 @@ class UserProfileForm(ModelForm, BootstrapForm):
         fields = ['nickname', 'address', 'city', 'latitude', 'longitude']
 
 
+class UserProfileFormV2(ModelForm, TailwindForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['city'].widget = HiddenInput()
+        self.fields['latitude'].widget = HiddenInput()
+        self.fields['longitude'].widget = HiddenInput()
+
+    class Meta:
+        model = UserProfile
+        fields = ['nickname', 'address', 'city', 'latitude', 'longitude']
+
+
 class UserProfileAvatarForm(ModelForm, BootstrapForm):
     class Meta:
         model = UserProfile
@@ -387,6 +399,21 @@ class LocationForm(ModelForm, BootstrapForm):
     class Meta:
         model = Location
         fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public']
+
+
+class LocationFormV2(ModelForm, TailwindForm):
+    city = CharField(widget=HiddenInput(), required=False)
+    latitude = CharField(widget=HiddenInput(), required=False)
+    longitude = CharField(widget=HiddenInput(), required=False)
+
+    class Meta:
+        model = Location
+        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['creator'].widget = HiddenInput()
+        self.fields['cover'].required = False
 
 
 class PlayerScoreForm(ModelForm, BootstrapForm):
@@ -499,6 +526,27 @@ class AddTablePlayerForm(BootstrapForm):
 
 class MemberForm(ModelForm, BootstrapForm):
     """Form to create or edit a Member's anagrafica."""
+    user_profile = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        required=False,
+        label=_('Linked User Profile'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+
+    class Meta:
+        from webapp.models import Member
+        model = Member
+        fields = ['first_name', 'last_name', 'code', 'email', 'phone_number', 'user_profile']
+
+
+class MemberFormV2(ModelForm, TailwindForm):
+    """Tailwind-styled version of MemberForm for the v2 UI."""
     user_profile = ModelChoiceField(
         queryset=UserProfile.objects.all(),
         required=False,

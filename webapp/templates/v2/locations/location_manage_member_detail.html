@@ -1,0 +1,85 @@
+{% extends "v2/base_webapp.html" %}
+{% load i18n %}
+
+{% block style %}
+  {{ form.media.css }}
+  <style>
+    .select2-container .select2-selection--single {
+      height: 48px !important;
+      border-radius: 0.75rem !important;
+      border-color: #e2e8f0 !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 48px !important;
+      padding-left: 1rem !important;
+      color: #334155 !important;
+      font-size: 0.875rem !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 48px !important;
+    }
+    .select2-dropdown {
+      border-radius: 0.75rem !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #1e293b !important;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+      <a href="{% url 'location-manage-members' location.slug %}" class="text-blue-600 hover:underline">{% trans "Members" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">
+      {% if is_new %}{% trans "Add member" %}{% else %}{{ member.full_name }}{% endif %}
+    </h1>
+  </div>
+
+  <form method="post"
+        action="{% if is_new %}{% url 'location-add-member' location.slug %}{% else %}{% url 'location-member-detail' location.slug member.id %}{% endif %}"
+        class="max-w-xl space-y-5">
+    {% csrf_token %}
+
+    {% for field in form %}
+      {% if not field.is_hidden %}
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if not field.field.required %}<span class="font-normal text-slate-400">({% trans "optional" %})</span>{% endif %}
+          </label>
+          {{ field }}
+          {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="flex gap-3 pt-2">
+      <a href="{% url 'location-manage-members' location.slug %}"
+         class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+        {% trans "Cancel" %}
+      </a>
+      <button type="submit"
+              class="flex-1 flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+        {% if is_new %}{% trans "Add member" %}{% else %}{% trans "Save changes" %}{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  {{ form.media.js }}
+{% endblock %}

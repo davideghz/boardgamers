@@ -90,7 +90,7 @@ def homepage_view(request):
 
 
 def privacy(request, template_name="staticpages/privacy.html"):
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'meta': Meta(
             title=_("Privacy Policy - Board-Gamers.com"),
             description=_("Read our privacy policy: how we collect, use and protect your personal data."),
@@ -99,7 +99,7 @@ def privacy(request, template_name="staticpages/privacy.html"):
 
 
 def terms(request, template_name="staticpages/terms.html"):
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'meta': Meta(
             title=_("Terms of Service - Board-Gamers.com"),
             description=_("Read our terms of service: rules, responsibilities and platform usage conditions."),
@@ -127,7 +127,7 @@ def contacts(request):
     else:
         form = ContactForm(initial=initial_data)
 
-    return render(request, 'staticpages/contacts.html', {
+    return render(request, get_v2_template(request, 'staticpages/contacts.html'), {
         'form': form,
         'meta': Meta(
             title=_("Contacts - Board-Gamers.com"),
@@ -163,7 +163,7 @@ def select_language(request):
             "next": translate_url(absolute_next, code)
         })
 
-    return render(request, "staticpages/select_language.html", {
+    return render(request, get_v2_template(request, "staticpages/select_language.html"), {
         "languages": languages,
     })
 
