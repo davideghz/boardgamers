@@ -446,7 +446,7 @@
       btn.addEventListener('click', function () {
         const url   = window.location.href;
         const title = "{{ table.title }} - {{ table.date|date:'j F' }} - Board-Gamers.com";
-        const text  = "{% trans 'Let\'s play' %} {{ table.game }}";
+        const text  = "{% trans "Let's play" %} {{ table.game }}";
         if (navigator.share) {
           navigator.share({ title, text, url }).catch(() => {});
         } else {
