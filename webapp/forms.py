@@ -196,6 +196,14 @@ class TableFormV2(ModelForm, TailwindForm):
             raise ValidationError("Description is too short")
         return description
 
+    def clean(self):
+        cleaned_data = super().clean()
+        min_players = cleaned_data.get('min_players')
+        max_players = cleaned_data.get('max_players')
+        if min_players and max_players and max_players < min_players:
+            raise ValidationError(_("Maximum players cannot be less than minimum players."))
+        return cleaned_data
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         if commit:
@@ -239,6 +247,14 @@ class TableForm(ModelForm, BootstrapForm):
         if description is None or len(description) < 2:
             raise ValidationError("Description is too short")
         return description
+
+    def clean(self):
+        cleaned_data = super().clean()
+        min_players = cleaned_data.get('min_players')
+        max_players = cleaned_data.get('max_players')
+        if min_players and max_players and max_players < min_players:
+            raise ValidationError(_("Maximum players cannot be less than minimum players."))
+        return cleaned_data
 
     def save(self, commit=True):
         instance = super(TableForm, self).save(commit=False)
