@@ -6,14 +6,16 @@ from django.utils.translation import gettext_lazy as _
 from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm
-from webapp.models import Notification
+from webapp.middleware import get_v2_template
+from webapp.models import Notification, Membership, Table
+from django.db.models import Q
 
 
 @login_required
 def index(request, template_name='accounts/account_index.html'):
     user = request.user
 
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'user': user,
         'meta': Meta(
             title=_("My Account - Board-Gamers.com"),
@@ -48,7 +50,7 @@ def locations(request, template_name='accounts/account_locations.html'):
         id__in=owned_locations.values_list('id', flat=True)
     )
 
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'user': user,
         'owned_locations': owned_locations,
         'managed_locations': managed_locations,
@@ -62,13 +64,23 @@ def locations(request, template_name='accounts/account_locations.html'):
 @login_required
 def tables(request, template_name='accounts/account_tables.html'):
     user = request.user
-    created_tables = user.user_profile.created_tables.all()
-    joined_tables = user.user_profile.joined_tables.all()
+    user_profile = user.user_profile
+    created_tables = user_profile.created_tables.all()
+    joined_tables = user_profile.joined_tables.all()
 
-    return render(request, template_name, {
+    all_tables = (
+        Table.objects
+        .filter(Q(author=user_profile) | Q(players=user_profile))
+        .select_related('author', 'location', 'game')
+        .distinct()
+        .order_by('-date', '-time')
+    )
+
+    return render(request, get_v2_template(request, template_name), {
         'user': user,
         'created_tables': created_tables,
         'joined_tables': joined_tables,
+        'all_tables': all_tables,
         'meta': Meta(
             title=_("My Tables - Board-Gamers.com"),
             description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),
@@ -87,11 +99,35 @@ def notifications(request, template_name='accounts/account_notifications.html'):
     # Aggiorna in blocco quelle non ancora lette
     user_notifications.filter(is_read=False).update(is_read=True)
 
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'notifications': user_notifications,
         'meta': Meta(
             title=_("Notifications - Board-Gamers.com"),
             description=_("View your notifications: new tables, comments, invitations and community updates."),
+        )
+    })
+
+
+@login_required
+def memberships(request, template_name='accounts/account_memberships.html'):
+    user_profile = request.user.user_profile
+    base_qs = Membership.objects.filter(
+        member__user_profile=user_profile
+    ).select_related('member__location')
+
+    active_memberships = base_qs.filter(
+        status__in=[Membership.ACTIVE, Membership.PENDING]
+    ).order_by('-start_date')
+    past_memberships = base_qs.filter(
+        status__in=[Membership.EXPIRED, Membership.REJECTED]
+    ).order_by('-end_date')
+
+    return render(request, get_v2_template(request, template_name), {
+        'active_memberships': active_memberships,
+        'past_memberships': past_memberships,
+        'meta': Meta(
+            title=_("My Memberships - Board-Gamers.com"),
+            description=_("View your active and past memberships."),
         )
     })
 
@@ -108,7 +144,7 @@ def edit_notification_preferences(request):
     else:
         form = UserNotificationPreferencesForm(instance=profile)
 
-    return render(request, 'accounts/account_notifications_preferences.html', {
+    return render(request, get_v2_template(request, 'accounts/account_notifications_preferences.html'), {
         'form': form,
         'meta': Meta(
             title=_("Notification Preferences - Board-Gamers.com"),

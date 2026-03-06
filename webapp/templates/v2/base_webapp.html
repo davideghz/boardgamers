@@ -1,0 +1,445 @@
+{% extends "v2/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block bodycontent %}
+
+  {% include "v2/partials/alerts.html" %}
+
+  {# ── ROOT WRAPPER ────────────────────────────────────────────────── #}
+  <div style="--sidebar-width:16rem; --sidebar-width-icon:3rem">
+    <div class="min-h-screen flex w-full bg-background">
+
+      {# ── DESKTOP SIDEBAR (fixed) ────────────────────────────────── #}
+      {# Spacer — keeps main content pushed right #}
+      <div class="hidden md:block flex-shrink-0" id="sidebar-spacer" style="width:var(--sidebar-width); transition:width .2s"></div>
+
+      {# Fixed panel #}
+      <div class="fixed inset-y-0 left-0 z-30 hidden md:flex flex-col border-r border-slate-200 bg-slate-50"
+           id="sidebar-fixed" style="width:var(--sidebar-width); transition:width .2s; overflow:hidden">
+
+        {# Header: logo + collapse toggle #}
+        <div id="sidebar-header" class="flex items-center justify-between p-3 flex-shrink-0">
+          <a id="sidebar-logo" href="{% url 'home' %}"
+             class="flex items-center gap-2 text-slate-900 font-extrabold text-lg px-1 overflow-hidden whitespace-nowrap">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            <span class="sidebar-text">Board Gamers</span>
+          </a>
+          <button id="sidebar-toggle"
+                  class="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0">
+            {# chevron-left = expanded state (click to collapse) #}
+            <span id="sidebar-icon-expanded">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+            </span>
+            {# chevron-right = collapsed state (click to expand) #}
+            <span id="sidebar-icon-collapsed" style="display:none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+            </span>
+          </button>
+        </div>
+
+        {# Content #}
+        <div class="flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden px-3 pb-3">
+
+          {# Logo icon shown only when collapsed #}
+          <div id="sidebar-collapsed-logo" class="flex justify-center py-1" style="display:none">
+            <a href="{% url 'home' %}" class="text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            </a>
+          </div>
+
+          {# CTA #}
+          <div class="mb-1">
+            <a id="sidebar-cta" href="{% url 'locations-index' %}"
+               class="w-full flex items-center justify-center gap-1.5 bg-slate-900 text-white rounded-lg px-3 py-2 text-sm font-bold hover:bg-slate-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+              <span class="sidebar-text">{% trans "New table" %}</span>
+            </a>
+          </div>
+
+          {# Feed group #}
+          <div>
+            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              {% trans "Feed" %}
+            </div>
+            <ul class="flex flex-col gap-0.5 list-none">
+              <li>
+                <a href="{% url 'home' %}"
+                   data-label="Home"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'home' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                  <span class="sidebar-text">{% trans "Home" %}</span>
+                </a>
+              </li>
+              {% if user.is_authenticated %}
+                <li>
+                  <a href="{% url 'account-notifications' %}"
+                     data-label="{% trans "Notifications" %}"
+                     class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                            {% if request.resolver_match.url_name == 'account-notifications' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
+                    <span class="sidebar-text">{% trans "Notifications" %}</span>
+                    {% if unread_notifications_count > 0 %}
+                      <span class="sidebar-text ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'account-tables' %}"
+                     data-label="{% trans "My tables" %}"
+                     class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                            {% if request.resolver_match.url_name == 'account-tables' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+                    <span class="sidebar-text">{% trans "My tables" %}</span>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+
+          {# Esplora group #}
+          <div>
+            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              {% trans "Explore" %}
+            </div>
+            <ul class="flex flex-col gap-0.5 list-none">
+              <li>
+                <a href="{% url 'locations-index' %}"
+                   data-label="{% trans "Locations" %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'locations-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                  <span class="sidebar-text">{% trans "Locations" %}</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'game-list' %}"
+                   data-label="{% trans "Games" %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" /></svg>
+                  <span class="sidebar-text">{% trans "Games" %}</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'table-index' %}"
+                   data-label="{% trans "Tables" %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'table-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+                  <span class="sidebar-text">{% trans "Tables" %}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {# About group #}
+          <div>
+            <ul class="flex flex-col gap-0.5 list-none">
+              <li>
+                <a href="{% url 'about' %}"
+                   data-label="{% trans "About" %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'about' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
+                  <span class="sidebar-text">{% trans "About" %}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        {# Footer: account + logout + language #}
+        <div class="border-t border-slate-200 p-3 flex-shrink-0">
+          <ul class="flex flex-col gap-0.5 list-none">
+            {% if user.is_authenticated %}
+              <li>
+                <a href="{% url 'account-index' %}"
+                   data-label="{{ user.user_profile|default:user.user_profile }}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'account-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                  {% if user.user_profile.avatar %}
+                    <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
+                         class="flex-shrink-0 w-6 h-6 rounded-full object-cover">
+                  {% else %}
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center" style="font-size:.6rem; font-weight:700">
+                      {{ user.user_profile.nickname|first|upper }}
+                    </span>
+                  {% endif %}
+                  <span class="sidebar-text truncate">{{ user.user_profile.nickname }}</span>
+                </a>
+              </li>
+              <li>
+                <form action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit"
+                          data-label="{% trans "Logout" %}"
+                          class="sidebar-nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+                    <span class="sidebar-text">{% trans "Logout" %}</span>
+                  </button>
+                </form>
+              </li>
+            {% else %}
+              <li>
+                <a href="{% url 'login' %}" data-label="Login"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
+                  <span class="sidebar-text">Login</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'signup' %}" data-label="{% trans "Signup" %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
+                  <span class="sidebar-text">{% trans "Signup" %}</span>
+                </a>
+              </li>
+            {% endif %}
+            <li>
+              <a href="{% url 'select-language' %}?next={{ request.get_full_path|urlencode }}"
+                 data-label="{% trans "Language" %}"
+                 class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" /></svg>
+                <span class="sidebar-text">{% trans "Language" %}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>{# /sidebar-fixed #}
+
+      {# ── MAIN CONTENT ─────────────────────────────────────────────── #}
+      <div class="flex-1 flex flex-col min-w-0 bg-white">
+
+        {# Mobile topbar #}
+        <div class="md:hidden flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-40">
+          <button id="mobile-menu-btn" class="p-2 rounded-md text-slate-500 hover:bg-slate-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+          </button>
+          <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-slate-900 text-base">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            Board Gamers
+          </a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'account-index' %}" class="ml-auto flex-shrink-0">
+              {% if user.user_profile.avatar %}
+                <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
+                     class="w-8 h-8 rounded-full object-cover ring-2 ring-slate-200">
+              {% else %}
+                <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs ring-2 ring-slate-200">
+                  {{ user.user_profile.nickname|first|upper }}
+                </span>
+              {% endif %}
+            </a>
+          {% endif %}
+        </div>
+
+        {# Mobile overlay #}
+        <div id="mobile-overlay" class="hidden md:hidden fixed inset-0 z-40 bg-black/40" onclick="closeMobileSidebar()"></div>
+
+        {# Mobile drawer #}
+        <div id="mobile-drawer"
+             class="md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col"
+             style="transform:translateX(-100%); transition:transform .2s ease">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+            <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-slate-900 text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+              Board Gamers
+            </a>
+            <button onclick="closeMobileSidebar()" class="p-2 rounded-md text-slate-400 hover:bg-slate-100">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-4">
+
+            {# CTA #}
+            <a href="{% url 'locations-index' %}"
+               class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+              {% trans "New table" %}
+            </a>
+
+            {# Feed #}
+            <div>
+              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{% trans "Feed" %}</p>
+              <div class="flex flex-col gap-0.5">
+                <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'home' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                  {% trans "Home" %}
+                </a>
+                {% if user.is_authenticated %}
+                  <a href="{% url 'account-tables' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'account-tables' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+                    {% trans "My tables" %}
+                  </a>
+                  <a href="{% url 'account-notifications' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'account-notifications' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
+                    {% trans "Notifications" %}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Explore #}
+            <div>
+              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{% trans "Explore" %}</p>
+              <div class="flex flex-col gap-0.5">
+                <a href="{% url 'locations-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'locations-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                  {% trans "Locations" %}
+                </a>
+                <a href="{% url 'game-list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" /></svg>
+                  {% trans "Games" %}
+                </a>
+                <a href="{% url 'table-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'table-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+                  {% trans "Tables" %}
+                </a>
+                <a href="{% url 'about' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'about' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
+                  {% trans "About" %}
+                </a>
+              </div>
+            </div>
+
+          </div>
+          <div class="border-t border-slate-200 px-3 py-4 flex flex-col gap-1">
+            {% if user.is_authenticated %}
+              <a href="{% url 'account-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+                {% if user.user_profile.avatar %}
+                  <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
+                       class="flex-shrink-0 w-6 h-6 rounded-full object-cover">
+                {% else %}
+                  <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center" style="font-size:.6rem; font-weight:700">
+                    {{ user.user_profile.nickname|first|upper }}
+                  </span>
+                {% endif %}
+                {{ user.user_profile.nickname }}
+              </a>
+              <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+                  {% trans "Logout" %}
+                </button>
+              </form>
+            {% else %}
+              <a href="{% url 'login' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
+                Login
+              </a>
+              <a href="{% url 'signup' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
+                {% trans "Signup" %}
+              </a>
+            {% endif %}
+            <a href="{% url 'select-language' %}?next={{ request.get_full_path|urlencode }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-100">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" /></svg>
+              {% trans "Language" %}
+            </a>
+          </div>
+        </div>
+
+        {% include "v2/partials/messages.html" %}
+
+        {# Page content #}
+        <main class="flex-1">
+          <div class="max-w-5xl mx-auto px-5 py-6">
+            {% block content %}{% endblock content %}
+          </div>
+        </main>
+
+        {# Footer #}
+        <footer class="border-t border-slate-200 mt-12">
+          <div class="max-w-5xl mx-auto px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-slate-400 text-sm">
+              <span>© {% now "Y" %} Board Gamers</span>
+            </div>
+            <div class="flex items-center gap-6 text-xs text-slate-400">
+              <a href="{% url 'about' %}" class="hover:text-slate-700 transition-colors">{% trans "About" %}</a>
+              <a href="{% url 'privacy' %}" class="hover:text-slate-700 transition-colors">{% trans "Privacy" %}</a>
+              <a href="{% url 'terms' %}" class="hover:text-slate-700 transition-colors">{% trans "Terms" %}</a>
+              <a href="{% url 'contacts' %}" class="hover:text-slate-700 transition-colors">{% trans "Contacts" %}</a>
+            </div>
+          </div>
+        </footer>
+
+      </div>{# /main #}
+
+    </div>
+  </div>
+
+{% endblock bodycontent %}
+
+{% block bodyjs %}
+  <script>
+    // ── Desktop sidebar collapse ───────────────────────────────────────
+    const sidebarFixed         = document.getElementById('sidebar-fixed');
+    const sidebarSpacer        = document.getElementById('sidebar-spacer');
+    const sidebarLogo          = document.getElementById('sidebar-logo');
+    const sidebarHeader        = document.getElementById('sidebar-header');
+    const sidebarCollapsedLogo = document.getElementById('sidebar-collapsed-logo');
+    const sidebarCta           = document.getElementById('sidebar-cta');
+    const toggleBtn            = document.getElementById('sidebar-toggle');
+    const sidebarIconExpanded  = document.getElementById('sidebar-icon-expanded');
+    const sidebarIconCollapsed = document.getElementById('sidebar-icon-collapsed');
+    const STORAGE_KEY          = 'bgSidebarCollapsed';
+
+    function setSidebar(collapsed) {
+      const w = collapsed ? '3rem' : '16rem';
+      sidebarFixed.style.width  = w;
+      sidebarSpacer.style.width = w;
+
+      document.querySelectorAll('.sidebar-text').forEach(el => {
+        el.style.display = collapsed ? 'none' : '';
+      });
+
+      if (sidebarLogo)   sidebarLogo.style.display = collapsed ? 'none' : '';
+      if (sidebarHeader) sidebarHeader.style.justifyContent = collapsed ? 'center' : '';
+      if (sidebarCollapsedLogo) sidebarCollapsedLogo.style.display = collapsed ? 'flex' : 'none';
+
+      document.querySelectorAll('.sidebar-nav-link').forEach(el => {
+        el.style.justifyContent = collapsed ? 'center' : '';
+        el.style.gap            = collapsed ? '0' : '';
+        el.title                = collapsed ? (el.dataset.label || '') : '';
+      });
+
+      if (sidebarCta) sidebarCta.style.gap = collapsed ? '0' : '';
+
+      if (sidebarIconExpanded)  sidebarIconExpanded.style.display  = collapsed ? 'none' : '';
+      if (sidebarIconCollapsed) sidebarIconCollapsed.style.display = collapsed ? '' : 'none';
+
+      localStorage.setItem(STORAGE_KEY, collapsed);
+    }
+
+    if (toggleBtn) {
+      const saved = localStorage.getItem(STORAGE_KEY) === 'true';
+      setSidebar(saved);
+      toggleBtn.addEventListener('click', () =>
+        setSidebar(!(sidebarFixed.style.width === '3rem'))
+      );
+    }
+
+    // ── Mobile drawer ──────────────────────────────────────────────────
+    const mobileDrawer  = document.getElementById('mobile-drawer');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const mobileBtn     = document.getElementById('mobile-menu-btn');
+
+    function openMobileSidebar() {
+      mobileDrawer.style.transform = 'translateX(0)';
+      mobileOverlay.classList.remove('hidden');
+    }
+    function closeMobileSidebar() {
+      mobileDrawer.style.transform = 'translateX(-100%)';
+      mobileOverlay.classList.add('hidden');
+    }
+    if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
+  </script>
+
+  {% block extrabodyjs %}{% endblock extrabodyjs %}
+{% endblock bodyjs %}

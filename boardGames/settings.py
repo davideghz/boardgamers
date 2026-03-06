@@ -33,6 +33,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'webapp.middleware.NewUIMiddleware',
     'webapp.middleware.UserLanguageRedirectMiddleware',  # Redirect to user's preferred language
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

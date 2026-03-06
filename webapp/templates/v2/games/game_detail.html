@@ -1,0 +1,58 @@
+{% extends "v2/base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-2xl">
+
+  {# ── Breadcrumb ────────────────────────────────────────────────────── #}
+  <nav class="flex items-center gap-1.5 text-xs text-slate-400 mb-6">
+    <a href="{% url 'home' %}" class="hover:text-slate-600 transition-colors">Home</a>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+    <a href="{% url 'game-list' %}" class="hover:text-slate-600 transition-colors">{% trans "Games" %}</a>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+    <span class="text-slate-600 font-medium truncate">{{ game.name }}</span>
+  </nav>
+
+  {# ── Hero cover ────────────────────────────────────────────────────── #}
+  <div class="relative w-full aspect-video rounded-xl overflow-hidden mb-6"
+       style="background-image: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0) 100%), url('{{ game.cover_url }}'); background-size: cover; background-position: center;">
+    <div class="absolute bottom-0 left-0 p-5">
+      <h1 class="text-2xl font-extrabold text-white drop-shadow">{{ game.name }}</h1>
+    </div>
+  </div>
+
+  {# ── Stats ─────────────────────────────────────────────────────────── #}
+  <div class="flex items-center gap-6 mb-6">
+    <div class="flex items-center gap-2 text-sm text-slate-600">
+      <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+        </svg>
+      </div>
+      <div>
+        <p class="font-bold text-slate-900 leading-none">{{ game.table_count }}</p>
+        <p class="text-xs text-slate-400">{% trans "Played tables" %}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-sm text-slate-600">
+      <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+        </svg>
+      </div>
+      <div>
+        <p class="font-bold text-slate-900 leading-none">{{ game.player_count }}</p>
+        <p class="text-xs text-slate-400">{% trans "Gamers" %}</p>
+      </div>
+    </div>
+  </div>
+
+  {# ── Description ───────────────────────────────────────────────────── #}
+  {% if game.description %}
+    <div class="rounded-xl border border-slate-200 bg-white px-5 py-4">
+      <p class="text-sm text-slate-600 leading-relaxed">{{ game.description }}</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock content %}

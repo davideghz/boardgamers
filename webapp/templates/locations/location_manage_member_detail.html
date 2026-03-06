@@ -1,0 +1,81 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block style %}
+{% include 'partials/form_styles.html' %}
+{% endblock style %}
+
+{% block breadcrumbs %}
+<div class="container-fluid px-0 bg-white border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="py-1">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item fs-6">
+                    <small><a class="text-decoration-none" href="{% url 'location-detail' location.slug %}">
+                            {{ location.name }}</a>
+                    </small>
+                </li>
+                <li class="breadcrumb-item fs-6">
+                    <small><a class="text-decoration-none" href="{% url 'location-manage' location.slug %}">
+                            {% trans "Manage" %}</a>
+                    </small>
+                </li>
+                <li class="breadcrumb-item fs-6">
+                    <small><a class="text-decoration-none" href="{% url 'location-manage-members' location.slug %}">
+                            {% trans "Members" %}</a>
+                    </small>
+                </li>
+                <li class="breadcrumb-item fs-6 active" aria-current="page">
+                    <small>{% if is_new %}{% trans "Add Member" %}{% else %}{{ member.full_name }}{% endif %}</small>
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+{{ form.media }}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-6 offset-md-2 offset-xl-3">
+            <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary shadow">
+                <h1 class="fs-3 mb-4">
+                    {% if is_new %}{% trans "Add Member" %}{% else %}{% trans "Edit Member" %}{% endif %}
+                </h1>
+                <form method="post"
+                    action="{% if is_new %}{% url 'location-add-member' location.slug %}{% else %}{% url 'location-member-detail' location.slug member.id %}{% endif %}">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in field.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            {% if is_new %}{% trans "Add" %}{% else %}{% trans "Save" %}{% endif %}
+                        </button>
+                        <a href="{% url 'location-manage-members' location.slug %}" class="btn btn-outline-secondary">
+                            {% trans "Cancel" %}
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

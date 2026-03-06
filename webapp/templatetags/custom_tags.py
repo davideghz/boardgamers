@@ -20,6 +20,13 @@ def swiper_table_slide(table):
     }
 
 
+@register.inclusion_tag("tags/v2_table_card.html")
+def v2_table_card(table):
+    return {
+        'table': table,
+    }
+
+
 @register.simple_tag(takes_context=True)
 def alternate_url(context, lang_code):
     request = context["request"]

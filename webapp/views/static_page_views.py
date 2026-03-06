@@ -17,6 +17,7 @@ from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
+from webapp.middleware import get_v2_template
 from webapp.models import Comment, UserProfile, Game, Table, Location
 
 # for debug page
@@ -85,11 +86,11 @@ def homepage_view(request):
         )
     }
 
-    return render(request, "staticpages/home.html", context)
+    return render(request, get_v2_template(request, "staticpages/home.html"), context)
 
 
 def privacy(request, template_name="staticpages/privacy.html"):
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'meta': Meta(
             title=_("Privacy Policy - Board-Gamers.com"),
             description=_("Read our privacy policy: how we collect, use and protect your personal data."),
@@ -98,7 +99,7 @@ def privacy(request, template_name="staticpages/privacy.html"):
 
 
 def terms(request, template_name="staticpages/terms.html"):
-    return render(request, template_name, {
+    return render(request, get_v2_template(request, template_name), {
         'meta': Meta(
             title=_("Terms of Service - Board-Gamers.com"),
             description=_("Read our terms of service: rules, responsibilities and platform usage conditions."),
@@ -126,11 +127,20 @@ def contacts(request):
     else:
         form = ContactForm(initial=initial_data)
 
-    return render(request, 'staticpages/contacts.html', {
+    return render(request, get_v2_template(request, 'staticpages/contacts.html'), {
         'form': form,
         'meta': Meta(
             title=_("Contacts - Board-Gamers.com"),
             description=_("Contact the boardgamers team: reports, suggestions or questions about the platform."),
+        )
+    })
+
+
+def about(request):
+    return render(request, get_v2_template(request, 'staticpages/about.html'), {
+        'meta': Meta(
+            title=_("About Board-Gamers.com - For Clubs & Associations"),
+            description=_("Discover why board game clubs and associations choose Board-Gamers.com: free forever, open source, member management, tables, rankings and more."),
         )
     })
 
@@ -162,7 +172,7 @@ def select_language(request):
             "next": translate_url(absolute_next, code)
         })
 
-    return render(request, "staticpages/select_language.html", {
+    return render(request, get_v2_template(request, "staticpages/select_language.html"), {
         "languages": languages,
     })
 
@@ -208,3 +218,19 @@ def debug(request, template_name="staticpages/debug.html"):
 
 def test_widget(request, template_name="staticpages/test_widget.html"):
     return render(request, template_name, {})
+
+
+def enable_new_ui(request):
+    """Set the v2 UI cookie and redirect back."""
+    next_url = request.META.get('HTTP_REFERER', '/')
+    response = redirect(next_url)
+    response.set_cookie('ui_version', 'v2', max_age=60 * 60 * 24 * 30)  # 30 days
+    return response
+
+
+def disable_new_ui(request):
+    """Clear the v2 UI cookie and redirect back."""
+    next_url = request.META.get('HTTP_REFERER', '/')
+    response = redirect(next_url)
+    response.delete_cookie('ui_version')
+    return response

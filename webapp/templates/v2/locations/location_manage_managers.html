@@ -1,0 +1,212 @@
+{% extends "v2/base_webapp.html" %}
+{% load i18n %}
+
+{% block style %}
+  {{ add_manager_form.media.css }}
+  {{ transfer_ownership_form.media.css }}
+  <style>
+    .select2-container .select2-selection--single {
+      height: 48px !important;
+      border-radius: 0.75rem !important;
+      border-color: #e2e8f0 !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 48px !important;
+      padding-left: 1rem !important;
+      color: #334155 !important;
+      font-size: 0.875rem !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 48px !important;
+    }
+    .select2-dropdown {
+      border-radius: 0.75rem !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #1e293b !important;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Managers" %}</h1>
+  </div>
+
+  <div class="max-w-xl space-y-6">
+
+    {# ── Current managers ─────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100">
+        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">{% trans "Team" %}</p>
+      </div>
+
+      <ul class="divide-y divide-slate-100">
+        {# Owner #}
+        <li class="flex items-center gap-3 px-4 py-3">
+          <img src="{{ location.creator.avatar_url }}" alt="{{ location.creator.nickname }}"
+               class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+          <span class="flex-1 text-sm font-semibold text-slate-800 truncate">{{ location.creator.nickname }}</span>
+          <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3">
+              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+            </svg>
+            {% trans "Owner" %}
+          </span>
+        </li>
+
+        {# Managers #}
+        {% for manager in managers %}
+          <li class="flex items-center gap-3 px-4 py-3">
+            <img src="{{ manager.avatar_url }}" alt="{{ manager.nickname }}"
+                 class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+            <span class="flex-1 text-sm font-semibold text-slate-800 truncate">{{ manager.nickname }}</span>
+            {% if is_owner %}
+              <button type="button"
+                      data-remove-url="{% url 'location-remove-manager' location.slug manager.id %}"
+                      data-nickname="{{ manager.nickname }}"
+                      class="js-remove-manager flex-shrink-0 p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            {% else %}
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="px-4 py-5 text-sm text-slate-400 text-center">{% trans "No managers assigned yet." %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {# ── Add manager ──────────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "Add manager" %}</p>
+      <form method="post" action="{% url 'location-add-manager' location.slug %}" class="flex gap-2">
+        {% csrf_token %}
+        <div class="flex-1">{{ add_manager_form.manager }}</div>
+        <button type="submit"
+                class="flex-shrink-0 flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          {% trans "Add" %}
+        </button>
+      </form>
+    </div>
+
+    {# ── Transfer ownership (owner only) ──────────────────────────────── #}
+    {% if is_owner %}
+      <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">{% trans "Transfer ownership" %}</p>
+        <p class="text-xs text-amber-700 mb-3">{% trans "You will no longer be the owner of this location." %}</p>
+        <form method="post" action="{% url 'location-transfer-ownership' location.slug %}" id="transferOwnershipForm" class="space-y-3">
+          {% csrf_token %}
+          <div>{{ transfer_ownership_form.new_owner }}</div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="add_as_manager" id="id_add_as_manager"
+                   class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+            <span class="text-xs text-amber-800">{% trans "Add me as manager after transfer" %}</span>
+          </label>
+          <button type="button" id="js-transfer-btn"
+                  class="flex items-center gap-2 rounded-xl border border-amber-400 bg-white px-4 py-2.5 text-sm font-bold text-amber-700 hover:bg-amber-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+            {% trans "Transfer ownership" %}
+          </button>
+        </form>
+      </div>
+    {% endif %}
+
+  </div>
+
+  {# ── Remove manager confirm dialog ────────────────────────────────── #}
+  <div id="remove-manager-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="remove-manager-backdrop"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <p class="text-base font-bold text-slate-900 mb-1">{% trans "Remove manager?" %}</p>
+      <p class="text-sm text-slate-500 mb-5">{% trans "Are you sure you want to remove" %} <strong id="remove-manager-name"></strong>?</p>
+      <div class="flex gap-3">
+        <button type="button" id="remove-manager-cancel"
+                class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+          {% trans "Cancel" %}
+        </button>
+        <form method="post" id="remove-manager-form">
+          {% csrf_token %}
+          <button type="submit" class="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-600 transition-colors">
+            {% trans "Remove" %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {# ── Transfer ownership confirm dialog ────────────────────────────── #}
+  {% if is_owner %}
+    <div id="transfer-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="transfer-backdrop"></div>
+      <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <p class="text-base font-bold text-slate-900 mb-1">{% trans "Transfer ownership?" %}</p>
+        <p class="text-sm text-slate-500 mb-5">{% trans "You will no longer be the owner of this location. This action cannot be undone." %}</p>
+        <div class="flex gap-3">
+          <button type="button" id="transfer-cancel"
+                  class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+            {% trans "Cancel" %}
+          </button>
+          <button type="button" id="transfer-confirm"
+                  class="rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-600 transition-colors">
+            {% trans "Transfer" %}
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  {{ add_manager_form.media.js }}
+  {{ transfer_ownership_form.media.js }}
+  <script>
+    // Remove manager dialog
+    const rmDialog = document.getElementById('remove-manager-dialog');
+    const rmForm = document.getElementById('remove-manager-form');
+    const rmName = document.getElementById('remove-manager-name');
+    const rmCancel = document.getElementById('remove-manager-cancel');
+    const rmBackdrop = document.getElementById('remove-manager-backdrop');
+
+    document.querySelectorAll('.js-remove-manager').forEach(btn => {
+      btn.addEventListener('click', () => {
+        rmForm.action = btn.dataset.removeUrl;
+        rmName.textContent = btn.dataset.nickname;
+        rmDialog.classList.remove('hidden');
+      });
+    });
+    [rmCancel, rmBackdrop].forEach(el => el && el.addEventListener('click', () => rmDialog.classList.add('hidden')));
+
+    // Transfer ownership dialog
+    const trDialog = document.getElementById('transfer-dialog');
+    const trBtn = document.getElementById('js-transfer-btn');
+    const trCancel = document.getElementById('transfer-cancel');
+    const trConfirm = document.getElementById('transfer-confirm');
+    const trBackdrop = document.getElementById('transfer-backdrop');
+
+    if (trBtn) {
+      trBtn.addEventListener('click', () => trDialog.classList.remove('hidden'));
+      [trCancel, trBackdrop].forEach(el => el && el.addEventListener('click', () => trDialog.classList.add('hidden')));
+      trConfirm && trConfirm.addEventListener('click', () => document.getElementById('transferOwnershipForm').submit());
+    }
+  </script>
+{% endblock %}

@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -16,9 +17,11 @@ from django.views.generic import DetailView, CreateView
 
 from meta.views import Meta
 
-from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm
+from webapp.forms import LocationForm, LocationFormV2, AddLocationManagerForm, TransferOwnershipForm, MemberForm, MemberFormV2, ApproveMembershipForm, \
+    MembershipRequestForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower
+from webapp.middleware import get_v2_template
+from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -53,7 +56,7 @@ def index_view(request, template_name="locations/location_index.html"):
         )
     }
 
-    return render(request, template_name, context)
+    return render(request, get_v2_template(request, template_name), context)
 
 
 class LocationDetailView(DetailView):
@@ -61,6 +64,9 @@ class LocationDetailView(DetailView):
     template_name = 'locations/location_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
 
     def get_context_data(self, **kwargs):
         today = timezone.now().date()
@@ -72,9 +78,23 @@ class LocationDetailView(DetailView):
         is_manager = False
         followers_count = location.followers.count()
 
+        has_pending_membership = False
+        is_active_member = False
         if user_profile:
             is_following = LocationFollower.objects.filter(user_profile=user_profile, location=location).exists()
             is_manager = location.creator == user_profile or user_profile in location.managers.all()
+            if not is_manager:
+                has_pending_membership = Membership.objects.filter(
+                    member__location=location,
+                    member__user_profile=user_profile,
+                    status=Membership.PENDING,
+                ).exists()
+                if not has_pending_membership:
+                    is_active_member = Membership.objects.filter(
+                        member__location=location,
+                        member__user_profile=user_profile,
+                        status=Membership.ACTIVE,
+                    ).exists()
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -184,6 +204,8 @@ class LocationDetailView(DetailView):
         context['is_following'] = is_following
         context['is_manager'] = is_manager
         context['followers_count'] = followers_count
+        context['has_pending_membership'] = has_pending_membership
+        context['is_active_member'] = is_active_member
         context['meta'] = self.get_object().as_meta(self.request)
 
         return context
@@ -194,6 +216,12 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = LocationForm
     template_name = 'locations/location_add_or_edit.html'
     success_message = "Location was created successfully"
+
+    def get_form_class(self):
+        return LocationFormV2 if getattr(self.request, 'use_new_ui', False) else LocationForm
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
 
     def form_valid(self, form):
         form.instance.creator = self.request.user.user_profile
@@ -225,6 +253,12 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
             raise PermissionDenied("You don't have permission to edit this location.")
         return response
 
+    def get_form_class(self):
+        return LocationFormV2 if getattr(self.request, 'use_new_ui', False) else LocationForm
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
+
     def form_valid(self, form):
         location = form.save(commit=False)
         # Don't change the creator
@@ -241,6 +275,9 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
     template_name = 'locations/location_manage_index.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -271,6 +308,9 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
     template_name = 'locations/location_manage_managers.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -304,6 +344,14 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
     form_class = LocationForm
     template_name = 'locations/location_manage_data.html'
     success_message = "Location was updated successfully"
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
+
+    def get_form_class(self):
+        if getattr(self.request, 'use_new_ui', False):
+            return LocationFormV2
+        return LocationForm
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -459,3 +507,245 @@ class TransferOwnershipView(LoginRequiredMixin, View):
             messages.error(request, "User not found.")
 
         return redirect('location-detail', slug=location.slug)
+
+
+# ---- Member Management Views ----
+
+def _require_membership_enabled(location):
+    """Raise Http404 if membership is not enabled for this location."""
+    if not location.enable_membership:
+        raise Http404
+
+
+class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
+    """View to list and manage members of a location (accessible to owners and managers)"""
+    model = Location
+    template_name = 'locations/location_manage_members.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def get_template_names(self):
+        return [get_v2_template(self.request, self.template_name)]
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return response
+
+        location = self.get_object()
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        location = self.get_object()
+        members = location.members.prefetch_related('memberships').all()
+        context['members'] = members
+        context['is_owner'] = location.creator == self.request.user.user_profile
+        context['meta'] = Meta(
+            title=_("Members %(name)s - Boardgamers.com") % {'name': location.name},
+            description=_("Manage members of %(name)s location.") % {'name': location.name},
+        )
+        return context
+
+
+class MemberDetailEditView(LoginRequiredMixin, View):
+    """View to see and edit a member's details (GET+POST). Accessible to owners and managers."""
+
+    def _check_permission(self, request, location):
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+
+    def get(self, request, slug, member_id):
+        location = get_object_or_404(Location, slug=slug)
+        self._check_permission(request, location)
+        member = get_object_or_404(Member, id=member_id, location=location)
+        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        form = FormClass(instance=member)
+        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+            'location': location,
+            'member': member,
+            'form': form,
+            'meta': Meta(
+                title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
+            ),
+        })
+
+    def post(self, request, slug, member_id):
+        location = get_object_or_404(Location, slug=slug)
+        self._check_permission(request, location)
+        member = get_object_or_404(Member, id=member_id, location=location)
+        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        form = FormClass(request.POST, instance=member)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Member updated successfully."))
+            return redirect('location-manage-members', slug=location.slug)
+        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+            'location': location,
+            'member': member,
+            'form': form,
+            'meta': Meta(
+                title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
+            ),
+        })
+
+
+class AddMemberView(LoginRequiredMixin, View):
+    """View to manually add a member to a location (owner and managers)"""
+
+    def _check_permission(self, request, location):
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        self._check_permission(request, location)
+        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        form = FormClass()
+        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+            'location': location,
+            'member': None,
+            'form': form,
+            'is_new': True,
+            'meta': Meta(
+                title=_("Add Member - %(name)s") % {'name': location.name},
+            ),
+        })
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        self._check_permission(request, location)
+        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        form = FormClass(request.POST)
+        if form.is_valid():
+            member = form.save(commit=False)
+            member.location = location
+            member.save()
+            messages.success(request, _("Member %(name)s added successfully.") % {'name': member.full_name})
+            return redirect('location-manage-members', slug=location.slug)
+        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+            'location': location,
+            'member': None,
+            'form': form,
+            'is_new': True,
+            'meta': Meta(
+                title=_("Add Member - %(name)s") % {'name': location.name},
+            ),
+        })
+
+
+class ApproveMembershipView(LoginRequiredMixin, View):
+    """View to approve or reject a pending membership (owner and managers)"""
+
+    def post(self, request, slug, member_id):
+        location = get_object_or_404(Location, slug=slug)
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage memberships."))
+
+        member = get_object_or_404(Member, id=member_id, location=location)
+
+        action = request.POST.get('action')  # 'approve' or 'reject'
+
+        if action == 'reject':
+            # Reject the latest pending membership
+            pending = member.memberships.filter(status=Membership.PENDING).first()
+            if pending:
+                pending.status = Membership.REJECTED
+                pending.save()
+                messages.success(request, _("Membership for %(name)s rejected.") % {'name': member.full_name})
+            return redirect('location-manage-members', slug=location.slug)
+
+        if action == 'approve':
+            form = ApproveMembershipForm(request.POST)
+            if form.is_valid():
+                import datetime
+                pending = member.memberships.filter(status=Membership.PENDING).first()
+                if pending:
+                    pending.status = Membership.ACTIVE
+                    pending.start_date = form.cleaned_data['start_date']
+                    pending.end_date = form.cleaned_data['end_date']
+                    pending.notes = form.cleaned_data.get('notes', '')
+                    pending.approved_by = user_profile
+                    pending.save()
+                    messages.success(request, _("Membership for %(name)s approved.") % {'name': member.full_name})
+                return redirect('location-manage-members', slug=location.slug)
+
+        return redirect('location-manage-members', slug=location.slug)
+
+
+class RequestMembershipView(LoginRequiredMixin, View):
+    """View for a logged-in user to request a membership for a location."""
+
+    def _get_existing_membership(self, user_profile, location):
+        """Returns a blocking membership (PENDING or ACTIVE) if it exists."""
+        return Membership.objects.filter(
+            member__location=location,
+            member__user_profile=user_profile,
+            status__in=[Membership.PENDING, Membership.ACTIVE],
+        ).first()
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        if not location.enable_membership:
+            raise PermissionDenied(_("This location does not accept membership requests."))
+        user_profile = request.user.user_profile
+        if self._get_existing_membership(user_profile, location):
+            messages.warning(request, _("You already have a pending or active membership for this location."))
+            return redirect('location-detail', slug=location.slug)
+        form = MembershipRequestForm()
+        return render(request, get_v2_template(request, 'locations/location_request_membership.html'), {
+            'location': location,
+            'form': form,
+            'meta': Meta(
+                title=_("Request Membership - %(name)s") % {'name': location.name},
+            ),
+        })
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        if not location.enable_membership:
+            raise PermissionDenied(_("This location does not accept membership requests."))
+        form = MembershipRequestForm(request.POST)
+        user_profile = request.user.user_profile
+
+        if form.is_valid():
+            # Check if user already has a member record for this location
+            member, created = Member.objects.get_or_create(
+                location=location,
+                user_profile=user_profile,
+                defaults={
+                    'first_name': request.user.first_name or user_profile.nickname,
+                    'last_name': request.user.last_name or '',
+                    'email': request.user.email or '',
+                }
+            )
+
+            # Check if there's already a pending or active membership
+            if member.memberships.filter(status__in=[Membership.PENDING, Membership.ACTIVE]).exists():
+                messages.warning(request, _("You already have a pending or active membership for this location."))
+                return redirect('location-detail', slug=location.slug)
+
+            # Create pending membership
+            Membership.objects.create(
+                member=member,
+                status=Membership.PENDING,
+                notes=form.cleaned_data.get('notes', ''),
+            )
+            messages.success(request, _("Membership request sent. A manager will review it."))
+            return redirect('location-detail', slug=location.slug)
+
+        return render(request, get_v2_template(request, 'locations/location_request_membership.html'), {
+            'location': location,
+            'form': form,
+        })
