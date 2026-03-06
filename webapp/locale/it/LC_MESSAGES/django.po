@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 08:23+0000\n"
+"POT-Creation-Date: 2026-03-06 12:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -297,7 +297,6 @@ msgid "Notifications"
 msgstr "Notifiche"
 
 #: webapp/models.py:440
-#| msgid "Update profile"
 msgid "User Profile"
 msgstr "Profilo Utente"
 
@@ -306,7 +305,6 @@ msgid "First Name"
 msgstr "Nome"
 
 #: webapp/models.py:444
-#| msgid "Past tables"
 msgid "Last Name"
 msgstr "Cognome"
 
@@ -315,7 +313,6 @@ msgid "Member Code"
 msgstr "Codice Fiscale"
 
 #: webapp/models.py:446
-#| msgid "email"
 msgid "Email"
 msgstr "Email"
 
@@ -521,7 +518,6 @@ msgid "From"
 msgstr "Da"
 
 #: webapp/templates/accounts/account_memberships.html:54
-#| msgid "Not a member?"
 msgid "No active memberships."
 msgstr "Non ci sono membership attive."
 
@@ -538,7 +534,6 @@ msgid "Until"
 msgstr "Fino a"
 
 #: webapp/templates/accounts/account_memberships.html:85
-#| msgid "Not a member?"
 msgid "No past memberships."
 msgstr "Non ci sono membership scadute."
 
@@ -610,7 +605,6 @@ msgstr "Tavoli a cui hai partecipato"
 #: webapp/templates/staticpages/home.html:75
 #: webapp/templates/staticpages/home.html:95
 #: webapp/templates/tables/table_index.html:21
-#: webapp/templates/v2/tables/table_index.html:71
 msgid "No tables found."
 msgstr "Nessun tavolo trovato."
 
@@ -1003,12 +997,13 @@ msgstr "Prossimi tavoli"
 #: webapp/templates/tables/table_index.html:11
 #: webapp/templates/v2/staticpages/home.html:48
 #: webapp/templates/v2/tables/table_index.html:10
-#: webapp/templates/v2/tables/table_index.html:72
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
 #: webapp/templates/locations/location_detail.html:175
 #: webapp/templates/staticpages/home.html:85
+#: webapp/templates/v2/accounts/account_tables.html:43
+#: webapp/templates/v2/tables/table_index.html:32
 msgid "Past tables"
 msgstr "Tavoli passati"
 
@@ -1228,7 +1223,8 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"                    Richiedi una membership per %(name)s. Un manager esaminerà la tua richiesta.\n"
+"                    Richiedi una membership per %(name)s. Un manager "
+"esaminerà la tua richiesta.\n"
 "                    "
 
 #: webapp/templates/locations/location_request_membership.html:56
@@ -1707,6 +1703,10 @@ msgstr "Rimuovi gamer"
 msgid "joined"
 msgstr "partecipante"
 
+#: webapp/templates/v2/accounts/_account_table_card.html:24
+msgid "Created by you"
+msgstr "Creati da te"
+
 #: webapp/templates/v2/accounts/account_index.html:58
 msgid "Edit the information of the tables you organized"
 msgstr "Modifica le informazioni dei tavoli che hai organizzato"
@@ -1757,17 +1757,18 @@ msgstr "Preferenze"
 msgid "No notifications"
 msgstr "Nessuna notifica"
 
-#: webapp/templates/v2/accounts/account_tables.html:40
-msgid "Created by you"
-msgstr "Creati da te"
-
-#: webapp/templates/v2/accounts/account_tables.html:81
+#: webapp/templates/v2/accounts/account_tables.html:19
 msgid "No tables yet"
 msgstr "Ancora nessun tavolo."
 
-#: webapp/templates/v2/accounts/account_tables.html:82
+#: webapp/templates/v2/accounts/account_tables.html:20
 msgid "Join or create a table to get started."
 msgstr "Unisciti o crea un tavolo per iniziare."
+
+#: webapp/templates/v2/accounts/account_tables.html:36
+#: webapp/templates/v2/tables/table_index.html:25
+msgid "No upcoming tables."
+msgstr "Non ci sono nuovi tavoli."
 
 #: webapp/templates/v2/auth/login.html:11
 #: webapp/templates/v2/staticpages/home.html:41
@@ -1833,7 +1834,8 @@ msgstr "Password aggiornata!"
 
 #: webapp/templates/v2/auth/password_reset_complete.html:17
 msgid "Your password has been set. You can now sign in with your new password."
-msgstr "La tua password è stata impostata. Puoi ora accedere con la nuova password."
+msgstr ""
+"La tua password è stata impostata. Puoi ora accedere con la nuova password."
 
 #: webapp/templates/v2/auth/password_reset_confirm.html:15
 #: webapp/templates/v2/auth/password_reset_confirm.html:53
@@ -2157,7 +2159,8 @@ msgstr "Ancora nessun socio."
 
 #: webapp/templates/v2/locations/location_manage_members.html:115
 msgid "Add the first member manually or wait for membership requests."
-msgstr "Aggiungi il primo associato manualmente o attendi le richieste di membership."
+msgstr ""
+"Aggiungi il primo associato manualmente o attendi le richieste di membership."
 
 #: webapp/templates/v2/locations/location_manage_members.html:129
 msgid "Approve membership"
@@ -2178,7 +2181,8 @@ msgstr "Data di fine"
 #: webapp/templates/v2/locations/location_request_membership.html:17
 #, python-format
 msgid "Request a membership for %(name)s. A manager will review your request."
-msgstr "Richiedi una membership per %(name)s. Un manager esaminerà la tua richiesta."
+msgstr ""
+"Richiedi una membership per %(name)s. Un manager esaminerà la tua richiesta."
 
 #: webapp/templates/v2/locations/location_request_membership.html:42
 msgid "Back to location"
@@ -2240,9 +2244,9 @@ msgid ""
 "will always be completely free to use. We believe access to great tools "
 "shouldn't depend on your budget."
 msgstr ""
-"Nessun abbonamento, nessun costo nascosto, nessuna trappola freemium. "
-"Board-Gamers.com è e sarà sempre completamente gratuito. Crediamo che "
-"l'accesso a ottimi strumenti non debba dipendere dal budget."
+"Nessun abbonamento, nessun costo nascosto, nessuna trappola freemium. Board-"
+"Gamers.com è e sarà sempre completamente gratuito. Crediamo che l'accesso a "
+"ottimi strumenti non debba dipendere dal budget."
 
 #: webapp/templates/v2/staticpages/about.html:53
 msgid "Open source & community-driven"
@@ -2289,8 +2293,8 @@ msgid ""
 "join requests and approvals — all in one place."
 msgstr ""
 "Gestisci l'anagrafica dei tuoi associati, monitora le scadenze delle "
-"membership, gestisci le richieste di iscrizione e le approvazioni — tutto "
-"in un unico posto."
+"membership, gestisci le richieste di iscrizione e le approvazioni — tutto in "
+"un unico posto."
 
 #: webapp/templates/v2/staticpages/about.html:110
 msgid "Rankings"
@@ -2345,7 +2349,9 @@ msgstr "Pronto a iniziare?"
 
 #: webapp/templates/v2/staticpages/about.html:156
 msgid "Create your free account in 2 minutes. No credit card, no commitments."
-msgstr "Crea il tuo account gratuito in 2 minuti. Nessuna carta di credito, nessun impegno."
+msgstr ""
+"Crea il tuo account gratuito in 2 minuti. Nessuna carta di credito, nessun "
+"impegno."
 
 #: webapp/templates/v2/staticpages/about.html:164
 msgid "Have questions? Talk to us"
@@ -2494,29 +2500,29 @@ msgstr "Cancella"
 msgid "Remove player?"
 msgstr "Rimuovi giocatore?"
 
-#: webapp/views/account_views.py:21
+#: webapp/views/account_views.py:22
 msgid "My Account - Board-Gamers.com"
 msgstr "Il Mio Account - Board-Gamers.com"
 
-#: webapp/views/account_views.py:22
+#: webapp/views/account_views.py:23
 msgid "Manage your profile: view your activities, notifications and settings."
 msgstr ""
 "Gestisci il tuo profilo: visualizza le tue attività, notifiche e "
 "impostazioni."
 
-#: webapp/views/account_views.py:36
+#: webapp/views/account_views.py:37
 msgid "Edit Profile - Board-Gamers.com"
 msgstr "Modifica Profilo - Board-Gamers.com"
 
-#: webapp/views/account_views.py:37
+#: webapp/views/account_views.py:38
 msgid "Edit your profile: update photo, bio and game preferences."
 msgstr "Modifica il tuo profilo: aggiorna foto, bio e preferenze di gioco."
 
-#: webapp/views/account_views.py:58
+#: webapp/views/account_views.py:59
 msgid "My Locations - Board-Gamers.com"
 msgstr "Le Mie Locations - Board-Gamers.com"
 
-#: webapp/views/account_views.py:59
+#: webapp/views/account_views.py:60
 msgid ""
 "Manage your locations: create new locations, edit data and manage your game "
 "tables."
@@ -2524,11 +2530,11 @@ msgstr ""
 "Gestisci le tue locations: crea nuove locations, modifica i dati e gestisci "
 "i tuoi tavoli di gioco."
 
-#: webapp/views/account_views.py:85
+#: webapp/views/account_views.py:89
 msgid "My Tables - Board-Gamers.com"
 msgstr "I Miei Tavoli - Board-Gamers.com"
 
-#: webapp/views/account_views.py:86
+#: webapp/views/account_views.py:90
 msgid ""
 "Manage your game tables: create new games, edit existing tables and view "
 "your statistics."
@@ -2536,11 +2542,11 @@ msgstr ""
 "Gestisci i tuoi tavoli di gioco: crea nuove partite, modifica i tavoli "
 "esistenti e visualizza le tue statistiche."
 
-#: webapp/views/account_views.py:105
+#: webapp/views/account_views.py:109
 msgid "Notifications - Board-Gamers.com"
 msgstr "Notifiche - Board-Gamers.com"
 
-#: webapp/views/account_views.py:106
+#: webapp/views/account_views.py:110
 msgid ""
 "View your notifications: new tables, comments, invitations and community "
 "updates."
@@ -2548,23 +2554,23 @@ msgstr ""
 "Visualizza le tue notifiche: nuovi tavoli, commenti, inviti e aggiornamenti "
 "della community."
 
-#: webapp/views/account_views.py:129
+#: webapp/views/account_views.py:133
 msgid "My Memberships - Board-Gamers.com"
 msgstr "Le Mie Iscrizioni - Board-Gamers.com"
 
-#: webapp/views/account_views.py:130
+#: webapp/views/account_views.py:134
 msgid "View your active and past memberships."
 msgstr "Visualizza le tue membership attive e passate."
 
-#: webapp/views/account_views.py:142
+#: webapp/views/account_views.py:146
 msgid "Notification preferences updated"
 msgstr "Preferenze di notifica aggiornate"
 
-#: webapp/views/account_views.py:150
+#: webapp/views/account_views.py:154
 msgid "Notification Preferences - Board-Gamers.com"
 msgstr "Preferenze di Notifica - Board-Gamers.com"
 
-#: webapp/views/account_views.py:151
+#: webapp/views/account_views.py:155
 msgid ""
 "Configure your notification preferences: choose which updates to receive and "
 "how."
@@ -2683,13 +2689,11 @@ msgstr "Membership per %(name)s rifiutata."
 msgid "Membership for %(name)s approved."
 msgstr "Membership per %(name)s approvata."
 
-#: webapp/views/location_views.py:701
-#: webapp/views/location_views.py:718
+#: webapp/views/location_views.py:701 webapp/views/location_views.py:718
 msgid "This location does not accept membership requests."
 msgstr "Questa location non accetta richieste di membership."
 
-#: webapp/views/location_views.py:704
-#: webapp/views/location_views.py:736
+#: webapp/views/location_views.py:704 webapp/views/location_views.py:736
 msgid "You already have a pending or active membership for this location."
 msgstr "Hai già una membership in attesa o attiva per questa location."
 
@@ -2762,42 +2766,42 @@ msgid ""
 "forever, open source, member management, tables, rankings and more."
 msgstr ""
 
-#: webapp/views/table_views.py:89
+#: webapp/views/table_views.py:88
 msgid "Game Tables - Board-Gamers.com"
 msgstr "Tavoli di Gioco - Board-Gamers.com"
 
-#: webapp/views/table_views.py:90
+#: webapp/views/table_views.py:89
 msgid "Discover all available game tables and join the game!"
 msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 
-#: webapp/views/table_views.py:230
+#: webapp/views/table_views.py:229
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-#: webapp/views/table_views.py:235
+#: webapp/views/table_views.py:234
 msgid "Cannot add players to a closed table."
 msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."
 
-#: webapp/views/table_views.py:250
+#: webapp/views/table_views.py:249
 msgid "The table is full."
 msgstr "Tavolo completo"
 
-#: webapp/views/table_views.py:265
+#: webapp/views/table_views.py:264
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
-#: webapp/views/table_views.py:277
+#: webapp/views/table_views.py:276
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
 
-#: webapp/views/table_views.py:282
+#: webapp/views/table_views.py:281
 msgid "You can remove players only from tables that are open or ongoing."
 msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
 
-#: webapp/views/table_views.py:323
+#: webapp/views/table_views.py:322
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
 
-#: webapp/views/table_views.py:354
+#: webapp/views/table_views.py:353
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"

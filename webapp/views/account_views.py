@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
@@ -68,19 +69,22 @@ def tables(request, template_name='accounts/account_tables.html'):
     created_tables = user_profile.created_tables.all()
     joined_tables = user_profile.joined_tables.all()
 
-    all_tables = (
+    today = timezone.now().date()
+    base_qs = (
         Table.objects
         .filter(Q(author=user_profile) | Q(players=user_profile))
         .select_related('author', 'location', 'game')
         .distinct()
-        .order_by('-date', '-time')
     )
+    future_tables = base_qs.filter(date__gte=today).order_by('date', 'time')
+    past_tables = base_qs.filter(date__lt=today).order_by('-date', '-time')
 
     return render(request, get_v2_template(request, template_name), {
         'user': user,
         'created_tables': created_tables,
         'joined_tables': joined_tables,
-        'all_tables': all_tables,
+        'future_tables': future_tables,
+        'past_tables': past_tables,
         'meta': Meta(
             title=_("My Tables - Board-Gamers.com"),
             description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),

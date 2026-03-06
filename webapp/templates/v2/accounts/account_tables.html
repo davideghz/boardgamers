@@ -11,69 +11,7 @@
     <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Tables" %}</h1>
   </div>
 
-  {% if all_tables %}
-    <div class="space-y-2">
-      {% for table in all_tables %}
-
-        <a href="{% url 'table-detail' slug=table.slug %}"
-           class="group flex items-stretch rounded-xl border border-slate-200 bg-white overflow-hidden hover:shadow-md hover:border-slate-300 transition-all text-decoration-none">
-
-          {# Game cover 16:9 #}
-          <div class="flex-shrink-0 aspect-video w-28 sm:w-36 bg-slate-100"
-               style="background-image: url('{{ table.cover_url }}'); background-size: cover; background-position: center;"></div>
-
-          {# Content wrapper #}
-          <div class="flex flex-1 items-center gap-3 px-4 py-3 min-w-0">
-
-          {# Date badge #}
-          <div class="flex-shrink-0 flex flex-col items-center justify-center bg-slate-100 rounded-lg w-10 h-10">
-            <span class="text-[9px] font-bold text-slate-400 uppercase leading-none">{{ table.date|date:"M" }}</span>
-            <span class="text-base font-extrabold text-slate-900 leading-tight">{{ table.date|date:"j" }}</span>
-          </div>
-
-          {# Main info #}
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1.5">
-              {% if table.author == user.user_profile %}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                     class="w-3.5 h-3.5 flex-shrink-0 text-blue-500"
-                     title="{% trans 'Created by you' %}">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                </svg>
-              {% endif %}
-              <p class="text-sm font-bold text-slate-900 truncate">{{ table.title }}</p>
-            </div>
-            <div class="flex items-center gap-2.5 mt-0.5">
-              {% if table.game %}
-                <span class="text-xs text-blue-600 font-semibold truncate max-w-[120px]">{{ table.game }}</span>
-              {% endif %}
-              {% if table.location %}
-                <span class="flex items-center gap-0.5 text-xs text-slate-400 truncate">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                  {{ table.location.name }}
-                </span>
-              {% endif %}
-            </div>
-          </div>
-
-          {# Time + status #}
-          <div class="flex-shrink-0 flex flex-col items-end gap-1">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
-              {% if table.status == 'open' %}bg-green-100 text-green-700
-              {% elif table.status == 'ongoing' %}bg-blue-100 text-blue-700
-              {% else %}bg-slate-100 text-slate-500{% endif %}">
-              {{ table.get_status_display }}
-            </span>
-            <span class="text-xs text-slate-400">{{ table.time|time:"H:i" }}</span>
-          </div>
-
-          </div>{# /content wrapper #}
-        </a>
-
-      {% endfor %}
-    </div>
-
-  {% else %}
+  {% if not future_tables and not past_tables %}
     <div class="flex flex-col items-center justify-center py-16 text-center">
       <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
@@ -81,6 +19,36 @@
       <p class="text-sm font-semibold text-slate-700">{% trans "No tables yet" %}</p>
       <p class="text-xs text-slate-400 mt-1">{% trans "Join or create a table to get started." %}</p>
     </div>
+  {% else %}
+
+    {# ── Future tables ───────────────────────────────────────────────── #}
+    {% if future_tables %}
+      <div class="space-y-2 mb-10">
+        {% for table in future_tables %}
+          {% include "v2/accounts/_account_table_card.html" %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="flex flex-col items-center justify-center py-12 text-center mb-10">
+        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+        </div>
+        <p class="text-sm font-semibold text-slate-700">{% trans "No upcoming tables." %}</p>
+      </div>
+    {% endif %}
+
+    {# ── Past tables ─────────────────────────────────────────────────── #}
+    {% if past_tables %}
+      <div class="mb-4">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wide">{% trans "Past tables" %}</h2>
+      </div>
+      <div class="space-y-2 opacity-70">
+        {% for table in past_tables %}
+          {% include "v2/accounts/_account_table_card.html" %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
   {% endif %}
 
 </div>
