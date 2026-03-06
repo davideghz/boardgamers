@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-16 19:28+0000\n"
+"POT-Creation-Date: 2026-03-06 08:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,51 +18,85 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: webapp/forms.py:141
+#: webapp/forms.py:175 webapp/forms.py:216
+#: webapp/templates/v2/base_webapp.html:118
+#: webapp/templates/v2/base_webapp.html:122
+#: webapp/templates/v2/base_webapp.html:296
+#: webapp/templates/v2/games/game_detail.html:11
 msgid "Games"
 msgstr "Giochi"
 
-#: webapp/forms.py:147 webapp/models.py:258
+#: webapp/forms.py:179 webapp/forms.py:222 webapp/models.py:259
+#: webapp/templates/v2/tables/table_add_or_edit.html:142
 msgid "Game"
 msgstr "Gioco"
 
-#: webapp/forms.py:181
+#: webapp/forms.py:256
 msgid "Your comment..."
 msgstr "Il tuo commento..."
 
-#: webapp/forms.py:235
+#: webapp/forms.py:310
 msgid "Email already registered."
 msgstr "Email già registrata."
 
-#: webapp/forms.py:241
+#: webapp/forms.py:316
 msgid "Insert nickname"
 msgstr "Inserisci un nickname"
 
-#: webapp/forms.py:243
+#: webapp/forms.py:318
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
 
-#: webapp/forms.py:379 webapp/templates/accounts/account_locations.html:85
+#: webapp/forms.py:481 webapp/templates/accounts/account_locations.html:85
+#: webapp/templates/v2/accounts/account_locations.html:54
+#: webapp/templates/v2/locations/location_manage_managers.html:83
 msgid "Manager"
 msgstr "Manager"
 
-#: webapp/forms.py:383 webapp/forms.py:398 webapp/forms.py:418
+#: webapp/forms.py:485 webapp/forms.py:500 webapp/forms.py:520
+#: webapp/forms.py:536 webapp/forms.py:557
 msgid "Search by username..."
 msgstr "Cerca per username..."
 
-#: webapp/forms.py:394
+#: webapp/forms.py:496
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
-#: webapp/forms.py:405
+#: webapp/forms.py:507
 #: webapp/templates/locations/location_manage_managers.html:137
-#: webapp/templates/locations/location_managers.html:131
+#: webapp/templates/v2/locations/location_manage_managers.html:119
 msgid "Add me as manager after transfer"
 msgstr "Aggiungimi come manager dopo il trasferimento di owner"
 
-#: webapp/forms.py:414 webapp/templates/locations/location_detail.html:286
+#: webapp/forms.py:516 webapp/templates/locations/location_detail.html:306
 msgid "Gamer"
 msgstr "Gamer"
+
+#: webapp/forms.py:532 webapp/forms.py:553
+msgid "Linked User Profile"
+msgstr ""
+
+#: webapp/forms.py:573 webapp/forms.py:590 webapp/models.py:497
+#: webapp/templates/locations/location_manage_members.html:129
+#: webapp/templates/v2/locations/location_manage_members.html:146
+msgid "Notes"
+msgstr ""
+
+#: webapp/forms.py:574
+msgid "Optional message to the manager..."
+msgstr ""
+
+#: webapp/forms.py:581 webapp/models.py:491
+#: webapp/templates/locations/location_manage_members.html:121
+msgid "Start Date"
+msgstr ""
+
+#: webapp/forms.py:585 webapp/models.py:492
+#: webapp/templates/locations/location_manage_members.html:125
+#, fuzzy
+#| msgid "Date"
+msgid "End Date"
+msgstr "Data"
 
 #: webapp/messages.py:3
 msgid "Email verification"
@@ -100,154 +134,260 @@ msgstr "Messaggio inviato con successo!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore nel form. Controlla i dati inseriti."
 
-#: webapp/models.py:88 webapp/models.py:131
+#: webapp/models.py:88 webapp/models.py:132
+#, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
 
-#: webapp/models.py:134 webapp/views/location_views.py:263
-#: webapp/views/location_views.py:334
+#: webapp/models.py:135 webapp/views/location_views.py:300
+#: webapp/views/location_views.py:382
+#, python-format
 msgid "Game nights in %(address)s"
 msgstr "Serate di gioco a %(address)s"
 
-#: webapp/models.py:187
+#: webapp/models.py:188
+#, python-format
 msgid "%(nickname)s - Board-Gamers.com"
 msgstr "%(nickname)s - Board-Gamers.com"
 
-#: webapp/models.py:190
+#: webapp/models.py:191
+#, python-format
 msgid "Profile of %(nickname)s on Board-Gamers.com"
 msgstr "Profilo di %(nickname)s su Board-Gamers.com"
 
-#: webapp/models.py:225
+#: webapp/models.py:226
 msgid "Open"
 msgstr "Aperto"
 
-#: webapp/models.py:226
+#: webapp/models.py:227
 msgid "On Going"
 msgstr "In corso"
 
-#: webapp/models.py:227
+#: webapp/models.py:228 webapp/templates/v2/tables/table_players.html:54
 msgid "Closed"
 msgstr "Chiuso"
 
-#: webapp/models.py:234
+#: webapp/models.py:235
 msgid "Not Editable"
 msgstr "Non modificabile"
 
-#: webapp/models.py:235
+#: webapp/models.py:236
 msgid "Editable"
 msgstr "Modificabile"
 
-#: webapp/models.py:239
+#: webapp/models.py:240
 msgid "Title"
 msgstr "Titolo"
 
-#: webapp/models.py:244
+#: webapp/models.py:245 webapp/templates/v2/tables/table_detail.html:44
 msgid "Description"
 msgstr "Descrizione"
 
-#: webapp/models.py:246
+#: webapp/models.py:247 webapp/models.py:435
+#: webapp/templates/v2/tables/table_add_or_edit.html:103
+#: webapp/templates/v2/tables/table_detail.html:85
 msgid "Location"
 msgstr "Location"
 
-#: webapp/models.py:248
+#: webapp/models.py:249
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
-#: webapp/models.py:249
+#: webapp/models.py:250
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
-#: webapp/models.py:250 webapp/templates/tables/table_detail.html:137
+#: webapp/models.py:251 webapp/templates/tables/table_detail.html:137
+#: webapp/templates/v2/tables/table_players.html:111
 msgid "External players"
 msgstr "Giocatori Esterni"
 
-#: webapp/models.py:251
+#: webapp/models.py:252 webapp/templates/v2/tables/table_detail.html:55
 msgid "Date"
 msgstr "Data"
 
-#: webapp/models.py:252
+#: webapp/models.py:253
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:312
+#: webapp/models.py:313
+#, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
 msgstr "%(game)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:317
+#: webapp/models.py:318
+#, python-format
 msgid "%(title)s - %(date)s - Board-Gamers.com"
 msgstr "%(title)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:324
+#: webapp/models.py:325
+#, python-format
 msgid ""
 "Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
 "Unisciti al tavolo di %(game)s! Giocheremo il %(date)s alle %(time)s presso "
 "%(location)s"
 
-#: webapp/models.py:331
+#: webapp/models.py:332
+#, python-format
 msgid "Join the table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
 "Unisciti al tavolo! Giocheremo il %(date)s alle %(time)s presso %(location)s"
 
-#: webapp/models.py:360
+#: webapp/models.py:361
 msgid "User Comment"
 msgstr "Commento Utente"
 
-#: webapp/models.py:361
+#: webapp/models.py:362
 msgid "System Comment"
 msgstr "Commento di Sistema"
 
-#: webapp/models.py:386
+#: webapp/models.py:387
 msgid "Location Follower"
 msgstr "Follower Location"
 
-#: webapp/models.py:387
+#: webapp/models.py:388
 msgid "Location Followers"
 msgstr "Follower Location"
 
-#: webapp/models.py:394
+#: webapp/models.py:395
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:395
+#: webapp/models.py:396
 msgid "New player joined"
 msgstr "Nuovo gamer al tavolo"
 
-#: webapp/models.py:396
+#: webapp/models.py:397
 msgid "Leaderboard is now editable"
 msgstr "Classifica modificabile"
 
-#: webapp/models.py:397
+#: webapp/models.py:398
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:398
+#: webapp/models.py:399
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:399 webapp/signals.py:158
+#: webapp/models.py:400 webapp/signals.py:158
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
-#: webapp/models.py:400
+#: webapp/models.py:401
 #: webapp/templates/emails/email_notification_deleted_table_html.html:6
 msgid "Table deleted"
 msgstr "Tavolo eliminato"
 
-#: webapp/models.py:401
+#: webapp/models.py:402
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:46
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:419
+#: webapp/models.py:420
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:420 webapp/templates/accounts/account_notifications.html:17
+#: webapp/models.py:421 webapp/templates/accounts/account_notifications.html:17
 #: webapp/templates/accounts/account_notifications.html:28
+#: webapp/templates/v2/accounts/account_notifications.html:11
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:9
+#: webapp/templates/v2/base_webapp.html:78
+#: webapp/templates/v2/base_webapp.html:82
+#: webapp/templates/v2/base_webapp.html:280
 msgid "Notifications"
 msgstr "Notifiche"
 
+#: webapp/models.py:440
+#| msgid "Update profile"
+msgid "User Profile"
+msgstr "Profilo Utente"
+
+#: webapp/models.py:443
+msgid "First Name"
+msgstr "Nome"
+
+#: webapp/models.py:444
+#| msgid "Past tables"
+msgid "Last Name"
+msgstr "Cognome"
+
+#: webapp/models.py:445
+msgid "Member Code"
+msgstr "Codice Fiscale"
+
+#: webapp/models.py:446
+#| msgid "email"
+msgid "Email"
+msgstr "Email"
+
+#: webapp/models.py:447
+msgid "Phone Number"
+msgstr ""
+
+#: webapp/models.py:450 webapp/models.py:489
+msgid "Member"
+msgstr ""
+
+#: webapp/models.py:451
+#: webapp/templates/locations/location_manage_index.html:67
+#: webapp/templates/locations/location_manage_member_detail.html:27
+#: webapp/templates/locations/location_manage_members.html:26
+#: webapp/templates/locations/location_manage_members.html:40
+#: webapp/templates/v2/locations/location_manage_index.html:57
+#: webapp/templates/v2/locations/location_manage_member_detail.html:40
+#: webapp/templates/v2/locations/location_manage_members.html:12
+msgid "Members"
+msgstr "Soci"
+
+#: webapp/models.py:481 webapp/templates/accounts/account_memberships.html:35
+#: webapp/templates/locations/location_manage_members.html:70
+#: webapp/templates/v2/accounts/account_memberships.html:26
+#: webapp/templates/v2/locations/location_manage_members.html:54
+msgid "Pending"
+msgstr "In attesa"
+
+#: webapp/models.py:482 webapp/templates/accounts/account_memberships.html:26
+#: webapp/templates/accounts/account_memberships.html:37
+#: webapp/templates/locations/location_manage_members.html:66
+#: webapp/templates/v2/accounts/account_memberships.html:15
+#: webapp/templates/v2/accounts/account_memberships.html:28
+#: webapp/templates/v2/locations/location_manage_members.html:50
+msgid "Active"
+msgstr "Attivo"
+
+#: webapp/models.py:483 webapp/templates/accounts/account_memberships.html:66
+#: webapp/templates/locations/location_manage_members.html:87
+#: webapp/templates/v2/accounts/account_memberships.html:75
+#: webapp/templates/v2/locations/location_manage_members.html:56
+msgid "Expired"
+msgstr "Scaduto"
+
+#: webapp/models.py:484 webapp/templates/accounts/account_memberships.html:68
+#: webapp/templates/locations/location_manage_members.html:89
+#: webapp/templates/v2/accounts/account_memberships.html:77
+#: webapp/templates/v2/locations/location_manage_members.html:58
+msgid "Rejected"
+msgstr "Rifiutato"
+
+#: webapp/models.py:495
+msgid "Status"
+msgstr "Status"
+
+#: webapp/models.py:501
+msgid "Approved By"
+msgstr "Approvato da"
+
+#: webapp/models.py:505
+msgid "Membership"
+msgstr "Membership"
+
+#: webapp/models.py:506 webapp/templates/accounts/account_memberships.html:13
+msgid "Memberships"
+msgstr "Memberships"
+
 #: webapp/signals.py:66
+#, python-format
 msgid "The table \"%(table_title)s\" has been deleted by the organizer"
 msgstr "Il tavolo \"%(table_title)s\" è stato eliminato dall'organizzatore"
 
@@ -256,6 +396,7 @@ msgid "Time to fill in the leaderboard!"
 msgstr "È tempo di compilare la classifica!"
 
 #: webapp/signals.py:126
+#, python-format
 msgid "The table “%(title)s” is now open for leaderboard entry."
 msgstr "Il tavolo %(title)s è pronto per l'inserimento della classifica."
 
@@ -264,6 +405,7 @@ msgid "Leaderboard locked"
 msgstr "Classifica chiusa"
 
 #: webapp/signals.py:140
+#, python-format
 msgid ""
 "The leaderboard for table “%(title)s” has been locked. Check your score!"
 msgstr ""
@@ -271,35 +413,45 @@ msgstr ""
 "punteggio!"
 
 #: webapp/signals.py:159
+#, python-format
 msgid "The table “%(title)s” has been closed."
 msgstr "Il tavolo %(title)s è stato chiuso."
 
 #: webapp/templates/accounts/account_edit_profile.html:28
 #: webapp/templates/accounts/account_index.html:24
+#: webapp/templates/v2/accounts/account_edit_profile.html:11
+#: webapp/templates/v2/accounts/account_index.html:33
+#: webapp/templates/v2/profiles/user_profile_detail.html:37
 msgid "Edit profile"
 msgstr "Modifica profilo"
 
 #: webapp/templates/accounts/account_edit_profile.html:62
+#: webapp/templates/v2/accounts/account_edit_profile.html:57
 msgid "Update profile"
 msgstr "Aggiorna profilo"
 
 #: webapp/templates/accounts/account_index.html:14
+#: webapp/templates/v2/accounts/account_index.html:20
 msgid "See public profile"
 msgstr "Vedi profilo pubblico"
 
 #: webapp/templates/accounts/account_index.html:26
+#: webapp/templates/v2/accounts/account_index.html:34
 msgid "Edit your personal and account information"
 msgstr "Modifica le informazioni personali e dell'account"
 
 #: webapp/templates/accounts/account_index.html:38
+#: webapp/templates/v2/accounts/account_index.html:45
 msgid "Manage locations"
 msgstr "Gestisci luoghi"
 
 #: webapp/templates/accounts/account_index.html:40
+#: webapp/templates/v2/accounts/account_index.html:46
 msgid "Edit the information of your locations and create new ones"
 msgstr "Modifica le informazioni dei tuoi luoghi e creane di nuovi"
 
 #: webapp/templates/accounts/account_index.html:52
+#: webapp/templates/v2/accounts/account_index.html:57
 msgid "Manage tables"
 msgstr "Gestisci tavoli"
 
@@ -308,18 +460,39 @@ msgid "Edit the information of the tables your organized"
 msgstr "Modifica le informazioni dei tavoli che hai organizzato"
 
 #: webapp/templates/accounts/account_index.html:66
+#: webapp/templates/accounts/account_memberships.html:24
+#: webapp/templates/v2/accounts/account_index.html:69
+#: webapp/templates/v2/accounts/account_memberships.html:10
+msgid "My memberships"
+msgstr ""
+
+#: webapp/templates/accounts/account_index.html:68
+#: webapp/templates/v2/accounts/account_index.html:70
+msgid "View your active and past memberships at locations"
+msgstr "Consulta le tue membership attive"
+
+#: webapp/templates/accounts/account_index.html:80
 #: webapp/templates/accounts/account_notifications_preferences.html:19
 #: webapp/templates/accounts/account_notifications_preferences.html:30
 msgid "Notifications Preferences"
 msgstr "Gestione notifiche"
 
-#: webapp/templates/accounts/account_index.html:68
+#: webapp/templates/accounts/account_index.html:82
+#: webapp/templates/v2/accounts/account_index.html:94
 msgid "Choose notification preferences and how you want to be contacted"
 msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
 
 #: webapp/templates/accounts/account_locations.html:28
+#: webapp/templates/v2/accounts/account_locations.html:11
+#: webapp/templates/v2/base_webapp.html:109
+#: webapp/templates/v2/base_webapp.html:113
+#: webapp/templates/v2/base_webapp.html:292
+#: webapp/templates/v2/locations/location_add_or_edit.html:9
+#: webapp/templates/v2/locations/location_index.html:8
+#: webapp/templates/v2/locations/location_index.html:40
+#: webapp/templates/v2/staticpages/home.html:108
 msgid "Locations"
-msgstr "Luoghi"
+msgstr "Locations"
 
 #: webapp/templates/accounts/account_locations.html:33
 msgid "My Locations"
@@ -327,7 +500,8 @@ msgstr "Mie Locations"
 
 #: webapp/templates/accounts/account_locations.html:50
 #: webapp/templates/locations/location_manage_managers.html:50
-#: webapp/templates/locations/location_managers.html:45
+#: webapp/templates/v2/accounts/account_locations.html:39
+#: webapp/templates/v2/locations/location_manage_managers.html:63
 msgid "Owner"
 msgstr "Owner"
 
@@ -343,9 +517,42 @@ msgstr "Locations Gestite"
 msgid "Add new location"
 msgstr "Aggiungi Location"
 
+#: webapp/templates/accounts/account_memberships.html:47
+#: webapp/templates/v2/accounts/account_memberships.html:38
+msgid "From"
+msgstr "Da"
+
+#: webapp/templates/accounts/account_memberships.html:54
+#| msgid "Not a member?"
+msgid "No active memberships."
+msgstr "Non ci sono membership attive."
+
+#: webapp/templates/accounts/account_memberships.html:57
+#: webapp/templates/v2/accounts/account_memberships.html:64
+#: webapp/templates/v2/locations/location_detail.html:61
+#: webapp/templates/v2/staticpages/home.html:66
+msgid "Past"
+msgstr "Vecchi"
+
+#: webapp/templates/accounts/account_memberships.html:78
+#: webapp/templates/v2/accounts/account_memberships.html:87
+msgid "Until"
+msgstr "Fino a"
+
+#: webapp/templates/accounts/account_memberships.html:85
+#| msgid "Not a member?"
+msgid "No past memberships."
+msgstr "Non ci sono membership scadute."
+
 #: webapp/templates/accounts/account_notifications.html:15
 #: webapp/templates/partials/top-menu.html:124
 #: webapp/templates/partials/top-menu.html:164
+#: webapp/templates/v2/accounts/account_locations.html:9
+#: webapp/templates/v2/accounts/account_memberships.html:8
+#: webapp/templates/v2/accounts/account_notifications.html:9
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:8
+#: webapp/templates/v2/accounts/account_tables.html:9
+#: webapp/templates/v2/locations/location_add_or_edit.html:8
 msgid "Account"
 msgstr "Account"
 
@@ -354,6 +561,7 @@ msgid "Table"
 msgstr "Tavolo"
 
 #: webapp/templates/accounts/account_notifications.html:81
+#: webapp/templates/v2/accounts/account_notifications.html:84
 msgid "You have no notifications at the moment."
 msgstr "Non ci sono notifiche al momento."
 
@@ -362,25 +570,34 @@ msgid "Email notifications"
 msgstr "Notifiche email"
 
 #: webapp/templates/accounts/account_notifications_preferences.html:36
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:12
 msgid "Enable or disable email notifications for the following activities."
 msgstr "Attiva o disattiva le notifiche email per le seguenti attività."
 
 #: webapp/templates/accounts/account_notifications_preferences.html:45
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:25
 msgid "A new table is created in a location you follow"
 msgstr "Un tavolo viene creato in una location che segui"
 
 #: webapp/templates/accounts/account_notifications_preferences.html:52
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:47
 msgid "A new comment is written in a table you're participating in"
 msgstr "Un nuovo commento viene scritto in un tavolo a cui partecipi"
 
 #: webapp/templates/accounts/account_notifications_preferences.html:78
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:70
 msgid "Save preferences"
 msgstr "Salva preferenze"
 
 #: webapp/templates/accounts/account_tables.html:28
-#: webapp/templates/locations/location_detail.html:287
+#: webapp/templates/locations/location_detail.html:307
 #: webapp/templates/partials/top-menu.html:125
 #: webapp/templates/partials/top-menu.html:170
+#: webapp/templates/v2/accounts/account_tables.html:11
+#: webapp/templates/v2/base_webapp.html:127
+#: webapp/templates/v2/base_webapp.html:131
+#: webapp/templates/v2/base_webapp.html:300
+#: webapp/templates/v2/staticpages/home.html:56
 msgid "Tables"
 msgstr "Tavoli"
 
@@ -390,11 +607,12 @@ msgstr "Tavoli a cui hai partecipato"
 
 #: webapp/templates/accounts/account_tables.html:34
 #: webapp/templates/accounts/account_tables.html:42
-#: webapp/templates/locations/location_detail.html:147
-#: webapp/templates/locations/location_detail.html:165
+#: webapp/templates/locations/location_detail.html:167
+#: webapp/templates/locations/location_detail.html:185
 #: webapp/templates/staticpages/home.html:75
 #: webapp/templates/staticpages/home.html:95
 #: webapp/templates/tables/table_index.html:21
+#: webapp/templates/v2/tables/table_index.html:71
 msgid "No tables found."
 msgstr "Nessun tavolo trovato."
 
@@ -402,29 +620,30 @@ msgstr "Nessun tavolo trovato."
 msgid "Created tables"
 msgstr "Tavoli creati"
 
-#: webapp/templates/auth/login.html:97
+#: webapp/templates/auth/login.html:98
 msgid "Or"
 msgstr "Oppure"
 
-#: webapp/templates/auth/login.html:114
+#: webapp/templates/auth/login.html:118
 msgid "Sign in with Google"
 msgstr "Accedi con Google"
 
-#: webapp/templates/auth/login.html:121
+#: webapp/templates/auth/login.html:125
 msgid "Forgot your password?"
 msgstr "Password dimenticata?"
 
-#: webapp/templates/auth/login.html:122
+#: webapp/templates/auth/login.html:126
 #: webapp/templates/auth/password_reset_form.html:19
+#: webapp/templates/v2/auth/password_reset_form.html:15
 msgid "Reset password"
 msgstr "Reimposta la password"
 
-#: webapp/templates/auth/login.html:125
+#: webapp/templates/auth/login.html:129
 #: webapp/templates/auth/password_reset_form.html:33
 msgid "Not a member?"
 msgstr "Non sei ancora iscritto?"
 
-#: webapp/templates/auth/login.html:126
+#: webapp/templates/auth/login.html:130
 #: webapp/templates/auth/password_reset_form.html:34
 msgid "Create an account"
 msgstr "Crea un account"
@@ -452,6 +671,9 @@ msgstr "Login"
 
 #: webapp/templates/auth/signup.html:24 webapp/templates/auth/signup.html:93
 #: webapp/templates/partials/top-menu.html:141
+#: webapp/templates/v2/base_webapp.html:194
+#: webapp/templates/v2/base_webapp.html:197
+#: webapp/templates/v2/base_webapp.html:337
 msgid "Signup"
 msgstr "Registrati"
 
@@ -603,6 +825,7 @@ msgstr ""
 
 #: webapp/templates/games/game_detail.html:48
 #: webapp/templates/games/game_list.html:55
+#: webapp/templates/v2/games/game_detail.html:34
 msgid "Played tables"
 msgstr "Tavoli giocati"
 
@@ -610,6 +833,7 @@ msgstr "Tavoli giocati"
 #: webapp/templates/games/game_list.html:58
 #: webapp/templates/tables/table_detail.html:118
 #: webapp/templates/tables/table_players.html:21
+#: webapp/templates/v2/games/game_detail.html:45
 msgid "Gamers"
 msgstr "Gamers"
 
@@ -618,6 +842,7 @@ msgid "Game List"
 msgstr "Lista dei Giochi"
 
 #: webapp/templates/games/game_list.html:39
+#: webapp/templates/v2/games/game_list.html:9
 msgid ""
 "Complete list of board games played on Board-Gamers.com. Find your next "
 "favorite game and start playing today!"
@@ -627,6 +852,7 @@ msgstr ""
 
 #: webapp/templates/locations/location_add_or_edit.html:22
 #: webapp/templates/tables/table_detail.html:204
+#: webapp/templates/v2/tables/table_detail.html:166
 msgid "Edit"
 msgstr "Modifica"
 
@@ -635,6 +861,7 @@ msgid "New"
 msgstr "Nuovo"
 
 #: webapp/templates/locations/location_add_or_edit.html:46
+#: webapp/templates/v2/locations/location_add_or_edit.html:12
 msgid "Edit location"
 msgstr "Modifica luogo"
 
@@ -686,80 +913,126 @@ msgstr ""
 #: webapp/templates/locations/location_add_or_edit.html:148
 #: webapp/templates/locations/location_manage_managers.html:167
 #: webapp/templates/locations/location_manage_managers.html:191
-#: webapp/templates/locations/location_managers.html:160
-#: webapp/templates/locations/location_managers.html:182
+#: webapp/templates/locations/location_manage_member_detail.html:73
+#: webapp/templates/locations/location_manage_members.html:134
 #: webapp/templates/tables/table_add_or_edit.html:172
 #: webapp/templates/tables/table_delete.html:13
 #: webapp/templates/tables/table_detail.html:515
 #: webapp/templates/tables/table_players.html:162
+#: webapp/templates/v2/accounts/account_edit_profile.html:52
+#: webapp/templates/v2/locations/location_add_or_edit.html:100
+#: webapp/templates/v2/locations/location_manage_data.html:98
+#: webapp/templates/v2/locations/location_manage_managers.html:143
+#: webapp/templates/v2/locations/location_manage_managers.html:165
+#: webapp/templates/v2/locations/location_manage_member_detail.html:69
+#: webapp/templates/v2/locations/location_manage_members.html:153
+#: webapp/templates/v2/tables/table_add_or_edit.html:175
+#: webapp/templates/v2/tables/table_delete.html:30
+#: webapp/templates/v2/tables/table_detail.html:417
+#: webapp/templates/v2/tables/table_players.html:159
 msgid "Cancel"
 msgstr "Annulla"
 
 #: webapp/templates/locations/location_add_or_edit.html:154
 #: webapp/templates/tables/table_add_or_edit.html:178
+#: webapp/templates/v2/tables/table_add_or_edit.html:181
 msgid "Publish"
 msgstr "Pubblica"
 
 #: webapp/templates/locations/location_detail.html:73
-#: webapp/templates/locations/location_detail.html:252
+#: webapp/templates/locations/location_detail.html:272
 #: webapp/templates/profiles/user_profile_detail.html:66
+#: webapp/templates/v2/games/game_list.html:31
+#: webapp/templates/v2/locations/location_detail.html:102
+#: webapp/templates/v2/locations/location_detail.html:166
+#: webapp/templates/v2/profiles/user_profile_detail.html:58
 msgid "tables"
 msgstr "tavoli"
 
 #: webapp/templates/locations/location_detail.html:82
+#: webapp/templates/v2/games/game_list.html:37
 msgid "gamers"
 msgstr "gamers"
 
 #: webapp/templates/locations/location_detail.html:96
-#: webapp/templates/locations/location_detail.html:331
+#: webapp/templates/locations/location_detail.html:351
+#: webapp/templates/v2/locations/location_detail.html:191
+#: webapp/templates/v2/locations/location_detail.html:307
 msgid "Create table here"
 msgstr "Crea un tavolo qui"
 
 #: webapp/templates/locations/location_detail.html:110
+#: webapp/templates/v2/locations/location_detail.html:200
+#: webapp/templates/v2/locations/location_manage_index.html:10
 msgid "Manage location"
 msgstr "Gestisci location"
 
-#: webapp/templates/locations/location_detail.html:118
-#: webapp/templates/locations/location_detail.html:127
+#: webapp/templates/locations/location_detail.html:121
+#: webapp/templates/v2/locations/location_detail.html:207
+msgid "My membership"
+msgstr ""
+
+#: webapp/templates/locations/location_detail.html:125
+msgid "Membership request pending"
+msgstr ""
+
+#: webapp/templates/locations/location_detail.html:129
+#: webapp/templates/v2/locations/location_detail.html:218
+msgid "Request membership"
+msgstr ""
+
+#: webapp/templates/locations/location_detail.html:138
+#: webapp/templates/locations/location_detail.html:147
+#: webapp/templates/v2/locations/location_detail.html:229
 msgid "Follow"
 msgstr "Segui"
 
-#: webapp/templates/locations/location_detail.html:118
+#: webapp/templates/locations/location_detail.html:138
 msgid "to be notified about new tables."
 msgstr "per ricevere notifiche sui nuovi tavoli."
 
-#: webapp/templates/locations/location_detail.html:125
+#: webapp/templates/locations/location_detail.html:145
+#: webapp/templates/v2/locations/location_detail.html:229
 msgid "Unfollow"
 msgstr "Non seguire più"
 
-#: webapp/templates/locations/location_detail.html:137
+#: webapp/templates/locations/location_detail.html:157
 msgid "Upcoming tables"
 msgstr "Prossimi tavoli"
 
-#: webapp/templates/locations/location_detail.html:138
+#: webapp/templates/locations/location_detail.html:158
 #: webapp/templates/staticpages/home.html:66
 #: webapp/templates/tables/table_index.html:11
+#: webapp/templates/v2/staticpages/home.html:48
+#: webapp/templates/v2/tables/table_index.html:10
+#: webapp/templates/v2/tables/table_index.html:72
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
-#: webapp/templates/locations/location_detail.html:155
+#: webapp/templates/locations/location_detail.html:175
 #: webapp/templates/staticpages/home.html:85
 msgid "Past tables"
 msgstr "Tavoli passati"
 
-#: webapp/templates/locations/location_detail.html:156
+#: webapp/templates/locations/location_detail.html:176
 msgid "Great games, greater memories. What’s your next move?"
 msgstr "Partite memorabili! Quale sarà la tua prossima mossa?"
 
-#: webapp/templates/locations/location_detail.html:173
+#: webapp/templates/locations/location_detail.html:193
+#: webapp/templates/v2/base_webapp.html:142
+#: webapp/templates/v2/base_webapp.html:146
+#: webapp/templates/v2/base_webapp.html:304
+#: webapp/templates/v2/base_webapp.html:364
+#: webapp/templates/v2/locations/location_detail.html:35
 msgid "About"
 msgstr "Informazioni"
 
-#: webapp/templates/locations/location_detail.html:237
+#: webapp/templates/locations/location_detail.html:257
+#: webapp/templates/v2/locations/location_detail.html:92
 msgid "Most played games"
 msgstr "Giochi più giocati"
 
-#: webapp/templates/locations/location_detail.html:238
+#: webapp/templates/locations/location_detail.html:258
 msgid ""
 "For each game, the player with the most wins is shown. In case of a tie, all "
 "top players are displayed."
@@ -767,27 +1040,29 @@ msgstr ""
 "Per ogni gioco è mostrato il giocatore con più vittorie. In caso di "
 "pareggio, sono mostrati tutti i giocatori con il numero massimo di vittorie."
 
-#: webapp/templates/locations/location_detail.html:264
+#: webapp/templates/locations/location_detail.html:284
+#: webapp/templates/v2/locations/location_detail.html:119
 msgid "No games played at this location."
 msgstr "Nessun gioco giocato in questa location."
 
-#: webapp/templates/locations/location_detail.html:279
+#: webapp/templates/locations/location_detail.html:299
 msgid "Gamers' stats"
 msgstr "Statistiche Gamers"
 
-#: webapp/templates/locations/location_detail.html:288
+#: webapp/templates/locations/location_detail.html:308
 msgid "1st place"
 msgstr "1° posto"
 
-#: webapp/templates/locations/location_detail.html:289
+#: webapp/templates/locations/location_detail.html:309
 msgid "2nd place"
 msgstr "2° posto"
 
-#: webapp/templates/locations/location_detail.html:290
+#: webapp/templates/locations/location_detail.html:310
 msgid "3rd place"
 msgstr "3° posto"
 
-#: webapp/templates/locations/location_detail.html:308
+#: webapp/templates/locations/location_detail.html:328
+#: webapp/templates/v2/locations/location_detail.html:177
 msgid "No players registered for this location"
 msgstr "Nessun giocatore registrato per questa location"
 
@@ -802,6 +1077,12 @@ msgstr "Seleziona una location per creare un tavolo."
 #: webapp/templates/locations/location_manage_data.html:21
 #: webapp/templates/locations/location_manage_index.html:19
 #: webapp/templates/locations/location_manage_managers.html:22
+#: webapp/templates/locations/location_manage_member_detail.html:22
+#: webapp/templates/locations/location_manage_members.html:22
+#: webapp/templates/v2/locations/location_manage_data.html:9
+#: webapp/templates/v2/locations/location_manage_managers.html:40
+#: webapp/templates/v2/locations/location_manage_member_detail.html:39
+#: webapp/templates/v2/locations/location_manage_members.html:10
 msgid "Manage"
 msgstr "Gestione"
 
@@ -821,45 +1102,46 @@ msgstr "Salva modifiche"
 msgid "Manage Location"
 msgstr "Gestisci Location"
 
-#: webapp/templates/locations/location_manage_index.html:41
+#: webapp/templates/locations/location_manage_index.html:40
 #: webapp/templates/locations/location_manage_managers.html:26
 #: webapp/templates/locations/location_manage_managers.html:72
-#: webapp/templates/locations/location_managers.html:21
-#: webapp/templates/locations/location_managers.html:67
+#: webapp/templates/v2/locations/location_manage_index.html:40
+#: webapp/templates/v2/locations/location_manage_managers.html:42
 msgid "Managers"
 msgstr "Managers"
 
-#: webapp/templates/locations/location_manage_index.html:43
+#: webapp/templates/locations/location_manage_index.html:42
 msgid "Update managers list"
 msgstr "Aggiorna lista managers"
 
-#: webapp/templates/locations/location_manage_index.html:55
+#: webapp/templates/locations/location_manage_index.html:53
 msgid "Location Info"
 msgstr "Info Location"
 
-#: webapp/templates/locations/location_manage_index.html:57
+#: webapp/templates/locations/location_manage_index.html:55
 msgid "Manage location info"
 msgstr "Gestisci informazioni location"
 
+#: webapp/templates/locations/location_manage_index.html:69
+#: webapp/templates/v2/locations/location_manage_index.html:58
+msgid "Manage members and memberships"
+msgstr ""
+
 #: webapp/templates/locations/location_manage_managers.html:45
-#: webapp/templates/locations/location_managers.html:40
 msgid "Location Managers"
 msgstr "Managers della Location"
 
 #: webapp/templates/locations/location_manage_managers.html:96
-#: webapp/templates/locations/location_managers.html:91
+#: webapp/templates/v2/locations/location_manage_managers.html:87
 msgid "No managers assigned yet."
 msgstr "Ancora nessun manager assegnato."
 
 #: webapp/templates/locations/location_manage_managers.html:105
 #: webapp/templates/locations/location_manage_managers.html:114
-#: webapp/templates/locations/location_managers.html:100
-#: webapp/templates/locations/location_managers.html:109
 msgid "Add Manager"
 msgstr "Aggiungi Manager"
 
 #: webapp/templates/locations/location_manage_managers.html:110
-#: webapp/templates/locations/location_managers.html:105
 #: webapp/templates/tables/table_players.html:83
 msgid "Search by username"
 msgstr "Cerca per username"
@@ -867,24 +1149,18 @@ msgstr "Cerca per username"
 #: webapp/templates/locations/location_manage_managers.html:125
 #: webapp/templates/locations/location_manage_managers.html:142
 #: webapp/templates/locations/location_manage_managers.html:194
-#: webapp/templates/locations/location_managers.html:119
-#: webapp/templates/locations/location_managers.html:136
-#: webapp/templates/locations/location_managers.html:185
 msgid "Transfer Ownership"
 msgstr "Trasferisci Ownership"
 
 #: webapp/templates/locations/location_manage_managers.html:131
-#: webapp/templates/locations/location_managers.html:125
 msgid "Select new owner"
 msgstr "Seleziona nuovo owner"
 
 #: webapp/templates/locations/location_manage_managers.html:159
-#: webapp/templates/locations/location_managers.html:152
 msgid "Confirm removal"
 msgstr "Conferma rimozione"
 
 #: webapp/templates/locations/location_manage_managers.html:163
-#: webapp/templates/locations/location_managers.html:156
 msgid ""
 "Are you sure you want to remove this manager? This action cannot be undone."
 msgstr ""
@@ -892,40 +1168,95 @@ msgstr ""
 "annullata."
 
 #: webapp/templates/locations/location_manage_managers.html:169
-#: webapp/templates/locations/location_managers.html:162
 msgid "Remove Manager"
 msgstr "Rimuovi Manager"
 
 #: webapp/templates/locations/location_manage_managers.html:183
-#: webapp/templates/locations/location_managers.html:175
 msgid "Confirm ownership transfer"
 msgstr "Conferma trasferimento ownership"
 
-#: webapp/templates/locations/location_managers.html:179
+#: webapp/templates/locations/location_manage_member_detail.html:31
+#: webapp/templates/locations/location_manage_member_detail.html:49
+#: webapp/templates/locations/location_manage_members.html:42
+msgid "Add Member"
+msgstr "Invita Utente"
+
+#: webapp/templates/locations/location_manage_member_detail.html:49
+msgid "Edit Member"
+msgstr "Modifica Membership"
+
+#: webapp/templates/locations/location_manage_member_detail.html:70
+#: webapp/templates/v2/locations/location_manage_managers.html:103
+#: webapp/templates/v2/tables/table_players.html:96
+msgid "Add"
+msgstr "Aggiungi"
+
+#: webapp/templates/locations/location_manage_member_detail.html:70
+#: webapp/templates/profiles/_avatar.html:62
+msgid "Save"
+msgstr "Salva"
+
+#: webapp/templates/locations/location_manage_members.html:91
+#: webapp/templates/v2/locations/location_manage_members.html:60
+msgid "No membership"
+msgstr "Nessuna membership"
+
+#: webapp/templates/locations/location_manage_members.html:100
+msgid "No members yet."
+msgstr "Ancora nessun socio."
+
+#: webapp/templates/locations/location_manage_members.html:115
+msgid "Approve Membership"
+msgstr "Approva Membership"
+
+#: webapp/templates/locations/location_manage_members.html:135
+#: webapp/templates/v2/locations/location_manage_members.html:157
+msgid "Approve"
+msgstr "Approva"
+
+#: webapp/templates/locations/location_request_membership.html:21
+#: webapp/templates/locations/location_request_membership.html:34
+#: webapp/templates/v2/locations/location_request_membership.html:11
+#: webapp/templates/v2/locations/location_request_membership.html:15
+msgid "Request Membership"
+msgstr "Richiedi Membership"
+
+#: webapp/templates/locations/location_request_membership.html:36
+#, python-format
 msgid ""
-"Are you sure you want to transfer ownership? You will no longer be the owner "
-"of this location."
+"\n"
+"                    Request a membership for %(name)s. A manager will review "
+"your request.\n"
+"                    "
 msgstr ""
-"Sei sicuro di voler trasferire l'ownership? Non sarai più l'owner di questa "
-"location."
+
+#: webapp/templates/locations/location_request_membership.html:56
+#: webapp/templates/v2/locations/location_request_membership.html:37
+msgid "Send Request"
+msgstr "Invia richiesta"
 
 #: webapp/templates/partials/alerts.html:8
+#: webapp/templates/v2/partials/alerts.html:8
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
 
 #: webapp/templates/partials/alerts.html:8
+#: webapp/templates/v2/partials/alerts.html:9
 msgid "Verify your email to join tables."
 msgstr "Verifica la tua email per unirti ai tavoli."
 
 #: webapp/templates/partials/alerts.html:11
+#: webapp/templates/v2/partials/alerts.html:12
 msgid "CLICK HERE"
 msgstr "CLICCA QUI"
 
 #: webapp/templates/partials/alerts.html:13
+#: webapp/templates/v2/partials/alerts.html:14
 msgid "to receive a new verification email."
 msgstr "per ricevere una nuova email di verifica."
 
 #: webapp/templates/partials/hero.html:111
+#: webapp/templates/v2/locations/location_detail.html:12
 msgid "All locations"
 msgstr "Tutte le locations"
 
@@ -943,6 +1274,9 @@ msgstr "Aggiungi la tua location"
 
 #: webapp/templates/partials/top-menu.html:72
 #: webapp/templates/partials/top-menu.html:158
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:24
+#: webapp/templates/v2/base_webapp.html:56
+#: webapp/templates/v2/base_webapp.html:262
 msgid "New table"
 msgstr "Nuovo tavolo"
 
@@ -958,11 +1292,8 @@ msgstr "modifica profilo"
 msgid "Upload new avatar"
 msgstr "Carica un nuovo avatar"
 
-#: webapp/templates/profiles/_avatar.html:62
-msgid "Save"
-msgstr "Salva"
-
 #: webapp/templates/profiles/user_profile_detail.html:70
+#: webapp/templates/v2/profiles/user_profile_detail.html:63
 msgid "victories"
 msgstr "vittorie"
 
@@ -971,30 +1302,39 @@ msgid "No tables available"
 msgstr "Nessun tavolo disponibile"
 
 #: webapp/templates/staticpages/contacts.html:10
+#: webapp/templates/v2/base_webapp.html:367
+#: webapp/templates/v2/staticpages/contacts.html:8
 msgid "Contacts"
 msgstr "Contatti"
 
 #: webapp/templates/staticpages/contacts.html:11
+#: webapp/templates/v2/staticpages/contacts.html:9
 msgid "We'd love to hear from you! Fill out this form to get in touch."
 msgstr "Ci piacerebbe sentirti! Compila questo form per contattarci."
 
 #: webapp/templates/staticpages/contacts.html:28
+#: webapp/templates/v2/staticpages/contacts.html:53
 msgid "Send message"
 msgstr "Invia messaggio"
 
 #: webapp/templates/staticpages/contacts.html:34
+#: webapp/templates/v2/auth/login.html:31
+#: webapp/templates/v2/staticpages/contacts.html:59
 msgid "or"
 msgstr "oppure"
 
 #: webapp/templates/staticpages/contacts.html:41
+#: webapp/templates/v2/staticpages/contacts.html:68
 msgid "Join us on Discord"
 msgstr "Unisciti a noi su Discord"
 
 #: webapp/templates/staticpages/home.html:32
+#: webapp/templates/v2/staticpages/home.html:12
 msgid "Hey!"
 msgstr "Hey!"
 
 #: webapp/templates/staticpages/home.html:33
+#: webapp/templates/v2/staticpages/home.html:13
 msgid ""
 "Do you know your way around code and want to contribute to Board-Gamers?"
 msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
@@ -1002,6 +1342,9 @@ msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
 #: webapp/templates/staticpages/home.html:34
 #: webapp/templates/staticpages/home.html:123
 #: webapp/templates/tables/table_add_or_edit.html:206
+#: webapp/templates/v2/staticpages/home.html:14
+#: webapp/templates/v2/tables/table_add_or_edit.html:147
+#: webapp/templates/v2/tables/table_add_or_edit.html:203
 msgid "Contact us"
 msgstr "Contattaci"
 
@@ -1022,6 +1365,7 @@ msgid "A proposito di Board-Gamers.com"
 msgstr "A proposito di Board-Gamers.com"
 
 #: webapp/templates/staticpages/home.html:117
+#: webapp/templates/v2/staticpages/home.html:173
 msgid ""
 "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of "
 "a group of board game enthusiasts."
@@ -1030,6 +1374,7 @@ msgstr ""
 "gruppo di appassionati di giochi da tavolo."
 
 #: webapp/templates/staticpages/home.html:120
+#: webapp/templates/v2/staticpages/home.html:176
 msgid ""
 "Our goal is to make it easier to meet up and play in person, supporting "
 "cultural associations and local game shops."
@@ -1051,10 +1396,12 @@ msgstr "Seleziona la tua lingua"
 
 #: webapp/templates/tables/table_add_or_edit.html:25
 #: webapp/templates/tables/table_add_or_edit.html:49
+#: webapp/templates/v2/tables/table_add_or_edit.html:77
 msgid "Edit table"
 msgstr "Modifica tavolo"
 
 #: webapp/templates/tables/table_add_or_edit.html:51
+#: webapp/templates/v2/tables/table_add_or_edit.html:79
 msgid "Create a new table"
 msgstr "Crea un nuovo tavolo"
 
@@ -1092,14 +1439,17 @@ msgid "How many players are invited to this table?"
 msgstr "Quanti giocatori sono invitati a questo tavolo?"
 
 #: webapp/templates/tables/table_add_or_edit.html:192
+#: webapp/templates/v2/tables/table_add_or_edit.html:192
 msgid "Danger Zone"
 msgstr "Zona Pericolosa"
 
 #: webapp/templates/tables/table_add_or_edit.html:202
+#: webapp/templates/v2/tables/table_add_or_edit.html:198
 msgid "Delete table"
 msgstr "Elimina tavolo"
 
 #: webapp/templates/tables/table_add_or_edit.html:205
+#: webapp/templates/v2/tables/table_add_or_edit.html:202
 msgid "This table is closed and cannot be deleted."
 msgstr "Questo tavolo è chiuso e non può essere eliminato."
 
@@ -1110,41 +1460,55 @@ msgstr "se vuoi comunque eliminare questo tavolo."
 #: webapp/templates/tables/table_delete.html:7
 #: webapp/templates/tables/table_detail.html:508
 #: webapp/templates/tables/table_players.html:155
+#: webapp/templates/v2/tables/table_delete.html:15
+#: webapp/templates/v2/tables/table_detail.html:412
 msgid "Confirm delete"
 msgstr "Conferma eliminazione"
 
 #: webapp/templates/tables/table_delete.html:8
+#: webapp/templates/v2/tables/table_delete.html:17
 msgid "Are you sure you want to delete"
 msgstr "Sei sicuro di voler eliminare"
 
 #: webapp/templates/tables/table_delete.html:12
+#: webapp/templates/v2/tables/table_delete.html:26
+#: webapp/templates/v2/tables/table_detail.html:423
 msgid "Delete"
 msgstr "Elimina"
 
 #: webapp/templates/tables/table_detail.html:49
 #: webapp/templates/tags/swiper_table_slide.html:26
 #: webapp/templates/tags/table_card.html:23
+#: webapp/templates/tags/v2_table_card.html:47
+#: webapp/templates/v2/tables/table_detail.html:87
 msgid "Private location"
 msgstr "Luogo privato"
 
 #: webapp/templates/tables/table_detail.html:58
+#: webapp/templates/v2/tables/table_detail.html:372
 msgid "Edit table info"
 msgstr "Modifica informazioni tavolo"
 
 #: webapp/templates/tables/table_detail.html:61
+#: webapp/templates/v2/tables/table_detail.html:377
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
 
 #: webapp/templates/tables/table_detail.html:80
+#: webapp/templates/v2/tables/table_detail.html:328
 msgid "Leave this Table"
 msgstr "Abbandona questo tavolo"
 
 #: webapp/templates/tables/table_detail.html:89
 #: webapp/templates/tables/table_players.html:94
+#: webapp/templates/v2/tables/table_detail.html:314
+#: webapp/templates/v2/tables/table_detail.html:338
+#: webapp/templates/v2/tables/table_players.html:105
 msgid "Table is full"
 msgstr "Tavolo completo"
 
 #: webapp/templates/tables/table_detail.html:90
+#: webapp/templates/v2/tables/table_detail.html:338
 msgid "Join this table"
 msgstr "Unisciti a questo tavolo"
 
@@ -1153,10 +1517,12 @@ msgid "This table has reached its maximum number of players"
 msgstr "Questo tavolo ha raggiunto il numero massimo di giocatori"
 
 #: webapp/templates/tables/table_detail.html:100
+#: webapp/templates/v2/tables/table_detail.html:345
 msgid "Login to join table"
 msgstr "Accedi per unirti al tavolo"
 
 #: webapp/templates/tables/table_detail.html:104
+#: webapp/templates/v2/tables/table_detail.html:351
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
 
@@ -1169,94 +1535,120 @@ msgstr ""
 "location all'ora e alla data stabilite."
 
 #: webapp/templates/tables/table_detail.html:132
+#: webapp/templates/v2/tables/table_players.html:80
 msgid "No players yet."
 msgstr "Ancora nessun giocatore."
 
 #: webapp/templates/tables/table_detail.html:141
+#: webapp/templates/v2/tables/table_detail.html:128
 msgid "external gamer"
 msgstr "gamer anonimo"
 
 #: webapp/templates/tables/table_detail.html:143
+#: webapp/templates/v2/tables/table_detail.html:128
 msgid "external gamers"
 msgstr "gamers anonimi"
 
 #: webapp/templates/tables/table_detail.html:151
 #: webapp/templates/tables/table_detail.html:157
+#: webapp/templates/v2/tables/table_detail.html:312
 msgid "available seats"
 msgstr "posti disponibili"
 
 #: webapp/templates/tables/table_detail.html:193
+#: webapp/templates/v2/tables/table_detail.html:153
 msgid "Leaderboard"
 msgstr "Classifica"
 
 #: webapp/templates/tables/table_detail.html:209
+#: webapp/templates/v2/tables/table_detail.html:172
 msgid "Not enabled for this game."
 msgstr "Non abilitata per questo gioco."
 
 #: webapp/templates/tables/table_detail.html:216
+#: webapp/templates/v2/tables/table_detail.html:183
 msgid "Create Leaderboard"
 msgstr "Crea Classifica"
 
 #: webapp/templates/tables/table_detail.html:219
+#: webapp/templates/v2/tables/table_detail.html:186
 msgid "Leaderboard not created yet."
 msgstr "Classifica non ancora creata."
 
 #: webapp/templates/tables/table_detail.html:224
+#: webapp/templates/v2/tables/table_detail.html:175
 msgid "Use the"
 msgstr "Usa l'icona"
 
 #: webapp/templates/tables/table_detail.html:225
+#: webapp/templates/v2/tables/table_detail.html:177
 msgid "to adjust the positions"
 msgstr "per modificare le posizioni"
 
 #: webapp/templates/tables/table_detail.html:242
+#: webapp/templates/v2/tables/table_detail.html:199
 msgid "NEW"
 msgstr "NUOVO"
 
 #: webapp/templates/tables/table_detail.html:255
 #: webapp/templates/tables/table_detail.html:312
+#: webapp/templates/v2/tables/table_detail.html:211
 msgid "Update Leaderboard"
 msgstr "Aggiorna Classifica"
 
 #: webapp/templates/tables/table_detail.html:350
+#: webapp/templates/v2/tables/table_detail.html:519
 msgid "Leaderboard Updated"
 msgstr "Classifica Aggiornata"
 
 #: webapp/templates/tables/table_detail.html:386
+#: webapp/templates/v2/tables/table_detail.html:219
 msgid "Comments"
 msgstr "Commenti"
 
 #: webapp/templates/tables/table_detail.html:395
+#: webapp/templates/v2/tables/table_detail.html:230
 msgid "Send comment"
 msgstr "Invia commento"
 
 #: webapp/templates/tables/table_detail.html:402
+#: webapp/templates/v2/tables/table_detail.html:236
 msgid "Only gamers that joined the table can comment on this page."
 msgstr ""
 "Solo i gamers che si sono uniti al tavolo possono commentare in questa "
 "pagina."
 
 #: webapp/templates/tables/table_detail.html:435
+#: webapp/templates/v2/tables/table_detail.html:246
+#, python-format
 msgid "%(nickname)s joined the table"
 msgstr "%(nickname)s si è unito al tavolo"
 
 #: webapp/templates/tables/table_detail.html:443
+#: webapp/templates/v2/tables/table_detail.html:247
+#, python-format
 msgid "%(nickname)s left the table"
 msgstr "%(nickname)s ha lasciato il tavolo"
 
 #: webapp/templates/tables/table_detail.html:451
+#: webapp/templates/v2/tables/table_detail.html:248
+#, python-format
 msgid "%(nickname)s added to the table"
 msgstr "%(nickname)s aggiunto al tavolo"
 
 #: webapp/templates/tables/table_detail.html:459
+#: webapp/templates/v2/tables/table_detail.html:249
+#, python-format
 msgid "%(nickname)s removed from the table"
 msgstr "%(nickname)s rimosso dal tavolo"
 
 #: webapp/templates/tables/table_detail.html:491
+#: webapp/templates/v2/tables/table_detail.html:274
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
 
 #: webapp/templates/tables/table_detail.html:512
+#: webapp/templates/v2/tables/table_detail.html:413
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
 
@@ -1269,6 +1661,7 @@ msgid "Let's play"
 msgstr "Giochiamo"
 
 #: webapp/templates/tables/table_index.html:10
+#: webapp/templates/v2/tables/table_index.html:9
 msgid "Upcoming Tables"
 msgstr "Prossimi Tavoli"
 
@@ -1312,29 +1705,984 @@ msgstr "Rimuovi gamer"
 msgid "joined"
 msgstr "partecipante"
 
-#: webapp/views/account_views.py:19
+#: webapp/templates/v2/accounts/account_index.html:58
+msgid "Edit the information of the tables you organized"
+msgstr "Modifica le informazioni dei tavoli che hai organizzato"
+
+#: webapp/templates/v2/accounts/account_index.html:81
+#: webapp/templates/v2/auth/password_change_form.html:15
+#: webapp/templates/v2/auth/password_change_form.html:58
+msgid "Change password"
+msgstr "Reimposta la password"
+
+#: webapp/templates/v2/accounts/account_index.html:82
+msgid "Update your login password"
+msgstr "Reimposta la tua password"
+
+#: webapp/templates/v2/accounts/account_index.html:93
+#: webapp/templates/v2/accounts/account_notifications_preferences.html:11
+msgid "Notification preferences"
+msgstr "Gestione notifiche"
+
+#: webapp/templates/v2/accounts/account_locations.html:16
+#: webapp/templates/v2/accounts/account_locations.html:71
+#: webapp/templates/v2/locations/location_index.html:79
+#: webapp/templates/v2/staticpages/home.html:161
+msgid "Add location"
+msgstr "Aggiungi Location"
+
+#: webapp/templates/v2/accounts/account_locations.html:66
+msgid "No locations yet"
+msgstr "Tutte le locations"
+
+#: webapp/templates/v2/accounts/account_locations.html:67
+msgid "Add your club, association or game shop."
+msgstr ""
+
+#: webapp/templates/v2/accounts/account_memberships.html:57
+#, fuzzy
+#| msgid "Not a member?"
+msgid "No active memberships"
+msgstr "Non sei ancora iscritto?"
+
+#: webapp/templates/v2/accounts/account_memberships.html:58
+msgid "Join a location to become a member."
+msgstr ""
+
+#: webapp/templates/v2/accounts/account_notifications.html:16
+#, fuzzy
+#| msgid "Save preferences"
+msgid "Preferences"
+msgstr "Salva preferenze"
+
+#: webapp/templates/v2/accounts/account_notifications.html:83
+#, fuzzy
+#| msgid "Notifications"
+msgid "No notifications"
+msgstr "Notifiche"
+
+#: webapp/templates/v2/accounts/account_tables.html:40
+#, fuzzy
+#| msgid "Create an account"
+msgid "Created by you"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/accounts/account_tables.html:81
+#, fuzzy
+#| msgid "No players yet."
+msgid "No tables yet"
+msgstr "Ancora nessun giocatore."
+
+#: webapp/templates/v2/accounts/account_tables.html:82
+msgid "Join or create a table to get started."
+msgstr ""
+
+#: webapp/templates/v2/auth/login.html:11
+#: webapp/templates/v2/staticpages/home.html:41
+msgid "Welcome back"
+msgstr ""
+
+#: webapp/templates/v2/auth/login.html:12
+msgid "Sign in to your account"
+msgstr ""
+
+#: webapp/templates/v2/auth/login.html:26
+#, fuzzy
+#| msgid "Sign in with Google"
+msgid "Continue with Google"
+msgstr "Accedi con Google"
+
+#: webapp/templates/v2/auth/login.html:47
+#, fuzzy
+#| msgid "You don't have permission to edit this table."
+msgid "Your account doesn't have access to this page."
+msgstr "Non hai il permesso di modificare questo tavolo."
+
+#: webapp/templates/v2/auth/login.html:49
+msgid "Please login to see this page."
+msgstr ""
+
+#: webapp/templates/v2/auth/login.html:74
+#, fuzzy
+#| msgid "Forgot your password?"
+msgid "Forgot password?"
+msgstr "Password dimenticata?"
+
+#: webapp/templates/v2/auth/login.html:86
+#: webapp/templates/v2/auth/password_reset_complete.html:22
+#: webapp/templates/v2/auth/signup.html:115
+#, fuzzy
+#| msgid "Signup"
+msgid "Sign in"
+msgstr "Registrati"
+
+#: webapp/templates/v2/auth/login.html:91
+#: webapp/templates/v2/auth/password_reset_form.html:53
+#, fuzzy
+#| msgid "Create an account"
+msgid "Don't have an account?"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/auth/login.html:92
+#: webapp/templates/v2/auth/password_reset_form.html:54
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create one"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/auth/password_change_done.html:15
+msgid "Password changed!"
+msgstr ""
+
+#: webapp/templates/v2/auth/password_change_done.html:16
+#, fuzzy
+#| msgid "Table was updated successfully"
+msgid "Your password has been updated successfully."
+msgstr "Tavolo aggiornato con successo"
+
+#: webapp/templates/v2/auth/password_change_done.html:20
+#: webapp/templates/v2/auth/password_change_form.html:63
+#, fuzzy
+#| msgid "Back to"
+msgid "Back to account"
+msgstr "Torna a"
+
+#: webapp/templates/v2/auth/password_change_form.html:16
+msgid "Enter your current password and choose a new one."
+msgstr ""
+
+#: webapp/templates/v2/auth/password_reset_complete.html:15
+#, fuzzy
+#| msgid "Leaderboard updated"
+msgid "Password updated!"
+msgstr "Classifica aggiornata"
+
+#: webapp/templates/v2/auth/password_reset_complete.html:17
+msgid "Your password has been set. You can now sign in with your new password."
+msgstr ""
+
+#: webapp/templates/v2/auth/password_reset_confirm.html:15
+#: webapp/templates/v2/auth/password_reset_confirm.html:53
+#, fuzzy
+#| msgid "Reset password"
+msgid "Set new password"
+msgstr "Reimposta la password"
+
+#: webapp/templates/v2/auth/password_reset_confirm.html:16
+msgid "Choose a strong password for your account."
+msgstr ""
+
+#: webapp/templates/v2/auth/password_reset_done.html:15
+#, fuzzy
+#| msgid "Confirm your email"
+msgid "Check your email"
+msgstr "Conferma il tuo indirizzo email"
+
+#: webapp/templates/v2/auth/password_reset_done.html:17
+msgid "We've sent you instructions to reset your password."
+msgstr ""
+
+#: webapp/templates/v2/auth/password_reset_done.html:20
+msgid ""
+"If you don't receive an email, check that you entered the address you "
+"registered with and look in your spam folder."
+msgstr ""
+
+#: webapp/templates/v2/auth/password_reset_done.html:25
+#: webapp/templates/v2/auth/password_reset_form.html:50
+#, fuzzy
+#| msgid "Back to"
+msgid "Back to login"
+msgstr "Torna a"
+
+#: webapp/templates/v2/auth/password_reset_form.html:16
+msgid "Enter your email and we'll send you a reset link."
+msgstr ""
+
+#: webapp/templates/v2/auth/password_reset_form.html:44
+#, fuzzy
+#| msgid "Send me reset instructions"
+msgid "Send reset link"
+msgstr "Inviami le istruzioni per il reset"
+
+#: webapp/templates/v2/auth/signup.html:14
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create your account"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/auth/signup.html:15
+#, fuzzy
+#| msgid "Join the community to find game tables nd meet other players."
+msgid "Join the community and find game tables near you."
+msgstr ""
+"Unisciti alla community per trovare tavoli di gioco e incontrare altri "
+"giocatori."
+
+#: webapp/templates/v2/auth/signup.html:27
+msgid "Access credentials"
+msgstr ""
+
+#: webapp/templates/v2/auth/signup.html:67
+#, fuzzy
+#| msgid "Edit profile"
+msgid "Your profile"
+msgstr "Modifica profilo"
+
+#: webapp/templates/v2/auth/signup.html:78
+#, fuzzy
+#| msgid "Insert your Nickname. Other gamers will call you this way."
+msgid "Other gamers will call you this way."
+msgstr "Inserisci il tuo nickname. Gli altri gamers ti chiameranno così."
+
+#: webapp/templates/v2/auth/signup.html:91
+msgid "We'll use this to show game tables near you."
+msgstr ""
+
+#: webapp/templates/v2/auth/signup.html:110
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create account"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/auth/signup.html:114
+#, fuzzy
+#| msgid "Create an account"
+msgid "Already have an account?"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/base_webapp.html:63
+#: webapp/templates/v2/base_webapp.html:267
+msgid "Feed"
+msgstr ""
+
+#: webapp/templates/v2/base_webapp.html:72
+#: webapp/templates/v2/base_webapp.html:271
+msgid "Home"
+msgstr ""
+
+#: webapp/templates/v2/base_webapp.html:90
+#: webapp/templates/v2/base_webapp.html:94
+#: webapp/templates/v2/base_webapp.html:276
+#, fuzzy
+#| msgid "tables"
+msgid "My tables"
+msgstr "tavoli"
+
+#: webapp/templates/v2/base_webapp.html:104
+#: webapp/templates/v2/base_webapp.html:288
+msgid "Explore"
+msgstr ""
+
+#: webapp/templates/v2/base_webapp.html:178
+#: webapp/templates/v2/base_webapp.html:181
+#: webapp/templates/v2/base_webapp.html:327
+msgid "Logout"
+msgstr ""
+
+#: webapp/templates/v2/base_webapp.html:203
+#: webapp/templates/v2/base_webapp.html:206
+#: webapp/templates/v2/base_webapp.html:343
+#, fuzzy
+#| msgid "Select Language"
+msgid "Language"
+msgstr "Seleziona Lingua"
+
+#: webapp/templates/v2/base_webapp.html:365
+msgid "Privacy"
+msgstr ""
+
+#: webapp/templates/v2/base_webapp.html:366
+msgid "Terms"
+msgstr ""
+
+#: webapp/templates/v2/games/game_list.html:8
+#, fuzzy
+#| msgid "Games"
+msgid "Board Games"
+msgstr "Giochi"
+
+#: webapp/templates/v2/games/game_list.html:49
+#, fuzzy
+#| msgid "No tables available"
+msgid "No games available yet."
+msgstr "Nessun tavolo disponibile"
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:12
+#, fuzzy
+#| msgid "Add new location"
+msgid "New location"
+msgstr "Aggiungi Location"
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:39
+#: webapp/templates/v2/locations/location_manage_data.html:37
+msgid "Cover image"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:39
+#: webapp/templates/v2/locations/location_add_or_edit.html:67
+#: webapp/templates/v2/locations/location_manage_data.html:37
+#: webapp/templates/v2/locations/location_manage_data.html:65
+#: webapp/templates/v2/locations/location_manage_member_detail.html:57
+#: webapp/templates/v2/locations/location_manage_members.html:146
+#: webapp/templates/v2/tables/table_add_or_edit.html:142
+#, fuzzy
+#| msgid "Location"
+msgid "optional"
+msgstr "Location"
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:47
+#: webapp/templates/v2/locations/location_add_or_edit.html:122
+#: webapp/templates/v2/locations/location_manage_data.html:45
+#: webapp/templates/v2/locations/location_manage_data.html:119
+msgid "Choose an image…"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:57
+#: webapp/templates/v2/locations/location_manage_data.html:55
+#, fuzzy
+#| msgid ""
+#| "Insert the location's address. We will use it to show the location on the "
+#| "map!"
+msgid "We'll use this to show the location on the map."
+msgstr ""
+"Inserisci l'indirizzo della location. Lo useremo per mostrarla sulla mappa!"
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:77
+#: webapp/templates/v2/locations/location_manage_data.html:75
+#, fuzzy
+#| msgid "Edit location"
+msgid "Public location"
+msgstr "Modifica luogo"
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:78
+#: webapp/templates/v2/locations/location_manage_data.html:76
+#, fuzzy
+#| msgid ""
+#| "Note: public locations can be used by other gamers to organize tables."
+msgid ""
+"Public locations (bar, café, game shop…) can be used by other gamers to "
+"organize tables."
+msgstr ""
+"Nota: le location pubbliche possono essere usate da altri gamers per "
+"organizzare tavoli."
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:105
+#: webapp/templates/v2/locations/location_manage_data.html:103
+#: webapp/templates/v2/locations/location_manage_member_detail.html:74
+#: webapp/templates/v2/tables/table_add_or_edit.html:181
+msgid "Save changes"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_add_or_edit.html:105
+#, fuzzy
+#| msgid "Private location"
+msgid "Create location"
+msgstr "Luogo privato"
+
+#: webapp/templates/v2/locations/location_detail.html:52
+#, fuzzy
+#| msgid "No games played at this location."
+msgid "Tables at this location"
+msgstr "Nessun gioco giocato in questa location."
+
+#: webapp/templates/v2/locations/location_detail.html:57
+#: webapp/templates/v2/staticpages/home.html:61
+#, fuzzy
+#| msgid "Upcoming tables"
+msgid "Upcoming"
+msgstr "Prossimi tavoli"
+
+#: webapp/templates/v2/locations/location_detail.html:73
+msgid "No upcoming tables — why not create one?"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_detail.html:83
+#, fuzzy
+#| msgid "Past tables"
+msgid "No past tables."
+msgstr "Tavoli passati"
+
+#: webapp/templates/v2/locations/location_detail.html:127
+msgid "Stats"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_detail.html:135
+#, fuzzy
+#| msgid "external gamers"
+msgid "Total gamers"
+msgstr "gamers anonimi"
+
+#: webapp/templates/v2/locations/location_detail.html:142
+#, fuzzy
+#| msgid "Past tables"
+msgid "Total tables"
+msgstr "Tavoli passati"
+
+#: webapp/templates/v2/locations/location_detail.html:151
+#, fuzzy
+#| msgid "gamers"
+msgid "Top gamers"
+msgstr "gamers"
+
+#: webapp/templates/v2/locations/location_detail.html:212
+msgid "Membership pending"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_detail.html:245
+msgid "Website"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_detail.html:256
+msgid "How to get there"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_detail.html:283
+#, fuzzy
+#| msgid "No tables available"
+msgid "Map not available"
+msgstr "Nessun tavolo disponibile"
+
+#: webapp/templates/v2/locations/location_index.html:9
+#: webapp/views/location_views.py:55
+msgid ""
+"Discover all board game locations near you. Find the perfect place for your "
+"next game!"
+msgstr ""
+"Scopri tutte le locations di gioco da tavolo vicino a te. Trova il posto "
+"perfetto per la tua prossima partita!"
+
+#: webapp/templates/v2/locations/location_index.html:15
+#, fuzzy
+#| msgid "Add your location"
+msgid "Your locations"
+msgstr "Aggiungi la tua location"
+
+#: webapp/templates/v2/locations/location_index.html:64
+#, fuzzy
+#| msgid "No tables available"
+msgid "No locations available yet."
+msgstr "Nessun tavolo disponibile"
+
+#: webapp/templates/v2/locations/location_index.html:73
+#: webapp/templates/v2/staticpages/home.html:156
+#, fuzzy
+#| msgid "Do you have a new location to add? Create it now!"
+msgid "Have a location to add?"
+msgstr "Hai una nuova location da aggiungere? Creala ora!"
+
+#: webapp/templates/v2/locations/location_index.html:74
+#: webapp/templates/v2/staticpages/home.html:157
+msgid "Clubs, associations, game shops are welcome."
+msgstr ""
+
+#: webapp/templates/v2/locations/location_manage_data.html:11
+#: webapp/templates/v2/locations/location_manage_index.html:24
+#, fuzzy
+#| msgid "Location Info"
+msgid "Location info"
+msgstr "Info Location"
+
+#: webapp/templates/v2/locations/location_manage_index.html:25
+msgid "Edit name, description, address and cover image"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_manage_index.html:41
+#, fuzzy
+#| msgid "Add me as manager after transfer"
+msgid "Add, remove managers and transfer ownership"
+msgstr "Aggiungimi come manager dopo il trasferimento di owner"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:50
+msgid "Team"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_manage_managers.html:94
+#, fuzzy
+#| msgid "Add Manager"
+msgid "Add manager"
+msgstr "Aggiungi Manager"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:111
+#: webapp/templates/v2/locations/location_manage_managers.html:126
+#, fuzzy
+#| msgid "Transfer Ownership"
+msgid "Transfer ownership"
+msgstr "Trasferisci Ownership"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:112
+#, fuzzy
+#| msgid ""
+#| "Are you sure you want to transfer ownership? You will no longer be the "
+#| "owner of this location."
+msgid "You will no longer be the owner of this location."
+msgstr ""
+"Sei sicuro di voler trasferire l'ownership? Non sarai più l'owner di questa "
+"location."
+
+#: webapp/templates/v2/locations/location_manage_managers.html:138
+#, fuzzy
+#| msgid "Remove Manager"
+msgid "Remove manager?"
+msgstr "Rimuovi Manager"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:139
+#: webapp/templates/v2/tables/table_players.html:155
+#, fuzzy
+#| msgid "Are you sure you want to delete"
+msgid "Are you sure you want to remove"
+msgstr "Sei sicuro di voler eliminare"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:148
+#: webapp/templates/v2/tables/table_players.html:165
+#, fuzzy
+#| msgid "Remove Gamers"
+msgid "Remove"
+msgstr "Rimuovi Gamers"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:160
+#, fuzzy
+#| msgid "Transfer Ownership"
+msgid "Transfer ownership?"
+msgstr "Trasferisci Ownership"
+
+#: webapp/templates/v2/locations/location_manage_managers.html:161
+#, fuzzy
+#| msgid ""
+#| "Are you sure you want to remove this manager? This action cannot be "
+#| "undone."
+msgid ""
+"You will no longer be the owner of this location. This action cannot be "
+"undone."
+msgstr ""
+"Sei sicuro di voler rimuovere questo manager? Questa azione non può essere "
+"annullata."
+
+#: webapp/templates/v2/locations/location_manage_managers.html:169
+#, fuzzy
+#| msgid "Transfer Ownership"
+msgid "Transfer"
+msgstr "Trasferisci Ownership"
+
+#: webapp/templates/v2/locations/location_manage_member_detail.html:43
+#: webapp/templates/v2/locations/location_manage_member_detail.html:74
+#: webapp/templates/v2/locations/location_manage_members.html:17
+#: webapp/templates/v2/locations/location_manage_members.html:119
+#, fuzzy
+#| msgid "Add Gamer"
+msgid "Add member"
+msgstr "Invita Gamer"
+
+#: webapp/templates/v2/locations/location_manage_members.html:114
+#, fuzzy
+#| msgid "No players yet."
+msgid "No members yet"
+msgstr "Ancora nessun giocatore."
+
+#: webapp/templates/v2/locations/location_manage_members.html:115
+msgid "Add the first member manually or wait for membership requests."
+msgstr ""
+
+#: webapp/templates/v2/locations/location_manage_members.html:129
+msgid "Approve membership"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_manage_members.html:130
+#, fuzzy
+#| msgid "or"
+msgid "for"
+msgstr "oppure"
+
+#: webapp/templates/v2/locations/location_manage_members.html:136
+msgid "Start date"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_manage_members.html:141
+msgid "End date"
+msgstr ""
+
+#: webapp/templates/v2/locations/location_request_membership.html:17
+#, python-format
+msgid "Request a membership for %(name)s. A manager will review your request."
+msgstr ""
+
+#: webapp/templates/v2/locations/location_request_membership.html:42
+#, fuzzy
+#| msgid "Edit location"
+msgid "Back to location"
+msgstr "Modifica luogo"
+
+#: webapp/templates/v2/profiles/user_profile_detail.html:20
+#, fuzzy
+#| msgid "Upload new avatar"
+msgid "Change avatar"
+msgstr "Carica un nuovo avatar"
+
+#: webapp/templates/v2/profiles/user_profile_detail.html:31
+#, fuzzy
+#| msgid "Table closed"
+msgid "tables played"
+msgstr "Tavolo chiuso"
+
+#: webapp/templates/v2/profiles/user_profile_detail.html:47
+#, fuzzy
+#| msgid "Let's play"
+msgid "Games played"
+msgstr "Giochiamo"
+
+#: webapp/templates/v2/profiles/user_profile_detail.html:73
+#, fuzzy
+#| msgid "No players yet."
+msgid "No tables played yet."
+msgstr "Ancora nessun giocatore."
+
+#: webapp/templates/v2/staticpages/about.html:9
+msgid "For clubs & associations"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:11
+msgid "Your club deserves"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:12
+msgid "better tools."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:15
+msgid ""
+"Board-Gamers.com is built by board game enthusiasts, for board game "
+"enthusiasts. Free, open source, and always improving."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:21
+#: webapp/templates/v2/staticpages/about.html:160
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create a free account"
+msgstr "Crea un account"
+
+#: webapp/templates/v2/staticpages/about.html:25
+msgid "Talk to us"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:41
+msgid "Free. Forever."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:43
+msgid ""
+"No subscriptions, no hidden fees, no freemium traps. Board-Gamers.com is and "
+"will always be completely free to use. We believe access to great tools "
+"shouldn't depend on your budget."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:53
+msgid "Open source & community-driven"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:55
+msgid ""
+"The code is open source, maintained by volunteers who love board games. Have "
+"a feature request? Your voice matters — the platform evolves based on what "
+"clubs actually need."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:70
+msgid "Features"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:71
+msgid "Everything your club needs"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:84
+msgid "Game table management"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:85
+msgid ""
+"Create game sessions, set a date, time and maximum players. Members can join "
+"with one tap. Perfect for organising evenings at the club."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:97
+msgid "Member management"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:98
+msgid ""
+"Manage your members' registry, track membership validity periods, handle "
+"join requests and approvals — all in one place."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:110
+msgid "Rankings"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:111
+msgid ""
+"Keep your community engaged with player rankings based on activity. A little "
+"friendly competition makes game nights even more fun."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:124
+#, fuzzy
+#| msgid "Comments"
+msgid "Tournaments"
+msgstr "Commenti"
+
+#: webapp/templates/v2/staticpages/about.html:125
+msgid "Coming soon"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:127
+msgid ""
+"Full tournament management is on the roadmap — brackets, standings, rounds. "
+"Stay tuned!"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:138
+msgid "Open source"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:139
+msgid "Built in the open, improved together"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:141
+msgid ""
+"You can see every line of code, propose improvements, or even contribute "
+"directly. If your club needs a specific feature, send us a message - we "
+"build what the community asks for."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:155
+msgid "Ready to get started?"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:156
+msgid "Create your free account in 2 minutes. No credit card, no commitments."
+msgstr ""
+
+#: webapp/templates/v2/staticpages/about.html:164
+msgid "Have questions? Talk to us"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/home.html:45
+msgid "Find your next game night"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/home.html:80
+msgid "No open tables right now — why not create one?"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/home.html:93
+#, fuzzy
+#| msgid "No players yet."
+msgid "No past tables yet."
+msgstr "Ancora nessun giocatore."
+
+#: webapp/templates/v2/staticpages/home.html:99
+#, fuzzy
+#| msgid "See table"
+msgid "See all tables"
+msgstr "Vai al tavolo"
+
+#: webapp/templates/v2/staticpages/home.html:150
+#, fuzzy
+#| msgid "external gamers"
+msgid "See all game clubs"
+msgstr "gamers anonimi"
+
+#: webapp/templates/v2/staticpages/home.html:170
+msgid "The project"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/home.html:171
+#, fuzzy
+#| msgid "My Account - Board-Gamers.com"
+msgid "About Board-Gamers.com"
+msgstr "Il Mio Account - Board-Gamers.com"
+
+#: webapp/templates/v2/staticpages/home.html:182
+msgid "Join free"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/home.html:187
+msgid "Get involved"
+msgstr ""
+
+#: webapp/templates/v2/staticpages/select_language.html:15
+#, fuzzy
+#| msgid "Select Language"
+msgid "Select language"
+msgstr "Seleziona Lingua"
+
+#: webapp/templates/v2/tables/table_add_or_edit.html:110
+#, fuzzy
+#| msgid "Date and time:"
+msgid "Date and time"
+msgstr "Data e ora:"
+
+#: webapp/templates/v2/tables/table_add_or_edit.html:146
+#, fuzzy
+#| msgid "Can't find the desired game?"
+msgid "Can't find the game?"
+msgstr "Non trovi il gioco desiderato?"
+
+#: webapp/templates/v2/tables/table_add_or_edit.html:148
+#, fuzzy
+#| msgid "we will add it for you."
+msgid "and we'll add it."
+msgstr "e lo aggiungeremo per te."
+
+#: webapp/templates/v2/tables/table_add_or_edit.html:154
+#: webapp/templates/v2/tables/table_players.html:48
+#, fuzzy
+#| msgid "External Players"
+msgid "Players"
+msgstr "Giocatori Esterni"
+
+#: webapp/templates/v2/tables/table_add_or_edit.html:204
+#, fuzzy
+#| msgid "if you still want to delete this table."
+msgid "if you still want to delete it."
+msgstr "se vuoi comunque eliminare questo tavolo."
+
+#: webapp/templates/v2/tables/table_add_or_edit.html:240
+#, fuzzy
+#| msgid "Publish"
+msgid "Publishing..."
+msgstr "Pubblica"
+
+#: webapp/templates/v2/tables/table_delete.html:18
+#, fuzzy
+#| msgid "This table is closed and cannot be deleted."
+msgid "This action cannot be undone."
+msgstr "Questo tavolo è chiuso e non può essere eliminato."
+
+#: webapp/templates/v2/tables/table_detail.html:11
+#, fuzzy
+#| msgid "Link to table"
+msgid "Back to tables"
+msgstr "Link al tavolo"
+
+#: webapp/templates/v2/tables/table_detail.html:32
+#, fuzzy
+#| msgid "Created tables"
+msgid "Created"
+msgstr "Tavoli creati"
+
+#: webapp/templates/v2/tables/table_detail.html:32
+msgid "ago"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:63
+msgid "Time"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:71
+msgid "Seats"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:75
+msgid "free"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:98
+msgid "Participants"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:140
+#, fuzzy
+#| msgid "Open"
+msgid "Open seat"
+msgstr "Aperto"
+
+#: webapp/templates/v2/tables/table_detail.html:225
+#, fuzzy
+#| msgid "Your comment..."
+msgid "Write a comment..."
+msgstr "Il tuo commento..."
+
+#: webapp/templates/v2/tables/table_detail.html:303
+#, fuzzy
+#| msgid "Minimum players"
+msgid "players"
+msgstr "Minimo giocatori"
+
+#: webapp/templates/v2/tables/table_detail.html:304
+msgid "max"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:358
+msgid "Share"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:360
+msgid "Link copied!"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_detail.html:363
+#, fuzzy
+#| msgid ""
+#| "By joining this table you agree to meet other gamers at the location at "
+#| "the given date and time."
+msgid ""
+"By joining you agree to meet at the location at the given date and time."
+msgstr ""
+"Unendoti a questo tavolo accetti di incontrare gli altri gamers nella "
+"location all'ora e alla data stabilite."
+
+#: webapp/templates/v2/tables/table_detail.html:449
+msgid "Let\\"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_players.html:40
+#, fuzzy
+#| msgid "Manage tables"
+msgid "Manage players"
+msgstr "Gestisci tavoli"
+
+#: webapp/templates/v2/tables/table_players.html:87
+#, fuzzy
+#| msgid "Invite/Remove Gamers"
+msgid "Invite a gamer"
+msgstr "Invita/Rimuovi Gamers"
+
+#: webapp/templates/v2/tables/table_players.html:140
+msgid "Clear"
+msgstr ""
+
+#: webapp/templates/v2/tables/table_players.html:154
+#, fuzzy
+#| msgid "Remove Gamers"
+msgid "Remove player?"
+msgstr "Rimuovi Gamers"
+
+#: webapp/views/account_views.py:21
 msgid "My Account - Board-Gamers.com"
 msgstr "Il Mio Account - Board-Gamers.com"
 
-#: webapp/views/account_views.py:20
+#: webapp/views/account_views.py:22
 msgid "Manage your profile: view your activities, notifications and settings."
 msgstr ""
 "Gestisci il tuo profilo: visualizza le tue attività, notifiche e "
 "impostazioni."
 
-#: webapp/views/account_views.py:34
+#: webapp/views/account_views.py:36
 msgid "Edit Profile - Board-Gamers.com"
 msgstr "Modifica Profilo - Board-Gamers.com"
 
-#: webapp/views/account_views.py:35
+#: webapp/views/account_views.py:37
 msgid "Edit your profile: update photo, bio and game preferences."
 msgstr "Modifica il tuo profilo: aggiorna foto, bio e preferenze di gioco."
 
-#: webapp/views/account_views.py:56
+#: webapp/views/account_views.py:58
 msgid "My Locations - Board-Gamers.com"
 msgstr "Le Mie Locations - Board-Gamers.com"
 
-#: webapp/views/account_views.py:57
+#: webapp/views/account_views.py:59
 msgid ""
 "Manage your locations: create new locations, edit data and manage your game "
 "tables."
@@ -1342,11 +2690,11 @@ msgstr ""
 "Gestisci le tue locations: crea nuove locations, modifica i dati e gestisci "
 "i tuoi tavoli di gioco."
 
-#: webapp/views/account_views.py:73
+#: webapp/views/account_views.py:85
 msgid "My Tables - Board-Gamers.com"
 msgstr "I Miei Tavoli - Board-Gamers.com"
 
-#: webapp/views/account_views.py:74
+#: webapp/views/account_views.py:86
 msgid ""
 "Manage your game tables: create new games, edit existing tables and view "
 "your statistics."
@@ -1354,11 +2702,11 @@ msgstr ""
 "Gestisci i tuoi tavoli di gioco: crea nuove partite, modifica i tavoli "
 "esistenti e visualizza le tue statistiche."
 
-#: webapp/views/account_views.py:93
+#: webapp/views/account_views.py:105
 msgid "Notifications - Board-Gamers.com"
 msgstr "Notifiche - Board-Gamers.com"
 
-#: webapp/views/account_views.py:94
+#: webapp/views/account_views.py:106
 msgid ""
 "View your notifications: new tables, comments, invitations and community "
 "updates."
@@ -1366,15 +2714,25 @@ msgstr ""
 "Visualizza le tue notifiche: nuovi tavoli, commenti, inviti e aggiornamenti "
 "della community."
 
-#: webapp/views/account_views.py:106
+#: webapp/views/account_views.py:129
+#, fuzzy
+#| msgid "My Tables - Board-Gamers.com"
+msgid "My Memberships - Board-Gamers.com"
+msgstr "I Miei Tavoli - Board-Gamers.com"
+
+#: webapp/views/account_views.py:130
+msgid "View your active and past memberships."
+msgstr ""
+
+#: webapp/views/account_views.py:142
 msgid "Notification preferences updated"
 msgstr "Preferenze di notifica aggiornate"
 
-#: webapp/views/account_views.py:114
+#: webapp/views/account_views.py:150
 msgid "Notification Preferences - Board-Gamers.com"
 msgstr "Preferenze di Notifica - Board-Gamers.com"
 
-#: webapp/views/account_views.py:115
+#: webapp/views/account_views.py:151
 msgid ""
 "Configure your notification preferences: choose which updates to receive and "
 "how."
@@ -1382,21 +2740,21 @@ msgstr ""
 "Configura le tue preferenze di notifica: scegli quali aggiornamenti ricevere "
 "e come."
 
-#: webapp/views/auth_views.py:34
+#: webapp/views/auth_views.py:38
 msgid "Register - Board-Gamers.com"
 msgstr "Registrati - Board-Gamers.com"
 
-#: webapp/views/auth_views.py:35
+#: webapp/views/auth_views.py:39
 msgid "Join the community to find game tables nd meet other players."
 msgstr ""
 "Unisciti alla community per trovare tavoli di gioco e incontrare altri "
 "giocatori."
 
-#: webapp/views/auth_views.py:56
+#: webapp/views/auth_views.py:63
 msgid "Login - Board-Gamers.com"
 msgstr "Login - Board-Gamers.com"
 
-#: webapp/views/auth_views.py:57
+#: webapp/views/auth_views.py:64
 msgid "Access your account to manage your game tables and profile."
 msgstr ""
 "Accedi al tuo account per gestire i tuoi tavoli di gioco e il tuo profilo."
@@ -1409,77 +2767,148 @@ msgstr "Non è possibile modificare tavoli chiusi."
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
-#: webapp/views/game_views.py:31
+#: webapp/views/game_views.py:35
 msgid "Board Games - Board-Gamers.com"
 msgstr "Giochi da Tavolo - Board-Gamers.com"
 
-#: webapp/views/game_views.py:32
+#: webapp/views/game_views.py:36
 msgid "Discover all available board games and create new game tables!"
 msgstr ""
 "Scopri tutti i giochi da tavolo disponibili e crea nuovi tavoli di gioco!"
 
-#: webapp/views/location_views.py:51
+#: webapp/views/location_views.py:54
 msgid "Game Locations - Board-Gamers.com"
 msgstr "Locations di Gioco - Board-Gamers.com"
 
-#: webapp/views/location_views.py:52
-msgid ""
-"Discover all board game locations near you. Find the perfect place for your "
-"next game!"
-msgstr ""
-"Scopri tutte le locations di gioco da tavolo vicino a te. Trova il posto "
-"perfetto per la tua prossima partita!"
-
-#: webapp/views/location_views.py:262
+#: webapp/views/location_views.py:299
+#, python-format
 msgid "Management %(name)s - Boardgamers.com"
 msgstr "Gestione %(name)s - Boardgamers.com"
 
-#: webapp/views/location_views.py:295
+#: webapp/views/location_views.py:335
+#, python-format
 msgid "Managers %(name)s - Boardgamers.com"
 msgstr "Managers %(name)s - Boardgamers.com"
 
-#: webapp/views/location_views.py:296
+#: webapp/views/location_views.py:336
+#, python-format
 msgid ""
 "Manage managers of %(name)s location: add, remove and transfer ownership."
 msgstr ""
 "Gestisci i managers della location %(name)s: aggiungi, rimuovi e trasferisci "
 "l'ownership."
 
-#: webapp/views/location_views.py:333
+#: webapp/views/location_views.py:381
+#, python-format
 msgid "Edit %(name)s - Boardgamers.com"
 msgstr "Modifica %(name)s - Boardgamers.com"
 
-#: webapp/views/profile_views.py:64
+#: webapp/views/location_views.py:539 webapp/views/location_views.py:562
+#: webapp/views/location_views.py:606
+#, fuzzy
+#| msgid "You don't have permission to edit this table."
+msgid "You don't have permission to manage this location."
+msgstr "Non hai il permesso di modificare questo tavolo."
+
+#: webapp/views/location_views.py:549
+#, fuzzy, python-format
+#| msgid "Managers %(name)s - Boardgamers.com"
+msgid "Members %(name)s - Boardgamers.com"
+msgstr "Managers %(name)s - Boardgamers.com"
+
+#: webapp/views/location_views.py:550
+#, fuzzy, python-format
+#| msgid "Insert the name of the location."
+msgid "Manage members of %(name)s location."
+msgstr "Inserisci il nome della location."
+
+#: webapp/views/location_views.py:575 webapp/views/location_views.py:594
+#, fuzzy, python-format
+#| msgid "Management %(name)s - Boardgamers.com"
+msgid "Member %(name)s - Boardgamers.com"
+msgstr "Gestione %(name)s - Boardgamers.com"
+
+#: webapp/views/location_views.py:587
+#, fuzzy
+#| msgid "Table was updated successfully"
+msgid "Member updated successfully."
+msgstr "Tavolo aggiornato con successo"
+
+#: webapp/views/location_views.py:619 webapp/views/location_views.py:640
+#, python-format
+msgid "Add Member - %(name)s"
+msgstr ""
+
+#: webapp/views/location_views.py:632
+#, fuzzy, python-format
+#| msgid "Table was created successfully"
+msgid "Member %(name)s added successfully."
+msgstr "Tavolo creato con successo"
+
+#: webapp/views/location_views.py:654
+#, fuzzy
+#| msgid "You don't have permission to edit this table."
+msgid "You don't have permission to manage memberships."
+msgstr "Non hai il permesso di modificare questo tavolo."
+
+#: webapp/views/location_views.py:666
+#, python-format
+msgid "Membership for %(name)s rejected."
+msgstr ""
+
+#: webapp/views/location_views.py:681
+#, python-format
+msgid "Membership for %(name)s approved."
+msgstr ""
+
+#: webapp/views/location_views.py:701 webapp/views/location_views.py:718
+msgid "This location does not accept membership requests."
+msgstr ""
+
+#: webapp/views/location_views.py:704 webapp/views/location_views.py:736
+msgid "You already have a pending or active membership for this location."
+msgstr ""
+
+#: webapp/views/location_views.py:711
+#, python-format
+msgid "Request Membership - %(name)s"
+msgstr ""
+
+#: webapp/views/location_views.py:745
+msgid "Membership request sent. A manager will review it."
+msgstr ""
+
+#: webapp/views/profile_views.py:68
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-#: webapp/views/static_page_views.py:83
+#: webapp/views/static_page_views.py:84
 msgid "Find Board Game Tables Near You - Board-Gamers.com"
 msgstr "Trova Tavoli di Gioco Vicino a Te - Board-Gamers.com"
 
-#: webapp/views/static_page_views.py:84
+#: webapp/views/static_page_views.py:85
 msgid ""
 "Discover board game tables near you, create new games and meet other players."
 msgstr ""
 "Scopri tavoli di gioco da tavolo vicino a te, crea nuove partite e incontra "
 "altri giocatori."
 
-#: webapp/views/static_page_views.py:94
+#: webapp/views/static_page_views.py:95
 msgid "Privacy Policy - Board-Gamers.com"
 msgstr "Privacy Policy - Board-Gamers.com"
 
-#: webapp/views/static_page_views.py:95
+#: webapp/views/static_page_views.py:96
 msgid ""
 "Read our privacy policy: how we collect, use and protect your personal data."
 msgstr ""
 "Leggi la nostra privacy policy: come raccogliamo, utilizziamo e proteggiamo "
 "i tuoi dati personali."
 
-#: webapp/views/static_page_views.py:103
+#: webapp/views/static_page_views.py:104
 msgid "Terms of Service - Board-Gamers.com"
 msgstr "Termini di Servizio - Board-Gamers.com"
 
-#: webapp/views/static_page_views.py:104
+#: webapp/views/static_page_views.py:105
 msgid ""
 "Read our terms of service: rules, responsibilities and platform usage "
 "conditions."
@@ -1487,11 +2916,11 @@ msgstr ""
 "Leggi i nostri termini di servizio: regole, responsabilità e condizioni di "
 "utilizzo della piattaforma."
 
-#: webapp/views/static_page_views.py:132
+#: webapp/views/static_page_views.py:133
 msgid "Contacts - Board-Gamers.com"
 msgstr "Contatti - Board-Gamers.com"
 
-#: webapp/views/static_page_views.py:133
+#: webapp/views/static_page_views.py:134
 msgid ""
 "Contact the boardgamers team: reports, suggestions or questions about the "
 "platform."
@@ -1499,42 +2928,52 @@ msgstr ""
 "Contatta il team di Board-Gamers: segnalazioni, suggerimenti o domande sulla "
 "piattaforma."
 
-#: webapp/views/table_views.py:85
+#: webapp/views/static_page_views.py:142
+msgid "About Board-Gamers.com - For Clubs & Associations"
+msgstr ""
+
+#: webapp/views/static_page_views.py:143
+msgid ""
+"Discover why board game clubs and associations choose Board-Gamers.com: free "
+"forever, open source, member management, tables, rankings and more."
+msgstr ""
+
+#: webapp/views/table_views.py:89
 msgid "Game Tables - Board-Gamers.com"
 msgstr "Tavoli di Gioco - Board-Gamers.com"
 
-#: webapp/views/table_views.py:86
+#: webapp/views/table_views.py:90
 msgid "Discover all available game tables and join the game!"
 msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 
-#: webapp/views/table_views.py:222
+#: webapp/views/table_views.py:230
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-#: webapp/views/table_views.py:227
+#: webapp/views/table_views.py:235
 msgid "Cannot add players to a closed table."
 msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."
 
-#: webapp/views/table_views.py:242
+#: webapp/views/table_views.py:250
 msgid "The table is full."
 msgstr "Tavolo completo"
 
-#: webapp/views/table_views.py:257
+#: webapp/views/table_views.py:265
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
-#: webapp/views/table_views.py:269
+#: webapp/views/table_views.py:277
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
 
-#: webapp/views/table_views.py:274
+#: webapp/views/table_views.py:282
 msgid "You can remove players only from tables that are open or ongoing."
 msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
 
-#: webapp/views/table_views.py:313
+#: webapp/views/table_views.py:323
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
 
-#: webapp/views/table_views.py:342
+#: webapp/views/table_views.py:354
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
