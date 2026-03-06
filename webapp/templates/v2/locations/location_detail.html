@@ -162,9 +162,14 @@
             {% for player in player_stats %}
               <div class="flex items-center gap-3 border border-slate-200 rounded-xl p-3 bg-white">
                 <span class="text-sm font-bold text-slate-400 w-5 text-right flex-shrink-0">{{ forloop.counter }}</span>
+                {% if player.avatar %}
+                <img src="{{ player.avatar.url }}" alt="{{ player.nickname }}"
+                     class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+                {% else %}
                 <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {{ player.nickname|slice:":1"|upper }}
                 </div>
+                {% endif %}
                 <div class="flex-1 min-w-0">
                   <a href="{% url 'user-profile-detail' player.slug %}"
                      class="text-sm font-semibold text-slate-900 text-decoration-none hover:text-primary transition-colors block truncate">
