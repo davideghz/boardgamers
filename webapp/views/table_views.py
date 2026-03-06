@@ -10,6 +10,7 @@ from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
@@ -55,35 +56,33 @@ class TableIndexView(generic.ListView):
         return [get_v2_template(self.request, self.template_name)]
 
     def get_queryset(self):
-        g = GeoIP2()
+        return Table.objects.none()
 
+    def get_context_data(self, **kwargs):
+        context = super(TableIndexView, self).get_context_data(**kwargs)
+
+        g = GeoIP2()
         x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             user_ip = x_forwarded_for.split(',')[0]
         else:
             user_ip = self.request.META.get('REMOTE_ADDR')
-
         if user_ip == '127.0.0.1':
             user_ip = '93.66.88.167'
-
-        city = g.city(user_ip)
         user_point = g.geos(user_ip)
 
+        today = timezone.now().date()
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
-        tables = Table.objects \
-            .select_related('author', 'author__user', 'location') \
-            .prefetch_related(comments_prefetch, players_prefetch, games_prefetch) \
-            .filter(location__point__distance_lt=(user_point, Distance(m=122222255000))) \
-            .annotate(distance=DbDistance('location__point', user_point)) \
-            .order_by('distance', 'date')
+        base_qs = (Table.objects
+                   .select_related('author', 'author__user', 'location')
+                   .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
+                   .annotate(distance=DbDistance('location__point', user_point)))
 
-        return tables
-
-    def get_context_data(self, **kwargs):
-        context = super(TableIndexView, self).get_context_data(**kwargs)
+        context['future_tables'] = base_qs.filter(date__gte=today).order_by('date', 'distance')
+        context['past_tables'] = base_qs.filter(date__lt=today).order_by('-date', 'distance')
         context['login_form'] = CustomLoginForm()
         context['meta'] = Meta(
             title=_("Game Tables - Board-Gamers.com"),
