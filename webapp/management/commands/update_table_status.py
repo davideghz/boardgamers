@@ -23,6 +23,9 @@ class Command(BaseCommand):
         for table in tables:
             game_datetime = datetime.combine(table.date, table.time).replace(tzinfo=italy_tz)
 
+            old_status = table.status
+            old_leaderboard_status = table.leaderboard_status
+
             # Caso 1: Partita non ancora iniziata
             if current_time < game_datetime:
                 table.status = Table.OPEN
@@ -43,6 +46,7 @@ class Command(BaseCommand):
                 table.status = Table.CLOSED
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
 
-            table.save()
+            if table.status != old_status or table.leaderboard_status != old_leaderboard_status:
+                table.save()
 
         self.stdout.write(self.style.SUCCESS("Stati dei tavoli aggiornati con successo!"))
