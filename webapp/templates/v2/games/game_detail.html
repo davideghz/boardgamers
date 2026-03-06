@@ -1,5 +1,5 @@
 {% extends "v2/base_webapp.html" %}
-{% load i18n %}
+{% load i18n custom_tags %}
 
 {% block content %}
 <div class="max-w-2xl">
@@ -50,7 +50,7 @@
   {# ── Description ───────────────────────────────────────────────────── #}
   {% if game.description %}
     <div class="rounded-xl border border-slate-200 bg-white px-5 py-4">
-      <p class="text-sm text-slate-600 leading-relaxed">{{ game.description }}</p>
+      <div class="prose-sm text-slate-600 leading-relaxed">{{ game.description|render_markdown }}</div>
     </div>
   {% endif %}
 

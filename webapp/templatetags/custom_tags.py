@@ -1,9 +1,24 @@
+import mistune
+import nh3
+
 from django import template
 from django.urls import translate_url, reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from urllib.parse import urlencode
 
 register = template.Library()
+
+_ALLOWED_TAGS = {"p", "strong", "em", "ul", "ol", "li", "br"}
+
+
+@register.filter
+def render_markdown(value):
+    if not value:
+        return ""
+    html = mistune.html(value)
+    clean = nh3.clean(html, tags=_ALLOWED_TAGS)
+    return mark_safe(clean)
 
 
 @register.inclusion_tag("tags/table_card.html")

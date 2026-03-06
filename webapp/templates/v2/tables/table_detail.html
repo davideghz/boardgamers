@@ -1,6 +1,7 @@
 {% extends "v2/base_webapp.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block content %}
 
@@ -44,7 +45,7 @@
           <h2 class="text-sm font-bold text-slate-900 mb-2">{% trans "Description" %}</h2>
           {% if table.description|length > 200 %}
             <div class="relative">
-              <p id="table-description" class="text-sm text-slate-500 leading-relaxed line-clamp-3">{{ table.description }}</p>
+              <div id="table-description" class="prose-sm text-slate-500 leading-relaxed line-clamp-3">{{ table.description|render_markdown }}</div>
               <div id="table-description-fade" class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
             </div>
             <button id="table-description-toggle"
@@ -60,7 +61,7 @@
               {% trans "Read more" %}
             </button>
           {% else %}
-            <p class="text-sm text-slate-500 leading-relaxed">{{ table.description }}</p>
+            <div class="prose-sm text-slate-500 leading-relaxed">{{ table.description|render_markdown }}</div>
           {% endif %}
         </section>
       {% endif %}

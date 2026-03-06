@@ -41,7 +41,7 @@
       <section>
         <h2 class="text-lg font-bold text-slate-900 mb-3">{% trans "About" %}</h2>
         {% if location.description %}
-          <p class="text-sm text-slate-500 leading-relaxed">{{ location.description }}</p>
+          <div class="prose-sm text-slate-500 leading-relaxed">{{ location.description|render_markdown }}</div>
         {% endif %}
         {% if location.website %}
           <a href="{{ location.website }}" target="_blank" rel="noopener noreferrer"

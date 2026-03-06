@@ -40,7 +40,7 @@
             <h5>{{ game.name }}</h5>
           </div>
           <div class="card-body text-decoration-none border-0">
-            <p class="card-text text-secondary">{{ game.description }}</p>
+            <div class="card-text text-secondary">{{ game.description|render_markdown }}</div>
           </div>
           <div
               class="card-footer text-body-secondary d-flex align-items-center bg-body-tertiary">

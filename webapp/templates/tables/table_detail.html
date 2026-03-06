@@ -1,6 +1,7 @@
 {% extends "base_webapp.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block breadcrumbs %}
   <div class="container-fluid px-0 bg-white border-bottom">
@@ -171,7 +172,7 @@
               <div class="card-header" style="background-color: slategrey"></div>
               <div class="card-body">
                 <p class="h5">{{ table.title }}</p>
-                <small class="text-secondary">{{ table.description }}</small><br><br>
+                <small class="text-secondary">{{ table.description|render_markdown }}</small><br><br>
                 <a href="{% url "location-detail" table.location.slug %}" class="d-flex align-items-center text-decoration-none">
                   <img class="img-thumbnail object-fit-cover object-position-center"
                        style="height: 40px; width: 40px;" src="{{ table.location.cover_url }}" alt="{{ table.location }}">
