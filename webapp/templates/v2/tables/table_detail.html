@@ -42,48 +42,67 @@
       {% if table.description %}
         <section>
           <h2 class="text-sm font-bold text-slate-900 mb-2">{% trans "Description" %}</h2>
-          <p class="text-sm text-slate-500 leading-relaxed">{{ table.description }}</p>
+          {% if table.description|length > 200 %}
+            <div class="relative">
+              <p id="table-description" class="text-sm text-slate-500 leading-relaxed line-clamp-3">{{ table.description }}</p>
+              <div id="table-description-fade" class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+            </div>
+            <button id="table-description-toggle"
+                    onclick="
+                      var p = document.getElementById('table-description');
+                      var fade = document.getElementById('table-description-fade');
+                      var btn = document.getElementById('table-description-toggle');
+                      var expanded = p.classList.toggle('line-clamp-3');
+                      fade.classList.toggle('hidden', !expanded);
+                      btn.textContent = expanded ? '{% trans "Read more" %}' : '{% trans "Show less" %}';
+                    "
+                    class="mt-1 text-xs font-semibold text-blue-600 hover:underline">
+              {% trans "Read more" %}
+            </button>
+          {% else %}
+            <p class="text-sm text-slate-500 leading-relaxed">{{ table.description }}</p>
+          {% endif %}
         </section>
       {% endif %}
 
       {# Info grid #}
       <section class="grid grid-cols-2 gap-3">
 
-        <div class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-white">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+        <div class="flex items-start gap-3 p-3.5 rounded-xl" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-blue-300 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
           <div>
-            <p class="text-xs text-slate-400">{% trans "Date" %}</p>
-            <p class="text-sm font-semibold text-slate-900">{{ table.date|date:"l j F Y" }}</p>
+            <p class="text-xs text-blue-200">{% trans "Date" %}</p>
+            <p class="text-sm font-semibold text-white">{{ table.date|date:"l j F Y" }}</p>
           </div>
         </div>
 
-        <div class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-white">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        <div class="flex items-start gap-3 p-3.5 rounded-xl" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-blue-300 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
           <div>
-            <p class="text-xs text-slate-400">{% trans "Time" %}</p>
-            <p class="text-sm font-semibold text-slate-900">{{ table.time|time:"H:i" }}</p>
+            <p class="text-xs text-blue-200">{% trans "Time" %}</p>
+            <p class="text-sm font-semibold text-white">{{ table.time|time:"H:i" }}</p>
           </div>
         </div>
 
-        <div class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-white">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+        <div class="flex items-start gap-3 p-3.5 rounded-xl" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-blue-300 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
           <div>
-            <p class="text-xs text-slate-400">{% trans "Seats" %}</p>
-            <p class="text-sm font-semibold text-slate-900">
+            <p class="text-xs text-blue-200">{% trans "Seats" %}</p>
+            <p class="text-sm font-semibold text-white">
               {{ current_players }}/{{ table.max_players }}
               {% if available_seats > 0 %}
-                <span class="text-slate-400 font-normal">({{ available_seats }} {% trans "free" %})</span>
+                <span class="text-blue-200 font-normal">({{ available_seats }} {% trans "free" %})</span>
               {% endif %}
             </p>
           </div>
         </div>
 
         {% if table.location %}
-          <div class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-white">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-blue-300 mt-0.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
             <div class="min-w-0">
-              <p class="text-xs text-slate-400">{% trans "Location" %}</p>
-              <p class="text-sm font-semibold text-slate-900 truncate">
+              <p class="text-xs text-blue-200">{% trans "Location" %}</p>
+              <p class="text-sm font-semibold text-white truncate">
                 {% if table.location.is_public %}{{ table.location }}{% else %}{% trans "Private location" %}{% endif %}
               </p>
             </div>
@@ -352,12 +371,6 @@
             </button>
           {% endif %}
 
-          {# Share #}
-          <button class="btn-share inline-flex items-center justify-center gap-1.5 w-full text-sm text-slate-400 hover:text-slate-700 transition-colors py-1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" /></svg>
-            {% trans "Share" %}
-          </button>
-          <span id="share-copied" class="hidden text-xs text-green-600 text-center block">{% trans "Link copied!" %}</span>
 
           <p class="text-[11px] text-slate-400 text-center leading-snug">
             {% trans "By joining you agree to meet at the location at the given date and time." %}
@@ -442,22 +455,6 @@
       document.getElementById('deleteCommentModal').classList.add('hidden');
     }
 
-    document.querySelectorAll('.btn-share').forEach(btn => {
-      btn.addEventListener('click', function () {
-        const url   = window.location.href;
-        const title = "{{ table.title }} - {{ table.date|date:'j F' }} - Board-Gamers.com";
-        const text  = "{% trans "Let's play" %} {{ table.game }}";
-        if (navigator.share) {
-          navigator.share({ title, text, url }).catch(() => {});
-        } else {
-          navigator.clipboard.writeText(url).then(() => {
-            const el = document.getElementById('share-copied');
-            el.classList.remove('hidden');
-            setTimeout(() => el.classList.add('hidden'), 2500);
-          });
-        }
-      });
-    });
   </script>
 
   {% if leaderboard_enabled and user_can_edit_leaderboard %}
