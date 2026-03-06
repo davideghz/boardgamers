@@ -20,7 +20,7 @@ django-filter==25.2
 django-meta==2.5.0
 django-model-utils==5.0.0
 django-recaptcha==4.1.0
-django-ses==4.7.1
+django-ses==4.4.0
 django-storages==1.14.6
 djangorestframework==3.16.1
 factory_boy==3.3.3
@@ -31,7 +31,9 @@ gunicorn==25.0.3
 idna==3.10
 jmespath==1.0.1
 maxminddb==2.6.3
+mistune==3.2.0
 multidict==6.7.1
+nh3==0.3.3
 oauthlib==3.3.1
 packaging==24.2
 pillow==12.1.1
