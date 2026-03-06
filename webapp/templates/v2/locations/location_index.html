@@ -68,13 +68,13 @@
   </section>
 
   {# ── Add location CTA ─────────────────────────────────────────────── #}
-  <div class="inline-flex items-center gap-4 border border-slate-200 rounded-xl p-4 bg-white">
-    <div>
+  <div class="mt-2 max-w-lg flex flex-col sm:flex-row sm:items-center gap-3 border border-slate-200 rounded-xl p-4 bg-white">
+    <div class="flex-1">
       <p class="text-sm font-semibold text-slate-900">{% trans "Have a location to add?" %}</p>
       <p class="text-xs text-slate-500">{% trans "Clubs, associations, game shops are welcome." %}</p>
     </div>
     <a href="{% url 'location-create' %}"
-       class="flex-shrink-0 flex items-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+       class="flex items-center justify-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
       {% trans "Add location" %}
     </a>
