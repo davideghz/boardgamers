@@ -42,6 +42,15 @@ def v2_table_card(table):
     }
 
 
+@register.inclusion_tag("tags/v2_horizontal_table_card.html", takes_context=True)
+def v2_horizontal_table_card(context, table, show_author_icon=False):
+    return {
+        'table': table,
+        'user': context.get('user'),
+        'show_author_icon': show_author_icon,
+    }
+
+
 @register.simple_tag(takes_context=True)
 def alternate_url(context, lang_code):
     request = context["request"]

@@ -1,5 +1,5 @@
 {% extends "v2/base_webapp.html" %}
-{% load i18n %}
+{% load i18n custom_tags %}
 
 {% block content %}
 <div class="max-w-2xl">
@@ -14,7 +14,7 @@
   {% if future_tables %}
     <div class="space-y-2 mb-10">
       {% for table in future_tables %}
-        {% include "v2/tables/_table_card.html" %}
+        {% v2_horizontal_table_card table %}
       {% endfor %}
     </div>
   {% else %}
@@ -33,7 +33,7 @@
     </div>
     <div class="space-y-2 opacity-70">
       {% for table in past_tables %}
-        {% include "v2/tables/_table_card.html" %}
+        {% v2_horizontal_table_card table %}
       {% endfor %}
     </div>
   {% endif %}
