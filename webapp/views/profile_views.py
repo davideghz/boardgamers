@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q, Subquery, OuterRef
+from django.db.models import Count, Q, Subquery, OuterRef, Exists
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView
@@ -53,8 +53,8 @@ class UserProfileDetailView(DetailView):
         ).filter(play_count__gt=0).order_by('-win_count', '-play_count')
 
         context.update({
-            'tables': user_profile.joined_tables.annotate(
-                is_win=Count('player', filter=Q(player__position=1, player__user_profile=user_profile))
+            'tables': Table.objects.filter(players=user_profile).annotate(
+                is_win=Exists(Player.objects.filter(table=OuterRef('pk'), user_profile=user_profile, position=1))
             ).order_by('-is_win', '-date'),
             'form': UserProfileAvatarForm(instance=user_profile),
             'games_played': games_played,
