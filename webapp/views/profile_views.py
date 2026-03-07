@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q, Subquery, OuterRef, Exists
+from django.db.models import Count, Q, Subquery, OuterRef, Exists, Value
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView
@@ -48,8 +49,8 @@ class UserProfileDetailView(DetailView):
 
         # Query principale per i giochi giocati
         games_played = Game.objects.annotate(
-            play_count=Subquery(played_count),
-            win_count=Subquery(win_count)
+            play_count=Coalesce(Subquery(played_count), Value(0)),
+            win_count=Coalesce(Subquery(win_count), Value(0))
         ).filter(play_count__gt=0).order_by('-win_count', '-play_count')
 
         context.update({
