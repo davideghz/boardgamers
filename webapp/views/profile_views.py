@@ -53,7 +53,9 @@ class UserProfileDetailView(DetailView):
         ).filter(play_count__gt=0).order_by('-win_count', '-play_count')
 
         context.update({
-            'tables': user_profile.joined_tables.all(),
+            'tables': user_profile.joined_tables.annotate(
+                is_win=Count('player', filter=Q(player__position=1, player__user_profile=user_profile))
+            ).order_by('-is_win', '-date'),
             'form': UserProfileAvatarForm(instance=user_profile),
             'games_played': games_played,
             'meta': self.get_object().as_meta(self.request)
