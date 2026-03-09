@@ -20,7 +20,6 @@ from meta.views import Meta
 from webapp import emails
 from webapp.forms import UserRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm
 from webapp.messages import MSG_EMAIL_VERIFICATION_CODE_SENT
-from webapp.middleware import get_v2_template
 
 
 # SIGNUP
@@ -28,9 +27,6 @@ from webapp.middleware import get_v2_template
 class SignupView(generic.CreateView, RedirectURLMixin):
     form_class = UserRegistrationForm
     template_name = 'auth/signup.html'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -53,9 +49,6 @@ class SignupView(generic.CreateView, RedirectURLMixin):
 class CustomLoginView(LoginView):
     template_name = 'auth/login.html'
     redirect_authenticated_user = True
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -82,15 +75,9 @@ class CustomLogoutView(LogoutView):
 class CustomPasswordChangeView(PasswordChangeView):
     template_name = 'auth/password_change_form.html'
 
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
-
 
 class CustomPasswordChangeDoneView(PasswordChangeDoneView):
     template_name = 'auth/password_change_done.html'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
 
 # PASSWORD RESET
@@ -99,30 +86,18 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     template_name = 'auth/password_reset_form.html'
 
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
-
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     template_name = 'auth/password_reset_done.html'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     form_class = CustomSetPasswordForm
     template_name = 'auth/password_reset_confirm.html'
 
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
-
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'auth/password_reset_complete.html'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
 
 # VERIFY EMAIL

@@ -1,0 +1,125 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Location info" %}</h1>
+  </div>
+
+  <form enctype="multipart/form-data" action="" method="post" class="max-w-xl space-y-5">
+    {% csrf_token %}
+    {{ form.city }}
+    {{ form.latitude }}
+    {{ form.longitude }}
+    {{ form.creator }}
+
+    {# ── Name ────────────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+      {{ form.name }}
+      {% if form.name.errors %}<p class="mt-1 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Description ─────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+      {{ form.description }}
+      {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Cover image ─────────────────────────────────────────────────── #}
+    <div>
+      <p class="text-xs font-semibold text-slate-600 mb-2">{% trans "Cover image" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span></p>
+      {% if form.instance.cover %}
+        <img src="{{ form.instance.cover.url }}" alt="{{ form.instance.name }}"
+             class="w-full h-40 object-cover rounded-xl mb-3">
+      {% endif %}
+      <label for="{{ form.cover.id_for_label }}"
+             class="flex items-center gap-2 w-full cursor-pointer rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500 hover:border-slate-400 hover:bg-slate-50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+        <span id="cover-label">{% trans "Choose an image…" %}</span>
+        {{ form.cover }}
+      </label>
+      {% if form.cover.errors %}<p class="mt-1 text-xs text-red-500">{{ form.cover.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Address ─────────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+      {{ form.address }}
+      <p class="mt-1 text-[11px] text-slate-400">{% trans "We'll use this to show the location on the map." %}</p>
+      {% if form.address.errors %}<p class="mt-1 text-xs text-red-500">{{ form.address.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Map ─────────────────────────────────────────────────────────── #}
+    <div id="gmp-map" class="w-full h-48 rounded-xl overflow-hidden border border-slate-200"></div>
+
+    {# ── Website ─────────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.website.id_for_label }}">
+        {{ form.website.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+      </label>
+      {{ form.website }}
+      {% if form.website.errors %}<p class="mt-1 text-xs text-red-500">{{ form.website.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Is public toggle ────────────────────────────────────────────── #}
+    <label for="{{ form.is_public.id_for_label }}"
+           class="flex items-start justify-between gap-4 p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:bg-slate-50 transition-colors">
+      <div>
+        <p class="text-sm font-semibold text-slate-900">{% trans "Public location" %}</p>
+        <p class="text-xs text-slate-500 mt-0.5">{% trans "Public locations (bar, café, game shop…) can be used by other gamers to organize tables." %}</p>
+      </div>
+      <div class="relative flex-shrink-0 mt-0.5">
+        <input type="checkbox"
+               id="{{ form.is_public.id_for_label }}"
+               name="is_public"
+               class="sr-only peer"
+               {% if form.is_public.value %}checked{% endif %}>
+        <div class="w-11 h-6 rounded-full bg-slate-200
+                    peer-checked:bg-blue-500
+                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                    after:bg-white after:rounded-full after:h-5 after:w-5
+                    after:transition-all after:shadow-sm
+                    peer-checked:after:translate-x-5"></div>
+      </div>
+    </label>
+
+    {# ── Submit / Cancel ─────────────────────────────────────────────── #}
+    <div class="flex gap-3 pt-2">
+      <a href="{% url 'location-manage' location.slug %}"
+         class="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+        {% trans "Cancel" %}
+      </a>
+      <button type="submit"
+              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+        {% trans "Save changes" %}
+      </button>
+    </div>
+
+  </form>
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const input = document.getElementById('{{ form.cover.id_for_label }}');
+      const label = document.getElementById('cover-label');
+      if (input && label) {
+        input.classList.add('hidden');
+        input.addEventListener('change', function () {
+          label.textContent = input.files[0] ? input.files[0].name : '{% trans "Choose an image…" %}';
+        });
+      }
+    });
+  </script>
+  {% include "partials/google-maps-form.html" %}
+{% endblock %}

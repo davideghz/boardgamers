@@ -3,19 +3,6 @@ from django.utils.translation import get_language
 from django.conf import settings
 
 
-class NewUIMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        request.use_new_ui = True
-        return self.get_response(request)
-
-
-def get_v2_template(request, template_name):
-    return f'v2/{template_name}'
-
-
 class UserLanguageRedirectMiddleware:
     """
     Middleware to redirect users to their preferred language version of the site.
@@ -88,4 +75,3 @@ class UserLanguageRedirectMiddleware:
                     return redirect(new_path)
 
         return self.get_response(request)
-

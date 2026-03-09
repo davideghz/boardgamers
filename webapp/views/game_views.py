@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.middleware import get_v2_template
 from webapp.models import Game
 
 
@@ -13,9 +12,6 @@ class GameListView(ListView):
     model = Game
     template_name = 'games/game_list.html'
     context_object_name = 'games'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_queryset(self):
         queryset = Game.objects.annotate(
@@ -42,9 +38,6 @@ class GameDetailView(DetailView):
     model = Game
     template_name = 'games/game_detail.html'
     context_object_name = 'game'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_queryset(self):
         return Game.objects.annotate(

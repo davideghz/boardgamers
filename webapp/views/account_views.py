@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm
-from webapp.middleware import get_v2_template
 from webapp.models import Notification, Membership, Table
 from django.db.models import Q
 
@@ -16,7 +15,7 @@ from django.db.models import Q
 def index(request, template_name='accounts/account_index.html'):
     user = request.user
 
-    return render(request, get_v2_template(request, template_name), {
+    return render(request, template_name, {
         'user': user,
         'meta': Meta(
             title=_("My Account - Board-Gamers.com"),
@@ -51,7 +50,7 @@ def locations(request, template_name='accounts/account_locations.html'):
         id__in=owned_locations.values_list('id', flat=True)
     )
 
-    return render(request, get_v2_template(request, template_name), {
+    return render(request, template_name, {
         'user': user,
         'owned_locations': owned_locations,
         'managed_locations': managed_locations,
@@ -79,7 +78,7 @@ def tables(request, template_name='accounts/account_tables.html'):
     future_tables = base_qs.filter(date__gte=today).order_by('date', 'time')
     past_tables = base_qs.filter(date__lt=today).order_by('-date', '-time')
 
-    return render(request, get_v2_template(request, template_name), {
+    return render(request, template_name, {
         'user': user,
         'created_tables': created_tables,
         'joined_tables': joined_tables,
@@ -103,7 +102,7 @@ def notifications(request, template_name='accounts/account_notifications.html'):
     # Aggiorna in blocco quelle non ancora lette
     user_notifications.filter(is_read=False).update(is_read=True)
 
-    return render(request, get_v2_template(request, template_name), {
+    return render(request, template_name, {
         'notifications': user_notifications,
         'meta': Meta(
             title=_("Notifications - Board-Gamers.com"),
@@ -126,7 +125,7 @@ def memberships(request, template_name='accounts/account_memberships.html'):
         status__in=[Membership.EXPIRED, Membership.REJECTED]
     ).order_by('-end_date')
 
-    return render(request, get_v2_template(request, template_name), {
+    return render(request, template_name, {
         'active_memberships': active_memberships,
         'past_memberships': past_memberships,
         'meta': Meta(
@@ -148,7 +147,7 @@ def edit_notification_preferences(request):
     else:
         form = UserNotificationPreferencesForm(instance=profile)
 
-    return render(request, get_v2_template(request, 'accounts/account_notifications_preferences.html'), {
+    return render(request, 'accounts/account_notifications_preferences.html', {
         'form': form,
         'meta': Meta(
             title=_("Notification Preferences - Board-Gamers.com"),

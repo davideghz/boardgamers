@@ -9,7 +9,6 @@ from django.views.generic.detail import DetailView
 
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
-from webapp.middleware import get_v2_template
 from webapp.models import UserProfile, Game, Player, Table
 
 from django.utils.translation import gettext_lazy as _
@@ -19,9 +18,6 @@ class UserProfileDetailView(DetailView):
     model = UserProfile
     template_name = 'profiles/user_profile_detail.html'
     context_object_name = 'userprofile'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_object(self):
         return get_object_or_404(UserProfile, slug=self.kwargs['slug'])
@@ -75,9 +71,6 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
 
     def get_form_class(self):
         return UserProfileForm
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_success_url(self):
         return reverse('user-profile-detail', args=[self.request.user.user_profile.slug])

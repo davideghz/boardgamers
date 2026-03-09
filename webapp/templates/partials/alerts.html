@@ -1,21 +1,21 @@
 {% load i18n %}
 
 {% if user.is_authenticated and not user.user_profile.is_email_verified %}
-  <div class="alert alert-danger alert-dismissible fade show p-0 m-0" style="border-radius: 0" role="alert">
-    <div class="container d-flex justify-content-between align-items-center">
-      <small>
-        <i class="bi bi-exclamation-circle"></i>
-        <strong>{% trans "Your email is not verified." %}</strong> {% trans "Verify your email to join tables." %}
-        <a href="{% url "send_email_verification_code" %}"
-           class="link-offset-3 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-100-hover">
-          {% trans "CLICK HERE" %}
-        </a>
-        {% trans "to receive a new verification email." %}
-      </small>
-      <button type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+  <div id="v2-alert-email"
+       class="flex items-center justify-between gap-3 px-4 py-2.5 bg-red-50 border-b border-red-200 text-sm text-red-700">
+    <span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1 inline-block flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+      <strong>{% trans "Your email is not verified." %}</strong>
+      {% trans "Verify your email to join tables." %}
+      <a href="{% url 'send_email_verification_code' %}"
+         class="underline font-semibold ml-1 hover:text-red-900">
+        {% trans "CLICK HERE" %}
+      </a>
+      {% trans "to receive a new verification email." %}
+    </span>
+    <button onclick="document.getElementById('v2-alert-email').remove()"
+            class="flex-shrink-0 text-red-400 hover:text-red-700 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+    </button>
   </div>
-{% else %}
-  {% block alert %}
-  {% endblock alert %}
 {% endif %}

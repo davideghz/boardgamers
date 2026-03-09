@@ -1,0 +1,245 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block style %}
+  {# Load Select2 CSS first, then our overrides win #}
+  {{ form.media.css }}
+  <style>
+    /* Select2 — match Tailwind input theme */
+    .select2-container { width: 100% !important; }
+
+    .select2-container--default .select2-selection--single {
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 0.75rem !important;
+      height: 3rem !important;
+      padding: 0 2.5rem 0 1rem !important;
+      font-size: 0.875rem !important;
+      background: #fff !important;
+      position: relative !important;
+      outline: none !important;
+      transition: border-color .15s, box-shadow .15s !important;
+      display: flex !important;
+      align-items: center !important;
+      box-sizing: border-box !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      padding: 0 !important;
+      line-height: normal !important;
+      color: #475569 !important;
+      flex: 1 !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+      color: #94a3b8 !important;
+    }
+    /* Hide default arrow, replace with CSS chevron */
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      position: absolute !important;
+      top: 50% !important;
+      right: 0.75rem !important;
+      transform: translateY(-50%) !important;
+      height: 1rem !important;
+      width: 1rem !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+      border-color: #94a3b8 transparent transparent !important;
+      border-width: 5px 4px 0 !important;
+      border-style: solid !important;
+      margin: 0 !important;
+      position: static !important;
+      display: block !important;
+    }
+    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+      border-color: transparent transparent #94a3b8 !important;
+      border-width: 0 4px 5px !important;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 4px rgb(59 130 246 / 0.15) !important;
+    }
+    .select2-dropdown {
+      border-color: #e2e8f0 !important;
+      border-radius: 0.75rem !important;
+      font-size: 0.875rem !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #3b82f6 !important;
+    }
+  </style>
+{% endblock style %}
+
+{% block content %}
+
+  {# ── Page header ──────────────────────────────────────────────────── #}
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-slate-900">
+      {% if form.instance.pk %}
+        {% trans "Edit table" %}
+      {% else %}
+        {% trans "Create a new table" %}
+      {% endif %}
+    </h1>
+    {% if form.instance.pk %}
+      <p class="text-sm text-slate-500 mt-1">
+        <a href="{% url 'table-detail' table.slug %}" class="text-blue-600 hover:underline">← {{ table.title|truncatechars:30 }}</a>
+      </p>
+    {% endif %}
+  </div>
+
+  {# jQuery + Select2 JS for dal autocomplete (CSS already loaded in head via block style) #}
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  {{ form.media.js }}
+
+  <form action="" method="post" class="max-w-xl space-y-5">
+    {% csrf_token %}
+    {{ form.location }}
+
+    {# ── Location display ───────────────────────────────────────────── #}
+    <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+      <img src="{{ location.cover_url }}" alt="{{ location.name }}"
+           class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+      <div class="min-w-0">
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{% trans "Location" %}</p>
+        <p class="text-sm font-bold text-slate-900 truncate">{{ location.name }}</p>
+      </div>
+    </div>
+
+    {# ── Date & Time ─────────────────────────────────────────────────── #}
+    <div>
+      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{% trans "Date and time" %}</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+          {{ form.date }}
+          {% if form.date.errors %}<p class="mt-1 text-xs text-red-500">{{ form.date.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
+          {{ form.time }}
+          {% if form.time.errors %}<p class="mt-1 text-xs text-red-500">{{ form.time.errors|join:", " }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ── Title ───────────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+      {{ form.title }}
+      {% if form.title.errors %}<p class="mt-1 text-xs text-red-500">{{ form.title.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Description ─────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+      {{ form.description }}
+      {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Game ────────────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1">
+        {% trans "Game" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+      </label>
+      {{ form.game }}
+      <p class="mt-1.5 text-[11px] text-slate-400">
+        {% trans "Can't find the game?" %}
+        <a href="{% url 'contacts' %}" target="_blank" class="text-blue-500 hover:underline">{% trans "Contact us" %}</a>
+        {% trans "and we'll add it." %}
+      </p>
+    </div>
+
+    {# ── Players ─────────────────────────────────────────────────────── #}
+    <div>
+      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{% trans "Players" %}</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.min_players.id_for_label }}">{{ form.min_players.label }}</label>
+          {{ form.min_players }}
+          {% if form.min_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.min_players.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.max_players.id_for_label }}">{{ form.max_players.label }}</label>
+          {{ form.max_players }}
+          {% if form.max_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.max_players.errors|join:", " }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ── Submit / Cancel ─────────────────────────────────────────────── #}
+    <div class="flex gap-3 pt-2">
+      {% if form.instance.pk %}
+        <a href="{% url 'table-detail' table.slug %}"
+           class="flex-1 flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+          {% trans "Cancel" %}
+        </a>
+      {% endif %}
+      <button id="publish-btn" type="submit"
+              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        {% if form.instance.pk %}{% trans "Save changes" %}{% else %}{% trans "Publish" %}{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+  {# ── Danger zone (edit only) ─────────────────────────────────────── #}
+  {% if form.instance.pk %}
+    <div class="mt-10 max-w-xl">
+      <div class="relative border-t-2 border-dashed border-red-200 pt-6">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 text-xs font-bold text-red-500 uppercase tracking-wider">
+          {% trans "Danger Zone" %}
+        </span>
+        {% if table.status != 'closed' %}
+          <a href="{% url 'table-delete' table.slug %}"
+             class="flex items-center justify-center gap-2 w-full rounded-full border-2 border-red-200 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+            {% trans "Delete table" %}
+          </a>
+        {% else %}
+          <p class="text-sm text-slate-500 text-center">
+            {% trans "This table is closed and cannot be deleted." %}
+            <a href="{% url 'contacts' %}" class="text-blue-500 hover:underline">{% trans "Contact us" %}</a>
+            {% trans "if you still want to delete it." %}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+{% endblock content %}
+
+
+{% block extrabodyjs %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('input[type="time"]').forEach(function (input) {
+        input.addEventListener('blur', function () {
+          var parts = input.value.split(':');
+          var h = parseInt(parts[0], 10);
+          var m = Math.round(parseInt(parts[1], 10) / 15) * 15;
+          if (m === 60) { h += 1; m = 0; }
+          input.value = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        });
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.getElementById('publish-btn');
+      if (!btn) return;
+      var form = btn.closest('form');
+      var locked = false;
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (locked) return;
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        locked = true;
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> {% trans "Publishing..." %}';
+        form.requestSubmit(btn);
+      });
+    });
+  </script>
+{% endblock extrabodyjs %}

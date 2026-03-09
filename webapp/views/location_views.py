@@ -20,7 +20,6 @@ from meta.views import Meta
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.middleware import get_v2_template
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership
 
 
@@ -56,7 +55,7 @@ def index_view(request, template_name="locations/location_index.html"):
         )
     }
 
-    return render(request, get_v2_template(request, template_name), context)
+    return render(request, template_name, context)
 
 
 class LocationDetailView(DetailView):
@@ -64,9 +63,6 @@ class LocationDetailView(DetailView):
     template_name = 'locations/location_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_context_data(self, **kwargs):
         today = timezone.now().date()
@@ -220,9 +216,6 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_form_class(self):
         return LocationForm
 
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
-
     def form_valid(self, form):
         form.instance.creator = self.request.user.user_profile
         response = super(LocationCreateView, self).form_valid(form)
@@ -256,9 +249,6 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
     def get_form_class(self):
         return LocationForm
 
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
-
     def form_valid(self, form):
         location = form.save(commit=False)
         # Don't change the creator
@@ -275,9 +265,6 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
     template_name = 'locations/location_manage_index.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -308,9 +295,6 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
     template_name = 'locations/location_manage_managers.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -344,9 +328,6 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
     form_class = LocationForm
     template_name = 'locations/location_manage_data.html'
     success_message = "Location was updated successfully"
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_form_class(self):
         return LocationForm
@@ -522,9 +503,6 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
-
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
         if not request.user.is_authenticated:
@@ -565,7 +543,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
         member = get_object_or_404(Member, id=member_id, location=location)
         FormClass = MemberForm
         form = FormClass(instance=member)
-        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+        return render(request, 'locations/location_manage_member_detail.html', {
             'location': location,
             'member': member,
             'form': form,
@@ -584,7 +562,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
             form.save()
             messages.success(request, _("Member updated successfully."))
             return redirect('location-manage-members', slug=location.slug)
-        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+        return render(request, 'locations/location_manage_member_detail.html', {
             'location': location,
             'member': member,
             'form': form,
@@ -608,7 +586,7 @@ class AddMemberView(LoginRequiredMixin, View):
         self._check_permission(request, location)
         FormClass = MemberForm
         form = FormClass()
-        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+        return render(request, 'locations/location_manage_member_detail.html', {
             'location': location,
             'member': None,
             'form': form,
@@ -629,7 +607,7 @@ class AddMemberView(LoginRequiredMixin, View):
             member.save()
             messages.success(request, _("Member %(name)s added successfully.") % {'name': member.full_name})
             return redirect('location-manage-members', slug=location.slug)
-        return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
+        return render(request, 'locations/location_manage_member_detail.html', {
             'location': location,
             'member': None,
             'form': form,
@@ -702,7 +680,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
             messages.warning(request, _("You already have a pending or active membership for this location."))
             return redirect('location-detail', slug=location.slug)
         form = MembershipRequestForm()
-        return render(request, get_v2_template(request, 'locations/location_request_membership.html'), {
+        return render(request, 'locations/location_request_membership.html', {
             'location': location,
             'form': form,
             'meta': Meta(
@@ -743,7 +721,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
             messages.success(request, _("Membership request sent. A manager will review it."))
             return redirect('location-detail', slug=location.slug)
 
-        return render(request, get_v2_template(request, 'locations/location_request_membership.html'), {
+        return render(request, 'locations/location_request_membership.html', {
             'location': location,
             'form': form,
         })

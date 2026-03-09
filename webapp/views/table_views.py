@@ -18,7 +18,6 @@ from meta.views import Meta
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.middleware import get_v2_template
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -51,9 +50,6 @@ class IsNotClosedMixin(UserPassesTestMixin):
 class TableIndexView(generic.ListView):
     template_name = "tables/table_index.html"
     context_object_name = "tables"
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_queryset(self):
         return Table.objects.none()
@@ -94,9 +90,6 @@ class TableIndexView(generic.ListView):
 class TableDetailView(generic.DetailView):
     model = Table
     template_name = "tables/table_detail.html"
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     def get_queryset(self):
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -210,7 +203,7 @@ def table_players_view(request, slug):
     players = Player.objects.filter(table=table).select_related("user_profile")
     add_player_form = AddTablePlayerForm()
 
-    return render(request, get_v2_template(request, "tables/table_players.html"), {
+    return render(request, "tables/table_players.html", {
         "table": table,
         "players": players,
         'available_seats': table.max_players - players.count() - table.external_players,
@@ -324,7 +317,7 @@ def table_create_view(request, location_slug):
 
     context = {"form": form, "location": location}
 
-    return render(request, get_v2_template(request, "tables/table_add_or_edit.html"), context)
+    return render(request, "tables/table_add_or_edit.html", context)
 
 
 @login_required
@@ -352,7 +345,7 @@ def table_update_view(request, location_slug, table_slug):
         form = TableForm(instance=table)
 
     context = {"form": form, "location": location, "table": table}
-    return render(request, get_v2_template(request, "tables/table_add_or_edit.html"), context)
+    return render(request, "tables/table_add_or_edit.html", context)
 
 
 @login_required
@@ -403,9 +396,6 @@ class TableDeleteView(
 ):
     model = Table
     template_name = "tables/table_delete.html"
-
-    def get_template_names(self):
-        return [get_v2_template(self.request, self.template_name)]
 
     slug_field = "slug"
     slug_url_kwarg = "slug"

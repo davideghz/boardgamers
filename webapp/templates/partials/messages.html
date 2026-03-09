@@ -1,16 +1,28 @@
 {% if messages %}
-  <div class="toast-container position-fixed start-50 translate-middle-x p-3">
+  <div id="v2-toast-container"
+       class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4">
     {% for message in messages %}
-      <div id="toast" class="toast align-items-center text-bg-{{ message.tags }} border-0" role="alert" aria-live="assertive"
-           aria-atomic="true">
-        <div class="d-flex">
-          <div class="toast-body">
-             {{ message }}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                  aria-label="Close"></button>
-        </div>
+      <div class="v2-toast flex items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-lg text-sm font-medium
+                  {% if message.tags == 'success' %}bg-green-600 text-white
+                  {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-600 text-white
+                  {% elif message.tags == 'warning' %}bg-yellow-500 text-white
+                  {% else %}bg-slate-800 text-white{% endif %}">
+        <span>{{ message }}</span>
+        <button onclick="this.closest('.v2-toast').remove()"
+                class="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+        </button>
       </div>
     {% endfor %}
   </div>
+  <script>
+    // Auto-dismiss toasts after 3s
+    document.querySelectorAll('.v2-toast').forEach(function(el) {
+      setTimeout(function() {
+        el.style.transition = 'opacity .4s';
+        el.style.opacity = '0';
+        setTimeout(function() { el.remove(); }, 400);
+      }, 3000);
+    });
+  </script>
 {% endif %}

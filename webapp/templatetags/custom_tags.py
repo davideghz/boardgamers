@@ -21,29 +21,16 @@ def render_markdown(value):
     return mark_safe(clean)
 
 
+
 @register.inclusion_tag("tags/table_card.html")
-def table_list_item(table):
+def table_card(table):
     return {
         'table': table,
     }
 
 
-@register.inclusion_tag("tags/swiper_table_slide.html")
-def swiper_table_slide(table):
-    return {
-        'table': table,
-    }
-
-
-@register.inclusion_tag("tags/v2_table_card.html")
-def v2_table_card(table):
-    return {
-        'table': table,
-    }
-
-
-@register.inclusion_tag("tags/v2_horizontal_table_card.html", takes_context=True)
-def v2_horizontal_table_card(context, table, show_author_icon=False):
+@register.inclusion_tag("tags/horizontal_table_card.html", takes_context=True)
+def horizontal_table_card(context, table, show_author_icon=False):
     return {
         'table': table,
         'user': context.get('user'),
