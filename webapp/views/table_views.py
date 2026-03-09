@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, TableFormV2, CustomLoginForm, CommentForm, JoinTableForm, PlayerScoreFormSet, AddTablePlayerForm
+from webapp.forms import TableForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.middleware import get_v2_template
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
@@ -305,10 +305,8 @@ def table_create_view(request, location_slug):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
         return redirect("location-detail", location_slug)
 
-    FormClass = TableFormV2 if getattr(request, 'use_new_ui', False) else TableForm
-
     if request.method == "POST":
-        form = FormClass(request.POST)
+        form = TableForm(request.POST)
         if form.is_valid():
             table = form.save(commit=False)
             table.author = request.user.user_profile
@@ -322,7 +320,7 @@ def table_create_view(request, location_slug):
             messages.success(request, _("Table was created successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        form = FormClass(initial=initial)
+        form = TableForm(initial=initial)
 
     context = {"form": form, "location": location}
 
@@ -341,10 +339,8 @@ def table_update_view(request, location_slug, table_slug):
 
     location = table.location  # Ora la location è sempre valida
 
-    FormClass = TableFormV2 if getattr(request, 'use_new_ui', False) else TableForm
-
     if request.method == "POST":
-        form = FormClass(request.POST, instance=table)
+        form = TableForm(request.POST, instance=table)
         if form.is_valid():
             table = form.save(commit=False)
             table.location = location  # Assegna manualmente la location
@@ -353,7 +349,7 @@ def table_update_view(request, location_slug, table_slug):
             messages.success(request, _("Table was updated successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        form = FormClass(instance=table)
+        form = TableForm(instance=table)
 
     context = {"form": form, "location": location, "table": table}
     return render(request, get_v2_template(request, "tables/table_add_or_edit.html"), context)

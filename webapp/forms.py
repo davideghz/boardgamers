@@ -164,7 +164,7 @@ class TailwindForm(Form):
                 field.widget.attrs['class'] = css
 
 
-class TableFormV2(ModelForm, TailwindForm):
+class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
         exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status']
@@ -211,57 +211,6 @@ class TableFormV2(ModelForm, TailwindForm):
             self.save_m2m()
         return instance
 
-
-class TableForm(ModelForm, BootstrapForm):
-    class Meta:
-        model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status']
-        widgets = {
-            'location': HiddenInput(),
-            'games': autocomplete.ModelSelect2Multiple(
-                url='games-autocomplete',
-                attrs={
-                    'data-placeholder': _('Games'),
-                    # 'data-minimum-input-length': 1
-                }),
-            'game': autocomplete.ModelSelect2(
-                url='games-autocomplete',
-                attrs={
-                    'data-placeholder': _('Game'),
-                    # 'data-minimum-input-length': 1
-                }),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['date'].input_formats = ['%Y-%m-%d']
-
-    def clean_title(self):
-        title = self.cleaned_data['title']
-        if title is None or len(title) < 2:
-            raise ValidationError("Title is too short")
-        return title
-
-    def clean_description(self):
-        description = self.cleaned_data['description']
-        if description is None or len(description) < 2:
-            raise ValidationError("Description is too short")
-        return description
-
-    def clean(self):
-        cleaned_data = super().clean()
-        min_players = cleaned_data.get('min_players')
-        max_players = cleaned_data.get('max_players')
-        if min_players and max_players and max_players < min_players:
-            raise ValidationError(_("Maximum players cannot be less than minimum players."))
-        return cleaned_data
-
-    def save(self, commit=True):
-        instance = super(TableForm, self).save(commit=False)
-        if commit:
-            instance.save()
-            self.save_m2m()
-        return instance
 
 
 class CommentForm(ModelForm, BootstrapForm):
@@ -371,19 +320,8 @@ class UserRegistrationForm(UserCreationForm, BootstrapForm):
         return user, user_profile
 
 
-class UserProfileForm(ModelForm, BootstrapForm):
-    def __init__(self, *args, **kwargs):
-        super(UserProfileForm, self).__init__(*args, **kwargs)
-        self.fields['city'].widget = HiddenInput()
-        self.fields['latitude'].widget = HiddenInput()
-        self.fields['longitude'].widget = HiddenInput()
 
-    class Meta:
-        model = UserProfile
-        fields = ['nickname', 'address', 'city', 'latitude', 'longitude']
-
-
-class UserProfileFormV2(ModelForm, TailwindForm):
+class UserProfileForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['city'].widget = HiddenInput()
@@ -407,17 +345,8 @@ class JoinTableForm(ModelForm, BootstrapForm):
         fields = []
 
 
-class LocationForm(ModelForm, BootstrapForm):
-    city = CharField(widget=HiddenInput(), required=False)
-    latitude = CharField(widget=HiddenInput(), required=False)
-    longitude = CharField(widget=HiddenInput(), required=False)
 
-    class Meta:
-        model = Location
-        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public']
-
-
-class LocationFormV2(ModelForm, TailwindForm):
+class LocationForm(ModelForm, TailwindForm):
     city = CharField(widget=HiddenInput(), required=False)
     latitude = CharField(widget=HiddenInput(), required=False)
     longitude = CharField(widget=HiddenInput(), required=False)
@@ -540,28 +469,8 @@ class AddTablePlayerForm(BootstrapForm):
     )
 
 
-class MemberForm(ModelForm, BootstrapForm):
-    """Form to create or edit a Member's anagrafica."""
-    user_profile = ModelChoiceField(
-        queryset=UserProfile.objects.all(),
-        required=False,
-        label=_('Linked User Profile'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
-            }
-        )
-    )
 
-    class Meta:
-        from webapp.models import Member
-        model = Member
-        fields = ['first_name', 'last_name', 'code', 'email', 'phone_number', 'user_profile']
-
-
-class MemberFormV2(ModelForm, TailwindForm):
+class MemberForm(ModelForm, TailwindForm):
     """Tailwind-styled version of MemberForm for the v2 UI."""
     user_profile = ModelChoiceField(
         queryset=UserProfile.objects.all(),

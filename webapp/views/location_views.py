@@ -17,7 +17,7 @@ from django.views.generic import DetailView, CreateView
 
 from meta.views import Meta
 
-from webapp.forms import LocationForm, LocationFormV2, AddLocationManagerForm, TransferOwnershipForm, MemberForm, MemberFormV2, ApproveMembershipForm, \
+from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.middleware import get_v2_template
@@ -218,7 +218,7 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = "Location was created successfully"
 
     def get_form_class(self):
-        return LocationFormV2 if getattr(self.request, 'use_new_ui', False) else LocationForm
+        return LocationForm
 
     def get_template_names(self):
         return [get_v2_template(self.request, self.template_name)]
@@ -254,7 +254,7 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
         return response
 
     def get_form_class(self):
-        return LocationFormV2 if getattr(self.request, 'use_new_ui', False) else LocationForm
+        return LocationForm
 
     def get_template_names(self):
         return [get_v2_template(self.request, self.template_name)]
@@ -349,8 +349,6 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
         return [get_v2_template(self.request, self.template_name)]
 
     def get_form_class(self):
-        if getattr(self.request, 'use_new_ui', False):
-            return LocationFormV2
         return LocationForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -565,7 +563,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
         location = get_object_or_404(Location, slug=slug)
         self._check_permission(request, location)
         member = get_object_or_404(Member, id=member_id, location=location)
-        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        FormClass = MemberForm
         form = FormClass(instance=member)
         return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
             'location': location,
@@ -580,7 +578,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
         location = get_object_or_404(Location, slug=slug)
         self._check_permission(request, location)
         member = get_object_or_404(Member, id=member_id, location=location)
-        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        FormClass = MemberForm
         form = FormClass(request.POST, instance=member)
         if form.is_valid():
             form.save()
@@ -608,7 +606,7 @@ class AddMemberView(LoginRequiredMixin, View):
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         self._check_permission(request, location)
-        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        FormClass = MemberForm
         form = FormClass()
         return render(request, get_v2_template(request, 'locations/location_manage_member_detail.html'), {
             'location': location,
@@ -623,7 +621,7 @@ class AddMemberView(LoginRequiredMixin, View):
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         self._check_permission(request, location)
-        FormClass = MemberFormV2 if getattr(request, 'use_new_ui', False) else MemberForm
+        FormClass = MemberForm
         form = FormClass(request.POST)
         if form.is_valid():
             member = form.save(commit=False)

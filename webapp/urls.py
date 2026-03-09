@@ -120,7 +120,4 @@ urlpatterns = [
     path('debug', static_page_views.debug, name='debug'),
     path('test-widget', static_page_views.test_widget, name='test_widget'),
 
-    # UI V2 TOGGLE (dev only)
-    path('dev/ui/enable/', static_page_views.enable_new_ui, name='ui-v2-enable'),
-    path('dev/ui/disable/', static_page_views.disable_new_ui, name='ui-v2-disable'),
 ]

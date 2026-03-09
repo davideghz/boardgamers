@@ -218,19 +218,3 @@ def debug(request, template_name="staticpages/debug.html"):
 
 def test_widget(request, template_name="staticpages/test_widget.html"):
     return render(request, template_name, {})
-
-
-def enable_new_ui(request):
-    """Set the v2 UI cookie and redirect back."""
-    next_url = request.META.get('HTTP_REFERER', '/')
-    response = redirect(next_url)
-    response.set_cookie('ui_version', 'v2', max_age=60 * 60 * 24 * 30)  # 30 days
-    return response
-
-
-def disable_new_ui(request):
-    """Clear the v2 UI cookie and redirect back."""
-    next_url = request.META.get('HTTP_REFERER', '/')
-    response = redirect(next_url)
-    response.delete_cookie('ui_version')
-    return response

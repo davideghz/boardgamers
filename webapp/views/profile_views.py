@@ -8,7 +8,7 @@ from django.views.generic import UpdateView
 from django.views.generic.detail import DetailView
 
 from boardGames.settings import env
-from webapp.forms import UserProfileAvatarForm, UserProfileForm, UserProfileFormV2
+from webapp.forms import UserProfileAvatarForm, UserProfileForm
 from webapp.middleware import get_v2_template
 from webapp.models import UserProfile, Game, Player, Table
 
@@ -74,8 +74,6 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
         return UserProfile.objects.get(user=self.request.user)
 
     def get_form_class(self):
-        if getattr(self.request, 'use_new_ui', False):
-            return UserProfileFormV2
         return UserProfileForm
 
     def get_template_names(self):
