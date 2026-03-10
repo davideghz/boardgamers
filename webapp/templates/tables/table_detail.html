@@ -28,7 +28,8 @@
   <div class="mb-6">
     <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">{{ table.title }}</h1>
     {% if table.game %}
-      <p class="text-primary font-bold text-base">{{ table.game }}</p>
+      <a href="{% url 'game-detail' table.game.slug %}" target="_blank"
+         class="text-primary font-bold text-base hover:underline">{{ table.game }}</a>
     {% endif %}
     <p class="text-xs text-slate-400 mt-1">{% trans "Created" %} {{ table.created_at|timesince }} {% trans "ago" %}</p>
   </div>
