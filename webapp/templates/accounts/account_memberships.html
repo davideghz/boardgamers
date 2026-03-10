@@ -12,7 +12,7 @@
 
   {# ── Active / Pending ───────────────────────────────────────────────── #}
   {% if active_memberships %}
-    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "Active" %}</h2>
+    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "Active memberships" %}</h2>
     <div class="space-y-2 mb-8">
       {% for membership in active_memberships %}
         <a href="{% url 'location-detail' membership.member.location.slug %}"
@@ -61,7 +61,7 @@
 
   {# ── Past ───────────────────────────────────────────────────────────── #}
   {% if past_memberships %}
-    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "Past" %}</h2>
+    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "Expired memberships" %}</h2>
     <div class="space-y-2">
       {% for membership in past_memberships %}
         <a href="{% url 'location-detail' membership.member.location.slug %}"
