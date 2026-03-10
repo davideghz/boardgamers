@@ -23,12 +23,24 @@
 
   {# ── Nearby / all locations ────────────────────────────────────────── #}
   <section class="mb-8">
-    <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
-      <h2 class="text-base font-bold text-slate-900">{% trans "Locations" %}</h2>
-      {% if location_message %}
-        <p class="text-xs text-slate-400 italic">{{ location_message }}</p>
-      {% endif %}
-    </div>
+    <h2 class="text-base font-bold text-slate-900 mb-1">{% trans "Locations" %}</h2>
+    {% if not user.is_authenticated %}
+      <p class="text-xs text-slate-500 mb-3">
+        <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Accedi" %}</a>
+        {% trans "per vedere i tavoli vicini" %}
+      </p>
+    {% elif user.user_profile.city %}
+      <p class="text-xs text-slate-500 mb-3">
+        {% trans "Tables near to" %} <strong>{{ user.user_profile.city }}</strong>
+        &nbsp;·&nbsp;
+        <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
+      </p>
+    {% else %}
+      <p class="text-xs text-slate-500 mb-3">
+        <a href="{% url 'user-profile-edit' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Set your address" %}</a>
+        {% trans "to see near tables." %}
+      </p>
+    {% endif %}
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
       {% for location in nearby_locations %}
