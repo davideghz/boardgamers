@@ -3,123 +3,152 @@
 
 {% block content %}
 
-  <div class="mb-6 flex items-center justify-between gap-3">
-    <div>
-      <p class="text-sm text-slate-500 mb-1">
-        <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
-        <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
-      </p>
-      <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Members" %}</h1>
-    </div>
-    <a href="{% url 'location-add-member' location.slug %}"
-       class="flex-shrink-0 flex items-center gap-1.5 bg-slate-900 text-white text-xs font-bold px-3 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-      {% trans "Add member" %}
-    </a>
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Members" %}</h1>
   </div>
 
-  <div class="max-w-xl space-y-2">
-    {% for member in members %}
-      <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white">
-        {# Avatar placeholder #}
-        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-slate-500">
-          {{ member.first_name|first }}{{ member.last_name|first }}
+  <div class="flex gap-8 items-start">
+
+    {# ── Main content ────────────────────────────────────────────────── #}
+    <div class="flex-1 min-w-0">
+
+      {# Mobile actions (hidden on lg+) #}
+      <div class="flex gap-2 mb-4 lg:hidden">
+        <a href="{% url 'location-add-member' location.slug %}"
+           class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          {% trans "Add" %}
+        </a>
+        <a href="{% url 'location-members-csv' location.slug %}"
+           class="flex items-center gap-1.5 border border-slate-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+          CSV
+        </a>
+      </div>
+
+      {# Search bar #}
+      <div class="mb-3">
+        <div class="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+               class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <input id="member-search" type="search" autocomplete="off"
+                 placeholder="{% trans 'Search by name, email, code…' %}"
+                 class="w-full pl-9 pr-4 py-2.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-slate-400">
         </div>
+        <p id="member-no-results" class="hidden text-sm text-slate-400 mt-4 text-center">{% trans "No members found." %}</p>
+      </div>
 
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <a href="{% url 'location-member-detail' location.slug member.id %}"
-               class="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors text-decoration-none truncate">
-              {{ member.full_name }}
-            </a>
-            {% if member.code %}
-              <span class="text-[10px] text-slate-400 font-mono">#{{ member.code }}</span>
-            {% endif %}
-            {% if member.user_profile %}
-              <span class="text-[10px] text-slate-400 flex items-center gap-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
-                {{ member.user_profile.nickname }}
-              </span>
-            {% endif %}
-          </div>
+      {# Member list #}
+      <div class="space-y-2" id="member-list">
+        {% for member in members %}
+          <div class="relative flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-colors"
+               data-search="{{ member.first_name|lower }} {{ member.last_name|lower }} {{ member.user_profile.nickname|lower|default:'' }} {{ member.email|lower }} {{ member.code|lower }} {{ member.phone_number|lower }}">
+            {# Full-card link #}
+            <a href="{% url 'location-member-detail' location.slug member.uuid %}" class="absolute inset-0 rounded-xl" aria-label="{{ member.full_name }}"></a>
 
-          {# Membership status #}
-          <div class="mt-1">
+            {# Avatar #}
+            <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-slate-500">
+              {{ member.first_name|first }}{{ member.last_name|first }}
+            </div>
+
+            {# Name + status on the same row #}
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="text-sm font-bold text-slate-900 truncate">{{ member.full_name }}</p>
+                {% with membership=member.active_membership %}
+                  {% if membership %}
+                    <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Active" %}</span>
+                  {% else %}
+                    {% with pending=member.memberships.first %}
+                      {% if pending and pending.status == 'pending' %}
+                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "Pending" %}</span>
+                      {% elif pending and pending.status == 'expired' %}
+                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{% trans "Expired" %}</span>
+                      {% elif pending and pending.status == 'rejected' %}
+                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">{% trans "Rejected" %}</span>
+                      {% else %}
+                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-400">{% trans "No membership" %}</span>
+                      {% endif %}
+                    {% endwith %}
+                  {% endif %}
+                {% endwith %}
+              </div>
+              {% if member.user_profile %}
+                <p class="text-[11px] text-slate-400 truncate mt-0.5">{{ member.user_profile.nickname }}</p>
+              {% endif %}
+            </div>
+
+            {# Approve/reject buttons (relative z-10 to stay above the card link) #}
             {% with membership=member.active_membership %}
-              {% if membership %}
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Active" %}</span>
-              {% else %}
+              {% if not membership %}
                 {% with pending=member.memberships.first %}
                   {% if pending and pending.status == 'pending' %}
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "Pending" %}</span>
-                  {% elif pending and pending.status == 'expired' %}
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{% trans "Expired" %}</span>
-                  {% elif pending and pending.status == 'rejected' %}
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">{% trans "Rejected" %}</span>
-                  {% else %}
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-400">{% trans "No membership" %}</span>
+                    <div class="relative z-10 flex items-center gap-1 flex-shrink-0">
+                      <button type="button"
+                              data-member-uuid="{{ member.uuid }}"
+                              data-member-name="{{ member.full_name }}"
+                              class="js-approve-btn p-1.5 rounded-lg text-slate-300 hover:text-green-600 hover:bg-green-50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                      </button>
+                      <form method="post" action="{% url 'location-approve-membership' location.slug member.uuid %}" class="relative z-10">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" class="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                        </button>
+                      </form>
+                    </div>
                   {% endif %}
                 {% endwith %}
               {% endif %}
             {% endwith %}
-          </div>
-        </div>
 
-        {# Actions #}
-        <div class="flex items-center gap-1 flex-shrink-0">
-          {% with membership=member.active_membership %}
-            {% if not membership %}
-              {% with pending=member.memberships.first %}
-                {% if pending and pending.status == 'pending' %}
-                  {# Approve button #}
-                  <button type="button"
-                          data-member-id="{{ member.id }}"
-                          data-member-name="{{ member.full_name }}"
-                          class="js-approve-btn p-1.5 rounded-lg text-slate-300 hover:text-green-600 hover:bg-green-50 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </button>
-                  {# Reject button #}
-                  <form method="post" action="{% url 'location-approve-membership' location.slug member.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="reject">
-                    <button type="submit" class="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </form>
-                {% endif %}
-              {% endwith %}
-            {% endif %}
-          {% endwith %}
-
-          <a href="{% url 'location-member-detail' location.slug member.id %}"
-             class="p-1.5 rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+            {# Chevron #}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0 text-slate-300">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>
-          </a>
-        </div>
 
+          </div>
+        {% empty %}
+          <div class="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-slate-200 bg-white">
+            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+              </svg>
+            </div>
+            <p class="text-sm font-semibold text-slate-700">{% trans "No members yet" %}</p>
+            <p class="text-xs text-slate-400 mt-1 mb-4">{% trans "Add the first member manually or wait for membership requests." %}</p>
+            <a href="{% url 'location-add-member' location.slug %}"
+               class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+              {% trans "Add member" %}
+            </a>
+          </div>
+        {% endfor %}
       </div>
-    {% empty %}
-      <div class="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-slate-200 bg-white">
-        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-          </svg>
-        </div>
-        <p class="text-sm font-semibold text-slate-700">{% trans "No members yet" %}</p>
-        <p class="text-xs text-slate-400 mt-1 mb-4">{% trans "Add the first member manually or wait for membership requests." %}</p>
-        <a href="{% url 'location-add-member' location.slug %}"
-           class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-          {% trans "Add member" %}
-        </a>
-      </div>
-    {% endfor %}
+
+    </div>
+
+    {# ── Sidebar ─────────────────────────────────────────────────────── #}
+    <aside class="hidden lg:flex flex-col gap-2 w-44 flex-shrink-0 sticky top-6 self-start">
+      <a href="{% url 'location-add-member' location.slug %}"
+         class="flex items-center gap-2 bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        {% trans "Add member" %}
+      </a>
+      <a href="{% url 'location-members-csv' location.slug %}"
+         class="flex items-center gap-2 border border-slate-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+        {% trans "Download CSV" %}
+      </a>
+    </aside>
+
   </div>
 
   {# ── Approve membership dialog ─────────────────────────────────────── #}
@@ -174,11 +203,26 @@
 
     document.querySelectorAll('.js-approve-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        approveForm.action = baseUrl + btn.dataset.memberId + '/approve/';
+        approveForm.action = baseUrl + btn.dataset.memberUuid + '/approve/';
         approveName.textContent = btn.dataset.memberName;
         approveDialog.classList.remove('hidden');
       });
     });
     [approveCancel, approveBackdrop].forEach(el => el && el.addEventListener('click', () => approveDialog.classList.add('hidden')));
+
+    const searchInput = document.getElementById('member-search');
+    const memberCards = document.querySelectorAll('#member-list [data-search]');
+    const noResults = document.getElementById('member-no-results');
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      let visible = 0;
+      memberCards.forEach(card => {
+        const match = !q || card.dataset.search.includes(q);
+        card.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      noResults.classList.toggle('hidden', visible > 0);
+    });
   </script>
 {% endblock %}

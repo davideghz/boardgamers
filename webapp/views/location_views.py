@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -18,7 +18,7 @@ from django.views.generic import DetailView, CreateView
 from meta.views import Meta
 
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
-    MembershipRequestForm
+    MembershipRequestForm, MembershipEditForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership
 
@@ -538,35 +538,57 @@ class MemberDetailEditView(LoginRequiredMixin, View):
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))
 
-    def get(self, request, slug, member_id):
+    def get(self, request, slug, member_uuid):
         location = get_object_or_404(Location, slug=slug)
         self._check_permission(request, location)
-        member = get_object_or_404(Member, id=member_id, location=location)
-        FormClass = MemberForm
-        form = FormClass(instance=member)
+        member = get_object_or_404(Member, uuid=member_uuid, location=location)
+        memberships = member.memberships.select_related('approved_by').all()
+        form = MemberForm(instance=member)
+        membership_forms = {
+            ms.uuid: MembershipEditForm(initial={
+                'status': ms.status,
+                'start_date': ms.start_date.isoformat() if ms.start_date else '',
+                'end_date': ms.end_date.isoformat() if ms.end_date else '',
+                'notes': ms.notes,
+            })
+            for ms in memberships
+        }
         return render(request, 'locations/location_manage_member_detail.html', {
             'location': location,
             'member': member,
             'form': form,
+            'memberships': memberships,
+            'membership_forms': membership_forms,
             'meta': Meta(
                 title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
             ),
         })
 
-    def post(self, request, slug, member_id):
+    def post(self, request, slug, member_uuid):
         location = get_object_or_404(Location, slug=slug)
         self._check_permission(request, location)
-        member = get_object_or_404(Member, id=member_id, location=location)
-        FormClass = MemberForm
-        form = FormClass(request.POST, instance=member)
+        member = get_object_or_404(Member, uuid=member_uuid, location=location)
+        memberships = member.memberships.select_related('approved_by').all()
+        form = MemberForm(request.POST, instance=member)
         if form.is_valid():
             form.save()
             messages.success(request, _("Member updated successfully."))
             return redirect('location-manage-members', slug=location.slug)
+        membership_forms = {
+            ms.uuid: MembershipEditForm(initial={
+                'status': ms.status,
+                'start_date': ms.start_date.isoformat() if ms.start_date else '',
+                'end_date': ms.end_date.isoformat() if ms.end_date else '',
+                'notes': ms.notes,
+            })
+            for ms in memberships
+        }
         return render(request, 'locations/location_manage_member_detail.html', {
             'location': location,
             'member': member,
             'form': form,
+            'memberships': memberships,
+            'membership_forms': membership_forms,
             'meta': Meta(
                 title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
             ),
@@ -622,7 +644,7 @@ class AddMemberView(LoginRequiredMixin, View):
 class ApproveMembershipView(LoginRequiredMixin, View):
     """View to approve or reject a pending membership (owner and managers)"""
 
-    def post(self, request, slug, member_id):
+    def post(self, request, slug, member_uuid):
         location = get_object_or_404(Location, slug=slug)
         _require_membership_enabled(location)
         user_profile = request.user.user_profile
@@ -630,7 +652,7 @@ class ApproveMembershipView(LoginRequiredMixin, View):
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage memberships."))
 
-        member = get_object_or_404(Member, id=member_id, location=location)
+        member = get_object_or_404(Member, uuid=member_uuid, location=location)
 
         action = request.POST.get('action')  # 'approve' or 'reject'
 
@@ -659,6 +681,101 @@ class ApproveMembershipView(LoginRequiredMixin, View):
                 return redirect('location-manage-members', slug=location.slug)
 
         return redirect('location-manage-members', slug=location.slug)
+
+
+class EditMembershipView(LoginRequiredMixin, View):
+    """View to edit an existing membership (owner and managers)."""
+
+    def post(self, request, slug, member_uuid, membership_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage memberships."))
+        member = get_object_or_404(Member, uuid=member_uuid, location=location)
+        membership = get_object_or_404(Membership, uuid=membership_uuid, member=member)
+        form = MembershipEditForm(request.POST)
+        if form.is_valid():
+            membership.status = form.cleaned_data['status']
+            membership.start_date = form.cleaned_data['start_date'] or None
+            membership.end_date = form.cleaned_data['end_date'] or None
+            membership.notes = form.cleaned_data.get('notes', '')
+            membership.save()
+            messages.success(request, _("Membership updated successfully."))
+        else:
+            messages.error(request, _("Please correct the errors below."))
+        return redirect('location-member-detail', slug=location.slug, member_uuid=member.uuid)
+
+
+class AddMembershipView(LoginRequiredMixin, View):
+    """View to create a new PENDING membership for an existing member (owner and managers)."""
+
+    def post(self, request, slug, member_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage memberships."))
+        member = get_object_or_404(Member, uuid=member_uuid, location=location)
+        Membership.objects.create(member=member, status=Membership.PENDING)
+        messages.success(request, _("New membership created."))
+        return redirect('location-member-detail', slug=location.slug, member_uuid=member.uuid)
+
+
+class DownloadMembersCSVView(LoginRequiredMixin, View):
+    """Download a CSV of all members for a location."""
+
+    def get(self, request, slug):
+        import csv
+        location = get_object_or_404(Location, slug=slug)
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="members-{location.slug}.csv"'
+        response.write('\ufeff')  # BOM for Excel UTF-8
+
+        writer = csv.writer(response)
+        writer.writerow([
+            _('First Name'), _('Last Name'), _('Code'), _('Email'),
+            _('Phone'), _('Username'), _('Membership Status'),
+            _('Start Date'), _('End Date'),
+        ])
+
+        members = location.members.prefetch_related('memberships', 'user_profile').order_by('last_name', 'first_name')
+        for member in members:
+            latest = member.memberships.first()
+            writer.writerow([
+                member.first_name,
+                member.last_name,
+                member.code,
+                member.email,
+                member.phone_number,
+                member.user_profile.nickname if member.user_profile else '',
+                latest.get_status_display() if latest else '',
+                latest.start_date.isoformat() if latest and latest.start_date else '',
+                latest.end_date.isoformat() if latest and latest.end_date else '',
+            ])
+
+        return response
+
+
+class DeleteMembershipView(LoginRequiredMixin, View):
+    """View to delete a membership (owner and managers)."""
+
+    def post(self, request, slug, member_uuid, membership_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage memberships."))
+        member = get_object_or_404(Member, uuid=member_uuid, location=location)
+        membership = get_object_or_404(Membership, uuid=membership_uuid, member=member)
+        membership.delete()
+        messages.success(request, _("Membership deleted."))
+        return redirect('location-member-detail', slug=location.slug, member_uuid=member.uuid)
 
 
 class RequestMembershipView(LoginRequiredMixin, View):

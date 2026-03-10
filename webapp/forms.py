@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, modelformset_factory, EmailField, ModelChoiceField, BooleanField, URLInput
+    ModelMultipleChoiceField, modelformset_factory, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -515,3 +515,32 @@ class ApproveMembershipForm(BootstrapForm):
         label=_('Notes'),
         widget=CustomTextareaWidget(),
     )
+
+
+class MembershipEditForm(BootstrapForm):
+    """Form for a manager to edit an existing membership."""
+    status = ChoiceField(
+        label=_('Status'),
+        choices=[],  # will be set in __init__
+        widget=CustomSelectWidget(),
+    )
+    start_date = CharField(
+        required=False,
+        label=_('Start Date'),
+        widget=CustomDateInputWidget(),
+    )
+    end_date = CharField(
+        required=False,
+        label=_('End Date'),
+        widget=CustomDateInputWidget(),
+    )
+    notes = CharField(
+        required=False,
+        label=_('Notes'),
+        widget=CustomTextareaWidget(),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from webapp.models import Membership
+        self.fields['status'].choices = Membership.STATUS_CHOICES

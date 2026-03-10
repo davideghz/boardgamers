@@ -450,6 +450,7 @@ class Member(DateTimeModel):
     code = models.CharField(max_length=50, blank=True, verbose_name=_('Member Code'))
     email = models.EmailField(blank=True, verbose_name=_('Email'))
     phone_number = models.CharField(max_length=30, blank=True, verbose_name=_('Phone Number'))
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
         verbose_name = _('Member')
@@ -505,6 +506,7 @@ class Membership(DateTimeModel):
         null=True, blank=True, related_name='approved_memberships',
         verbose_name=_('Approved By')
     )
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
         verbose_name = _('Membership')
