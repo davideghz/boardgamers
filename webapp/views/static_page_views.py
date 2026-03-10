@@ -35,7 +35,7 @@ def homepage_view(request):
         user_created_locations_ids = user_created_locations.values_list('id', flat=True) if user_created_locations else []
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
-            if profile and profile.latitude is not None and profile.longitude is not None:
+            if profile and profile.latitude and profile.longitude:
                 user_location = Point(float(profile.longitude), float(profile.latitude), srid=4326)
         except (TypeError, ValueError):
             pass
@@ -58,8 +58,9 @@ def homepage_view(request):
 
     # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza e filtra le locations vicine
     if user_location:
-        future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date', 'distance')
-        # nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date')
+        if user_created_locations is not None:
+            user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
         nearby_locations = (Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True)
                             .exclude(id__in=user_created_locations_ids)
                             .order_by('distance'))

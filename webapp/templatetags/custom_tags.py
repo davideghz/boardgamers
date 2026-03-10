@@ -13,6 +13,16 @@ _ALLOWED_TAGS = {"p", "strong", "em", "ul", "ol", "li", "br"}
 
 
 @register.filter
+def km(value):
+    """Convert a GeoDjango Distance (or plain meters float) to a formatted km string."""
+    try:
+        meters = value.m  # GeoDjango Distance object
+    except AttributeError:
+        meters = float(value)
+    return f"{meters / 1000:.1f}".replace(".", ",")
+
+
+@register.filter
 def render_markdown(value):
     if not value:
         return ""
@@ -20,6 +30,11 @@ def render_markdown(value):
     clean = nh3.clean(html, tags=_ALLOWED_TAGS)
     return mark_safe(clean)
 
+
+
+@register.inclusion_tag("tags/location_card.html")
+def location_card(location):
+    return {'location': location}
 
 
 @register.inclusion_tag("tags/table_card.html")

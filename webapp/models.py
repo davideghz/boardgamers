@@ -190,6 +190,11 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     def get_meta_description(self):
                 return _("Profile of %(nickname)s on Board-Gamers.com") % {'nickname': self.nickname}
 
+    def save(self, *args, **kwargs):
+        if self.latitude and self.longitude:
+            self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "Profile"
         verbose_name_plural = "Profiles"

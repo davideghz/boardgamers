@@ -33,13 +33,14 @@ def index_view(request, template_name="locations/location_index.html"):
         user_created_locations = request.user.user_profile.locations.all()
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
-            if profile and profile.latitude is not None and profile.longitude is not None:
+            if profile and profile.latitude and profile.longitude:
                 user_location = Point(float(profile.longitude), float(profile.latitude), srid=4326)
         except (TypeError, ValueError):
             pass
 
     if user_location:
-        # nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(distance__lt=50000, is_public=True).order_by('distance')
+        if user_created_locations is not None:
+            user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
         nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True).order_by('distance')
     else:
         nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')[:10]
