@@ -1,13 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.forms import UserProfileForm, UserNotificationPreferencesForm
-from webapp.models import Notification, Membership, Table
+from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm
+from webapp.models import Notification, Membership, Table, GuestProfile
 from django.db.models import Q
 
 
@@ -154,3 +154,42 @@ def edit_notification_preferences(request):
             description=_("Configure your notification preferences: choose which updates to receive and how."),
         )
     })
+
+
+@login_required
+def guests(request, template_name='accounts/account_guests.html'):
+    profile = request.user.user_profile
+    guest_list = profile.guest_profiles.all()
+    form = GuestProfileForm()
+    return render(request, template_name, {
+        'guests': guest_list,
+        'form': form,
+    })
+
+
+@login_required
+def create_guest(request):
+    if request.method == 'POST':
+        form = GuestProfileForm(request.POST)
+        if form.is_valid():
+            guest = form.save(commit=False)
+            guest.owner = request.user.user_profile
+            guest.save()
+            messages.success(request, _("Guest created."))
+    return redirect('account-guests')
+
+
+@login_required
+def delete_guest(request, guest_id):
+    profile = request.user.user_profile
+    guest = get_object_or_404(GuestProfile, id=guest_id, owner=profile)
+    if request.method == 'POST':
+        active_count = guest.table_players.select_related('table').filter(
+            table__status__in=[Table.OPEN, Table.ONGOING]
+        ).count()
+        if active_count > 0:
+            messages.error(request, _("This guest is currently at an active table and cannot be deleted."), extra_tags='danger')
+        else:
+            guest.delete()
+            messages.success(request, _("Guest deleted."))
+    return redirect('account-guests')

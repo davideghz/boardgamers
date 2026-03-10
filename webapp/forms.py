@@ -7,7 +7,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, UserProfile, Comment, Player, Location
+from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile
 
 from django.utils.translation import gettext_lazy as _
 from dal import autocomplete
@@ -544,3 +544,18 @@ class MembershipEditForm(BootstrapForm):
         super().__init__(*args, **kwargs)
         from webapp.models import Membership
         self.fields['status'].choices = Membership.STATUS_CHOICES
+
+
+class GuestProfileForm(ModelForm):
+    name = CharField(
+        widget=TextInput(attrs={
+            'placeholder': _("Guest name"),
+            'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors',
+        }),
+        label=_("Name"),
+        max_length=100,
+    )
+
+    class Meta:
+        model = GuestProfile
+        fields = ['name']

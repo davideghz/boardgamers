@@ -60,13 +60,23 @@
         <ul class="divide-y divide-slate-100">
           {% for player in players %}
             <li class="flex items-center gap-3 px-4 py-3">
-              <img src="{{ player.user_profile.avatar_url }}" alt="{{ player.user_profile.nickname }}"
-                   class="w-9 h-9 rounded-full object-cover flex-shrink-0">
-              <span class="flex-1 text-sm font-semibold text-slate-800 truncate">{{ player.user_profile.nickname }}</span>
+              {% if player.is_guest %}
+                <div class="w-9 h-9 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-xs font-bold flex-shrink-0 text-amber-600">
+                  {{ player.guest_profile.name|slice:":2"|upper }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-sm font-semibold text-slate-800 truncate block">{{ player.guest_profile.name }}</span>
+                  <span class="text-xs text-slate-400">{% trans "guest of" %} {{ player.guest_profile.owner.nickname }}</span>
+                </div>
+              {% else %}
+                <img src="{{ player.user_profile.avatar_url }}" alt="{{ player.user_profile.nickname }}"
+                     class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+                <span class="flex-1 text-sm font-semibold text-slate-800 truncate">{{ player.user_profile.nickname }}</span>
+              {% endif %}
               {% if table.status != table.CLOSED %}
                 <button type="button"
                         data-remove-url="{% url 'remove-player' table.slug player.id %}"
-                        data-nickname="{{ player.user_profile.nickname }}"
+                        data-nickname="{{ player.display_name }}"
                         class="js-remove-player flex-shrink-0 p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />

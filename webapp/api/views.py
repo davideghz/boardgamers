@@ -60,7 +60,7 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
                     player = Player.objects.get(id=player_id, table=table)  # Usa il filtro per il tavolo corretto
                     player.position = position
                     player.save()
-                    print(f"Giocatore {player.user_profile.nickname} aggiornato alla posizione {player.position}")
+                    print(f"Giocatore {player.display_name} aggiornato alla posizione {player.position}")
                 except Player.DoesNotExist:
                     print(f"Errore: Player con ID {player_id} non trovato.")
                     continue

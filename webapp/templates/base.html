@@ -66,6 +66,16 @@
     .prose-sm ol { list-style: decimal; padding-left: 1.25rem; margin: 0.25rem 0; }
     .prose-sm p { margin-bottom: 0.5rem; }
     .prose-sm p:last-child { margin-bottom: 0; }
+    /* Native select reset — removes browser arrow and adds a consistent chevron */
+    select:not(.select2-hidden-accessible) {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1.25em 1.25em;
+      padding-right: 2.5rem;
+    }
   </style>
 
   {% block style %}{% endblock style %}

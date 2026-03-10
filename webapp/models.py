@@ -222,6 +222,23 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
         return self.nickname
 
 
+class GuestProfile(DateTimeModel):
+    """A named guest identity that a user can bring to tables."""
+    owner = models.ForeignKey(
+        'UserProfile', on_delete=models.CASCADE,
+        related_name='guest_profiles', verbose_name=_('Owner')
+    )
+    name = models.CharField(max_length=100, verbose_name=_('Name'))
+
+    class Meta:
+        verbose_name = _('Guest Profile')
+        verbose_name_plural = _('Guest Profiles')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Table(DateTimeModel, ModelMeta, SlugModel):
     OPEN = 'open'
     ONGOING = 'ongoing'
@@ -350,16 +367,41 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
 
 
 class Player(DateTimeModel):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+    guest_profile = models.ForeignKey(
+        GuestProfile, on_delete=models.CASCADE,
+        null=True, blank=True, related_name='table_players'
+    )
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
     position = models.IntegerField(default=99, db_index=True)
+
+    @property
+    def display_name(self):
+        if self.guest_profile:
+            return f"{self.guest_profile.name} (ospite di {self.guest_profile.owner.nickname})"
+        return self.user_profile.nickname if self.user_profile else "—"
+
+    @property
+    def is_guest(self):
+        return self.guest_profile_id is not None
 
     class Meta:
         verbose_name = "Player"
         verbose_name_plural = "Players"
         ordering = ['-created_at']
-        unique_together = ('user_profile', 'table')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user_profile', 'table'],
+                condition=models.Q(user_profile__isnull=False),
+                name='unique_user_profile_table'
+            ),
+            models.UniqueConstraint(
+                fields=['guest_profile', 'table'],
+                condition=models.Q(guest_profile__isnull=False),
+                name='unique_guest_profile_table'
+            ),
+        ]
 
 
 class CommentType(models.TextChoices):

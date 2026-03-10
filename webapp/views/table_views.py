@@ -18,7 +18,7 @@ from meta.views import Meta
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType
+from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
 
@@ -106,11 +106,13 @@ class TableDetailView(generic.DetailView):
 
         max_players = table.max_players
         external_players = table.external_players
-        current_players = table.players.count() + external_players
         today = now().date()
 
-        # Recupero i giocatori ordinati per punteggio
-        players = Player.objects.filter(table=table).select_related('user_profile').order_by('position')
+        # Recupero i giocatori ordinati per posizione (include ospiti)
+        players = Player.objects.filter(table=table).select_related(
+            'user_profile', 'guest_profile', 'guest_profile__owner'
+        ).order_by('position')
+        current_players = players.count() + external_players
 
         # Controlla se il gioco associato alla tabella ha la leaderboard abilitata
         leaderboard_enabled = table.game and table.game.leaderboard_enabled
@@ -139,6 +141,16 @@ class TableDetailView(generic.DetailView):
         # Zip per creare la lista di tuple (form, player)
         # players_with_forms = list(zip(formset.forms, players))
 
+        # Guests that the current user could add to this table
+        user_available_guests = None
+        if (self.request.user.is_authenticated and
+                table.status == Table.OPEN and
+                Player.objects.filter(table=table, user_profile=self.request.user.user_profile).exists()):
+            already_at_table = players.filter(guest_profile__isnull=False).values_list('guest_profile_id', flat=True)
+            user_available_guests = GuestProfile.objects.filter(
+                owner=self.request.user.user_profile
+            ).exclude(id__in=already_at_table)
+
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
@@ -151,6 +163,7 @@ class TableDetailView(generic.DetailView):
             'leaderboard_enabled': leaderboard_enabled,
             'leaderboard_visible': leaderboard_visible,
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
+            'user_available_guests': user_available_guests,
             'meta': self.get_object().as_meta(self.request)
             # 'players_with_forms': players_with_forms,
             # 'formset': formset,
@@ -200,7 +213,7 @@ def table_players_view(request, slug):
         messages.error(request, "You do not have permission to manage players for this table.", extra_tags="danger")
         return redirect("table-detail", slug=slug)
 
-    players = Player.objects.filter(table=table).select_related("user_profile")
+    players = Player.objects.filter(table=table).select_related("user_profile", "guest_profile", "guest_profile__owner")
     add_player_form = AddTablePlayerForm()
 
     return render(request, "tables/table_players.html", {
@@ -236,8 +249,8 @@ class AddTablePlayerView(LoginRequiredMixin, View):
                 messages.warning(request, _(f"{user_profile.nickname} is already at the table."))
                 return redirect("table-players", slug=table.slug)
 
-            # Check available seats
-            current_players = table.players.count() + table.external_players
+            # Check available seats (includes guest players)
+            current_players = Player.objects.filter(table=table).count() + table.external_players
             if current_players >= table.max_players:
                 messages.error(request, _("The table is full."), extra_tags="danger")
                 return redirect("table-players", slug=table.slug)
@@ -274,17 +287,30 @@ def remove_player_view(request, slug, player_id):
         messages.error(request, _("You can remove players only from tables that are open or ongoing."), extra_tags="danger")
         return redirect("table-players", slug=slug)
 
-    # Rimuovi il player
+    # Cascade-remove guests owned by this player
+    if player.user_profile:
+        guest_players = Player.objects.filter(
+            table=table, guest_profile__owner=player.user_profile
+        ).select_related('guest_profile')
+        for gp in guest_players:
+            Comment.objects.create(
+                table=table,
+                content=f"GUEST_REMOVED:{gp.guest_profile.name}",
+                comment_type=CommentType.SYSTEM
+            )
+        guest_players.delete()
+
+    nickname = player.user_profile.nickname if player.user_profile else player.display_name
     player.delete()
 
     # Create system comment
     Comment.objects.create(
         table=table,
-        content=f"PLAYER_REMOVED:{player.user_profile.nickname}",
+        content=f"PLAYER_REMOVED:{nickname}",
         comment_type=CommentType.SYSTEM
     )
 
-    messages.success(request, _(f"{player.user_profile.nickname} has been removed from the table."))
+    messages.success(request, _(f"{nickname} has been removed from the table."))
 
     return redirect("table-players", slug=slug)
 
@@ -457,17 +483,86 @@ class LeaveTableView(LoginRequiredMixin, View):
             player = get_object_or_404(Player, user_profile=request.user.user_profile, table=table)
             nickname = player.user_profile.nickname
 
-            # Create simple comment for player leaving before deleting the player
+            # Cascade-remove guests owned by this user at this table
+            guest_players = Player.objects.filter(
+                table=table, guest_profile__owner=request.user.user_profile
+            ).select_related('guest_profile')
+            for gp in guest_players:
+                Comment.objects.create(
+                    table=table,
+                    content=f"GUEST_REMOVED:{gp.guest_profile.name}",
+                    comment_type=CommentType.SYSTEM
+                )
+            guest_players.delete()
+
+            # Create system comment for player leaving before deleting the player
             Comment.objects.create(
                 table=table,
                 content=f"PLAYER_OUT:{nickname}",
                 comment_type=CommentType.SYSTEM
             )
 
-            # Delete the player after creating the comment
             player.delete()
 
         except Player.DoesNotExist:
-            pass  # Player non trovato, non fare nulla
+            pass
 
         return redirect('table-detail', slug=self.kwargs['slug'])
+
+
+class AddGuestToTableView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        table = get_object_or_404(Table, slug=kwargs['slug'])
+
+        if table.status != Table.OPEN:
+            messages.error(request, _("The table is closed."), extra_tags='danger')
+            return redirect('table-detail', slug=table.slug)
+
+        # Only players at the table can add guests
+        if not Player.objects.filter(table=table, user_profile=request.user.user_profile).exists():
+            messages.error(request, _("Only table players can add guests."), extra_tags='danger')
+            return redirect('table-detail', slug=table.slug)
+
+        guest_id = request.POST.get('guest_id')
+        guest = get_object_or_404(GuestProfile, id=guest_id, owner=request.user.user_profile)
+
+        # Check not already at table
+        if Player.objects.filter(table=table, guest_profile=guest).exists():
+            messages.warning(request, _("This guest is already at the table."))
+            return redirect('table-detail', slug=table.slug)
+
+        # Check seats
+        current_count = Player.objects.filter(table=table).count() + table.external_players
+        if current_count >= table.max_players:
+            messages.error(request, _("The table is full."), extra_tags='danger')
+            return redirect('table-detail', slug=table.slug)
+
+        Player.objects.create(table=table, guest_profile=guest)
+        Comment.objects.create(
+            table=table,
+            content=f"GUEST_ADDED:{guest.name}",
+            comment_type=CommentType.SYSTEM
+        )
+        return redirect('table-detail', slug=table.slug)
+
+
+class RemoveGuestFromTableView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        table = get_object_or_404(Table, slug=kwargs['slug'])
+        player = get_object_or_404(Player, id=kwargs['player_id'], table=table, guest_profile__isnull=False)
+
+        # Permission: guest owner or table author
+        if not (player.guest_profile.owner == request.user.user_profile or
+                table.author == request.user.user_profile or
+                request.user.is_superuser):
+            messages.error(request, _("You don't have permission to remove this guest."), extra_tags='danger')
+            return redirect('table-detail', slug=table.slug)
+
+        name = player.guest_profile.name
+        player.delete()
+        Comment.objects.create(
+            table=table,
+            content=f"GUEST_REMOVED:{name}",
+            comment_type=CommentType.SYSTEM
+        )
+        return redirect('table-detail', slug=table.slug)

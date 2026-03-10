@@ -72,7 +72,7 @@ def notify_players_on_table_delete(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Player)
 def notify_players_on_new_player(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.user_profile_id:
         players = instance.table.players.exclude(id=instance.user_profile.id)
         for player in players:
             Notification.objects.create(
@@ -85,7 +85,7 @@ def notify_players_on_new_player(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Player)
 def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
-    if instance.position != 99:  # Assumendo che 99 significhi posizione non assegnata
+    if instance.position != 99 and instance.user_profile_id:
         players = instance.table.players.exclude(id=instance.user_profile.id)
         for player in players:
             Notification.objects.create(

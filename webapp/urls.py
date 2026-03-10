@@ -4,6 +4,7 @@ from django.urls import path, include
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
+from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete
 from .views.location_views import FollowLocationView
 
@@ -39,6 +40,10 @@ urlpatterns = [
     path("tables/<slug:slug>/players/add/", table_views.AddTablePlayerView.as_view(), name="table-add-player"),
     path("tables/<slug:slug>/remove_external/", table_views.remove_external_player, name="remove_external_player"),
     path("tables/<slug:slug>/clear_external/", table_views.clear_external_players, name="clear_external_players"),
+
+    # TABLE GUESTS
+    path('tables/<slug:slug>/guests/add/', AddGuestToTableView.as_view(), name='table-add-guest'),
+    path('tables/<slug:slug>/guests/remove/<int:player_id>/', RemoveGuestFromTableView.as_view(), name='table-remove-guest'),
 
     # LOCATIONS
     path("locations/", location_views.index_view, name="locations-index"),
@@ -96,6 +101,9 @@ urlpatterns = [
     path("account/notifications/", account_views.notifications, name="account-notifications"),
     path("account/notifications/edit", account_views.edit_notification_preferences, name="account-notifications-edit"),
     path("account/memberships/", account_views.memberships, name="account-memberships"),
+    path("account/guests/", account_views.guests, name="account-guests"),
+    path("account/guests/create/", account_views.create_guest, name="account-guest-create"),
+    path("account/guests/<int:guest_id>/delete/", account_views.delete_guest, name="account-guest-delete"),
 
     # USER PROFILES
     path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
