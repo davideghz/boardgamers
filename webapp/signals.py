@@ -34,8 +34,7 @@ def on_user_logged_in(sender, request, user, **kwargs):
 def on_user_profile_saved(sender, instance, created, **kwargs):
     if settings.ENABLE_EMAIL_SIGNALS and created and not instance.is_email_verified:
         send_user_email_verification_code(instance)
-    if created:
-        # Set geolocation point
+    if created and instance.latitude and instance.longitude:
         instance.point = Point(float(instance.longitude), float(instance.latitude), srid=4326)
         instance.save()
 
