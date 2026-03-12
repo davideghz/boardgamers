@@ -31,7 +31,6 @@ class DateTimeModel(models.Model):
 
 class SlugModel(models.Model):
     slug_field_name = None
-    randomize = True
     random_string_length = 6
 
     class Meta:
@@ -48,20 +47,23 @@ class SlugModel(models.Model):
         return getattr(self, self.slug_field_name)
 
     def create_unique_slug(self):
-        source_value = self.get_slug_source_value()
-        slug = slugify(source_value)
-        random_string = self.generate_random_string()
-        unique_slug = f"{slug}-{random_string}"
-
-        while self.__class__.objects.filter(slug=unique_slug).exists():
-            random_string = self.generate_random_string()
-            unique_slug = f"{slug}-{random_string}"
-        return unique_slug
+        base_slug = slugify(self.get_slug_source_value())
+        qs = self.__class__.objects.filter(slug=base_slug)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if not qs.exists():
+            return base_slug
+        while True:
+            candidate = f"{base_slug}-{self.generate_random_string()}"
+            if not self.__class__.objects.filter(slug=candidate).exclude(pk=self.pk or 0).exists():
+                return candidate
 
     def save(self, *args, **kwargs):
         if self.pk:
             original = type(self).objects.get(pk=self.pk)
-            if getattr(original, self.slug_field_name) != self.get_slug_source_value():
+            original_slug = slugify(getattr(original, self.slug_field_name))
+            current_slug = slugify(self.get_slug_source_value())
+            if original_slug != current_slug:
                 self.slug = self.create_unique_slug()
         else:
             self.slug = self.create_unique_slug()

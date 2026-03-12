@@ -235,17 +235,13 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
     success_message = "Location was updated successfully"
 
     def dispatch(self, request, *args, **kwargs):
-        # First check authentication (handled by LoginRequiredMixin)
-        response = super().dispatch(request, *args, **kwargs)
         if not request.user.is_authenticated:
-            return response
-
+            return super().dispatch(request, *args, **kwargs)
         location = self.get_object()
         user_profile = request.user.user_profile
-        # Check if user is owner or manager
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied("You don't have permission to edit this location.")
-        return response
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_class(self):
         return LocationForm
@@ -334,16 +330,13 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
         return LocationForm
 
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
         if not request.user.is_authenticated:
-            return response
-
+            return super().dispatch(request, *args, **kwargs)
         location = self.get_object()
         user_profile = request.user.user_profile
-        # Check if user is owner or manager
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied("You don't have permission to edit this location.")
-        return response
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         location = form.save(commit=False)
