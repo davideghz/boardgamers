@@ -441,5 +441,13 @@
     if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/embla-carousel@8/embla-carousel.umd.js"></script>
+  <script>
+    // ── Embla carousels ─────────────────────────────────────────────────
+    document.querySelectorAll('.embla').forEach(viewport => {
+      EmblaCarousel(viewport, { dragFree: true, align: 'start', containScroll: 'trimSnaps' });
+    });
+  </script>
+
   {% block extrabodyjs %}{% endblock extrabodyjs %}
 {% endblock bodyjs %}

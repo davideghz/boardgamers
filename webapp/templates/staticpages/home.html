@@ -84,10 +84,12 @@
     {# Upcoming tables #}
     <div id="tab-upcoming">
       {% if future_tables %}
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {% for table in future_tables %}
-            {% table_card table %}
-          {% endfor %}
+        <div class="embla overflow-hidden pb-2">
+          <div class="flex gap-3">
+            {% for table in future_tables %}
+              {% table_card table %}
+            {% endfor %}
+          </div>
         </div>
       {% else %}
         <p class="text-sm text-slate-500 italic">{% trans "No open tables right now — why not create one?" %}</p>
@@ -97,10 +99,12 @@
     {# Past tables #}
     <div id="tab-past" style="display:none">
       {% if past_tables %}
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {% for table in past_tables %}
-            {% table_card table %}
-          {% endfor %}
+        <div class="embla overflow-hidden pb-2">
+          <div class="flex gap-3">
+            {% for table in past_tables %}
+              {% table_card table %}
+            {% endfor %}
+          </div>
         </div>
       {% else %}
         <p class="text-sm text-slate-500 italic">{% trans "No past tables yet." %}</p>
