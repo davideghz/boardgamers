@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, modelformset_factory, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField
+    ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -47,16 +47,6 @@ class CustomEmailWidget(EmailInput):
         super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
 
 
-class CustomURLWidget(URLInput):
-    def __init__(self, attrs=None, placeholder="https://example.com"):
-        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
-
-
-class CustomNumberWidget(NumberInput):
-    def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={'class': 'form-control', 'placeholder': placeholder, **(attrs or {})})
-
-
 class CustomDateInputWidget(DateInput):
     def __init__(self, attrs=None, placeholder=""):
         super().__init__(
@@ -69,24 +59,6 @@ class CustomDateInputWidget(DateInput):
         )
 
 
-class CustomTimeInputWidget(TimeInput):
-    def __init__(self, attrs=None, placeholder="", time_format='%H:%M'):
-        super().__init__(attrs={
-            'type': 'time',
-            'class': 'form-control time-input',
-            'placeholder': placeholder,
-            **(attrs or {})
-        }, format=time_format)
-
-
-class CustomFileInputWidget(FileInput):
-    def __init__(self, attrs=None, placeholder=""):
-        super().__init__(attrs={
-            'class': 'form-control',
-            'placeholder': placeholder,
-            'autocomplete': 'new-password', **(attrs or {})})
-
-
 class CustomCheckboxInputWidget(CheckboxInput):
     def __init__(self, attrs=None):
         super().__init__(attrs={
@@ -95,38 +67,6 @@ class CustomCheckboxInputWidget(CheckboxInput):
             'autocomplete': 'new-password', **(attrs or {})})
 
 
-class BootstrapForm(Form):
-    def __init__(self, *args, **kwargs):
-        super(Form, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            if isinstance(field.widget, TimeInput):
-                field.widget = CustomTimeInputWidget()
-            elif isinstance(field.widget, DateInput):
-                field.widget = CustomDateInputWidget()
-            elif isinstance(field.widget, TextInput):
-                field.widget = CustomTextInputWidget()
-            elif isinstance(field.widget, PasswordInput):
-                field.widget = CustomPasswordInputWidget()
-            elif isinstance(field.widget, Textarea):
-                field.widget = CustomTextareaWidget()
-            # elif isinstance(field.widget, Select):
-            #     field.widget = CustomSelectWidget(choices=field.choices)
-            elif isinstance(field.widget, EmailInput):
-                field.widget = CustomEmailWidget()
-            elif isinstance(field.widget, URLInput):
-                field.widget = CustomURLWidget()
-            elif isinstance(field.widget, NumberInput):
-                field.widget = CustomNumberWidget()
-            elif isinstance(field.widget, FileInput):
-                field.widget = CustomFileInputWidget()
-            elif isinstance(field.widget, CheckboxInput):
-                field.widget = CustomCheckboxInputWidget()
-
-            if self.errors.get(field_name):
-                if 'class' in field.widget.attrs:
-                    field.widget.attrs['class'] += ' is-invalid'
-                else:
-                    field.widget.attrs['class'] = 'is-invalid'
 
 
 _TW_INPUT = (
@@ -213,7 +153,7 @@ class TableForm(ModelForm, TailwindForm):
 
 
 
-class CommentForm(ModelForm, BootstrapForm):
+class CommentForm(ModelForm, TailwindForm):
     class Meta:
         model = Comment
         fields = ['content']
@@ -243,7 +183,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         self.fields['new_password2'].widget = CustomPasswordInputWidget()
 
 
-class UserRegistrationForm(UserCreationForm, BootstrapForm):
+class UserRegistrationForm(UserCreationForm, TailwindForm):
     nickname = CharField(max_length=255)
     address = CharField(max_length=255)
     city = CharField(widget=HiddenInput(), required=False)
@@ -333,17 +273,10 @@ class UserProfileForm(ModelForm, TailwindForm):
         fields = ['nickname', 'address', 'city', 'latitude', 'longitude']
 
 
-class UserProfileAvatarForm(ModelForm, BootstrapForm):
+class UserProfileAvatarForm(ModelForm, TailwindForm):
     class Meta:
         model = UserProfile
         fields = ['avatar']
-
-
-class JoinTableForm(ModelForm, BootstrapForm):
-    class Meta:
-        model = Player
-        fields = []
-
 
 
 class LocationForm(ModelForm, TailwindForm):
@@ -359,25 +292,10 @@ class LocationForm(ModelForm, TailwindForm):
         super().__init__(*args, **kwargs)
         self.fields['creator'].widget = HiddenInput()
         self.fields['cover'].required = False
+        self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
 
 
-class PlayerScoreForm(ModelForm, BootstrapForm):
-    class Meta:
-        model = Player
-        fields = ['score']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Modifica la label per mostrare il nome del giocatore
-        if self.instance and self.instance.user_profile:
-            self.fields['score'].label = self.instance.user_profile.nickname
-
-
-PlayerScoreFormSet = modelformset_factory(Player, form=PlayerScoreForm, fields=('score',), extra=0)
-
-
-class ContactForm(BootstrapForm):
+class ContactForm(TailwindForm):
     name = CharField(
         label='Nome',
         max_length=100,
@@ -394,19 +312,7 @@ class ContactForm(BootstrapForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
 
-class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
-    def __init__(self, *args, **kwargs):
-        super(UserNotificationPreferencesForm, self).__init__(*args, **kwargs)
-
-        # Sovrascrivi i widget per usare CustomCheckboxInputWidget (non gestito di default da BootstrapForm)
-        for field_name in [
-            'notification_new_table',
-            'notification_new_player',
-            'notification_new_comments',
-            'notification_leaderboard_reminder',
-            'notification_leaderboard_update',
-        ]:
-            self.fields[field_name].widget = CustomCheckboxInputWidget()
+class UserNotificationPreferencesForm(ModelForm, TailwindForm):
 
     class Meta:
         model = UserProfile
@@ -419,7 +325,7 @@ class UserNotificationPreferencesForm(ModelForm, BootstrapForm):
         ]
 
 
-class AddLocationManagerForm(BootstrapForm):
+class AddLocationManagerForm(TailwindForm):
     """Form for adding a manager to a location"""
     manager = ModelChoiceField(
         queryset=UserProfile.objects.all(),
@@ -434,7 +340,7 @@ class AddLocationManagerForm(BootstrapForm):
     )
 
 
-class TransferOwnershipForm(BootstrapForm):
+class TransferOwnershipForm(TailwindForm):
     """Form for transferring location ownership"""
     new_owner = ModelChoiceField(
         queryset=UserProfile.objects.all(),
@@ -454,7 +360,7 @@ class TransferOwnershipForm(BootstrapForm):
     )
 
 
-class AddTablePlayerForm(BootstrapForm):
+class AddTablePlayerForm(TailwindForm):
     """Form for adding a player to a table"""
     player = ModelChoiceField(
         queryset=UserProfile.objects.all(),
@@ -491,7 +397,7 @@ class MemberForm(ModelForm, TailwindForm):
         fields = ['first_name', 'last_name', 'code', 'email', 'phone_number', 'user_profile']
 
 
-class MembershipRequestForm(BootstrapForm):
+class MembershipRequestForm(TailwindForm):
     """Form for a logged-in user to request a membership for a location."""
     notes = CharField(
         required=False,
@@ -500,7 +406,7 @@ class MembershipRequestForm(BootstrapForm):
     )
 
 
-class ApproveMembershipForm(BootstrapForm):
+class ApproveMembershipForm(TailwindForm):
     """Form for a manager to approve a membership, setting start/end dates."""
     start_date = CharField(
         label=_('Start Date'),
@@ -517,7 +423,7 @@ class ApproveMembershipForm(BootstrapForm):
     )
 
 
-class MembershipEditForm(BootstrapForm):
+class MembershipEditForm(TailwindForm):
     """Form for a manager to edit an existing membership."""
     status = ChoiceField(
         label=_('Status'),

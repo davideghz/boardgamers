@@ -128,19 +128,6 @@ class TableDetailView(generic.DetailView):
              self.request.user.is_superuser)
         )
 
-        # Controlliamo se l'utente è un player del tavolo o un admin
-        # can_edit_scores = self.request.user.is_superuser or self.request.user.user_profile in table.players.all()
-
-        # Creiamo un formset per tutti i player della partita
-        # formset = PlayerScoreFormSet(queryset=players)
-
-        # if not can_edit_scores:
-        #     for form in formset.forms:
-        #         form.fields['score'].widget.attrs['readonly'] = True  # Rende il campo in sola lettura
-
-        # Zip per creare la lista di tuple (form, player)
-        # players_with_forms = list(zip(formset.forms, players))
-
         # Guests that the current user could add to this table
         user_available_guests = None
         if (self.request.user.is_authenticated and
@@ -187,19 +174,6 @@ class TableDetailView(generic.DetailView):
 
         # Gestione aggiornamento punteggi
         # elif 'score_form' in request.POST:
-        #     # Verifica se l'utente è un player del tavolo o un admin
-        #     if not request.user.is_superuser and request.user.user_profile not in self.object.players.all():
-        #         return redirect('table-detail', slug=self.object.slug)  # Blocca il salvataggio
-        #
-        #     # Se l'utente ha i permessi, processa il formset
-        #     formset = PlayerScoreFormSet(
-        #         request.POST,
-        #         queryset=Player.objects.filter(table=self.object)
-        #     )
-        #     if formset.is_valid():
-        #         formset.save()
-        #         return redirect('table-detail', slug=self.object.slug)
-
         context = self.get_context_data(object=self.object, formset=formset)
         return self.render_to_response(context)
 
