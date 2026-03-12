@@ -83,10 +83,10 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
 
 
 def upload_avatar(request):
+    default_url = reverse('user-profile-detail', args=[request.user.user_profile.slug])
+    next_url = request.POST.get('next') or request.GET.get('next') or default_url
     if request.method == 'POST':
         form = UserProfileAvatarForm(request.POST, request.FILES, instance=request.user.user_profile)
         if form.is_valid():
             form.save()
-            return redirect('user-profile-detail', slug=request.user.user_profile.slug)
-
-    return redirect('user-profile-detail', slug=request.user.user_profile.slug)
+    return redirect(next_url)
