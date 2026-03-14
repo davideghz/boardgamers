@@ -370,6 +370,7 @@ class AddTablePlayerForm(TailwindForm):
             attrs={
                 'data-placeholder': _('Search by username...'),
                 'data-minimum-input-length': 1,
+                'data-width': '100%',
             }
         )
     )
