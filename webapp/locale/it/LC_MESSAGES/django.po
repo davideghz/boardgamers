@@ -1412,7 +1412,7 @@ msgstr "Aggiungi, rimuovi manager e trasferisci la proprietà"
 
 #: webapp/templates/locations/location_manage_index.html:57
 msgid "Manage the location's game library"
-msgstr "Gestisci la libreria dei giochi"
+msgstr "Gestisci la libreria dei giochi dell'associazione"
 
 #: webapp/templates/locations/location_manage_index.html:74
 msgid "Manage members and memberships"
