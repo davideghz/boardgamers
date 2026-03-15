@@ -1339,7 +1339,7 @@ msgid ""
 "To specify a member as the game owner, ask an admin to enable member "
 "management for your association."
 msgstr ""
-"Per specificare un socio come proprietario della partita, chiedi a un "
+"Per specificare un socio come proprietario del gioco, chiedi a un "
 "amministratore di abilitare la gestione dei soci per la tua associazione."
 
 #: webapp/templates/locations/location_manage_game_detail.html:70
