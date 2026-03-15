@@ -77,6 +77,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
 
     image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
     description = models.TextField()
+    bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
 
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
 
