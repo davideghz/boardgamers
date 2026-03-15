@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
-    Membership, GuestProfile
+    Membership, GuestProfile, LocationGame
 
 
 class CustomUserAdmin(UserAdmin):
@@ -103,3 +103,10 @@ class GuestProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'owner')
     search_fields = ('name', 'owner__nickname')
     list_filter = ('owner',)
+
+
+@admin.register(LocationGame)
+class LocationGameAdmin(admin.ModelAdmin):
+    list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location')
+    list_filter = ('location', 'ownership', 'physical_location')
+    search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')

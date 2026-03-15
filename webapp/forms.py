@@ -7,8 +7,9 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile
+from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Game, LocationGame
 
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from dal import autocomplete
 
@@ -451,6 +452,74 @@ class MembershipEditForm(TailwindForm):
         super().__init__(*args, **kwargs)
         from webapp.models import Membership
         self.fields['status'].choices = Membership.STATUS_CHOICES
+
+
+_TW_SELECT = (
+    'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 '
+    'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 '
+    'bg-white transition-colors'
+)
+
+
+class LocationGameForm(ModelForm, TailwindForm):
+    """Form to add/edit a game in a location's library."""
+    game = ModelChoiceField(
+        queryset=Game.objects.all(),
+        label=_('Game'),
+        widget=autocomplete.ModelSelect2(
+            url='games-autocomplete',
+            attrs={
+                'data-placeholder': _('Search for a game...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+
+    class Meta:
+        model = LocationGame
+        fields = ['game', 'ownership', 'owner_member', 'physical_location', 'notes']
+
+    def __init__(self, *args, location=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        membership_enabled = bool(location and location.enable_membership)
+
+        # owner_member is always visible; set required=False (FK is nullable)
+        self.fields['owner_member'].required = False
+
+        if membership_enabled:
+            # Swap in the autocomplete widget scoped to this location.
+            # Built here (not at class level) to avoid TailwindForm triggering
+            # reverse() on a URL that requires args.
+            url = reverse('member-autocomplete', kwargs={'location_slug': location.slug})
+            self.fields['owner_member'] = ModelChoiceField(
+                queryset=Member.objects.filter(location=location),
+                required=False,
+                label=_('Owner Member'),
+                widget=autocomplete.ModelSelect2(
+                    url=url,
+                    attrs={
+                        'data-placeholder': _('Search for a member...'),
+                        'data-minimum-input-length': 1,
+                    }
+                )
+            )
+        else:
+            # Membership not enabled: field is shown but fully disabled.
+            # Widget rendering is handled in the template to match Select2 appearance.
+            if location:
+                self.fields['owner_member'].queryset = Member.objects.filter(location=location)
+            self.fields['owner_member'].disabled = True
+
+        # Apply Tailwind classes to Select widgets (TailwindForm skips them)
+        for fn in ('ownership', 'physical_location'):
+            self.fields[fn].widget.attrs['class'] = _TW_SELECT
+
+    def clean(self):
+        cleaned = super().clean()
+        # When the game belongs to the location, no member owner makes sense
+        if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
+            cleaned['owner_member'] = None
+        return cleaned
 
 
 class GuestProfileForm(ModelForm):

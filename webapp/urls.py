@@ -5,7 +5,7 @@ from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
-from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete
+from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete, MemberAutocomplete
 from .views.location_views import FollowLocationView
 
 sitemaps = {
@@ -84,6 +84,18 @@ urlpatterns = [
     path("locations/<slug:slug>/request-membership/", location_views.RequestMembershipView.as_view(),
          name="location-request-membership"),
 
+    # LOCATION GAMES
+    path("locations/<slug:slug>/manage/games/", location_views.LocationManageGamesView.as_view(),
+         name="location-manage-games"),
+    path("locations/<slug:slug>/manage/games/csv/", location_views.DownloadGamesCSVView.as_view(),
+         name="location-games-csv"),
+    path("locations/<slug:slug>/manage/games/add/", location_views.AddLocationGameView.as_view(),
+         name="location-add-game"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/", location_views.LocationGameDetailView.as_view(),
+         name="location-game-detail"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/delete/", location_views.DeleteLocationGameView.as_view(),
+         name="location-delete-game"),
+
     # LOCATION TABLES
     path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
     path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view,
@@ -113,6 +125,7 @@ urlpatterns = [
     path('location-autocomplete/', LocationAutocomplete.as_view(), name='location-autocomplete'),
     path('games-autocomplete/', GamesAutocomplete.as_view(), name='games-autocomplete'),
     path('userprofile-autocomplete/', UserProfileAutocomplete.as_view(), name='userprofile-autocomplete'),
+    path('member-autocomplete/<slug:location_slug>/', MemberAutocomplete.as_view(), name='member-autocomplete'),
 
     # AUTH
     path('accounts/login/', auth_views.CustomLoginView.as_view(authentication_form=CustomLoginForm), name='login'),

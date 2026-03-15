@@ -559,3 +559,56 @@ class Membership(DateTimeModel):
 
     def __str__(self):
         return f"{self.member} [{self.status}]"
+
+
+class LocationGame(DateTimeModel):
+    """
+    Represents a game in a location's library.
+    Can be owned by the location itself or by a member (socio),
+    and can be physically stored at the association or at a member's home.
+    """
+    OWNED_BY_LOCATION = 'location'
+    OWNED_BY_MEMBER = 'member'
+    OWNERSHIP_CHOICES = [
+        (OWNED_BY_LOCATION, _('Owned by Location')),
+        (OWNED_BY_MEMBER, _('Owned by Member')),
+    ]
+
+    AT_ASSOCIATION = 'association'
+    AT_HOME = 'home'
+    PHYSICAL_LOCATION_CHOICES = [
+        (AT_ASSOCIATION, _('At the association')),
+        (AT_HOME, _("At member's home")),
+    ]
+
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='location_games',
+        verbose_name=_('Location')
+    )
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name='location_games',
+        verbose_name=_('Game')
+    )
+    ownership = models.CharField(
+        max_length=20, choices=OWNERSHIP_CHOICES, default=OWNED_BY_LOCATION,
+        verbose_name=_('Ownership')
+    )
+    owner_member = models.ForeignKey(
+        Member, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='owned_games', verbose_name=_('Owner Member')
+    )
+    physical_location = models.CharField(
+        max_length=20, choices=PHYSICAL_LOCATION_CHOICES, default=AT_ASSOCIATION,
+        verbose_name=_('Physical Location')
+    )
+    notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
+
+    class Meta:
+        verbose_name = _('Location Game')
+        verbose_name_plural = _('Location Games')
+        unique_together = ('location', 'game')
+        ordering = ['game__name']
+
+    def __str__(self):
+        return f"{self.game.name} @ {self.location.name}"

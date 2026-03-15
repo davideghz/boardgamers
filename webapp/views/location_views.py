@@ -18,9 +18,9 @@ from django.views.generic import DetailView, CreateView
 from meta.views import Meta
 
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
-    MembershipRequestForm, MembershipEditForm
+    MembershipRequestForm, MembershipEditForm, LocationGameForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership
+from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -836,3 +836,137 @@ class RequestMembershipView(LoginRequiredMixin, View):
             'location': location,
             'form': form,
         })
+
+
+# ---- Game Library Management Views ----
+
+def _check_location_manager(request, location):
+    """Raise PermissionDenied if the current user is not owner or manager of the location."""
+    user_profile = request.user.user_profile
+    if location.creator != user_profile and user_profile not in location.managers.all():
+        raise PermissionDenied(_("You don't have permission to manage this location."))
+
+
+class LocationManageGamesView(LoginRequiredMixin, View):
+    """List all games in a location's library."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        location_games = location.location_games.select_related('game', 'owner_member').all()
+        return render(request, 'locations/location_manage_games.html', {
+            'location': location,
+            'location_games': location_games,
+            'meta': Meta(title=_("Games – %(name)s") % {'name': location.name}),
+        })
+
+
+class AddLocationGameView(LoginRequiredMixin, View):
+    """Add a game to a location's library."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = LocationGameForm(location=location)
+        return render(request, 'locations/location_manage_game_detail.html', {
+            'location': location,
+            'location_game': None,
+            'form': form,
+            'is_new': True,
+            'meta': Meta(title=_("Add Game – %(name)s") % {'name': location.name}),
+        })
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = LocationGameForm(request.POST, location=location)
+        if form.is_valid():
+            location_game = form.save(commit=False)
+            location_game.location = location
+            location_game.save()
+            messages.success(request, _("Game «%(name)s» added to the library.") % {'name': location_game.game.name})
+            return redirect('location-manage-games', slug=location.slug)
+        return render(request, 'locations/location_manage_game_detail.html', {
+            'location': location,
+            'location_game': None,
+            'form': form,
+            'is_new': True,
+            'meta': Meta(title=_("Add Game – %(name)s") % {'name': location.name}),
+        })
+
+
+class LocationGameDetailView(LoginRequiredMixin, View):
+    """Edit details of a game in a location's library."""
+
+    def get(self, request, slug, game_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        location_game = get_object_or_404(LocationGame, uuid=game_uuid, location=location)
+        form = LocationGameForm(instance=location_game, location=location)
+        return render(request, 'locations/location_manage_game_detail.html', {
+            'location': location,
+            'location_game': location_game,
+            'form': form,
+            'is_new': False,
+            'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
+        })
+
+    def post(self, request, slug, game_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        location_game = get_object_or_404(LocationGame, uuid=game_uuid, location=location)
+        form = LocationGameForm(request.POST, instance=location_game, location=location)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Game updated successfully."))
+            return redirect('location-manage-games', slug=location.slug)
+        return render(request, 'locations/location_manage_game_detail.html', {
+            'location': location,
+            'location_game': location_game,
+            'form': form,
+            'is_new': False,
+            'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
+        })
+
+
+class DeleteLocationGameView(LoginRequiredMixin, View):
+    """Remove a game from a location's library."""
+
+    def post(self, request, slug, game_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        location_game = get_object_or_404(LocationGame, uuid=game_uuid, location=location)
+        game_name = location_game.game.name
+        location_game.delete()
+        messages.success(request, _("Game «%(name)s» removed from the library.") % {'name': game_name})
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class DownloadGamesCSVView(LoginRequiredMixin, View):
+    """Download a CSV of all games in a location's library."""
+
+    def get(self, request, slug):
+        import csv
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="games-{location.slug}.csv"'
+        response.write('\ufeff')  # BOM for Excel UTF-8
+
+        writer = csv.writer(response)
+        writer.writerow([
+            _('Game'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
+        ])
+
+        location_games = location.location_games.select_related('game', 'owner_member').all()
+        for lg in location_games:
+            writer.writerow([
+                lg.game.name,
+                lg.get_ownership_display(),
+                str(lg.owner_member) if lg.owner_member else '',
+                lg.get_physical_location_display(),
+                lg.notes,
+            ])
+
+        return response

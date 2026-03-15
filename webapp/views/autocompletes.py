@@ -2,7 +2,7 @@ from dal import autocomplete
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models.functions import Lower
 
-from webapp.models import Game, Location, UserProfile
+from webapp.models import Game, Location, UserProfile, Member
 
 
 class LocationAutocomplete(autocomplete.Select2QuerySetView):
@@ -48,5 +48,23 @@ class UserProfileAutocomplete(autocomplete.Select2QuerySetView):
 
         if self.q:
             qs = qs.filter(nickname__istartswith=self.q)
+
+        return qs
+
+
+class MemberAutocomplete(autocomplete.Select2QuerySetView):
+    """Autocomplete for Members scoped to a specific location (by slug in URL)."""
+
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Member.objects.none()
+
+        location_slug = self.kwargs.get('location_slug')
+        qs = Member.objects.filter(location__slug=location_slug).order_by('last_name', 'first_name')
+
+        if self.q:
+            qs = qs.filter(
+                Q(first_name__icontains=self.q) | Q(last_name__icontains=self.q)
+            )
 
         return qs
