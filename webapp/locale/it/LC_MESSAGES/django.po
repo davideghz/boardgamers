@@ -2009,7 +2009,7 @@ msgstr ""
 
 #: webapp/templates/tables/table_detail.html:437
 msgid "Edit table info"
-msgstr "Modifica informazioni tavolo"
+msgstr "Modifica tavolo"
 
 #: webapp/templates/tables/table_detail.html:442
 msgid "Invite/Remove Gamers"
