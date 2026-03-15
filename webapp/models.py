@@ -78,6 +78,11 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
     description = models.TextField()
     bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
+    min_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Minimum players'))
+    max_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Maximum players'))
+    min_playtime = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_('Min playtime (minutes)'))
+    max_playtime = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_('Max playtime (minutes)'))
+    weight = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name=_('Weight'))
 
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
 
