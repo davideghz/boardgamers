@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-15 10:04+0000\n"
+"POT-Creation-Date: 2026-03-15 10:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1625,7 +1625,7 @@ msgstr ""
 "miglioramento."
 
 #: webapp/templates/staticpages/about.html:21
-#: webapp/templates/staticpages/about.html:160
+#: webapp/templates/staticpages/about.html:186
 #: webapp/templates/staticpages/home.html:54
 msgid "Create a free account"
 msgstr "Crea un account gratuito"
@@ -1709,15 +1709,41 @@ msgstr ""
 "sull'attività. Un po' di sana competizione rende le serate di gioco ancora "
 "più divertenti."
 
+#: webapp/templates/staticpages/about.html:123
+msgid "Game library"
+msgstr "Libreria dei giochi"
+
 #: webapp/templates/staticpages/about.html:124
+msgid ""
+"Catalog every game your club owns — or that members bring along. Track who "
+"owns what and where it's stored, and export the full list as a CSV anytime."
+msgstr ""
+"Cataloga ogni gioco della tua associazione — o che i soci portano con sé. Tieni "
+"traccia di chi possiede cosa e dove è conservato, ed esporta l'elenco completo in CSV in qualsiasi momento."
+
+#: webapp/templates/staticpages/about.html:136
+msgid "Live schedule on your website"
+msgstr "Calendario eventi in tempo reale sul tuo sito"
+
+#: webapp/templates/staticpages/about.html:137
+msgid ""
+"Embed upcoming and past game sessions directly on your club's website with a "
+"single line of code. Show visitors your association is active and give a "
+"preview of what's coming up."
+msgstr ""
+"Integra le sessioni di gioco future e passate direttamente sul sito della tua "
+"associazione con una sola riga di codice. Mostra ai visitatori che la tua associazione "
+"è attiva e dai un'anteprima di cosa sta per arrivare."
+
+#: webapp/templates/staticpages/about.html:150
 msgid "Tournaments"
 msgstr "Tornei"
 
-#: webapp/templates/staticpages/about.html:125
+#: webapp/templates/staticpages/about.html:151
 msgid "Coming soon"
 msgstr "Prossimamente"
 
-#: webapp/templates/staticpages/about.html:127
+#: webapp/templates/staticpages/about.html:153
 msgid ""
 "Full tournament management is on the roadmap — brackets, standings, rounds. "
 "Stay tuned!"
@@ -1725,15 +1751,15 @@ msgstr ""
 "La gestione completa dei tornei è in programma — tabelloni, classifiche, "
 "turni. Restate sintonizzati!"
 
-#: webapp/templates/staticpages/about.html:138
+#: webapp/templates/staticpages/about.html:164
 msgid "Open source"
 msgstr "Open source"
 
-#: webapp/templates/staticpages/about.html:139
+#: webapp/templates/staticpages/about.html:165
 msgid "Built in the open, improved together"
 msgstr "Sviluppato in pubblico, migliorato insieme"
 
-#: webapp/templates/staticpages/about.html:141
+#: webapp/templates/staticpages/about.html:167
 msgid ""
 "You can see every line of code, propose improvements, or even contribute "
 "directly. If your club needs a specific feature, send us a message - we "
@@ -1743,17 +1769,17 @@ msgstr ""
 "contribuire direttamente. Se il tuo club ha bisogno di una funzionalità "
 "specifica, mandaci un messaggio — costruiamo ciò che la community chiede."
 
-#: webapp/templates/staticpages/about.html:155
+#: webapp/templates/staticpages/about.html:181
 msgid "Ready to get started?"
 msgstr "Pronto a iniziare?"
 
-#: webapp/templates/staticpages/about.html:156
+#: webapp/templates/staticpages/about.html:182
 msgid "Create your free account in 2 minutes. No credit card, no commitments."
 msgstr ""
 "Crea il tuo account gratuito in 2 minuti. Nessuna carta di credito, nessun "
 "impegno."
 
-#: webapp/templates/staticpages/about.html:164
+#: webapp/templates/staticpages/about.html:190
 msgid "Have questions? Talk to us"
 msgstr "Hai domande? Scrivici"
 
