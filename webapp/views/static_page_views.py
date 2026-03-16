@@ -148,18 +148,21 @@ def about(request):
 def select_language(request):
     next_param = request.GET.get("next")  # es. "/tables/..." oppure None
 
-    # Fallback a home se next non c'è o non è un path interno sicuro
+    select_language_path = reverse("select-language")
+
+    # Fallback a home se next non c'è, non è un path interno sicuro, o punta a select-language stesso
     if not next_param or not url_has_allowed_host_and_scheme(
         next_param, allowed_hosts={request.get_host()}, require_https=request.is_secure()
     ):
         next_path = reverse("home")
+    elif next_param.startswith(("http://", "https://")):
+        next_path = reverse("home")
     else:
-        # Consenti solo path interni (se arriva assoluto, estrai il path)
-        if next_param.startswith(("http://", "https://")):
-            # In casi estremi potresti voler normalizzare qui
-            next_path = reverse("home")
-        else:
-            next_path = next_param
+        next_path = next_param
+
+    # Evita loop: se next punta a select-language (con qualsiasi query string), usa home
+    if next_path.rstrip("/").split("?")[0] == select_language_path.rstrip("/"):
+        next_path = reverse("home")
 
     absolute_next = request.build_absolute_uri(next_path)
 
