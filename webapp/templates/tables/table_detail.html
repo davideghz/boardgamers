@@ -144,11 +144,16 @@
             {% else %}
               <a href="{% url 'user-profile-detail' player_obj.user_profile.slug %}"
                  class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors">
+                {% if player_obj.user_profile.avatar %}
+                  <img src="{{ player_obj.user_profile.avatar_url }}" alt="{{ player_obj.user_profile.nickname }}"
+                       class="w-9 h-9 rounded-full object-cover flex-shrink-0 {% if player_obj.user_profile == table.author %}ring-2 ring-blue-400{% endif %}">
+                {% else %}
                 <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
                             {% if player_obj.user_profile == table.author %}bg-blue-100 text-blue-700
                             {% else %}bg-slate-100 text-slate-600{% endif %}">
                   {{ player_obj.user_profile.nickname|slice:":2"|upper }}
                 </div>
+                {% endif %}
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
                     {{ player_obj.user_profile.nickname }}
