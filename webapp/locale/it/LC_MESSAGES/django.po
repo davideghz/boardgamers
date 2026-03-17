@@ -1982,6 +1982,10 @@ msgstr "Questa azione non può essere annullata."
 msgid "Back to tables"
 msgstr "Torna ai tavoli"
 
+#: webapp/templates/tables/table_detail.html:13
+msgid "Back to location"
+msgstr "Torna alla location"
+
 #: webapp/templates/tables/table_detail.html:34
 msgid "Created"
 msgstr "Creato"
