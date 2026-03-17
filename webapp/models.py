@@ -632,3 +632,35 @@ class LocationGame(DateTimeModel):
 
     def __str__(self):
         return f"{self.game.name} @ {self.location.name}"
+
+
+class FAQCategory(DateTimeModel):
+    name = models.CharField(max_length=100, verbose_name=_('Name'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    class Meta:
+        verbose_name = _('FAQ Category')
+        verbose_name_plural = _('FAQ Categories')
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name or ''
+
+
+class FAQ(DateTimeModel):
+    category = models.ForeignKey(
+        FAQCategory, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='faqs', verbose_name=_('Category')
+    )
+    question = models.CharField(max_length=500, verbose_name=_('Question'))
+    answer = models.TextField(verbose_name=_('Answer'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Active'))
+
+    class Meta:
+        verbose_name = _('FAQ')
+        verbose_name_plural = _('FAQ')
+        ordering = ['category__order', 'order']
+
+    def __str__(self):
+        return self.question or ''

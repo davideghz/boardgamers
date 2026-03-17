@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.geos import Point
@@ -12,12 +14,14 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import get_language_info, gettext_lazy as _
 
 from meta.views import Meta
+import mistune
+import nh3
 
 from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
-from webapp.models import Comment, UserProfile, Game, Table, Location
+from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ
 
 # for debug page
 import environ
@@ -137,7 +141,29 @@ def contacts(request):
 
 
 def about(request):
+    faqs = FAQ.objects.filter(is_active=True).select_related('category').order_by('category__order', 'order')
+
+    faq_jsonld = None
+    if faqs:
+        faq_jsonld = json.dumps({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": faq.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": nh3.clean(mistune.html(faq.answer), tags=set()),
+                    }
+                }
+                for faq in faqs
+            ]
+        }, ensure_ascii=False)
+
     return render(request, 'staticpages/about.html', {
+        'faqs': faqs,
+        'faq_jsonld': faq_jsonld,
         'meta': Meta(
             title=_("About Board-Gamers.com - For Clubs & Associations"),
             description=_("Discover why board game clubs and associations choose Board-Gamers.com: free forever, open source, member management, tables, rankings and more."),

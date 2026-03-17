@@ -1,5 +1,6 @@
 {% extends "base_webapp.html" %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block content %}
 
@@ -175,6 +176,48 @@
     </div>
   </section>
 
+  {# ── FAQ ───────────────────────────────────────────────────────────── #}
+  {% if faqs %}
+  <section class="mb-16">
+    <div class="text-center mb-8">
+      <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-2">FAQ</p>
+      <h2 class="text-2xl font-extrabold text-slate-900">{% trans "Frequently asked questions" %}</h2>
+    </div>
+
+    {% regroup faqs by category as faq_groups %}
+    <div>
+      {% for group in faq_groups %}
+      <div class="{% if not forloop.last %}mb-10{% endif %}">
+        {% if group.grouper %}
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{{ group.grouper }}</p>
+        {% endif %}
+        <div class="space-y-3">
+          {% for faq in group.list %}
+          <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            <button
+              type="button"
+              class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+              onclick="(function(btn){ var panel = btn.nextElementSibling; var icon = btn.querySelector('svg'); var expanded = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !expanded); panel.hidden = expanded; icon.style.transform = expanded ? '' : 'rotate(180deg)'; })(this)"
+              aria-expanded="false"
+            >
+              <span class="text-sm font-semibold text-slate-900">{{ faq.question }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                   class="flex-shrink-0 w-4 h-4 text-slate-400 transition-transform duration-200">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+            <div hidden class="px-5 pb-4 prose-sm text-slate-500">
+              {{ faq.answer|render_markdown }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
   {# ── FINAL CTA ─────────────────────────────────────────────────────── #}
   <section>
     <div class="rounded-2xl bg-slate-900 px-8 py-12 text-center">
@@ -194,3 +237,9 @@
   </section>
 
 {% endblock content %}
+
+{% if faq_jsonld %}
+{% block jsonld %}
+<script type="application/ld+json">{{ faq_jsonld }}</script>
+{% endblock jsonld %}
+{% endif %}

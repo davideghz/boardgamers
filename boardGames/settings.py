@@ -43,6 +43,9 @@ MIDDLEWARE = [
 # Application definition
 
 INSTALLED_APPS = [
+    # translations
+    'modeltranslation',
+
     # admin
     'django.contrib.admin',
 

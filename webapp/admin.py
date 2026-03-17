@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
-    Membership, GuestProfile, LocationGame
+    Membership, GuestProfile, LocationGame, FAQCategory, FAQ
 
 
 class CustomUserAdmin(UserAdmin):
@@ -110,3 +111,26 @@ class LocationGameAdmin(admin.ModelAdmin):
     list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location')
     list_filter = ('location', 'ownership', 'physical_location')
     search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')
+
+
+class FAQInline(admin.TabularInline):
+    model = FAQ
+    extra = 0
+    fields = ('question', 'order', 'is_active')
+    show_change_link = True
+
+
+@admin.register(FAQCategory)
+class FAQCategoryAdmin(TabbedTranslationAdmin):
+    list_display = ('name', 'order')
+    list_editable = ('order',)
+    inlines = [FAQInline]
+
+
+@admin.register(FAQ)
+class FAQAdmin(TabbedTranslationAdmin):
+    list_display = ('question', 'category', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    list_filter = ('category', 'is_active')
+    search_fields = ('question', 'answer')
+    raw_id_fields = ('category',)
