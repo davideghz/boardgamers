@@ -942,6 +942,18 @@ class DeleteLocationGameView(LoginRequiredMixin, View):
         return redirect('location-manage-games', slug=location.slug)
 
 
+class LocationManageWidgetView(LoginRequiredMixin, View):
+    """Show embeddable widget snippet for a location."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        return render(request, 'locations/location_manage_widget.html', {
+            'location': location,
+            'meta': Meta(title=_("Widget – %(name)s") % {'name': location.name}),
+        })
+
+
 class DownloadGamesCSVView(LoginRequiredMixin, View):
     """Download a CSV of all games in a location's library."""
 

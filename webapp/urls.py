@@ -85,6 +85,8 @@ urlpatterns = [
          name="location-request-membership"),
 
     # LOCATION GAMES
+    path("locations/<slug:slug>/manage/widget/", location_views.LocationManageWidgetView.as_view(),
+         name="location-manage-widget"),
     path("locations/<slug:slug>/manage/games/", location_views.LocationManageGamesView.as_view(),
          name="location-manage-games"),
     path("locations/<slug:slug>/manage/games/csv/", location_views.DownloadGamesCSVView.as_view(),

@@ -1,0 +1,77 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage location" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Widget" %}</h1>
+    <p class="text-sm text-slate-500 mt-1">{% trans "Embed the upcoming tables of your location on any website." %}</p>
+  </div>
+
+  <div class="max-w-xl space-y-6">
+
+    {# ── BASE SNIPPET ─────────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-1">{% trans "Basic snippet" %}</h2>
+      <p class="text-xs text-slate-500 mb-3">{% trans "Copy and paste this code into your website's HTML." %}</p>
+
+      <div class="relative">
+        <pre id="snippet-basic" class="bg-slate-900 text-green-300 text-xs rounded-lg p-4 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">{% spaceless %}
+&lt;!-- Board-Gamers.com Widget --&gt;
+&lt;link rel="stylesheet" href="https://board-gamers.com/static/widget/widget.css"&gt;
+&lt;div id="board-gamers-tables" data-location="{{ location.slug }}"&gt;&lt;/div&gt;
+&lt;script src="https://board-gamers.com/static/widget/widget.js"&gt;&lt;/script&gt;{% endspaceless %}</pre>
+        <button onclick="copySnippet('snippet-basic', this)"
+                class="absolute top-2 right-2 text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md transition-colors">
+          {% trans "Copy" %}
+        </button>
+      </div>
+    </div>
+
+    {# ── ENGLISH SNIPPET ──────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-1">{% trans "English version" %}</h2>
+      <p class="text-xs text-slate-500 mb-3">{% trans "Add data-lang to display the widget in English." %}</p>
+
+      <div class="relative">
+        <pre id="snippet-en" class="bg-slate-900 text-green-300 text-xs rounded-lg p-4 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">{% spaceless %}
+&lt;!-- Board-Gamers.com Widget --&gt;
+&lt;link rel="stylesheet" href="https://board-gamers.com/static/widget/widget.css"&gt;
+&lt;div id="board-gamers-tables" data-location="{{ location.slug }}" data-lang="en"&gt;&lt;/div&gt;
+&lt;script src="https://board-gamers.com/static/widget/widget.js"&gt;&lt;/script&gt;{% endspaceless %}</pre>
+        <button onclick="copySnippet('snippet-en', this)"
+                class="absolute top-2 right-2 text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md transition-colors">
+          {% trans "Copy" %}
+        </button>
+      </div>
+    </div>
+
+    {# ── NOTES ────────────────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600 space-y-2">
+      <p class="font-bold text-slate-800">{% trans "Notes" %}</p>
+      <ul class="list-disc list-inside space-y-1 text-xs">
+        <li>{% trans "The widget automatically shows upcoming open tables for your location." %}</li>
+        <li>{% blocktrans with slug=location.slug %}Your location slug is <strong>{{ slug }}</strong> — do not change it.{% endblocktrans %}</li>
+        <li>{% trans "Supported attributes: data-location, data-lang (default: it)." %}</li>
+        <li>{% trans "You can place the snippet anywhere inside the <body> of your page." %}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    function copySnippet(id, btn) {
+      const pre = document.getElementById(id);
+      navigator.clipboard.writeText(pre.innerText).then(function() {
+        const original = btn.textContent;
+        btn.textContent = '{% trans "Copied!" %}';
+        setTimeout(function() { btn.textContent = original; }, 2000);
+      });
+    }
+  </script>
+
+{% endblock content %}

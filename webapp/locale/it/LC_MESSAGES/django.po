@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-17 16:51+0000\n"
+"POT-Creation-Date: 2026-03-17 17:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr "Giochi"
 
 #: webapp/forms.py:120 webapp/forms.py:468 webapp/models.py:303
 #: webapp/models.py:610 webapp/templates/tables/table_add_or_edit.html:142
-#: webapp/views/location_views.py:959
+#: webapp/views/location_views.py:971
 msgid "Game"
 msgstr "Gioco"
 
@@ -84,7 +84,8 @@ msgstr "Profilo utente collegato"
 #: webapp/models.py:567 webapp/models.py:624
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
-#: webapp/views/location_views.py:959
+#: webapp/templates/locations/location_manage_widget.html:55
+#: webapp/views/location_views.py:971
 msgid "Notes"
 msgstr "Note"
 
@@ -113,7 +114,7 @@ msgstr "Status"
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:497 webapp/models.py:618 webapp/views/location_views.py:959
+#: webapp/forms.py:497 webapp/models.py:618 webapp/views/location_views.py:971
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
@@ -449,11 +450,11 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-#: webapp/models.py:614 webapp/views/location_views.py:959
+#: webapp/models.py:614 webapp/views/location_views.py:971
 msgid "Ownership"
 msgstr "Proprietà"
 
-#: webapp/models.py:622 webapp/views/location_views.py:959
+#: webapp/models.py:622 webapp/views/location_views.py:971
 msgid "Physical Location"
 msgstr "Ubicazione"
 
@@ -1274,6 +1275,7 @@ msgstr "Crea un tavolo qui"
 
 #: webapp/templates/locations/location_detail.html:239
 #: webapp/templates/locations/location_manage_index.html:10
+#: webapp/templates/locations/location_manage_widget.html:9
 msgid "Manage location"
 msgstr "Gestisci location"
 
@@ -1464,6 +1466,15 @@ msgstr "Gestisci la libreria dei giochi dell'associazione"
 msgid "Manage members and memberships"
 msgstr "Gestisci associati e membership"
 
+#: webapp/templates/locations/location_manage_index.html:90
+#: webapp/templates/locations/location_manage_widget.html:11
+msgid "Widget"
+msgstr "Widget"
+
+#: webapp/templates/locations/location_manage_index.html:91
+msgid "Embed upcoming tables on your website"
+msgstr "Incorpora i prossimi tavoli sul tuo sito"
+
 #: webapp/templates/locations/location_manage_managers.html:50
 msgid "Team"
 msgstr "Team"
@@ -1597,6 +1608,56 @@ msgstr "Data di fine"
 #: webapp/templates/locations/location_manage_members.html:186
 msgid "Approve"
 msgstr "Approva"
+
+#: webapp/templates/locations/location_manage_widget.html:12
+msgid "Embed the upcoming tables of your location on any website."
+msgstr "Incorpora i prossimi tavoli della tua location su qualsiasi sito web."
+
+#: webapp/templates/locations/location_manage_widget.html:19
+msgid "Basic snippet"
+msgstr "Snippet base"
+
+#: webapp/templates/locations/location_manage_widget.html:20
+msgid "Copy and paste this code into your website's HTML."
+msgstr "Copia e incolla questo codice nell'HTML del tuo sito."
+
+#: webapp/templates/locations/location_manage_widget.html:30
+#: webapp/templates/locations/location_manage_widget.html:48
+msgid "Copy"
+msgstr "Copia"
+
+#: webapp/templates/locations/location_manage_widget.html:37
+msgid "English version"
+msgstr "Versione inglese"
+
+#: webapp/templates/locations/location_manage_widget.html:38
+msgid "Add data-lang to display the widget in English."
+msgstr "Aggiungi data-lang per mostrare il widget in inglese."
+
+#: webapp/templates/locations/location_manage_widget.html:57
+msgid "The widget automatically shows upcoming open tables for your location."
+msgstr ""
+"Il widget mostra automaticamente i prossimi tavoli aperti della tua location."
+
+#: webapp/templates/locations/location_manage_widget.html:58
+#, python-format
+msgid "Your location slug is <strong>%(slug)s</strong> — do not change it."
+msgstr ""
+"Lo slug della tua location è <strong>%(slug)s</strong> — non modificarlo."
+
+#: webapp/templates/locations/location_manage_widget.html:59
+msgid "Supported attributes: data-location, data-lang (default: it)."
+msgstr ""
+"Attributi supportati: data-location, data-lang (default: it)."
+
+#: webapp/templates/locations/location_manage_widget.html:60
+msgid "You can place the snippet anywhere inside the <body> of your page."
+msgstr ""
+"Puoi inserire lo snippet ovunque all'interno del tag <body> della tua pagina."
+
+#: webapp/templates/locations/location_manage_widget.html:71
+msgid "Copied!"
+msgstr "Copiato!"
 
 #: webapp/templates/locations/location_request_membership.html:11
 #: webapp/templates/locations/location_request_membership.html:15
@@ -2497,6 +2558,10 @@ msgstr "Gioco aggiornato con successo."
 #, python-format
 msgid "Game «%(name)s» removed from the library."
 msgstr "Gioco %(name)s rimosso dalla libreria"
+
+#: webapp/views/location_views.py:953
+msgid "Widget – %(name)s"
+msgstr "Widget - %(name)s"
 
 #: webapp/views/profile_views.py:67
 msgid "Profile updated successfully"
