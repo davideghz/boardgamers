@@ -1,3 +1,4 @@
+import re
 import string
 import uuid
 import random
@@ -16,6 +17,18 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from meta.models import ModelMeta
+import mistune
+import nh3
+
+
+def _plain_text(markdown_text):
+    """Convert markdown to plain text (strip all tags) and truncate for meta."""
+    if not markdown_text:
+        return ''
+    html = mistune.html(markdown_text)
+    plain = nh3.clean(html, tags=set())
+    plain = re.sub(r'\s+', ' ', plain).strip()
+    return plain[:160]
 from model_utils import FieldTracker
 
 from webapp.storage_backends import PublicMediaStorage
@@ -97,7 +110,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
                 return _("%(name)s - Board-Gamers.com") % {'name': self.name}
 
     def get_meta_description(self):
-        return self.description
+        return _plain_text(self.description)
 
     @cached_property
     def cover_url(self):
