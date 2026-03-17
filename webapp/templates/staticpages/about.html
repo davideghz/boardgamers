@@ -240,6 +240,6 @@
 
 {% if faq_jsonld %}
 {% block jsonld %}
-<script type="application/ld+json">{{ faq_jsonld }}</script>
+<script type="application/ld+json">{{ faq_jsonld|safe }}</script>
 {% endblock jsonld %}
 {% endif %}
