@@ -83,6 +83,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     min_playtime = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_('Min playtime (minutes)'))
     max_playtime = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_('Max playtime (minutes)'))
     weight = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name=_('Weight'))
+    year_published = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Year published'))
 
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
 
