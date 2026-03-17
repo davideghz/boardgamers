@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-17 17:56+0000\n"
+"POT-Creation-Date: 2026-03-17 17:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1647,13 +1647,12 @@ msgstr ""
 
 #: webapp/templates/locations/location_manage_widget.html:59
 msgid "Supported attributes: data-location, data-lang (default: it)."
-msgstr ""
-"Attributi supportati: data-location, data-lang (default: it)."
+msgstr "Attributi supportati: data-location, data-lang (default: it)."
 
 #: webapp/templates/locations/location_manage_widget.html:60
-msgid "You can place the snippet anywhere inside the <body> of your page."
+msgid "You can place the snippet anywhere inside the body of your page."
 msgstr ""
-"Puoi inserire lo snippet ovunque all'interno del tag <body> della tua pagina."
+"Puoi inserire lo snippet ovunque all'interno del tag body della tua pagina."
 
 #: webapp/templates/locations/location_manage_widget.html:71
 msgid "Copied!"
@@ -2560,6 +2559,7 @@ msgid "Game «%(name)s» removed from the library."
 msgstr "Gioco %(name)s rimosso dalla libreria"
 
 #: webapp/views/location_views.py:953
+#, python-format
 msgid "Widget – %(name)s"
 msgstr "Widget - %(name)s"
 
