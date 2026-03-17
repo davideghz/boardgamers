@@ -1,0 +1,28 @@
+name: Heroku PG Backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # ogni giorno alle 03:00 UTC
+  workflow_dispatch:       # consente esecuzione manuale dalla UI GitHub
+
+jobs:
+  backup:
+    name: Capture Postgres backup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger backup capture
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "https://postgres-api.heroku.com/client/v11/databases/${{ secrets.HEROKU_POSTGRES_ADDON_ID }}/backups" \
+            -H "Authorization: Bearer ${{ secrets.HEROKU_API_KEY }}" \
+            -H "Content-Type: application/json")
+
+          echo "HTTP status: $RESPONSE"
+
+          if [ "$RESPONSE" -lt 200 ] || [ "$RESPONSE" -ge 300 ]; then
+            echo "Backup request failed with status $RESPONSE"
+            exit 1
+          fi
+
+          echo "Backup triggered successfully"
