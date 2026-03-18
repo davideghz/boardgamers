@@ -19,15 +19,18 @@ logger = logging.getLogger(__name__)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _send_message(chat_id, text):
+def _send_message(chat_id, text, reply_markup=None):
     token = settings.TELEGRAM_BOT_TOKEN
     if not token:
         logger.warning("TELEGRAM_BOT_TOKEN not set")
         return
+    payload = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
+    if reply_markup:
+        payload['reply_markup'] = reply_markup
     try:
         http_requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
-            json={'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'},
+            json=payload,
             timeout=5,
         )
     except Exception as e:
@@ -153,19 +156,26 @@ def _handle_tables(chat_id):
         return
 
     lines = [f"🎲 <b>Tavoli aperti — {location.name}</b>\n"]
+    buttons = []
     for t in tables:
         game_name = t.game.name if t.game else "Gioco libero"
         players = f"{t.players.count()}/{t.max_players}"
         date_str = t.date.strftime("%-d %b")
         time_str = t.time.strftime("%H:%M") if t.time else ""
-        url = f"{base_url}/tables/{t.slug}/"
-        lines.append(
-            f"• <b>{t.title}</b> ({game_name})\n"
-            f"  📅 {date_str} {time_str} · 👥 {players}\n"
-            f"  <a href='{url}'>Dettagli →</a>"
-        )
+        lines.append(f"• {game_name} | {date_str} {time_str} | 👥 {players}")
+        buttons.append([{
+            "text": f"{t.title} — {date_str}",
+            "url": f"{base_url}/tables/{t.slug}/",
+        }])
 
-    _send_message(chat_id, "\n\n".join(lines))
+    location_url = f"{base_url}/locations/{location.slug}/"
+    buttons.append([{"text": "📍 Tutti i tavoli →", "url": location_url}])
+
+    _send_message(
+        chat_id,
+        "\n".join(lines),
+        reply_markup={"inline_keyboard": buttons},
+    )
 
 
 # ── Generate setup token ──────────────────────────────────────────────────────
