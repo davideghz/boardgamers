@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-18 10:46+0000\n"
+"POT-Creation-Date: 2026-03-18 15:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,7 +127,7 @@ msgstr "Cerca per socio..."
 msgid "Guest name"
 msgstr "Nome ospite"
 
-#: webapp/forms.py:531 webapp/models.py:253 webapp/models.py:678
+#: webapp/forms.py:531 webapp/models.py:253 webapp/models.py:677
 msgid "Name"
 msgstr "Nome"
 
@@ -254,7 +254,7 @@ msgid "Description"
 msgstr "Descrizione"
 
 #: webapp/models.py:291 webapp/models.py:504 webapp/models.py:606
-#: webapp/models.py:640 webapp/models.py:658
+#: webapp/models.py:640 webapp/models.py:657
 #: webapp/templates/locations/location_manage_games.html:71
 #: webapp/templates/tables/table_add_or_edit.html:103
 #: webapp/templates/tables/table_detail.html:114
@@ -401,12 +401,12 @@ msgstr "Soci"
 msgid "Pending"
 msgstr "In attesa"
 
-#: webapp/models.py:552 webapp/models.py:645 webapp/models.py:698
+#: webapp/models.py:552 webapp/models.py:644 webapp/models.py:697
 #: webapp/templates/accounts/account_memberships.html:28
 #: webapp/templates/locations/location_manage_member_detail.html:94
 #: webapp/templates/locations/location_manage_member_detail.html:145
 #: webapp/templates/locations/location_manage_members.html:66
-#: webapp/templates/locations/location_manage_telegram.html:31
+#: webapp/templates/locations/location_manage_telegram.html:51
 msgid "Active"
 msgstr "Attivo"
 
@@ -470,70 +470,65 @@ msgstr "Giochi nella Location"
 
 #: webapp/models.py:642
 msgid "Chat ID"
-msgstr ""
+msgstr "Chat ID"
 
 #: webapp/models.py:643
 msgid "Chat title"
-msgstr ""
+msgstr "Titolo chat"
 
-#: webapp/models.py:644
-msgid "Label"
-msgstr ""
+#: webapp/models.py:647
+msgid "Telegram Group Config"
+msgstr "Telegram Group Config"
 
 #: webapp/models.py:648
-msgid "Telegram Group Config"
-msgstr ""
-
-#: webapp/models.py:649
 msgid "Telegram Group Configs"
-msgstr ""
+msgstr "Telegram Group Configs"
+
+#: webapp/models.py:659
+msgid "Token"
+msgstr "Token"
 
 #: webapp/models.py:660
-msgid "Token"
-msgstr ""
-
-#: webapp/models.py:661
 msgid "Expires at"
 msgstr "Scaduto"
 
-#: webapp/models.py:662
+#: webapp/models.py:661
 msgid "Used"
 msgstr "Usato"
 
-#: webapp/models.py:665
+#: webapp/models.py:664
 msgid "Telegram Setup Token"
 msgstr "Telegram Setup Token"
 
-#: webapp/models.py:666
+#: webapp/models.py:665
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
 
-#: webapp/models.py:679
-#: webapp/models.py:697
+#: webapp/models.py:678 webapp/models.py:696
 msgid "Order"
 msgstr "Ordine"
 
-#: webapp/models.py:682
+#: webapp/models.py:681
 msgid "FAQ Category"
 msgstr "FAQ Category"
 
-#: webapp/models.py:683
+#: webapp/models.py:682
 msgid "FAQ Categories"
 msgstr "FAQ Categories"
 
-#: webapp/models.py:693
+#: webapp/models.py:692
 msgid "Category"
 msgstr "Categoria"
 
-#: webapp/models.py:695
+#: webapp/models.py:694
 msgid "Question"
 msgstr "Domanda"
 
-#: webapp/models.py:696
+#: webapp/models.py:695
 msgid "Answer"
 msgstr "Risposta"
 
-#: webapp/models.py:701 webapp/models.py:702
+#: webapp/models.py:700 webapp/models.py:701
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -636,6 +631,7 @@ msgstr "Aggiungi un ospite"
 #: webapp/templates/locations/location_manage_games.html:24
 #: webapp/templates/locations/location_manage_managers.html:103
 #: webapp/templates/locations/location_manage_members.html:24
+#: webapp/templates/locations/location_manage_telegram.html:23
 #: webapp/templates/tables/table_players.html:106
 msgid "Add"
 msgstr "Aggiungi"
@@ -1676,75 +1672,102 @@ msgstr "Approva"
 msgid "Connect a Telegram group to publish open tables."
 msgstr "Collega un gruppo Telegram per pubblicare i tavoli aperti."
 
-#: webapp/templates/locations/location_manage_telegram.html:20
+#: webapp/templates/locations/location_manage_telegram.html:19
+msgid "How to connect a Telegram group"
+msgstr "Come collegare un gruppo Telegram"
+
+#: webapp/templates/locations/location_manage_telegram.html:23
+msgid "to your Telegram group as a member."
+msgstr "al tuo gruppo Telegram come membro."
+
+#: webapp/templates/locations/location_manage_telegram.html:27
+msgid "Generate a token using the button below."
+msgstr "Genera un token usando il pulsante qui sotto."
+
+#: webapp/templates/locations/location_manage_telegram.html:31
+msgid ""
+"Copy the command and paste it in the Telegram group. The bot will confirm "
+"the connection."
+msgstr ""
+"Copia il comando e incollalo nel gruppo Telegram. Il bot confermerà la "
+"connessione."
+
+#: webapp/templates/locations/location_manage_telegram.html:35
+msgid "Use /tables in the group to see the open tables."
+msgstr "Usa /tables nel gruppo per vedere i tavoli aperti."
+
+#: webapp/templates/locations/location_manage_telegram.html:43
 msgid "Connected groups"
 msgstr "Gruppi connessi"
 
-#: webapp/templates/locations/location_manage_telegram.html:40
+#: webapp/templates/locations/location_manage_telegram.html:60
 msgid "Add a new group"
 msgstr "Aggiungi un nuovo gruppo"
 
-#: webapp/templates/locations/location_manage_telegram.html:41
+#: webapp/templates/locations/location_manage_telegram.html:61
 msgid ""
 "Generate a one-time token, then paste the command in your Telegram group."
-msgstr "Genera un token monouso, poi incolla il comando nel tuo gruppo Telegram."
+msgstr ""
+"Genera un token monouso, poi incolla il comando nel tuo gruppo Telegram."
 
-#: webapp/templates/locations/location_manage_telegram.html:48
-#: webapp/templates/locations/location_manage_telegram.html:128
+#: webapp/templates/locations/location_manage_telegram.html:68
+#: webapp/templates/locations/location_manage_telegram.html:148
 msgid "Generate token"
 msgstr "Genera token"
 
-#: webapp/templates/locations/location_manage_telegram.html:54
+#: webapp/templates/locations/location_manage_telegram.html:74
 msgid "This token expires in 1 hour and can only be used once."
 msgstr "Questo token scade dopo 1 ora e può essere utilizzato una sola volta."
 
-#: webapp/templates/locations/location_manage_telegram.html:58
+#: webapp/templates/locations/location_manage_telegram.html:78
 msgid "Copy and paste this command in your Telegram group:"
 msgstr "Copia e incolla questo comando nel tuo gruppo Telegram:"
 
-#: webapp/templates/locations/location_manage_telegram.html:63
+#: webapp/templates/locations/location_manage_telegram.html:83
 #: webapp/templates/locations/location_manage_widget.html:30
 #: webapp/templates/locations/location_manage_widget.html:48
 msgid "Copy"
 msgstr "Copia"
 
-#: webapp/templates/locations/location_manage_telegram.html:69
+#: webapp/templates/locations/location_manage_telegram.html:89
 msgid "Make sure the bot"
 msgstr "Assicurati che il bot"
 
-#: webapp/templates/locations/location_manage_telegram.html:71
+#: webapp/templates/locations/location_manage_telegram.html:91
 msgid "is already a member of the group before running the command."
 msgstr "sia già membro del gruppo prima di lanciare il comando."
 
-#: webapp/templates/locations/location_manage_telegram.html:80
+#: webapp/templates/locations/location_manage_telegram.html:100
 msgid "Available commands"
 msgstr "Comandi disponibili"
 
-#: webapp/templates/locations/location_manage_telegram.html:84
+#: webapp/templates/locations/location_manage_telegram.html:104
 msgid "Connect this group to a location (run once, with a valid token)."
-msgstr "Collega questo gruppo a una location (esegui una sola volta, con un token valido)."
+msgstr ""
+"Collega questo gruppo a una location (esegui una sola volta, con un token "
+"valido)."
 
-#: webapp/templates/locations/location_manage_telegram.html:88
+#: webapp/templates/locations/location_manage_telegram.html:108
 msgid "Show upcoming open tables for this location."
 msgstr "Mostra i prossimi tavoli aperti per questa location."
 
-#: webapp/templates/locations/location_manage_telegram.html:101
+#: webapp/templates/locations/location_manage_telegram.html:121
 msgid "Generating…"
 msgstr "Generazione in corso…"
 
-#: webapp/templates/locations/location_manage_telegram.html:114
+#: webapp/templates/locations/location_manage_telegram.html:134
 msgid "the bot"
-msgstr "board_gamers_bot"
+msgstr "the bot"
 
-#: webapp/templates/locations/location_manage_telegram.html:118
+#: webapp/templates/locations/location_manage_telegram.html:138
 msgid "Error generating token."
 msgstr "Errore nella generazione del token."
 
-#: webapp/templates/locations/location_manage_telegram.html:123
+#: webapp/templates/locations/location_manage_telegram.html:143
 msgid "Network error. Please try again."
 msgstr "Network error. Si prega di riprovare."
 
-#: webapp/templates/locations/location_manage_telegram.html:136
+#: webapp/templates/locations/location_manage_telegram.html:156
 #: webapp/templates/locations/location_manage_widget.html:71
 msgid "Copied!"
 msgstr "Copiato!"
@@ -2695,6 +2718,7 @@ msgid "Widget – %(name)s"
 msgstr "Widget - %(name)s"
 
 #: webapp/views/location_views.py:970
+#, python-format
 msgid "Telegram – %(name)s"
 msgstr "Telegram - %(name)s"
 

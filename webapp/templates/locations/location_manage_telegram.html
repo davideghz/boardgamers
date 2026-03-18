@@ -14,6 +14,29 @@
 
   <div class="max-w-xl space-y-6">
 
+    {# ── Setup guide ───────────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-3">{% trans "How to connect a Telegram group" %}</h2>
+      <ol class="space-y-2 text-xs text-slate-600 list-none">
+        <li class="flex gap-2">
+          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs">1</span>
+          <span>{% trans "Add" %} <code class="bg-slate-100 text-slate-800 px-1 rounded">@{{ bot_username }}</code> {% trans "to your Telegram group as a member." %}</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs">2</span>
+          {% trans "Generate a token using the button below." %}
+        </li>
+        <li class="flex gap-2">
+          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs">3</span>
+          {% trans "Copy the command and paste it in the Telegram group. The bot will confirm the connection." %}
+        </li>
+        <li class="flex gap-2">
+          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs">4</span>
+          {% trans "Use /tables in the group to see the open tables." %}
+        </li>
+      </ol>
+    </div>
+
     {# ── Configured groups ─────────────────────────────────────────────── #}
     {% if configs %}
       <div class="rounded-xl border border-slate-200 bg-white p-5">
