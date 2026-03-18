@@ -138,7 +138,7 @@ class FAQAdmin(TabbedTranslationAdmin):
 
 @admin.register(TelegramGroupConfig)
 class TelegramGroupConfigAdmin(admin.ModelAdmin):
-    list_display = ('location', 'chat_title', 'chat_id', 'label', 'active', 'created_at')
+    list_display = ('location', 'chat_title', 'chat_id', 'active', 'created_at')
     list_filter = ('active', 'location')
     search_fields = ('chat_title', 'location__name')
     list_editable = ('active',)
