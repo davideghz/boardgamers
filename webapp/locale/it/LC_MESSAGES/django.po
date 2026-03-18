@@ -177,19 +177,19 @@ msgstr "Massimo giocatori"
 
 #: webapp/models.py:96
 msgid "Min playtime (minutes)"
-msgstr ""
+msgstr "Durata minima (minuti)"
 
 #: webapp/models.py:97
 msgid "Max playtime (minutes)"
-msgstr ""
+msgstr "Durata massima (minuti)"
 
 #: webapp/models.py:98
 msgid "Weight"
-msgstr ""
+msgstr "Peso"
 
 #: webapp/models.py:99
 msgid "Year published"
-msgstr ""
+msgstr "Anno pubblicazione"
 
 #: webapp/models.py:110 webapp/models.py:154
 #, python-format
@@ -1536,7 +1536,7 @@ msgstr "Incorpora i prossimi tavoli sul tuo sito"
 
 #: webapp/templates/locations/location_manage_index.html:107
 msgid "Publish open tables to a Telegram group"
-msgstr ""
+msgstr "Pubblica i tavoli aperti in un gruppo Telegram"
 
 #: webapp/templates/locations/location_manage_managers.html:50
 msgid "Team"
