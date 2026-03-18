@@ -335,7 +335,7 @@ LOGGING = {
     'loggers': {
         'webapp': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'INFO' if DEBUG else 'WARNING',
             'propagate': False,
         },
     },
