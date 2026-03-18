@@ -60,6 +60,8 @@ def telegram_webhook(request):
     except (json.JSONDecodeError, UnicodeDecodeError):
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+    logger.info("Telegram update received: %s", json.dumps(update))
+
     message = update.get('message') or update.get('my_chat_member')
     if not message:
         return JsonResponse({'ok': True})
@@ -76,10 +78,15 @@ def telegram_webhook(request):
     command = text.split('@')[0].split()[0].lower() if text.startswith('/') else ''
     args = text.split()[1:] if text.startswith('/') else []
 
-    if command == '/setup':
-        _handle_setup(chat_id, chat_title, args)
-    elif command == '/tables':
-        _handle_tables(chat_id)
+    logger.info("Telegram command=%r chat_id=%s", command, chat_id)
+
+    try:
+        if command == '/setup':
+            _handle_setup(chat_id, chat_title, args)
+        elif command == '/tables':
+            _handle_tables(chat_id)
+    except Exception:
+        logger.exception("Error handling Telegram command %r", command)
 
     return JsonResponse({'ok': True})
 
