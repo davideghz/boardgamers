@@ -20,7 +20,8 @@ from meta.views import Meta
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, LocationGameForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame
+from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame, \
+    TelegramGroupConfig
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -951,6 +952,22 @@ class LocationManageWidgetView(LoginRequiredMixin, View):
         return render(request, 'locations/location_manage_widget.html', {
             'location': location,
             'meta': Meta(title=_("Widget – %(name)s") % {'name': location.name}),
+        })
+
+
+class LocationManageTelegramView(LoginRequiredMixin, View):
+    """Telegram bot configuration for a location."""
+
+    def get(self, request, slug):
+        from django.conf import settings as django_settings
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        configs = location.telegram_configs.filter(active=True)
+        return render(request, 'locations/location_manage_telegram.html', {
+            'location': location,
+            'configs': configs,
+            'bot_username': django_settings.TELEGRAM_BOT_USERNAME,
+            'meta': Meta(title=_("Telegram – %(name)s") % {'name': location.name}),
         })
 
 

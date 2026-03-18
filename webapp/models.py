@@ -634,6 +634,46 @@ class LocationGame(DateTimeModel):
         return f"{self.game.name} @ {self.location.name}"
 
 
+class TelegramGroupConfig(DateTimeModel):
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='telegram_configs',
+        verbose_name=_('Location')
+    )
+    chat_id = models.BigIntegerField(unique=True, verbose_name=_('Chat ID'))
+    chat_title = models.CharField(max_length=255, blank=True, verbose_name=_('Chat title'))
+    label = models.CharField(max_length=64, blank=True, verbose_name=_('Label'))
+    active = models.BooleanField(default=True, verbose_name=_('Active'))
+
+    class Meta:
+        verbose_name = _('Telegram Group Config')
+        verbose_name_plural = _('Telegram Group Configs')
+
+    def __str__(self):
+        return f"{self.location.name} — {self.chat_title or self.chat_id}"
+
+
+class TelegramSetupToken(DateTimeModel):
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='telegram_tokens',
+        verbose_name=_('Location')
+    )
+    token = models.CharField(max_length=64, unique=True, verbose_name=_('Token'))
+    expires_at = models.DateTimeField(verbose_name=_('Expires at'))
+    used = models.BooleanField(default=False, verbose_name=_('Used'))
+
+    class Meta:
+        verbose_name = _('Telegram Setup Token')
+        verbose_name_plural = _('Telegram Setup Tokens')
+
+    def __str__(self):
+        return f"{self.location.name} — {self.token[:8]}…"
+
+    @property
+    def is_valid(self):
+        from django.utils import timezone
+        return not self.used and self.expires_at > timezone.now()
+
+
 class FAQCategory(DateTimeModel):
     name = models.CharField(max_length=100, verbose_name=_('Name'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
-    Membership, GuestProfile, LocationGame, FAQCategory, FAQ
+    Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken
 
 
 class CustomUserAdmin(UserAdmin):
@@ -134,3 +134,19 @@ class FAQAdmin(TabbedTranslationAdmin):
     list_filter = ('category', 'is_active')
     search_fields = ('question', 'answer')
     raw_id_fields = ('category',)
+
+
+@admin.register(TelegramGroupConfig)
+class TelegramGroupConfigAdmin(admin.ModelAdmin):
+    list_display = ('location', 'chat_title', 'chat_id', 'label', 'active', 'created_at')
+    list_filter = ('active', 'location')
+    search_fields = ('chat_title', 'location__name')
+    list_editable = ('active',)
+
+
+@admin.register(TelegramSetupToken)
+class TelegramSetupTokenAdmin(admin.ModelAdmin):
+    list_display = ('location', 'token', 'expires_at', 'used', 'created_at')
+    list_filter = ('used', 'location')
+    search_fields = ('token', 'location__name')
+    readonly_fields = ('token', 'created_at')

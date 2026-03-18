@@ -21,6 +21,10 @@ DEBUG = env('DEBUG')
 SITE_PROTOCOL = env('SITE_PROTOCOL', default='http')
 SITE_DOMAIN = env('SITE_DOMAIN', default='localhost:8000')
 
+TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
+TELEGRAM_BOT_USERNAME = env('TELEGRAM_BOT_USERNAME', default='')
+TELEGRAM_WEBHOOK_SECRET = env('TELEGRAM_WEBHOOK_SECRET', default='')
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',

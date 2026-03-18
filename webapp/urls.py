@@ -84,6 +84,10 @@ urlpatterns = [
     path("locations/<slug:slug>/request-membership/", location_views.RequestMembershipView.as_view(),
          name="location-request-membership"),
 
+    # LOCATION TELEGRAM
+    path("locations/<slug:slug>/manage/telegram/", location_views.LocationManageTelegramView.as_view(),
+         name="location-manage-telegram"),
+
     # LOCATION GAMES
     path("locations/<slug:slug>/manage/widget/", location_views.LocationManageWidgetView.as_view(),
          name="location-manage-widget"),
