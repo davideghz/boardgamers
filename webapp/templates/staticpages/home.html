@@ -122,7 +122,24 @@
   {# ── LOCATIONS ────────────────────────────────────────────────────── #}
   {% if user_created_locations or nearby_locations %}
     <section class="mb-10">
-      <h2 class="text-lg font-bold text-slate-900">{% trans "Locations" %}</h2>
+
+      {# Header: title + toggle #}
+      <div class="flex items-center justify-between mb-1 gap-3 flex-wrap">
+        <h2 class="text-lg font-bold text-slate-900">{% trans "Locations" %}</h2>
+        <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+          <button id="btn-loc-list"
+                  onclick="showLocTab('list')"
+                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm">
+            {% trans "List" %}
+          </button>
+          <button id="btn-loc-map"
+                  onclick="showLocTab('map')"
+                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900">
+            {% trans "Map" %}
+          </button>
+        </div>
+      </div>
+
       {% if not user.is_authenticated %}
         <p class="text-xs text-slate-500 mb-4">
           <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
@@ -141,13 +158,21 @@
         </p>
       {% endif %}
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {% for location in user_created_locations %}
-          {% location_card location %}
-        {% endfor %}
-        {% for location in nearby_locations %}
-          {% location_card location %}
-        {% endfor %}
+      {# List view #}
+      <div id="locations-list">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {% for location in user_created_locations %}
+            {% location_card location %}
+          {% endfor %}
+          {% for location in nearby_locations %}
+            {% location_card location %}
+          {% endfor %}
+        </div>
+      </div>
+
+      {# Map view #}
+      <div id="locations-map-container" style="display:none">
+        <div id="locations-map" style="width:100%;height:420px;border-radius:0.75rem;overflow:hidden"></div>
       </div>
 
       <div class="mt-3">
@@ -200,7 +225,7 @@
 
 {% block extrabodyjs %}
   <script>
-    // Tab toggle: simple show/hide (no Swiper)
+    // ── Tables toggle ────────────────────────────────────────────────────
     function showTab(tab) {
       const isUpcoming = tab === 'upcoming';
       document.getElementById('tab-upcoming').style.display = isUpcoming ? '' : 'none';
@@ -211,5 +236,80 @@
       document.getElementById('btn-upcoming').className = isUpcoming ? btnActive : btnInactive;
       document.getElementById('btn-past').className     = isUpcoming ? btnInactive : btnActive;
     }
+
+    // ── Locations map data ───────────────────────────────────────────────
+    const HOME_LOCATIONS = [
+      {% for loc in user_created_locations %}{% if loc.latitude and loc.longitude %}
+        {"name": "{{ loc.name|escapejs }}", "lat": {{ loc.latitude }}, "lng": {{ loc.longitude }}, "url": "{% url 'location-detail' loc.slug %}"},
+      {% endif %}{% endfor %}
+      {% for loc in nearby_locations %}{% if loc.latitude and loc.longitude %}
+        {"name": "{{ loc.name|escapejs }}", "lat": {{ loc.latitude }}, "lng": {{ loc.longitude }}, "url": "{% url 'location-detail' loc.slug %}"},
+      {% endif %}{% endfor %}
+    ];
+    const _viewPageLabel = "{% trans 'View page' %}";
+
+    // ── Locations toggle ─────────────────────────────────────────────────
+    const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm';
+    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900';
+
+    function showLocTab(tab) {
+      const isList = tab === 'list';
+      document.getElementById('locations-list').style.display          = isList ? '' : 'none';
+      document.getElementById('locations-map-container').style.display = isList ? 'none' : '';
+      document.getElementById('btn-loc-list').className = isList ? LOC_ACTIVE : LOC_INACTIVE;
+      document.getElementById('btn-loc-map').className  = isList ? LOC_INACTIVE : LOC_ACTIVE;
+      if (!isList) renderHomeMap();
+    }
+
+    // ── Google Maps ──────────────────────────────────────────────────────
+    let homeMapInitialized = false;
+
+    function initHomeMap() {
+      // Maps API ready — no-op; map renders on demand when user clicks "Map"
+    }
+
+    function renderHomeMap() {
+      if (homeMapInitialized) return;
+      homeMapInitialized = true;
+
+      const map = new google.maps.Map(document.getElementById('locations-map'), {
+        zoom: 6,
+        center: { lat: 42.5, lng: 12.5 },
+        mapId: 'booohhh',
+        fullscreenControl: false,
+        mapTypeControl: false,
+        streetViewControl: false,
+        zoomControl: true,
+      });
+
+      const infoWindow = new google.maps.InfoWindow();
+      const bounds = new google.maps.LatLngBounds();
+
+      HOME_LOCATIONS.forEach(function(loc) {
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+          map: map,
+          position: { lat: loc.lat, lng: loc.lng },
+          title: loc.name,
+        });
+
+        marker.addListener('click', function() {
+          infoWindow.setContent(
+            '<div style="font-family:sans-serif;min-width:160px;padding:2px 0">' +
+            '<p style="font-weight:700;font-size:14px;margin:0 0 6px 0">' + loc.name + '</p>' +
+            '<a href="' + loc.url + '" style="font-size:13px;color:#2563eb;font-weight:600;text-decoration:none">' + _viewPageLabel + ' →</a>' +
+            '</div>'
+          );
+          infoWindow.open({ anchor: marker, map: map });
+        });
+
+        bounds.extend({ lat: loc.lat, lng: loc.lng });
+      });
+
+      if (HOME_LOCATIONS.length > 0) {
+        map.fitBounds(bounds);
+        if (HOME_LOCATIONS.length === 1) map.setZoom(14);
+      }
+    }
   </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-nP6SNj7I69cz67_5QyhwhmlzR5GiMl8&libraries=marker&callback=initHomeMap&loading=async" async defer></script>
 {% endblock %}
