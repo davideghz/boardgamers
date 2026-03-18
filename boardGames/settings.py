@@ -319,3 +319,24 @@ META_SITE_PROTOCOL = SITE_PROTOCOL
 META_SITE_DOMAIN = SITE_DOMAIN
 META_USE_JSON_LD_SCHEMA = False
 META_USE_TWITTER_PROPERTIES = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'webapp': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

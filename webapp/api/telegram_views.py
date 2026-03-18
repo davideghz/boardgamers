@@ -28,11 +28,15 @@ def _send_message(chat_id, text, reply_markup=None):
     if reply_markup:
         payload['reply_markup'] = reply_markup
     try:
-        http_requests.post(
+        resp = http_requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
             json=payload,
             timeout=5,
         )
+        if not resp.ok:
+            logger.error("Telegram sendMessage error %s: %s", resp.status_code, resp.text)
+        else:
+            logger.info("Telegram sendMessage ok: %s", resp.text[:200])
     except Exception as e:
         logger.error("Telegram sendMessage failed: %s", e)
 
