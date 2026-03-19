@@ -27,6 +27,9 @@
     {# Name + actions #}
     <div class="flex-1 min-w-0 pt-1">
       <h1 class="text-2xl font-extrabold text-slate-900 truncate">{{ userprofile.nickname }}</h1>
+      {% if userprofile.show_full_name and userprofile.user.first_name %}
+        <p class="text-sm text-slate-600 mt-0.5">{{ userprofile.user.get_full_name }}</p>
+      {% endif %}
       <p class="text-sm text-slate-400 mt-0.5">
         {{ tables|length }} {% trans "tables played" %}
       </p>

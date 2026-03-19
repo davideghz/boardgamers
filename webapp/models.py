@@ -193,6 +193,8 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
         default="it",
     )
 
+    show_full_name = models.BooleanField(default=False, verbose_name=_("Show full name on profile"))
+
     # Notifications
     notification_new_table = models.BooleanField(default=True, verbose_name="Notification New Table")
     notification_new_player = models.BooleanField(default=True, verbose_name="Notification New Player")

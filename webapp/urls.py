@@ -114,6 +114,7 @@ urlpatterns = [
     # ACCOUNT
     path("account/", account_views.index, name="account-index"),
     path("account/edit-profile/", profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
+    path("account/change-email/", profile_views.change_email, name='change-email'),
     path("account/locations/", account_views.locations, name="account-locations"),
     path("account/tables/", account_views.tables, name="account-tables"),
     path("account/notifications/", account_views.notifications, name="account-notifications"),

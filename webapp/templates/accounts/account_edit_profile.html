@@ -38,6 +38,36 @@
     {{ form.latitude }}
     {{ form.longitude }}
 
+    {# ── First / Last name ───────────────────────────────────────────── #}
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.first_name.id_for_label }}">
+          {{ form.first_name.label }}
+        </label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ form.first_name.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.last_name.id_for_label }}">
+          {{ form.last_name.label }}
+        </label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ form.last_name.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Show full name checkbox ──────────────────────────────────────── #}
+    <div class="flex items-center gap-2">
+      {{ form.show_full_name }}
+      <label class="text-sm text-slate-700 cursor-pointer" for="{{ form.show_full_name.id_for_label }}">
+        {{ form.show_full_name.label }}
+      </label>
+    </div>
+
     {# ── Nickname ────────────────────────────────────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.nickname.id_for_label }}">
@@ -78,6 +108,46 @@
     </div>
 
   </form>
+
+  {# ── Change email ─────────────────────────────────────────────────── #}
+  <div class="max-w-xl mt-10 pt-8 border-t border-slate-200">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">{% trans "Change email" %}</h2>
+    {% if has_social_auth %}
+      <div class="flex gap-3 p-4 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 mt-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+        <span>{% trans "Your account is linked to Google. If you change your email you will no longer be able to log in with Google." %}</span>
+      </div>
+    {% endif %}
+    <form method="post" action="{% url 'change-email' %}" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" for="id_new_email">
+          {% trans "Current email" %}
+        </label>
+        <p class="text-sm text-slate-700 py-2">{{ request.user.email }}</p>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" for="id_new_email">
+          {% trans "New email" %}
+        </label>
+        <input type="email" id="id_new_email" name="new_email" required
+               class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors"
+               placeholder="{% trans 'New email address' %}">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" for="id_email_password">
+          {% trans "Current password" %}
+        </label>
+        <input type="password" id="id_email_password" name="password" required
+               class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors"
+               placeholder="{% trans 'Confirm with your password' %}">
+      </div>
+      <button type="submit"
+              class="flex items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+        {% trans "Update email" %}
+      </button>
+    </form>
+  </div>
 
 {% endblock content %}
 

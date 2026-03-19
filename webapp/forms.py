@@ -263,15 +263,30 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
 
 
 class UserProfileForm(ModelForm, TailwindForm):
+    first_name = CharField(max_length=150, required=False, label=_("First name"))
+    last_name = CharField(max_length=150, required=False, label=_("Last name"))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['city'].widget = HiddenInput()
         self.fields['latitude'].widget = HiddenInput()
         self.fields['longitude'].widget = HiddenInput()
+        if self.instance and self.instance.pk:
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+
+    def save(self, commit=True):
+        profile = super().save(commit=commit)
+        if commit:
+            user = profile.user
+            user.first_name = self.cleaned_data['first_name']
+            user.last_name = self.cleaned_data['last_name']
+            user.save(update_fields=['first_name', 'last_name'])
+        return profile
 
     class Meta:
         model = UserProfile
-        fields = ['nickname', 'address', 'city', 'latitude', 'longitude']
+        fields = ['nickname', 'address', 'city', 'latitude', 'longitude', 'show_full_name']
 
 
 class UserProfileAvatarForm(ModelForm, TailwindForm):

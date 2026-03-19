@@ -1,8 +1,11 @@
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q, Subquery, OuterRef, Exists, Value
 from django.db.models.functions import Coalesce
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView
 from django.views.generic.detail import DetailView
@@ -11,6 +14,7 @@ from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
 from webapp.models import UserProfile, Game, Player, Table
 
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 
@@ -75,11 +79,35 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     def get_success_url(self):
         return reverse('user-profile-detail', args=[self.request.user.user_profile.slug])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['has_social_auth'] = self.request.user.social_auth.exists()
+        return context
+
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
     #     user = self.get_object().user
     #     context['user'] = user
     #     return context
+
+
+@login_required
+def change_email(request):
+    if request.method == 'POST':
+        new_email = request.POST.get('new_email', '').strip()
+        password = request.POST.get('password', '')
+        if not new_email:
+            messages.error(request, _("Email cannot be empty."))
+        elif User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
+            messages.error(request, _("This email is already in use."))
+        elif not request.user.check_password(password):
+            messages.error(request, _("Wrong password."))
+        else:
+            request.user.email = new_email
+            request.user.username = new_email
+            request.user.save(update_fields=['email', 'username'])
+            messages.success(request, _("Email updated successfully."))
+    return redirect('user-profile-edit')
 
 
 def upload_avatar(request):
