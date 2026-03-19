@@ -97,9 +97,12 @@
 
     <a href="{% url 'location-manage-telegram' location.slug %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:shadow-md hover:border-slate-300 transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-600">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10">
+          <path d="M128,0C57.307,0 0,57.307 0,128C0,198.693 57.307,256 128,256C198.693,256 256,198.693 256,128C256,57.307 198.693,0 128,0Z" fill="#40B3E0"/>
+          <path d="M190.283,73.631L167.421,188.898C167.421,188.898 164.224,196.892 155.431,193.055L102.673,152.607L83.489,143.335L51.195,132.463C51.195,132.463 46.239,130.705 45.759,126.868C45.28,123.031 51.355,120.953 51.355,120.953L179.731,70.593C179.731,70.593 190.283,65.957 190.283,73.631" fill="#FFFFFF"/>
+          <path d="M98.618,187.604C98.618,187.604 97.078,187.46 95.159,181.384C93.241,175.309 83.489,143.335 83.489,143.335L161.026,94.095C161.026,94.095 165.503,91.377 165.343,94.095C165.343,94.095 166.142,94.574 163.744,96.812C161.346,99.051 102.833,151.648 102.833,151.648" fill="#D2E5F1"/>
+          <path d="M122.902,168.115L102.034,187.141C102.034,187.141 100.403,188.379 98.618,187.604L102.614,152.262" fill="#B5CFE4"/>
         </svg>
       </div>
       <div class="flex-1 min-w-0">
