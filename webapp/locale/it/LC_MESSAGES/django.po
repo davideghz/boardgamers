@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-20 14:26+0000\n"
+"POT-Creation-Date: 2026-03-20 19:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,8 +27,8 @@ msgstr ""
 msgid "Games"
 msgstr "Giochi"
 
-#: webapp/forms.py:120 webapp/forms.py:483 webapp/models.py:306
-#: webapp/models.py:613 webapp/templates/tables/table_add_or_edit.html:142
+#: webapp/forms.py:120 webapp/forms.py:483 webapp/models.py:307
+#: webapp/models.py:614 webapp/templates/tables/table_add_or_edit.html:142
 #: webapp/views/location_views.py:989
 msgid "Game"
 msgstr "Gioco"
@@ -89,7 +89,7 @@ msgid "Linked User Profile"
 msgstr "Profilo utente collegato"
 
 #: webapp/forms.py:421 webapp/forms.py:438 webapp/forms.py:462
-#: webapp/models.py:570 webapp/models.py:627
+#: webapp/models.py:571 webapp/models.py:628
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
 #: webapp/templates/locations/location_manage_widget.html:55
@@ -101,19 +101,19 @@ msgstr "Note"
 msgid "Optional message to the manager..."
 msgstr "Messaggio opzionale per il manager..."
 
-#: webapp/forms.py:429 webapp/forms.py:452 webapp/models.py:564
+#: webapp/forms.py:429 webapp/forms.py:452 webapp/models.py:565
 #: webapp/templates/locations/location_manage_member_detail.html:153
 #: webapp/views/location_views.py:739
 msgid "Start Date"
 msgstr "Data di inizio"
 
-#: webapp/forms.py:433 webapp/forms.py:457 webapp/models.py:565
+#: webapp/forms.py:433 webapp/forms.py:457 webapp/models.py:566
 #: webapp/templates/locations/location_manage_member_detail.html:161
 #: webapp/views/location_views.py:739
 msgid "End Date"
 msgstr "Data di fine"
 
-#: webapp/forms.py:446 webapp/models.py:568
+#: webapp/forms.py:446 webapp/models.py:569
 #: webapp/templates/locations/location_manage_member_detail.html:141
 msgid "Status"
 msgstr "Status"
@@ -122,7 +122,7 @@ msgstr "Status"
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:512 webapp/models.py:621 webapp/views/location_views.py:989
+#: webapp/forms.py:512 webapp/models.py:622 webapp/views/location_views.py:989
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
@@ -135,7 +135,7 @@ msgstr "Cerca per socio..."
 msgid "Guest name"
 msgstr "Nome ospite"
 
-#: webapp/forms.py:546 webapp/models.py:256 webapp/models.py:680
+#: webapp/forms.py:546 webapp/models.py:257 webapp/models.py:681
 msgid "Name"
 msgstr "Nome"
 
@@ -175,11 +175,11 @@ msgstr "Messaggio inviato con successo!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore nel form. Controlla i dati inseriti."
 
-#: webapp/models.py:94 webapp/models.py:296
+#: webapp/models.py:94 webapp/models.py:297
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
-#: webapp/models.py:95 webapp/models.py:297
+#: webapp/models.py:95 webapp/models.py:298
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
@@ -199,103 +199,103 @@ msgstr "Peso"
 msgid "Year published"
 msgstr "Anno pubblicazione"
 
-#: webapp/models.py:110 webapp/models.py:155
+#: webapp/models.py:110 webapp/models.py:156
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
 
-#: webapp/models.py:158 webapp/views/location_views.py:286
+#: webapp/models.py:159 webapp/views/location_views.py:286
 #: webapp/views/location_views.py:357
 #, python-format
 msgid "Game nights in %(address)s"
 msgstr "Serate di gioco a %(address)s"
 
-#: webapp/models.py:197
+#: webapp/models.py:198
 msgid "Show full name on profile"
 msgstr "Mostra nome e cognome sul profilo"
 
-#: webapp/models.py:213
+#: webapp/models.py:214
 #, python-format
 msgid "%(nickname)s - Board-Gamers.com"
 msgstr "%(nickname)s - Board-Gamers.com"
 
-#: webapp/models.py:216
+#: webapp/models.py:217
 #, python-format
 msgid "Profile of %(nickname)s on Board-Gamers.com"
 msgstr "Profilo di %(nickname)s su Board-Gamers.com"
 
-#: webapp/models.py:254 webapp/templates/accounts/account_locations.html:39
+#: webapp/models.py:255 webapp/templates/accounts/account_locations.html:39
 #: webapp/templates/locations/location_manage_managers.html:63
 msgid "Owner"
 msgstr "Owner"
 
-#: webapp/models.py:259
+#: webapp/models.py:260
 msgid "Guest Profile"
 msgstr "Profilo Ospite"
 
-#: webapp/models.py:260
+#: webapp/models.py:261
 msgid "Guest Profiles"
 msgstr "Profili Ospite"
 
-#: webapp/models.py:273
+#: webapp/models.py:274
 msgid "Open"
 msgstr "Aperto"
 
-#: webapp/models.py:274
+#: webapp/models.py:275
 msgid "On Going"
 msgstr "In corso"
 
-#: webapp/models.py:275 webapp/templates/tables/table_players.html:54
+#: webapp/models.py:276 webapp/templates/tables/table_players.html:54
 msgid "Closed"
 msgstr "Chiuso"
 
-#: webapp/models.py:282
+#: webapp/models.py:283
 msgid "Not Editable"
 msgstr "Non modificabile"
 
-#: webapp/models.py:283
+#: webapp/models.py:284
 msgid "Editable"
 msgstr "Modificabile"
 
-#: webapp/models.py:287
+#: webapp/models.py:288
 msgid "Title"
 msgstr "Titolo"
 
-#: webapp/models.py:292 webapp/templates/tables/table_detail.html:54
+#: webapp/models.py:293 webapp/templates/tables/table_detail.html:54
 msgid "Description"
 msgstr "Descrizione"
 
-#: webapp/models.py:294 webapp/models.py:507 webapp/models.py:609
-#: webapp/models.py:643 webapp/models.py:660
+#: webapp/models.py:295 webapp/models.py:508 webapp/models.py:610
+#: webapp/models.py:644 webapp/models.py:661
 #: webapp/templates/locations/location_manage_games.html:71
 #: webapp/templates/tables/table_add_or_edit.html:103
 #: webapp/templates/tables/table_detail.html:114
 msgid "Location"
 msgstr "Location"
 
-#: webapp/models.py:298 webapp/templates/tables/table_players.html:121
+#: webapp/models.py:299 webapp/templates/tables/table_players.html:121
 msgid "External players"
 msgstr "Giocatori Esterni"
 
-#: webapp/models.py:299 webapp/templates/tables/table_detail.html:84
+#: webapp/models.py:300 webapp/templates/tables/table_detail.html:84
 msgid "Date"
 msgstr "Data"
 
-#: webapp/models.py:300
+#: webapp/models.py:301
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:360
+#: webapp/models.py:361
 #, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
 msgstr "%(game)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:365
+#: webapp/models.py:366
 #, python-format
 msgid "%(title)s - %(date)s - Board-Gamers.com"
 msgstr "%(title)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:372
+#: webapp/models.py:373
 #, python-format
 msgid ""
 "Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s"
@@ -303,117 +303,117 @@ msgstr ""
 "Unisciti al tavolo di %(game)s! Giocheremo il %(date)s alle %(time)s presso "
 "%(location)s"
 
-#: webapp/models.py:379
+#: webapp/models.py:380
 #, python-format
 msgid "Join the table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
 "Unisciti al tavolo! Giocheremo il %(date)s alle %(time)s presso %(location)s"
 
-#: webapp/models.py:433
+#: webapp/models.py:434
 msgid "User Comment"
 msgstr "Commento Utente"
 
-#: webapp/models.py:434
+#: webapp/models.py:435
 msgid "System Comment"
 msgstr "Commento di Sistema"
 
-#: webapp/models.py:459
+#: webapp/models.py:460
 msgid "Location Follower"
 msgstr "Follower Location"
 
-#: webapp/models.py:460
+#: webapp/models.py:461
 msgid "Location Followers"
 msgstr "Follower Location"
 
-#: webapp/models.py:467
+#: webapp/models.py:468
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:468
+#: webapp/models.py:469
 msgid "New player joined"
 msgstr "Nuovo gamer al tavolo"
 
-#: webapp/models.py:469
+#: webapp/models.py:470
 msgid "Leaderboard is now editable"
 msgstr "Classifica modificabile"
 
-#: webapp/models.py:470
+#: webapp/models.py:471
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:471
+#: webapp/models.py:472
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:472 webapp/signals.py:157
+#: webapp/models.py:473 webapp/signals.py:157
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
-#: webapp/models.py:473
+#: webapp/models.py:474
 #: webapp/templates/emails/email_notification_deleted_table_html.html:6
 msgid "Table deleted"
 msgstr "Tavolo eliminato"
 
-#: webapp/models.py:474
+#: webapp/models.py:475
 #: webapp/templates/accounts/account_notifications_preferences.html:46
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:492
+#: webapp/models.py:493
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:493 webapp/templates/accounts/account_notifications.html:13
+#: webapp/models.py:494 webapp/templates/accounts/account_notifications.html:13
 #: webapp/templates/accounts/account_notifications_preferences.html:9
 #: webapp/templates/base_webapp.html:115 webapp/templates/base_webapp.html:119
 #: webapp/templates/base_webapp.html:317
 msgid "Notifications"
 msgstr "Notifiche"
 
-#: webapp/models.py:512
+#: webapp/models.py:513
 msgid "User Profile"
 msgstr "Profilo Utente"
 
-#: webapp/models.py:515 webapp/views/location_views.py:737
+#: webapp/models.py:516 webapp/views/location_views.py:737
 msgid "First Name"
 msgstr "Nome"
 
-#: webapp/models.py:516 webapp/views/location_views.py:737
+#: webapp/models.py:517 webapp/views/location_views.py:737
 msgid "Last Name"
 msgstr "Cognome"
 
-#: webapp/models.py:517
+#: webapp/models.py:518
 msgid "Member Code"
 msgstr "Codice Fiscale"
 
-#: webapp/models.py:518 webapp/views/location_views.py:737
+#: webapp/models.py:519 webapp/views/location_views.py:737
 msgid "Email"
 msgstr "Email"
 
-#: webapp/models.py:519
+#: webapp/models.py:520
 msgid "Phone Number"
 msgstr "Numero di telefono"
 
-#: webapp/models.py:523 webapp/models.py:562
+#: webapp/models.py:524 webapp/models.py:563
 #: webapp/templates/locations/location_manage_games.html:73
 msgid "Member"
 msgstr "Associato/a"
 
-#: webapp/models.py:524
+#: webapp/models.py:525
 #: webapp/templates/locations/location_manage_index.html:73
 #: webapp/templates/locations/location_manage_member_detail.html:40
 #: webapp/templates/locations/location_manage_members.html:11
 msgid "Members"
 msgstr "Soci"
 
-#: webapp/models.py:554 webapp/templates/accounts/account_memberships.html:26
+#: webapp/models.py:555 webapp/templates/accounts/account_memberships.html:26
 #: webapp/templates/locations/location_manage_member_detail.html:96
 #: webapp/templates/locations/location_manage_member_detail.html:144
 #: webapp/templates/locations/location_manage_members.html:70
 msgid "Pending"
 msgstr "In attesa"
 
-#: webapp/models.py:555 webapp/models.py:647 webapp/models.py:700
+#: webapp/models.py:556 webapp/models.py:648 webapp/models.py:701
 #: webapp/templates/accounts/account_memberships.html:28
 #: webapp/templates/locations/location_manage_member_detail.html:94
 #: webapp/templates/locations/location_manage_member_detail.html:145
@@ -422,125 +422,125 @@ msgstr "In attesa"
 msgid "Active"
 msgstr "Attivo"
 
-#: webapp/models.py:556 webapp/templates/accounts/account_memberships.html:75
+#: webapp/models.py:557 webapp/templates/accounts/account_memberships.html:75
 #: webapp/templates/locations/location_manage_member_detail.html:98
 #: webapp/templates/locations/location_manage_member_detail.html:146
 #: webapp/templates/locations/location_manage_members.html:72
 msgid "Expired"
 msgstr "Scaduto"
 
-#: webapp/models.py:557 webapp/templates/accounts/account_memberships.html:77
+#: webapp/models.py:558 webapp/templates/accounts/account_memberships.html:77
 #: webapp/templates/locations/location_manage_member_detail.html:100
 #: webapp/templates/locations/location_manage_member_detail.html:147
 #: webapp/templates/locations/location_manage_members.html:74
 msgid "Rejected"
 msgstr "Rifiutato"
 
-#: webapp/models.py:574
+#: webapp/models.py:575
 msgid "Approved By"
 msgstr "Approvato da"
 
-#: webapp/models.py:579
+#: webapp/models.py:580
 msgid "Membership"
 msgstr "Membership"
 
-#: webapp/models.py:580
+#: webapp/models.py:581
 msgid "Memberships"
 msgstr "Memberships"
 
-#: webapp/models.py:596
+#: webapp/models.py:597
 msgid "Owned by Location"
 msgstr "Dell'associazione"
 
-#: webapp/models.py:597
+#: webapp/models.py:598
 msgid "Owned by Member"
 msgstr "Di un socio"
 
-#: webapp/models.py:603
+#: webapp/models.py:604
 msgid "At the association"
 msgstr "In associazione"
 
-#: webapp/models.py:604
+#: webapp/models.py:605
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-#: webapp/models.py:617 webapp/views/location_views.py:989
+#: webapp/models.py:618 webapp/views/location_views.py:989
 msgid "Ownership"
 msgstr "Proprietà"
 
-#: webapp/models.py:625 webapp/views/location_views.py:989
+#: webapp/models.py:626 webapp/views/location_views.py:989
 msgid "Physical Location"
 msgstr "Ubicazione"
 
-#: webapp/models.py:631
+#: webapp/models.py:632
 msgid "Location Game"
 msgstr "Gioco nella Location"
 
-#: webapp/models.py:632
+#: webapp/models.py:633
 msgid "Location Games"
 msgstr "Giochi nella Location"
 
-#: webapp/models.py:645
+#: webapp/models.py:646
 msgid "Chat ID"
 msgstr "Chat ID"
 
-#: webapp/models.py:646
+#: webapp/models.py:647
 msgid "Chat title"
 msgstr "Titolo chat"
 
-#: webapp/models.py:650
+#: webapp/models.py:651
 msgid "Telegram Group Config"
 msgstr "Telegram Group Config"
 
-#: webapp/models.py:651
+#: webapp/models.py:652
 msgid "Telegram Group Configs"
 msgstr "Telegram Group Configs"
 
-#: webapp/models.py:662
+#: webapp/models.py:663
 msgid "Token"
 msgstr "Token"
 
-#: webapp/models.py:663
+#: webapp/models.py:664
 msgid "Expires at"
 msgstr "Scaduto"
 
-#: webapp/models.py:664
+#: webapp/models.py:665
 msgid "Used"
 msgstr "Usato"
 
-#: webapp/models.py:667
+#: webapp/models.py:668
 msgid "Telegram Setup Token"
 msgstr "Telegram Setup Token"
 
-#: webapp/models.py:668
+#: webapp/models.py:669
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
 
-#: webapp/models.py:681 webapp/models.py:699
+#: webapp/models.py:682 webapp/models.py:700
 msgid "Order"
 msgstr "Ordine"
 
-#: webapp/models.py:684
+#: webapp/models.py:685
 msgid "FAQ Category"
 msgstr "FAQ Category"
 
-#: webapp/models.py:685
+#: webapp/models.py:686
 msgid "FAQ Categories"
 msgstr "FAQ Categories"
 
-#: webapp/models.py:695
+#: webapp/models.py:696
 msgid "Category"
 msgstr "Categoria"
 
-#: webapp/models.py:697
+#: webapp/models.py:698
 msgid "Question"
 msgstr "Domanda"
 
-#: webapp/models.py:698
+#: webapp/models.py:699
 msgid "Answer"
 msgstr "Risposta"
 
-#: webapp/models.py:703 webapp/models.py:704
+#: webapp/models.py:704 webapp/models.py:705
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -588,7 +588,7 @@ msgstr "Cambia avatar"
 
 #: webapp/templates/accounts/account_edit_profile.html:101
 #: webapp/templates/locations/location_add_or_edit.html:100
-#: webapp/templates/locations/location_manage_data.html:98
+#: webapp/templates/locations/location_manage_data.html:120
 #: webapp/templates/locations/location_manage_game_detail.html:82
 #: webapp/templates/locations/location_manage_game_detail.html:116
 #: webapp/templates/locations/location_manage_managers.html:143
@@ -1249,7 +1249,7 @@ msgstr "opzionale"
 #: webapp/templates/locations/location_add_or_edit.html:47
 #: webapp/templates/locations/location_add_or_edit.html:122
 #: webapp/templates/locations/location_manage_data.html:45
-#: webapp/templates/locations/location_manage_data.html:118
+#: webapp/templates/locations/location_manage_data.html:140
 msgid "Choose an image…"
 msgstr "Scegli un'immagine…"
 
@@ -1273,7 +1273,7 @@ msgstr ""
 "da altri gamers per organizzare tavoli."
 
 #: webapp/templates/locations/location_add_or_edit.html:105
-#: webapp/templates/locations/location_manage_data.html:103
+#: webapp/templates/locations/location_manage_data.html:125
 #: webapp/templates/locations/location_manage_game_detail.html:87
 #: webapp/templates/locations/location_manage_member_detail.html:74
 #: webapp/templates/tables/table_add_or_edit.html:181
@@ -1298,7 +1298,9 @@ msgstr "Prenotazioni"
 
 #: webapp/templates/locations/location_calendar.html:54
 msgid "Select a group then click cells to reserve them. Click again to remove."
-msgstr "Seleziona un gruppo e poi clicca sulle celle per prenotarle. Clicca di nuovo per rimuoverle."
+msgstr ""
+"Seleziona un gruppo e poi clicca sulle celle per prenotarle. Clicca di nuovo "
+"per rimuoverle."
 
 #: webapp/templates/locations/location_calendar.html:61
 msgid "Group color"
@@ -1316,7 +1318,7 @@ msgstr "Aggiungi gruppo"
 msgid "Table"
 msgstr "Tavoli"
 
-#: webapp/templates/locations/location_calendar.html:162
+#: webapp/templates/locations/location_calendar.html:161
 msgid "Add session"
 msgstr "Aggiungi sessione"
 
@@ -1513,6 +1515,16 @@ msgstr "Gestione"
 #: webapp/templates/locations/location_manage_index.html:24
 msgid "Location info"
 msgstr "Info location"
+
+#: webapp/templates/locations/location_manage_data.html:97
+msgid "Show tables in homepage"
+msgstr "Mostra tavoli in homepage"
+
+#: webapp/templates/locations/location_manage_data.html:98
+msgid ""
+"When enabled, upcoming tables from this location appear in the homepage feed."
+msgstr ""
+"Se attivato, i prossimi tavoli di questa sede appariranno nel feed della homepage."
 
 #: webapp/templates/locations/location_manage_game_detail.html:43
 #: webapp/templates/locations/location_manage_game_detail.html:87
@@ -2913,58 +2925,58 @@ msgid ""
 "forever, open source, member management, tables, rankings and more."
 msgstr ""
 
-#: webapp/views/table_views.py:84
+#: webapp/views/table_views.py:85
 msgid "Game Tables - Board-Gamers.com"
 msgstr "Tavoli di Gioco - Board-Gamers.com"
 
-#: webapp/views/table_views.py:85
+#: webapp/views/table_views.py:86
 msgid "Discover all available game tables and join the game!"
 msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 
-#: webapp/views/table_views.py:209
+#: webapp/views/table_views.py:210
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-#: webapp/views/table_views.py:214
+#: webapp/views/table_views.py:215
 msgid "Cannot add players to a closed table."
 msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."
 
-#: webapp/views/table_views.py:229 webapp/views/table_views.py:513
+#: webapp/views/table_views.py:230 webapp/views/table_views.py:514
 msgid "The table is full."
 msgstr "Tavolo completo"
 
-#: webapp/views/table_views.py:244
+#: webapp/views/table_views.py:245
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
-#: webapp/views/table_views.py:256
+#: webapp/views/table_views.py:257
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
 
-#: webapp/views/table_views.py:261
+#: webapp/views/table_views.py:262
 msgid "You can remove players only from tables that are open or ongoing."
 msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
 
-#: webapp/views/table_views.py:313
+#: webapp/views/table_views.py:314
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
 
-#: webapp/views/table_views.py:344
+#: webapp/views/table_views.py:345
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
 
-#: webapp/views/table_views.py:494
+#: webapp/views/table_views.py:495
 msgid "The table is closed."
 msgstr "Il tavolo è chiuso"
 
-#: webapp/views/table_views.py:499
+#: webapp/views/table_views.py:500
 msgid "Only table players can add guests."
 msgstr "Solo i giocatori del tavolo possono aggiungere ospiti."
 
-#: webapp/views/table_views.py:507
+#: webapp/views/table_views.py:508
 msgid "This guest is already at the table."
 msgstr "Questo ospite è già al tavolo."
 
-#: webapp/views/table_views.py:534
+#: webapp/views/table_views.py:535
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."

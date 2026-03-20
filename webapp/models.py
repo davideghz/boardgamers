@@ -141,6 +141,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     longitude = models.CharField(max_length=25, null=True, blank=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     is_public = models.BooleanField(default=False)
+    show_tables_in_homepage = models.BooleanField(default=True)
     enable_membership = models.BooleanField(default=False)
     enable_calendar = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)

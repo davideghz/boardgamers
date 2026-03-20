@@ -75,6 +75,7 @@ class TableIndexView(generic.ListView):
         base_qs = (Table.objects
                    .select_related('author', 'author__user', 'location')
                    .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
+                   .filter(location__show_tables_in_homepage=True)
                    .annotate(distance=DbDistance('location__point', user_point)))
 
         context['future_tables'] = base_qs.filter(date__gte=today).order_by('date', 'distance')
