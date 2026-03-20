@@ -96,17 +96,18 @@
           <th class="border-b border-r border-slate-200 px-1 pt-2 pb-1.5 text-center
                      min-w-[150px] w-[150px]
                      {% if dh.month_changed and not forloop.first %}border-l-2 border-l-slate-300{% endif %}
-                     {% if dh.is_today %}bg-blue-50{% elif dh.is_weekend %}bg-slate-100{% else %}bg-slate-50{% endif %}">
+                     {% if dh.is_weekend %}bg-slate-100{% else %}bg-slate-50{% endif %}">
             {% if dh.month_changed %}
               <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">{{ dh.date|date:"M" }}</span>
             {% else %}
               <span class="block h-3 mb-0.5"></span>
             {% endif %}
             <span class="block text-[10px] font-medium text-slate-400">{{ dh.date|date:"D" }}</span>
-            <span class="block text-sm font-extrabold leading-tight
-                         {% if dh.is_today %}text-blue-600{% elif dh.is_weekend %}text-slate-400{% else %}text-slate-700{% endif %}">
-              {{ dh.date|date:"j" }}
-            </span>
+            {% if dh.is_today %}
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-sm font-extrabold leading-none">{{ dh.date|date:"j" }}</span>
+            {% else %}
+              <span class="block text-sm font-extrabold leading-tight {% if dh.is_weekend %}text-slate-400{% else %}text-slate-700{% endif %}">{{ dh.date|date:"j" }}</span>
+            {% endif %}
             <div class="h-4 mt-1 flex items-center justify-center">
               {% if dh.sessions %}
                 <span class="text-[9px] font-bold bg-blue-100 text-blue-600 rounded-full px-1.5 py-px leading-none">{{ dh.sessions|length }}</span>
@@ -136,9 +137,7 @@
               style="height:150px;max-height:150px"
               class="cal-cell border-b border-r border-slate-100 w-[150px] align-top p-0 relative
                      {% if cell.month_changed and not forloop.first %}border-l border-l-slate-200{% endif %}
-                     {% if cell.is_today %}bg-blue-50
-                     {% elif cell.is_weekend %}bg-slate-50
-                     {% endif %}">
+                     {% if cell.is_weekend %}bg-slate-50{% endif %}">
 
             <div class="cell-content flex flex-col h-[150px] overflow-hidden">
               {% if cell.sessions %}
@@ -416,8 +415,8 @@
   #cal-grid.reservation-mode .cal-cell {
     cursor: cell;
   }
-  #cal-grid.reservation-mode .cal-cell:not([class*="bg-slate-200"]):not([class*="bg-red-50"]):hover {
-    filter: brightness(0.95);
+  #cal-grid.reservation-mode .cal-cell:hover {
+    background-color: #f1f5f9;
   }
 
   /* Push session content below the reservation label */
