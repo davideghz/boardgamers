@@ -115,7 +115,7 @@
       const label = document.getElementById('cover-label');
       if (input && label) {
         input.addEventListener('change', function () {
-          label.textContent = input.files[0] ? input.files[0].name : '{% trans "Choose an image…" %}';
+          label.textContent = input.files[0] ? input.files[0].name : '{% trans "Choose an image…"|escapejs %}';
         });
       }
     });
