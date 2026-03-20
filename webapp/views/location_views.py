@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.gis.geos import Point
@@ -999,3 +1000,102 @@ class DownloadGamesCSVView(LoginRequiredMixin, View):
             ])
 
         return response
+
+
+class LocationCalendarView(View):
+    """Calendar view: physical tables × days. Mock data — no DB changes."""
+
+    template_name = 'locations/location_calendar.html'
+
+    _MOCK_TABLES = [
+        {'id': 1, 'nome': 'Tavolo 1', 'sala': 'Sala Grande'},
+        {'id': 2, 'nome': 'Tavolo 2', 'sala': 'Sala Grande'},
+        {'id': 3, 'nome': 'Tavolo 3', 'sala': 'Sala Grande'},
+        {'id': 4, 'nome': 'Tavolo 4', 'sala': 'Sala Grande'},
+        {'id': 5, 'nome': 'Tavolo 5', 'sala': 'Sala Grande'},
+    ]
+
+    _MOCK_SESSION_DURATION_H = 3  # assumed duration for overlap check
+
+    @staticmethod
+    def _times_overlap(t1, t2, duration_h):
+        from datetime import datetime as dt
+        d1 = dt(2000, 1, 1, t1.hour, t1.minute)
+        d2 = dt(2000, 1, 1, t2.hour, t2.minute)
+        return abs((d1 - d2).total_seconds()) / 3600 < duration_h
+
+    def _assign_sessions_to_tables(self, sessions_by_date):
+        """Greedy: assign each session to the first physical table with no time conflict."""
+        assignment = defaultdict(list)
+        dur = self._MOCK_SESSION_DURATION_H
+        for day, sessions in sessions_by_date.items():
+            for session in sorted(sessions, key=lambda s: s.time):
+                for pt in self._MOCK_TABLES:
+                    existing = assignment[(pt['id'], day)]
+                    if not any(self._times_overlap(session.time, e.time, dur) for e in existing):
+                        existing.append(session)
+                        break
+        return assignment
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        if not location.enable_calendar:
+            raise Http404
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
+        dates = [monday + timedelta(days=i) for i in range(35)]  # 5 weeks
+
+        # Real sessions from DB
+        sessions_qs = Table.objects.filter(
+            location=location,
+            date__gte=dates[0],
+            date__lte=dates[-1],
+        ).select_related('game').order_by('date', 'time')
+        sessions_by_date = defaultdict(list)
+        for s in sessions_qs:
+            sessions_by_date[s.date].append(s)
+
+        assignment = self._assign_sessions_to_tables(sessions_by_date)
+
+        # Date headers
+        date_headers = []
+        prev_month = None
+        for d in dates:
+            date_headers.append({
+                'date': d,
+                'is_today': d == today,
+                'is_weekend': d.weekday() >= 5,
+                'month_changed': d.month != prev_month,
+            })
+            prev_month = d.month
+
+        # Grid rows
+        rows = []
+        for pt in self._MOCK_TABLES:
+            cells = []
+            for dh in date_headers:
+                d = dh['date']
+                cells.append({
+                    'sessions': assignment.get((pt['id'], d), []),
+                    'is_today': dh['is_today'],
+                    'is_weekend': dh['is_weekend'],
+                    'month_changed': dh['month_changed'],
+                    'date': d,
+                })
+            rows.append({'table': pt, 'cells': cells})
+
+        is_manager = False
+        if request.user.is_authenticated:
+            try:
+                up = request.user.user_profile
+                is_manager = location.creator == up or up in location.managers.all()
+            except Exception:
+                pass
+
+        return render(request, self.template_name, {
+            'location': location,
+            'date_headers': date_headers,
+            'rows': rows,
+            'today': today,
+            'is_manager': is_manager,
+        })

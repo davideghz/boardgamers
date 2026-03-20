@@ -48,6 +48,7 @@ urlpatterns = [
     # LOCATIONS
     path("locations/", location_views.index_view, name="locations-index"),
     path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
+    path("locations/<slug:slug>/calendar/", location_views.LocationCalendarView.as_view(), name="location-calendar"),
     path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),
     path('locations/<slug:slug>/follow/', FollowLocationView.as_view(), name='follow-location'),
 
@@ -103,8 +104,8 @@ urlpatterns = [
          name="location-delete-game"),
 
     # LOCATION TABLES
-    path("location/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
-    path("location/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view,
+    path("locations/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
+    path("locations/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view,
          name="location-table-update"),
 
     # GAMES

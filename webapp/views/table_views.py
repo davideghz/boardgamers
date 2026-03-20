@@ -313,6 +313,8 @@ def table_create_view(request, location_slug):
             messages.success(request, _("Table was created successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
+        if date_param := request.GET.get('date'):
+            initial['date'] = date_param
         form = TableForm(initial=initial)
 
     context = {"form": form, "location": location}

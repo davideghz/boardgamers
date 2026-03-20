@@ -1,0 +1,428 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block main_container_class %}px-5 py-6{% endblock %}
+
+{% block content %}
+
+  {# ── Header ───────────────────────────────────────────────────────── #}
+  <div class="flex items-start justify-between gap-4 mb-5 flex-wrap">
+    <div>
+      <p class="text-sm text-slate-500 mb-1">
+        <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      </p>
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Calendar" %}</h1>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      {# Scroll arrows #}
+      <button type="button" onclick="scrollCal(-1)"
+              class="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white
+                     text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <button type="button" onclick="scrollCal(1)"
+              class="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white
+                     text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+      {# Reservation mode toggle — managers only #}
+      {% if is_manager %}
+      <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+        <button id="btn-res-normal" type="button" onclick="setResMode(false)"
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm">
+          {% trans "Normal" %}
+        </button>
+        <button id="btn-res-mode" type="button" onclick="setResMode(true)"
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900">
+          {% trans "Reservations" %}
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── Reservation toolbar (hidden in normal mode, managers only) ──── #}
+  {% if is_manager %}
+  <div id="res-toolbar" class="hidden mb-4 p-3 bg-violet-50 border border-violet-200 rounded-xl space-y-3">
+    <p class="text-xs font-semibold text-violet-700">
+      {% trans "Select a group then click cells to reserve them. Click again to remove." %}
+    </p>
+    <div class="flex flex-wrap items-center gap-2">
+      <div id="group-buttons" class="flex flex-wrap gap-2"></div>
+      {# Add new group #}
+      <div class="flex items-center gap-1.5">
+        <input id="new-group-color" type="color" value="#16a34a"
+               title="{% trans 'Group color' %}"
+               class="w-7 h-7 rounded-lg border border-violet-300 bg-white cursor-pointer p-0.5 flex-shrink-0"
+               style="padding:2px">
+        <input id="new-group-input" type="text" maxlength="20" autocomplete="off"
+               placeholder="{% trans 'New group...' %}"
+               class="rounded-lg border border-violet-300 bg-white px-2.5 py-1.5 text-xs text-slate-700
+                      placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400/30
+                      focus:border-violet-500 w-32"
+               onkeydown="if(event.key==='Enter')addGroup()">
+        <button type="button" onclick="addGroup()"
+                class="flex items-center justify-center w-7 h-7 rounded-lg bg-violet-600 text-white
+                       hover:bg-violet-700 transition-colors flex-shrink-0"
+                title="{% trans 'Add group' %}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Calendar grid ───────────────────────────────────────────────── #}
+  <div id="cal-grid" class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+    <table class="border-collapse" style="min-width: max-content">
+
+      <thead>
+        <tr>
+          <th class="sticky left-0 z-20 bg-slate-50 border-b border-r border-slate-200
+                     p-0 text-center text-xs font-bold text-slate-400 uppercase tracking-wide w-8">
+            <span style="writing-mode:vertical-rl;display:inline-block;padding:8px 0">
+              {% trans "Table" %}
+            </span>
+          </th>
+          {% for dh in date_headers %}
+          <th class="border-b border-r border-slate-200 px-1 pt-2 pb-1.5 text-center
+                     min-w-[150px] w-[150px]
+                     {% if dh.month_changed and not forloop.first %}border-l-2 border-l-slate-300{% endif %}
+                     {% if dh.is_today %}bg-blue-50{% elif dh.is_weekend %}bg-slate-100{% else %}bg-slate-50{% endif %}">
+            {% if dh.month_changed %}
+              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">{{ dh.date|date:"M" }}</span>
+            {% else %}
+              <span class="block h-3 mb-0.5"></span>
+            {% endif %}
+            <span class="block text-[10px] font-medium text-slate-400">{{ dh.date|date:"D" }}</span>
+            <span class="block text-sm font-extrabold leading-tight
+                         {% if dh.is_today %}text-blue-600{% elif dh.is_weekend %}text-slate-400{% else %}text-slate-700{% endif %}">
+              {{ dh.date|date:"j" }}
+            </span>
+            <div class="h-4 mt-1 flex items-center justify-center">
+              {% if dh.sessions %}
+                <span class="text-[9px] font-bold bg-blue-100 text-blue-600 rounded-full px-1.5 py-px leading-none">{{ dh.sessions|length }}</span>
+              {% endif %}
+            </div>
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td class="sticky left-0 z-10 bg-white border-b border-r border-slate-200
+                     p-0 h-[150px] w-8 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
+            <div style="writing-mode:vertical-rl;height:100%;display:flex;align-items:center;
+                        justify-content:center;gap:6px;padding:6px 4px;overflow:hidden">
+              <span class="text-sm font-bold text-slate-800" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:128px">{{ row.table.nome }}</span>
+              {% if row.table.sala %}<span class="text-[10px] text-slate-400" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:80px">{{ row.table.sala }}</span>{% endif %}
+            </div>
+          </td>
+
+          {% for cell in row.cells %}
+          <td data-row="{{ forloop.parentloop.counter0 }}"
+              data-col="{{ forloop.counter0 }}"
+              onclick="onCellClick(event,{{ forloop.parentloop.counter0 }},{{ forloop.counter0 }})"
+              style="height:150px;max-height:150px"
+              class="cal-cell border-b border-r border-slate-100 w-[150px] align-top p-0 relative
+                     {% if cell.month_changed and not forloop.first %}border-l border-l-slate-200{% endif %}
+                     {% if cell.is_today %}bg-blue-50
+                     {% elif cell.is_weekend %}bg-slate-50
+                     {% endif %}">
+
+            <div class="cell-content flex flex-col h-[150px] overflow-hidden">
+              {% if cell.sessions %}
+                <div class="flex flex-col gap-px pt-0.5 pr-0.5 pl-1 flex-1 overflow-hidden">
+                  {% for session in cell.sessions %}
+                  <a href="{% url 'table-detail' session.slug %}"
+                     class="session-card flex-1 flex flex-col justify-center px-1.5 py-1 rounded
+                            bg-blue-500 hover:bg-blue-600 transition-colors text-decoration-none min-h-[1.75rem]">
+                    <span class="block text-[11px] font-bold text-white leading-tight truncate">
+                      {{ session.game.name|default:session.title|truncatechars:12 }}
+                    </span>
+                    <span class="block text-[10px] text-blue-200 leading-tight">{{ session.time|time:"H:i" }}</span>
+                  </a>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="flex justify-end pr-1 pb-1 mt-auto pt-0.5">
+                <a href="{% url 'location-table-create' location.slug %}?date={{ cell.date|date:'Y-m-d' }}"
+                   class="add-session-btn flex items-center justify-center w-5 h-5 rounded
+                          text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                   title="{% trans 'Add session' %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+<script>
+(function () {
+  const LOC_SLUG       = '{{ location.slug|escapejs }}';
+  const RES_KEY        = 'cal-res-'    + LOC_SLUG;
+  const GROUPS_KEY     = 'cal-groups-' + LOC_SLUG;
+
+  const GROUP_COLORS = [
+    '#16a34a', '#dc2626', '#2563eb', '#7c3aed',
+    '#ea580c', '#d97706', '#0d9488', '#db2777',
+  ];
+
+  const DEFAULT_GROUPS = [
+    { id: 1, name: 'CRUSADE', color: '#16a34a' },
+    { id: 2, name: '40K',     color: '#dc2626' },
+    { id: 3, name: 'AoS',     color: '#2563eb' },
+    { id: 4, name: 'GDR',     color: '#7c3aed' },
+    { id: 5, name: 'GDT',     color: '#d97706' },
+  ];
+
+  // ── State ────────────────────────────────────────────────────────────
+  let resMode         = false;
+  let selectedGroupId = null;
+  let groups          = loadGroups();
+  let reservations    = loadReservations(); // { "col:row": {groupId, name, color} }
+
+  // ── Storage ──────────────────────────────────────────────────────────
+  function loadGroups() {
+    try { return JSON.parse(localStorage.getItem(GROUPS_KEY)) || DEFAULT_GROUPS; }
+    catch { return DEFAULT_GROUPS; }
+  }
+  function saveGroups() { localStorage.setItem(GROUPS_KEY, JSON.stringify(groups)); }
+
+  function loadReservations() {
+    try { return JSON.parse(localStorage.getItem(RES_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function saveReservations() { localStorage.setItem(RES_KEY, JSON.stringify(reservations)); }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+
+  // ── Scroll arrows ────────────────────────────────────────────────────
+  const ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm';
+  const INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900';
+
+  window.scrollCal = function (dir) {
+    document.getElementById('cal-grid').scrollBy({ left: dir * 300, behavior: 'smooth' });
+  };
+
+  // ── Mode toggle ──────────────────────────────────────────────────────
+  window.setResMode = function (on) {
+    resMode = on;
+    const toolbar = document.getElementById('res-toolbar');
+    const grid    = document.getElementById('cal-grid');
+
+    document.getElementById('btn-res-normal').className = on ? INACTIVE : ACTIVE;
+    document.getElementById('btn-res-mode').className   = on ? ACTIVE   : INACTIVE;
+
+    if (on) {
+      toolbar.classList.remove('hidden');
+      grid.classList.add('reservation-mode');
+      if (!selectedGroupId && groups.length) selectGroup(groups[0].id);
+    } else {
+      toolbar.classList.add('hidden');
+      grid.classList.remove('reservation-mode');
+      selectedGroupId = null;
+    }
+    renderGroupButtons();
+    renderAllReservations();
+  };
+
+  // ── Groups ───────────────────────────────────────────────────────────
+  function selectGroup(id) {
+    selectedGroupId = id;
+    renderGroupButtons();
+  }
+
+  function deleteGroup(id) {
+    const g = groups.find(function (g) { return g.id === id; });
+    if (!g) return;
+    const hasReservations = Object.values(reservations).some(function (r) { return r.groupId === id; });
+    const msg = hasReservations
+      ? 'Eliminare il gruppo "' + g.name + '"? Verranno rimosse anche tutte le sue prenotazioni.'
+      : 'Eliminare il gruppo "' + g.name + '"?';
+    if (!confirm(msg)) return;
+    groups = groups.filter(function (g) { return g.id !== id; });
+    saveGroups();
+    Object.keys(reservations).forEach(function (key) {
+      if (reservations[key].groupId === id) delete reservations[key];
+    });
+    saveReservations();
+    if (selectedGroupId === id) selectedGroupId = groups.length ? groups[0].id : null;
+    renderGroupButtons();
+    renderAllReservations();
+  }
+
+  function renderGroupButtons() {
+    const container = document.getElementById('group-buttons');
+    container.innerHTML = '';
+    groups.forEach(function (g) {
+      const isSelected = resMode && g.id === selectedGroupId;
+
+      // wrapper pill
+      const wrap = document.createElement('span');
+      wrap.style.cssText =
+        'display:inline-flex;align-items:center;border-radius:999px;font-size:12px;font-weight:700;' +
+        'border:2px solid ' + g.color + ';' +
+        'background:' + (isSelected ? g.color : 'white') + ';' +
+        'color:' + (isSelected ? 'white' : g.color) + ';' +
+        'transition:background .15s,color .15s;overflow:hidden;';
+
+      // select button (dot + name)
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 12px;cursor:pointer;background:transparent;border:none;color:inherit;font:inherit;';
+      const dot = document.createElement('span');
+      dot.style.cssText = 'width:8px;height:8px;border-radius:50%;flex-shrink:0;background:' +
+        (isSelected ? 'rgba(255,255,255,0.7)' : g.color) + ';';
+      btn.appendChild(dot);
+      btn.appendChild(document.createTextNode(g.name));
+      btn.onclick = function () { selectGroup(g.id); };
+
+      // delete button (×)
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.title = 'Elimina gruppo';
+      del.style.cssText =
+        'display:inline-flex;align-items:center;justify-content:center;' +
+        'width:20px;height:20px;margin-right:4px;border-radius:50%;cursor:pointer;' +
+        'background:' + (isSelected ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.08)') + ';' +
+        'border:none;color:inherit;font-size:11px;line-height:1;flex-shrink:0;';
+      del.textContent = '×';
+      del.onclick = function (e) { e.stopPropagation(); deleteGroup(g.id); };
+
+      wrap.appendChild(btn);
+      wrap.appendChild(del);
+      container.appendChild(wrap);
+    });
+  }
+
+  window.addGroup = function () {
+    const input       = document.getElementById('new-group-input');
+    const colorPicker = document.getElementById('new-group-color');
+    const name  = input.value.trim();
+    if (!name) { input.focus(); return; }
+    const color = colorPicker.value;
+    const id    = Date.now();
+    groups.push({ id, name, color });
+    saveGroups();
+    input.value = '';
+    // advance picker to next palette color for convenience
+    colorPicker.value = GROUP_COLORS[(groups.length) % GROUP_COLORS.length];
+    renderGroupButtons();
+    selectGroup(id);
+  };
+
+  // ── Cell click ───────────────────────────────────────────────────────
+  window.onCellClick = function (e, row, col) {
+    if (!resMode) return;
+    if (!selectedGroupId) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const key   = col + ':' + row;
+    const group = groups.find(function (g) { return g.id === selectedGroupId; });
+    if (!group) return;
+
+    if (reservations[key] && reservations[key].groupId === selectedGroupId) {
+      delete reservations[key];
+    } else {
+      reservations[key] = { groupId: group.id, name: group.name, color: group.color };
+    }
+    saveReservations();
+    renderAllReservations();
+  };
+
+  // ── Render ───────────────────────────────────────────────────────────
+  function getCell(row, col) {
+    return document.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
+  }
+
+  function renderAllReservations() {
+    // Clear previous reservation labels and cell tints
+    document.querySelectorAll('.res-label').forEach(function (el) { el.remove(); });
+    document.querySelectorAll('.cal-cell').forEach(function (cell) {
+      cell.style.removeProperty('background-color');
+      cell.classList.remove('has-res');
+    });
+
+    Object.keys(reservations).forEach(function (key) {
+      const res   = reservations[key];
+      const parts = key.split(':');
+      const col   = parseInt(parts[0]);
+      const row   = parseInt(parts[1]);
+      const cell  = getCell(row, col);
+      if (!cell) return;
+
+      // Tinted background (stronger in reservation mode so clickability is obvious)
+      cell.style.backgroundColor = hexToRgba(res.color, resMode ? 0.22 : 0.12);
+      cell.classList.add('has-res');
+
+      // Small label at top of cell
+      const label = document.createElement('div');
+      label.className = 'res-label';
+      label.style.cssText =
+        'position:absolute;top:3px;left:4px;right:4px;z-index:4;' +
+        'font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;' +
+        'color:' + res.color + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' +
+        'pointer-events:none;';
+      label.textContent = res.name;
+      cell.appendChild(label);
+    });
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    renderGroupButtons();
+    renderAllReservations();
+  });
+
+}());
+</script>
+
+<style>
+  /* Reservation mode: hide sessions and add button, show cursor */
+  #cal-grid.reservation-mode .session-card,
+  #cal-grid.reservation-mode .add-session-btn {
+    display: none;
+  }
+  #cal-grid.reservation-mode .cal-cell {
+    cursor: cell;
+  }
+  #cal-grid.reservation-mode .cal-cell:not([class*="bg-slate-200"]):not([class*="bg-red-50"]):hover {
+    filter: brightness(0.95);
+  }
+
+  /* Push session content below the reservation label */
+  .cal-cell.has-res .cell-content {
+    padding-top: 16px;
+  }
+</style>
+{% endblock extrabodyjs %}

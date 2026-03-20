@@ -3426,6 +3426,23 @@ msgstr ""
 "automaticamente le nuove sessioni di gioco, avvisa i soci quando un tavolo è "
 "quasi pieno e tiene tutti aggiornati senza uscire dalla chat."
 
+#: webapp/templates/staticpages/about.html:162
+msgid "Physical table calendar"
+msgstr "Calendario tavoli fisici"
+
+#: webapp/templates/staticpages/about.html:163
+msgid ""
+"See all your club's physical tables in a weekly calendar view. Sessions are "
+"automatically assigned to available tables based on time slots. Managers can "
+"mark tables as reserved for specific groups — keeping planning clear and "
+"conflicts to a minimum."
+msgstr ""
+"Visualizza tutti i tavoli fisici del tuo circolo in una vista calendario "
+"settimanale. Le sessioni vengono assegnate automaticamente ai tavoli "
+"disponibili in base agli orari. I gestori possono segnare i tavoli come "
+"riservati per gruppi specifici — per una pianificazione chiara e senza "
+"sovrapposizioni."
+
 #: webapp/templates/staticpages/about.html:164
 msgid "Tournaments"
 msgstr "Tornei"
