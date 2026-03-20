@@ -119,7 +119,7 @@
       if (input && label) {
         input.classList.add('hidden');
         input.addEventListener('change', function () {
-          label.textContent = input.files[0] ? input.files[0].name : '{% trans "Choose an image…" %}';
+          label.textContent = input.files[0] ? input.files[0].name : '{% trans "Choose an image…"|escapejs %}';
         });
       }
     });
