@@ -54,9 +54,11 @@ def _get_topic_title(chat_id, message_thread_id):
             params={'chat_id': chat_id},
             timeout=5,
         )
+        logger.warning("getForumTopics status=%s body=%s", resp.status_code, resp.text[:500])
         if not resp.ok:
             return ''
         for topic in resp.json().get('result', {}).get('topics', []):
+            logger.warning("topic: %s", topic)
             if topic.get('message_thread_id') == message_thread_id:
                 return topic.get('name', '')
     except Exception as e:
