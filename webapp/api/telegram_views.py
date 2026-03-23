@@ -43,28 +43,6 @@ def _send_message(chat_id, text, reply_markup=None, message_thread_id=None):
         logger.error("Telegram sendMessage failed: %s", e)
 
 
-def _get_topic_title(chat_id, message_thread_id):
-    """Return the forum topic name for a given thread ID, or empty string on failure."""
-    if not message_thread_id:
-        return ''
-    token = settings.TELEGRAM_BOT_TOKEN
-    try:
-        resp = http_requests.get(
-            f"https://api.telegram.org/bot{token}/getForumTopics",
-            params={'chat_id': chat_id},
-            timeout=5,
-        )
-        logger.warning("getForumTopics status=%s body=%s", resp.status_code, resp.text[:500])
-        if not resp.ok:
-            return ''
-        for topic in resp.json().get('result', {}).get('topics', []):
-            logger.warning("topic: %s", topic)
-            if topic.get('message_thread_id') == message_thread_id:
-                return topic.get('name', '')
-    except Exception as e:
-        logger.warning("Could not fetch forum topics: %s", e)
-    return ''
-
 
 def _is_location_manager(user, location):
     if not user.is_authenticated:
@@ -99,6 +77,11 @@ def telegram_webhook(request):
     chat_id = chat.get('id')
     chat_title = chat.get('title', '')
     message_thread_id = message.get('message_thread_id')
+    thread_title = (
+        message.get('reply_to_message', {})
+               .get('forum_topic_created', {})
+               .get('name', '')
+    )
     text = (message.get('text') or '').strip()
 
     if not chat_id or not text:
@@ -108,11 +91,12 @@ def telegram_webhook(request):
     command = text.split('@')[0].split()[0].lower() if text.startswith('/') else ''
     args = text.split()[1:] if text.startswith('/') else []
 
-    logger.info("Telegram command=%r chat_id=%s thread_id=%s", command, chat_id, message_thread_id)
+    logger.info("Telegram command=%r chat_id=%s thread_id=%s thread_title=%r", command, chat_id, message_thread_id, thread_title)
+
 
     try:
         if command == '/setup':
-            _handle_setup(chat_id, chat_title, args, message_thread_id)
+            _handle_setup(chat_id, chat_title, args, message_thread_id, thread_title)
         elif command == '/tables':
             _handle_tables(chat_id, message_thread_id)
     except Exception:
@@ -121,7 +105,7 @@ def telegram_webhook(request):
     return JsonResponse({'ok': True})
 
 
-def _handle_setup(chat_id, chat_title, args, message_thread_id=None):
+def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_title=''):
     if not args:
         _send_message(chat_id, "Usa: <code>/setup &lt;token&gt;</code>", message_thread_id=message_thread_id)
         return
@@ -136,8 +120,6 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None):
     except TelegramSetupToken.DoesNotExist:
         _send_message(chat_id, "❌ Token non valido o scaduto.\nGenera un nuovo token dalla pagina di gestione della location.", message_thread_id=message_thread_id)
         return
-
-    thread_title = _get_topic_title(chat_id, message_thread_id)
 
     existing = TelegramGroupConfig.objects.filter(chat_id=chat_id).first()
     if existing:
