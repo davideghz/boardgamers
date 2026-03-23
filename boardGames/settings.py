@@ -16,7 +16,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 ENV = env('ENV')
 SECRET_KEY = env('DJANGO_SECRET_KEY')
-DEBUG = env('DEBUG')
+DEBUG = env.bool('DEBUG', default=False)
 
 SITE_PROTOCOL = env('SITE_PROTOCOL', default='http')
 SITE_DOMAIN = env('SITE_DOMAIN', default='localhost:8000')
