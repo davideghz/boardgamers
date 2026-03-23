@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-20 19:30+0000\n"
+"POT-Creation-Date: 2026-03-23 09:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1524,7 +1524,8 @@ msgstr "Mostra tavoli in homepage"
 msgid ""
 "When enabled, upcoming tables from this location appear in the homepage feed."
 msgstr ""
-"Se attivato, i prossimi tavoli di questa sede appariranno nel feed della homepage."
+"Se attivato, i prossimi tavoli di questa sede appariranno nel feed della "
+"homepage."
 
 #: webapp/templates/locations/location_manage_game_detail.html:43
 #: webapp/templates/locations/location_manage_game_detail.html:87
@@ -2183,9 +2184,9 @@ msgstr "Ci piacerebbe sentirti! Compila questo form per contattarci."
 msgid "Send message"
 msgstr "Invia messaggio"
 
-#: webapp/templates/staticpages/contacts.html:68
-msgid "Join us on Discord"
-msgstr "Unisciti a noi su Discord"
+#: webapp/templates/staticpages/contacts.html:71
+msgid "Join us on Telegram"
+msgstr "Unisciti a noi su Telegram"
 
 #: webapp/templates/staticpages/home.html:12
 msgid "Hey!"
