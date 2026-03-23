@@ -645,6 +645,7 @@ class TelegramGroupConfig(DateTimeModel):
     )
     chat_id = models.BigIntegerField(unique=True, verbose_name=_('Chat ID'))
     chat_title = models.CharField(max_length=255, blank=True, verbose_name=_('Chat title'))
+    message_thread_id = models.BigIntegerField(null=True, blank=True, verbose_name=_('Message thread ID'))
     active = models.BooleanField(default=True, verbose_name=_('Active'))
 
     class Meta:

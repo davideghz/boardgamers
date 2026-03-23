@@ -88,6 +88,8 @@ urlpatterns = [
     # LOCATION TELEGRAM
     path("locations/<slug:slug>/manage/telegram/", location_views.LocationManageTelegramView.as_view(),
          name="location-manage-telegram"),
+    path("locations/<slug:slug>/manage/telegram/<int:config_id>/disconnect/", location_views.DisconnectTelegramGroupView.as_view(),
+         name="telegram-disconnect-group"),
 
     # LOCATION GAMES
     path("locations/<slug:slug>/manage/widget/", location_views.LocationManageWidgetView.as_view(),

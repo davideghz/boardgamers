@@ -972,6 +972,16 @@ class LocationManageTelegramView(LoginRequiredMixin, View):
         })
 
 
+class DisconnectTelegramGroupView(LoginRequiredMixin, View):
+    """Deactivate a Telegram group config for a location."""
+
+    def post(self, request, slug, config_id):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        TelegramGroupConfig.objects.filter(id=config_id, location=location).update(active=False)
+        return redirect('location-manage-telegram', slug=slug)
+
+
 class DownloadGamesCSVView(LoginRequiredMixin, View):
     """Download a CSV of all games in a location's library."""
 

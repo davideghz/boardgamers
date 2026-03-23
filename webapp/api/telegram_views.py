@@ -19,12 +19,14 @@ logger = logging.getLogger(__name__)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _send_message(chat_id, text, reply_markup=None):
+def _send_message(chat_id, text, reply_markup=None, message_thread_id=None):
     token = settings.TELEGRAM_BOT_TOKEN
     if not token:
         logger.warning("TELEGRAM_BOT_TOKEN not set")
         return
     payload = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
+    if message_thread_id:
+        payload['message_thread_id'] = message_thread_id
     if reply_markup:
         payload['reply_markup'] = reply_markup
     try:
@@ -73,6 +75,7 @@ def telegram_webhook(request):
     chat = message.get('chat', {})
     chat_id = chat.get('id')
     chat_title = chat.get('title', '')
+    message_thread_id = message.get('message_thread_id')
     text = (message.get('text') or '').strip()
 
     if not chat_id or not text:
@@ -82,22 +85,22 @@ def telegram_webhook(request):
     command = text.split('@')[0].split()[0].lower() if text.startswith('/') else ''
     args = text.split()[1:] if text.startswith('/') else []
 
-    logger.info("Telegram command=%r chat_id=%s", command, chat_id)
+    logger.info("Telegram command=%r chat_id=%s thread_id=%s", command, chat_id, message_thread_id)
 
     try:
         if command == '/setup':
-            _handle_setup(chat_id, chat_title, args)
+            _handle_setup(chat_id, chat_title, args, message_thread_id)
         elif command == '/tables':
-            _handle_tables(chat_id)
+            _handle_tables(chat_id, message_thread_id)
     except Exception:
         logger.exception("Error handling Telegram command %r", command)
 
     return JsonResponse({'ok': True})
 
 
-def _handle_setup(chat_id, chat_title, args):
+def _handle_setup(chat_id, chat_title, args, message_thread_id=None):
     if not args:
-        _send_message(chat_id, "Usa: <code>/setup &lt;token&gt;</code>")
+        _send_message(chat_id, "Usa: <code>/setup &lt;token&gt;</code>", message_thread_id=message_thread_id)
         return
 
     token_str = args[0]
@@ -108,14 +111,17 @@ def _handle_setup(chat_id, chat_title, args):
             expires_at__gt=timezone.now(),
         )
     except TelegramSetupToken.DoesNotExist:
-        _send_message(chat_id, "❌ Token non valido o scaduto.\nGenera un nuovo token dalla pagina di gestione della location.")
+        _send_message(chat_id, "❌ Token non valido o scaduto.\nGenera un nuovo token dalla pagina di gestione della location.", message_thread_id=message_thread_id)
         return
 
     existing = TelegramGroupConfig.objects.filter(chat_id=chat_id).first()
     if existing:
+        existing.message_thread_id = message_thread_id
+        existing.save(update_fields=['message_thread_id'])
         _send_message(
             chat_id,
             f"ℹ️ Questo gruppo è già configurato per <b>{existing.location.name}</b>.",
+            message_thread_id=message_thread_id,
         )
         return
 
@@ -123,6 +129,7 @@ def _handle_setup(chat_id, chat_title, args):
         location=token.location,
         chat_id=chat_id,
         chat_title=chat_title,
+        message_thread_id=message_thread_id,
     )
     token.used = True
     token.save(update_fields=['used'])
@@ -131,10 +138,11 @@ def _handle_setup(chat_id, chat_title, args):
         chat_id,
         f"✅ Bot configurato per <b>{token.location.name}</b>!\n\n"
         f"Usa /tables per vedere i tavoli aperti.",
+        message_thread_id=message_thread_id,
     )
 
 
-def _handle_tables(chat_id):
+def _handle_tables(chat_id, message_thread_id=None):
     config = TelegramGroupConfig.objects.select_related('location').filter(
         chat_id=chat_id, active=True
     ).first()
@@ -144,8 +152,12 @@ def _handle_tables(chat_id):
             chat_id,
             "⚠️ Questo gruppo non è ancora configurato.\n"
             "Chiedi al manager della location di generare un token dalla pagina di gestione.",
+            message_thread_id=message_thread_id,
         )
         return
+
+    # Use the thread where the command was issued; fall back to the configured thread
+    message_thread_id = message_thread_id or config.message_thread_id
 
     today = timezone.now().date()
     tables = (
@@ -163,6 +175,7 @@ def _handle_tables(chat_id):
         _send_message(
             chat_id,
             f"🎲 <b>{location.name}</b>\n\nNessun tavolo aperto al momento.",
+            message_thread_id=message_thread_id,
         )
         return
 
@@ -186,6 +199,7 @@ def _handle_tables(chat_id):
         chat_id,
         "\n".join(lines),
         reply_markup={"inline_keyboard": buttons},
+        message_thread_id=message_thread_id,
     )
 
 
