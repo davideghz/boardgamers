@@ -50,7 +50,12 @@
                 <path d="M98.618,187.604C98.618,187.604 97.078,187.46 95.159,181.384C93.241,175.309 83.489,143.335 83.489,143.335L161.026,94.095C161.026,94.095 165.503,91.377 165.343,94.095C165.343,94.095 166.142,94.574 163.744,96.812C161.346,99.051 102.833,151.648 102.833,151.648" fill="#D2E5F1"/>
                 <path d="M122.902,168.115L102.034,187.141C102.034,187.141 100.403,188.379 98.618,187.604L102.614,152.262" fill="#B5CFE4"/>
               </svg>
-              <span class="text-slate-700 font-medium">{{ cfg.chat_title|default:cfg.chat_id }}</span>
+              <span class="flex flex-col">
+                <span class="text-slate-700 font-medium">{{ cfg.chat_title|default:cfg.chat_id }}</span>
+                {% if cfg.message_thread_title %}
+                  <span class="text-xs text-slate-400"># {{ cfg.message_thread_title }}</span>
+                {% endif %}
+              </span>
               <form method="post" action="{% url 'telegram-disconnect-group' location.slug cfg.id %}" class="ml-auto"
                     onsubmit="return confirm('{% trans "Disconnect this group?" %}')">
                 {% csrf_token %}

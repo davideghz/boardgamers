@@ -43,6 +43,27 @@ def _send_message(chat_id, text, reply_markup=None, message_thread_id=None):
         logger.error("Telegram sendMessage failed: %s", e)
 
 
+def _get_topic_title(chat_id, message_thread_id):
+    """Return the forum topic name for a given thread ID, or empty string on failure."""
+    if not message_thread_id:
+        return ''
+    token = settings.TELEGRAM_BOT_TOKEN
+    try:
+        resp = http_requests.get(
+            f"https://api.telegram.org/bot{token}/getForumTopics",
+            params={'chat_id': chat_id},
+            timeout=5,
+        )
+        if not resp.ok:
+            return ''
+        for topic in resp.json().get('result', {}).get('topics', []):
+            if topic.get('message_thread_id') == message_thread_id:
+                return topic.get('name', '')
+    except Exception as e:
+        logger.warning("Could not fetch forum topics: %s", e)
+    return ''
+
+
 def _is_location_manager(user, location):
     if not user.is_authenticated:
         return False
@@ -114,13 +135,16 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None):
         _send_message(chat_id, "❌ Token non valido o scaduto.\nGenera un nuovo token dalla pagina di gestione della location.", message_thread_id=message_thread_id)
         return
 
+    thread_title = _get_topic_title(chat_id, message_thread_id)
+
     existing = TelegramGroupConfig.objects.filter(chat_id=chat_id).first()
     if existing:
         existing.location = token.location
         existing.chat_title = chat_title
         existing.message_thread_id = message_thread_id
+        existing.message_thread_title = thread_title
         existing.active = True
-        existing.save(update_fields=['location', 'chat_title', 'message_thread_id', 'active'])
+        existing.save(update_fields=['location', 'chat_title', 'message_thread_id', 'message_thread_title', 'active'])
         token.used = True
         token.save(update_fields=['used'])
         _send_message(
@@ -136,6 +160,7 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None):
         chat_id=chat_id,
         chat_title=chat_title,
         message_thread_id=message_thread_id,
+        message_thread_title=thread_title,
     )
     token.used = True
     token.save(update_fields=['used'])
