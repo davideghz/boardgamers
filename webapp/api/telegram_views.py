@@ -116,11 +116,17 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None):
 
     existing = TelegramGroupConfig.objects.filter(chat_id=chat_id).first()
     if existing:
+        existing.location = token.location
+        existing.chat_title = chat_title
         existing.message_thread_id = message_thread_id
-        existing.save(update_fields=['message_thread_id'])
+        existing.active = True
+        existing.save(update_fields=['location', 'chat_title', 'message_thread_id', 'active'])
+        token.used = True
+        token.save(update_fields=['used'])
         _send_message(
             chat_id,
-            f"ℹ️ Questo gruppo è già configurato per <b>{existing.location.name}</b>.",
+            f"✅ Bot configurato per <b>{token.location.name}</b>!\n\n"
+            f"Usa /tables per vedere i tavoli aperti.",
             message_thread_id=message_thread_id,
         )
         return
