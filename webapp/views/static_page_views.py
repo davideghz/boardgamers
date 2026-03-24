@@ -21,7 +21,7 @@ from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
-from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ
+from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player
 
 # for debug page
 import environ
@@ -47,7 +47,7 @@ def homepage_view(request):
     today = timezone.now().date()
 
     comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-    players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
+    players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
     games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
     # Query per i tavoli futuri

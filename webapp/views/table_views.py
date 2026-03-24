@@ -69,7 +69,7 @@ class TableIndexView(generic.ListView):
 
         today = timezone.now().date()
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-        players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
+        players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
         base_qs = (Table.objects

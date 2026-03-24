@@ -22,7 +22,7 @@ from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnership
     MembershipRequestForm, MembershipEditForm, LocationGameForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame, \
-    TelegramGroupConfig
+    TelegramGroupConfig, Player
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -97,7 +97,7 @@ class LocationDetailView(DetailView):
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-        players_prefetch = Prefetch('players', queryset=UserProfile.objects.select_related('user'))
+        players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
         # Query per i tavoli futuri di questa location
