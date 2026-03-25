@@ -346,6 +346,23 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             self.LEADERBOARD_EDITABLE: 'text-bg-primary',
         }.get(self.status, 'text-bg-light')
 
+    @property
+    def google_calendar_url(self):
+        import urllib.parse
+        start_dt = datetime.datetime.combine(self.date, self.time)
+        end_dt = start_dt + datetime.timedelta(hours=2)
+        fmt = "%Y%m%dT%H%M%S"
+        params = {
+            'action': 'TEMPLATE',
+            'text': self.title,
+            'dates': f"{start_dt.strftime(fmt)}/{end_dt.strftime(fmt)}",
+        }
+        if self.description:
+            params['details'] = self.description[:500]
+        if self.location and self.location.address:
+            params['location'] = self.location.address
+        return 'https://www.google.com/calendar/render?' + urllib.parse.urlencode(params)
+
     def __str__(self):
         return self.title
 
