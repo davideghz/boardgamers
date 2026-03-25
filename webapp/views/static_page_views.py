@@ -142,6 +142,11 @@ def contacts(request):
 
 def about(request):
     faqs = FAQ.objects.filter(is_active=True).select_related('category').order_by('category__order', 'order')
+    about_stats = {
+        'locations': Location.objects.count(),
+        'tables': Table.objects.count(),
+        'players': UserProfile.objects.count(),
+    }
 
     faq_jsonld = None
     if faqs:
@@ -164,6 +169,7 @@ def about(request):
     return render(request, 'staticpages/about.html', {
         'faqs': faqs,
         'faq_jsonld': faq_jsonld,
+        'about_stats': about_stats,
         'meta': Meta(
             title=_("About Board-Gamers.com - For Clubs & Associations"),
             description=_("Discover why board game clubs and associations choose Board-Gamers.com: free forever, open source, member management, tables, rankings and more."),

@@ -65,6 +65,24 @@
     </div>
   </section>
 
+  {# ── STATS ─────────────────────────────────────────────────────────── #}
+  <section class="mb-16">
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div class="rounded-2xl border border-slate-200 bg-white px-4 py-6">
+        <p class="text-3xl font-extrabold text-slate-900">{{ about_stats.locations }}</p>
+        <p class="text-xs text-slate-500 mt-1">{% trans "clubs" %}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white px-4 py-6">
+        <p class="text-3xl font-extrabold text-slate-900">{{ about_stats.tables }}</p>
+        <p class="text-xs text-slate-500 mt-1">{% trans "tables created" %}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white px-4 py-6">
+        <p class="text-3xl font-extrabold text-slate-900">{{ about_stats.players }}</p>
+        <p class="text-xs text-slate-500 mt-1">{% trans "registered players" %}</p>
+      </div>
+    </div>
+  </section>
+
   {# ── FEATURES ──────────────────────────────────────────────────────── #}
   <section class="mb-16">
     <div class="text-center mb-8">
@@ -84,6 +102,10 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Game table management" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Create game sessions, set a date, time and maximum players. Members can join with one tap. Perfect for organising evenings at the club." %}</p>
+          <a href="https://board-gamers.com/tables/coalitions/" target="_blank" rel="noopener noreferrer"
+             class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+            {% trans "See example" %} →
+          </a>
         </div>
       </div>
 
@@ -97,6 +119,10 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Member management" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Manage your members' registry, track membership validity periods, handle join requests and approvals — all in one place." %}</p>
+          <button onclick="openPreviewModal('{% trans "Member management" %}')"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
+            {% trans "See example" %} →
+          </button>
         </div>
       </div>
 
@@ -110,6 +136,10 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Rankings" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Keep your community engaged with player rankings based on activity. A little friendly competition makes game nights even more fun." %}</p>
+          <button onclick="openPreviewModal('{% trans "Rankings" %}')"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
+            {% trans "See example" %} →
+          </button>
         </div>
       </div>
 
@@ -123,6 +153,10 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Game library" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Catalog every game your club owns — or that members bring along. Track who owns what and where it's stored, and export the full list as a CSV anytime." %}</p>
+          <button onclick="openPreviewModal('{% trans "Game library" %}')"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
+            {% trans "See example" %} →
+          </button>
         </div>
       </div>
 
@@ -136,6 +170,16 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Live schedule on your website" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Embed upcoming and past game sessions directly on your club's website with a single line of code. Show visitors your association is active and give a preview of what's coming up." %}</p>
+          <div class="mt-2 flex flex-wrap gap-3">
+            <a href="https://www.anonimagiocatori.it/sito/serate-gioco/" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+              Anonima Giocatori →
+            </a>
+            <a href="https://swordandsorceryaps.altervista.org/partecipa/" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+              Sword &amp; Sorcery →
+            </a>
+          </div>
         </div>
       </div>
 
@@ -152,6 +196,10 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Telegram bot" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Connect your club's Telegram group to Board-Gamers.com. The bot automatically posts new game sessions, reminds members when a table is almost full, and keeps everyone in sync without leaving the chat." %}</p>
+          <button onclick="openPreviewModal('{% trans "Telegram bot" %}')"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
+            {% trans "See example" %} →
+          </button>
         </div>
       </div>
 
@@ -165,6 +213,10 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Physical table calendar" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "See all your club's physical tables in a weekly calendar view. Sessions are automatically assigned to available tables based on time slots. Managers can mark tables as reserved for specific groups — keeping planning clear and conflicts to a minimum." %}</p>
+          <button onclick="openPreviewModal('{% trans "Physical table calendar" %}')"
+                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
+            {% trans "See example" %} →
+          </button>
         </div>
       </div>
 
@@ -264,6 +316,60 @@
       </div>
     </div>
   </section>
+
+  {# ── PREVIEW MODAL ─────────────────────────────────────────────────── #}
+  <div id="preview-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none">
+    <div class="absolute inset-0 bg-black/60" onclick="closePreviewModal()"></div>
+    <div class="relative bg-white rounded-2xl overflow-hidden w-full max-w-2xl shadow-2xl mx-auto">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <h3 id="preview-modal-title" class="text-sm font-bold text-slate-900"></h3>
+        <button onclick="closePreviewModal()"
+                class="text-slate-400 hover:text-slate-700 transition-colors bg-transparent border-0 p-0 cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4">
+        <img id="preview-modal-img" src="" alt="" class="w-full rounded-xl hidden">
+        <div id="preview-placeholder"
+             class="w-full aspect-video rounded-xl flex flex-col items-center justify-center gap-3"
+             style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-12 h-12 text-blue-300 opacity-60">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+          </svg>
+          <p class="text-sm font-semibold text-blue-200">{% trans "Preview coming soon" %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openPreviewModal(title, imgSrc) {
+      document.getElementById('preview-modal-title').textContent = title;
+      var img = document.getElementById('preview-modal-img');
+      var placeholder = document.getElementById('preview-placeholder');
+      if (imgSrc) {
+        img.src = imgSrc;
+        img.alt = title;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+      var modal = document.getElementById('preview-modal');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closePreviewModal() {
+      document.getElementById('preview-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePreviewModal();
+    });
+  </script>
 
 {% endblock content %}
 
