@@ -1,4 +1,5 @@
 {% extends "base_webapp.html" %}
+{% load static %}
 {% load i18n %}
 {% load custom_tags %}
 
@@ -67,6 +68,11 @@
 
   {# ── STATS ─────────────────────────────────────────────────────────── #}
   <section class="mb-16">
+    <div class="text-center mb-6">
+      <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-2">{% trans "Our community" %}</p>
+      <h2 class="text-2xl font-extrabold text-slate-900">{% trans "Small, but growing fast." %}</h2>
+      <p class="text-sm text-slate-500 mt-2">{% trans "Real clubs, real players, real game nights." %}</p>
+    </div>
     <div class="grid grid-cols-3 gap-4 text-center">
       <div class="rounded-2xl border border-slate-200 bg-white px-4 py-6">
         <p class="text-3xl font-extrabold text-slate-900">{{ about_stats.locations }}</p>
@@ -119,10 +125,6 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Member management" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Manage your members' registry, track membership validity periods, handle join requests and approvals — all in one place." %}</p>
-          <button onclick="openPreviewModal('{% trans "Member management" %}')"
-                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
-            {% trans "See example" %} →
-          </button>
         </div>
       </div>
 
@@ -136,7 +138,7 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Rankings" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Keep your community engaged with player rankings based on activity. A little friendly competition makes game nights even more fun." %}</p>
-          <button onclick="openPreviewModal('{% trans "Rankings" %}')"
+          <button onclick="openPreviewModal('{% trans "Rankings" %}', '{% static "images/about/bg-classifiche.webp" %}')"
                   class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
             {% trans "See example" %} →
           </button>
@@ -153,7 +155,7 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Game library" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Catalog every game your club owns — or that members bring along. Track who owns what and where it's stored, and export the full list as a CSV anytime." %}</p>
-          <button onclick="openPreviewModal('{% trans "Game library" %}')"
+          <button onclick="openPreviewModal('{% trans "Game library" %}', '{% static "images/about/bg-elenco-giochi.webp" %}')"
                   class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
             {% trans "See example" %} →
           </button>
@@ -196,7 +198,7 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Telegram bot" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "Connect your club's Telegram group to Board-Gamers.com. The bot automatically posts new game sessions, reminds members when a table is almost full, and keeps everyone in sync without leaving the chat." %}</p>
-          <button onclick="openPreviewModal('{% trans "Telegram bot" %}')"
+          <button onclick="openPreviewModal('{% trans "Telegram bot" %}', '{% static "images/about/bg-bot-telegram.webp" %}')"
                   class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
             {% trans "See example" %} →
           </button>
@@ -213,10 +215,6 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 mb-1">{% trans "Physical table calendar" %}</h3>
           <p class="text-xs text-slate-500 leading-relaxed">{% trans "See all your club's physical tables in a weekly calendar view. Sessions are automatically assigned to available tables based on time slots. Managers can mark tables as reserved for specific groups — keeping planning clear and conflicts to a minimum." %}</p>
-          <button onclick="openPreviewModal('{% trans "Physical table calendar" %}')"
-                  class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">
-            {% trans "See example" %} →
-          </button>
         </div>
       </div>
 

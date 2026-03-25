@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 09:43+0000\n"
+"POT-Creation-Date: 2026-03-25 10:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1975,19 +1975,19 @@ msgstr "vittorie"
 msgid "No tables played yet."
 msgstr "Ancora nessun tavolo giocato."
 
-#: webapp/templates/staticpages/about.html:10
+#: webapp/templates/staticpages/about.html:11
 msgid "For clubs & associations"
 msgstr "Per club e associazioni"
 
-#: webapp/templates/staticpages/about.html:12
+#: webapp/templates/staticpages/about.html:13
 msgid "Your club deserves"
 msgstr "Il tuo club merita"
 
-#: webapp/templates/staticpages/about.html:13
+#: webapp/templates/staticpages/about.html:14
 msgid "better tools."
 msgstr "strumenti migliori."
 
-#: webapp/templates/staticpages/about.html:16
+#: webapp/templates/staticpages/about.html:17
 msgid ""
 "Board-Gamers.com is built by board game enthusiasts, for board game "
 "enthusiasts. Free, open source, and always improving."
@@ -1996,21 +1996,21 @@ msgstr ""
 "appassionati di giochi da tavolo. Gratuito, open source e in continuo "
 "miglioramento."
 
-#: webapp/templates/staticpages/about.html:22
-#: webapp/templates/staticpages/about.html:310
+#: webapp/templates/staticpages/about.html:23
+#: webapp/templates/staticpages/about.html:308
 #: webapp/templates/staticpages/home.html:54
 msgid "Create a free account"
 msgstr "Crea un account gratuito"
 
-#: webapp/templates/staticpages/about.html:26
+#: webapp/templates/staticpages/about.html:27
 msgid "Talk to us"
 msgstr "Contattaci"
 
-#: webapp/templates/staticpages/about.html:42
+#: webapp/templates/staticpages/about.html:43
 msgid "Free. Forever."
 msgstr "Gratis. Per sempre."
 
-#: webapp/templates/staticpages/about.html:44
+#: webapp/templates/staticpages/about.html:45
 msgid ""
 "No subscriptions, no hidden fees, no freemium traps. Board-Gamers.com is and "
 "will always be completely free to use. We believe access to great tools "
@@ -2020,11 +2020,11 @@ msgstr ""
 "Gamers.com è e sarà sempre completamente gratuito. Crediamo che l'accesso a "
 "ottimi strumenti non debba dipendere dal budget."
 
-#: webapp/templates/staticpages/about.html:54
+#: webapp/templates/staticpages/about.html:55
 msgid "Open source & community-driven"
 msgstr "Open source e guidato dalla community"
 
-#: webapp/templates/staticpages/about.html:56
+#: webapp/templates/staticpages/about.html:57
 msgid ""
 "The code is open source, maintained by volunteers who love board games. Have "
 "a feature request? Your voice matters — the platform evolves based on what "
@@ -2034,31 +2034,43 @@ msgstr ""
 "tavolo. Hai un'idea per una nuova funzionalità? La tua voce conta — la "
 "piattaforma evolve in base a ciò di cui i club hanno davvero bisogno."
 
+#: webapp/templates/staticpages/about.html:72
+msgid "Our community"
+msgstr "La nostra community"
+
 #: webapp/templates/staticpages/about.html:73
+msgid "Small, but growing fast."
+msgstr "Piccoli, ma in rapida crescita."
+
+#: webapp/templates/staticpages/about.html:74
+msgid "Real clubs, real players, real game nights."
+msgstr "Associazioni, persone e serate di gioco vere."
+
+#: webapp/templates/staticpages/about.html:79
 msgid "clubs"
 msgstr "associazioni e clubs"
 
-#: webapp/templates/staticpages/about.html:77
+#: webapp/templates/staticpages/about.html:83
 msgid "tables created"
 msgstr "tavoli giocati"
 
-#: webapp/templates/staticpages/about.html:81
+#: webapp/templates/staticpages/about.html:87
 msgid "registered players"
 msgstr "giocatori registrati"
 
-#: webapp/templates/staticpages/about.html:89
+#: webapp/templates/staticpages/about.html:95
 msgid "Features"
 msgstr "Funzionalità"
 
-#: webapp/templates/staticpages/about.html:90
+#: webapp/templates/staticpages/about.html:96
 msgid "Everything your club needs"
 msgstr "Tutto ciò di cui il tuo club ha bisogno"
 
-#: webapp/templates/staticpages/about.html:103
+#: webapp/templates/staticpages/about.html:109
 msgid "Game table management"
 msgstr "Gestione tavoli di gioco"
 
-#: webapp/templates/staticpages/about.html:104
+#: webapp/templates/staticpages/about.html:110
 msgid ""
 "Create game sessions, set a date, time and maximum players. Members can join "
 "with one tap. Perfect for organising evenings at the club."
@@ -2067,21 +2079,18 @@ msgstr ""
 "Gli associati possono unirsi con un tap. Perfetto per organizzare le serate "
 "in associazione."
 
-#: webapp/templates/staticpages/about.html:107
-#: webapp/templates/staticpages/about.html:124
-#: webapp/templates/staticpages/about.html:141
-#: webapp/templates/staticpages/about.html:158
-#: webapp/templates/staticpages/about.html:201
-#: webapp/templates/staticpages/about.html:218
+#: webapp/templates/staticpages/about.html:113
+#: webapp/templates/staticpages/about.html:143
+#: webapp/templates/staticpages/about.html:160
+#: webapp/templates/staticpages/about.html:203
 msgid "See example"
 msgstr "Vedi esempio"
 
-#: webapp/templates/staticpages/about.html:120
-#: webapp/templates/staticpages/about.html:122
+#: webapp/templates/staticpages/about.html:126
 msgid "Member management"
 msgstr "Gestione associati"
 
-#: webapp/templates/staticpages/about.html:121
+#: webapp/templates/staticpages/about.html:127
 msgid ""
 "Manage your members' registry, track membership validity periods, handle "
 "join requests and approvals — all in one place."
@@ -2090,12 +2099,12 @@ msgstr ""
 "membership, gestisci le richieste di iscrizione e le approvazioni — tutto in "
 "un unico posto."
 
-#: webapp/templates/staticpages/about.html:137
 #: webapp/templates/staticpages/about.html:139
+#: webapp/templates/staticpages/about.html:141
 msgid "Rankings"
 msgstr "Classifiche"
 
-#: webapp/templates/staticpages/about.html:138
+#: webapp/templates/staticpages/about.html:140
 msgid ""
 "Keep your community engaged with player rankings based on activity. A little "
 "friendly competition makes game nights even more fun."
@@ -2104,12 +2113,12 @@ msgstr ""
 "sull'attività. Un po' di sana competizione rende le serate di gioco ancora "
 "più divertenti."
 
-#: webapp/templates/staticpages/about.html:154
 #: webapp/templates/staticpages/about.html:156
+#: webapp/templates/staticpages/about.html:158
 msgid "Game library"
 msgstr "Libreria dei giochi"
 
-#: webapp/templates/staticpages/about.html:155
+#: webapp/templates/staticpages/about.html:157
 msgid ""
 "Catalog every game your club owns — or that members bring along. Track who "
 "owns what and where it's stored, and export the full list as a CSV anytime."
@@ -2118,11 +2127,11 @@ msgstr ""
 "Tieni traccia di chi possiede cosa e dove è conservato, ed esporta l'elenco "
 "completo in CSV in qualsiasi momento."
 
-#: webapp/templates/staticpages/about.html:171
+#: webapp/templates/staticpages/about.html:173
 msgid "Live schedule on your website"
 msgstr "Calendario eventi in tempo reale sul tuo sito"
 
-#: webapp/templates/staticpages/about.html:172
+#: webapp/templates/staticpages/about.html:174
 msgid ""
 "Embed upcoming and past game sessions directly on your club's website with a "
 "single line of code. Show visitors your association is active and give a "
@@ -2132,12 +2141,12 @@ msgstr ""
 "tua associazione con una sola riga di codice. Mostra ai visitatori che la "
 "tua associazione è attiva e dai un'anteprima di cosa sta per arrivare."
 
-#: webapp/templates/staticpages/about.html:197
 #: webapp/templates/staticpages/about.html:199
+#: webapp/templates/staticpages/about.html:201
 msgid "Telegram bot"
 msgstr "Bot Telegram"
 
-#: webapp/templates/staticpages/about.html:198
+#: webapp/templates/staticpages/about.html:200
 msgid ""
 "Connect your club's Telegram group to Board-Gamers.com. The bot "
 "automatically posts new game sessions, reminds members when a table is "
@@ -2147,12 +2156,11 @@ msgstr ""
 "pubblica automaticamente le nuove sessioni di gioco, avvisa i soci quando un "
 "tavolo è quasi pieno e tiene tutti aggiornati senza uscire dalla chat."
 
-#: webapp/templates/staticpages/about.html:214
 #: webapp/templates/staticpages/about.html:216
 msgid "Physical table calendar"
 msgstr "Calendario tavoli fisici"
 
-#: webapp/templates/staticpages/about.html:215
+#: webapp/templates/staticpages/about.html:217
 msgid ""
 "See all your club's physical tables in a weekly calendar view. Sessions are "
 "automatically assigned to available tables based on time slots. Managers can "
@@ -2165,15 +2173,15 @@ msgstr ""
 "riservati per gruppi specifici — per una pianificazione chiara e senza "
 "sovrapposizioni."
 
-#: webapp/templates/staticpages/about.html:232
+#: webapp/templates/staticpages/about.html:230
 msgid "Tournaments"
 msgstr "Tornei"
 
-#: webapp/templates/staticpages/about.html:233
+#: webapp/templates/staticpages/about.html:231
 msgid "Coming soon"
 msgstr "Prossimamente"
 
-#: webapp/templates/staticpages/about.html:235
+#: webapp/templates/staticpages/about.html:233
 msgid ""
 "Full tournament management is on the roadmap — brackets, standings, rounds. "
 "Stay tuned!"
@@ -2181,15 +2189,15 @@ msgstr ""
 "La gestione completa dei tornei è in programma — tabelloni, classifiche, "
 "turni. Restate sintonizzati!"
 
-#: webapp/templates/staticpages/about.html:246
+#: webapp/templates/staticpages/about.html:244
 msgid "Open source"
 msgstr "Open source"
 
-#: webapp/templates/staticpages/about.html:247
+#: webapp/templates/staticpages/about.html:245
 msgid "Built in the open, improved together"
 msgstr "Sviluppato in pubblico, migliorato insieme"
 
-#: webapp/templates/staticpages/about.html:249
+#: webapp/templates/staticpages/about.html:247
 msgid ""
 "You can see every line of code, propose improvements, or even contribute "
 "directly. If your club needs a specific feature, send us a message - we "
@@ -2199,27 +2207,27 @@ msgstr ""
 "contribuire direttamente. Se il tuo club ha bisogno di una funzionalità "
 "specifica, mandaci un messaggio — costruiamo ciò che la community chiede."
 
-#: webapp/templates/staticpages/about.html:265
+#: webapp/templates/staticpages/about.html:263
 msgid "Frequently asked questions"
 msgstr "Domande frequenti"
 
-#: webapp/templates/staticpages/about.html:305
+#: webapp/templates/staticpages/about.html:303
 msgid "Ready to get started?"
 msgstr "Pronto a iniziare?"
 
-#: webapp/templates/staticpages/about.html:306
+#: webapp/templates/staticpages/about.html:304
 msgid "Create your free account in 2 minutes. No credit card, no commitments."
 msgstr ""
 "Crea il tuo account gratuito in 2 minuti. Nessuna carta di credito, nessun "
 "impegno."
 
-#: webapp/templates/staticpages/about.html:314
+#: webapp/templates/staticpages/about.html:312
 msgid "Have questions? Talk to us"
 msgstr "Hai domande? Scrivici"
 
-#: webapp/templates/staticpages/about.html:341
+#: webapp/templates/staticpages/about.html:339
 msgid "Preview coming soon"
-msgstr "Preview coming soon"
+msgstr "Anteprima in arrivo"
 
 #: webapp/templates/staticpages/contacts.html:9
 msgid "We'd love to hear from you! Fill out this form to get in touch."

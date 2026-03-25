@@ -143,7 +143,7 @@ def contacts(request):
 def about(request):
     faqs = FAQ.objects.filter(is_active=True).select_related('category').order_by('category__order', 'order')
     about_stats = {
-        'locations': Location.objects.count(),
+        'locations': Location.objects.filter(is_public=True).count(),
         'tables': Table.objects.count(),
         'players': UserProfile.objects.count(),
     }
