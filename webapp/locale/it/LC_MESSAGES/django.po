@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 22:45+0000\n"
+"POT-Creation-Date: 2026-03-25 23:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,7 @@ msgid "Games"
 msgstr "Giochi"
 
 #: webapp/forms.py:120 webapp/forms.py:483 webapp/models.py:307
-#: webapp/models.py:630 webapp/templates/tables/table_add_or_edit.html:142
+#: webapp/models.py:630 webapp/templates/tables/table_add_or_edit.html:72
 #: webapp/views/location_views.py:999
 msgid "Game"
 msgstr "Gioco"
@@ -118,7 +118,7 @@ msgstr "Data di fine"
 msgid "Status"
 msgstr "Status"
 
-#: webapp/forms.py:487 webapp/templates/tables/table_add_or_edit.html:243
+#: webapp/forms.py:487 webapp/templates/tables/table_add_or_edit.html:208
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
@@ -268,7 +268,7 @@ msgstr "Descrizione"
 #: webapp/models.py:295 webapp/models.py:524 webapp/models.py:626
 #: webapp/models.py:660 webapp/models.py:679
 #: webapp/templates/locations/location_manage_games.html:71
-#: webapp/templates/tables/table_add_or_edit.html:103
+#: webapp/templates/tables/table_add_or_edit.html:33
 #: webapp/templates/tables/table_detail.html:114
 msgid "Location"
 msgstr "Location"
@@ -604,7 +604,7 @@ msgstr "Cambia avatar"
 #: webapp/templates/locations/location_manage_member_detail.html:178
 #: webapp/templates/locations/location_manage_member_detail.html:214
 #: webapp/templates/locations/location_manage_members.html:182
-#: webapp/templates/tables/table_add_or_edit.html:177
+#: webapp/templates/tables/table_add_or_edit.html:142
 #: webapp/templates/tables/table_delete.html:30
 #: webapp/templates/tables/table_detail.html:538
 #: webapp/templates/tables/table_players.html:169
@@ -1207,6 +1207,10 @@ msgstr "Tavoli giocati"
 msgid "Gamers"
 msgstr "Gamers"
 
+#: webapp/templates/games/game_detail.html:54
+msgid "View on BoardGameGeek"
+msgstr ""
+
 #: webapp/templates/games/game_list.html:8
 msgid "Board Games"
 msgstr "Giochi da tavolo"
@@ -1257,7 +1261,7 @@ msgstr "Immagine di copertina"
 #: webapp/templates/locations/location_manage_member_detail.html:161
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
-#: webapp/templates/tables/table_add_or_edit.html:142
+#: webapp/templates/tables/table_add_or_edit.html:72
 msgid "optional"
 msgstr "opzionale"
 
@@ -1291,7 +1295,7 @@ msgstr ""
 #: webapp/templates/locations/location_manage_data.html:125
 #: webapp/templates/locations/location_manage_game_detail.html:87
 #: webapp/templates/locations/location_manage_member_detail.html:74
-#: webapp/templates/tables/table_add_or_edit.html:183
+#: webapp/templates/tables/table_add_or_edit.html:148
 msgid "Save changes"
 msgstr "Aggiorna"
 
@@ -1559,7 +1563,7 @@ msgstr ""
 
 #: webapp/templates/locations/location_manage_game_detail.html:70
 #: webapp/templates/staticpages/home.html:14
-#: webapp/templates/tables/table_add_or_edit.html:205
+#: webapp/templates/tables/table_add_or_edit.html:170
 msgid "Contact us"
 msgstr "Contattaci"
 
@@ -1572,6 +1576,7 @@ msgid "Remove from library"
 msgstr "Rimuovi dalla libreria"
 
 #: webapp/templates/locations/location_manage_game_detail.html:107
+#: webapp/templates/tables/table_add_or_edit.html:109
 msgid "Remove game"
 msgstr "Rimuovi gioco"
 
@@ -2318,87 +2323,102 @@ msgstr "Partecipa"
 msgid "Select language"
 msgstr "Seleziona lingua"
 
-#: webapp/templates/tables/table_add_or_edit.html:77
+#: webapp/templates/tables/table_add_or_edit.html:12
 msgid "Edit table"
 msgstr "Modifica tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:79
+#: webapp/templates/tables/table_add_or_edit.html:14
 msgid "Create a new table"
 msgstr "Crea un nuovo tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:110
+#: webapp/templates/tables/table_add_or_edit.html:40
 msgid "Date and time"
 msgstr "Data e ora"
 
-#: webapp/templates/tables/table_add_or_edit.html:150
-msgid "Can't find the game? Import it now"
-msgstr "Non trovi il gioco? Importalo adesso"
+#: webapp/templates/tables/table_add_or_edit.html:86
+msgid "Select a game (optional)"
+msgstr "Seleziona un gioco (opzionale)"
 
-#: webapp/templates/tables/table_add_or_edit.html:156
+#: webapp/templates/tables/table_add_or_edit.html:89
+msgid ""
+"If you can't find the game, you can leave this field empty. We'll fill it "
+"for you!"
+msgstr ""
+"Se non trovi il gioco, puoi lasciare questo campo vuoto. Lo aggiungeremo noi!"
+
+#: webapp/templates/tables/table_add_or_edit.html:105
+msgid "Change"
+msgstr "Cambia"
+
+#: webapp/templates/tables/table_add_or_edit.html:121
 #: webapp/templates/tables/table_players.html:48
 msgid "Players"
 msgstr "Giocatori"
 
-#: webapp/templates/tables/table_add_or_edit.html:183
+#: webapp/templates/tables/table_add_or_edit.html:148
 msgid "Publish"
 msgstr "Pubblica"
 
-#: webapp/templates/tables/table_add_or_edit.html:194
+#: webapp/templates/tables/table_add_or_edit.html:159
 msgid "Danger Zone"
 msgstr "Zona Pericolosa"
 
-#: webapp/templates/tables/table_add_or_edit.html:200
+#: webapp/templates/tables/table_add_or_edit.html:165
 msgid "Delete table"
 msgstr "Elimina tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:204
+#: webapp/templates/tables/table_add_or_edit.html:169
 msgid "This table is closed and cannot be deleted."
 msgstr "Questo tavolo è chiuso e non può essere eliminato."
 
-#: webapp/templates/tables/table_add_or_edit.html:206
+#: webapp/templates/tables/table_add_or_edit.html:171
 msgid "if you still want to delete it."
 msgstr "se vuoi comunque eliminarlo."
 
-#: webapp/templates/tables/table_add_or_edit.html:222
+#: webapp/templates/tables/table_add_or_edit.html:187
 msgid "Search on BGG"
 msgstr "Cerca su BGG"
 
-#: webapp/templates/tables/table_add_or_edit.html:259
+#: webapp/templates/tables/table_add_or_edit.html:224
 msgid "Search among 70.000+ board games"
 msgstr "Cercalo tra oltre 70.000 giochi da tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:260
+#: webapp/templates/tables/table_add_or_edit.html:225
 msgid "Type at least 2 characters"
 msgstr "Inserisci almeno 2 caratteri"
 
-#: webapp/templates/tables/table_add_or_edit.html:269
+#: webapp/templates/tables/table_add_or_edit.html:234
 msgid "Searching..."
 msgstr "Ricerca in corso..."
 
-#: webapp/templates/tables/table_add_or_edit.html:363
-msgid "Available"
-msgstr "Disponibile"
+#: webapp/templates/tables/table_add_or_edit.html:337
+msgid "Already on board-gamers"
+msgstr "Già su board-gamers"
 
-#: webapp/templates/tables/table_add_or_edit.html:365
+#: webapp/templates/tables/table_add_or_edit.html:340
 msgid "Select"
 msgstr "Seleziona"
 
-#: webapp/templates/tables/table_add_or_edit.html:372
-#: webapp/templates/tables/table_add_or_edit.html:396
-#: webapp/templates/tables/table_add_or_edit.html:399
+#: webapp/templates/tables/table_add_or_edit.html:346
+msgid "Import from BGG"
+msgstr "Importa da BGG"
+
+#: webapp/templates/tables/table_add_or_edit.html:349
+#: webapp/templates/tables/table_add_or_edit.html:374
+#: webapp/templates/tables/table_add_or_edit.html:377
 msgid "Import"
 msgstr "Importa"
 
-#: webapp/templates/tables/table_add_or_edit.html:377
+#: webapp/templates/tables/table_add_or_edit.html:355
 msgid "No results found."
 msgstr "Nessun risultato trovato."
 
-#: webapp/templates/tables/table_add_or_edit.html:396
-#: webapp/templates/tables/table_add_or_edit.html:400
+#: webapp/templates/tables/table_add_or_edit.html:374
+#: webapp/templates/tables/table_add_or_edit.html:378
 msgid "Import failed. Please try again."
 msgstr "Importazione fallita. Riprova."
 
-#: webapp/templates/tables/table_add_or_edit.html:430
+#: webapp/templates/tables/table_add_or_edit.html:408
 msgid "Publishing..."
 msgstr "Pubblicazione in corso..."
 
@@ -3075,25 +3095,11 @@ msgstr "Questo ospite è già al tavolo."
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
 
-#: webapp/templates/tables/table_add_or_edit.html
-msgid "Select a game (optional)"
-msgstr "Seleziona un gioco (opzionale)"
+#~ msgid "Can't find the game? Import it now"
+#~ msgstr "Non trovi il gioco? Importalo adesso"
 
-#: webapp/templates/tables/table_add_or_edit.html
-msgid "If the game is not on BGG, you can leave this field empty. We'll fill it for you!"
-msgstr "Se il gioco non è su BGG, puoi lasciare questo campo vuoto. Lo aggiungeremo noi!"
-
-#: webapp/templates/tables/table_add_or_edit.html
-msgid "Change"
-msgstr "Cambia"
-
-#: webapp/templates/tables/table_add_or_edit.html
-msgid "Already on board-gamers"
-msgstr "Già su board-gamers"
-
-#: webapp/templates/tables/table_add_or_edit.html
-msgid "Import from BGG"
-msgstr "Importa da BGG"
+#~ msgid "Available"
+#~ msgstr "Disponibile"
 
 #~ msgid "Find and import"
 #~ msgstr "Trova ed importa"
