@@ -57,7 +57,7 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
 @receiver(pre_delete, sender=Table)
 def notify_players_on_table_delete(sender, instance, **kwargs):
     """Invia una notifica a tutti i giocatori quando un tavolo viene cancellato"""
-    players = Player.objects.filter(table=instance).select_related('user_profile__user')
+    players = Player.objects.filter(table=instance, user_profile__isnull=False).select_related('user_profile__user')
     for player in players:
         Notification.objects.create(
             recipient=player.user_profile,
