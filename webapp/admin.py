@@ -58,6 +58,7 @@ class LocationAdmin(admin.ModelAdmin):
     list_filter = ("city", "is_public", "enable_membership", "enable_calendar", "created_at")
     list_editable = ("enable_membership", "enable_calendar")
     search_fields = ("name", "city", "creator__nickname")
+    filter_horizontal = ("managers",)
 
 
 @admin.register(Game)
