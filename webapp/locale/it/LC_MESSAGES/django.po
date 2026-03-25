@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 10:21+0000\n"
+"POT-Creation-Date: 2026-03-25 22:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -118,7 +118,7 @@ msgstr "Data di fine"
 msgid "Status"
 msgstr "Status"
 
-#: webapp/forms.py:487
+#: webapp/forms.py:487 webapp/templates/tables/table_add_or_edit.html:243
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
@@ -604,7 +604,7 @@ msgstr "Cambia avatar"
 #: webapp/templates/locations/location_manage_member_detail.html:178
 #: webapp/templates/locations/location_manage_member_detail.html:214
 #: webapp/templates/locations/location_manage_members.html:182
-#: webapp/templates/tables/table_add_or_edit.html:175
+#: webapp/templates/tables/table_add_or_edit.html:177
 #: webapp/templates/tables/table_delete.html:30
 #: webapp/templates/tables/table_detail.html:538
 #: webapp/templates/tables/table_players.html:169
@@ -893,7 +893,7 @@ msgstr "Password dimenticata?"
 
 #: webapp/templates/auth/login.html:86
 #: webapp/templates/auth/password_reset_complete.html:22
-#: webapp/templates/auth/signup.html:115
+#: webapp/templates/auth/signup.html:136
 #: webapp/templates/staticpages/home.html:58
 msgid "Sign in"
 msgstr "Accedi"
@@ -974,35 +974,43 @@ msgstr "Inserisci la tua email e ti invieremo un link per il reset."
 msgid "Send reset link"
 msgstr "Invia link per il reset"
 
-#: webapp/templates/auth/signup.html:14
+#: webapp/templates/auth/signup.html:15
 msgid "Create your account"
 msgstr "Crea il tuo account"
 
-#: webapp/templates/auth/signup.html:15
+#: webapp/templates/auth/signup.html:16
 msgid "Join the community and find game tables near you."
 msgstr "Unisciti alla community e trova tavoli di gioco vicino a te."
 
-#: webapp/templates/auth/signup.html:27
+#: webapp/templates/auth/signup.html:30
+msgid "Signup with Google"
+msgstr "Registrati con Google"
+
+#: webapp/templates/auth/signup.html:35
+msgid "or sign up with email"
+msgstr "oppure inserisci email e password"
+
+#: webapp/templates/auth/signup.html:48
 msgid "Access credentials"
 msgstr "Credenziali di accesso"
 
-#: webapp/templates/auth/signup.html:67
+#: webapp/templates/auth/signup.html:88
 msgid "Your profile"
 msgstr "Il tuo profilo"
 
-#: webapp/templates/auth/signup.html:78
+#: webapp/templates/auth/signup.html:99
 msgid "Other gamers will call you this way."
 msgstr "Gli altri gamers ti chiameranno così."
 
-#: webapp/templates/auth/signup.html:91
+#: webapp/templates/auth/signup.html:112
 msgid "We'll use this to show game tables near you."
 msgstr "Lo useremo per mostrarti i tavoli di gioco vicino a te."
 
-#: webapp/templates/auth/signup.html:110
+#: webapp/templates/auth/signup.html:131
 msgid "Create account"
 msgstr "Crea account"
 
-#: webapp/templates/auth/signup.html:114
+#: webapp/templates/auth/signup.html:135
 msgid "Already have an account?"
 msgstr "Hai già un account?"
 
@@ -1283,7 +1291,7 @@ msgstr ""
 #: webapp/templates/locations/location_manage_data.html:125
 #: webapp/templates/locations/location_manage_game_detail.html:87
 #: webapp/templates/locations/location_manage_member_detail.html:74
-#: webapp/templates/tables/table_add_or_edit.html:181
+#: webapp/templates/tables/table_add_or_edit.html:183
 msgid "Save changes"
 msgstr "Aggiorna"
 
@@ -1551,8 +1559,7 @@ msgstr ""
 
 #: webapp/templates/locations/location_manage_game_detail.html:70
 #: webapp/templates/staticpages/home.html:14
-#: webapp/templates/tables/table_add_or_edit.html:147
-#: webapp/templates/tables/table_add_or_edit.html:203
+#: webapp/templates/tables/table_add_or_edit.html:205
 msgid "Contact us"
 msgstr "Contattaci"
 
@@ -2323,40 +2330,75 @@ msgstr "Crea un nuovo tavolo"
 msgid "Date and time"
 msgstr "Data e ora"
 
-#: webapp/templates/tables/table_add_or_edit.html:146
-msgid "Can't find the game?"
-msgstr "Non trovi il gioco?"
+#: webapp/templates/tables/table_add_or_edit.html:150
+msgid "Can't find the game? Import it now"
+msgstr "Non trovi il gioco? Importalo adesso"
 
-#: webapp/templates/tables/table_add_or_edit.html:148
-msgid "and we'll add it."
-msgstr "e lo aggiungeremo."
-
-#: webapp/templates/tables/table_add_or_edit.html:154
+#: webapp/templates/tables/table_add_or_edit.html:156
 #: webapp/templates/tables/table_players.html:48
 msgid "Players"
 msgstr "Giocatori"
 
-#: webapp/templates/tables/table_add_or_edit.html:181
+#: webapp/templates/tables/table_add_or_edit.html:183
 msgid "Publish"
 msgstr "Pubblica"
 
-#: webapp/templates/tables/table_add_or_edit.html:192
+#: webapp/templates/tables/table_add_or_edit.html:194
 msgid "Danger Zone"
 msgstr "Zona Pericolosa"
 
-#: webapp/templates/tables/table_add_or_edit.html:198
+#: webapp/templates/tables/table_add_or_edit.html:200
 msgid "Delete table"
 msgstr "Elimina tavolo"
 
-#: webapp/templates/tables/table_add_or_edit.html:202
+#: webapp/templates/tables/table_add_or_edit.html:204
 msgid "This table is closed and cannot be deleted."
 msgstr "Questo tavolo è chiuso e non può essere eliminato."
 
-#: webapp/templates/tables/table_add_or_edit.html:204
+#: webapp/templates/tables/table_add_or_edit.html:206
 msgid "if you still want to delete it."
 msgstr "se vuoi comunque eliminarlo."
 
-#: webapp/templates/tables/table_add_or_edit.html:240
+#: webapp/templates/tables/table_add_or_edit.html:222
+msgid "Search on BGG"
+msgstr "Cerca su BGG"
+
+#: webapp/templates/tables/table_add_or_edit.html:259
+msgid "Search among 70.000+ board games"
+msgstr "Cercalo tra oltre 70.000 giochi da tavolo"
+
+#: webapp/templates/tables/table_add_or_edit.html:260
+msgid "Type at least 2 characters"
+msgstr "Inserisci almeno 2 caratteri"
+
+#: webapp/templates/tables/table_add_or_edit.html:269
+msgid "Searching..."
+msgstr "Ricerca in corso..."
+
+#: webapp/templates/tables/table_add_or_edit.html:363
+msgid "Available"
+msgstr "Disponibile"
+
+#: webapp/templates/tables/table_add_or_edit.html:365
+msgid "Select"
+msgstr "Seleziona"
+
+#: webapp/templates/tables/table_add_or_edit.html:372
+#: webapp/templates/tables/table_add_or_edit.html:396
+#: webapp/templates/tables/table_add_or_edit.html:399
+msgid "Import"
+msgstr "Importa"
+
+#: webapp/templates/tables/table_add_or_edit.html:377
+msgid "No results found."
+msgstr "Nessun risultato trovato."
+
+#: webapp/templates/tables/table_add_or_edit.html:396
+#: webapp/templates/tables/table_add_or_edit.html:400
+msgid "Import failed. Please try again."
+msgstr "Importazione fallita. Riprova."
+
+#: webapp/templates/tables/table_add_or_edit.html:430
 msgid "Publishing..."
 msgstr "Pubblicazione in corso..."
 
@@ -3032,3 +3074,32 @@ msgstr "Questo ospite è già al tavolo."
 #: webapp/views/table_views.py:535
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
+
+#: webapp/templates/tables/table_add_or_edit.html
+msgid "Select a game (optional)"
+msgstr "Seleziona un gioco (opzionale)"
+
+#: webapp/templates/tables/table_add_or_edit.html
+msgid "If the game is not on BGG, you can leave this field empty. We'll fill it for you!"
+msgstr "Se il gioco non è su BGG, puoi lasciare questo campo vuoto. Lo aggiungeremo noi!"
+
+#: webapp/templates/tables/table_add_or_edit.html
+msgid "Change"
+msgstr "Cambia"
+
+#: webapp/templates/tables/table_add_or_edit.html
+msgid "Already on board-gamers"
+msgstr "Già su board-gamers"
+
+#: webapp/templates/tables/table_add_or_edit.html
+msgid "Import from BGG"
+msgstr "Importa da BGG"
+
+#~ msgid "Find and import"
+#~ msgstr "Trova ed importa"
+
+#~ msgid "Can't find the game?"
+#~ msgstr "Non trovi il gioco?"
+
+#~ msgid "and we'll add it."
+#~ msgstr "e lo aggiungeremo."

@@ -24,6 +24,7 @@ SITE_DOMAIN = env('SITE_DOMAIN', default='localhost:8000')
 TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_BOT_USERNAME = env('TELEGRAM_BOT_USERNAME', default='')
 TELEGRAM_WEBHOOK_SECRET = env('TELEGRAM_WEBHOOK_SECRET', default='')
+BGG_API_TOKEN = env('BGG_API_TOKEN', default='')
 
 ALLOWED_HOSTS = [
     'localhost',

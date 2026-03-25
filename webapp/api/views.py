@@ -1,13 +1,14 @@
 import logging
 
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from webapp.models import Table, Location, Player
+from webapp.models import Table, Location, Player, Game
 from webapp.api.serializers import TableSerializer
+from webapp.services.bgg import search_bgg, import_game_from_bgg
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'], url_path=r'by-location/(?P<location_slugs>[\w,-]+)')
+
     def by_location(self, request, location_slugs=None):
         # Split the comma-separated slugs and remove any empty strings
         slugs = [slug.strip() for slug in location_slugs.split(',') if slug.strip()]
@@ -102,3 +104,52 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(tables, many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET'])
+def bgg_search_view(request):
+    """Search games in local DB + BGG. Returns {local: [...], bgg: [...]}."""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return Response({'local': [], 'bgg': []})
+
+    local_qs = Game.objects.filter(name__icontains=query).order_by('name')[:8]
+    local_bgg_codes = {g.bgg_code for g in local_qs if g.bgg_code}
+    local_data = [
+        {'id': g.id, 'name': g.name, 'year_published': g.year_published}
+        for g in local_qs
+    ]
+
+    bgg_data = []
+    try:
+        bgg_results = search_bgg(query)
+        bgg_data = [r for r in bgg_results if r['bgg_id'] not in local_bgg_codes][:15]
+    except Exception as e:
+        logger.error(f'BGG search failed for query="{query}": {e}', exc_info=True)
+
+    return Response({'local': local_data, 'bgg': bgg_data})
+
+
+@api_view(['POST'])
+def bgg_import_view(request):
+    """Import a game from BGG by bgg_id. Returns {id, name}."""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+
+    bgg_id = request.data.get('bgg_id')
+    if not bgg_id:
+        return Response({'error': 'bgg_id is required'}, status=400)
+
+    try:
+        game = import_game_from_bgg(bgg_id)
+    except Exception as e:
+        logger.error(f'BGG import failed for id={bgg_id}: {e}')
+        return Response({'error': 'Import failed'}, status=500)
+
+    if not game:
+        return Response({'error': 'Game not found on BGG'}, status=404)
+
+    return Response({'id': game.id, 'name': game.name})
