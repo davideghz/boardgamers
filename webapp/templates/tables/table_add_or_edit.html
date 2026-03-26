@@ -176,78 +176,7 @@
   {% endif %}
 
   {# ── BGG Import Modal ─────────────────────────────────────────────── #}
-  <div id="bgg-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none">
-    <div class="absolute inset-0 bg-black/60" onclick="closeBggModal()"></div>
-    <div class="relative bg-white rounded-2xl w-full max-w-lg mx-auto shadow-2xl flex flex-col" style="max-height:88vh">
-
-      {# Header #}
-      <div class="px-6 pt-6 pb-5">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-extrabold text-slate-900 leading-tight">{% trans "Add a game" %}</h2>
-          </div>
-          <button type="button" onclick="closeBggModal()"
-                  class="flex-shrink-0 text-slate-400 hover:text-slate-700 transition-colors bg-transparent border-0 p-0 cursor-pointer mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="border-t border-slate-100"></div>
-
-      {# Search input #}
-      <div class="px-4 py-4">
-        <div class="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-               class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-          </svg>
-          <input id="bgg-search-input" type="text" autocomplete="off"
-                 placeholder="{% trans "Search for a game..." %}"
-                 class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400
-                        focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
-        </div>
-      </div>
-
-      <div class="border-t border-slate-100"></div>
-
-      {# Results area #}
-      <div id="bgg-results-area" class="flex-1 overflow-y-auto px-4 py-4 min-h-[200px]">
-
-        {# Empty state #}
-        <div id="bgg-empty-state" class="flex flex-col items-center justify-center py-14 gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-14 h-14 text-slate-200">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
-          </svg>
-          <p class="text-sm font-semibold text-slate-400">{% trans "Search among 70.000+ board games" %}</p>
-          <p class="text-xs text-slate-300">{% trans "Type at least 2 characters" %}</p>
-        </div>
-
-        {# Loading state (hidden by default) #}
-        <div id="bgg-loading" class="hidden flex flex-col items-center justify-center py-14 gap-3">
-          <svg class="animate-spin w-7 h-7 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-          </svg>
-          <p class="text-sm text-slate-400">{% trans "Searching..." %}</p>
-        </div>
-
-        {# Results list (hidden by default) #}
-        <div id="bgg-results-list" class="hidden space-y-2"></div>
-
-      </div>
-
-      {# Footer #}
-      <div class="border-t border-slate-100 px-6 py-3 flex justify-center">
-        <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
-          <img src="{% static 'images/powered_by_bgg.png' %}" alt="Powered by BoardGameGeek" class="h-10 opacity-80 hover:opacity-100 transition-opacity">
-        </a>
-      </div>
-
-    </div>
-  </div>
+  {% include "_bgg_game_modal.html" %}
 
 {% endblock content %}
 
@@ -266,129 +195,19 @@
       });
     });
 
-    /* ── BGG Modal ──────────────────────────────────────────────────── */
-    (function () {
-      var modal = document.getElementById('bgg-modal');
-      var input = document.getElementById('bgg-search-input');
-      var emptyState = document.getElementById('bgg-empty-state');
-      var loading = document.getElementById('bgg-loading');
-      var resultsList = document.getElementById('bgg-results-list');
-      var debounceTimer = null;
-
-      window.openBggModal = function () {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        setTimeout(function () { input.focus(); }, 50);
-      };
-      window.closeBggModal = function () {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-        input.value = '';
-        showEmpty();
-      };
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeBggModal();
-      });
-
-      function showEmpty() { emptyState.classList.remove('hidden'); loading.classList.add('hidden'); resultsList.classList.add('hidden'); }
-      function showLoading() { emptyState.classList.add('hidden'); loading.classList.remove('hidden'); resultsList.classList.add('hidden'); }
-      function showResults() { emptyState.classList.add('hidden'); loading.classList.add('hidden'); resultsList.classList.remove('hidden'); }
-
-      function getCsrf() {
-        var el = document.querySelector('[name=csrfmiddlewaretoken]');
-        return el ? el.value : '';
-      }
-
-      function selectGame(gameId, gameName) {
-        document.getElementById('game-input').value = gameId;
-        document.getElementById('game-selected-name').textContent = gameName;
-        document.getElementById('game-empty-state').style.display = 'none';
-        document.getElementById('game-selected-state').style.display = '';
-        closeBggModal();
-      }
-
-      window.clearGame = function () {
-        document.getElementById('game-input').value = '';
-        document.getElementById('game-selected-name').textContent = '';
-        document.getElementById('game-empty-state').style.display = '';
-        document.getElementById('game-selected-state').style.display = 'none';
-      };
-
-      function makeRow(name, year, badgeHtml, onclick, rowId, extraClass) {
-        var yearStr = year ? '<span class="text-xs text-slate-400">' + year + '</span>' : '';
-        var idAttr = rowId ? ' id="' + rowId + '"' : '';
-        return '<button type="button"' + idAttr + ' onclick="' + onclick + '" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border transition-colors text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ' + (extraClass || 'border-slate-100 bg-white hover:bg-slate-50') + '">'
-          + '<div class="min-w-0"><p class="text-sm font-semibold text-slate-900">' + escHtml(name) + '</p>'
-          + '<div class="flex items-center gap-2 mt-0.5">' + yearStr + (badgeHtml || '') + '</div></div>'
-          + '<span class="flex-shrink-0 text-lg font-bold text-green-600 leading-none">+</span>'
-          + '</button>';
-      }
-
-      function escHtml(s) {
-        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-      }
-
-      function sectionTitle(label) {
-        return '<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1 mt-4 mb-2">' + label + '</p>';
-      }
-
-      function renderResults(data) {
-        var html = '';
-        if (data.local && data.local.length) {
-          html += sectionTitle('{% trans "Already on board-gamers" %}');
-          data.local.forEach(function (g) {
-            html += makeRow(g.name, g.year_published, '', 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
-          });
-        }
-        if (data.bgg && data.bgg.length) {
-          html += '<div class="' + (data.local && data.local.length ? 'mt-4 ' : '') + 'space-y-2">';
-          html += sectionTitle('{% trans "Import from BGG" %}');
-          data.bgg.forEach(function (g) {
-            html += makeRow(g.name, g.year_published, '', 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
-          });
-          html += '</div>';
-        }
-        if (!html) {
-          html = '<p class="text-center text-sm text-slate-400 py-10">{% trans "No results found." %}</p>';
-        }
-        resultsList.innerHTML = html;
-        showResults();
-      }
-
-      window.bggSelect = function (gameId, gameName) { selectGame(gameId, gameName); };
-
-      window.bggImport = function (bggId, gameName) {
-        var card = document.getElementById('bgg-btn-' + bggId);
-        if (card) { card.disabled = true; }
-        fetch('/api/bgg/import/', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrf()},
-          body: JSON.stringify({bgg_id: bggId}),
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.id) { selectGame(data.id, data.name); }
-          else { if (card) { card.disabled = false; } alert('{% trans "Import failed. Please try again." %}'); }
-        })
-        .catch(function () {
-          if (card) { card.disabled = false; }
-          alert('{% trans "Import failed. Please try again." %}');
-        });
-      };
-
-      input.addEventListener('input', function () {
-        clearTimeout(debounceTimer);
-        var q = input.value.trim();
-        if (q.length < 2) { showEmpty(); return; }
-        showLoading();
-        debounceTimer = setTimeout(function () {
-          fetch('/api/bgg/search/?q=' + encodeURIComponent(q))
-            .then(function (r) { return r.json(); })
-            .then(renderResults)
-            .catch(function () { showEmpty(); });
-        }, 350);
-      });
-    })();
+    /* ── BGG callback for table form ────────────────────────────────── */
+    window.bggSelectCallback = function (gameId, gameName) {
+      document.getElementById('game-input').value = gameId;
+      document.getElementById('game-selected-name').textContent = gameName;
+      document.getElementById('game-empty-state').style.display = 'none';
+      document.getElementById('game-selected-state').style.display = '';
+    };
+    window.clearGame = function () {
+      document.getElementById('game-input').value = '';
+      document.getElementById('game-selected-name').textContent = '';
+      document.getElementById('game-empty-state').style.display = '';
+      document.getElementById('game-selected-state').style.display = 'none';
+    };
 
     document.addEventListener('DOMContentLoaded', function () {
       var btn = document.getElementById('publish-btn');
