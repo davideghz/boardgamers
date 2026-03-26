@@ -1,5 +1,5 @@
 {% extends "base_webapp.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block style %}{% endblock style %}
 
@@ -240,11 +240,10 @@
       </div>
 
       {# Footer #}
-      <div class="border-t border-slate-100 px-6 py-3 text-center">
-        <p class="text-xs text-slate-400">
-          Powered by <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer"
-             class="font-bold text-green-600 hover:underline text-decoration-none">BGG</a>
-        </p>
+      <div class="border-t border-slate-100 px-6 py-3 flex justify-center">
+        <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+          <img src="{% static 'images/powered_by_bgg.png' %}" alt="Powered by BoardGameGeek" class="h-10 opacity-80 hover:opacity-100 transition-opacity">
+        </a>
       </div>
 
     </div>
