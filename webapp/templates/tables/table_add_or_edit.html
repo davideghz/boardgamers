@@ -184,7 +184,7 @@
       <div class="px-6 pt-6 pb-5">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h2 class="text-xl font-extrabold text-slate-900 leading-tight">{% trans "Search on BGG" %}</h2>
+            <h2 class="text-xl font-extrabold text-slate-900 leading-tight">{% trans "Add a game" %}</h2>
           </div>
           <button type="button" onclick="closeBggModal()"
                   class="flex-shrink-0 text-slate-400 hover:text-slate-700 transition-colors bg-transparent border-0 p-0 cursor-pointer mt-0.5">
@@ -314,12 +314,14 @@
         document.getElementById('game-selected-state').style.display = 'none';
       };
 
-      function makeRow(name, year, badgeHtml, actionHtml) {
+      function makeRow(name, year, badgeHtml, onclick, rowId, extraClass) {
         var yearStr = year ? '<span class="text-xs text-slate-400">' + year + '</span>' : '';
-        return '<div class="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors">'
+        var idAttr = rowId ? ' id="' + rowId + '"' : '';
+        return '<button type="button"' + idAttr + ' onclick="' + onclick + '" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border transition-colors text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ' + (extraClass || 'border-slate-100 bg-white hover:bg-slate-50') + '">'
           + '<div class="min-w-0"><p class="text-sm font-semibold text-slate-900">' + escHtml(name) + '</p>'
           + '<div class="flex items-center gap-2 mt-0.5">' + yearStr + (badgeHtml || '') + '</div></div>'
-          + '<div class="flex-shrink-0">' + actionHtml + '</div></div>';
+          + '<span class="flex-shrink-0 text-lg font-bold text-green-600 leading-none">+</span>'
+          + '</button>';
       }
 
       function escHtml(s) {
@@ -335,18 +337,14 @@
         if (data.local && data.local.length) {
           html += sectionTitle('{% trans "Already on board-gamers" %}');
           data.local.forEach(function (g) {
-            var btn = '<button type="button" onclick="bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')"'
-              + ' class="text-sm font-bold text-green-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">{% trans "Select" %}</button>';
-            html += makeRow(g.name, g.year_published, '', btn);
+            html += makeRow(g.name, g.year_published, '', 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
           });
         }
         if (data.bgg && data.bgg.length) {
           html += '<div class="' + (data.local && data.local.length ? 'mt-4 ' : '') + 'space-y-2">';
           html += sectionTitle('{% trans "Import from BGG" %}');
           data.bgg.forEach(function (g) {
-            var btn = '<button type="button" id="bgg-btn-' + g.bgg_id + '" onclick="bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')"'
-              + ' class="text-sm font-bold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">{% trans "Import" %}</button>';
-            html += makeRow(g.name, g.year_published, '', btn);
+            html += makeRow(g.name, g.year_published, '', 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
           });
           html += '</div>';
         }
@@ -360,8 +358,8 @@
       window.bggSelect = function (gameId, gameName) { selectGame(gameId, gameName); };
 
       window.bggImport = function (bggId, gameName) {
-        var btn = document.getElementById('bgg-btn-' + bggId);
-        if (btn) { btn.disabled = true; btn.textContent = '…'; }
+        var card = document.getElementById('bgg-btn-' + bggId);
+        if (card) { card.disabled = true; }
         fetch('/api/bgg/import/', {
           method: 'POST',
           headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrf()},
@@ -370,10 +368,10 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.id) { selectGame(data.id, data.name); }
-          else { if (btn) { btn.disabled = false; btn.textContent = '{% trans "Import" %}'; } alert('{% trans "Import failed. Please try again." %}'); }
+          else { if (card) { card.disabled = false; } alert('{% trans "Import failed. Please try again." %}'); }
         })
         .catch(function () {
-          if (btn) { btn.disabled = false; btn.textContent = '{% trans "Import" %}'; }
+          if (card) { card.disabled = false; }
           alert('{% trans "Import failed. Please try again." %}');
         });
       };

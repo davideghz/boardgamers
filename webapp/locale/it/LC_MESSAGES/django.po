@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 23:43+0000\n"
+"POT-Creation-Date: 2026-03-26 09:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2376,8 +2376,8 @@ msgid "if you still want to delete it."
 msgstr "se vuoi comunque eliminarlo."
 
 #: webapp/templates/tables/table_add_or_edit.html:187
-msgid "Search on BGG"
-msgstr "Cerca su BGG"
+msgid "Add a game"
+msgstr "Aggiungi Gioco"
 
 #: webapp/templates/tables/table_add_or_edit.html:224
 msgid "Search among 70.000+ board games"
@@ -2391,34 +2391,24 @@ msgstr "Inserisci almeno 2 caratteri"
 msgid "Searching..."
 msgstr "Ricerca in corso..."
 
-#: webapp/templates/tables/table_add_or_edit.html:337
+#: webapp/templates/tables/table_add_or_edit.html:338
 msgid "Already on board-gamers"
 msgstr "Già su board-gamers"
 
-#: webapp/templates/tables/table_add_or_edit.html:340
-msgid "Select"
-msgstr "Seleziona"
-
-#: webapp/templates/tables/table_add_or_edit.html:346
+#: webapp/templates/tables/table_add_or_edit.html:345
 msgid "Import from BGG"
 msgstr "Importa da BGG"
 
-#: webapp/templates/tables/table_add_or_edit.html:349
-#: webapp/templates/tables/table_add_or_edit.html:374
-#: webapp/templates/tables/table_add_or_edit.html:377
-msgid "Import"
-msgstr "Importa"
-
-#: webapp/templates/tables/table_add_or_edit.html:355
+#: webapp/templates/tables/table_add_or_edit.html:352
 msgid "No results found."
 msgstr "Nessun risultato trovato."
 
-#: webapp/templates/tables/table_add_or_edit.html:374
-#: webapp/templates/tables/table_add_or_edit.html:378
+#: webapp/templates/tables/table_add_or_edit.html:371
+#: webapp/templates/tables/table_add_or_edit.html:375
 msgid "Import failed. Please try again."
 msgstr "Importazione fallita. Riprova."
 
-#: webapp/templates/tables/table_add_or_edit.html:408
+#: webapp/templates/tables/table_add_or_edit.html:405
 msgid "Publishing..."
 msgstr "Pubblicazione in corso..."
 
@@ -3094,6 +3084,15 @@ msgstr "Questo ospite è già al tavolo."
 #: webapp/views/table_views.py:535
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
+
+#~ msgid "Search on BGG"
+#~ msgstr "Cerca su BGG"
+
+#~ msgid "Select"
+#~ msgstr "Seleziona"
+
+#~ msgid "Import"
+#~ msgstr "Importa"
 
 #~ msgid "Can't find the game? Import it now"
 #~ msgstr "Non trovi il gioco? Importalo adesso"
