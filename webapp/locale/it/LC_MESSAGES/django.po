@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-26 09:21+0000\n"
+"POT-Creation-Date: 2026-03-26 10:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: webapp/forms.py:116 webapp/templates/base_webapp.html:155
-#: webapp/templates/base_webapp.html:159 webapp/templates/base_webapp.html:333
+#: webapp/forms.py:116 webapp/templates/base_webapp.html:143
+#: webapp/templates/base_webapp.html:147 webapp/templates/base_webapp.html:328
 #: webapp/templates/games/game_detail.html:11
 #: webapp/templates/locations/location_manage_game_detail.html:40
 #: webapp/templates/locations/location_manage_games.html:11
@@ -28,7 +28,9 @@ msgid "Games"
 msgstr "Giochi"
 
 #: webapp/forms.py:120 webapp/forms.py:483 webapp/models.py:307
-#: webapp/models.py:630 webapp/templates/tables/table_add_or_edit.html:72
+#: webapp/models.py:630
+#: webapp/templates/locations/location_manage_game_detail.html:54
+#: webapp/templates/tables/table_add_or_edit.html:72
 #: webapp/views/location_views.py:999
 msgid "Game"
 msgstr "Gioco"
@@ -118,7 +120,7 @@ msgstr "Data di fine"
 msgid "Status"
 msgstr "Status"
 
-#: webapp/forms.py:487 webapp/templates/tables/table_add_or_edit.html:208
+#: webapp/forms.py:487 webapp/templates/_bgg_game_modal.html:34
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
@@ -127,7 +129,7 @@ msgid "Owner Member"
 msgstr "Socio Proprietario"
 
 #: webapp/forms.py:516
-#: webapp/templates/locations/location_manage_game_detail.html:62
+#: webapp/templates/locations/location_manage_game_detail.html:101
 msgid "Search for a member..."
 msgstr "Cerca per socio..."
 
@@ -365,8 +367,7 @@ msgstr "Notifica"
 
 #: webapp/models.py:510 webapp/templates/accounts/account_notifications.html:13
 #: webapp/templates/accounts/account_notifications_preferences.html:9
-#: webapp/templates/base_webapp.html:115 webapp/templates/base_webapp.html:119
-#: webapp/templates/base_webapp.html:317
+#: webapp/templates/base_webapp.html:200 webapp/templates/base_webapp.html:357
 msgid "Notifications"
 msgstr "Notifiche"
 
@@ -582,6 +583,39 @@ msgstr ""
 msgid "The table “%(title)s” has been closed."
 msgstr "Il tavolo %(title)s è stato chiuso."
 
+#: webapp/templates/_bgg_game_modal.html:13
+msgid "Add a game"
+msgstr "Aggiungi Gioco"
+
+#: webapp/templates/_bgg_game_modal.html:50
+msgid "Search among 70.000+ board games"
+msgstr "Cercalo tra oltre 70.000 giochi da tavolo"
+
+#: webapp/templates/_bgg_game_modal.html:51
+msgid "Type at least 2 characters"
+msgstr "Inserisci almeno 2 caratteri"
+
+#: webapp/templates/_bgg_game_modal.html:60
+msgid "Searching..."
+msgstr "Ricerca in corso..."
+
+#: webapp/templates/_bgg_game_modal.html:137
+msgid "Already on board-gamers"
+msgstr "Già su board-gamers"
+
+#: webapp/templates/_bgg_game_modal.html:144
+msgid "Import from BGG"
+msgstr "Importa da BGG"
+
+#: webapp/templates/_bgg_game_modal.html:151
+msgid "No results found."
+msgstr "Nessun risultato trovato."
+
+#: webapp/templates/_bgg_game_modal.html:170
+#: webapp/templates/_bgg_game_modal.html:174
+msgid "Import failed. Please try again."
+msgstr "Importazione fallita. Riprova."
+
 #: webapp/templates/accounts/account_edit_profile.html:11
 #: webapp/templates/accounts/account_index.html:33
 #: webapp/templates/profiles/user_profile_detail.html:40
@@ -596,8 +630,8 @@ msgstr "Cambia avatar"
 #: webapp/templates/accounts/account_edit_profile.html:101
 #: webapp/templates/locations/location_add_or_edit.html:100
 #: webapp/templates/locations/location_manage_data.html:120
-#: webapp/templates/locations/location_manage_game_detail.html:82
-#: webapp/templates/locations/location_manage_game_detail.html:116
+#: webapp/templates/locations/location_manage_game_detail.html:121
+#: webapp/templates/locations/location_manage_game_detail.html:155
 #: webapp/templates/locations/location_manage_managers.html:143
 #: webapp/templates/locations/location_manage_managers.html:165
 #: webapp/templates/locations/location_manage_member_detail.html:69
@@ -752,8 +786,8 @@ msgid "Choose notification preferences and how you want to be contacted"
 msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
 
 #: webapp/templates/accounts/account_locations.html:11
-#: webapp/templates/base_webapp.html:146 webapp/templates/base_webapp.html:150
-#: webapp/templates/base_webapp.html:329
+#: webapp/templates/base_webapp.html:134 webapp/templates/base_webapp.html:138
+#: webapp/templates/base_webapp.html:324
 #: webapp/templates/locations/location_add_or_edit.html:9
 #: webapp/templates/locations/location_index.html:8
 #: webapp/templates/locations/location_index.html:27
@@ -821,7 +855,7 @@ msgid "Enable or disable email notifications for the following activities."
 msgstr "Attiva o disattiva le notifiche email per le seguenti attività."
 
 #: webapp/templates/accounts/account_notifications_preferences.html:24
-#: webapp/templates/base_webapp.html:93 webapp/templates/base_webapp.html:299
+#: webapp/templates/base_webapp.html:93 webapp/templates/base_webapp.html:298
 msgid "New table"
 msgstr "Nuovo tavolo"
 
@@ -838,8 +872,8 @@ msgid "Save preferences"
 msgstr "Salva preferenze"
 
 #: webapp/templates/accounts/account_tables.html:11
-#: webapp/templates/base_webapp.html:127 webapp/templates/base_webapp.html:131
-#: webapp/templates/base_webapp.html:313
+#: webapp/templates/base_webapp.html:115 webapp/templates/base_webapp.html:119
+#: webapp/templates/base_webapp.html:312
 msgid "My tables"
 msgstr "I miei tavoli"
 
@@ -890,13 +924,6 @@ msgstr "Accedi per visualizzare questa pagina."
 #: webapp/templates/auth/login.html:74
 msgid "Forgot password?"
 msgstr "Password dimenticata?"
-
-#: webapp/templates/auth/login.html:86
-#: webapp/templates/auth/password_reset_complete.html:22
-#: webapp/templates/auth/signup.html:136
-#: webapp/templates/staticpages/home.html:58
-msgid "Sign in"
-msgstr "Accedi"
 
 #: webapp/templates/auth/login.html:91
 #: webapp/templates/auth/password_reset_form.html:53
@@ -1014,54 +1041,54 @@ msgstr "Crea account"
 msgid "Already have an account?"
 msgstr "Hai già un account?"
 
-#: webapp/templates/base_webapp.html:100 webapp/templates/base_webapp.html:304
+#: webapp/templates/base_webapp.html:100 webapp/templates/base_webapp.html:303
 msgid "Feed"
 msgstr "Feed"
 
-#: webapp/templates/base_webapp.html:109 webapp/templates/base_webapp.html:308
+#: webapp/templates/base_webapp.html:109 webapp/templates/base_webapp.html:307
 msgid "Home"
 msgstr "Home"
 
-#: webapp/templates/base_webapp.html:141 webapp/templates/base_webapp.html:325
+#: webapp/templates/base_webapp.html:129 webapp/templates/base_webapp.html:320
 msgid "Explore"
 msgstr "Esplora"
 
-#: webapp/templates/base_webapp.html:164 webapp/templates/base_webapp.html:168
-#: webapp/templates/base_webapp.html:337
+#: webapp/templates/base_webapp.html:152 webapp/templates/base_webapp.html:156
+#: webapp/templates/base_webapp.html:332
 #: webapp/templates/staticpages/home.html:69
 msgid "Tables"
 msgstr "Tavoli"
 
-#: webapp/templates/base_webapp.html:179 webapp/templates/base_webapp.html:183
-#: webapp/templates/base_webapp.html:341 webapp/templates/base_webapp.html:401
+#: webapp/templates/base_webapp.html:167 webapp/templates/base_webapp.html:171
+#: webapp/templates/base_webapp.html:336 webapp/templates/base_webapp.html:406
 #: webapp/templates/locations/location_detail.html:42
 msgid "About"
 msgstr "Informazioni"
 
-#: webapp/templates/base_webapp.html:215 webapp/templates/base_webapp.html:218
-#: webapp/templates/base_webapp.html:364
+#: webapp/templates/base_webapp.html:214 webapp/templates/base_webapp.html:217
+#: webapp/templates/base_webapp.html:369
 msgid "Logout"
 msgstr "Esci"
 
-#: webapp/templates/base_webapp.html:231 webapp/templates/base_webapp.html:234
-#: webapp/templates/base_webapp.html:374
+#: webapp/templates/base_webapp.html:230 webapp/templates/base_webapp.html:233
+#: webapp/templates/base_webapp.html:379
 msgid "Signup"
 msgstr "Registrati"
 
-#: webapp/templates/base_webapp.html:240 webapp/templates/base_webapp.html:243
-#: webapp/templates/base_webapp.html:380
+#: webapp/templates/base_webapp.html:239 webapp/templates/base_webapp.html:242
+#: webapp/templates/base_webapp.html:385
 msgid "Language"
 msgstr "Lingua"
 
-#: webapp/templates/base_webapp.html:402
+#: webapp/templates/base_webapp.html:407
 msgid "Privacy"
 msgstr "Privacy"
 
-#: webapp/templates/base_webapp.html:403
+#: webapp/templates/base_webapp.html:408
 msgid "Terms"
 msgstr "Termini"
 
-#: webapp/templates/base_webapp.html:404
+#: webapp/templates/base_webapp.html:409
 #: webapp/templates/staticpages/contacts.html:8
 msgid "Contacts"
 msgstr "Contatti"
@@ -1255,7 +1282,7 @@ msgstr "Immagine di copertina"
 #: webapp/templates/locations/location_add_or_edit.html:67
 #: webapp/templates/locations/location_manage_data.html:37
 #: webapp/templates/locations/location_manage_data.html:65
-#: webapp/templates/locations/location_manage_game_detail.html:57
+#: webapp/templates/locations/location_manage_game_detail.html:96
 #: webapp/templates/locations/location_manage_member_detail.html:57
 #: webapp/templates/locations/location_manage_member_detail.html:153
 #: webapp/templates/locations/location_manage_member_detail.html:161
@@ -1293,7 +1320,7 @@ msgstr ""
 
 #: webapp/templates/locations/location_add_or_edit.html:105
 #: webapp/templates/locations/location_manage_data.html:125
-#: webapp/templates/locations/location_manage_game_detail.html:87
+#: webapp/templates/locations/location_manage_game_detail.html:126
 #: webapp/templates/locations/location_manage_member_detail.html:74
 #: webapp/templates/tables/table_add_or_edit.html:148
 msgid "Save changes"
@@ -1547,13 +1574,22 @@ msgstr ""
 "homepage."
 
 #: webapp/templates/locations/location_manage_game_detail.html:43
-#: webapp/templates/locations/location_manage_game_detail.html:87
+#: webapp/templates/locations/location_manage_game_detail.html:126
 #: webapp/templates/locations/location_manage_games.html:102
 #: webapp/templates/locations/location_manage_games.html:115
 msgid "Add game"
 msgstr "Aggiungi Gioco"
 
-#: webapp/templates/locations/location_manage_game_detail.html:69
+#: webapp/templates/locations/location_manage_game_detail.html:66
+msgid "Select a game"
+msgstr "Seleziona un gioco"
+
+#: webapp/templates/locations/location_manage_game_detail.html:84
+#: webapp/templates/tables/table_add_or_edit.html:105
+msgid "Change"
+msgstr "Cambia"
+
+#: webapp/templates/locations/location_manage_game_detail.html:108
 msgid ""
 "To specify a member as the game owner, ask an admin to enable member "
 "management for your association."
@@ -1561,31 +1597,31 @@ msgstr ""
 "Per specificare un socio come proprietario del gioco, chiedi a un "
 "amministratore di abilitare la gestione dei soci per la tua associazione."
 
-#: webapp/templates/locations/location_manage_game_detail.html:70
+#: webapp/templates/locations/location_manage_game_detail.html:109
 #: webapp/templates/staticpages/home.html:14
 #: webapp/templates/tables/table_add_or_edit.html:170
 msgid "Contact us"
 msgstr "Contattaci"
 
-#: webapp/templates/locations/location_manage_game_detail.html:95
+#: webapp/templates/locations/location_manage_game_detail.html:134
 msgid "Danger zone"
 msgstr "Zona Pericolosa"
 
-#: webapp/templates/locations/location_manage_game_detail.html:99
+#: webapp/templates/locations/location_manage_game_detail.html:138
 msgid "Remove from library"
 msgstr "Rimuovi dalla libreria"
 
-#: webapp/templates/locations/location_manage_game_detail.html:107
+#: webapp/templates/locations/location_manage_game_detail.html:146
 #: webapp/templates/tables/table_add_or_edit.html:109
 msgid "Remove game"
 msgstr "Rimuovi gioco"
 
-#: webapp/templates/locations/location_manage_game_detail.html:109
+#: webapp/templates/locations/location_manage_game_detail.html:148
 #, python-format
 msgid "Remove «%(name)s» from the library?"
 msgstr "Rimuovere «%(name)s» dalla libreria?"
 
-#: webapp/templates/locations/location_manage_game_detail.html:120
+#: webapp/templates/locations/location_manage_game_detail.html:159
 #: webapp/templates/locations/location_manage_managers.html:148
 #: webapp/templates/tables/table_players.html:175
 msgid "Remove"
@@ -2316,8 +2352,8 @@ msgid "Join free"
 msgstr "Iscriviti gratis"
 
 #: webapp/templates/staticpages/home.html:217
-msgid "Get involved"
-msgstr "Partecipa"
+msgid "Discover more"
+msgstr "Più info"
 
 #: webapp/templates/staticpages/select_language.html:15
 msgid "Select language"
@@ -2346,10 +2382,6 @@ msgid ""
 msgstr ""
 "Se non trovi il gioco, puoi lasciare questo campo vuoto. Lo aggiungeremo noi!"
 
-#: webapp/templates/tables/table_add_or_edit.html:105
-msgid "Change"
-msgstr "Cambia"
-
 #: webapp/templates/tables/table_add_or_edit.html:121
 #: webapp/templates/tables/table_players.html:48
 msgid "Players"
@@ -2375,40 +2407,7 @@ msgstr "Questo tavolo è chiuso e non può essere eliminato."
 msgid "if you still want to delete it."
 msgstr "se vuoi comunque eliminarlo."
 
-#: webapp/templates/tables/table_add_or_edit.html:187
-msgid "Add a game"
-msgstr "Aggiungi Gioco"
-
 #: webapp/templates/tables/table_add_or_edit.html:224
-msgid "Search among 70.000+ board games"
-msgstr "Cercalo tra oltre 70.000 giochi da tavolo"
-
-#: webapp/templates/tables/table_add_or_edit.html:225
-msgid "Type at least 2 characters"
-msgstr "Inserisci almeno 2 caratteri"
-
-#: webapp/templates/tables/table_add_or_edit.html:234
-msgid "Searching..."
-msgstr "Ricerca in corso..."
-
-#: webapp/templates/tables/table_add_or_edit.html:338
-msgid "Already on board-gamers"
-msgstr "Già su board-gamers"
-
-#: webapp/templates/tables/table_add_or_edit.html:345
-msgid "Import from BGG"
-msgstr "Importa da BGG"
-
-#: webapp/templates/tables/table_add_or_edit.html:352
-msgid "No results found."
-msgstr "Nessun risultato trovato."
-
-#: webapp/templates/tables/table_add_or_edit.html:371
-#: webapp/templates/tables/table_add_or_edit.html:375
-msgid "Import failed. Please try again."
-msgstr "Importazione fallita. Riprova."
-
-#: webapp/templates/tables/table_add_or_edit.html:405
 msgid "Publishing..."
 msgstr "Pubblicazione in corso..."
 
@@ -3084,27 +3083,3 @@ msgstr "Questo ospite è già al tavolo."
 #: webapp/views/table_views.py:535
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
-
-#~ msgid "Search on BGG"
-#~ msgstr "Cerca su BGG"
-
-#~ msgid "Select"
-#~ msgstr "Seleziona"
-
-#~ msgid "Import"
-#~ msgstr "Importa"
-
-#~ msgid "Can't find the game? Import it now"
-#~ msgstr "Non trovi il gioco? Importalo adesso"
-
-#~ msgid "Available"
-#~ msgstr "Disponibile"
-
-#~ msgid "Find and import"
-#~ msgstr "Trova ed importa"
-
-#~ msgid "Can't find the game?"
-#~ msgstr "Non trovi il gioco?"
-
-#~ msgid "and we'll add it."
-#~ msgstr "e lo aggiungeremo."
