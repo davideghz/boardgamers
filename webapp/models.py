@@ -145,6 +145,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     enable_membership = models.BooleanField(default=False)
     enable_calendar = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
+    opening_hours = models.JSONField(null=True, blank=True)
 
     _metadata = {
         'title': 'get_meta_title',

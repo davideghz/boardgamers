@@ -88,6 +88,9 @@ INSTALLED_APPS = [
 
     # SEO
     'meta',
+
+    # JSON widget for admin
+    'django_json_widget',
 ]
 
 ROOT_URLCONF = 'boardGames.urls'

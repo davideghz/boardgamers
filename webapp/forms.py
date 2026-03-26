@@ -302,13 +302,15 @@ class LocationForm(ModelForm, TailwindForm):
 
     class Meta:
         model = Location
-        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage']
+        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage', 'opening_hours']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['creator'].widget = HiddenInput()
         self.fields['cover'].required = False
         self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
+        self.fields['opening_hours'].required = False
+        self.fields['opening_hours'].widget = HiddenInput()
 
 
 class ContactForm(TailwindForm):

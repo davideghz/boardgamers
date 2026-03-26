@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.db import models
+from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
@@ -59,6 +61,9 @@ class LocationAdmin(admin.ModelAdmin):
     list_editable = ("enable_membership", "enable_calendar")
     search_fields = ("name", "city", "creator__nickname")
     filter_horizontal = ("managers",)
+    formfield_overrides = {
+        models.JSONField: {'widget': JSONEditorWidget},
+    }
 
 
 @admin.register(Game)

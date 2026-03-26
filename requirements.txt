@@ -21,6 +21,7 @@ django-meta==2.5.0
 django-model-utils==5.0.0
 django-modeltranslation==0.20.2
 django-recaptcha==4.1.0
+django-json-widget==2.0.1
 django-ses==4.7.2
 django-storages==1.14.6
 djangorestframework==3.16.1
