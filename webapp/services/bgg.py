@@ -139,6 +139,7 @@ def import_game_from_bgg(bgg_id):
         max_playtime=data['max_playtime'],
         weight=data['weight'],
         leaderboard_enabled=False,
+        bgg_imported=True,
     )
     game.slug = game.create_unique_slug()
     game.save()

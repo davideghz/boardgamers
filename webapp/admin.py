@@ -68,8 +68,9 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
-    list_display = ("name", "leaderboard_enabled", "created_at")
-    list_editable = ("leaderboard_enabled",)
+    list_display = ("name", "bgg_imported", "verified", "leaderboard_enabled", "created_at")
+    list_editable = ("bgg_imported", "verified", "leaderboard_enabled")
+    list_filter = ("bgg_imported", "verified", "leaderboard_enabled")
     search_fields = ("name",)
 
 

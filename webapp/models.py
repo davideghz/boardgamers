@@ -99,6 +99,8 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     year_published = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Year published'))
 
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
+    bgg_imported = models.BooleanField(default=False, db_index=True)
+    verified = models.BooleanField(default=False, db_index=True)
 
     _metadata = {
         'title': 'get_meta_title',
