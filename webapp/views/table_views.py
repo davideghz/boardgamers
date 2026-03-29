@@ -308,8 +308,9 @@ def table_create_view(request, location_slug):
             table.save()
             form.save_m2m()
 
-            with transaction.atomic():
-                table.players.add(request.user.user_profile)
+            if request.POST.get("join_table"):
+                with transaction.atomic():
+                    table.players.add(request.user.user_profile)
 
             messages.success(request, _("Table was created successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
