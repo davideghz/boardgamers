@@ -19,7 +19,7 @@ from django.views.generic import DetailView, CreateView
 from meta.views import Meta
 
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
-    MembershipRequestForm, MembershipEditForm, LocationGameForm
+    MembershipRequestForm, MembershipEditForm, LocationGameForm, LocationPermissionsForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame, \
     TelegramGroupConfig, Player
@@ -356,6 +356,31 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
             title=_("Edit %(name)s - Boardgamers.com") % {'name': location.name},
             description=_("Game nights in %(address)s") % {'address': location.address},
         )
+        return context
+
+
+class LocationManagePermissionsView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
+    """View to manage table creation/join permissions for a location."""
+    model = Location
+    form_class = LocationPermissionsForm
+    template_name = 'locations/location_manage_permissions.html'
+    success_message = _("Permissions updated successfully")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+        location = self.get_object()
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse("location-manage", kwargs={'slug': self.object.slug})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['location'] = self.get_object()
         return context
 
 

@@ -139,6 +139,27 @@ class TableDetailView(generic.DetailView):
                 owner=self.request.user.user_profile
             ).exclude(id__in=already_at_table)
 
+        # Membership check for join-permission enforcement
+        is_active_member = False
+        has_pending_membership = False
+        is_location_manager = False
+        if self.request.user.is_authenticated and table.location:
+            from webapp.models import Membership as MembershipModel
+            up = self.request.user.user_profile
+            loc = table.location
+            is_location_manager = loc.creator == up or up in loc.managers.all()
+            if not is_location_manager:
+                has_pending_membership = MembershipModel.objects.filter(
+                    member__location=loc,
+                    member__user_profile=up,
+                    status=MembershipModel.PENDING,
+                ).exists()
+                is_active_member = MembershipModel.objects.filter(
+                    member__location=loc,
+                    member__user_profile=up,
+                    status=MembershipModel.ACTIVE,
+                ).exists()
+
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
@@ -152,6 +173,9 @@ class TableDetailView(generic.DetailView):
             'leaderboard_visible': leaderboard_visible,
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,
+            'is_active_member': is_active_member,
+            'has_pending_membership': has_pending_membership,
+            'is_location_manager': is_location_manager,
             'meta': self.get_object().as_meta(self.request)
             # 'players_with_forms': players_with_forms,
             # 'formset': formset,
@@ -299,6 +323,24 @@ def table_create_view(request, location_slug):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
         return redirect("location-detail", location_slug)
 
+    user_profile = request.user.user_profile
+    is_manager = location.creator == user_profile or user_profile in location.managers.all()
+    if not is_manager and not request.user.is_superuser:
+        perm = location.table_creation_permission
+        if perm == location.PERM_MANAGERS_ONLY:
+            messages.error(request, _("Only owners and managers can create tables here."), extra_tags="danger")
+            return redirect("location-detail", location_slug)
+        elif perm == location.PERM_MEMBERS_ONLY:
+            from webapp.models import Membership
+            is_member = Membership.objects.filter(
+                member__location=location,
+                member__user_profile=user_profile,
+                status=Membership.ACTIVE,
+            ).exists()
+            if not is_member:
+                messages.error(request, _("Only members can create tables here."), extra_tags="danger")
+                return redirect("location-detail", location_slug)
+
     if request.method == "POST":
         form = TableForm(request.POST)
         if form.is_valid():
@@ -433,6 +475,21 @@ class JoinTableView(LoginRequiredMixin, View):
         if table.status == Table.CLOSED:
             messages.error(request, 'The table is closed. You cannot join.', extra_tags='danger')
             return redirect('table-detail', slug=self.kwargs['slug'])
+
+        if table.location and table.location.table_join_permission == table.location.PERM_MEMBERS_ONLY:
+            up = request.user.user_profile
+            loc = table.location
+            is_manager = loc.creator == up or up in loc.managers.all()
+            if not is_manager and not request.user.is_superuser:
+                from webapp.models import Membership
+                is_member = Membership.objects.filter(
+                    member__location=loc,
+                    member__user_profile=up,
+                    status=Membership.ACTIVE,
+                ).exists()
+                if not is_member:
+                    messages.error(request, _('This table is reserved for members.'), extra_tags='danger')
+                    return redirect('table-detail', slug=self.kwargs['slug'])
 
         Player.objects.create(
             user_profile=request.user.user_profile,

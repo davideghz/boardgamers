@@ -224,11 +224,21 @@
         <div class="p-5 space-y-5">
 
         {# CTA: create table #}
-        <a href="{% if location.enable_calendar %}{% url 'location-calendar' location.slug %}{% else %}{% url 'location-table-create' location.slug %}{% endif %}"
-           class="w-full flex items-center justify-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-          {% trans "Create table here" %}
-        </a>
+        {% if is_manager or location.table_creation_permission == 'anyone' or location.table_creation_permission == 'members_only' and is_active_member %}
+          <a href="{% if location.enable_calendar %}{% url 'location-calendar' location.slug %}{% else %}{% url 'location-table-create' location.slug %}{% endif %}"
+             class="w-full flex items-center justify-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            {% trans "Create table here" %}
+          </a>
+        {% elif location.table_creation_permission == 'members_only' %}
+          <p class="w-full text-center text-xs text-slate-500 py-2">
+            {% trans "Only members can create tables here." %}
+          </p>
+        {% elif location.table_creation_permission == 'managers_only' %}
+          <p class="w-full text-center text-xs text-slate-500 py-2">
+            {% trans "Only owners and managers can create tables here." %}
+          </p>
+        {% endif %}
 
         {# Actions: manage / membership / follow #}
         <div class="flex flex-col gap-2">
@@ -371,11 +381,17 @@
 
   {# ── Mobile sticky CTA ────────────────────────────────────────────── #}
   <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 px-4 py-3">
-    <a href="{% if location.enable_calendar %}{% url 'location-calendar' location.slug %}{% else %}{% url 'location-table-create' location.slug %}{% endif %}"
-       class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-      {% trans "Create table here" %}
-    </a>
+    {% if is_manager or location.table_creation_permission == 'anyone' or location.table_creation_permission == 'members_only' and is_active_member %}
+      <a href="{% if location.enable_calendar %}{% url 'location-calendar' location.slug %}{% else %}{% url 'location-table-create' location.slug %}{% endif %}"
+         class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+        {% trans "Create table here" %}
+      </a>
+    {% elif location.table_creation_permission == 'members_only' %}
+      <p class="w-full text-center text-xs text-slate-500 py-2">{% trans "Only members can create tables here." %}</p>
+    {% elif location.table_creation_permission == 'managers_only' %}
+      <p class="w-full text-center text-xs text-slate-500 py-2">{% trans "Only owners and managers can create tables here." %}</p>
+    {% endif %}
   </div>
 
 {% endblock content %}

@@ -552,3 +552,9 @@ class GuestProfileForm(ModelForm):
     class Meta:
         model = GuestProfile
         fields = ['name']
+
+
+class LocationPermissionsForm(ModelForm):
+    class Meta:
+        model = Location
+        fields = ['table_creation_permission', 'table_join_permission']

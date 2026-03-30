@@ -149,6 +149,34 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     website = models.URLField(null=True, blank=True)
     opening_hours = models.JSONField(null=True, blank=True)
 
+    # Permission choices
+    PERM_ANYONE = 'anyone'
+    PERM_MEMBERS_ONLY = 'members_only'
+    PERM_MANAGERS_ONLY = 'managers_only'
+
+    TABLE_CREATION_CHOICES = [
+        ('anyone', _('Anyone')),
+        ('members_only', _('Members only')),
+        ('managers_only', _('Owners and managers only')),
+    ]
+    TABLE_JOIN_CHOICES = [
+        ('anyone', _('Anyone')),
+        ('members_only', _('Members only')),
+    ]
+
+    table_creation_permission = models.CharField(
+        max_length=20,
+        choices=TABLE_CREATION_CHOICES,
+        default='anyone',
+        verbose_name=_('Who can create tables'),
+    )
+    table_join_permission = models.CharField(
+        max_length=20,
+        choices=TABLE_JOIN_CHOICES,
+        default='anyone',
+        verbose_name=_('Who can join tables'),
+    )
+
     _metadata = {
         'title': 'get_meta_title',
         'description': 'get_meta_description',
