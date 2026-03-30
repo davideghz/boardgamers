@@ -8,6 +8,16 @@ import sentry_sdk
 ALLOWED_HOSTS = ['board-gamers.com']
 DEBUG = False
 
+# HTTPS / Session security
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Social auth: redirect to login with a toast instead of 500 on auth errors
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/accounts/login/'
+# Enable Django messages framework inside SocialAuthExceptionMiddleware
+MESSAGE_TAGS = {10: 'debug', 20: 'info', 25: 'success', 30: 'warning', 40: 'error'}
+
 # DATABASE
 
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
@@ -15,6 +25,7 @@ if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
     DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
 MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
+MIDDLEWARE.append('social_django.middleware.SocialAuthExceptionMiddleware')
 
 DOMAIN = "board-gamers.com"
 DOMAIN_PROTOCOL = 'https'
