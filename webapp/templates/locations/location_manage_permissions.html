@@ -1,0 +1,93 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Permissions" %}</h1>
+    <p class="text-sm text-slate-500 mt-1">{% trans "Control who can create and join tables at this location." %}</p>
+  </div>
+
+  {% if not location.enable_membership %}
+    <div class="max-w-xl mb-6 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+      </svg>
+      <div>
+        <p class="text-sm font-semibold text-amber-700">{% trans "Membership not enabled" %}</p>
+        <p class="text-xs text-amber-600 mt-0.5">
+          {% trans "Members only options are disabled because membership management is not active for this location." %}
+          <a href="{% url 'contacts' %}" class="underline font-medium">{% trans "Contact us." %}</a>
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+  <form action="" method="post" class="max-w-xl space-y-6">
+    {% csrf_token %}
+
+    {# Table creation permission #}
+    <div class="space-y-2">
+      <p class="text-sm font-bold text-slate-900">{% trans "Who can create tables?" %}</p>
+      {% for value, label in form.instance.TABLE_CREATION_CHOICES %}
+        {% with is_members_only=value|stringformat:"s" %}
+          {% if is_members_only == 'members_only' and not location.enable_membership %}
+            <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 cursor-not-allowed opacity-50">
+              <input type="radio" name="table_creation_permission" value="{{ value }}" disabled
+                     class="w-4 h-4 border-slate-300">
+              <span class="text-sm font-medium text-slate-400">{{ label }}</span>
+            </label>
+          {% else %}
+            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all
+                          {% if form.table_creation_permission.value == value %}border-slate-900 bg-slate-50{% else %}border-slate-200 bg-white hover:border-slate-300{% endif %}">
+              <input type="radio" name="table_creation_permission" value="{{ value }}"
+                     {% if form.table_creation_permission.value == value %}checked{% endif %}
+                     class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500">
+              <span class="text-sm font-medium text-slate-800">{{ label }}</span>
+            </label>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+      {% if form.table_creation_permission.errors %}
+        <p class="text-xs text-red-500">{{ form.table_creation_permission.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    {# Table join permission #}
+    <div class="space-y-2">
+      <p class="text-sm font-bold text-slate-900">{% trans "Who can join tables?" %}</p>
+      {% for value, label in form.instance.TABLE_JOIN_CHOICES %}
+        {% with is_members_only=value|stringformat:"s" %}
+          {% if is_members_only == 'members_only' and not location.enable_membership %}
+            <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 cursor-not-allowed opacity-50">
+              <input type="radio" name="table_join_permission" value="{{ value }}" disabled
+                     class="w-4 h-4 border-slate-300">
+              <span class="text-sm font-medium text-slate-400">{{ label }}</span>
+            </label>
+          {% else %}
+            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all
+                          {% if form.table_join_permission.value == value %}border-slate-900 bg-slate-50{% else %}border-slate-200 bg-white hover:border-slate-300{% endif %}">
+              <input type="radio" name="table_join_permission" value="{{ value }}"
+                     {% if form.table_join_permission.value == value %}checked{% endif %}
+                     class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500">
+              <span class="text-sm font-medium text-slate-800">{{ label }}</span>
+            </label>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+      {% if form.table_join_permission.errors %}
+        <p class="text-xs text-red-500">{{ form.table_join_permission.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <button type="submit"
+            class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors">
+      {% trans "Save permissions" %}
+    </button>
+  </form>
+
+{% endblock content %}
