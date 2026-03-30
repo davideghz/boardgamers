@@ -723,7 +723,11 @@ class EditMembershipView(LoginRequiredMixin, View):
             membership.save()
             messages.success(request, _("Membership updated successfully."))
         else:
-            messages.error(request, _("Please correct the errors below."))
+            for field, errors in form.errors.items():
+                label = form.fields[field].label if field != '__all__' else None
+                for error in errors:
+                    msg = f"{label}: {error}" if label else error
+                    messages.error(request, msg, extra_tags='danger')
         return redirect('location-member-detail', slug=location.slug, member_uuid=member.uuid)
 
 

@@ -1864,7 +1864,7 @@ msgstr "Salva"
 
 #: webapp/templates/locations/location_manage_member_detail.html:197
 msgid "New membership"
-msgstr "Nessuna membership"
+msgstr "Nuova membership"
 
 #: webapp/templates/locations/location_manage_member_detail.html:207
 msgid "Delete membership"
@@ -1928,8 +1928,6 @@ msgstr ""
 "gestire i permessi per i soci."
 
 #: webapp/templates/locations/location_manage_permissions.html:24
-#, fuzzy
-#| msgid "Contact us"
 msgid "Contact us."
 msgstr "Contattaci"
 

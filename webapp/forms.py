@@ -7,7 +7,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Game, LocationGame
+from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -446,7 +446,7 @@ class MembershipEditForm(TailwindForm):
     """Form for a manager to edit an existing membership."""
     status = ChoiceField(
         label=_('Status'),
-        choices=[],  # will be set in __init__
+        choices=Membership.STATUS_CHOICES,
         widget=CustomSelectWidget(),
     )
     start_date = CharField(
@@ -465,10 +465,17 @@ class MembershipEditForm(TailwindForm):
         widget=CustomTextareaWidget(),
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        from webapp.models import Membership
-        self.fields['status'].choices = Membership.STATUS_CHOICES
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get('status')
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        if status == Membership.ACTIVE:
+            if not start_date:
+                self.add_error('start_date', _('Start date is required when status is Active.'))
+            if not end_date:
+                self.add_error('end_date', _('End date is required when status is Active.'))
+        return cleaned_data
 
 
 _TW_SELECT = (
