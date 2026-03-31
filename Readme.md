@@ -64,6 +64,22 @@ heroku buildpacks:add --index 1 heroku-community/apt
 ```
 Heroku docs [HERE](https://help.heroku.com/Q0VCG3DE/how-do-i-install-gdal-on-heroku)
 
+## Email in local development (Mailtrap)
+
+For local development, emails are sent via [Mailtrap](https://mailtrap.io), an SMTP sandbox that captures outgoing emails without delivering them.
+
+1. Sign up at [mailtrap.io](https://mailtrap.io) and create an inbox
+2. Copy the SMTP credentials from your inbox and add them to `.env`:
+   ```
+   EMAIL_HOST=sandbox.smtp.mailtrap.io
+   EMAIL_HOST_USER=<your-user>
+   EMAIL_HOST_PASSWORD=<your-password>
+   EMAIL_PORT=2525
+   ```
+3. All emails sent by the app will appear in your Mailtrap inbox
+
+> In production, replace these with your SMTP provider credentials (e.g. AWS SES).
+
 ## Translations
 To avoid to generate po file for dependencies, run:
 ```
