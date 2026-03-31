@@ -8,7 +8,7 @@
 - Python 3.9+
 - PostgreSQL 16 (**important note**: Postgres 17+ is NOT SUPPORTED) with `postgis` extension enabled (see below)
 - virtualenv
-- Docker Desktop (required on Windows)
+- Docker Desktop (required on Windows, optional everywhere else)
 - PyCharm (recommended) or any IDE of your choice
 
 ## Setup Without Docker (Linux/MacOS)
