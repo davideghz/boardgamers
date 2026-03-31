@@ -197,8 +197,8 @@ SOCIAL_AUTH_PIPELINE = (
     'webapp.pipeline.save_language_from_state',
 )
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '53033452479-m1e3ubpf593o585de69gvg7csmil12a9.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('GOOGLE_OAUTH2_KEY', default='')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('GOOGLE_OAUTH2_SECRET', default='')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -272,10 +272,10 @@ DEFAULT_FROM_EMAIL = "Board-Gamers <info@board-gamers.com>"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = '8c0728e4c565c7'
-EMAIL_HOST_PASSWORD = '4370647c470f03'
-EMAIL_PORT = '2525'
+EMAIL_HOST = env('EMAIL_HOST', default='sandbox.smtp.mailtrap.io')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_PORT = env('EMAIL_PORT', default='2525')
 
 # FILES UPLOAD
 
