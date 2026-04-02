@@ -51,8 +51,8 @@ INSTALLED_APPS = [
     # translations
     'modeltranslation',
 
-    # admin
-    'django.contrib.admin',
+    # admin (custom site for reorganized groups)
+    'boardGames.admin_config.CustomAdminConfig',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',

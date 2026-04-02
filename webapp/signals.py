@@ -41,7 +41,7 @@ def on_user_profile_saved(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Table)
 def notify_followers_on_new_table(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.location:
         followers = instance.location.followers.all()
         for follower in followers:
             Notification.objects.create(

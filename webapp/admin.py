@@ -6,7 +6,10 @@ from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
-    Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken
+    Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken, \
+    Event, PlayArea, EventDate
+
+
 
 
 class CustomUserAdmin(UserAdmin):
@@ -157,3 +160,26 @@ class TelegramSetupTokenAdmin(admin.ModelAdmin):
     list_filter = ('used', 'location')
     search_fields = ('token', 'location__name')
     readonly_fields = ('token', 'created_at')
+
+
+class PlayAreaInline(admin.TabularInline):
+    model = PlayArea
+    extra = 1
+    fields = ('name', 'order')
+
+
+class EventDateInline(admin.TabularInline):
+    model = EventDate
+    extra = 1
+    fields = ('date',)
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('name', 'city', 'creator', 'status', 'created_at')
+    list_filter = ('status', 'city')
+    list_editable = ('status',)
+    search_fields = ('name', 'city', 'creator__nickname')
+    filter_horizontal = ('managers', 'sponsor_locations', 'allowed_table_creators')
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [PlayAreaInline, EventDateInline]
