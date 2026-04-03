@@ -74,7 +74,7 @@ def homepage_view(request):
         nearby_locations = (Location.objects.annotate(random_order=Count('id'))
                             .filter(is_public=True)
                             .exclude(id__in=user_created_locations_ids)
-                            .order_by('?')[:10])
+                            .order_by('?'))
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
     context = {
