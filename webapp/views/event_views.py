@@ -213,6 +213,10 @@ def event_table_create_view(request, event_slug):
         messages.error(request, _("You don't have permission to create tables at this event."), extra_tags="danger")
         return redirect('event_detail', slug=event_slug)
 
+    if not event.dates.exists():
+        messages.error(request, _("You must define at least one date for the event before creating tables."), extra_tags="danger")
+        return redirect('event_detail', slug=event_slug)
+
     initial = {'event': event}
     if date_param := request.GET.get('date'):
         initial['date'] = date_param
@@ -230,8 +234,9 @@ def event_table_create_view(request, event_slug):
             table.event = event
             table.save()
             form.save_m2m()
-            with transaction.atomic():
-                table.players.add(user_profile)
+            if request.POST.get("join_table"):
+                with transaction.atomic():
+                    table.players.add(user_profile)
             messages.success(request, _("Table was created successfully"))
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:

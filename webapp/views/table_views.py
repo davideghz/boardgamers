@@ -452,8 +452,12 @@ class TableDeleteView(
     slug_field = "slug"
     slug_url_kwarg = "slug"
 
-    success_url = reverse_lazy("home")
     success_message = "Table was deleted successfully"
+
+    def get_success_url(self):
+        if self.object.event_id:
+            return reverse('event_detail', kwargs={'slug': self.object.event.slug})
+        return reverse('home')
 
 
 class CommentDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMessageMixin, generic.DeleteView):

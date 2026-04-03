@@ -170,10 +170,18 @@ class EventTableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, event=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['date'].input_formats = ['%Y-%m-%d']
         if event is not None:
+            dates = event.dates.order_by('date')
+            self.fields['date'].widget = Select(
+                choices=[('', _('Select a date'))] + [
+                    (str(ed.date), ed.date.strftime('%d/%m/%Y')) for ed in dates
+                ],
+                attrs={'class': _TW_INPUT}
+            )
+            self.fields['date'].input_formats = ['%Y-%m-%d']
             self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
         else:
+            self.fields['date'].input_formats = ['%Y-%m-%d']
             self.fields['play_area'].queryset = PlayArea.objects.none()
         self.fields['play_area'].required = False
 

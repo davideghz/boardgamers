@@ -39,18 +39,16 @@
         </p>
       {% endif %}
       {% if event_dates %}
-        <p class="flex items-center gap-1 mt-1 text-sm text-slate-500">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 flex-shrink-0">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
           </svg>
-          {% with first=event_dates.first last=event_dates.last %}
-            {% if first.date == last.date %}
-              {{ first.date|date:"j F Y" }}
-            {% else %}
-              {{ first.date|date:"j F" }} – {{ last.date|date:"j F Y" }}
-            {% endif %}
-          {% endwith %}
-        </p>
+          {% for event_date in event_dates %}
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+              {{ event_date.date|date:"j M Y" }}
+            </span>
+          {% endfor %}
+        </div>
       {% endif %}
     </div>
   </div>
@@ -125,13 +123,23 @@
           <h2 class="text-lg font-bold text-slate-900">{% trans "Tables" %}</h2>
           <div class="flex items-center gap-2">
             {% if can_create_table %}
-              <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% endif %}"
-                 class="flex items-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-700 transition-colors text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                {% trans "Create table" %}
-              </a>
+              {% if event.dates.exists %}
+                <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% endif %}"
+                   class="flex items-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-700 transition-colors text-decoration-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  {% trans "Create table" %}
+                </a>
+              {% else %}
+                <span title="{% trans 'Define event dates first' %}"
+                      class="flex items-center gap-1.5 bg-slate-200 text-slate-400 rounded-full px-3 py-1.5 text-xs font-bold cursor-not-allowed">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  {% trans "Create table" %}
+                </span>
+              {% endif %}
             {% endif %}
             {# Game filter button / active pill #}
             {% if games_in_event %}
@@ -158,6 +166,17 @@
             {% endif %}
           </div>
         </div>
+
+        {# Warning for managers: no dates defined #}
+        {% if can_create_table and not event.dates.exists %}
+          <a href="{% url 'event-manage-dates' event.slug %}"
+             class="flex items-center gap-2 mb-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm hover:bg-amber-100 transition-colors text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            {% trans "Add dates to the event to enable table creation" %} →
+          </a>
+        {% endif %}
 
         {# Date pills #}
         {% if visible_dates or has_past_dates %}
