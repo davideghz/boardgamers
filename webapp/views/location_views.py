@@ -103,7 +103,8 @@ class LocationDetailView(DetailView):
         # Query per i tavoli futuri di questa location
         future_tables = Table.objects.filter(
             location=location,
-            date__gte=today
+            date__gte=today,
+            event__isnull=True
         ).select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('date')
@@ -111,7 +112,8 @@ class LocationDetailView(DetailView):
         # Query per i tavoli passati di questa location
         past_tables = Table.objects.filter(
             location=location,
-            date__lt=today
+            date__lt=today,
+            event__isnull=True
         ).select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('-date')

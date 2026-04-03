@@ -53,12 +53,12 @@ def homepage_view(request):
     # Query per i tavoli futuri
     future_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
         comments_prefetch, players_prefetch, games_prefetch
-    ).filter(date__gte=today, location__show_tables_in_homepage=True).order_by('date')
+    ).filter(date__gte=today, location__show_tables_in_homepage=True, event__isnull=True).order_by('date')
 
     # Query per i tavoli passati
     past_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
         comments_prefetch, players_prefetch, games_prefetch
-    ).filter(date__lt=today, location__show_tables_in_homepage=True).order_by('-date')[:12]
+    ).filter(date__lt=today, location__show_tables_in_homepage=True, event__isnull=True).order_by('-date')[:12]
 
     # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza e filtra le locations vicine
     if user_location:

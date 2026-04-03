@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm
-from webapp.models import Notification, Membership, Table, GuestProfile
+from webapp.models import Notification, Membership, Table, GuestProfile, Event
 from django.db.models import Q
 
 
@@ -20,6 +20,23 @@ def index(request, template_name='accounts/account_index.html'):
         'meta': Meta(
             title=_("My Account - Board-Gamers.com"),
             description=_("Manage your profile: view your activities, notifications and settings."),
+        )
+    })
+
+
+@login_required
+def events(request, template_name='accounts/account_events.html'):
+    user_profile = request.user.user_profile
+    owned_events = user_profile.created_events.all()
+    managed_events = user_profile.managed_events.all().exclude(
+        id__in=owned_events.values_list('id', flat=True)
+    )
+    return render(request, template_name, {
+        'owned_events': owned_events,
+        'managed_events': managed_events,
+        'meta': Meta(
+            title=_("My Events - Board-Gamers.com"),
+            description=_("Manage the events you created or coordinate."),
         )
     })
 

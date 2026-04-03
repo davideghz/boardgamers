@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp.forms import (
     EventTableForm, EventForm, EventDateForm, PlayAreaForm,
@@ -20,6 +20,21 @@ from webapp.forms import (
 )
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location
 from webapp.views.table_views import BaseTableDetailView
+
+
+class EventCreateView(LoginRequiredMixin, CreateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/event_create.html'
+
+    def form_valid(self, form):
+        form.instance.creator = self.request.user.user_profile
+        response = super().form_valid(form)
+        messages.success(self.request, _("Event created! It will be published once approved by an admin."))
+        return response
+
+    def get_success_url(self):
+        return reverse('event-manage', kwargs={'slug': self.object.slug})
 
 
 class EventManagerMixin(LoginRequiredMixin):

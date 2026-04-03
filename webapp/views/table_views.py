@@ -169,6 +169,12 @@ class BaseTableDetailView(generic.DetailView):
 class TableDetailView(BaseTableDetailView):
     template_name = "tables/table_detail.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        table = get_object_or_404(Table.objects.select_related('event'), slug=kwargs['slug'])
+        if table.event_id:
+            return redirect('event_table_detail', event_slug=table.event.slug, table_slug=table.slug)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_comment_redirect(self):
         return redirect('table-detail', slug=self.object.slug)
 

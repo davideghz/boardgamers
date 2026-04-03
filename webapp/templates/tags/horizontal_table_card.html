@@ -1,5 +1,5 @@
 {% load i18n %}
-<a href="{% url 'table-detail' slug=table.slug %}"
+<a href="{% if table.event %}{% url 'event_table_detail' event_slug=table.event.slug table_slug=table.slug %}{% else %}{% url 'table-detail' slug=table.slug %}{% endif %}"
    class="group flex items-center rounded-xl border border-slate-200 bg-white overflow-hidden hover:shadow-md hover:border-slate-300 transition-all text-decoration-none py-3">
 
   {# Cover image — contained square like location logo #}
