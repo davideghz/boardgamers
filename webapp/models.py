@@ -200,7 +200,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
             return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
 
     def save(self, *args, **kwargs):
-        if self.latitude is not None and self.longitude is not None:
+        if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
         super().save(*args, **kwargs)
 
@@ -851,7 +851,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         return reverse('event_detail', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        if self.latitude is not None and self.longitude is not None:
+        if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
         super().save(*args, **kwargs)
 
