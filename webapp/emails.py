@@ -87,15 +87,20 @@ def send_email_notification_deleted_table(user_profile, deleted_table):
     :param user_profile: The UserProfile instance of the user receiving the email.
     :param new_table: The new table instance containing details about the deleted table.
     """
-    location_url = settings.DOMAIN_URL + reverse('location-detail', kwargs={'slug': deleted_table.location.slug})
+    if deleted_table.event_id:
+        table_url = settings.DOMAIN_URL + reverse('event_detail', kwargs={'slug': deleted_table.event.slug})
+        location_name = deleted_table.event.name
+    else:
+        table_url = settings.DOMAIN_URL + reverse('location-detail', kwargs={'slug': deleted_table.location.slug})
+        location_name = deleted_table.location.name
 
     context = {
         'user_profile': user_profile,
         'title': deleted_table.title,
         'game': deleted_table.game,
         'date': deleted_table.date,
-        'location_name': deleted_table.location.name,
-        'button_href': location_url,
+        'location_name': location_name,
+        'button_href': table_url,
     }
     text_content = render_to_string('emails/email_notification_deleted_table.html', context=context)
     html_content = render_to_string('emails/email_notification_deleted_table_html.html', context=context)
