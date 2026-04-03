@@ -1357,6 +1357,7 @@ msgstr ""
 msgid ""
 "This event is awaiting admin approval and is not yet visible to the public."
 msgstr ""
+"Evento in attesa di approvazione, non visibile al pubblico."
 
 #: webapp/templates/events/event_detail.html:80
 #: webapp/templates/events/event_detail.html:83

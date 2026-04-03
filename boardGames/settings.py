@@ -113,6 +113,7 @@ TEMPLATES = [
 
                 # notifications
                 'webapp.context_processors.unread_notifications_count',
+                'webapp.context_processors.maps_api_key',
             ],
         },
     },
@@ -199,6 +200,8 @@ SOCIAL_AUTH_PIPELINE = (
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('GOOGLE_OAUTH2_KEY', default='')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('GOOGLE_OAUTH2_SECRET', default='')
+
+MAPS_API_KEY = env('MAPS_API_KEY', default='')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
