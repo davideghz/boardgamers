@@ -7,7 +7,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame
+from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -103,6 +103,8 @@ class TailwindForm(Form):
                 field.widget.attrs['class'] = 'w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500'
             elif isinstance(w, (TextInput, EmailInput, URLInput, NumberInput)):
                 field.widget.attrs['class'] = css
+            elif isinstance(w, Select):
+                field.widget.attrs['class'] = css
 
 
 class TableForm(ModelForm, TailwindForm):
@@ -152,6 +154,36 @@ class TableForm(ModelForm, TailwindForm):
             self.save_m2m()
         return instance
 
+
+
+class EventTableForm(ModelForm, TailwindForm):
+    class Meta:
+        model = Table
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location']
+        widgets = {
+            'event': HiddenInput(),
+            'game': autocomplete.ModelSelect2(
+                url='games-autocomplete',
+                attrs={'data-placeholder': _('Game')},
+            ),
+        }
+
+    def __init__(self, *args, event=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].input_formats = ['%Y-%m-%d']
+        if event is not None:
+            self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
+        else:
+            self.fields['play_area'].queryset = PlayArea.objects.none()
+        self.fields['play_area'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        min_players = cleaned_data.get('min_players')
+        max_players = cleaned_data.get('max_players')
+        if min_players and max_players and max_players < min_players:
+            raise ValidationError(_("Maximum players cannot be less than minimum players."))
+        return cleaned_data
 
 
 class CommentForm(ModelForm, TailwindForm):
@@ -341,6 +373,71 @@ class UserNotificationPreferencesForm(ModelForm, TailwindForm):
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',
         ]
+
+
+class EventForm(ModelForm, TailwindForm):
+    latitude = CharField(widget=HiddenInput(), required=False)
+    longitude = CharField(widget=HiddenInput(), required=False)
+
+    class Meta:
+        model = Event
+        fields = ['name', 'description', 'cover', 'city', 'address', 'latitude', 'longitude', 'phone', 'email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cover'].required = False
+        self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
+
+
+class EventDateForm(TailwindForm):
+    date = DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'})
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.forms import DateField
+        self.fields['date'] = DateField(
+            widget=DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'}),
+            input_formats=['%Y-%m-%d'],
+        )
+
+
+class PlayAreaForm(ModelForm, TailwindForm):
+    class Meta:
+        model = PlayArea
+        fields = ['name', 'order']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['order'].required = False
+        self.fields['order'].initial = 0
+
+
+class AddEventManagerForm(TailwindForm):
+    manager = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        label=_('Manager'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+
+
+class AddSponsorLocationForm(TailwindForm):
+    location = ModelChoiceField(
+        queryset=Location.objects.all(),
+        label=_('Location'),
+        widget=autocomplete.ModelSelect2(
+            url='location-autocomplete',
+            attrs={
+                'data-placeholder': _('Search location...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
 
 
 class AddLocationManagerForm(TailwindForm):

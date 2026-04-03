@@ -3,7 +3,7 @@ from django.urls import path, include
 
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
-from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views
+from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete, MemberAutocomplete
 from .views.location_views import FollowLocationView
@@ -111,6 +111,22 @@ urlpatterns = [
     path("locations/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
     path("locations/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view,
          name="location-table-update"),
+
+    # EVENTS
+    path("events/<slug:slug>/", event_views.EventDetailView.as_view(), name="event_detail"),
+    path("events/<slug:slug>/manage/", event_views.EventManageIndexView.as_view(), name="event-manage"),
+    path("events/<slug:slug>/manage/data/", event_views.EventManageDataView.as_view(), name="event-manage-data"),
+    path("events/<slug:slug>/manage/dates/", event_views.EventManageDatesView.as_view(), name="event-manage-dates"),
+    path("events/<slug:slug>/manage/dates/<int:pk>/delete/", event_views.EventManageDateDeleteView.as_view(), name="event-manage-date-delete"),
+    path("events/<slug:slug>/manage/areas/", event_views.EventManageAreasView.as_view(), name="event-manage-areas"),
+    path("events/<slug:slug>/manage/areas/<int:pk>/delete/", event_views.EventManageAreaDeleteView.as_view(), name="event-manage-area-delete"),
+    path("events/<slug:slug>/manage/managers/", event_views.EventManageManagersView.as_view(), name="event-manage-managers"),
+    path("events/<slug:slug>/manage/managers/<int:pk>/remove/", event_views.EventManageManagerRemoveView.as_view(), name="event-manage-manager-remove"),
+    path("events/<slug:slug>/manage/locations/", event_views.EventManageLocationsView.as_view(), name="event-manage-locations"),
+    path("events/<slug:slug>/manage/locations/<int:pk>/remove/", event_views.EventManageLocationRemoveView.as_view(), name="event-manage-location-remove"),
+    path("events/<slug:event_slug>/tables/new/", event_views.event_table_create_view, name="event-table-create"),
+    path("events/<slug:event_slug>/tables/<slug:table_slug>/", event_views.EventTableDetailView.as_view(), name="event_table_detail"),
+    path("events/<slug:event_slug>/tables/<slug:table_slug>/edit/", event_views.event_table_update_view, name="event-table-update"),
 
     # GAMES
     path("games/", game_views.GameListView.as_view(), name="game-list"),

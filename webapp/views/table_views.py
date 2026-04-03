@@ -18,7 +18,7 @@ from meta.views import Meta
 
 from webapp.forms import TableForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile
+from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
 
@@ -88,18 +88,20 @@ class TableIndexView(generic.ListView):
         return context
 
 
-class TableDetailView(generic.DetailView):
+class BaseTableDetailView(generic.DetailView):
+    """Shared logic for both location-table and event-table detail pages."""
     model = Table
-    template_name = "tables/table_detail.html"
 
     def get_queryset(self):
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         return super().get_queryset().prefetch_related(comments_prefetch)
 
+    def get_comment_redirect(self):
+        raise NotImplementedError
+
     def get_context_data(self, **kwargs):
         table = self.get_object()
 
-        # Mark all NEW_COMMENT notifications for this table as read
         if self.request.user.is_authenticated:
             self.request.user.user_profile.notifications.filter(
                 Q(notification_type='new_comment') & Q(table=table)
@@ -109,19 +111,14 @@ class TableDetailView(generic.DetailView):
         external_players = table.external_players
         today = now().date()
 
-        # Recupero i giocatori ordinati per posizione (include ospiti)
         players = Player.objects.filter(table=table).select_related(
             'user_profile', 'guest_profile', 'guest_profile__owner'
         ).order_by('position')
         current_players = players.count() + external_players
 
-        # Controlla se il gioco associato alla tabella ha la leaderboard abilitata
         leaderboard_enabled = table.game and table.game.leaderboard_enabled
-
-        # Verifica se almeno un giocatore ha una posizione diversa da 99
         leaderboard_visible = any(player.position != 99 for player in players)
 
-        # Verifica se utente può modificare leaderboard
         user_can_edit_leaderboard = (
             (self.request.user.is_authenticated and leaderboard_enabled and
              ((table.leaderboard_status == table.LEADERBOARD_EDITABLE) and
@@ -129,7 +126,6 @@ class TableDetailView(generic.DetailView):
              self.request.user.is_superuser)
         )
 
-        # Guests that the current user could add to this table
         user_available_guests = None
         if (self.request.user.is_authenticated and
                 table.status == Table.OPEN and
@@ -138,27 +134,6 @@ class TableDetailView(generic.DetailView):
             user_available_guests = GuestProfile.objects.filter(
                 owner=self.request.user.user_profile
             ).exclude(id__in=already_at_table)
-
-        # Membership check for join-permission enforcement
-        is_active_member = False
-        has_pending_membership = False
-        is_location_manager = False
-        if self.request.user.is_authenticated and table.location:
-            from webapp.models import Membership as MembershipModel
-            up = self.request.user.user_profile
-            loc = table.location
-            is_location_manager = loc.creator == up or up in loc.managers.all()
-            if not is_location_manager:
-                has_pending_membership = MembershipModel.objects.filter(
-                    member__location=loc,
-                    member__user_profile=up,
-                    status=MembershipModel.PENDING,
-                ).exists()
-                is_active_member = MembershipModel.objects.filter(
-                    member__location=loc,
-                    member__user_profile=up,
-                    status=MembershipModel.ACTIVE,
-                ).exists()
 
         context = super().get_context_data(**kwargs)
         context.update({
@@ -173,21 +148,12 @@ class TableDetailView(generic.DetailView):
             'leaderboard_visible': leaderboard_visible,
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,
-            'is_active_member': is_active_member,
-            'has_pending_membership': has_pending_membership,
-            'is_location_manager': is_location_manager,
-            'meta': self.get_object().as_meta(self.request)
-            # 'players_with_forms': players_with_forms,
-            # 'formset': formset,
-            # 'can_edit_scores': can_edit_scores
+            'meta': table.as_meta(self.request),
         })
         return context
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()  # Recupera il tavolo
-        formset = None  # Inizializza il formset per evitare errori
-
-        # Gestione dei commenti
+        self.object = self.get_object()
         if 'comment_form' in request.POST:
             form = CommentForm(request.POST)
             if form.is_valid():
@@ -195,12 +161,46 @@ class TableDetailView(generic.DetailView):
                 comment.table = self.object
                 comment.author = request.user.user_profile
                 comment.save()
-                return redirect('table-detail', slug=self.object.slug)
-
-        # Gestione aggiornamento punteggi
-        # elif 'score_form' in request.POST:
-        context = self.get_context_data(object=self.object, formset=formset)
+                return self.get_comment_redirect()
+        context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
+
+
+class TableDetailView(BaseTableDetailView):
+    template_name = "tables/table_detail.html"
+
+    def get_comment_redirect(self):
+        return redirect('table-detail', slug=self.object.slug)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        table = self.object
+
+        is_active_member = False
+        has_pending_membership = False
+        is_location_manager = False
+        if self.request.user.is_authenticated and table.location:
+            up = self.request.user.user_profile
+            loc = table.location
+            is_location_manager = loc.creator == up or up in loc.managers.all()
+            if not is_location_manager:
+                has_pending_membership = Membership.objects.filter(
+                    member__location=loc,
+                    member__user_profile=up,
+                    status=Membership.PENDING,
+                ).exists()
+                is_active_member = Membership.objects.filter(
+                    member__location=loc,
+                    member__user_profile=up,
+                    status=Membership.ACTIVE,
+                ).exists()
+
+        context.update({
+            'is_active_member': is_active_member,
+            'has_pending_membership': has_pending_membership,
+            'is_location_manager': is_location_manager,
+        })
+        return context
 
 
 @login_required

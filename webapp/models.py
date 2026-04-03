@@ -321,9 +321,20 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
 
     tracker = FieldTracker(fields=['status', 'leaderboard_status'])
 
+    def get_slug_source_value(self):
+        if self.title:
+            return self.title
+        if self.game:
+            return self.game.name
+        return 'table'
+
     description = models.TextField(null=False, blank=True, verbose_name=_('Description'))
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Location'))
+    event = models.ForeignKey(
+        'Event', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
+    play_area = models.ForeignKey(
+        'PlayArea', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
 
     min_players = models.SmallIntegerField(null=False, blank=True, default=2, verbose_name=_('Minimum players'))
     max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
@@ -416,27 +427,47 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             }
 
     def get_meta_description(self):
+        context_name = ''
+        if self.location:
+            context_name = self.location.name
+        elif self.event:
+            context_name = self.event.name
         if self.game:
             return _("Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s") % {
                 'game': self.game.name,
                 'date': self.date.strftime('%d/%m/%Y'),
                 'time': self.time.strftime('%H:%M'),
-                'location': self.location.name
+                'location': context_name,
             }
         else:
             return _("Join the table! We'll play on %(date)s at %(time)s at %(location)s") % {
                 'date': self.date.strftime('%d/%m/%Y'),
                 'time': self.time.strftime('%H:%M'),
-                'location': self.location.name
+                'location': context_name,
             }
 
     def get_meta_image(self):
-        return self.game.cover_url if self.game else self.location.cover_url
+        if self.game:
+            return self.game.cover_url
+        if self.location:
+            return self.location.cover_url
+        if self.event:
+            return self.event.cover_url
+        return None
 
     class Meta:
         verbose_name = "Table"
         verbose_name_plural = "Tables"
         ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(location__isnull=False, event__isnull=True) |
+                    models.Q(location__isnull=True, event__isnull=False)
+                ),
+                name='table_location_xor_event',
+            )
+        ]
 
 
 class Player(DateTimeModel):
@@ -756,3 +787,115 @@ class FAQ(DateTimeModel):
 
     def __str__(self):
         return self.question or ''
+
+
+class Event(DateTimeModel, ModelMeta, SlugModel):
+    PENDING = 'pending'
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+    STATUS_CHOICES = [
+        (PENDING, _('Pending approval')),
+        (APPROVED, _('Approved')),
+        (REJECTED, _('Rejected')),
+    ]
+
+    slug_field_name = 'name'
+    name = models.CharField(max_length=255, verbose_name=_('Name'))
+    slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    cover = models.ImageField(
+        upload_to='event-covers', null=True, blank=True, storage=PublicMediaStorage(),
+        verbose_name=_('Cover'))
+
+    address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
+    city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
+    latitude = models.CharField(max_length=25, null=True, blank=True)
+    longitude = models.CharField(max_length=25, null=True, blank=True)
+    point = models.PointField(geography=True, default=Point(0.0, 0.0))
+    phone = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('Phone'))
+    email = models.EmailField(null=True, blank=True, verbose_name=_('Email'))
+
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=PENDING, verbose_name=_('Status'))
+
+    creator = models.ForeignKey(
+        'UserProfile', on_delete=models.SET_NULL, related_name='created_events',
+        null=True, blank=True, verbose_name=_('Creator'))
+    managers = models.ManyToManyField(
+        'UserProfile', related_name='managed_events', blank=True, verbose_name=_('Managers'))
+    sponsor_locations = models.ManyToManyField(
+        Location, related_name='sponsored_events', blank=True, verbose_name=_('Sponsor locations'))
+    allowed_table_creators = models.ManyToManyField(
+        'UserProfile', related_name='event_table_creation_allowed', blank=True,
+        verbose_name=_('Additional table creators'))
+
+    _metadata = {
+        'title': 'get_meta_title',
+        'description': 'get_meta_description',
+        'image': 'cover_url',
+    }
+
+    def get_meta_title(self):
+        return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+
+    def get_meta_description(self):
+        return _("%(name)s — gaming event") % {'name': self.name}
+
+    @cached_property
+    def cover_url(self):
+        if self.cover and hasattr(self.cover, 'url'):
+            return self.cover.url
+        return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
+
+    def get_absolute_url(self):
+        return reverse('event_detail', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        if self.latitude is not None and self.longitude is not None:
+            self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
+        super().save(*args, **kwargs)
+
+    def is_manager(self, user_profile):
+        return self.creator == user_profile or user_profile in self.managers.all()
+
+    def can_create_table(self, user_profile):
+        return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Event')
+        verbose_name_plural = _('Events')
+        ordering = ['-created_at']
+
+
+class PlayArea(DateTimeModel):
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='play_areas', verbose_name=_('Event'))
+    name = models.CharField(max_length=144, verbose_name=_('Name'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return f"{self.event.name} — {self.name}"
+
+    class Meta:
+        verbose_name = _('Play Area')
+        verbose_name_plural = _('Play Areas')
+        ordering = ['order', 'name']
+        unique_together = [('event', 'name')]
+
+
+class EventDate(DateTimeModel):
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='dates', verbose_name=_('Event'))
+    date = models.DateField(verbose_name=_('Date'))
+
+    def __str__(self):
+        return f"{self.event.name} — {self.date}"
+
+    class Meta:
+        verbose_name = _('Event Date')
+        verbose_name_plural = _('Event Dates')
+        ordering = ['date']
+        unique_together = [('event', 'date')]

@@ -1,0 +1,366 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+  {# ── PENDING BANNER ──────────────────────────────────────────────── #}
+  {% if event.status == 'pending' %}
+    <div class="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+           class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+      <div>
+        <p class="text-sm font-semibold text-amber-800">{% trans "Pending approval" %}</p>
+        <p class="text-xs text-amber-700 mt-0.5">{% trans "This event is awaiting admin approval and is not yet visible to the public." %}</p>
+      </div>
+    </div>
+  {% endif %}
+
+  {# ── PAGE HEADER ──────────────────────────────────────────────────── #}
+  <div class="flex items-center gap-4 mb-8">
+    {% if event.cover %}
+      <div class="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+        <img src="{{ event.cover_url }}" alt="{{ event.name }}" class="w-full h-full object-cover">
+      </div>
+    {% endif %}
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900">{{ event.name }}</h1>
+      {% if event.city %}
+        <p class="flex items-center gap-1 mt-1 text-sm text-slate-500">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+          </svg>
+          {{ event.city }}{% if event.address %}&nbsp;·&nbsp;{{ event.address }}{% endif %}
+        </p>
+      {% endif %}
+      {% if event_dates %}
+        <p class="flex items-center gap-1 mt-1 text-sm text-slate-500">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+          </svg>
+          {% with first=event_dates.first last=event_dates.last %}
+            {% if first.date == last.date %}
+              {{ first.date|date:"j F Y" }}
+            {% else %}
+              {{ first.date|date:"j F" }} – {{ last.date|date:"j F Y" }}
+            {% endif %}
+          {% endwith %}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── 3-COLUMN GRID ────────────────────────────────────────────────── #}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+    {# ── MAIN COLUMN (2/3) ──────────────────────────────── #}
+    <div class="md:col-span-2 space-y-8">
+
+      {# ── Description ─────────────────────────────────── #}
+      {% if event.description %}
+        <section>
+          <h2 class="text-lg font-bold text-slate-900 mb-3">{% trans "About" %}</h2>
+          {% if event.description|length > 200 %}
+            <div class="relative">
+              <div id="event-description" class="prose-sm text-slate-500 leading-relaxed line-clamp-3">{{ event.description|render_markdown }}</div>
+              <div id="event-description-fade" class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+            </div>
+            <button id="event-description-toggle"
+                    onclick="
+                      var p = document.getElementById('event-description');
+                      var fade = document.getElementById('event-description-fade');
+                      var btn = document.getElementById('event-description-toggle');
+                      var expanded = p.classList.toggle('line-clamp-3');
+                      fade.classList.toggle('hidden', !expanded);
+                      btn.textContent = expanded ? '{% trans "Read more" %}' : '{% trans "Show less" %}';
+                    "
+                    class="mt-1 text-xs font-semibold text-blue-600 hover:underline">
+              {% trans "Read more" %}
+            </button>
+          {% else %}
+            <div class="prose-sm text-slate-500 leading-relaxed">{{ event.description|render_markdown }}</div>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      {# ── Sponsor locations ────────────────────────────── #}
+      {% with sponsors=event.sponsor_locations.all %}
+        {% if sponsors %}
+          <section>
+            <h2 class="text-lg font-bold text-slate-900 mb-3">{% trans "Sponsored by" %}</h2>
+            <div class="flex flex-wrap gap-3">
+              {% for loc in sponsors %}
+                <a href="{% url 'location-detail' loc.slug %}"
+                   class="flex items-center gap-2.5 border border-slate-200 rounded-xl px-3 py-2 hover:bg-slate-50 transition-colors text-decoration-none">
+                  {% if loc.cover %}
+                    <img src="{{ loc.cover_url }}" alt="{{ loc.name }}"
+                         class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+                  {% else %}
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                      </svg>
+                    </div>
+                  {% endif %}
+                  <div>
+                    <p class="text-sm font-semibold text-slate-900">{{ loc.name }}</p>
+                    {% if loc.city %}<p class="text-xs text-slate-400">{{ loc.city }}</p>{% endif %}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      {# ── Tables ───────────────────────────────────────── #}
+      <section>
+        <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <h2 class="text-lg font-bold text-slate-900">{% trans "Tables" %}</h2>
+          <div class="flex items-center gap-2">
+            {% if can_create_table %}
+              <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% endif %}"
+                 class="flex items-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-700 transition-colors text-decoration-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                {% trans "Create table" %}
+              </a>
+            {% endif %}
+            {# Game filter button / active pill #}
+            {% if games_in_event %}
+              {% if selected_game %}
+                <span class="flex items-center gap-1 border border-blue-500 bg-blue-50 text-blue-700 rounded-full pl-3 pr-1 py-1.5 text-xs font-semibold">
+                  {{ selected_game.name|truncatechars:24 }}
+                  <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}{% if show_past %}show_past=1{% endif %}"
+                     class="ml-0.5 flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 transition-colors"
+                     title="{% trans "Remove filter" %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-2.5 h-2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                  </a>
+                </span>
+              {% else %}
+                <button type="button" onclick="document.getElementById('game-filter-modal').classList.remove('hidden')"
+                        class="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+                  </svg>
+                  {% trans "Filter by game" %}
+                </button>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+
+        {# Date pills #}
+        {% if visible_dates or has_past_dates %}
+          <div class="flex flex-wrap gap-2 mb-4">
+            {% for event_date in visible_dates %}
+              <a href="?date={{ event_date.date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% if selected_game_id %}&game={{ selected_game_id }}{% endif %}{% if show_past %}&show_past=1{% endif %}"
+                 class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                        {% if selected_date == event_date.date %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                {{ event_date.date|date:"j M" }}
+              </a>
+            {% endfor %}
+            {% if has_past_dates %}
+              <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}{% if selected_game_id %}game={{ selected_game_id }}&{% endif %}show_past={% if show_past %}0{% else %}1{% endif %}"
+                 class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors border-dashed
+                        {% if show_past %}bg-slate-100 text-slate-700 border-slate-400{% else %}bg-white text-slate-400 border-slate-200 hover:border-slate-400{% endif %}">
+                {% if show_past %}{% trans "Hide past days" %}{% else %}{% trans "Show past days" %}{% endif %}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {# Area pills #}
+        {% if play_areas %}
+          <div class="flex flex-wrap gap-2 mb-4">
+            <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_game_id %}game={{ selected_game_id }}&{% endif %}{% if show_past %}show_past=1{% endif %}"
+               class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                      {% if not selected_area %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+              {% trans "All areas" %}
+            </a>
+            {% for area in play_areas %}
+              <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}area={{ area.id }}{% if selected_game_id %}&game={{ selected_game_id }}{% endif %}{% if show_past %}&show_past=1{% endif %}"
+                 class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                        {% if selected_area.id == area.id %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                {{ area.name }}
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {# Table cards #}
+        {% if tables %}
+          <div class="embla overflow-hidden pb-2">
+            <div class="flex gap-3">
+              {% for table in tables %}{% event_table_card table %}{% endfor %}
+            </div>
+          </div>
+        {% else %}
+          <p class="text-sm text-slate-500 italic">{% trans "No tables for the selected filters." %}</p>
+        {% endif %}
+
+      </section>
+
+    </div>{# /main col #}
+
+    {# ── SIDEBAR (1/3) ──────────────────────────────────── #}
+    <div class="md:col-span-1">
+      <div class="sticky top-6 border border-slate-200 rounded-xl bg-white">
+        <div class="p-5 space-y-5">
+
+          {# Manage button #}
+          {% if is_manager %}
+            <a href="{% url 'event-manage' event.slug %}"
+               class="w-full flex items-center justify-center gap-1.5 border border-slate-200 rounded-full px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors text-decoration-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+              {% trans "Manage event" %}
+            </a>
+            <hr class="border-slate-100">
+          {% endif %}
+
+          {# Dates #}
+          {% if event_dates %}
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                </svg>
+                {% trans "Dates" %}
+              </h3>
+              <div class="space-y-1">
+                {% for event_date in event_dates %}
+                  <p class="text-sm text-slate-600 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0
+                                 {% if event_date.date >= today %}bg-green-400{% else %}bg-slate-300{% endif %}"></span>
+                    {{ event_date.date|date:"l, j F Y" }}
+                  </p>
+                {% endfor %}
+              </div>
+            </div>
+            <hr class="border-slate-100">
+          {% endif %}
+
+          {# Contacts #}
+          {% if event.phone or event.email %}
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                </svg>
+                {% trans "Contacts" %}
+              </h3>
+              <div class="space-y-1.5">
+                {% if event.phone %}
+                  <a href="tel:{{ event.phone }}" class="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors text-decoration-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 flex-shrink-0">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                    </svg>
+                    {{ event.phone }}
+                  </a>
+                {% endif %}
+                {% if event.email %}
+                  <a href="mailto:{{ event.email }}" class="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors text-decoration-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 flex-shrink-0">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    {{ event.email }}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+            <hr class="border-slate-100">
+          {% endif %}
+
+          {# Address + map #}
+          {% if event.address %}
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                {% trans "How to get there" %}
+              </h3>
+              <a href="https://www.google.com/maps/search/?api=1&query={{ event.address|urlencode }}"
+                 target="_blank" rel="noopener noreferrer"
+                 class="text-sm text-slate-500 text-decoration-none hover:text-primary transition-colors">
+                {{ event.address }}
+              </a>
+              {% if event.latitude and event.longitude %}
+                <div class="mt-3 rounded-lg overflow-hidden" id="gmp-map" style="height:140px"></div>
+                <script>
+                  async function initMap() {
+                    const {Map} = google.maps;
+                    const map = new Map(document.getElementById('gmp-map'), {
+                      center: {lat: {{ event.latitude }}, lng: {{ event.longitude }}},
+                      zoom: 16, fullscreenControl: false, mapTypeControl: false,
+                      streetViewControl: false, zoomControl: false, mapId: 'DEMO_MAP_ID'
+                    });
+                    const latLng = new google.maps.LatLng({{ event.latitude }}, {{ event.longitude }});
+                    new google.maps.marker.AdvancedMarkerElement({map, position: latLng});
+                  }
+                </script>
+                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-nP6SNj7I69cz67_5QyhwhmlzR5GiMl8&libraries=places,marker&callback=initMap&loading=async"
+                        async defer></script>
+              {% else %}
+                <div class="mt-3 rounded-lg bg-slate-100 flex items-center justify-center gap-1 text-xs text-slate-400"
+                     style="height:90px">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
+                  {% trans "Map not available" %}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>{# /sidebar #}
+
+  </div>{# /grid #}
+
+  {# ── GAME FILTER MODAL ────────────────────────────────────────────── #}
+  <div id="game-filter-modal"
+       class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+       onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900">{% trans "Filter by game" %}</h3>
+        <button onclick="document.getElementById('game-filter-modal').classList.add('hidden')"
+                class="text-slate-400 hover:text-slate-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="overflow-y-auto p-3">
+        <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}{% if show_past %}show_past=1{% endif %}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
+                  {% if not selected_game_id %}bg-slate-100 text-slate-900{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+          {% trans "All games" %}
+        </a>
+        {% for game in games_in_event %}
+          <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}game={{ game.id }}{% if show_past %}&show_past=1{% endif %}"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors
+                    {% if selected_game_id == game.id %}bg-slate-100 font-semibold text-slate-900{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+            {% if game.image %}
+              <img src="{{ game.image.url }}" alt="{{ game.name }}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+            {% else %}
+              <div class="w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0"></div>
+            {% endif %}
+            {{ game.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
