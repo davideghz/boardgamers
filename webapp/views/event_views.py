@@ -180,6 +180,14 @@ class EventTableDetailView(BaseTableDetailView):
         qs = super().get_queryset()
         return qs.filter(event__slug=self.kwargs['event_slug'])
 
+    def dispatch(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, slug=kwargs['event_slug'])
+        if event.status != Event.APPROVED:
+            user_profile = request.user.user_profile if request.user.is_authenticated else None
+            if not (request.user.is_superuser or (user_profile and event.is_manager(user_profile))):
+                raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
     def get_comment_redirect(self):
         return redirect('event_table_detail',
                         event_slug=self.kwargs['event_slug'],
