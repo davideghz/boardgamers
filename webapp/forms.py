@@ -412,12 +412,8 @@ class EventDateForm(TailwindForm):
 class PlayAreaForm(ModelForm, TailwindForm):
     class Meta:
         model = PlayArea
-        fields = ['name', 'order']
+        fields = ['name']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['order'].required = False
-        self.fields['order'].initial = 0
 
 
 class AddEventManagerForm(TailwindForm):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-03 15:58+0000\n"
+"POT-Creation-Date: 2026-04-04 11:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Games"
 msgstr "Giochi"
 
-#: webapp/forms.py:122 webapp/forms.py:167 webapp/forms.py:597
+#: webapp/forms.py:122 webapp/forms.py:167 webapp/forms.py:593
 #: webapp/models.py:349 webapp/models.py:692
 #: webapp/templates/events/event_table_add_or_edit.html:90
 #: webapp/templates/locations/location_manage_game_detail.html:54
@@ -68,19 +68,19 @@ msgstr "Nome"
 msgid "Last name"
 msgstr "Cognome"
 
-#: webapp/forms.py:426 webapp/forms.py:455
+#: webapp/forms.py:422 webapp/forms.py:451
 #: webapp/templates/accounts/account_events.html:69
 #: webapp/templates/accounts/account_locations.html:54
 #: webapp/templates/locations/location_manage_managers.html:83
 msgid "Manager"
 msgstr "Manager"
 
-#: webapp/forms.py:430 webapp/forms.py:459 webapp/forms.py:474
-#: webapp/forms.py:494 webapp/forms.py:512
+#: webapp/forms.py:426 webapp/forms.py:455 webapp/forms.py:470
+#: webapp/forms.py:490 webapp/forms.py:508
 msgid "Search by username..."
 msgstr "Cerca per username..."
 
-#: webapp/forms.py:440 webapp/models.py:333 webapp/models.py:586
+#: webapp/forms.py:436 webapp/models.py:333 webapp/models.py:586
 #: webapp/models.py:688 webapp/models.py:722 webapp/models.py:741
 #: webapp/templates/locations/location_manage_games.html:71
 #: webapp/templates/tables/table_add_or_edit.html:33
@@ -88,28 +88,28 @@ msgstr "Cerca per username..."
 msgid "Location"
 msgstr "Location"
 
-#: webapp/forms.py:444
+#: webapp/forms.py:440
 msgid "Search location..."
 msgstr "Cerca location..."
 
-#: webapp/forms.py:470
+#: webapp/forms.py:466
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
-#: webapp/forms.py:481
+#: webapp/forms.py:477
 #: webapp/templates/locations/location_manage_managers.html:119
 msgid "Add me as manager after transfer"
 msgstr "Aggiungimi come manager dopo il trasferimento di owner"
 
-#: webapp/forms.py:490
+#: webapp/forms.py:486
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/forms.py:508
+#: webapp/forms.py:504
 msgid "Linked User Profile"
 msgstr "Profilo utente collegato"
 
-#: webapp/forms.py:528 webapp/forms.py:545 webapp/forms.py:569
+#: webapp/forms.py:524 webapp/forms.py:541 webapp/forms.py:565
 #: webapp/models.py:649 webapp/models.py:706
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
@@ -118,53 +118,53 @@ msgstr "Profilo utente collegato"
 msgid "Notes"
 msgstr "Note"
 
-#: webapp/forms.py:529
+#: webapp/forms.py:525
 msgid "Optional message to the manager..."
 msgstr "Messaggio opzionale per il manager..."
 
-#: webapp/forms.py:536 webapp/forms.py:559 webapp/models.py:643
+#: webapp/forms.py:532 webapp/forms.py:555 webapp/models.py:643
 #: webapp/templates/locations/location_manage_member_detail.html:153
 #: webapp/views/location_views.py:770
 msgid "Start Date"
 msgstr "Data di inizio"
 
-#: webapp/forms.py:540 webapp/forms.py:564 webapp/models.py:644
+#: webapp/forms.py:536 webapp/forms.py:560 webapp/models.py:644
 #: webapp/templates/locations/location_manage_member_detail.html:161
 #: webapp/views/location_views.py:770
 msgid "End Date"
 msgstr "Data di fine"
 
-#: webapp/forms.py:553 webapp/models.py:647 webapp/models.py:819
+#: webapp/forms.py:549 webapp/models.py:647 webapp/models.py:819
 #: webapp/templates/locations/location_manage_member_detail.html:141
 msgid "Status"
 msgstr "Status"
 
-#: webapp/forms.py:580
+#: webapp/forms.py:576
 msgid "Start date is required when status is Active."
 msgstr ""
 
-#: webapp/forms.py:582
+#: webapp/forms.py:578
 msgid "End date is required when status is Active."
 msgstr ""
 
-#: webapp/forms.py:601 webapp/templates/_bgg_game_modal.html:34
+#: webapp/forms.py:597 webapp/templates/_bgg_game_modal.html:34
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:626 webapp/models.py:700 webapp/views/location_views.py:1030
+#: webapp/forms.py:622 webapp/models.py:700 webapp/views/location_views.py:1030
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
-#: webapp/forms.py:630
+#: webapp/forms.py:626
 #: webapp/templates/locations/location_manage_game_detail.html:101
 msgid "Search for a member..."
 msgstr "Cerca per socio..."
 
-#: webapp/forms.py:657
+#: webapp/forms.py:653
 msgid "Guest name"
 msgstr "Nome ospite"
 
-#: webapp/forms.py:660 webapp/models.py:288 webapp/models.py:761
+#: webapp/forms.py:656 webapp/models.py:288 webapp/models.py:761
 #: webapp/models.py:803 webapp/models.py:876
 msgid "Name"
 msgstr "Nome"
@@ -1210,14 +1210,14 @@ msgstr "Esplora"
 
 #: webapp/templates/base_webapp.html:152 webapp/templates/base_webapp.html:156
 #: webapp/templates/base_webapp.html:332
-#: webapp/templates/events/event_detail.html:125
+#: webapp/templates/events/event_detail.html:123
 #: webapp/templates/staticpages/home.html:69
 msgid "Tables"
 msgstr "Tavoli"
 
 #: webapp/templates/base_webapp.html:167 webapp/templates/base_webapp.html:171
 #: webapp/templates/base_webapp.html:336 webapp/templates/base_webapp.html:406
-#: webapp/templates/events/event_detail.html:67
+#: webapp/templates/events/event_detail.html:65
 #: webapp/templates/locations/location_detail.html:42
 msgid "About"
 msgstr "Informazioni"
@@ -1246,7 +1246,7 @@ msgid "Terms"
 msgstr "Termini"
 
 #: webapp/templates/base_webapp.html:409
-#: webapp/templates/events/event_detail.html:283
+#: webapp/templates/events/event_detail.html:281
 #: webapp/templates/staticpages/contacts.html:8
 msgid "Contacts"
 msgstr "Contatti"
@@ -1403,7 +1403,6 @@ msgstr "Immagine di copertina"
 #: webapp/templates/events/event_create.html:55
 #: webapp/templates/events/event_create.html:68
 #: webapp/templates/events/event_create.html:77
-#: webapp/templates/events/event_manage_areas.html:60
 #: webapp/templates/events/event_manage_data.html:35
 #: webapp/templates/events/event_manage_data.html:59
 #: webapp/templates/events/event_manage_data.html:72
@@ -1450,8 +1449,8 @@ msgid ""
 "This event is awaiting admin approval and is not yet visible to the public."
 msgstr "Evento in attesa di approvazione, non visibile al pubblico."
 
-#: webapp/templates/events/event_detail.html:80
-#: webapp/templates/events/event_detail.html:83
+#: webapp/templates/events/event_detail.html:78
+#: webapp/templates/events/event_detail.html:81
 #: webapp/templates/events/event_table_detail.html:66
 #: webapp/templates/events/event_table_detail.html:69
 #: webapp/templates/locations/location_detail.html:56
@@ -1461,77 +1460,77 @@ msgstr "Evento in attesa di approvazione, non visibile al pubblico."
 msgid "Read more"
 msgstr "Espandi"
 
-#: webapp/templates/events/event_detail.html:80
+#: webapp/templates/events/event_detail.html:78
 #: webapp/templates/events/event_table_detail.html:66
 #: webapp/templates/locations/location_detail.html:56
 #: webapp/templates/tables/table_detail.html:67
 msgid "Show less"
 msgstr "Nascondi"
 
-#: webapp/templates/events/event_detail.html:95
+#: webapp/templates/events/event_detail.html:93
 msgid "Sponsored by"
 msgstr "Sostenuto da"
 
-#: webapp/templates/events/event_detail.html:134
-#: webapp/templates/events/event_detail.html:142
+#: webapp/templates/events/event_detail.html:132
+#: webapp/templates/events/event_detail.html:140
 msgid "Create table"
 msgstr "Crea un tavolo qui"
 
-#: webapp/templates/events/event_detail.html:137
+#: webapp/templates/events/event_detail.html:135
 msgid "Define event dates first"
 msgstr ""
 
-#: webapp/templates/events/event_detail.html:153
+#: webapp/templates/events/event_detail.html:151
 msgid "Remove filter"
 msgstr "Rimuovi filtri"
 
-#: webapp/templates/events/event_detail.html:165
-#: webapp/templates/events/event_detail.html:357
+#: webapp/templates/events/event_detail.html:163
+#: webapp/templates/events/event_detail.html:355
 msgid "Filter by game"
 msgstr "Filtra per gioco"
 
-#: webapp/templates/events/event_detail.html:179
+#: webapp/templates/events/event_detail.html:177
 msgid "Add dates to the event to enable table creation"
 msgstr "Aggiungi delle date per abilitare l'aggiunta dei tavoli"
 
-#: webapp/templates/events/event_detail.html:197
+#: webapp/templates/events/event_detail.html:195
 msgid "Hide past days"
 msgstr "Nascondi giorni passati"
 
-#: webapp/templates/events/event_detail.html:197
+#: webapp/templates/events/event_detail.html:195
 msgid "Show past days"
 msgstr "Mostra giorni passati"
 
-#: webapp/templates/events/event_detail.html:209
+#: webapp/templates/events/event_detail.html:207
 msgid "All areas"
 msgstr "Tutte le aree"
 
-#: webapp/templates/events/event_detail.html:229
+#: webapp/templates/events/event_detail.html:227
 msgid "No tables for the selected filters."
 msgstr "Non ci sono tavoli per i filtri selezionati."
 
-#: webapp/templates/events/event_detail.html:249
+#: webapp/templates/events/event_detail.html:247
 #: webapp/templates/events/event_manage_index.html:10
 msgid "Manage event"
 msgstr "Gestisci evento"
 
-#: webapp/templates/events/event_detail.html:261
+#: webapp/templates/events/event_detail.html:259
 #: webapp/templates/events/event_manage_dates.html:11
 #: webapp/templates/events/event_manage_index.html:39
 msgid "Dates"
 msgstr "Date"
 
-#: webapp/templates/events/event_detail.html:312
+#: webapp/templates/events/event_detail.html:310
 #: webapp/templates/locations/location_detail.html:343
 msgid "How to get there"
 msgstr "Come arrivare"
 
-#: webapp/templates/events/event_detail.html:339
+#: webapp/templates/events/event_detail.html:337
 #: webapp/templates/locations/location_detail.html:370
 msgid "Map not available"
 msgstr "Mappa non disponibile"
 
-#: webapp/templates/events/event_detail.html:369
+#: webapp/templates/events/event_detail.html:367
 msgid "All games"
 msgstr "Tutti i giochi"
 
@@ -1555,24 +1554,24 @@ msgstr "Gestione"
 msgid "Play areas"
 msgstr "Aree di gioco"
 
-#: webapp/templates/events/event_manage_areas.html:19
+#: webapp/templates/events/event_manage_areas.html:12
+msgid "Drag to reorder. The order will be reflected on the event page."
+msgstr "Trascina per riordinare. L'ordine verrà rispettato nella pagina dell'evento."
+
+#: webapp/templates/events/event_manage_areas.html:20
 msgid "Areas"
 msgstr "Aree"
 
-#: webapp/templates/events/event_manage_areas.html:29
-msgid "order"
-msgstr "ordine"
-
-#: webapp/templates/events/event_manage_areas.html:35
+#: webapp/templates/events/event_manage_areas.html:38
 msgid "Remove this area?"
 msgstr "Rimuovere questa area?"
 
-#: webapp/templates/events/event_manage_areas.html:43
+#: webapp/templates/events/event_manage_areas.html:46
 msgid "No areas added yet."
 msgstr "Ancora nessuna area aggiunta."
 
-#: webapp/templates/events/event_manage_areas.html:50
-#: webapp/templates/events/event_manage_areas.html:70
+#: webapp/templates/events/event_manage_areas.html:53
+#: webapp/templates/events/event_manage_areas.html:66
 msgid "Add area"
 msgstr "Aggiungi area"
 
@@ -3342,27 +3341,27 @@ msgstr "Data aggiunta."
 msgid "Date removed."
 msgstr "Data rimossa."
 
-#: webapp/views/event_views.py:359
+#: webapp/views/event_views.py:361
 msgid "Play area added."
 msgstr "Area di gioco aggiunta."
 
-#: webapp/views/event_views.py:372
+#: webapp/views/event_views.py:374
 msgid "Play area removed."
 msgstr "Area di gioco rimossa."
 
-#: webapp/views/event_views.py:393
+#: webapp/views/event_views.py:409
 msgid "Manager added."
 msgstr "Manager aggiunto."
 
-#: webapp/views/event_views.py:408
+#: webapp/views/event_views.py:424
 msgid "Manager removed."
 msgstr "Manager rimosso."
 
-#: webapp/views/event_views.py:429
+#: webapp/views/event_views.py:445
 msgid "Location added."
 msgstr "Location aggiunta."
 
-#: webapp/views/event_views.py:443
+#: webapp/views/event_views.py:459
 msgid "Location removed."
 msgstr "Location rimossa."
 
@@ -3663,3 +3662,6 @@ msgstr "Questo ospite è già al tavolo."
 #: webapp/views/table_views.py:603
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
+
+#~ msgid "order"
+#~ msgstr "ordine"

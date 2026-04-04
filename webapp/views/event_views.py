@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Max, Prefetch
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -355,6 +355,8 @@ class EventManageAreasView(EventManagerMixin, View):
         if form.is_valid():
             area = form.save(commit=False)
             area.event = event
+            max_order = event.play_areas.aggregate(m=Max('order'))['m'] or 0
+            area.order = max_order + 1
             area.save()
             messages.success(request, _("Play area added."))
             return redirect('event-manage-areas', slug=slug)
@@ -371,6 +373,20 @@ class EventManageAreaDeleteView(EventManagerMixin, View):
         PlayArea.objects.filter(pk=pk, event=event).delete()
         messages.success(request, _("Play area removed."))
         return redirect('event-manage-areas', slug=slug)
+
+
+class EventManageAreasReorderView(EventManagerMixin, View):
+    def post(self, request, slug):
+        import json
+        from django.http import JsonResponse
+        event = self._get_event()
+        try:
+            data = json.loads(request.body)
+            for item in data.get('areas', []):
+                PlayArea.objects.filter(pk=item['id'], event=event).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=400)
 
 
 class EventManageManagersView(EventManagerMixin, View):
