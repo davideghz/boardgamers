@@ -1614,15 +1614,15 @@ msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
 #, python-format
 msgid "%(n)s date configured"
 msgid_plural "%(n)s dates configured"
-msgstr[0] "data gestita"
-msgstr[1] "date gestite"
+msgstr[0] "%(n)s data gestita"
+msgstr[1] "%(n)s date gestite"
 
 #: webapp/templates/events/event_manage_index.html:59
 #, python-format
 msgid "%(n)s area configured"
 msgid_plural "%(n)s areas configured"
-msgstr[0] "area gestita"
-msgstr[1] "aree gestite"
+msgstr[0] "%(n)s area gestita"
+msgstr[1] "%(n)s aree gestite"
 
 #: webapp/templates/events/event_manage_index.html:77
 #, python-format
