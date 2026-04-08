@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-04 11:26+0000\n"
+"POT-Creation-Date: 2026-04-08 11:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -655,8 +655,7 @@ msgid "Additional table creators"
 msgstr "Additional table creators"
 
 #: webapp/models.py:842
-#, fuzzy, python-format
-#| msgid "%(name)s — gaming event"
+#: python-format
 msgid "%(name)s — gaming event"
 msgstr "%(game)s – evento"
 
@@ -1556,7 +1555,8 @@ msgstr "Aree di gioco"
 
 #: webapp/templates/events/event_manage_areas.html:12
 msgid "Drag to reorder. The order will be reflected on the event page."
-msgstr "Trascina per riordinare. L'ordine verrà rispettato nella pagina dell'evento."
+msgstr ""
+"Trascina per riordinare. L'ordine verrà rispettato nella pagina dell'evento."
 
 #: webapp/templates/events/event_manage_areas.html:20
 msgid "Areas"
@@ -1625,22 +1625,18 @@ msgstr[0] "area gestita"
 msgstr[1] "aree gestite"
 
 #: webapp/templates/events/event_manage_index.html:77
-#, fuzzy, python-format
-#| msgid "%(n)s manager"
-#| msgid_plural "%(n)s managers"
+#, python-format
 msgid "%(n)s manager"
 msgid_plural "%(n)s managers"
-msgstr[0] "Aggiungi manager"
-msgstr[1] "Aggiungi managers"
+msgstr[0] "%(n)s manager"
+msgstr[1] "%(n)s managers"
 
 #: webapp/templates/events/event_manage_index.html:96
-#, fuzzy, python-format
-#| msgid "%(n)s location"
-#| msgid_plural "%(n)s locations"
+#, python-format
 msgid "%(n)s location"
 msgid_plural "%(n)s locations"
-msgstr[0] "Aggiungi Location"
-msgstr[1] "Aggiungi Location"
+msgstr[0] "%(n)s Location"
+msgstr[1] "%(n)s Locations"
 
 #: webapp/templates/events/event_manage_locations.html:70
 msgid "No sponsor locations added yet."
@@ -1724,6 +1720,7 @@ msgid "Remove game"
 msgstr "Rimuovi gioco"
 
 #: webapp/templates/events/event_table_add_or_edit.html:133
+#: webapp/templates/games/game_detail.html:76
 #: webapp/templates/tables/table_add_or_edit.html:121
 #: webapp/templates/tables/table_players.html:48
 msgid "Players"
@@ -1852,17 +1849,53 @@ msgstr "Invita/Rimuovi Gamers"
 msgid "Leaderboard Updated"
 msgstr "Classifica Aggiornata"
 
-#: webapp/templates/games/game_detail.html:34
+#: webapp/templates/games/game_detail.html:37
 msgid "Played tables"
 msgstr "Tavoli giocati"
 
-#: webapp/templates/games/game_detail.html:45
+#: webapp/templates/games/game_detail.html:48
 msgid "Gamers"
 msgstr "Gamers"
 
-#: webapp/templates/games/game_detail.html:54
+#: webapp/templates/games/game_detail.html:57
 msgid "View on BoardGameGeek"
 msgstr ""
+
+#: webapp/templates/games/game_detail.html:65
+msgid "Game info"
+msgstr "Info sul gioco"
+
+#: webapp/templates/games/game_detail.html:96
+msgid "Playtime"
+msgstr "Durata"
+
+#: webapp/templates/games/game_detail.html:116
+msgid "Complexity"
+msgstr "Complessità"
+
+#: webapp/templates/games/game_detail.html:120
+msgid "Light"
+msgstr "Bassa"
+
+#: webapp/templates/games/game_detail.html:122
+msgid "Medium"
+msgstr "Media"
+
+#: webapp/templates/games/game_detail.html:124
+msgid "Heavy"
+msgstr "Alta"
+
+#: webapp/templates/games/game_detail.html:146
+msgid "Played at"
+msgstr "Dove si gioca"
+
+#: webapp/templates/games/game_detail.html:169
+#: webapp/templates/games/game_list.html:31
+#: webapp/templates/locations/location_detail.html:134
+#: webapp/templates/locations/location_detail.html:203
+#: webapp/templates/profiles/user_profile_detail.html:61
+msgid "tables"
+msgstr "tavoli"
 
 #: webapp/templates/games/game_list.html:8
 msgid "Board Games"
@@ -1875,13 +1908,6 @@ msgid ""
 msgstr ""
 "Elenco completo dei giochi da tavolo giocati su Board-Gamers.com. Trova il "
 "tuo prossimo gioco preferito e inizia a giocare oggi stesso!"
-
-#: webapp/templates/games/game_list.html:31
-#: webapp/templates/locations/location_detail.html:134
-#: webapp/templates/locations/location_detail.html:203
-#: webapp/templates/profiles/user_profile_detail.html:61
-msgid "tables"
-msgstr "tavoli"
 
 #: webapp/templates/games/game_list.html:37
 msgid "gamers"

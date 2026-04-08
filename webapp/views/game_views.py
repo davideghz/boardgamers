@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.models import Game
+from webapp.models import Game, Location
 
 
 class GameListView(ListView):
@@ -51,4 +51,10 @@ class GameDetailView(DetailView):
         context['table_count'] = game.table_count
         context['player_count'] = game.player_count
         context['meta'] = self.get_object().as_meta(self.request)
+        context['locations'] = (
+            Location.objects
+            .filter(tables__game=game)
+            .annotate(game_table_count=Count('tables', distinct=True))
+            .order_by('-game_table_count')
+        )
         return context
