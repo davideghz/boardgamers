@@ -65,7 +65,7 @@
   <section class="mb-10">
 
     {# Header: title + toggle #}
-    <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+    <div class="flex items-center justify-between mb-1 gap-3 flex-wrap">
       <h2 class="text-lg font-bold text-slate-900">{% trans "Tables" %}</h2>
       <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
         <button id="btn-upcoming"
@@ -81,18 +81,53 @@
       </div>
     </div>
 
+    {# Subtitle message — mirrors Locations section style #}
+    {% if not user.is_authenticated %}
+      <p class="text-xs text-slate-500 mb-4">
+        <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
+        {% trans "to see tables from locations you follow." %}
+      </p>
+    {% elif followed_future_tables %}
+      <p class="text-xs text-slate-500 mb-4">
+        {% trans "Follow new" %}
+        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
+        {% trans "to see their open tables here." %}
+      </p>
+    {% else %}
+      <p class="text-xs text-slate-500 mb-4">
+        {% trans "No open tables from the locations you follow." %}
+        {% trans "Follow new" %}
+        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
+        {% trans "to see their tables here." %}
+      </p>
+    {% endif %}
+
     {# Upcoming tables #}
     <div id="tab-upcoming">
-      {% if future_tables %}
-        <div class="embla overflow-hidden pb-2">
-          <div class="flex gap-3">
-            {% for table in future_tables %}
-              {% table_card table %}
-            {% endfor %}
+      {% if user.is_authenticated %}
+        {% if followed_future_tables %}
+          <div class="embla overflow-hidden pb-2">
+            <div class="flex gap-3">
+              {% for table in followed_future_tables %}
+                {% table_card table %}
+              {% endfor %}
+            </div>
           </div>
-        </div>
+        {% else %}
+          <p class="text-sm text-slate-500 italic">{% trans "No open tables right now — why not create one?" %}</p>
+        {% endif %}
       {% else %}
-        <p class="text-sm text-slate-500 italic">{% trans "No open tables right now — why not create one?" %}</p>
+        {% if future_tables %}
+          <div class="embla overflow-hidden pb-2">
+            <div class="flex gap-3">
+              {% for table in future_tables %}
+                {% table_card table %}
+              {% endfor %}
+            </div>
+          </div>
+        {% else %}
+          <p class="text-sm text-slate-500 italic">{% trans "No open tables right now — why not create one?" %}</p>
+        {% endif %}
       {% endif %}
     </div>
 
@@ -147,7 +182,7 @@
         </p>
       {% elif user.user_profile.city %}
         <p class="text-xs text-slate-500 mb-4">
-          {% trans "Tables near to" %} <strong>{{ user.user_profile.city }}</strong>
+          {% trans "Locations near to" %} <strong>{{ user.user_profile.city }}</strong>
           &nbsp;·&nbsp;
           <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
         </p>

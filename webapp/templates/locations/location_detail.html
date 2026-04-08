@@ -37,6 +37,28 @@
     {# ── MAIN COLUMN (2/3) ──────────────────────────────── #}
     <div class="md:col-span-2 space-y-8">
 
+      {# ── Follow box (top — only when not following) ──── #}
+      {% if user.is_authenticated and not is_following %}
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-slate-200 rounded-xl bg-white px-5 py-4">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{% trans "Follow" %} {{ location.name }}</p>
+          <p class="text-xs text-slate-500">{% trans "See new tables from this location on your homepage." %}</p>
+        </div>
+        <div class="flex items-center gap-3 sm:flex-shrink-0">
+          <form method="post" action="{% url 'follow-location' slug=location.slug %}" class="w-full sm:w-auto">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full sm:w-auto flex items-center justify-center gap-1.5 border rounded-full px-3 py-2.5 text-sm font-semibold transition-colors border-slate-200 text-slate-600 hover:bg-slate-50">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+              </svg>
+              {% trans "Follow" %}
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
       {# ── Informazioni ────────────────────────────────── #}
       <section>
         <h2 class="text-lg font-bold text-slate-900 mb-3">{% trans "About" %}</h2>
@@ -215,6 +237,34 @@
         {% endif %}
       </section>
 
+      {# ── Follow box (bottom — only when following) ───── #}
+      {% if user.is_authenticated and is_following %}
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-slate-200 rounded-xl bg-white px-5 py-4">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{% trans "You follow this location" %}</p>
+          <p class="text-xs text-slate-500">{% trans "New tables will appear on your homepage." %}</p>
+        </div>
+        <div class="flex items-center gap-3 sm:flex-shrink-0">
+          <span class="text-xs text-slate-400 hidden sm:inline">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-red-400 inline -mt-0.5">
+              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.218l-.022.012-.007.003-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+            </svg>
+            {{ followers_count }}
+          </span>
+          <form method="post" action="{% url 'follow-location' slug=location.slug %}" class="w-full sm:w-auto">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full sm:w-auto flex items-center justify-center gap-1.5 border rounded-full px-3 py-2.5 text-sm font-semibold transition-colors border-red-200 text-red-600 hover:bg-red-50">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+              </svg>
+              {% trans "Unfollow" %}
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
     </div>{# /main col #}
 
     {# ── SIDEBAR (1/3) ──────────────────────────────────── #}
@@ -269,19 +319,6 @@
             {% endif %}
           {% endif %}
 
-          <form method="post" action="{% url 'follow-location' slug=location.slug %}">
-            {% csrf_token %}
-            <button type="submit"
-                    class="w-full flex items-center justify-center gap-1.5 border rounded-full px-3 py-2.5 text-sm font-semibold transition-colors
-                           {% if is_following %}border-red-200 text-red-600 hover:bg-red-50{% else %}border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
-              {% if is_following %}{% trans "Unfollow" %}{% else %}{% trans "Follow" %}{% endif %}
-            </button>
-          </form>
-          <p class="text-xs text-center text-slate-400 flex items-center justify-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-red-400"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
-            {{ followers_count }} followers
-          </p>
         </div>
 
         <hr class="border-slate-100">

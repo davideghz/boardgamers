@@ -77,6 +77,18 @@ def homepage_view(request):
                             .order_by('?'))
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
+    followed_future_tables = []
+    if request.user.is_authenticated:
+        followed_location_ids = request.user.user_profile.followed_locations.values_list('location_id', flat=True)
+        if followed_location_ids:
+            followed_future_tables = (
+                Table.objects
+                .select_related('author', 'author__user', 'location')
+                .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
+                .filter(location__in=followed_location_ids, date__gte=today, event__isnull=True)
+                .order_by('date')
+            )
+
     context = {
         'future_tables': future_tables,
         'past_tables': past_tables,
@@ -84,6 +96,7 @@ def homepage_view(request):
         'location_message': location_message,
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
+        'followed_future_tables': followed_future_tables,
         'meta': Meta(
             title=_("Find Board Game Tables Near You - Board-Gamers.com"),
             description=_("Discover board game tables near you, create new games and meet other players."),
