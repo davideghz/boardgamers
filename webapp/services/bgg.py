@@ -55,6 +55,48 @@ def search_bgg(query):
     return results
 
 
+def fetch_bgg_classifications(bgg_ids):
+    """Batch /thing call to classify a list of bgg_ids.
+    Returns {bgg_id: {'is_expansion': bool, 'name': str, 'year_published': int|None}}.
+    Silently skips IDs that fail.
+    """
+    if not bgg_ids:
+        return {}
+
+    results = {}
+    chunks = [bgg_ids[i:i + 20] for i in range(0, len(bgg_ids), 20)]
+    for chunk in chunks:
+        try:
+            resp = _get(f'{BGG_API_BASE}/thing', {'id': ','.join(str(i) for i in chunk)}, timeout=12)
+            root = ElementTree.fromstring(resp.content)
+            for item in root.findall('item'):
+                bgg_id = item.get('id')
+                is_expansion = item.get('type') == 'boardgameexpansion'
+
+                name = None
+                for name_el in item.findall('name'):
+                    if name_el.get('type') == 'primary':
+                        name = name_el.get('value')
+                        break
+
+                year_el = item.find('yearpublished')
+                year = None
+                if year_el is not None:
+                    try:
+                        year = int(year_el.get('value', ''))
+                    except (ValueError, TypeError):
+                        pass
+
+                results[bgg_id] = {
+                    'is_expansion': is_expansion,
+                    'name': name,
+                    'year_published': year,
+                }
+        except Exception as e:
+            logger.warning(f'BGG batch /thing failed for chunk {chunk}: {e}')
+    return results
+
+
 def fetch_bgg_thing(bgg_id):
     """Fetch full game data from BGG thing endpoint. Returns a dict with all importable fields."""
     resp = _get(f'{BGG_API_BASE}/thing', {'id': bgg_id, 'type': 'boardgame', 'stats': 1}, timeout=10)

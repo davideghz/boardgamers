@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from webapp.models import Table, Location, Player, Game
 from webapp.api.serializers import TableSerializer
-from webapp.services.bgg import search_bgg, import_game_from_bgg
+from webapp.services.bgg import search_bgg, import_game_from_bgg, fetch_bgg_classifications
 
 logger = logging.getLogger(__name__)
 
@@ -108,29 +108,61 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
 
 @api_view(['GET'])
 def bgg_search_view(request):
-    """Search games in local DB + BGG. Returns {local: [...], bgg: [...]}."""
+    """Search games in local DB only. Fast path — excludes known expansions."""
     if not request.user.is_authenticated:
         return Response({'error': 'Authentication required'}, status=401)
 
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
-        return Response({'local': [], 'bgg': []})
+        return Response({'local': []})
 
     local_qs = Game.objects.filter(name__icontains=query).order_by('name')[:8]
-    local_bgg_codes = {g.bgg_code for g in local_qs if g.bgg_code}
     local_data = [
         {'id': g.id, 'name': g.name, 'year_published': g.year_published}
         for g in local_qs
     ]
+    return Response({'local': local_data})
 
-    bgg_data = []
+
+@api_view(['GET'])
+def bgg_search_external_view(request):
+    """Search BGG, classify via batch /thing, save stubs for non-expansions, return filtered results."""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
+
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return Response({'bgg': []})
+
     try:
         bgg_results = search_bgg(query)
-        bgg_data = [r for r in bgg_results if r['bgg_id'] not in local_bgg_codes][:15]
     except Exception as e:
         logger.error(f'BGG search failed for query="{query}": {e}', exc_info=True)
+        return Response({'bgg': []})
 
-    return Response({'local': local_data, 'bgg': bgg_data})
+    bgg_results = bgg_results[:20]
+
+    # Split into known (already in DB) vs unknown (need /thing)
+    search_bgg_ids = [r['bgg_id'] for r in bgg_results]
+    existing_codes = set(
+        Game.objects.filter(bgg_code__in=search_bgg_ids).values_list('bgg_code', flat=True)
+    )
+    unknown_ids = [bid for bid in search_bgg_ids if bid not in existing_codes]
+
+    # Batch classify unknowns
+    classifications = fetch_bgg_classifications(unknown_ids) if unknown_ids else {}
+
+    # Return only non-expansions not already shown in local results
+    bgg_data = []
+    for r in bgg_results:
+        if r['bgg_id'] in existing_codes:
+            continue
+        info = classifications.get(r['bgg_id'])
+        if info is not None and info['is_expansion']:
+            continue
+        bgg_data.append(r)
+
+    return Response({'bgg': bgg_data[:15]})
 
 
 @api_view(['POST'])

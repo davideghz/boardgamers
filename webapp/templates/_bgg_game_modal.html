@@ -83,6 +83,7 @@
   var loading = document.getElementById('bgg-loading');
   var resultsList = document.getElementById('bgg-results-list');
   var debounceTimer = null;
+  var searchToken = 0;  // increments on each new search to discard stale responses
 
   window.openBggModal = function () {
     modal.style.display = 'flex';
@@ -93,15 +94,16 @@
     modal.style.display = 'none';
     document.body.style.overflow = '';
     input.value = '';
+    searchToken++;
     showEmpty();
   };
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeBggModal();
   });
 
-  function showEmpty()   { emptyState.classList.remove('hidden'); loading.classList.add('hidden');    resultsList.classList.add('hidden'); }
-  function showLoading() { emptyState.classList.add('hidden');    loading.classList.remove('hidden'); resultsList.classList.add('hidden'); }
-  function showResults() { emptyState.classList.add('hidden');    loading.classList.add('hidden');    resultsList.classList.remove('hidden'); }
+  function showEmpty()   { emptyState.classList.remove('hidden'); loading.classList.add('hidden'); resultsList.classList.add('hidden'); }
+  function showLoading() { emptyState.classList.add('hidden'); loading.classList.remove('hidden'); resultsList.classList.add('hidden'); }
+  function showResults() { emptyState.classList.add('hidden'); loading.classList.add('hidden'); resultsList.classList.remove('hidden'); }
 
   function getCsrf() {
     var el = document.querySelector('[name=csrfmiddlewaretoken]');
@@ -131,27 +133,57 @@
       + '</button>';
   }
 
-  function renderResults(data) {
+  function bggLoadingSection() {
+    return '<div id="bgg-external-loading" class="mt-4">'
+      + sectionTitle('{% trans "Import from BGG" %}')
+      + '<div class="flex items-center gap-2 py-4 text-slate-400">'
+      + '<svg class="animate-spin w-4 h-4 text-blue-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>'
+      + '<span class="text-xs">{% trans "Searching BoardGameGeek..." %}</span>'
+      + '</div></div>';
+  }
+
+  function renderLocalResults(localData, hasMore) {
     var html = '';
-    if (data.local && data.local.length) {
+    if (localData && localData.length) {
       html += sectionTitle('{% trans "Already on board-gamers" %}');
-      data.local.forEach(function (g) {
+      localData.forEach(function (g) {
         html += makeRow(g.name, g.year_published, 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
       });
     }
-    if (data.bgg && data.bgg.length) {
-      html += '<div class="' + (data.local && data.local.length ? 'mt-4 ' : '') + 'space-y-2">';
-      html += sectionTitle('{% trans "Import from BGG" %}');
-      data.bgg.forEach(function (g) {
-        html += makeRow(g.name, g.year_published, 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
-      });
-      html += '</div>';
+    if (hasMore) {
+      html += bggLoadingSection();
     }
     if (!html) {
-      html = '<p class="text-center text-sm text-slate-400 py-10">{% trans "No results found." %}</p>';
+      html = '<div id="bgg-no-local"></div>' + bggLoadingSection();
     }
     resultsList.innerHTML = html;
     showResults();
+  }
+
+  function renderBggResults(bggData, token) {
+    if (token !== searchToken) return;  // stale response, discard
+    var externalEl = document.getElementById('bgg-external-loading');
+    if (!externalEl) return;
+
+    if (!bggData || !bggData.length) {
+      // If also no local results, show empty state
+      var noLocal = document.getElementById('bgg-no-local');
+      if (noLocal && !noLocal.previousElementSibling) {
+        externalEl.remove();
+        if (!resultsList.querySelector('button')) showEmpty();
+      } else {
+        externalEl.remove();
+      }
+      return;
+    }
+
+    var html = sectionTitle('{% trans "Import from BGG" %}');
+    html += '<div class="space-y-2">';
+    bggData.forEach(function (g) {
+      html += makeRow(g.name, g.year_published, 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
+    });
+    html += '</div>';
+    externalEl.innerHTML = html;
   }
 
   window.bggSelect = function (gameId, gameName) { selectGame(gameId, gameName); };
@@ -181,10 +213,23 @@
     if (q.length < 2) { showEmpty(); return; }
     showLoading();
     debounceTimer = setTimeout(function () {
-      fetch('/api/bgg/search/?q=' + encodeURIComponent(q))
+      var token = ++searchToken;
+      var encoded = encodeURIComponent(q);
+
+      // Fast: local DB results
+      fetch('/api/bgg/search/?q=' + encoded)
         .then(function (r) { return r.json(); })
-        .then(renderResults)
-        .catch(function () { showEmpty(); });
+        .then(function (data) {
+          if (token !== searchToken) return;
+          renderLocalResults(data.local, true);
+        })
+        .catch(function () { if (token === searchToken) showEmpty(); });
+
+      // Slow: external BGG results
+      fetch('/api/bgg/search/external/?q=' + encoded)
+        .then(function (r) { return r.json(); })
+        .then(function (data) { renderBggResults(data.bgg, token); })
+        .catch(function () { renderBggResults([], token); });
     }, 350);
   });
 })();
