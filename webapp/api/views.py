@@ -137,7 +137,7 @@ def bgg_search_external_view(request):
     try:
         bgg_results = search_bgg(query)
     except Exception as e:
-        logger.error(f'BGG search failed for query="{query}": {e}', exc_info=True)
+        logger.warning(f'BGG search failed for query="{query}": {e}')
         return Response({'bgg': []})
 
     bgg_results = bgg_results[:20]
