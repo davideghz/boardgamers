@@ -32,9 +32,13 @@ def render_markdown(value):
 
 
 
-@register.inclusion_tag("tags/location_card.html")
-def location_card(location):
-    return {'location': location}
+@register.inclusion_tag("tags/location_card.html", takes_context=True)
+def location_card(context, location):
+    followed_ids = context.get('followed_location_ids', set())
+    return {
+        'location': location,
+        'is_followed': location.id in followed_ids,
+    }
 
 
 @register.inclusion_tag("tags/table_card.html")

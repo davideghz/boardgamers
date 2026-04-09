@@ -30,9 +30,11 @@ def index_view(request, template_name="locations/location_index.html"):
     user_created_locations = None
     location_message = None
     nearby_locations = None
+    followed_location_ids = set()
 
     if request.user.is_authenticated:
         user_created_locations = request.user.user_profile.locations.all()
+        followed_location_ids = set(request.user.user_profile.followed_locations.values_list('location_id', flat=True))
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
             if profile and profile.latitude and profile.longitude:
@@ -52,6 +54,7 @@ def index_view(request, template_name="locations/location_index.html"):
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'user_created_locations': user_created_locations,
+        'followed_location_ids': followed_location_ids,
         'meta': Meta(
             title=_("Game Locations - Board-Gamers.com"),
             description=_("Discover all board game locations near you. Find the perfect place for your next game!"),

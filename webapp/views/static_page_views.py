@@ -78,8 +78,10 @@ def homepage_view(request):
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
     followed_future_tables = []
+    followed_past_tables = []
+    followed_location_ids = set()
     if request.user.is_authenticated:
-        followed_location_ids = request.user.user_profile.followed_locations.values_list('location_id', flat=True)
+        followed_location_ids = set(request.user.user_profile.followed_locations.values_list('location_id', flat=True))
         if followed_location_ids:
             followed_future_tables = (
                 Table.objects
@@ -87,6 +89,13 @@ def homepage_view(request):
                 .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
                 .filter(location__in=followed_location_ids, date__gte=today, event__isnull=True)
                 .order_by('date')
+            )
+            followed_past_tables = (
+                Table.objects
+                .select_related('author', 'author__user', 'location')
+                .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
+                .filter(location__in=followed_location_ids, date__lt=today, event__isnull=True)
+                .order_by('-date')[:12]
             )
 
     context = {
@@ -97,6 +106,8 @@ def homepage_view(request):
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
         'followed_future_tables': followed_future_tables,
+        'followed_past_tables': followed_past_tables,
+        'followed_location_ids': followed_location_ids,
         'meta': Meta(
             title=_("Find Board Game Tables Near You - Board-Gamers.com"),
             description=_("Discover board game tables near you, create new games and meet other players."),
