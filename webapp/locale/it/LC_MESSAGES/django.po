@@ -843,6 +843,14 @@ msgstr "Non collegato"
 msgid "Disconnect"
 msgstr "Scollega"
 
+#: webapp/templates/auth/password_change_form.html
+msgid "Set password"
+msgstr "Imposta password"
+
+#: webapp/templates/auth/password_change_form.html
+msgid "Choose a password for your account."
+msgstr "Scegli una password per il tuo account."
+
 #: webapp/templates/accounts/account_edit_profile.html
 msgid "Set a password first to disconnect Google"
 msgstr "Imposta prima una password per scollegare Google"

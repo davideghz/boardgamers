@@ -3,6 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView, LogoutView, RedirectURLMixin
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView,
@@ -79,6 +80,16 @@ class CustomLogoutView(LogoutView):
 
 class CustomPasswordChangeView(PasswordChangeView):
     template_name = 'auth/password_change_form.html'
+
+    def get_form_class(self):
+        if not self.request.user.has_usable_password():
+            return SetPasswordForm
+        return super().get_form_class()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_set_password'] = not self.request.user.has_usable_password()
+        return context
 
 
 class CustomPasswordChangeDoneView(PasswordChangeDoneView):
