@@ -199,6 +199,9 @@ SOCIAL_AUTH_PIPELINE = (
     # Update the user record with any changed info from the auth service.
     'social_core.pipeline.user.user_details',
 
+    # If connecting Google to an account with no email, copy the Google email over.
+    'webapp.pipeline.copy_email_from_google_if_missing',
+
     # Save language preference from OAuth state to user profile
     'webapp.pipeline.save_language_from_state',
 )

@@ -56,6 +56,22 @@ def safe_associate_user(backend, uid, user, social, *args, **kwargs):
     return _associate_user(backend, uid, user, social, *args, **kwargs)
 
 
+def copy_email_from_google_if_missing(backend, user, response, *args, **kwargs):
+    """
+    When connecting Google to an account with no email (e.g. Telegram-only user),
+    copy the Google email to the user record.
+    Runs after user_details, which skips email because it's in the protected list.
+    """
+    if backend.name != 'google-oauth2':
+        return
+    if not user or user.email:
+        return
+    email = response.get('email', '')
+    if email and not User.objects.filter(email=email).exclude(pk=user.pk).exists():
+        user.email = email
+        user.save(update_fields=['email'])
+
+
 def save_language_from_state(backend, user, response, *args, **kwargs):
     """
     Salva la lingua preferita dell'utente dalla sessione.
