@@ -1,0 +1,41 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-sm mx-auto py-16 text-center">
+  <h1 class="text-xl font-bold text-slate-900 mb-2">Telegram Login — Test</h1>
+  <p class="text-xs text-slate-400 mb-8">Pagina di test, non visibile agli utenti.</p>
+
+  {% if user.is_authenticated %}
+    <div class="rounded-xl border border-green-200 bg-green-50 p-4 mb-6">
+      <p class="text-sm font-semibold text-green-800">Sei loggato come <strong>{{ user.user_profile }}</strong></p>
+      <p class="text-xs text-green-600 mt-1">{{ user.email|default:"(nessuna email)" }}</p>
+    </div>
+    <a href="{% url 'logout' %}" class="text-sm text-blue-600 hover:underline">Logout</a>
+  {% else %}
+    {% if telegram_bot_username %}
+      <div class="flex justify-center mb-6">
+        <script async src="https://telegram.org/js/telegram-widget.js?22"
+                data-telegram-login="{{ telegram_bot_username }}"
+                data-size="large"
+                data-radius="20"
+                data-auth-url="{{ request.scheme }}://{{ request.get_host }}{% url 'social:complete' 'telegram' %}"
+                data-request-access="write">
+        </script>
+      </div>
+      <p class="text-xs text-slate-400">oppure</p>
+      <div class="mt-4">
+        {% if telegram_auth_url %}
+          <a href="{{ telegram_auth_url }}"
+             class="inline-flex items-center gap-2 border border-slate-200 rounded-full px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#2AABEE"/></svg>
+            Login diretto (senza widget)
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="text-sm text-red-500">TELEGRAM_BOT_USERNAME non configurato.</p>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

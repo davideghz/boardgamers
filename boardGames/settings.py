@@ -29,7 +29,8 @@ BGG_API_TOKEN = env('BGG_API_TOKEN', default='')
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '0.0.0.0'
+    '0.0.0.0',
+    'urban-ever-spectacular-vcr.trycloudflare.com'
 ]
 
 MIDDLEWARE = [
@@ -114,6 +115,7 @@ TEMPLATES = [
                 # notifications
                 'webapp.context_processors.unread_notifications_count',
                 'webapp.context_processors.maps_api_key',
+                'webapp.context_processors.telegram_config',
             ],
         },
     },
@@ -141,10 +143,12 @@ DATABASES = {
 
 # SOCIAL LOGIN
 LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.telegram.TelegramAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 SOCIAL_AUTH_PIPELINE = (
@@ -200,6 +204,8 @@ SOCIAL_AUTH_PIPELINE = (
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('GOOGLE_OAUTH2_KEY', default='')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('GOOGLE_OAUTH2_SECRET', default='')
+
+SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
 
 MAPS_API_KEY = env('MAPS_API_KEY', default='')
 
