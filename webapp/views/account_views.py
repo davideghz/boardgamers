@@ -155,7 +155,9 @@ def memberships(request, template_name='accounts/account_memberships.html'):
 @login_required
 def edit_notification_preferences(request):
     profile = request.user.user_profile
-    if request.method == 'POST':
+    has_email = bool(request.user.email)
+
+    if request.method == 'POST' and has_email:
         form = UserNotificationPreferencesForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
@@ -166,6 +168,7 @@ def edit_notification_preferences(request):
 
     return render(request, 'accounts/account_notifications_preferences.html', {
         'form': form,
+        'has_email': has_email,
         'meta': Meta(
             title=_("Notification Preferences - Board-Gamers.com"),
             description=_("Configure your notification preferences: choose which updates to receive and how."),

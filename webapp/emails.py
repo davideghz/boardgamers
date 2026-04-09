@@ -51,6 +51,8 @@ def send_admin_contact_message(cleaned_data):
 
 
 def send_notification_new_table(user_profile, new_table):
+    if not user_profile.user.email:
+        return
     """
     Sends a notification email to the user about a newly created game table.
 
@@ -81,6 +83,8 @@ def send_notification_new_table(user_profile, new_table):
 
 
 def send_email_notification_deleted_table(user_profile, deleted_table):
+    if not user_profile.user.email:
+        return
     """
     Sends a notification email to the user about a deleted game table.
 
@@ -115,6 +119,8 @@ def send_email_notification_deleted_table(user_profile, deleted_table):
 
 
 def send_batch_notification_new_messages(user_profile, total_unread, table_details):
+    if not user_profile.user.email:
+        return
     """
     Sends a batch email notification to the user about unread messages.
 
