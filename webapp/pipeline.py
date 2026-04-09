@@ -34,6 +34,44 @@ def create_user_profile(backend, user, response, *args, **kwargs):
         )
 
 
+def validate_social_connect(strategy, backend, user, social, *args, **kwargs):
+    """
+    Guard against conflicts during a connect flow (authenticated user linking a social account).
+    Runs after social_user, which populates `social` and may override `user`.
+
+    Case 1: the social UID is already linked to a different account → error.
+    Case 2: connecting Google whose email is already registered to another account → error.
+
+    Returns an HttpResponse redirect on conflict; do_complete() returns it directly.
+    """
+    request = strategy.request
+    if not request or not request.user.is_authenticated:
+        return  # login/signup flow — no checks needed
+
+    from django.contrib import messages as django_messages
+    from django.shortcuts import redirect
+    from django.utils.translation import gettext as _
+
+    # Case 1: social UID already linked to a different user
+    if social and social.user_id != request.user.pk:
+        django_messages.error(
+            request,
+            _("This %(provider)s account is already linked to a different user.")
+            % {'provider': backend.name.replace('-', ' ').title()},
+        )
+        return redirect('user-profile-edit')
+
+    # Case 2: Google email taken by another account
+    if backend.name == 'google-oauth2' and not request.user.email:
+        google_email = kwargs.get('details', {}).get('email', '')
+        if google_email and User.objects.filter(email=google_email).exclude(pk=request.user.pk).exists():
+            django_messages.error(
+                request,
+                _("The Google email address is already associated with another account."),
+            )
+            return redirect('user-profile-edit')
+
+
 def safe_associate_user(backend, uid, user, social, *args, **kwargs):
     """
     Like social_core.pipeline.social_auth.associate_user, but if the social UID

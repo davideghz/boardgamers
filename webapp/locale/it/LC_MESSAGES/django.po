@@ -887,6 +887,14 @@ msgstr "Attendere."
 msgid "An error occurred. Please try again."
 msgstr "Si è verificato un errore. Riprova."
 
+#: webapp/pipeline.py
+msgid "This %(provider)s account is already linked to a different user."
+msgstr "Questo account %(provider)s è già collegato a un altro utente."
+
+#: webapp/pipeline.py
+msgid "The Google email address is already associated with another account."
+msgstr "L'indirizzo email Google è già associato a un altro account."
+
 #: webapp/views/profile_views.py
 msgid "Account not connected."
 msgstr "Account non collegato."
