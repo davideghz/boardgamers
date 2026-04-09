@@ -827,6 +827,74 @@ msgstr "Aggiorna email"
 msgid "Add email"
 msgstr "Aggiungi email"
 
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Connected accounts"
+msgstr "Account collegati"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Connected"
+msgstr "Collegato"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Not connected"
+msgstr "Non collegato"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Disconnect"
+msgstr "Scollega"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Set a password first to disconnect Google"
+msgstr "Imposta prima una password per scollegare Google"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Set a password first to disconnect Telegram"
+msgstr "Imposta prima una password per scollegare Telegram"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Connect"
+msgstr "Collega"
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "Link Telegram account"
+msgstr "Collega account Telegram"
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "Click the button below to link your Telegram account."
+msgstr "Clicca il pulsante per collegare il tuo account Telegram."
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "Link Telegram"
+msgstr "Collega Telegram"
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "Telegram login is not configured."
+msgstr "Il login con Telegram non è configurato."
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "Linking account..."
+msgstr "Collegamento in corso..."
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "Please wait."
+msgstr "Attendere."
+
+#: webapp/templates/accounts/account_connect_telegram.html
+msgid "An error occurred. Please try again."
+msgstr "Si è verificato un errore. Riprova."
+
+#: webapp/views/profile_views.py
+msgid "Account not connected."
+msgstr "Account non collegato."
+
+#: webapp/views/profile_views.py
+msgid "Cannot disconnect: this is your only login method."
+msgstr "Impossibile scollegare: è l'unico metodo di accesso."
+
+#: webapp/views/profile_views.py
+msgid "Account disconnected successfully."
+msgstr "Account scollegato con successo."
+
 #: webapp/templates/accounts/account_events.html:9
 #: webapp/templates/accounts/account_guests.html:8
 #: webapp/templates/accounts/account_locations.html:9

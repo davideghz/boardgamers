@@ -158,6 +158,96 @@
     </form>
   </div>
 
+  {# ── Connected accounts ───────────────────────────────────────────── #}
+  <div class="max-w-xl mt-10 pt-8 border-t border-slate-200">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">{% trans "Connected accounts" %}</h2>
+
+    <div class="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white overflow-hidden">
+
+      {# ── Google ── #}
+      <div class="flex items-center justify-between gap-4 px-4 py-4">
+        <div class="flex items-center gap-3">
+          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" class="flex-shrink-0">
+            <g fill="none" fill-rule="evenodd">
+              <path d="M17.6 9.2l-.1-1.8H9v3.4h4.8c-.2 1-.8 1.8-1.8 2.8v2.2h3a8.8 8.8 0 0 0 2.6-6.6z" fill="#4285F4" fill-rule="nonzero"/>
+              <path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853" fill-rule="nonzero"/>
+              <path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05" fill-rule="nonzero"/>
+              <path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z" fill="#EA4335" fill-rule="nonzero"/>
+            </g>
+          </svg>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">Google</p>
+            {% if 'google-oauth2' in connected_providers %}
+              <p class="text-xs text-green-600 font-medium">{% trans "Connected" %}</p>
+            {% else %}
+              <p class="text-xs text-slate-400">{% trans "Not connected" %}</p>
+            {% endif %}
+          </div>
+        </div>
+        <div>
+          {% if 'google-oauth2' in connected_providers %}
+            {% if can_disconnect_google %}
+              <form method="post" action="{% url 'disconnect-social' 'google-oauth2' %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors">
+                  {% trans "Disconnect" %}
+                </button>
+              </form>
+            {% else %}
+              <span class="text-xs text-slate-300 cursor-not-allowed"
+                    title="{% trans 'Set a password first to disconnect Google' %}">
+                {% trans "Disconnect" %}
+              </span>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+
+      {# ── Telegram ── #}
+      <div class="flex items-center justify-between gap-4 px-4 py-4">
+        <div class="flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="flex-shrink-0">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#2AABEE"/>
+          </svg>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">Telegram</p>
+            {% if 'telegram' in connected_providers %}
+              <p class="text-xs text-green-600 font-medium">{% trans "Connected" %}</p>
+            {% else %}
+              <p class="text-xs text-slate-400">{% trans "Not connected" %}</p>
+            {% endif %}
+          </div>
+        </div>
+        <div>
+          {% if 'telegram' in connected_providers %}
+            {% if can_disconnect_telegram %}
+              <form method="post" action="{% url 'disconnect-social' 'telegram' %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors">
+                  {% trans "Disconnect" %}
+                </button>
+              </form>
+            {% else %}
+              <span class="text-xs text-slate-300 cursor-not-allowed"
+                    title="{% trans 'Set a password first to disconnect Telegram' %}">
+                {% trans "Disconnect" %}
+              </span>
+            {% endif %}
+          {% elif telegram_connect_url %}
+            <a href="{{ telegram_connect_url }}"
+               class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors text-decoration-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
+              {% trans "Connect" %}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 {% endblock content %}
 
 {% block extrabodyjs %}

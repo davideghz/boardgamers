@@ -1,0 +1,55 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-sm mx-auto py-16 text-center">
+
+  <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#2AABEE"/>
+    </svg>
+  </div>
+
+  <h1 class="text-xl font-bold text-slate-900 mb-2" id="connect-title">{% trans "Link Telegram account" %}</h1>
+  <p class="text-sm text-slate-500 mb-8" id="connect-msg">{% trans "Click the button below to link your Telegram account." %}</p>
+
+  {% if telegram_connect_url %}
+    <a href="{{ telegram_connect_url }}" id="connect-btn"
+       class="inline-flex items-center gap-2 border border-slate-200 rounded-full px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#2AABEE"/></svg>
+      {% trans "Link Telegram" %}
+    </a>
+  {% else %}
+    <p class="text-sm text-red-500">{% trans "Telegram login is not configured." %}</p>
+  {% endif %}
+
+  <div class="mt-6">
+    <a href="{% url 'user-profile-edit' %}" class="text-sm text-slate-400 hover:text-slate-600 hover:underline">
+      {% trans "Cancel" %}
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrabodyjs %}
+<script>
+  // Fragment handler for Telegram connect flow (user is authenticated)
+  (function () {
+    var m = window.location.hash.match(/^#tgAuthResult=(.+)/);
+    if (!m) return;
+    var title = document.getElementById('connect-title');
+    var msg = document.getElementById('connect-msg');
+    var btn = document.getElementById('connect-btn');
+    if (title) title.textContent = '{% trans "Linking account..." %}';
+    if (msg) msg.textContent = '{% trans "Please wait." %}';
+    if (btn) btn.style.display = 'none';
+    try {
+      var data = JSON.parse(atob(m[1]));
+      var params = new URLSearchParams(data);
+      window.location.replace("{% url 'social:complete' 'telegram' %}?" + params.toString());
+    } catch (e) {
+      if (msg) msg.textContent = '{% trans "An error occurred. Please try again." %}';
+    }
+  })();
+</script>
+{% endblock %}

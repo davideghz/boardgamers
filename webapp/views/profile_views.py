@@ -10,6 +10,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView
 from django.views.generic.detail import DetailView
 
+from django.conf import settings as django_settings
+
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
 from webapp.models import UserProfile, Game, Player, Table
@@ -81,16 +83,42 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        social_auth = self.request.user.social_auth.first()
-        context['social_provider'] = social_auth.provider if social_auth else None
-        context['has_usable_password'] = self.request.user.has_usable_password()
-        return context
+        user = self.request.user
+        social_auths = list(user.social_auth.all())
+        connected = {sa.provider for sa in social_auths}
+        has_password = user.has_usable_password()
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     user = self.get_object().user
-    #     context['user'] = user
-    #     return context
+        # For the email section: use the "primary" provider
+        first_auth = social_auths[0] if social_auths else None
+        context['social_provider'] = first_auth.provider if first_auth else None
+        context['has_usable_password'] = has_password
+        context['connected_providers'] = connected
+
+        # Can disconnect only if another login method remains
+        context['can_disconnect_google'] = (
+            'google-oauth2' in connected and (has_password or 'telegram' in connected)
+        )
+        context['can_disconnect_telegram'] = (
+            'telegram' in connected and (has_password or 'google-oauth2' in connected)
+        )
+
+        # Telegram connect URL (return_to = connect page, for the connect button)
+        bot_token = django_settings.SOCIAL_AUTH_TELEGRAM_BOT_TOKEN
+        bot_username = getattr(django_settings, 'TELEGRAM_BOT_USERNAME', '')
+        if bot_token and ':' in bot_token and bot_username:
+            from urllib.parse import quote
+            bot_id = bot_token.split(':')[0]
+            origin = f"{self.request.scheme}://{self.request.get_host()}"
+            return_to = self.request.build_absolute_uri(reverse('connect-telegram'))
+            context['telegram_connect_url'] = (
+                f"https://oauth.telegram.org/auth"
+                f"?bot_id={bot_id}"
+                f"&origin={quote(origin, safe='')}"
+                f"&request_access=write"
+                f"&return_to={quote(return_to, safe='')}"
+            )
+
+        return context
 
 
 @login_required
@@ -112,6 +140,58 @@ def change_email(request):
             request.user.email = new_email
             request.user.save(update_fields=['email', 'username'])
             messages.success(request, _("Email updated successfully."))
+    return redirect('user-profile-edit')
+
+
+@login_required
+def connect_telegram_page(request):
+    """
+    Intermediate page for the Telegram account-linking flow.
+    - On first visit: shows a connect button; the return_to URL points back here.
+    - After Telegram auth: Telegram redirects here with #tgAuthResult=...; the page's
+      JS handler (visible only to authenticated users) intercepts it and redirects
+      to social:complete, which links the social account to the current user.
+    """
+    bot_token = django_settings.SOCIAL_AUTH_TELEGRAM_BOT_TOKEN
+    bot_username = getattr(django_settings, 'TELEGRAM_BOT_USERNAME', '')
+    connect_url = None
+    if bot_token and ':' in bot_token and bot_username:
+        from urllib.parse import quote
+        bot_id = bot_token.split(':')[0]
+        origin = f"{request.scheme}://{request.get_host()}"
+        return_to = request.build_absolute_uri()  # this page itself
+        connect_url = (
+            f"https://oauth.telegram.org/auth"
+            f"?bot_id={bot_id}"
+            f"&origin={quote(origin, safe='')}"
+            f"&request_access=write"
+            f"&return_to={quote(return_to, safe='')}"
+        )
+    return render(request, 'accounts/account_connect_telegram.html', {
+        'telegram_connect_url': connect_url,
+    })
+
+
+@login_required
+def disconnect_social(request, provider):
+    """Disconnect a social auth provider, with safety check."""
+    if request.method != 'POST':
+        return redirect('user-profile-edit')
+
+    user = request.user
+    connected = set(user.social_auth.values_list('provider', flat=True))
+
+    if provider not in connected:
+        messages.error(request, _("Account not connected."))
+        return redirect('user-profile-edit')
+
+    other_methods_exist = bool((connected - {provider}) or user.has_usable_password())
+    if not other_methods_exist:
+        messages.error(request, _("Cannot disconnect: this is your only login method."))
+        return redirect('user-profile-edit')
+
+    user.social_auth.filter(provider=provider).delete()
+    messages.success(request, _("Account disconnected successfully."))
     return redirect('user-profile-edit')
 
 
