@@ -94,12 +94,16 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
         context['has_usable_password'] = has_password
         context['connected_providers'] = connected
 
+        # password counts as a fallback login method only if the user also has an email
+        # (Telegram users may have a password but no email, so they can't use email/password login)
+        has_password_login = has_password and bool(user.email)
+
         # Can disconnect only if another login method remains
         context['can_disconnect_google'] = (
-            'google-oauth2' in connected and (has_password or 'telegram' in connected)
+            'google-oauth2' in connected and (has_password_login or 'telegram' in connected)
         )
         context['can_disconnect_telegram'] = (
-            'telegram' in connected and (has_password or 'google-oauth2' in connected)
+            'telegram' in connected and (has_password_login or 'google-oauth2' in connected)
         )
 
         # Telegram connect URL (return_to = connect page, for the connect button)
@@ -185,7 +189,8 @@ def disconnect_social(request, provider):
         messages.error(request, _("Account not connected."))
         return redirect('user-profile-edit')
 
-    other_methods_exist = bool((connected - {provider}) or user.has_usable_password())
+    has_password_login = user.has_usable_password() and bool(user.email)
+    other_methods_exist = bool((connected - {provider}) or has_password_login)
     if not other_methods_exist:
         messages.error(request, _("Cannot disconnect: this is your only login method."))
         return redirect('user-profile-edit')
