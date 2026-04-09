@@ -81,7 +81,9 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['has_social_auth'] = self.request.user.social_auth.exists()
+        social_auth = self.request.user.social_auth.first()
+        context['social_provider'] = social_auth.provider if social_auth else None
+        context['has_usable_password'] = self.request.user.has_usable_password()
         return context
 
     # def get_context_data(self, **kwargs):
@@ -100,11 +102,14 @@ def change_email(request):
             messages.error(request, _("Email cannot be empty."))
         elif User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
             messages.error(request, _("This email is already in use."))
-        elif not request.user.check_password(password):
+        elif request.user.has_usable_password() and not request.user.check_password(password):
             messages.error(request, _("Wrong password."))
         else:
+            # Only sync username to email for users whose username IS their email
+            # (Google and email-registered users). Telegram users keep their own username.
+            if request.user.username == request.user.email:
+                request.user.username = new_email
             request.user.email = new_email
-            request.user.username = new_email
             request.user.save(update_fields=['email', 'username'])
             messages.success(request, _("Email updated successfully."))
     return redirect('user-profile-edit')

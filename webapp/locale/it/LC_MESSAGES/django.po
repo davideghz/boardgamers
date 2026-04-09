@@ -783,7 +783,11 @@ msgstr "Aggiorna profilo"
 msgid "Change email"
 msgstr "Cambia email"
 
-#: webapp/templates/accounts/account_edit_profile.html:118
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Your account is linked to Telegram and has no email address. You can add one below."
+msgstr "Il tuo account è collegato a Telegram e non ha un'email. Puoi aggiungerne una qui sotto."
+
+#: webapp/templates/accounts/account_edit_profile.html
 msgid ""
 "Your account is linked to Google. If you change your email you will no "
 "longer be able to log in with Google."
@@ -791,29 +795,37 @@ msgstr ""
 "Il tuo account è collegato a Google. Se cambi email non potrai più accedere "
 "con Google."
 
-#: webapp/templates/accounts/account_edit_profile.html:125
+#: webapp/templates/accounts/account_edit_profile.html
 msgid "Current email"
 msgstr "Email attuale"
 
-#: webapp/templates/accounts/account_edit_profile.html:131
+#: webapp/templates/accounts/account_edit_profile.html
 msgid "New email"
 msgstr "Nuova email"
 
-#: webapp/templates/accounts/account_edit_profile.html:135
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Email address"
+msgstr "Indirizzo email"
+
+#: webapp/templates/accounts/account_edit_profile.html
 msgid "New email address"
 msgstr "Nuovo indirizzo email"
 
-#: webapp/templates/accounts/account_edit_profile.html:139
+#: webapp/templates/accounts/account_edit_profile.html
 msgid "Current password"
 msgstr "Password attuale"
 
-#: webapp/templates/accounts/account_edit_profile.html:143
+#: webapp/templates/accounts/account_edit_profile.html
 msgid "Confirm with your password"
 msgstr "Conferma con la tua password"
 
-#: webapp/templates/accounts/account_edit_profile.html:147
+#: webapp/templates/accounts/account_edit_profile.html
 msgid "Update email"
 msgstr "Aggiorna email"
+
+#: webapp/templates/accounts/account_edit_profile.html
+msgid "Add email"
+msgstr "Aggiungi email"
 
 #: webapp/templates/accounts/account_events.html:9
 #: webapp/templates/accounts/account_guests.html:8
