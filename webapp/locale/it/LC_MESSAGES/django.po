@@ -787,13 +787,6 @@ msgstr "Cambia email"
 msgid "Your account is linked to Telegram and has no email address. You can add one below."
 msgstr "Il tuo account è collegato a Telegram e non ha un'email. Puoi aggiungerne una qui sotto."
 
-#: webapp/templates/accounts/account_edit_profile.html
-msgid ""
-"Your account is linked to Google. If you change your email you will no "
-"longer be able to log in with Google."
-msgstr ""
-"Il tuo account è collegato a Google. Se cambi email non potrai più accedere "
-"con Google."
 
 #: webapp/templates/accounts/account_edit_profile.html
 msgid "Current email"
