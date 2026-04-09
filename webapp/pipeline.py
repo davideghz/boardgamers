@@ -2,6 +2,7 @@ import random
 import string
 
 from django.contrib.auth import get_user_model
+from social_django.models import UserSocialAuth
 from webapp.models import UserProfile
 from django.contrib.gis.geos import Point
 
@@ -31,6 +32,28 @@ def create_user_profile(backend, user, response, *args, **kwargs):
             point=Point(45.47506920000001, 9.2483908, srid=4326),
             is_email_verified=True,
         )
+
+
+def safe_associate_user(backend, uid, user, social, *args, **kwargs):
+    """
+    Like social_core.pipeline.social_auth.associate_user, but if the social UID
+    is already linked to a different user (race condition / double-submit), log in
+    the already-linked user instead of raising AuthAlreadyAssociated.
+    """
+    if social and social.user != user:
+        # The social account is linked to a different user — use that user.
+        return {'user': social.user, 'social': social}
+
+    if not social:
+        try:
+            social = UserSocialAuth.objects.get(provider=backend.name, uid=str(uid))
+            return {'user': social.user, 'social': social}
+        except UserSocialAuth.DoesNotExist:
+            pass
+
+    # Delegate to the standard step.
+    from social_core.pipeline.social_auth import associate_user as _associate_user
+    return _associate_user(backend, uid, user, social, *args, **kwargs)
 
 
 def save_language_from_state(backend, user, response, *args, **kwargs):

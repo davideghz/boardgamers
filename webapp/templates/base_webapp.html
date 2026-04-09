@@ -494,6 +494,7 @@
   {% block extrabodyjs %}{% endblock extrabodyjs %}
 
   {# Telegram tgAuthResult handler — intercepts #tgAuthResult= fragment after Telegram OAuth redirect #}
+  {% if not user.is_authenticated %}
   <script>
     (function () {
       var m = window.location.hash.match(/^#tgAuthResult=(.+)/);
@@ -505,4 +506,5 @@
       } catch (e) {}
     })();
   </script>
+  {% endif %}
 {% endblock bodyjs %}

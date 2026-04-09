@@ -189,7 +189,8 @@ SOCIAL_AUTH_PIPELINE = (
     'webapp.pipeline.create_user_profile',
 
     # Create the record that associates the social account with the user.
-    'social_core.pipeline.social_auth.associate_user',
+    # Custom step: handles race-condition double-submit gracefully.
+    'webapp.pipeline.safe_associate_user',
 
     # Populate the extra_data field in the social record with the values
     # specified by settings (and the default ones like access_token, etc).
@@ -206,6 +207,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('GOOGLE_OAUTH2_KEY', default='')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('GOOGLE_OAUTH2_SECRET', default='')
 
 SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
+SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 
 MAPS_API_KEY = env('MAPS_API_KEY', default='')
 
