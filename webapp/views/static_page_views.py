@@ -277,3 +277,7 @@ def debug(request, template_name="staticpages/debug.html"):
 
 def test_widget(request, template_name="staticpages/test_widget.html"):
     return render(request, template_name, {})
+
+
+def test_telegram_login(request, template_name="staticpages/test_telegram_login.html"):
+    return render(request, template_name, {})

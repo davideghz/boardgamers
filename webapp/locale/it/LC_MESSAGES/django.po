@@ -1063,6 +1063,9 @@ msgstr "Accedi al tuo account"
 msgid "Continue with Google"
 msgstr "Continua con Google"
 
+msgid "Continue with Telegram"
+msgstr "Continua con Telegram"
+
 #: webapp/templates/auth/login.html:31
 #: webapp/templates/staticpages/contacts.html:59
 msgid "or"
@@ -1167,6 +1170,9 @@ msgstr "Unisciti alla community e trova tavoli di gioco vicino a te."
 #: webapp/templates/auth/signup.html:30
 msgid "Signup with Google"
 msgstr "Registrati con Google"
+
+msgid "Signup with Telegram"
+msgstr "Registrati con Telegram"
 
 #: webapp/templates/auth/signup.html:35
 msgid "or sign up with email"
