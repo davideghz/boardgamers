@@ -13,16 +13,15 @@ def telegram_config(request):
     if not bot_token or ':' not in bot_token or not bot_username:
         return {'telegram_bot_username': '', 'telegram_auth_url': None}
     from urllib.parse import quote
-    from django.urls import reverse
     bot_id = bot_token.split(':')[0]
     origin = f"{request.scheme}://{request.get_host()}"
-    complete_url = f"{origin}{reverse('social:complete', args=['telegram'])}"
+    return_to = request.build_absolute_uri()
     auth_url = (
         f"https://oauth.telegram.org/auth"
         f"?bot_id={bot_id}"
         f"&origin={quote(origin, safe='')}"
         f"&request_access=write"
-        f"&return_to={quote(complete_url, safe='')}"
+        f"&return_to={quote(return_to, safe='')}"
     )
     return {
         'telegram_bot_username': bot_username,

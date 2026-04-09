@@ -492,4 +492,17 @@
   </script>
 
   {% block extrabodyjs %}{% endblock extrabodyjs %}
+
+  {# Telegram tgAuthResult handler — intercepts #tgAuthResult= fragment after Telegram OAuth redirect #}
+  <script>
+    (function () {
+      var m = window.location.hash.match(/^#tgAuthResult=(.+)/);
+      if (!m) return;
+      try {
+        var data = JSON.parse(atob(m[1]));
+        var params = new URLSearchParams(data);
+        window.location.replace("{% url 'social:complete' 'telegram' %}?" + params.toString());
+      } catch (e) {}
+    })();
+  </script>
 {% endblock bodyjs %}
