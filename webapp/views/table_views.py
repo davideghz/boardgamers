@@ -224,7 +224,7 @@ def table_players_view(request, slug):
     return render(request, "tables/table_players.html", {
         "table": table,
         "players": players,
-        'available_seats': table.max_players - players.count() - table.external_players,
+        'available_seats': max(0, table.max_players - players.count() - table.external_players),
         'add_player_form': add_player_form,
     })
 
