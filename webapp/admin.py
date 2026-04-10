@@ -12,6 +12,20 @@ from webapp.models import UserProfile, Table, Comment, Player, Location, Game, L
 
 
 
+class BggCodeFilter(admin.SimpleListFilter):
+    title = 'BGG Code'
+    parameter_name = 'has_bgg_code'
+
+    def lookups(self, request, model_admin):
+        return [('yes', 'Presente'), ('no', 'Assente')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.exclude(bgg_code__isnull=True).exclude(bgg_code='')
+        if self.value() == 'no':
+            return queryset.filter(models.Q(bgg_code__isnull=True) | models.Q(bgg_code=''))
+
+
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'date_joined', 'is_staff')
     ordering = ('-date_joined',)  # opzionale: ordina per data
@@ -73,7 +87,7 @@ class LocationAdmin(admin.ModelAdmin):
 class GameAdmin(admin.ModelAdmin):
     list_display = ("name", "bgg_code")
     list_editable = ("bgg_code",)
-    list_filter = ("bgg_imported", "verified", "leaderboard_enabled")
+    list_filter = (BggCodeFilter, "bgg_imported", "verified", "leaderboard_enabled")
     search_fields = ("name",)
 
 
