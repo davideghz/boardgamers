@@ -342,7 +342,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     external_players = models.PositiveIntegerField(null=False, blank=True, default=0,
                                                    verbose_name=_('External players'))
     date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
-    time = models.TimeField(default=timezone.now, null=False, blank=True, verbose_name=_('Hour'))
+    time = models.TimeField(default=datetime.time(20, 30), null=False, blank=True, verbose_name=_('Hour'))
     is_public_location = models.BooleanField(default=False, null=False, blank=True)
 
     author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
