@@ -3,6 +3,8 @@ import string
 import uuid
 import random
 import datetime
+import mistune
+import nh3
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -17,21 +19,18 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from meta.models import ModelMeta
-import mistune
-import nh3
+from model_utils import FieldTracker
+from webapp.storage_backends import PublicMediaStorage
 
 
 def _plain_text(markdown_text):
-    """Convert markdown to plain text (strip all tags) and truncate for meta."""
+    """Convert Markdown to plain text (strip all tags) and truncate for meta."""
     if not markdown_text:
         return ''
     html = mistune.html(markdown_text)
     plain = nh3.clean(html, tags=set())
     plain = re.sub(r'\s+', ' ', plain).strip()
     return plain[:160]
-from model_utils import FieldTracker
-
-from webapp.storage_backends import PublicMediaStorage
 
 
 class DateTimeModel(models.Model):
@@ -109,7 +108,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_title(self):
-                return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+        return _("%(name)s - Board-Gamers.com") % {'name': self.name}
 
     def get_meta_description(self):
         return _plain_text(self.description)
@@ -184,10 +183,10 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_title(self):
-                return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+        return _("%(name)s - Board-Gamers.com") % {'name': self.name}
 
     def get_meta_description(self):
-                return _("Game nights in %(address)s") % {'address': self.address}
+        return _("Game nights in %(address)s") % {'address': self.address}
 
     def __str__(self):
         return f"{self.name} - {self.city}"
@@ -232,7 +231,8 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     notification_new_table = models.BooleanField(default=True, verbose_name="Notification New Table")
     notification_new_player = models.BooleanField(default=True, verbose_name="Notification New Player")
     notification_new_comments = models.BooleanField(default=True, verbose_name="Notification New Comments")
-    notification_leaderboard_reminder = models.BooleanField(default=True, verbose_name="Notification Leaderboard Reminder")
+    notification_leaderboard_reminder = models.BooleanField(
+        default=True, verbose_name="Notification Leaderboard Reminder")
     notification_leaderboard_update = models.BooleanField(default=True, verbose_name="Notification Leaderboard Update")
 
     _metadata = {
@@ -242,10 +242,10 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_title(self):
-                return _("%(nickname)s - Board-Gamers.com") % {'nickname': self.nickname}
+        return _("%(nickname)s - Board-Gamers.com") % {'nickname': self.nickname}
 
     def get_meta_description(self):
-                return _("Profile of %(nickname)s on Board-Gamers.com") % {'nickname': self.nickname}
+        return _("Profile of %(nickname)s on Board-Gamers.com") % {'nickname': self.nickname}
 
     def save(self, *args, **kwargs):
         if self.latitude and self.longitude:
@@ -334,11 +334,13 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     event = models.ForeignKey(
         'Event', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
     play_area = models.ForeignKey(
-        'PlayArea', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
+        'PlayArea',
+        on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
 
     min_players = models.SmallIntegerField(null=False, blank=True, default=2, verbose_name=_('Minimum players'))
     max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
-    external_players = models.PositiveIntegerField(null=False, blank=True, default=0, verbose_name=_('External players'))
+    external_players = models.PositiveIntegerField(null=False, blank=True, default=0,
+                                                   verbose_name=_('External players'))
     date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
     time = models.TimeField(default=timezone.now, null=False, blank=True, verbose_name=_('Hour'))
     is_public_location = models.BooleanField(default=False, null=False, blank=True)
