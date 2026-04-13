@@ -8,7 +8,7 @@ from collections import defaultdict
 
 
 class Command(BaseCommand):
-    help = 'Invia notifiche email batch per nuovi commenti non letti'
+    help = 'Invia digest email per commenti non letti, raggruppati per tavolo'
 
     def handle(self, *args, **kwargs):
         # Recupera tutte le notifiche non inviate e non lette di tipo NEW_COMMENT

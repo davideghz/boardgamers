@@ -100,13 +100,13 @@ There is no task queue (Celery, RQ, etc.) — scheduling is external.
 
 ---
 
-## Batch command: `batch_notification`
+## Batch command: `send_comment_digests`
 
-**File**: `webapp/management/commands/batch_notification.py`
+**File**: `webapp/management/commands/send_comment_digests.py`
 
 **What it sends**: one digest email per user for all their unread `new_comment` notifications.
 
-**How**: calls `send_batch_notification_new_messages()` from `webapp/emails.py`, which renders a standard HTML email template and sends it via `django-ses` (the same path as all other Django `send_mail` calls). There is **no SES bulk API** here — each user gets an individual `send_mail` call.
+**How**: calls `send_send_comment_digests_new_messages()` from `webapp/emails.py`, which renders a standard HTML email template and sends it via `django-ses` (the same path as all other Django `send_mail` calls). There is **no SES bulk API** here — each user gets an individual `send_mail` call.
 
 **Filtering**:
 - `sent=False`
@@ -123,7 +123,7 @@ There is no task queue (Celery, RQ, etc.) — scheduling is external.
 
 ## Comparison at a glance
 
-| | `send_queued_notifications` | `batch_notification` |
+| | `send_queued_notifications` | `send_comment_digests` |
 |---|---|---|
 | Notification type | `new_table` | `new_comment` |
 | Also filters `is_read=False` | No | Yes |
@@ -152,7 +152,7 @@ There is no task queue (Celery, RQ, etc.) — scheduling is external.
 | `webapp/signals.py` | Creates `Notification` records on every relevant event |
 | `webapp/emails.py` | Email sending functions |
 | `webapp/management/commands/send_queued_notifications.py` | SES bulk batch for `new_table` |
-| `webapp/management/commands/batch_notification.py` | Digest batch for `new_comment` |
+| `webapp/management/commands/send_comment_digests.py` | Digest batch for `new_comment` |
 | `webapp/management/commands/setup_ses_template.py` | AWS SES template setup |
 | `webapp/context_processors.py` | `unread_notifications_count` for the header badge |
 | `webapp/templates/accounts/account_notifications.html` | In-app notifications UI |
