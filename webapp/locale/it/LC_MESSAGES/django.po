@@ -1014,15 +1014,15 @@ msgstr "Reimposta la tua password"
 
 #: webapp/templates/accounts/account_index.html:93
 msgid "My guests"
-msgstr ""
+msgstr "I miei ospiti"
 
 #: webapp/templates/accounts/account_index.html:94
 msgid "Manage the guest identities you can bring to tables"
-msgstr ""
+msgstr "Gestisci gli ospiti che puoi portare ai tavoli"
 
 #: webapp/templates/accounts/account_index.html:107
 msgid "Manage the events you created or coordinate"
-msgstr ""
+msgstr "Gestisci gli eventi che hai creato o che coordini"
 
 #: webapp/templates/accounts/account_index.html:119
 #: webapp/templates/accounts/account_notifications_preferences.html:11
