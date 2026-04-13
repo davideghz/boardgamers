@@ -149,6 +149,7 @@ urlpatterns = [
     path("account/guests/", account_views.guests, name="account-guests"),
     path("account/guests/create/", account_views.create_guest, name="account-guest-create"),
     path("account/guests/<int:guest_id>/delete/", account_views.delete_guest, name="account-guest-delete"),
+    path("account/guests/<int:guest_id>/update/", account_views.update_guest, name="account-guest-update"),
 
     # USER PROFILES
     path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),

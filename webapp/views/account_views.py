@@ -200,6 +200,20 @@ def create_guest(request):
 
 
 @login_required
+def update_guest(request, guest_id):
+    profile = request.user.user_profile
+    guest = get_object_or_404(GuestProfile, id=guest_id, owner=profile)
+    if request.method == 'POST':
+        form = GuestProfileForm(request.POST, instance=guest)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Guest updated."))
+        else:
+            messages.error(request, _("Invalid name."), extra_tags='danger')
+    return redirect('account-guests')
+
+
+@login_required
 def delete_guest(request, guest_id):
     profile = request.user.user_profile
     guest = get_object_or_404(GuestProfile, id=guest_id, owner=profile)
