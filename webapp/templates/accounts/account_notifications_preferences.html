@@ -50,6 +50,28 @@
         </div>
       </label>
 
+      {# Toggle row — new player #}
+      <label for="{{ form.notification_new_player.id_for_label }}"
+             class="flex items-center justify-between gap-4 px-4 py-4 {% if has_email %}cursor-pointer hover:bg-slate-50{% else %}cursor-not-allowed{% endif %} transition-colors">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{% trans "New player" %}</p>
+          <p class="text-xs text-slate-500 mt-0.5">{% trans "A new player joins a table you created" %}</p>
+        </div>
+        <div class="relative flex-shrink-0">
+          <input type="checkbox"
+                 id="{{ form.notification_new_player.id_for_label }}"
+                 name="notification_new_player"
+                 class="sr-only peer"
+                 {% if has_email and form.notification_new_player.value %}checked{% endif %}>
+          <div class="w-11 h-6 rounded-full bg-slate-200
+                      peer-checked:bg-blue-500
+                      after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                      after:bg-white after:rounded-full after:h-5 after:w-5
+                      after:transition-all after:shadow-sm
+                      peer-checked:after:translate-x-5"></div>
+        </div>
+      </label>
+
       {# Toggle row — new comment #}
       <label for="{{ form.notification_new_comments.id_for_label }}"
              class="flex items-center justify-between gap-4 px-4 py-4 {% if has_email %}cursor-pointer hover:bg-slate-50{% else %}cursor-not-allowed{% endif %} transition-colors">

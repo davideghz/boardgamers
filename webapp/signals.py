@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _, activate
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
-    send_email_notification_deleted_table
+    send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType
 
 
@@ -81,6 +81,8 @@ def notify_players_on_new_player(sender, instance, created, **kwargs):
                 table=instance.table,
                 location=instance.table.location,
             )
+            if player.notification_new_player:
+                send_email_notification_new_player(player, instance.table, instance.user_profile)
 
 
 @receiver(post_save, sender=Player)

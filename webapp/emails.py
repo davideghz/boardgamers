@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.utils import translation
 
 from webapp import messages
 from webapp.models import UserProfile
@@ -111,6 +112,40 @@ def send_email_notification_deleted_table(user_profile, deleted_table):
 
     send_mail(
         messages.EMAIL_SUBJECT_NOTIFICATION_DELETED_TABLE,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [user_profile.user.email],
+        html_message=html_content,
+    )
+
+
+def send_email_notification_new_player(user_profile, table, new_player):
+    if not user_profile.user.email:
+        return
+    """
+    Sends a notification email when a new player joins a table.
+
+    :param user_profile: The UserProfile instance of the recipient.
+    :param table: The Table instance the new player joined.
+    :param new_player: The UserProfile instance of the player who joined.
+    """
+    lang = user_profile.preferred_language or settings.LANGUAGE_CODE
+    table_url = settings.DOMAIN_URL + reverse('table-detail', kwargs={'slug': table.slug})
+
+    context = {
+        'user_profile': user_profile,
+        'title': table.title,
+        'game': table.game,
+        'new_player_nickname': new_player.nickname,
+        'button_href': table_url,
+    }
+    with translation.override(lang):
+        text_content = render_to_string('emails/email_notification_new_player.html', context=context)
+        html_content = render_to_string('emails/email_notification_new_player_html.html', context=context)
+        subject = str(messages.EMAIL_SUBJECT_NOTIFICATION_NEW_PLAYER)
+
+    send_mail(
+        subject,
         text_content,
         settings.DEFAULT_FROM_EMAIL,
         [user_profile.user.email],

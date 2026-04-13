@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% trans "Hey" %} {{ user_profile.nickname }},
+{% trans "A new player joined the table" %} "{{ title }}": {{ new_player_nickname }}.
+
+{% if game %}{% trans "Game:" %} {{ game }}{% endif %}
+
+{{ button_href }}
+Board-Gamers.com

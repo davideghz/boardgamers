@@ -4,6 +4,7 @@ EMAIL_SUBJECT_VERIFICATION_CODE = _('Email verification')
 EMAIL_SUBJECT_CONTACTS = _('New message from Contact form')
 EMAIL_SUBJECT_NOTIFICATION_NEW_TABLE = _('New table has been created')
 EMAIL_SUBJECT_NOTIFICATION_DELETED_TABLE = _('A table has been deleted')
+EMAIL_SUBJECT_NOTIFICATION_NEW_PLAYER = _('A new player joined the table')
 
 MSG_EMAIL_VERIFICATION_CODE_SENT = _("Check your email and follow the link to verify your account.")
 
