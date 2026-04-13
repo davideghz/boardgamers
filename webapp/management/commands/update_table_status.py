@@ -32,12 +32,12 @@ class Command(BaseCommand):
                 table.leaderboard_status = Table.LEADERBOARD_NOT_EDITABLE
 
             # Caso 2: Partita in corso
-            elif game_datetime <= current_time < game_datetime + timedelta(hours=6):
+            elif game_datetime <= current_time < game_datetime + timedelta(hours=12):
                 table.status = Table.ONGOING
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
 
-            # Caso 3: Partita terminata da 6 ore
-            elif game_datetime + timedelta(hours=6) <= current_time < game_datetime + timedelta(days=2):
+            # Caso 3: Partita terminata da 12 ore
+            elif game_datetime + timedelta(hours=12) <= current_time < game_datetime + timedelta(days=2):
                 table.status = Table.CLOSED
                 table.leaderboard_status = Table.LEADERBOARD_EDITABLE
 

@@ -240,8 +240,8 @@ class AddTablePlayerView(LoginRequiredMixin, View):
             messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
             return redirect("table-players", slug=table.slug)
 
-        # Table status check
-        if table.status == Table.CLOSED:
+        # Table status check — autore e admin possono sempre aggiungere
+        if table.status == Table.CLOSED and not (request.user.is_superuser or table.author.user == request.user):
             messages.error(request, _("Cannot add players to a closed table."), extra_tags="danger")
             return redirect("table-players", slug=table.slug)
 
@@ -287,8 +287,8 @@ def remove_player_view(request, slug, player_id):
         messages.error(request, _("You don’t have permission to remove players from this table."), extra_tags="danger")
         return redirect("table-players", slug=slug)
 
-    # Controllo stato tavolo
-    if table.status not in [Table.OPEN, Table.ONGOING]:
+    # Controllo stato tavolo — autore e admin possono sempre rimuovere
+    if table.status not in [Table.OPEN, Table.ONGOING] and not (request.user.is_superuser or table.author.user == request.user):
         messages.error(request, _("You can remove players only from tables that are open or ongoing."), extra_tags="danger")
         return redirect("table-players", slug=slug)
 
