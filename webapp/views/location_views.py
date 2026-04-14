@@ -1016,6 +1016,95 @@ class DisconnectTelegramGroupView(LoginRequiredMixin, View):
         return redirect('location-manage-telegram', slug=slug)
 
 
+class LocationManageTableStatsView(LoginRequiredMixin, View):
+    """Generate a copy-pasteable status message for tables in a date range."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+
+        today = date.today()
+        date_from_str = request.GET.get('date_from', '')
+        date_to_str = request.GET.get('date_to', '')
+
+        try:
+            date_from = date.fromisoformat(date_from_str) if date_from_str else today
+        except ValueError:
+            date_from = today
+        try:
+            date_to = date.fromisoformat(date_to_str) if date_to_str else date_from
+        except ValueError:
+            date_to = date_from
+
+        if date_to < date_from:
+            date_to = date_from
+
+        tables = (
+            Table.objects
+            .filter(location=location, date__gte=date_from, date__lte=date_to)
+            .select_related('game')
+            .prefetch_related(
+                Prefetch(
+                    'player_set',
+                    queryset=Player.objects.select_related('user_profile', 'guest_profile__owner'),
+                )
+            )
+            .order_by('date', 'time')
+        )
+
+        message_text = self._build_message(list(tables), date_from, date_to)
+
+        return render(request, 'locations/location_manage_table_stats.html', {
+            'location': location,
+            'date_from': date_from.isoformat(),
+            'date_to': date_to.isoformat(),
+            'message_text': message_text,
+            'meta': Meta(title=_("Table stats – %(name)s") % {'name': location.name}),
+        })
+
+    def _build_message(self, tables, date_from, date_to):
+        lines = []
+
+        if date_from == date_to:
+            lines.append(f"Tavoli del {date_from.strftime('%d/%m/%Y')}")
+        else:
+            lines.append(f"Tavoli dal {date_from.strftime('%d/%m/%Y')} al {date_to.strftime('%d/%m/%Y')}")
+
+        open_tables = [t for t in tables if t.status in (Table.OPEN, Table.ONGOING)]
+        closed_tables = [t for t in tables if t.status == Table.CLOSED]
+
+        def table_label(t):
+            if t.game:
+                return t.game.name
+            return t.title if t.title else 'Tavolo'
+
+        def player_names(t):
+            names = [p.display_name for p in t.player_set.all()]
+            return ', '.join(names) if names else '—'
+
+        if open_tables:
+            lines.append('')
+            lines.append('🟢 Tavoli aperti:')
+            for t in open_tables:
+                occupied = t.total_players
+                available = t.max_players - occupied
+                names = player_names(t)
+                lines.append(f'• {table_label(t)}: {occupied} occupati / {available} disponibili – {names}')
+
+        if closed_tables:
+            lines.append('')
+            lines.append('🔴 Tavoli chiusi:')
+            for t in closed_tables:
+                names = player_names(t)
+                lines.append(f'• {table_label(t)}: {names}')
+
+        if not open_tables and not closed_tables:
+            lines.append('')
+            lines.append('Nessun tavolo trovato per questo periodo.')
+
+        return '\n'.join(lines)
+
+
 class DownloadGamesCSVView(LoginRequiredMixin, View):
     """Download a CSV of all games in a location's library."""
 

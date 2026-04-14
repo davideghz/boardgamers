@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-13 15:53+0000\n"
+"POT-Creation-Date: 2026-04-14 15:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,7 +32,7 @@ msgstr "Giochi"
 #: webapp/templates/events/event_table_add_or_edit.html:90
 #: webapp/templates/locations/location_manage_game_detail.html:54
 #: webapp/templates/tables/table_add_or_edit.html:72
-#: webapp/views/location_views.py:1033
+#: webapp/views/location_views.py:1122
 msgid "Game"
 msgstr "Gioco"
 
@@ -114,7 +114,7 @@ msgstr "Profilo utente collegato"
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
 #: webapp/templates/locations/location_manage_widget.html:55
-#: webapp/views/location_views.py:1033
+#: webapp/views/location_views.py:1122
 msgid "Notes"
 msgstr "Note"
 
@@ -151,7 +151,7 @@ msgstr ""
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:622 webapp/models.py:702 webapp/views/location_views.py:1033
+#: webapp/forms.py:622 webapp/models.py:702 webapp/views/location_views.py:1122
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
@@ -528,11 +528,11 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-#: webapp/models.py:698 webapp/views/location_views.py:1033
+#: webapp/models.py:698 webapp/views/location_views.py:1122
 msgid "Ownership"
 msgstr "Proprietà"
 
-#: webapp/models.py:706 webapp/views/location_views.py:1033
+#: webapp/models.py:706 webapp/views/location_views.py:1122
 msgid "Physical Location"
 msgstr "Ubicazione"
 
@@ -1065,8 +1065,9 @@ msgid "Active memberships"
 msgstr "Membership attive"
 
 #: webapp/templates/accounts/account_memberships.html:38
+#: webapp/templates/locations/location_manage_table_stats.html:21
 msgid "From"
-msgstr "Da"
+msgstr "Dal"
 
 #: webapp/templates/accounts/account_memberships.html:57
 msgid "No active memberships"
@@ -2207,6 +2208,7 @@ msgstr "Solo i managers possono creare un tavolo."
 
 #: webapp/templates/locations/location_detail.html:299
 #: webapp/templates/locations/location_manage_index.html:10
+#: webapp/templates/locations/location_manage_table_stats.html:9
 #: webapp/templates/locations/location_manage_telegram.html:9
 #: webapp/templates/locations/location_manage_widget.html:9
 msgid "Manage location"
@@ -2446,15 +2448,24 @@ msgid "Control who can create and join tables"
 msgstr "Decidi chi può creare e unirsi ai tavoli"
 
 #: webapp/templates/locations/location_manage_index.html:106
+#: webapp/templates/locations/location_manage_table_stats.html:11
+msgid "Table statistics"
+msgstr "Statistiche tavoli"
+
+#: webapp/templates/locations/location_manage_index.html:107
+msgid "Generate a message with table status to share on chat"
+msgstr "Genera un messaggio con lo stato dei tavoli da condividere in chat"
+
+#: webapp/templates/locations/location_manage_index.html:122
 #: webapp/templates/locations/location_manage_widget.html:11
 msgid "Widget"
 msgstr "Widget"
 
-#: webapp/templates/locations/location_manage_index.html:107
+#: webapp/templates/locations/location_manage_index.html:123
 msgid "Embed upcoming tables on your website"
 msgstr "Incorpora i prossimi tavoli sul tuo sito"
 
-#: webapp/templates/locations/location_manage_index.html:126
+#: webapp/templates/locations/location_manage_index.html:142
 msgid "Publish open tables to a Telegram group"
 msgstr "Pubblica i tavoli aperti in un gruppo Telegram"
 
@@ -2599,6 +2610,35 @@ msgstr "Chi può unirsi ai tavoli?"
 msgid "Save permissions"
 msgstr "Salva permessi"
 
+#: webapp/templates/locations/location_manage_table_stats.html:12
+msgid "Generate a message to share table status on WhatsApp or other chats."
+msgstr "Genera un messaggio per condividere lo status dei tavoli su WhatsApp o altre chats."
+
+#: webapp/templates/locations/location_manage_table_stats.html:26
+msgid "To"
+msgstr "Al"
+
+#: webapp/templates/locations/location_manage_table_stats.html:33
+msgid "Generate"
+msgstr "Genera"
+
+#: webapp/templates/locations/location_manage_table_stats.html:42
+msgid "Message"
+msgstr "messaggio"
+
+#: webapp/templates/locations/location_manage_table_stats.html:45
+#: webapp/templates/locations/location_manage_telegram.html:97
+#: webapp/templates/locations/location_manage_widget.html:30
+#: webapp/templates/locations/location_manage_widget.html:48
+msgid "Copy"
+msgstr "Copia"
+
+#: webapp/templates/locations/location_manage_table_stats.html:60
+#: webapp/templates/locations/location_manage_telegram.html:170
+#: webapp/templates/locations/location_manage_widget.html:71
+msgid "Copied!"
+msgstr "Copiato!"
+
 #: webapp/templates/locations/location_manage_telegram.html:12
 msgid "Connect a Telegram group to publish open tables."
 msgstr "Collega un gruppo Telegram per pubblicare i tavoli aperti."
@@ -2658,12 +2698,6 @@ msgstr "Questo token scade dopo 1 ora e può essere utilizzato una sola volta."
 msgid "Copy and paste this command in your Telegram group:"
 msgstr "Copia e incolla questo comando nel tuo gruppo Telegram:"
 
-#: webapp/templates/locations/location_manage_telegram.html:97
-#: webapp/templates/locations/location_manage_widget.html:30
-#: webapp/templates/locations/location_manage_widget.html:48
-msgid "Copy"
-msgstr "Copia"
-
 #: webapp/templates/locations/location_manage_telegram.html:103
 msgid "Make sure the bot"
 msgstr "Assicurati che il bot"
@@ -2701,11 +2735,6 @@ msgstr "Errore nella generazione del token."
 #: webapp/templates/locations/location_manage_telegram.html:157
 msgid "Network error. Please try again."
 msgstr "Network error. Si prega di riprovare."
-
-#: webapp/templates/locations/location_manage_telegram.html:170
-#: webapp/templates/locations/location_manage_widget.html:71
-msgid "Copied!"
-msgstr "Copiato!"
 
 #: webapp/templates/locations/location_manage_widget.html:12
 msgid "Embed the upcoming tables of your location on any website."
@@ -3735,6 +3764,11 @@ msgstr "Widget - %(name)s"
 #, python-format
 msgid "Telegram – %(name)s"
 msgstr "Telegram - %(name)s"
+
+#: webapp/views/location_views.py:1062
+#, python-format
+msgid "Table stats – %(name)s"
+msgstr "Stats tavoli - %(name)s"
 
 #: webapp/views/profile_views.py:73
 msgid "Profile updated successfully"

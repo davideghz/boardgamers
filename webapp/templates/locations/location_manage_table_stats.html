@@ -1,0 +1,66 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage location" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Table statistics" %}</h1>
+    <p class="text-sm text-slate-500 mt-1">{% trans "Generate a message to share table status on WhatsApp or other chats." %}</p>
+  </div>
+
+  <div class="max-w-xl space-y-5">
+
+    {# ── DATE RANGE FORM ──────────────────────────────────────────────── #}
+    <form method="get" class="rounded-xl border border-slate-200 bg-white p-5">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[140px]">
+          <label for="date_from" class="block text-xs font-semibold text-slate-700 mb-1">{% trans "From" %}</label>
+          <input type="date" id="date_from" name="date_from" value="{{ date_from }}"
+                 class="w-full rounded-lg border border-slate-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex-1 min-w-[140px]">
+          <label for="date_to" class="block text-xs font-semibold text-slate-700 mb-1">{% trans "To" %}</label>
+          <input type="date" id="date_to" name="date_to" value="{{ date_to }}"
+                 class="w-full rounded-lg border border-slate-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex-shrink-0">
+          <button type="submit"
+                  class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
+            {% trans "Generate" %}
+          </button>
+        </div>
+      </div>
+    </form>
+
+    {# ── GENERATED MESSAGE ────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-bold text-slate-900">{% trans "Message" %}</h2>
+        <button id="copy-btn" onclick="copyMessage()"
+                class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg transition-colors font-medium">
+          {% trans "Copy" %}
+        </button>
+      </div>
+      <textarea id="message-text" readonly rows="12"
+                class="w-full rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-800 px-3 py-2.5 font-mono resize-y focus:outline-none focus:ring-2 focus:ring-blue-500">{{ message_text }}</textarea>
+    </div>
+
+  </div>
+
+  <script>
+    function copyMessage() {
+      const ta = document.getElementById('message-text');
+      const btn = document.getElementById('copy-btn');
+      navigator.clipboard.writeText(ta.value).then(function () {
+        const original = btn.textContent;
+        btn.textContent = '{% trans "Copied!" %}';
+        setTimeout(function () { btn.textContent = original; }, 2000);
+      });
+    }
+  </script>
+
+{% endblock content %}
