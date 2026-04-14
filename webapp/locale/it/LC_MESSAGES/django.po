@@ -3913,6 +3913,42 @@ msgstr "Non hai il permesso di rimuovere questo ospite."
 #~ msgid "Continue with Telegram"
 #~ msgstr "Continua con Telegram"
 
+#: webapp/views/location_views.py
+#, python-format
+msgid "Tables of %(date)s"
+msgstr "Tavoli del %(date)s"
+
+#: webapp/views/location_views.py
+#, python-format
+msgid "Tables from %(date_from)s to %(date_to)s"
+msgstr "Tavoli dal %(date_from)s al %(date_to)s"
+
+#: webapp/views/location_views.py
+msgid "🟢 Available seats:"
+msgstr "🟢 Posti disponibili:"
+
+#: webapp/views/location_views.py
+#, python-format
+msgid "%(occupied)s/%(max)s seats"
+msgstr "%(occupied)s/%(max)s posti"
+
+#: webapp/views/location_views.py
+msgid "🟡 Full tables:"
+msgstr "🟡 Tavoli pieni:"
+
+#: webapp/views/location_views.py
+msgid "🔴 Closed tables:"
+msgstr "🔴 Tavoli chiusi:"
+
+#: webapp/views/location_views.py
+msgid "No tables found for this period."
+msgstr "Nessun tavolo trovato per questo periodo."
+
+#: webapp/views/location_views.py
+#, python-format
+msgid "Join a table: %(url)s"
+msgstr "Per unirti a un tavolo: %(url)s"
+
 #~ msgid "Signup with Telegram"
 #~ msgstr "Registrati con Telegram"
 

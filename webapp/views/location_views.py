@@ -1039,6 +1039,11 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
         if date_to < date_from:
             date_to = date_from
 
+        submitted = bool(request.GET)
+        show_full = request.GET.get('show_full') == 'on' if submitted else True
+        show_closed = request.GET.get('show_closed') == 'on' if submitted else True
+        show_names = request.GET.get('show_names') == 'on' if submitted else False
+
         tables = (
             Table.objects
             .filter(location=location, date__gte=date_from, date__lte=date_to)
@@ -1052,55 +1057,83 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
             .order_by('date', 'time')
         )
 
-        message_text = self._build_message(list(tables), date_from, date_to)
+        location_url = request.build_absolute_uri(reverse('location-detail', args=[location.slug]))
+        message_text = self._build_message(list(tables), date_from, date_to, show_full, show_closed, show_names, location_url)
 
         return render(request, 'locations/location_manage_table_stats.html', {
             'location': location,
             'date_from': date_from.isoformat(),
             'date_to': date_to.isoformat(),
+            'show_full': show_full,
+            'show_closed': show_closed,
+            'show_names': show_names,
             'message_text': message_text,
             'meta': Meta(title=_("Table stats – %(name)s") % {'name': location.name}),
         })
 
-    def _build_message(self, tables, date_from, date_to):
+    def _build_message(self, tables, date_from, date_to, show_full, show_closed, show_names, location_url):
+        from django.utils.translation import gettext as _t
         lines = []
 
         if date_from == date_to:
-            lines.append(f"Tavoli del {date_from.strftime('%d/%m/%Y')}")
+            lines.append(_t('Tables of %(date)s') % {'date': date_from.strftime('%d/%m/%Y')})
         else:
-            lines.append(f"Tavoli dal {date_from.strftime('%d/%m/%Y')} al {date_to.strftime('%d/%m/%Y')}")
+            lines.append(_t('Tables from %(date_from)s to %(date_to)s') % {
+                'date_from': date_from.strftime('%d/%m/%Y'),
+                'date_to': date_to.strftime('%d/%m/%Y'),
+            })
 
-        open_tables = [t for t in tables if t.status in (Table.OPEN, Table.ONGOING)]
+        active_tables = [t for t in tables if t.status in (Table.OPEN, Table.ONGOING)]
         closed_tables = [t for t in tables if t.status == Table.CLOSED]
 
         def table_label(t):
-            if t.game:
-                return t.game.name
-            return t.title if t.title else 'Tavolo'
+            name = t.game.name if t.game else (t.title if t.title else _t('Table'))
+            return f'*{name}*'
 
-        def player_names(t):
+        def fmt_players(t):
             names = [p.display_name for p in t.player_set.all()]
             return ', '.join(names) if names else '—'
 
-        if open_tables:
+        available_tables = [t for t in active_tables if t.total_players < t.max_players]
+        full_tables = [t for t in active_tables if t.total_players >= t.max_players]
+
+        if available_tables:
             lines.append('')
-            lines.append('🟢 Tavoli aperti:')
-            for t in open_tables:
+            lines.append(_t('🟢 Available seats:'))
+            for t in available_tables:
                 occupied = t.total_players
-                available = t.max_players - occupied
-                names = player_names(t)
-                lines.append(f'• {table_label(t)}: {occupied} occupati / {available} disponibili – {names}')
+                seats = _t('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
+                line = f'• {table_label(t)}: {seats}'
+                if show_names:
+                    line += f' – {fmt_players(t)}'
+                lines.append(line)
 
-        if closed_tables:
+        if show_full and full_tables:
             lines.append('')
-            lines.append('🔴 Tavoli chiusi:')
+            lines.append(_t('🟡 Full tables:'))
+            for t in full_tables:
+                occupied = t.total_players
+                seats = _t('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
+                line = f'• {table_label(t)}: {seats}'
+                if show_names:
+                    line += f' – {fmt_players(t)}'
+                lines.append(line)
+
+        if show_closed and closed_tables:
+            lines.append('')
+            lines.append(_t('🔴 Closed tables:'))
             for t in closed_tables:
-                names = player_names(t)
-                lines.append(f'• {table_label(t)}: {names}')
+                line = f'• {table_label(t)}'
+                if show_names:
+                    line += f': {fmt_players(t)}'
+                lines.append(line)
 
-        if not open_tables and not closed_tables:
+        if not active_tables and not closed_tables:
             lines.append('')
-            lines.append('Nessun tavolo trovato per questo periodo.')
+            lines.append(_t('No tables found for this period.'))
+
+        lines.append('')
+        lines.append(_t('Join a table: %(url)s') % {'url': location_url})
 
         return '\n'.join(lines)
 
