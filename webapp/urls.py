@@ -3,7 +3,7 @@ from django.urls import path, include
 
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
-from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views
+from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete, MemberAutocomplete
 from .views.location_views import FollowLocationView
@@ -178,6 +178,11 @@ urlpatterns = [
     path('accounts/reset/done/', auth_views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('accounts/email/verify/<uidb64>/<token>/', auth_views.VerifyEmailView.as_view(), name='email_verify'),
     path('accounts/email/verify/', auth_views.send_email_verification_code, name='send_email_verification_code'),
+
+    # PWA
+    path('manifest.json', pwa_views.manifest_json, name='pwa-manifest'),
+    path('service-worker.js', pwa_views.service_worker_js, name='pwa-service-worker'),
+    path('api/push/subscribe/', pwa_views.push_subscribe, name='push-subscribe'),
 
     # SITEMAP
     path('sitemap.xml', sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),

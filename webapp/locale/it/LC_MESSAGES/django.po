@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-14 15:09+0000\n"
+"POT-Creation-Date: 2026-04-16 16:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,12 +27,12 @@ msgstr ""
 msgid "Games"
 msgstr "Giochi"
 
-#: webapp/forms.py:122 webapp/forms.py:167 webapp/forms.py:593
-#: webapp/models.py:351 webapp/models.py:694
+#: webapp/forms.py:122 webapp/forms.py:167 webapp/forms.py:595
+#: webapp/models.py:355 webapp/models.py:700
 #: webapp/templates/events/event_table_add_or_edit.html:90
 #: webapp/templates/locations/location_manage_game_detail.html:54
 #: webapp/templates/tables/table_add_or_edit.html:72
-#: webapp/views/location_views.py:1122
+#: webapp/views/location_views.py:1155
 msgid "Game"
 msgstr "Gioco"
 
@@ -68,106 +68,124 @@ msgstr "Nome"
 msgid "Last name"
 msgstr "Cognome"
 
-#: webapp/forms.py:422 webapp/forms.py:451
+#: webapp/forms.py:424 webapp/forms.py:453
 #: webapp/templates/accounts/account_events.html:69
 #: webapp/templates/accounts/account_locations.html:54
 #: webapp/templates/locations/location_manage_managers.html:83
 msgid "Manager"
 msgstr "Manager"
 
-#: webapp/forms.py:426 webapp/forms.py:455 webapp/forms.py:470
-#: webapp/forms.py:490 webapp/forms.py:508
+#: webapp/forms.py:428 webapp/forms.py:457 webapp/forms.py:472
+#: webapp/forms.py:492 webapp/forms.py:510
 msgid "Search by username..."
 msgstr "Cerca per username..."
 
-#: webapp/forms.py:436 webapp/models.py:333 webapp/models.py:588
-#: webapp/models.py:690 webapp/models.py:724 webapp/models.py:743
+#: webapp/forms.py:438 webapp/models.py:337 webapp/models.py:594
+#: webapp/models.py:696 webapp/models.py:730 webapp/models.py:749
 #: webapp/templates/locations/location_manage_games.html:71
 #: webapp/templates/tables/table_add_or_edit.html:33
 #: webapp/templates/tables/table_detail.html:114
 msgid "Location"
 msgstr "Location"
 
-#: webapp/forms.py:440
+#: webapp/forms.py:442
 msgid "Search location..."
 msgstr "Cerca location..."
 
-#: webapp/forms.py:466
+#: webapp/forms.py:468
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
-#: webapp/forms.py:477
+#: webapp/forms.py:479
 #: webapp/templates/locations/location_manage_managers.html:119
 msgid "Add me as manager after transfer"
 msgstr "Aggiungimi come manager dopo il trasferimento di owner"
 
-#: webapp/forms.py:486
+#: webapp/forms.py:488
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/forms.py:504
+#: webapp/forms.py:506
 msgid "Linked User Profile"
 msgstr "Profilo utente collegato"
 
-#: webapp/forms.py:524 webapp/forms.py:541 webapp/forms.py:565
-#: webapp/models.py:651 webapp/models.py:708
+#: webapp/forms.py:526 webapp/forms.py:543 webapp/forms.py:567
+#: webapp/models.py:657 webapp/models.py:714
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
 #: webapp/templates/locations/location_manage_widget.html:55
-#: webapp/views/location_views.py:1122
+#: webapp/views/location_views.py:1155
 msgid "Notes"
 msgstr "Note"
 
-#: webapp/forms.py:525
+#: webapp/forms.py:527
 msgid "Optional message to the manager..."
 msgstr "Messaggio opzionale per il manager..."
 
-#: webapp/forms.py:532 webapp/forms.py:555 webapp/models.py:645
+#: webapp/forms.py:534 webapp/forms.py:557 webapp/models.py:651
 #: webapp/templates/locations/location_manage_member_detail.html:153
 #: webapp/views/location_views.py:773
 msgid "Start Date"
 msgstr "Data di inizio"
 
-#: webapp/forms.py:536 webapp/forms.py:560 webapp/models.py:646
+#: webapp/forms.py:538 webapp/forms.py:562 webapp/models.py:652
 #: webapp/templates/locations/location_manage_member_detail.html:161
 #: webapp/views/location_views.py:773
 msgid "End Date"
 msgstr "Data di fine"
 
-#: webapp/forms.py:549 webapp/models.py:649 webapp/models.py:821
+#: webapp/forms.py:551 webapp/models.py:655 webapp/models.py:827
 #: webapp/templates/locations/location_manage_member_detail.html:141
 msgid "Status"
 msgstr "Status"
 
-#: webapp/forms.py:576
+#: webapp/forms.py:578
 msgid "Start date is required when status is Active."
 msgstr ""
 
-#: webapp/forms.py:578
+#: webapp/forms.py:580
 msgid "End date is required when status is Active."
 msgstr ""
 
-#: webapp/forms.py:597 webapp/templates/_bgg_game_modal.html:34
+#: webapp/forms.py:599 webapp/templates/_bgg_game_modal.html:34
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:622 webapp/models.py:702 webapp/views/location_views.py:1122
+#: webapp/forms.py:624 webapp/models.py:708 webapp/views/location_views.py:1155
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
-#: webapp/forms.py:626
+#: webapp/forms.py:628
 #: webapp/templates/locations/location_manage_game_detail.html:101
 msgid "Search for a member..."
 msgstr "Cerca per socio..."
 
-#: webapp/forms.py:653
+#: webapp/forms.py:655
 msgid "Guest name"
 msgstr "Nome ospite"
 
-#: webapp/forms.py:656 webapp/models.py:288 webapp/models.py:763
-#: webapp/models.py:805 webapp/models.py:878
+#: webapp/forms.py:658 webapp/models.py:292 webapp/models.py:769
+#: webapp/models.py:811 webapp/models.py:884
 msgid "Name"
 msgstr "Nome"
+
+#: webapp/management/commands/send_push_notifications.py:38
+#: webapp/templates/accounts/account_notifications_preferences.html:28
+#: webapp/templates/accounts/account_notifications_preferences.html:92
+#: webapp/templates/base_webapp.html:93 webapp/templates/base_webapp.html:298
+msgid "New table"
+msgstr "Nuovo tavolo"
+
+#: webapp/management/commands/send_push_notifications.py:42
+#: webapp/templates/accounts/account_notifications_preferences.html:50
+#: webapp/templates/accounts/account_notifications_preferences.html:114
+#: webapp/templates/emails/email_notification_new_player_html.html:6
+msgid "New player"
+msgstr "Nuovo sfidante"
+
+#: webapp/management/commands/send_push_notifications.py:43
+msgid "A new player joined \"%(title)s\""
+msgstr "Nuovo giocatore al tavolo \"%(title)s\""
 
 #: webapp/messages.py:3
 msgid "Email verification"
@@ -211,11 +229,11 @@ msgstr "Messaggio inviato con successo!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore nel form. Controlla i dati inseriti."
 
-#: webapp/models.py:93 webapp/models.py:340
+#: webapp/models.py:93 webapp/models.py:344
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
-#: webapp/models.py:94 webapp/models.py:341
+#: webapp/models.py:94 webapp/models.py:345
 msgid "Maximum players"
 msgstr "Massimo giocatori"
 
@@ -235,7 +253,7 @@ msgstr "Peso"
 msgid "Year published"
 msgstr "Anno pubblicazione"
 
-#: webapp/models.py:111 webapp/models.py:186 webapp/models.py:841
+#: webapp/models.py:111 webapp/models.py:186 webapp/models.py:847
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
@@ -270,95 +288,95 @@ msgstr "Serate di gioco a %(address)s"
 msgid "Show full name on profile"
 msgstr "Mostra nome e cognome sul profilo"
 
-#: webapp/models.py:245
+#: webapp/models.py:249
 #, python-format
 msgid "%(nickname)s - Board-Gamers.com"
 msgstr "%(nickname)s - Board-Gamers.com"
 
-#: webapp/models.py:248
+#: webapp/models.py:252
 #, python-format
 msgid "Profile of %(nickname)s on Board-Gamers.com"
 msgstr "Profilo di %(nickname)s su Board-Gamers.com"
 
-#: webapp/models.py:286 webapp/templates/accounts/account_locations.html:39
+#: webapp/models.py:290 webapp/templates/accounts/account_locations.html:39
 #: webapp/templates/locations/location_manage_managers.html:63
 msgid "Owner"
 msgstr "Owner"
 
-#: webapp/models.py:291
+#: webapp/models.py:295
 msgid "Guest Profile"
 msgstr "Profilo Ospite"
 
-#: webapp/models.py:292
+#: webapp/models.py:296
 msgid "Guest Profiles"
 msgstr "Profili Ospite"
 
-#: webapp/models.py:305
+#: webapp/models.py:309
 msgid "Open"
 msgstr "Aperto"
 
-#: webapp/models.py:306
+#: webapp/models.py:310
 msgid "On Going"
 msgstr "In corso"
 
-#: webapp/models.py:307 webapp/templates/locations/location_detail.html:346
+#: webapp/models.py:311 webapp/templates/locations/location_detail.html:346
 #: webapp/templates/locations/location_manage_data.html:165
 #: webapp/templates/tables/table_players.html:54
 msgid "Closed"
 msgstr "Chiuso"
 
-#: webapp/models.py:314
+#: webapp/models.py:318
 msgid "Not Editable"
 msgstr "Non modificabile"
 
-#: webapp/models.py:315
+#: webapp/models.py:319
 msgid "Editable"
 msgstr "Modificabile"
 
-#: webapp/models.py:319
+#: webapp/models.py:323
 msgid "Title"
 msgstr "Titolo"
 
-#: webapp/models.py:331 webapp/models.py:807
+#: webapp/models.py:335 webapp/models.py:813
 #: webapp/templates/events/event_table_detail.html:53
 #: webapp/templates/tables/table_detail.html:54
 msgid "Description"
 msgstr "Descrizione"
 
-#: webapp/models.py:335 webapp/models.py:870 webapp/models.py:877
-#: webapp/models.py:893 webapp/templates/events/event_table_add_or_edit.html:35
+#: webapp/models.py:339 webapp/models.py:876 webapp/models.py:883
+#: webapp/models.py:899 webapp/templates/events/event_table_add_or_edit.html:35
 msgid "Event"
 msgstr ""
 
-#: webapp/models.py:338 webapp/models.py:885
+#: webapp/models.py:342 webapp/models.py:891
 msgid "Play Area"
 msgstr "Area di gioco"
 
-#: webapp/models.py:343 webapp/templates/tables/table_players.html:121
+#: webapp/models.py:347 webapp/templates/tables/table_players.html:119
 msgid "External players"
 msgstr "Giocatori Esterni"
 
-#: webapp/models.py:344 webapp/models.py:894
+#: webapp/models.py:348 webapp/models.py:900
 #: webapp/templates/events/event_table_detail.html:82
 #: webapp/templates/tables/table_detail.html:84
 msgid "Date"
 msgstr "Data"
 
-#: webapp/models.py:345
+#: webapp/models.py:349
 msgid "Hour"
 msgstr "Orario"
 
-#: webapp/models.py:421
+#: webapp/models.py:425
 #, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
 msgstr "%(game)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:426
+#: webapp/models.py:430
 #, python-format
 msgid "%(title)s - %(date)s - Board-Gamers.com"
 msgstr "%(title)s - %(date)s - Board-Gamers.com"
 
-#: webapp/models.py:438
+#: webapp/models.py:442
 #, python-format
 msgid ""
 "Join the %(game)s table! We'll play on %(date)s at %(time)s at %(location)s"
@@ -366,109 +384,109 @@ msgstr ""
 "Unisciti al tavolo di %(game)s! Giocheremo il %(date)s alle %(time)s presso "
 "%(location)s"
 
-#: webapp/models.py:445
+#: webapp/models.py:449
 #, python-format
 msgid "Join the table! We'll play on %(date)s at %(time)s at %(location)s"
 msgstr ""
 "Unisciti al tavolo! Giocheremo il %(date)s alle %(time)s presso %(location)s"
 
-#: webapp/models.py:514
+#: webapp/models.py:518
 msgid "User Comment"
 msgstr "Commento Utente"
 
-#: webapp/models.py:515
+#: webapp/models.py:519
 msgid "System Comment"
 msgstr "Commento di Sistema"
 
-#: webapp/models.py:540
+#: webapp/models.py:544
 msgid "Location Follower"
 msgstr "Follower Location"
 
-#: webapp/models.py:541
+#: webapp/models.py:545
 msgid "Location Followers"
 msgstr "Follower Location"
 
-#: webapp/models.py:548
+#: webapp/models.py:552
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
 
-#: webapp/models.py:549
+#: webapp/models.py:553
 msgid "New player joined"
 msgstr "Nuovo sfidante"
 
-#: webapp/models.py:550
+#: webapp/models.py:554
 msgid "Leaderboard is now editable"
 msgstr "Classifica modificabile"
 
-#: webapp/models.py:551
+#: webapp/models.py:555
 msgid "Leaderboard updated"
 msgstr "Classifica aggiornata"
 
-#: webapp/models.py:552
+#: webapp/models.py:556
 msgid "Leaderboard closed"
 msgstr "Classifica chiusa"
 
-#: webapp/models.py:553 webapp/signals.py:159
+#: webapp/models.py:557 webapp/signals.py:159
 msgid "Table closed"
 msgstr "Tavolo chiuso"
 
-#: webapp/models.py:554
+#: webapp/models.py:558
 #: webapp/templates/emails/email_notification_deleted_table_html.html:6
 msgid "Table deleted"
 msgstr "Tavolo eliminato"
 
-#: webapp/models.py:555
-#: webapp/templates/accounts/account_notifications_preferences.html:79
+#: webapp/models.py:559
+#: webapp/templates/accounts/account_notifications_preferences.html:136
 msgid "New comment"
 msgstr "Nuovo commento"
 
-#: webapp/models.py:573
+#: webapp/models.py:579
 msgid "Notification"
 msgstr "Notifica"
 
-#: webapp/models.py:574 webapp/templates/accounts/account_notifications.html:13
+#: webapp/models.py:580 webapp/templates/accounts/account_notifications.html:13
 #: webapp/templates/accounts/account_notifications_preferences.html:9
 #: webapp/templates/base_webapp.html:200 webapp/templates/base_webapp.html:357
 msgid "Notifications"
 msgstr "Notifiche"
 
-#: webapp/models.py:593
+#: webapp/models.py:599
 msgid "User Profile"
 msgstr "Profilo Utente"
 
-#: webapp/models.py:596 webapp/views/location_views.py:771
+#: webapp/models.py:602 webapp/views/location_views.py:771
 msgid "First Name"
 msgstr "Nome"
 
-#: webapp/models.py:597 webapp/views/location_views.py:771
+#: webapp/models.py:603 webapp/views/location_views.py:771
 msgid "Last Name"
 msgstr "Cognome"
 
-#: webapp/models.py:598
+#: webapp/models.py:604
 msgid "Member Code"
 msgstr "Codice Fiscale"
 
-#: webapp/models.py:599 webapp/models.py:818 webapp/views/location_views.py:771
+#: webapp/models.py:605 webapp/models.py:824 webapp/views/location_views.py:771
 msgid "Email"
 msgstr "Email"
 
-#: webapp/models.py:600
+#: webapp/models.py:606
 msgid "Phone Number"
 msgstr "Numero di telefono"
 
-#: webapp/models.py:604 webapp/models.py:643
+#: webapp/models.py:610 webapp/models.py:649
 #: webapp/templates/locations/location_manage_games.html:73
 msgid "Member"
 msgstr "Associato/a"
 
-#: webapp/models.py:605
+#: webapp/models.py:611
 #: webapp/templates/locations/location_manage_index.html:73
 #: webapp/templates/locations/location_manage_member_detail.html:40
 #: webapp/templates/locations/location_manage_members.html:11
 msgid "Members"
 msgstr "Soci"
 
-#: webapp/models.py:635 webapp/templates/accounts/account_events.html:47
+#: webapp/models.py:641 webapp/templates/accounts/account_events.html:47
 #: webapp/templates/accounts/account_memberships.html:26
 #: webapp/templates/locations/location_manage_member_detail.html:96
 #: webapp/templates/locations/location_manage_member_detail.html:144
@@ -476,7 +494,7 @@ msgstr "Soci"
 msgid "Pending"
 msgstr "In attesa"
 
-#: webapp/models.py:636 webapp/models.py:730 webapp/models.py:783
+#: webapp/models.py:642 webapp/models.py:736 webapp/models.py:789
 #: webapp/templates/accounts/account_memberships.html:28
 #: webapp/templates/locations/location_manage_member_detail.html:94
 #: webapp/templates/locations/location_manage_member_detail.html:145
@@ -484,14 +502,14 @@ msgstr "In attesa"
 msgid "Active"
 msgstr "Attivo"
 
-#: webapp/models.py:637 webapp/templates/accounts/account_memberships.html:75
+#: webapp/models.py:643 webapp/templates/accounts/account_memberships.html:75
 #: webapp/templates/locations/location_manage_member_detail.html:98
 #: webapp/templates/locations/location_manage_member_detail.html:146
 #: webapp/templates/locations/location_manage_members.html:72
 msgid "Expired"
 msgstr "Scaduto"
 
-#: webapp/models.py:638 webapp/models.py:801
+#: webapp/models.py:644 webapp/models.py:807
 #: webapp/templates/accounts/account_events.html:49
 #: webapp/templates/accounts/account_memberships.html:77
 #: webapp/templates/locations/location_manage_member_detail.html:100
@@ -500,187 +518,195 @@ msgstr "Scaduto"
 msgid "Rejected"
 msgstr "Rifiutato"
 
-#: webapp/models.py:655
+#: webapp/models.py:661
 msgid "Approved By"
 msgstr "Approvato da"
 
-#: webapp/models.py:660
+#: webapp/models.py:666
 msgid "Membership"
 msgstr "Membership"
 
-#: webapp/models.py:661
+#: webapp/models.py:667
 msgid "Memberships"
 msgstr "Memberships"
 
-#: webapp/models.py:677
+#: webapp/models.py:683
 msgid "Owned by Location"
 msgstr "Dell'associazione"
 
-#: webapp/models.py:678
+#: webapp/models.py:684
 msgid "Owned by Member"
 msgstr "Di un socio"
 
-#: webapp/models.py:684
+#: webapp/models.py:690
 msgid "At the association"
 msgstr "In associazione"
 
-#: webapp/models.py:685
+#: webapp/models.py:691
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-#: webapp/models.py:698 webapp/views/location_views.py:1122
+#: webapp/models.py:704 webapp/views/location_views.py:1155
 msgid "Ownership"
 msgstr "Proprietà"
 
-#: webapp/models.py:706 webapp/views/location_views.py:1122
+#: webapp/models.py:712 webapp/views/location_views.py:1155
 msgid "Physical Location"
 msgstr "Ubicazione"
 
-#: webapp/models.py:712
+#: webapp/models.py:718
 msgid "Location Game"
 msgstr "Gioco nella Location"
 
-#: webapp/models.py:713
+#: webapp/models.py:719
 msgid "Location Games"
 msgstr "Giochi nella Location"
 
-#: webapp/models.py:726
+#: webapp/models.py:732
 msgid "Chat ID"
 msgstr "Chat ID"
 
-#: webapp/models.py:727
+#: webapp/models.py:733
 msgid "Chat title"
 msgstr "Titolo chat"
 
-#: webapp/models.py:728
+#: webapp/models.py:734
 msgid "Message thread ID"
 msgstr ""
 
-#: webapp/models.py:729
+#: webapp/models.py:735
 msgid "Message thread title"
 msgstr ""
 
-#: webapp/models.py:733
+#: webapp/models.py:739
 msgid "Telegram Group Config"
 msgstr "Telegram Group Config"
 
-#: webapp/models.py:734
+#: webapp/models.py:740
 msgid "Telegram Group Configs"
 msgstr "Telegram Group Configs"
 
-#: webapp/models.py:745
+#: webapp/models.py:751
 msgid "Token"
 msgstr "Token"
 
-#: webapp/models.py:746
+#: webapp/models.py:752
 msgid "Expires at"
 msgstr "Scaduto"
 
-#: webapp/models.py:747
+#: webapp/models.py:753
 msgid "Used"
 msgstr "Usato"
 
-#: webapp/models.py:750
+#: webapp/models.py:756
 msgid "Telegram Setup Token"
 msgstr "Telegram Setup Token"
 
-#: webapp/models.py:751
+#: webapp/models.py:757
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
 
-#: webapp/models.py:764 webapp/models.py:782 webapp/models.py:879
+#: webapp/models.py:770 webapp/models.py:788 webapp/models.py:885
 msgid "Order"
 msgstr "Ordine"
 
-#: webapp/models.py:767
+#: webapp/models.py:773
 msgid "FAQ Category"
 msgstr "FAQ Category"
 
-#: webapp/models.py:768
+#: webapp/models.py:774
 msgid "FAQ Categories"
 msgstr "FAQ Categories"
 
-#: webapp/models.py:778
+#: webapp/models.py:784
 msgid "Category"
 msgstr "Categoria"
 
-#: webapp/models.py:780
+#: webapp/models.py:786
 msgid "Question"
 msgstr "Domanda"
 
-#: webapp/models.py:781
+#: webapp/models.py:787
 msgid "Answer"
 msgstr "Risposta"
 
-#: webapp/models.py:786 webapp/models.py:787
+#: webapp/models.py:792 webapp/models.py:793
 msgid "FAQ"
 msgstr "FAQ"
 
-#: webapp/models.py:799 webapp/templates/events/event_detail.html:17
+#: webapp/models.py:805 webapp/templates/events/event_detail.html:17
 msgid "Pending approval"
 msgstr "In attesa"
 
-#: webapp/models.py:800 webapp/templates/accounts/account_events.html:45
+#: webapp/models.py:806 webapp/templates/accounts/account_events.html:45
 msgid "Approved"
 msgstr "Approvato"
 
-#: webapp/models.py:810
+#: webapp/models.py:816
 msgid "Cover"
 msgstr "Immagine di copertina"
 
-#: webapp/models.py:812
+#: webapp/models.py:818
 msgid "Address"
 msgstr "Indirizzo"
 
-#: webapp/models.py:813
+#: webapp/models.py:819
 msgid "City"
 msgstr "Città"
 
-#: webapp/models.py:817 webapp/views/location_views.py:772
+#: webapp/models.py:823 webapp/views/location_views.py:772
 msgid "Phone"
 msgstr "Telefono"
 
-#: webapp/models.py:825 webapp/templates/events/event_manage_managers.html:62
+#: webapp/models.py:831 webapp/templates/events/event_manage_managers.html:62
 msgid "Creator"
 msgstr "Creatore"
 
-#: webapp/models.py:827 webapp/templates/events/event_manage_index.html:75
+#: webapp/models.py:833 webapp/templates/events/event_manage_index.html:75
 #: webapp/templates/events/event_manage_managers.html:41
 #: webapp/templates/locations/location_manage_index.html:40
 #: webapp/templates/locations/location_manage_managers.html:42
 msgid "Managers"
 msgstr "Managers"
 
-#: webapp/models.py:829 webapp/templates/events/event_manage_index.html:94
+#: webapp/models.py:835 webapp/templates/events/event_manage_index.html:94
 #: webapp/templates/events/event_manage_locations.html:41
 msgid "Sponsor locations"
 msgstr "Sponsor"
 
-#: webapp/models.py:832
+#: webapp/models.py:838
 msgid "Additional table creators"
 msgstr "Additional table creators"
 
-#: webapp/models.py:844
+#: webapp/models.py:850
 #, python-format
 msgid "%(name)s — gaming event"
 msgstr "%(name)s – evento boardgames"
 
-#: webapp/models.py:871 webapp/templates/accounts/account_events.html:11
+#: webapp/models.py:877 webapp/templates/accounts/account_events.html:11
 #: webapp/templates/accounts/account_index.html:106
 msgid "Events"
 msgstr "Eventi"
 
-#: webapp/models.py:886
+#: webapp/models.py:892
 msgid "Play Areas"
 msgstr "Aree di gioco"
 
-#: webapp/models.py:900
+#: webapp/models.py:906
 msgid "Event Date"
 msgstr "Data Evento"
 
-#: webapp/models.py:901
+#: webapp/models.py:907
 msgid "Event Dates"
 msgstr "Date Evento"
+
+#: webapp/models.py:921
+msgid "Push Subscription"
+msgstr "Push Subscription"
+
+#: webapp/models.py:922
+msgid "Push Subscriptions"
+msgstr "Push Subscriptions"
 
 #: webapp/pipeline.py:59
 #, python-format
@@ -793,7 +819,7 @@ msgstr "Il login con Telegram non è configurato."
 #: webapp/templates/tables/_table_comments.html:76
 #: webapp/templates/tables/table_add_or_edit.html:153
 #: webapp/templates/tables/table_delete.html:30
-#: webapp/templates/tables/table_players.html:169
+#: webapp/templates/tables/table_players.html:167
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -865,7 +891,7 @@ msgid "Update email"
 msgstr "Aggiorna email"
 
 #: webapp/templates/accounts/account_edit_profile.html:151
-#: webapp/templates/accounts/account_notifications_preferences.html:20
+#: webapp/templates/accounts/account_notifications_preferences.html:78
 msgid "Add email"
 msgstr "Aggiungi email"
 
@@ -965,7 +991,7 @@ msgstr "Aggiungi un ospite"
 #: webapp/templates/locations/location_manage_managers.html:103
 #: webapp/templates/locations/location_manage_members.html:24
 #: webapp/templates/locations/location_manage_telegram.html:23
-#: webapp/templates/tables/table_players.html:106
+#: webapp/templates/tables/table_players.html:104
 msgid "Add"
 msgstr "Aggiungi"
 
@@ -1102,10 +1128,36 @@ msgid "You have no notifications at the moment."
 msgstr "Non ci sono notifiche al momento."
 
 #: webapp/templates/accounts/account_notifications_preferences.html:12
-msgid "Enable or disable email notifications for the following activities."
-msgstr "Attiva o disattiva le notifiche email per le seguenti attività."
+msgid "Enable or disable notifications for the following activities."
+msgstr "Attiva o disattiva le notifiche per le seguenti attività."
 
 #: webapp/templates/accounts/account_notifications_preferences.html:19
+msgid "Push notifications"
+msgstr "Notifiche push"
+
+#: webapp/templates/accounts/account_notifications_preferences.html:20
+msgid ""
+"Sent directly to your browser or device, even when the app is in the "
+"background."
+msgstr ""
+"Inviate direttamente al tuo browser o dispositivo, anche quando l'app"
+"è in background."
+
+#: webapp/templates/accounts/account_notifications_preferences.html:29
+#: webapp/templates/accounts/account_notifications_preferences.html:93
+msgid "A new table is created in a location you follow"
+msgstr "Un tavolo viene creato in una location che segui"
+
+#: webapp/templates/accounts/account_notifications_preferences.html:51
+#: webapp/templates/accounts/account_notifications_preferences.html:115
+msgid "A new player joins a table you created"
+msgstr "Un nuovo giocatore si unisce a un tuo tavolo"
+
+#: webapp/templates/accounts/account_notifications_preferences.html:71
+msgid "Email notifications"
+msgstr "Notifiche email"
+
+#: webapp/templates/accounts/account_notifications_preferences.html:77
 msgid ""
 "To enable email notifications you must first add a valid email to your "
 "account."
@@ -1113,29 +1165,15 @@ msgstr ""
 "Per abilitare le notifiche email devi prima inserire una email valida nel "
 "tuo account."
 
-#: webapp/templates/accounts/account_notifications_preferences.html:35
-#: webapp/templates/base_webapp.html:93 webapp/templates/base_webapp.html:298
-msgid "New table"
-msgstr "Nuovo tavolo"
+#: webapp/templates/accounts/account_notifications_preferences.html:82
+msgid "Sent to your email address."
+msgstr "Inviate al tuo indirizzo email."
 
-#: webapp/templates/accounts/account_notifications_preferences.html:36
-msgid "A new table is created in a location you follow"
-msgstr "Un tavolo viene creato in una location che segui"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:57
-#: webapp/templates/emails/email_notification_new_player_html.html:6
-msgid "New player"
-msgstr "Nuovo sfidante"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:58
-msgid "A new player joins a table you created"
-msgstr "Un nuovo giocatore si unisce a un tuo tavolo"
-
-#: webapp/templates/accounts/account_notifications_preferences.html:80
+#: webapp/templates/accounts/account_notifications_preferences.html:137
 msgid "A new comment is written in a table you're participating in"
 msgstr "Un nuovo commento viene scritto in un tavolo a cui partecipi"
 
-#: webapp/templates/accounts/account_notifications_preferences.html:105
+#: webapp/templates/accounts/account_notifications_preferences.html:161
 msgid "Save preferences"
 msgstr "Salva preferenze"
 
@@ -1777,7 +1815,7 @@ msgstr "Rimuovi location?"
 #: webapp/templates/events/event_manage_locations.html:98
 #: webapp/templates/events/event_manage_managers.html:111
 #: webapp/templates/locations/location_manage_managers.html:139
-#: webapp/templates/tables/table_players.html:165
+#: webapp/templates/tables/table_players.html:163
 msgid "Are you sure you want to remove"
 msgstr "Sei sicuro di voler rimuovere"
 
@@ -1786,7 +1824,7 @@ msgstr "Sei sicuro di voler rimuovere"
 #: webapp/templates/locations/location_manage_data.html:184
 #: webapp/templates/locations/location_manage_game_detail.html:159
 #: webapp/templates/locations/location_manage_managers.html:148
-#: webapp/templates/tables/table_players.html:175
+#: webapp/templates/tables/table_players.html:173
 msgid "Remove"
 msgstr "Rimuovi"
 
@@ -1930,7 +1968,7 @@ msgstr "posti disponibili"
 #: webapp/templates/tables/table_detail.html:168
 #: webapp/templates/tables/table_detail.html:210
 #: webapp/templates/tables/table_detail.html:315
-#: webapp/templates/tables/table_players.html:115
+#: webapp/templates/tables/table_players.html:113
 msgid "Table is full"
 msgstr "Tavolo completo"
 
@@ -2612,7 +2650,9 @@ msgstr "Salva permessi"
 
 #: webapp/templates/locations/location_manage_table_stats.html:12
 msgid "Generate a message to share table status on WhatsApp or other chats."
-msgstr "Genera un messaggio per condividere lo status dei tavoli su WhatsApp o altre chats."
+msgstr ""
+"Genera un messaggio per condividere lo status dei tavoli su WhatsApp o altre "
+"chats."
 
 #: webapp/templates/locations/location_manage_table_stats.html:26
 msgid "To"
@@ -2622,18 +2662,30 @@ msgstr "Al"
 msgid "Generate"
 msgstr "Genera"
 
-#: webapp/templates/locations/location_manage_table_stats.html:42
+#: webapp/templates/locations/location_manage_table_stats.html:41
+msgid "Show full tables"
+msgstr "Mostra i tavoli pieni"
+
+#: webapp/templates/locations/location_manage_table_stats.html:46
+msgid "Show closed tables"
+msgstr "Mostra tavoli chiusi"
+
+#: webapp/templates/locations/location_manage_table_stats.html:51
+msgid "Show player names"
+msgstr "Mostra nomi giocatori"
+
+#: webapp/templates/locations/location_manage_table_stats.html:59
 msgid "Message"
 msgstr "messaggio"
 
-#: webapp/templates/locations/location_manage_table_stats.html:45
+#: webapp/templates/locations/location_manage_table_stats.html:62
 #: webapp/templates/locations/location_manage_telegram.html:97
 #: webapp/templates/locations/location_manage_widget.html:30
 #: webapp/templates/locations/location_manage_widget.html:48
 msgid "Copy"
 msgstr "Copia"
 
-#: webapp/templates/locations/location_manage_table_stats.html:60
+#: webapp/templates/locations/location_manage_table_stats.html:77
 #: webapp/templates/locations/location_manage_telegram.html:170
 #: webapp/templates/locations/location_manage_widget.html:71
 msgid "Copied!"
@@ -3386,19 +3438,19 @@ msgstr "Prossimi Tavoli"
 msgid "Manage players"
 msgstr "Gestisci giocatori"
 
-#: webapp/templates/tables/table_players.html:90
+#: webapp/templates/tables/table_players.html:88
 msgid "No players yet."
 msgstr "Ancora nessun giocatore."
 
-#: webapp/templates/tables/table_players.html:97
+#: webapp/templates/tables/table_players.html:95
 msgid "Invite a gamer"
 msgstr "Invita un gamer"
 
-#: webapp/templates/tables/table_players.html:150
+#: webapp/templates/tables/table_players.html:148
 msgid "Clear"
 msgstr "Cancella"
 
-#: webapp/templates/tables/table_players.html:164
+#: webapp/templates/tables/table_players.html:162
 msgid "Remove player?"
 msgstr "Rimuovi giocatore?"
 
@@ -3765,7 +3817,7 @@ msgstr "Widget - %(name)s"
 msgid "Telegram – %(name)s"
 msgstr "Telegram - %(name)s"
 
-#: webapp/views/location_views.py:1062
+#: webapp/views/location_views.py:1071
 #, python-format
 msgid "Table stats – %(name)s"
 msgstr "Stats tavoli - %(name)s"
@@ -3909,51 +3961,3 @@ msgstr "Questo ospite è già al tavolo."
 #: webapp/views/table_views.py:603
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
-
-#~ msgid "Continue with Telegram"
-#~ msgstr "Continua con Telegram"
-
-#: webapp/views/location_views.py
-#, python-format
-msgid "Tables of %(date)s"
-msgstr "Tavoli del %(date)s"
-
-#: webapp/views/location_views.py
-#, python-format
-msgid "Tables from %(date_from)s to %(date_to)s"
-msgstr "Tavoli dal %(date_from)s al %(date_to)s"
-
-#: webapp/views/location_views.py
-msgid "🟢 Available seats:"
-msgstr "🟢 Posti disponibili:"
-
-#: webapp/views/location_views.py
-#, python-format
-msgid "%(occupied)s/%(max)s seats"
-msgstr "%(occupied)s/%(max)s posti"
-
-#: webapp/views/location_views.py
-msgid "🟡 Full tables:"
-msgstr "🟡 Tavoli pieni:"
-
-#: webapp/views/location_views.py
-msgid "🔴 Closed tables:"
-msgstr "🔴 Tavoli chiusi:"
-
-#: webapp/views/location_views.py
-msgid "No tables found for this period."
-msgstr "Nessun tavolo trovato per questo periodo."
-
-#: webapp/views/location_views.py
-#, python-format
-msgid "Join a table: %(url)s"
-msgstr "Per unirti a un tavolo: %(url)s"
-
-#~ msgid "Signup with Telegram"
-#~ msgstr "Registrati con Telegram"
-
-#~ msgid "No results found."
-#~ msgstr "Nessun risultato trovato."
-
-#~ msgid "order"
-#~ msgstr "ordine"

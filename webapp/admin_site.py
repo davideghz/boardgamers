@@ -34,6 +34,7 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'UserProfile'),
             ('webapp', 'GuestProfile'),
             ('webapp', 'Notification'),
+            ('webapp', 'PushSubscription'),
         ]),
         ('games_group', 'Games', [
             ('webapp', 'Game'),
