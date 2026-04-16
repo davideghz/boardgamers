@@ -493,6 +493,54 @@
 
   {% block extrabodyjs %}{% endblock extrabodyjs %}
 
+  {# PWA — Service Worker registration + push subscription (authenticated users only) #}
+  {% if user.is_authenticated and vapid_public_key %}
+  <script>
+    (function () {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+      const VAPID_PUBLIC_KEY = '{{ vapid_public_key }}';
+
+      function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const raw = atob(base64);
+        return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+      }
+
+      async function subscribeToPush(registration) {
+        try {
+          const sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+          await fetch('{% url "push-subscribe" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify(sub),
+          });
+        } catch (e) {
+          // User denied permission or browser error — silently ignore
+        }
+      }
+
+      navigator.serviceWorker.register('/service-worker.js').then(async function (registration) {
+        const existing = await registration.pushManager.getSubscription();
+        if (existing) return; // already subscribed
+
+        if (Notification.permission === 'granted') {
+          await subscribeToPush(registration);
+        } else if (Notification.permission !== 'denied') {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            await subscribeToPush(registration);
+          }
+        }
+      });
+    })();
+  </script>
+  {% endif %}
+
   {# Telegram tgAuthResult handler — intercepts #tgAuthResult= fragment after Telegram OAuth redirect #}
   {% if not user.is_authenticated %}
   <script>

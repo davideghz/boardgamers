@@ -9,24 +9,81 @@
       <a href="{% url 'account-notifications' %}" class="text-blue-600 hover:underline">{% trans "Notifications" %}</a> ›
     </p>
     <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Notification preferences" %}</h1>
-    <p class="text-sm text-slate-500 mt-1">{% trans "Enable or disable email notifications for the following activities." %}</p>
+    <p class="text-sm text-slate-500 mt-1">{% trans "Enable or disable notifications for the following activities." %}</p>
   </div>
-
-  {% if not has_email %}
-  <div class="flex gap-3 p-4 mb-6 max-w-xl rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 mt-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-    <span>
-      {% trans "To enable email notifications you must first add a valid email to your account." %}
-      <a href="{% url 'user-profile-edit' %}" class="font-semibold underline">{% trans "Add email" %}</a>
-    </span>
-  </div>
-  {% endif %}
 
   <form method="post" class="max-w-xl">
     {% csrf_token %}
 
+    {# ── Push notifications ──────────────────────────────────────── #}
+    <h2 class="text-base font-bold text-slate-800 mb-1">{% trans "Push notifications" %}</h2>
+    <p class="text-xs text-slate-500 mb-3">{% trans "Sent directly to your browser or device, even when the app is in the background." %}</p>
+
+    <div class="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white overflow-hidden mb-8">
+
+      {# Toggle row — push new table #}
+      <label for="{{ form.push_notification_new_table.id_for_label }}"
+             class="flex items-center justify-between gap-4 px-4 py-4 cursor-pointer hover:bg-slate-50 transition-colors">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{% trans "New table" %}</p>
+          <p class="text-xs text-slate-500 mt-0.5">{% trans "A new table is created in a location you follow" %}</p>
+        </div>
+        <div class="relative flex-shrink-0">
+          <input type="checkbox"
+                 id="{{ form.push_notification_new_table.id_for_label }}"
+                 name="push_notification_new_table"
+                 class="sr-only peer"
+                 {% if form.push_notification_new_table.value %}checked{% endif %}>
+          <div class="w-11 h-6 rounded-full bg-slate-200
+                      peer-checked:bg-blue-500
+                      after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                      after:bg-white after:rounded-full after:h-5 after:w-5
+                      after:transition-all after:shadow-sm
+                      peer-checked:after:translate-x-5"></div>
+        </div>
+      </label>
+
+      {# Toggle row — push new player #}
+      <label for="{{ form.push_notification_new_player.id_for_label }}"
+             class="flex items-center justify-between gap-4 px-4 py-4 cursor-pointer hover:bg-slate-50 transition-colors">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{% trans "New player" %}</p>
+          <p class="text-xs text-slate-500 mt-0.5">{% trans "A new player joins a table you created" %}</p>
+        </div>
+        <div class="relative flex-shrink-0">
+          <input type="checkbox"
+                 id="{{ form.push_notification_new_player.id_for_label }}"
+                 name="push_notification_new_player"
+                 class="sr-only peer"
+                 {% if form.push_notification_new_player.value %}checked{% endif %}>
+          <div class="w-11 h-6 rounded-full bg-slate-200
+                      peer-checked:bg-blue-500
+                      after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                      after:bg-white after:rounded-full after:h-5 after:w-5
+                      after:transition-all after:shadow-sm
+                      peer-checked:after:translate-x-5"></div>
+        </div>
+      </label>
+
+    </div>
+
+    {# ── Email notifications ──────────────────────────────────────── #}
+    <h2 class="text-base font-bold text-slate-800 mb-1">{% trans "Email notifications" %}</h2>
+
+    {% if not has_email %}
+    <div class="flex gap-3 p-4 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 mt-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+      <span>
+        {% trans "To enable email notifications you must first add a valid email to your account." %}
+        <a href="{% url 'user-profile-edit' %}" class="font-semibold underline">{% trans "Add email" %}</a>
+      </span>
+    </div>
+    {% else %}
+    <p class="text-xs text-slate-500 mb-3">{% trans "Sent to your email address." %}</p>
+    {% endif %}
+
     <fieldset {% if not has_email %}disabled{% endif %}>
-    <div class="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white overflow-hidden {% if not has_email %}opacity-50{% endif %}">
+    <div class="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white overflow-hidden mb-8 {% if not has_email %}opacity-50{% endif %}">
 
       {# Toggle row — new table #}
       <label for="{{ form.notification_new_table.id_for_label }}"
@@ -97,15 +154,13 @@
     </div>
     </fieldset>
 
-    {% if has_email %}
-    <div class="mt-5">
+    <div class="mt-2">
       <button type="submit"
               class="flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
         {% trans "Save preferences" %}
       </button>
     </div>
-    {% endif %}
 
   </form>
 

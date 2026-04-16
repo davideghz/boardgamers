@@ -7,7 +7,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
     Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken, \
-    Event, PlayArea, EventDate
+    Event, PlayArea, EventDate, PushSubscription
 
 
 
@@ -34,6 +34,17 @@ class CustomUserAdmin(UserAdmin):
 # Deregistra l'admin default e registra il nostro
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
+
+
+@admin.register(PushSubscription)
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user_profile', 'short_endpoint', 'created_at')
+    list_select_related = ('user_profile',)
+    readonly_fields = ('user_profile', 'endpoint', 'p256dh', 'auth', 'created_at')
+
+    def short_endpoint(self, obj):
+        return obj.endpoint[:80] + '…' if len(obj.endpoint) > 80 else obj.endpoint
+    short_endpoint.short_description = 'Endpoint'
 
 
 @admin.register(UserProfile)

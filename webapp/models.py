@@ -227,10 +227,14 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
 
     show_full_name = models.BooleanField(default=False, verbose_name=_("Show full name on profile"))
 
-    # Notifications
+    # Notifications (email)
     notification_new_table = models.BooleanField(default=True, verbose_name="Notification New Table")
     notification_new_player = models.BooleanField(default=False, verbose_name="Notification New Player")
     notification_new_comments = models.BooleanField(default=True, verbose_name="Notification New Comments")
+
+    # Notifications (push)
+    push_notification_new_table = models.BooleanField(default=True, verbose_name="Push Notification New Table")
+    push_notification_new_player = models.BooleanField(default=True, verbose_name="Push Notification New Player")
     notification_leaderboard_reminder = models.BooleanField(
         default=True, verbose_name="Notification Leaderboard Reminder")
     notification_leaderboard_update = models.BooleanField(default=True, verbose_name="Notification Leaderboard Update")
@@ -568,6 +572,8 @@ class Notification(DateTimeModel):
     sent = models.BooleanField(default=False)
     sent_at = models.DateTimeField(null=True, blank=True)
     is_read = models.BooleanField(default=False)
+    push_sent = models.BooleanField(default=False)
+    push_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = _('Notification')
@@ -901,3 +907,19 @@ class EventDate(DateTimeModel):
         verbose_name_plural = _('Event Dates')
         ordering = ['date']
         unique_together = [('event', 'date')]
+
+
+class PushSubscription(DateTimeModel):
+    """Stores a browser Web Push subscription for a user."""
+    user_profile = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, related_name='push_subscriptions')
+    endpoint = models.TextField()
+    p256dh = models.TextField()
+    auth = models.TextField()
+
+    class Meta:
+        verbose_name = _('Push Subscription')
+        verbose_name_plural = _('Push Subscriptions')
+
+    def __str__(self):
+        return f"{self.user_profile.nickname} — {self.endpoint[:60]}"

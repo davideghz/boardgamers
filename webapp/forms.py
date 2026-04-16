@@ -380,6 +380,8 @@ class UserNotificationPreferencesForm(ModelForm, TailwindForm):
             'notification_new_comments',
             'notification_leaderboard_reminder',
             'notification_leaderboard_update',
+            'push_notification_new_table',
+            'push_notification_new_player',
         ]
 
 

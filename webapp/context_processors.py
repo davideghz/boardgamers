@@ -29,6 +29,10 @@ def telegram_config(request):
     }
 
 
+def vapid_public_key(request):
+    return {'vapid_public_key': settings.VAPID_PUBLIC_KEY}
+
+
 def unread_notifications_count(request):
     if request.user.is_authenticated:
         try:

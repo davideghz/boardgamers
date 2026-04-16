@@ -26,6 +26,11 @@ TELEGRAM_BOT_USERNAME = env('TELEGRAM_BOT_USERNAME', default='')
 TELEGRAM_WEBHOOK_SECRET = env('TELEGRAM_WEBHOOK_SECRET', default='')
 BGG_API_TOKEN = env('BGG_API_TOKEN', default='')
 
+# Web Push (VAPID)
+VAPID_PUBLIC_KEY = env('VAPID_PUBLIC_KEY', default='')
+VAPID_PRIVATE_KEY = env('VAPID_PRIVATE_KEY', default='')
+VAPID_CLAIM_EMAIL = env('VAPID_CLAIM_EMAIL', default='')
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
@@ -116,6 +121,7 @@ TEMPLATES = [
                 'webapp.context_processors.unread_notifications_count',
                 'webapp.context_processors.maps_api_key',
                 'webapp.context_processors.telegram_config',
+                'webapp.context_processors.vapid_public_key',
             ],
         },
     },
