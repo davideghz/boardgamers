@@ -4,8 +4,8 @@
   "description": "Organizza le tue serate di giochi da tavolo",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#1e40af",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "lang": "it",
   "icons": [
     {
