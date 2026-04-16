@@ -179,7 +179,7 @@ def _handle_tables(chat_id, message_thread_id=None):
         Table.objects
         .filter(location=config.location, date__gte=today, status=Table.OPEN)
         .select_related('game')
-        .prefetch_related('players')
+        .prefetch_related('player_set')
         .order_by('date', 'time')[:10]
     )
 
@@ -198,7 +198,7 @@ def _handle_tables(chat_id, message_thread_id=None):
     buttons = []
     for t in tables:
         game_name = t.game.name if t.game else "Gioco libero"
-        players = f"{t.players.count()}/{t.max_players}"
+        players = f"{t.total_players}/{t.max_players}"
         date_str = t.date.strftime("%-d %b")
         time_str = t.time.strftime("%H:%M") if t.time else ""
         lines.append(f"• {game_name} | {date_str} {time_str} | 👥 {players}")
