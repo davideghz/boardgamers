@@ -118,7 +118,7 @@ def table_status_change_notifications(sender, instance, created, **kwargs):
         return
 
     # 1) leaderboard_status → EDITABLE / NOT_EDITABLE
-    if instance.tracker.has_changed('leaderboard_status'):
+    if instance.tracker.has_changed('leaderboard_status') and instance.game_id and instance.game.leaderboard_enabled:
         old_lb = instance.tracker.previous('leaderboard_status')
         new_lb = instance.leaderboard_status
 
