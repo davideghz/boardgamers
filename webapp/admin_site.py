@@ -8,13 +8,17 @@ class CustomAdminSite(AdminSite):
         ('auth_group', 'Authentication and Authorization', [
             ('auth', 'User'),
             ('auth', 'Group'),
-        ]),
-        ('social_auth_group', 'Python Social Auth', [
             ('social_django', 'Association'),
             ('social_django', 'Code'),
             ('social_django', 'Nonce'),
             ('social_django', 'Partial'),
             ('social_django', 'UserSocialAuth'),
+        ]),
+        ('users_group', 'Users', [
+            ('webapp', 'UserProfile'),
+            ('webapp', 'GuestProfile'),
+            ('webapp', 'Notification'),
+            ('webapp', 'PushSubscription'),
         ]),
         ('location_group', 'Location', [
             ('webapp', 'Location'),
@@ -30,19 +34,9 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'Player'),
             ('webapp', 'Comment'),
         ]),
-        ('users_group', 'Users', [
-            ('webapp', 'UserProfile'),
-            ('webapp', 'GuestProfile'),
-            ('webapp', 'Notification'),
-            ('webapp', 'PushSubscription'),
-        ]),
-        ('games_group', 'Games', [
+        ('others_group', 'Other', [
             ('webapp', 'Game'),
-        ]),
-        ('events_group', 'Events', [
             ('webapp', 'Event'),
-        ]),
-        ('static_pages_group', 'Static pages', [
             ('webapp', 'FAQ'),
             ('webapp', 'FAQCategory'),
         ]),
