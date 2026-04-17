@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-16 16:01+0000\n"
+"POT-Creation-Date: 2026-04-17 15:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -184,6 +184,7 @@ msgid "New player"
 msgstr "Nuovo sfidante"
 
 #: webapp/management/commands/send_push_notifications.py:43
+#, python-format
 msgid "A new player joined \"%(title)s\""
 msgstr "Nuovo giocatore al tavolo \"%(title)s\""
 
@@ -1140,8 +1141,8 @@ msgid ""
 "Sent directly to your browser or device, even when the app is in the "
 "background."
 msgstr ""
-"Inviate direttamente al tuo browser o dispositivo, anche quando l'app"
-"è in background."
+"Inviate direttamente al tuo browser o dispositivo, anche quando l'appè in "
+"background."
 
 #: webapp/templates/accounts/account_notifications_preferences.html:29
 #: webapp/templates/accounts/account_notifications_preferences.html:93
@@ -1967,7 +1968,7 @@ msgstr "posti disponibili"
 #: webapp/templates/events/event_table_detail.html:281
 #: webapp/templates/tables/table_detail.html:168
 #: webapp/templates/tables/table_detail.html:210
-#: webapp/templates/tables/table_detail.html:315
+#: webapp/templates/tables/table_detail.html:322
 #: webapp/templates/tables/table_players.html:113
 msgid "Table is full"
 msgstr "Tavolo completo"
@@ -1975,28 +1976,28 @@ msgstr "Tavolo completo"
 #: webapp/templates/events/event_table_detail.html:187
 #: webapp/templates/events/event_table_detail.html:271
 #: webapp/templates/tables/table_detail.html:182
-#: webapp/templates/tables/table_detail.html:289
+#: webapp/templates/tables/table_detail.html:296
 msgid "Leave this Table"
 msgstr "Abbandona questo tavolo"
 
 #: webapp/templates/events/event_table_detail.html:197
 #: webapp/templates/events/event_table_detail.html:281
 #: webapp/templates/tables/table_detail.html:210
-#: webapp/templates/tables/table_detail.html:315
+#: webapp/templates/tables/table_detail.html:322
 msgid "Join this table"
 msgstr "Unisciti a questo tavolo"
 
 #: webapp/templates/events/event_table_detail.html:204
 #: webapp/templates/events/event_table_detail.html:288
 #: webapp/templates/tables/table_detail.html:217
-#: webapp/templates/tables/table_detail.html:322
+#: webapp/templates/tables/table_detail.html:329
 msgid "Login to join table"
 msgstr "Accedi per unirti al tavolo"
 
 #: webapp/templates/events/event_table_detail.html:210
 #: webapp/templates/events/event_table_detail.html:294
 #: webapp/templates/tables/table_detail.html:223
-#: webapp/templates/tables/table_detail.html:328
+#: webapp/templates/tables/table_detail.html:335
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
 
@@ -2006,12 +2007,12 @@ msgid "Add to Google Calendar"
 msgstr "Aggiungi a Google Calendar"
 
 #: webapp/templates/events/event_table_detail.html:232
-#: webapp/templates/tables/table_detail.html:247
+#: webapp/templates/tables/table_detail.html:254
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
 
 #: webapp/templates/events/event_table_detail.html:360
-#: webapp/templates/tables/table_detail.html:395
+#: webapp/templates/tables/table_detail.html:402
 msgid "Leaderboard Updated"
 msgstr "Classifica Aggiornata"
 
@@ -2259,7 +2260,7 @@ msgstr "La mia membership"
 #: webapp/templates/locations/location_detail.html:311
 #: webapp/templates/locations/location_detail.html:433
 #: webapp/templates/tables/table_detail.html:193
-#: webapp/templates/tables/table_detail.html:304
+#: webapp/templates/tables/table_detail.html:311
 msgid "Membership pending"
 msgstr "Membership in attesa"
 
@@ -3417,16 +3418,25 @@ msgid "Private location"
 msgstr "Luogo privato"
 
 #: webapp/templates/tables/table_detail.html:187
-#: webapp/templates/tables/table_detail.html:295
+#: webapp/templates/tables/table_detail.html:302
 msgid "Table reserved for members"
 msgstr "Tavolo riservato ai soci"
 
 #: webapp/templates/tables/table_detail.html:199
-#: webapp/templates/tables/table_detail.html:300
+#: webapp/templates/tables/table_detail.html:307
 msgid "Become a member"
 msgstr "Richiedi membership"
 
-#: webapp/templates/tables/table_detail.html:241
+#: webapp/templates/tables/table_detail.html:235
+msgid "Link copied!"
+msgstr "Link Copiato!"
+
+#: webapp/templates/tables/table_detail.html:235
+#: webapp/templates/tables/table_detail.html:238
+msgid "Share"
+msgstr "Condividi"
+
+#: webapp/templates/tables/table_detail.html:248
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
