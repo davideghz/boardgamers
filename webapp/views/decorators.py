@@ -29,12 +29,20 @@ def only_admin_can_edit_closed_table(view_func):
 
 def only_author_or_admin_can_edit(view_func):
     """
-    Decorator that allows only the author or an admin to edit a table.
+    Decorator that allows the author, an admin, or the location
+    owner/managers to edit a table.
     """
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
         table = get_object_or_404(Table, slug=table_slug)
-        if not (request.user == table.author.user or request.user.is_staff):
+        is_author = request.user == table.author.user
+        is_admin = request.user.is_staff
+        is_location_manager = False
+        if request.user.is_authenticated and table.location_id:
+            up = request.user.user_profile
+            loc = table.location
+            is_location_manager = loc.creator_id == up.id or loc.managers.filter(id=up.id).exists()
+        if not (is_author or is_admin or is_location_manager):
             messages.error(request, _("You don't have permission to edit this table."), extra_tags="danger")
             return redirect("table-detail", slug=table_slug)
         return view_func(request, location_slug, table_slug, *args, **kwargs)

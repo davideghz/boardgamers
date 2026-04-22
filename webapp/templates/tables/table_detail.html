@@ -239,7 +239,7 @@
           </button>
 
           {# Author actions #}
-          {% if user.user_profile == table.author or request.user.is_superuser %}
+          {% if user.user_profile == table.author or request.user.is_superuser or is_location_manager %}
             <div class="border-t border-slate-100 pt-4 space-y-2">
               {% if table.status != table.CLOSED or request.user.is_superuser %}
                 <a href="{% url 'location-table-update' table.location.slug table.slug %}"

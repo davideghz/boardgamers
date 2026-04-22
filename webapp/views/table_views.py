@@ -25,7 +25,15 @@ from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_ca
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
     def test_func(self):
         obj = self.get_object()
-        return obj.author.user == self.request.user or self.request.user.is_superuser
+        user = self.request.user
+        if obj.author.user == user or user.is_superuser:
+            return True
+        location = getattr(obj, 'location', None)
+        if location and user.is_authenticated:
+            up = user.user_profile
+            if location.creator_id == up.id or location.managers.filter(id=up.id).exists():
+                return True
+        return False
 
 
 class IsNotClosedMixin(UserPassesTestMixin):
