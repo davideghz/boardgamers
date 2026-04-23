@@ -37,9 +37,10 @@ class Command(BaseCommand):
             aws_secret_access_key=settings.AWS_SES_SECRET_ACCESS_KEY
         )
 
-        # 1. Recupera notifiche NEW_TABLE non inviate
+        # 1. Recupera notifiche NEW_TABLE non inviate e non ancora lette sul sito
         notifications = Notification.objects.filter(
             sent=False,
+            is_read=False,
             notification_type=NotificationType.NEW_TABLE
         ).select_related('recipient', 'recipient__user', 'table', 'table__game', 'table__location')
 

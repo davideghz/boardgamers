@@ -87,6 +87,7 @@ class Command(BaseCommand):
 
         notifications = Notification.objects.filter(
             push_sent=False,
+            is_read=False,
             notification_type__in=SUPPORTED_TYPES,
         ).select_related('recipient', 'table', 'table__game', 'table__location')
 
