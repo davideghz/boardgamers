@@ -20,7 +20,12 @@ def create_user_profile(backend, user, response, *args, **kwargs):
             suffix = ''.join(random.choices(string.digits, k=4))
             nickname = f"{base}_{suffix}"
         else:
-            nickname = user.email.split('@')[0]
+            base = user.email.split('@')[0]
+            nickname = base
+            n = 2
+            while UserProfile.objects.filter(nickname=nickname).exists():
+                nickname = f"{base}{n}"
+                n += 1
 
         UserProfile.objects.create(
             user=user,
