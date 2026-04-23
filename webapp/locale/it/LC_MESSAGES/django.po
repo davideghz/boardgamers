@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 15:06+0000\n"
+"POT-Creation-Date: 2026-04-23 15:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,7 +32,7 @@ msgstr "Giochi"
 #: webapp/templates/events/event_table_add_or_edit.html:90
 #: webapp/templates/locations/location_manage_game_detail.html:54
 #: webapp/templates/tables/table_add_or_edit.html:72
-#: webapp/views/location_views.py:1155
+#: webapp/views/location_views.py:1154
 msgid "Game"
 msgstr "Gioco"
 
@@ -114,7 +114,7 @@ msgstr "Profilo utente collegato"
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
 #: webapp/templates/locations/location_manage_widget.html:55
-#: webapp/views/location_views.py:1155
+#: webapp/views/location_views.py:1154
 msgid "Notes"
 msgstr "Note"
 
@@ -151,7 +151,7 @@ msgstr ""
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:624 webapp/models.py:708 webapp/views/location_views.py:1155
+#: webapp/forms.py:624 webapp/models.py:708 webapp/views/location_views.py:1154
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
@@ -547,11 +547,11 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-#: webapp/models.py:704 webapp/views/location_views.py:1155
+#: webapp/models.py:704 webapp/views/location_views.py:1154
 msgid "Ownership"
 msgstr "Proprietà"
 
-#: webapp/models.py:712 webapp/views/location_views.py:1155
+#: webapp/models.py:712 webapp/views/location_views.py:1154
 msgid "Physical Location"
 msgstr "Ubicazione"
 
@@ -2142,6 +2142,7 @@ msgstr "Aggiungi gruppo"
 
 #: webapp/templates/locations/location_calendar.html:92
 #: webapp/templates/tags/event_table_card.html:56
+#: webapp/views/location_views.py:1089
 msgid "Table"
 msgstr "Tavoli"
 
@@ -2235,13 +2236,13 @@ msgstr "Crea un tavolo qui"
 
 #: webapp/templates/locations/location_detail.html:285
 #: webapp/templates/locations/location_detail.html:428
-#: webapp/views/table_views.py:347
+#: webapp/views/table_views.py:355
 msgid "Only members can create tables here."
 msgstr "Solo i soci possono creare un tavolo."
 
 #: webapp/templates/locations/location_detail.html:289
 #: webapp/templates/locations/location_detail.html:444
-#: webapp/views/table_views.py:337
+#: webapp/views/table_views.py:345
 msgid "Only owners and managers can create tables here."
 msgstr "Solo i managers possono creare un tavolo."
 
@@ -3597,7 +3598,7 @@ msgstr ""
 msgid "Can't edit closed tables."
 msgstr "Non è possibile modificare tavoli chiusi."
 
-#: webapp/views/decorators.py:38 webapp/views/event_views.py:255
+#: webapp/views/decorators.py:46 webapp/views/event_views.py:255
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
@@ -3613,11 +3614,11 @@ msgstr "Non hai i permessi necessari per creare tavoli a questo evento."
 msgid "You must define at least one date for the event before creating tables."
 msgstr ""
 
-#: webapp/views/event_views.py:240 webapp/views/table_views.py:363
+#: webapp/views/event_views.py:240 webapp/views/table_views.py:371
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
 
-#: webapp/views/event_views.py:265 webapp/views/table_views.py:394
+#: webapp/views/event_views.py:265 webapp/views/table_views.py:402
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
 
@@ -3832,6 +3833,42 @@ msgstr "Telegram - %(name)s"
 msgid "Table stats – %(name)s"
 msgstr "Stats tavoli - %(name)s"
 
+#: webapp/views/location_views.py:1078
+#, python-format
+msgid "Tables of %(date)s"
+msgstr "Tavoli del %(date)s"
+
+#: webapp/views/location_views.py:1080
+#, python-format
+msgid "Tables from %(date_from)s to %(date_to)s"
+msgstr "Tavoli dal %(date_from)s al %(date_to)s"
+
+#: webapp/views/location_views.py:1101
+msgid "🟢 Available seats:"
+msgstr "🟢 Posti disponibili:"
+
+#: webapp/views/location_views.py:1104 webapp/views/location_views.py:1115
+#, python-format
+msgid "%(occupied)s/%(max)s seats"
+msgstr "%(occupied)s/%(max)s posti"
+
+#: webapp/views/location_views.py:1112
+msgid "🟡 Full tables:"
+msgstr "🟡 Tavoli pieni:"
+
+#: webapp/views/location_views.py:1123
+msgid "🔴 Closed tables:"
+msgstr "🔴 Tavoli chiusi"
+
+#: webapp/views/location_views.py:1132
+msgid "No tables found for this period."
+msgstr "Non ci sono tavoli in questo periodo."
+
+#: webapp/views/location_views.py:1135
+#, python-format
+msgid "Join a table: %(url)s"
+msgstr "Unisciti a un tavolo: %(url)s"
+
 #: webapp/views/profile_views.py:73
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
@@ -3920,54 +3957,54 @@ msgid ""
 "forever, open source, member management, tables, rankings and more."
 msgstr ""
 
-#: webapp/views/table_views.py:85
+#: webapp/views/table_views.py:93
 msgid "Game Tables - Board-Gamers.com"
 msgstr "Tavoli di Gioco - Board-Gamers.com"
 
-#: webapp/views/table_views.py:86
+#: webapp/views/table_views.py:94
 msgid "Discover all available game tables and join the game!"
 msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 
-#: webapp/views/table_views.py:240
+#: webapp/views/table_views.py:248
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-#: webapp/views/table_views.py:245
+#: webapp/views/table_views.py:253
 msgid "Cannot add players to a closed table."
 msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."
 
-#: webapp/views/table_views.py:260 webapp/views/table_views.py:582
+#: webapp/views/table_views.py:268 webapp/views/table_views.py:590
 msgid "The table is full."
 msgstr "Tavolo completo"
 
-#: webapp/views/table_views.py:275
+#: webapp/views/table_views.py:283
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
-#: webapp/views/table_views.py:287
+#: webapp/views/table_views.py:295
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
 
-#: webapp/views/table_views.py:292
+#: webapp/views/table_views.py:300
 msgid "You can remove players only from tables that are open or ongoing."
 msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
 
-#: webapp/views/table_views.py:501
+#: webapp/views/table_views.py:509
 msgid "This table is reserved for members."
 msgstr "Tavolo riservato ai soci"
 
-#: webapp/views/table_views.py:563
+#: webapp/views/table_views.py:571
 msgid "The table is closed."
 msgstr "Il tavolo è chiuso"
 
-#: webapp/views/table_views.py:568
+#: webapp/views/table_views.py:576
 msgid "Only table players can add guests."
 msgstr "Solo i giocatori del tavolo possono aggiungere ospiti."
 
-#: webapp/views/table_views.py:576
+#: webapp/views/table_views.py:584
 msgid "This guest is already at the table."
 msgstr "Questo ospite è già al tavolo."
 
-#: webapp/views/table_views.py:603
+#: webapp/views/table_views.py:611
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."

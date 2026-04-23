@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 from django.views import generic, View
 from django.views.generic import DetailView, CreateView
 
@@ -1072,13 +1072,12 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
         })
 
     def _build_message(self, tables, date_from, date_to, show_full, show_closed, show_names, location_url):
-        from django.utils.translation import gettext as _t
         lines = []
 
         if date_from == date_to:
-            lines.append(_t('Tables of %(date)s') % {'date': date_from.strftime('%d/%m/%Y')})
+            lines.append(gettext('Tables of %(date)s') % {'date': date_from.strftime('%d/%m/%Y')})
         else:
-            lines.append(_t('Tables from %(date_from)s to %(date_to)s') % {
+            lines.append(gettext('Tables from %(date_from)s to %(date_to)s') % {
                 'date_from': date_from.strftime('%d/%m/%Y'),
                 'date_to': date_to.strftime('%d/%m/%Y'),
             })
@@ -1087,7 +1086,7 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
         closed_tables = [t for t in tables if t.status == Table.CLOSED]
 
         def table_label(t):
-            name = t.game.name if t.game else (t.title if t.title else _t('Table'))
+            name = t.game.name if t.game else (t.title if t.title else gettext('Table'))
             return f'*{name}*'
 
         def fmt_players(t):
@@ -1099,10 +1098,10 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
 
         if available_tables:
             lines.append('')
-            lines.append(_t('🟢 Available seats:'))
+            lines.append(gettext('🟢 Available seats:'))
             for t in available_tables:
                 occupied = t.total_players
-                seats = _t('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
+                seats = gettext('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
                 line = f'• {table_label(t)}: {seats}'
                 if show_names:
                     line += f' – {fmt_players(t)}'
@@ -1110,10 +1109,10 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
 
         if show_full and full_tables:
             lines.append('')
-            lines.append(_t('🟡 Full tables:'))
+            lines.append(gettext('🟡 Full tables:'))
             for t in full_tables:
                 occupied = t.total_players
-                seats = _t('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
+                seats = gettext('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
                 line = f'• {table_label(t)}: {seats}'
                 if show_names:
                     line += f' – {fmt_players(t)}'
@@ -1121,7 +1120,7 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
 
         if show_closed and closed_tables:
             lines.append('')
-            lines.append(_t('🔴 Closed tables:'))
+            lines.append(gettext('🔴 Closed tables:'))
             for t in closed_tables:
                 line = f'• {table_label(t)}'
                 if show_names:
@@ -1130,10 +1129,10 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
 
         if not active_tables and not closed_tables:
             lines.append('')
-            lines.append(_t('No tables found for this period.'))
+            lines.append(gettext('No tables found for this period.'))
 
         lines.append('')
-        lines.append(_t('Join a table: %(url)s') % {'url': location_url})
+        lines.append(gettext('Join a table: %(url)s') % {'url': location_url})
 
         return '\n'.join(lines)
 
