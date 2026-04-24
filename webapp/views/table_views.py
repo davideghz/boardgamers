@@ -11,7 +11,6 @@ from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from meta.views import Meta
@@ -75,7 +74,7 @@ class TableIndexView(generic.ListView):
             user_ip = '93.66.88.167'
         user_point = g.geos(user_ip)
 
-        today = timezone.now().date()
+        today = timezone.localdate()
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
         players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
@@ -117,7 +116,7 @@ class BaseTableDetailView(generic.DetailView):
 
         max_players = table.max_players
         external_players = table.external_players
-        today = now().date()
+        today = timezone.localdate()
 
         players = Player.objects.filter(table=table).select_related(
             'user_profile', 'guest_profile', 'guest_profile__owner'

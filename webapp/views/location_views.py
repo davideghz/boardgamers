@@ -71,7 +71,7 @@ class LocationDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
     def get_context_data(self, **kwargs):
-        today = timezone.now().date()
+        today = timezone.localdate()
         location = self.get_object()
 
         # Check if user is following location

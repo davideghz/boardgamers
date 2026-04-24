@@ -81,7 +81,7 @@ def generate_random_time():
 
 
 def generate_date_next_week():
-    today = timezone.now().date()
+    today = timezone.localdate()
     days_ahead = random.randint(1, 7)
     next_week_date = today + datetime.timedelta(days=days_ahead)
     return next_week_date

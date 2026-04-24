@@ -174,7 +174,7 @@ def _handle_tables(chat_id, message_thread_id=None):
     # Use the thread where the command was issued; fall back to the configured thread
     message_thread_id = message_thread_id or config.message_thread_id
 
-    today = timezone.now().date()
+    today = timezone.localdate()
     tables = (
         Table.objects
         .filter(location=config.location, date__gte=today, status=Table.OPEN)

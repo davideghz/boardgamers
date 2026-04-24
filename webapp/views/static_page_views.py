@@ -44,7 +44,7 @@ def homepage_view(request):
         except (TypeError, ValueError):
             pass
 
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
     players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))

@@ -85,7 +85,7 @@ def tables(request, template_name='accounts/account_tables.html'):
     created_tables = user_profile.created_tables.all()
     joined_tables = user_profile.joined_tables.all()
 
-    today = timezone.now().date()
+    today = timezone.localdate()
     base_qs = (
         Table.objects
         .filter(Q(author=user_profile) | Q(players=user_profile))

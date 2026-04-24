@@ -73,7 +73,7 @@ class EventDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
-        today = timezone.now().date()
+        today = timezone.localdate()
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
 
         is_manager = bool(user_profile and event.is_manager(user_profile))
