@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -89,6 +90,7 @@ class Command(BaseCommand):
             push_sent=False,
             is_read=False,
             notification_type__in=SUPPORTED_TYPES,
+            created_at__gte=timezone.now() - timedelta(hours=24),
         ).select_related('recipient', 'table', 'table__game', 'table__location')
 
         if not notifications.exists():
@@ -124,12 +126,15 @@ class Command(BaseCommand):
                 continue
 
             payload = _build_payload(notification)
+            any_success = False
             for sub in subscriptions:
                 if _send_to_subscription(sub, payload):
                     sent_count += 1
+                    any_success = True
 
-            notification.push_sent = True
-            notification.push_sent_at = timezone.now()
-            notification.save(update_fields=['push_sent', 'push_sent_at'])
+            if any_success:
+                notification.push_sent = True
+                notification.push_sent_at = timezone.now()
+                notification.save(update_fields=['push_sent', 'push_sent_at'])
 
         self.stdout.write(self.style.SUCCESS(f'Push inviate: {sent_count}.'))
