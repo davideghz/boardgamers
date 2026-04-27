@@ -63,6 +63,7 @@ class PlayerInline(admin.TabularInline):
 class TableAdmin(admin.ModelAdmin):
     list_display = ("title", "location", "author", "date", "time", "status", "leaderboard_status")
     list_filter = ("location", "status", "leaderboard_status", "date")
+    autocomplete_fields = ("location", "game")
     inlines = [PlayerInline]
 
     def save_model(self, request, obj, form, change):
