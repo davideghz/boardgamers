@@ -185,7 +185,7 @@ class EventJoinView(LoginRequiredMixin, View):
         if event.status != Event.APPROVED and not (
                 request.user.is_superuser or event.is_manager(user_profile)):
             raise Http404
-        _, created = EventParticipant.objects.get_or_create(
+        participant, created = EventParticipant.objects.get_or_create(
             event=event, user_profile=user_profile)
         if created:
             messages.success(request, _("You're now registered for this event!"))
