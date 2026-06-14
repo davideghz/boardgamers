@@ -18,7 +18,11 @@
   </div>
 
   {% if owned_events or managed_events or participating_events %}
-    <div class="space-y-2">
+    <div class="space-y-8">
+
+    {% if owned_events or managed_events %}
+    <section class="space-y-2">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">{% trans "Organized by you" %}</h2>
 
       {% for event in owned_events %}
         <a href="{% url 'event-manage' event.slug %}"
@@ -69,6 +73,12 @@
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
         </a>
       {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if participating_events %}
+    <section class="space-y-2">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">{% trans "Events you're attending" %}</h2>
 
       {% for event in participating_events %}
         <a href="{% url 'event_detail' event.slug %}"
@@ -88,6 +98,8 @@
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Attending" %}</span>
         </a>
       {% endfor %}
+    </section>
+    {% endif %}
 
     </div>
 
