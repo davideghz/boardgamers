@@ -1,4 +1,5 @@
 import datetime
+from collections import defaultdict
 from itertools import groupby
 
 from django.contrib import messages
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Max, Prefetch
+from django.db.models import Max, Prefetch, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -93,6 +94,86 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         return context
 
 
+def _station_conflict_ids(event, date):
+    """Ids of tables that share a physical station with another table at an
+    overlapping time on the same date (a scheduling conflict)."""
+    if not date:
+        return set()
+    day_tables = list(
+        Table.objects.filter(event=event, date=date, physical_table__isnull=False)
+        .only('id', 'date', 'time', 'duration', 'physical_table_id')
+    )
+    by_station = defaultdict(list)
+    for t in day_tables:
+        by_station[t.physical_table_id].append(t)
+    conflict_ids = set()
+    for tables in by_station.values():
+        tables.sort(key=lambda x: x.time)
+        for i in range(len(tables)):
+            for j in range(i + 1, len(tables)):
+                if tables[i].overlaps_with(tables[j]):
+                    conflict_ids.add(tables[i].id)
+                    conflict_ids.add(tables[j].id)
+    return conflict_ids
+
+
+def _warn_station_conflict(request, table):
+    """Non-blocking warning when a table shares its station with another table
+    at an overlapping time."""
+    if not table.physical_table_id:
+        return
+    others = Table.objects.filter(
+        event_id=table.event_id, date=table.date,
+        physical_table_id=table.physical_table_id,
+    ).exclude(id=table.id)
+    if any(table.overlaps_with(o) for o in others):
+        messages.warning(request, _(
+            "Warning: this station is already booked by another table at an overlapping time."))
+
+
+def _build_program_grid(event, tables, selected_area):
+    """Build a station/area × time grid. Columns adapt to the most granular
+    structure available: stations, else play areas, else a single 'General'
+    column ("area generale" fallback)."""
+    UNASSIGNED = 'none'
+    stations = list(event.physical_tables.select_related('play_area'))
+    if selected_area:
+        stations = [s for s in stations if s.play_area_id == selected_area.id]
+
+    if stations:
+        columns = [{'key': f's{s.id}', 'label': s.name,
+                    'sub': s.play_area.name if s.play_area_id else ''} for s in stations]
+
+        def col_key(t):
+            return f's{t.physical_table_id}' if t.physical_table_id else UNASSIGNED
+    else:
+        areas = list(event.play_areas.all())
+        if selected_area:
+            areas = [a for a in areas if a.id == selected_area.id]
+        columns = [{'key': f'a{a.id}', 'label': a.name, 'sub': ''} for a in areas]
+
+        def col_key(t):
+            return f'a{t.play_area_id}' if t.play_area_id else UNASSIGNED
+
+    tables = list(tables)
+    col_keys = {c['key'] for c in columns}
+    if any(col_key(t) not in col_keys for t in tables):
+        label = _('No station') if columns else _('General')
+        columns = columns + [{'key': UNASSIGNED, 'label': label, 'sub': ''}]
+
+    key_index = {c['key']: i for i, c in enumerate(columns)}
+    rows = []
+    for slot_time in sorted({t.time for t in tables}):
+        cells = [[] for _ in columns]
+        for t in tables:
+            if t.time == slot_time:
+                idx = key_index.get(col_key(t))
+                if idx is not None:
+                    cells[idx].append(t)
+        rows.append({'time': slot_time, 'cells': cells})
+    return {'columns': columns, 'rows': rows}
+
+
 class EventProgramView(EventPublicAccessMixin, DetailView):
     """The event program: vertical time agenda with date/area/game filters."""
     model = Event
@@ -166,17 +247,29 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         if selected_date:
             tables_qs = tables_qs.filter(date=selected_date)
         if selected_area:
-            tables_qs = tables_qs.filter(play_area=selected_area)
+            # Effective area: from the assigned station, or the table's own area.
+            tables_qs = tables_qs.filter(
+                Q(physical_table__play_area=selected_area) |
+                Q(physical_table__isnull=True, play_area=selected_area)
+            )
         if selected_game_id:
             tables_qs = tables_qs.filter(game_id=selected_game_id)
 
         tables_qs = tables_qs.order_by('time')
 
-        # ── Group tables into a vertical time agenda (by start time) ───────
+        # ── Flag scheduling conflicts (same station, overlapping time) ─────
+        conflict_ids = _station_conflict_ids(event, selected_date)
+        tables_list = list(tables_qs)
+        for t in tables_list:
+            t.has_conflict = t.id in conflict_ids
+
+        # ── View mode: vertical agenda (default) or station/area grid ──────
+        view_mode = 'grid' if self.request.GET.get('view') == 'grid' else 'list'
         agenda = [
             {'time': slot_time, 'tables': list(group)}
-            for slot_time, group in groupby(tables_qs, key=lambda tb: tb.time)
+            for slot_time, group in groupby(tables_list, key=lambda tb: tb.time)
         ]
+        grid = _build_program_grid(event, tables_list, selected_area) if view_mode == 'grid' else None
 
         # ── Games present in this event (for the filter modal) ────────────
         game_ids = (
@@ -200,8 +293,12 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'selected_area': selected_area,
             'selected_game_id': selected_game_id,
             'selected_game': selected_game,
+            'view_mode': view_mode,
+            'view_qs': '&view=grid' if view_mode == 'grid' else '',
             'agenda': agenda,
-            'has_tables': bool(agenda),
+            'grid': grid,
+            'has_tables': bool(tables_list),
+            'has_conflicts': bool(conflict_ids),
             'games_in_event': games_in_event,
             'today': today,
         })
@@ -297,6 +394,7 @@ def event_table_create_view(request, event_slug):
                 with transaction.atomic():
                     table.players.add(user_profile)
             messages.success(request, _("Table was created successfully"))
+            _warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
         form = EventTableForm(initial=initial, event=event)
@@ -322,6 +420,7 @@ def event_table_update_view(request, event_slug, table_slug):
             table.save()
             form.save_m2m()
             messages.success(request, _("Table was updated successfully"))
+            _warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
         form = EventTableForm(instance=table, event=event)

@@ -402,10 +402,22 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         }.get(self.status, 'text-bg-light')
 
     @property
+    def start_datetime(self):
+        return datetime.datetime.combine(self.date, self.time)
+
+    @property
+    def end_datetime(self):
+        """Full end datetime (handles durations that cross midnight)."""
+        return self.start_datetime + datetime.timedelta(minutes=self.duration or 0)
+
+    @property
     def end_time(self):
         """End time of the session, derived from start time + duration."""
-        start_dt = datetime.datetime.combine(self.date, self.time)
-        return (start_dt + datetime.timedelta(minutes=self.duration or 0)).time()
+        return self.end_datetime.time()
+
+    def overlaps_with(self, other):
+        """True if this session's time range overlaps another's."""
+        return self.start_datetime < other.end_datetime and other.start_datetime < self.end_datetime
 
     @property
     def google_calendar_url(self):

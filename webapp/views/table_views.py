@@ -521,6 +521,17 @@ class JoinTableView(LoginRequiredMixin, View):
         )
 
         messages.success(request, 'Table joined!')
+
+        # Non-blocking warning if the user is now booked on overlapping tables
+        if table.event_id:
+            others = Table.objects.filter(
+                event_id=table.event_id, date=table.date,
+                players=request.user.user_profile,
+            ).exclude(id=table.id)
+            if any(table.overlaps_with(o) for o in others):
+                messages.warning(request, _(
+                    "Heads up: you're also signed up for another table at an overlapping time."))
+
         return redirect('table-detail', slug=self.kwargs['slug'])
 
 
