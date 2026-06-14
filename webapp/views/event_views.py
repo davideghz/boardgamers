@@ -18,7 +18,7 @@ from webapp.forms import (
     EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm,
 )
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable
+from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant
 from webapp.views.table_views import BaseTableDetailView
 
 
@@ -78,6 +78,9 @@ class EventDetailView(DetailView):
 
         is_manager = bool(user_profile and event.is_manager(user_profile))
         can_create_table = bool(user_profile and event.can_create_table(user_profile))
+        is_participant = bool(user_profile and event.participants.filter(
+            user_profile=user_profile).exists())
+        participant_count = event.participants.count()
 
         # ── Date filtering ────────────────────────────────────────────────
         event_dates = event.dates.all()
@@ -155,6 +158,8 @@ class EventDetailView(DetailView):
             'event': event,
             'is_manager': is_manager,
             'can_create_table': can_create_table,
+            'is_participant': is_participant,
+            'participant_count': participant_count,
             'event_dates': event_dates,
             'visible_dates': visible_dates,
             'has_past_dates': has_past_dates,
@@ -169,6 +174,28 @@ class EventDetailView(DetailView):
             'today': today,
         })
         return context
+
+
+class EventJoinView(LoginRequiredMixin, View):
+    """Register the logged-in user as a participant of the event."""
+
+    def post(self, request, slug):
+        event = get_object_or_404(Event, slug=slug)
+        user_profile = request.user.user_profile
+        if event.status != Event.APPROVED and not (
+                request.user.is_superuser or event.is_manager(user_profile)):
+            raise Http404
+        _, created = EventParticipant.objects.get_or_create(
+            event=event, user_profile=user_profile)
+        if created:
+            messages.success(request, _("You're now registered for this event!"))
+            if not user_profile.phone:
+                messages.info(request, _(
+                    "Tip: add a phone number in your profile so organizers can reach "
+                    "you for last-minute changes."))
+        else:
+            messages.info(request, _("You are already registered for this event."))
+        return redirect('event_detail', slug=slug)
 
 
 class EventTableDetailView(BaseTableDetailView):
@@ -387,6 +414,18 @@ class EventManageAreasReorderView(EventManagerMixin, View):
             return JsonResponse({'success': True})
         except Exception:
             return JsonResponse({'success': False}, status=400)
+
+
+class EventManageParticipantsView(EventManagerMixin, View):
+    template_name = 'events/event_manage_participants.html'
+
+    def get(self, request, slug):
+        event = self._get_event()
+        participants = event.participants.select_related('user_profile__user').order_by('-created_at')
+        return render(request, self.template_name, {
+            'event': event,
+            'participants': participants,
+        })
 
 
 class EventManagePhysicalTablesView(EventManagerMixin, View):

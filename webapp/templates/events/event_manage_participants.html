@@ -1,0 +1,50 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
+      <a href="{% url 'event-manage' event.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Participants" %}</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      {% blocktrans count n=participants|length %}{{ n }} person registered{% plural %}{{ n }} people registered{% endblocktrans %}
+    </p>
+  </div>
+
+  <div class="max-w-2xl">
+    <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <ul class="divide-y divide-slate-100">
+        {% for p in participants %}
+          <li class="flex items-center gap-3 px-4 py-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+              {% if p.user_profile.avatar %}
+                <img src="{{ p.user_profile.avatar_url }}" alt="{{ p.user_profile.nickname }}" class="w-full h-full object-cover">
+              {% else %}
+                <span class="text-sm font-bold text-slate-400">{{ p.user_profile.nickname|first|upper }}</span>
+              {% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-slate-800 truncate">
+                {{ p.user_profile.nickname }}
+                {% with full=p.user_profile.user.get_full_name %}
+                  {% if full %}<span class="font-normal text-slate-400">· {{ full }}</span>{% endif %}
+                {% endwith %}
+              </p>
+              <p class="text-xs text-slate-400 truncate">
+                {% if p.user_profile.user.email %}{{ p.user_profile.user.email }}{% endif %}
+                {% if p.user_profile.phone %}&nbsp;·&nbsp;{{ p.user_profile.phone }}{% endif %}
+              </p>
+            </div>
+            <span class="text-xs text-slate-400 flex-shrink-0">{{ p.created_at|date:"j M" }}</span>
+          </li>
+        {% empty %}
+          <li class="px-4 py-6 text-sm text-slate-400 text-center">{% trans "No participants yet." %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+{% endblock content %}

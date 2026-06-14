@@ -31,9 +31,16 @@ def events(request, template_name='accounts/account_events.html'):
     managed_events = user_profile.managed_events.all().exclude(
         id__in=owned_events.values_list('id', flat=True)
     )
+    organized_ids = list(owned_events.values_list('id', flat=True)) + \
+        list(managed_events.values_list('id', flat=True))
+    participating_events = Event.objects.filter(
+        participants__user_profile=user_profile,
+        status=Event.APPROVED,
+    ).exclude(id__in=organized_ids).distinct()
     return render(request, template_name, {
         'owned_events': owned_events,
         'managed_events': managed_events,
+        'participating_events': participating_events,
         'meta': Meta(
             title=_("My Events - Board-Gamers.com"),
             description=_("Manage the events you created or coordinate."),

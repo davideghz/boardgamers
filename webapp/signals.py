@@ -10,7 +10,8 @@ from django.utils.translation import gettext as _, activate
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
-from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType
+from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
+    EventParticipant
 
 
 @receiver(user_logged_out)
@@ -83,6 +84,17 @@ def notify_players_on_new_player(sender, instance, created, **kwargs):
             )
             if player.notification_new_player:
                 send_email_notification_new_player(player, instance.table, instance.user_profile)
+
+
+@receiver(post_save, sender=Player)
+def register_event_participation_on_join(sender, instance, created, **kwargs):
+    """When a user joins a table belonging to an event, ensure they are also
+    registered as a participant of that event."""
+    if created and instance.user_profile_id and instance.table.event_id:
+        EventParticipant.objects.get_or_create(
+            event_id=instance.table.event_id,
+            user_profile_id=instance.user_profile_id,
+        )
 
 
 @receiver(post_save, sender=Player)

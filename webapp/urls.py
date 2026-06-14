@@ -118,7 +118,9 @@ urlpatterns = [
     # EVENTS
     path("events/new/", event_views.EventCreateView.as_view(), name="event-create"),
     path("events/<slug:slug>/", event_views.EventDetailView.as_view(), name="event_detail"),
+    path("events/<slug:slug>/join/", event_views.EventJoinView.as_view(), name="event-join"),
     path("events/<slug:slug>/manage/", event_views.EventManageIndexView.as_view(), name="event-manage"),
+    path("events/<slug:slug>/manage/participants/", event_views.EventManageParticipantsView.as_view(), name="event-manage-participants"),
     path("events/<slug:slug>/manage/data/", event_views.EventManageDataView.as_view(), name="event-manage-data"),
     path("events/<slug:slug>/manage/dates/", event_views.EventManageDatesView.as_view(), name="event-manage-dates"),
     path("events/<slug:slug>/manage/dates/<int:pk>/delete/", event_views.EventManageDateDeleteView.as_view(), name="event-manage-date-delete"),

@@ -17,7 +17,7 @@
     </a>
   </div>
 
-  {% if owned_events or managed_events %}
+  {% if owned_events or managed_events or participating_events %}
     <div class="space-y-2">
 
       {% for event in owned_events %}
@@ -67,6 +67,25 @@
             <p class="text-xs text-slate-400 truncate mt-0.5">{{ event.city }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
+        </a>
+      {% endfor %}
+
+      {% for event in participating_events %}
+        <a href="{% url 'event_detail' event.slug %}"
+           class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:shadow-md hover:border-slate-300 transition-all text-decoration-none">
+          {% if event.cover %}
+            <img src="{{ event.cover.url }}" alt="{{ event.name }}"
+                 class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+          {% else %}
+            <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+            </div>
+          {% endif %}
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-slate-900 truncate">{{ event.name }}</p>
+            <p class="text-xs text-slate-400 truncate mt-0.5">{{ event.city }}</p>
+          </div>
+          <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Attending" %}</span>
         </a>
       {% endfor %}
 
