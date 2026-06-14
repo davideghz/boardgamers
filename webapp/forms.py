@@ -7,7 +7,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate
+from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -156,12 +156,27 @@ class TableForm(ModelForm, TailwindForm):
 
 
 
+class AreaTaggedSelect(Select):
+    """Select that tags each <option> with a data-area attribute, so the station
+    dropdown can be filtered client-side by the selected play area."""
+    station_area_map = {}
+
+    def create_option(self, name, value, *args, **kwargs):
+        option = super().create_option(name, value, *args, **kwargs)
+        pk = getattr(value, 'value', value)
+        area_id = self.station_area_map.get(pk)
+        if area_id is not None:
+            option['attrs']['data-area'] = str(area_id)
+        return option
+
+
 class EventTableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
         exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location']
         widgets = {
             'event': HiddenInput(),
+            'physical_table': AreaTaggedSelect(),
             'game': autocomplete.ModelSelect2(
                 url='games-autocomplete',
                 attrs={'data-placeholder': _('Game')},
@@ -180,17 +195,34 @@ class EventTableForm(ModelForm, TailwindForm):
             )
             self.fields['date'].input_formats = ['%Y-%m-%d']
             self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
+            stations = PhysicalTable.objects.filter(event=event).select_related('play_area')
+            self.fields['physical_table'].queryset = stations
+            self.fields['physical_table'].widget.station_area_map = {
+                s.pk: s.play_area_id for s in stations
+            }
+            self.fields['physical_table'].label_from_instance = (
+                lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
+            )
         else:
             self.fields['date'].input_formats = ['%Y-%m-%d']
             self.fields['play_area'].queryset = PlayArea.objects.none()
+            self.fields['physical_table'].queryset = PhysicalTable.objects.none()
         self.fields['play_area'].required = False
+        self.fields['physical_table'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
+
+        # The selected station must belong to the selected play area.
+        physical_table = cleaned_data.get('physical_table')
+        play_area = cleaned_data.get('play_area')
+        if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
+            self.add_error('physical_table', _("The selected station does not belong to the selected area."))
+
         min_players = cleaned_data.get('min_players')
         max_players = cleaned_data.get('max_players')
         if min_players and max_players and max_players < min_players:
-            raise ValidationError(_("Maximum players cannot be less than minimum players."))
+            self.add_error('max_players', _("Maximum players cannot be less than minimum players."))
         return cleaned_data
 
 
@@ -326,7 +358,7 @@ class UserProfileForm(ModelForm, TailwindForm):
 
     class Meta:
         model = UserProfile
-        fields = ['nickname', 'address', 'city', 'latitude', 'longitude', 'show_full_name']
+        fields = ['nickname', 'phone', 'address', 'city', 'latitude', 'longitude', 'show_full_name']
 
 
 class UserProfileAvatarForm(ModelForm, TailwindForm):
@@ -415,6 +447,20 @@ class PlayAreaForm(ModelForm, TailwindForm):
     class Meta:
         model = PlayArea
         fields = ['name']
+
+
+class PhysicalTableForm(ModelForm, TailwindForm):
+    class Meta:
+        model = PhysicalTable
+        fields = ['name', 'play_area']
+
+    def __init__(self, *args, event=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if event is not None:
+            self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
+        else:
+            self.fields['play_area'].queryset = PlayArea.objects.none()
+        self.fields['play_area'].required = False
 
 
 

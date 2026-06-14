@@ -15,10 +15,10 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp.forms import (
-    EventTableForm, EventForm, EventDateForm, PlayAreaForm,
+    EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm,
 )
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location
+from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable
 from webapp.views.table_views import BaseTableDetailView
 
 
@@ -384,6 +384,57 @@ class EventManageAreasReorderView(EventManagerMixin, View):
             data = json.loads(request.body)
             for item in data.get('areas', []):
                 PlayArea.objects.filter(pk=item['id'], event=event).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=400)
+
+
+class EventManagePhysicalTablesView(EventManagerMixin, View):
+    template_name = 'events/event_manage_physical_tables.html'
+
+    def get(self, request, slug):
+        event = self._get_event()
+        return render(request, self.template_name, {
+            'event': event,
+            'physical_tables': event.physical_tables.select_related('play_area'),
+            'form': PhysicalTableForm(event=event),
+        })
+
+    def post(self, request, slug):
+        event = self._get_event()
+        form = PhysicalTableForm(request.POST, event=event)
+        if form.is_valid():
+            station = form.save(commit=False)
+            station.event = event
+            max_order = event.physical_tables.aggregate(m=Max('order'))['m'] or 0
+            station.order = max_order + 1
+            station.save()
+            messages.success(request, _("Station added."))
+            return redirect('event-manage-stations', slug=slug)
+        return render(request, self.template_name, {
+            'event': event,
+            'physical_tables': event.physical_tables.select_related('play_area'),
+            'form': form,
+        })
+
+
+class EventManagePhysicalTableDeleteView(EventManagerMixin, View):
+    def post(self, request, slug, pk):
+        event = self._get_event()
+        PhysicalTable.objects.filter(pk=pk, event=event).delete()
+        messages.success(request, _("Station removed."))
+        return redirect('event-manage-stations', slug=slug)
+
+
+class EventManagePhysicalTablesReorderView(EventManagerMixin, View):
+    def post(self, request, slug):
+        import json
+        from django.http import JsonResponse
+        event = self._get_event()
+        try:
+            data = json.loads(request.body)
+            for item in data.get('stations', []):
+                PhysicalTable.objects.filter(pk=item['id'], event=event).update(order=item['order'])
             return JsonResponse({'success': True})
         except Exception:
             return JsonResponse({'success': False}, status=400)

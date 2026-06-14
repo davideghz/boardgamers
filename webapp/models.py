@@ -218,6 +218,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
+    phone = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
         max_length=7,
@@ -340,6 +341,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     play_area = models.ForeignKey(
         'PlayArea',
         on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
+    physical_table = models.ForeignKey(
+        'PhysicalTable',
+        on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Station'))
 
     min_players = models.SmallIntegerField(null=False, blank=True, default=2, verbose_name=_('Minimum players'))
     max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
@@ -347,6 +351,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
                                                    verbose_name=_('External players'))
     date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
     time = models.TimeField(default=datetime.time(20, 30), null=False, blank=True, verbose_name=_('Hour'))
+    duration = models.PositiveIntegerField(
+        default=120, null=False, blank=True, verbose_name=_('Duration (minutes)'),
+        help_text=_('Expected duration in minutes'))
     is_public_location = models.BooleanField(default=False, null=False, blank=True)
 
     author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
@@ -395,10 +402,16 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         }.get(self.status, 'text-bg-light')
 
     @property
+    def end_time(self):
+        """End time of the session, derived from start time + duration."""
+        start_dt = datetime.datetime.combine(self.date, self.time)
+        return (start_dt + datetime.timedelta(minutes=self.duration or 0)).time()
+
+    @property
     def google_calendar_url(self):
         import urllib.parse
         start_dt = datetime.datetime.combine(self.date, self.time)
-        end_dt = start_dt + datetime.timedelta(hours=2)
+        end_dt = start_dt + datetime.timedelta(minutes=self.duration or 120)
         fmt = "%Y%m%dT%H%M%S"
         params = {
             'action': 'TEMPLATE',
@@ -907,6 +920,53 @@ class EventDate(DateTimeModel):
         verbose_name_plural = _('Event Dates')
         ordering = ['date']
         unique_together = [('event', 'date')]
+
+
+class PhysicalTable(DateTimeModel):
+    """A physical playing station ("postazione") at an event — e.g. Table 1, 2, 3.
+
+    Game sessions (Table) can be assigned to a station for a time slot. A station
+    can exist without any session (free / game-lending stations).
+    """
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='physical_tables', verbose_name=_('Event'))
+    play_area = models.ForeignKey(
+        PlayArea, on_delete=models.SET_NULL, related_name='physical_tables',
+        null=True, blank=True, verbose_name=_('Play Area'))
+    name = models.CharField(max_length=144, verbose_name=_('Name'),
+                            help_text=_('On-site label, e.g. "Table 1"'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return f"{self.event.name} — {self.name}"
+
+    class Meta:
+        verbose_name = _('Station')
+        verbose_name_plural = _('Stations')
+        ordering = ['order', 'name']
+        unique_together = [('event', 'name')]
+
+
+class EventParticipant(DateTimeModel):
+    """A user registered to attend an event ("iscritto all'evento").
+
+    Created either via the event "Partecipa" button or automatically when a user
+    joins a table belonging to the event.
+    """
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='participants', verbose_name=_('Event'))
+    user_profile = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, related_name='event_participations',
+        verbose_name=_('User'))
+
+    def __str__(self):
+        return f"{self.user_profile.nickname} @ {self.event.name}"
+
+    class Meta:
+        verbose_name = _('Event Participant')
+        verbose_name_plural = _('Event Participants')
+        ordering = ['-created_at']
+        unique_together = [('event', 'user_profile')]
 
 
 class PushSubscription(DateTimeModel):

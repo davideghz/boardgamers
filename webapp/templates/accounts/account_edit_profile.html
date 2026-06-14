@@ -79,6 +79,17 @@
       {% endif %}
     </div>
 
+    {# ── Phone ───────────────────────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.phone.id_for_label }}">
+        {{ form.phone.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+      </label>
+      {{ form.phone }}
+      {% if form.phone.errors %}
+        <p class="mt-1 text-xs text-red-500">{{ form.phone.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
     {# ── Address (with Google Maps autocomplete) ─────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.address.id_for_label }}">

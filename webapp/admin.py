@@ -7,7 +7,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
     Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken, \
-    Event, PlayArea, EventDate, PushSubscription
+    Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
 
 
 
@@ -49,8 +49,8 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("nickname", "created_at", "user", "is_email_verified")
-    search_fields = ("nickname", "user__username", "user__email")
+    list_display = ("nickname", "created_at", "user", "phone", "is_email_verified")
+    search_fields = ("nickname", "user__username", "user__email", "phone")
 
 
 class PlayerInline(admin.TabularInline):
@@ -202,6 +202,12 @@ class EventDateInline(admin.TabularInline):
     fields = ('date',)
 
 
+class PhysicalTableInline(admin.TabularInline):
+    model = PhysicalTable
+    extra = 1
+    fields = ('name', 'play_area', 'order')
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'creator', 'status', 'created_at')
@@ -210,4 +216,19 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ('name', 'city', 'creator__nickname')
     filter_horizontal = ('managers', 'sponsor_locations', 'allowed_table_creators')
     readonly_fields = ('created_at', 'updated_at')
-    inlines = [PlayAreaInline, EventDateInline]
+    inlines = [PlayAreaInline, EventDateInline, PhysicalTableInline]
+
+
+@admin.register(PhysicalTable)
+class PhysicalTableAdmin(admin.ModelAdmin):
+    list_display = ('name', 'event', 'play_area', 'order')
+    list_filter = ('event',)
+    search_fields = ('name', 'event__name')
+
+
+@admin.register(EventParticipant)
+class EventParticipantAdmin(admin.ModelAdmin):
+    list_display = ('user_profile', 'event', 'created_at')
+    list_filter = ('event',)
+    search_fields = ('user_profile__nickname', 'event__name')
+    autocomplete_fields = ('event', 'user_profile')
