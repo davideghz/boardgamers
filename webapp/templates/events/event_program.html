@@ -1,0 +1,168 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load i18n %}
+
+{% block content %}
+
+  {# ── Header ───────────────────────────────────────────────────────── #}
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
+    </p>
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Program" %}</h1>
+      {% if can_create_table %}
+        {% if event.dates.exists %}
+          <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% endif %}"
+             class="flex items-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-700 transition-colors text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            {% trans "Create table" %}
+          </a>
+        {% else %}
+          <a href="{% url 'event-manage-dates' event.slug %}"
+             class="flex items-center gap-1.5 bg-slate-200 text-slate-500 rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-300 transition-colors text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            {% trans "Add dates first" %}
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── Filters ──────────────────────────────────────────────────────── #}
+  {# Date pills #}
+  {% if visible_dates or has_past_dates %}
+    <div class="flex flex-wrap gap-2 mb-3">
+      {% for event_date in visible_dates %}
+        <a href="?date={{ event_date.date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% if selected_game_id %}&game={{ selected_game_id }}{% endif %}{% if show_past %}&show_past=1{% endif %}"
+           class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                  {% if selected_date == event_date.date %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+          {{ event_date.date|date:"j M" }}
+        </a>
+      {% endfor %}
+      {% if has_past_dates %}
+        <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}{% if selected_game_id %}game={{ selected_game_id }}&{% endif %}show_past={% if show_past %}0{% else %}1{% endif %}"
+           class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors border-dashed
+                  {% if show_past %}bg-slate-100 text-slate-700 border-slate-400{% else %}bg-white text-slate-400 border-slate-200 hover:border-slate-400{% endif %}">
+          {% if show_past %}{% trans "Hide past days" %}{% else %}{% trans "Show past days" %}{% endif %}
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {# Area pills + game filter #}
+  <div class="flex flex-wrap items-center gap-2 mb-6">
+    {% if play_areas %}
+      <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_game_id %}game={{ selected_game_id }}&{% endif %}{% if show_past %}show_past=1{% endif %}"
+         class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                {% if not selected_area %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+        {% trans "All areas" %}
+      </a>
+      {% for area in play_areas %}
+        <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}area={{ area.id }}{% if selected_game_id %}&game={{ selected_game_id }}{% endif %}{% if show_past %}&show_past=1{% endif %}"
+           class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                  {% if selected_area.id == area.id %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+          {{ area.name }}
+        </a>
+      {% endfor %}
+    {% endif %}
+
+    {% if games_in_event %}
+      <div class="ml-auto">
+        {% if selected_game %}
+          <span class="flex items-center gap-1 border border-blue-500 bg-blue-50 text-blue-700 rounded-full pl-3 pr-1 py-1.5 text-xs font-semibold">
+            {{ selected_game.name|truncatechars:24 }}
+            <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}{% if show_past %}show_past=1{% endif %}"
+               class="ml-0.5 flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 transition-colors"
+               title="{% trans "Remove filter" %}">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-2.5 h-2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </span>
+        {% else %}
+          <button type="button" onclick="document.getElementById('game-filter-modal').classList.remove('hidden')"
+                  class="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+            </svg>
+            {% trans "Filter by game" %}
+          </button>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  {# ── Agenda ───────────────────────────────────────────────────────── #}
+  {% if has_tables %}
+    <div class="space-y-6">
+      {% for slot in agenda %}
+        <div class="flex flex-col sm:flex-row sm:gap-4">
+          {# Time: above the cards on mobile, left column on desktop #}
+          <div class="flex-shrink-0 sm:w-16 sm:text-right sm:pt-1 mb-1.5 sm:mb-0">
+            <span class="inline-flex items-center gap-1 text-sm font-extrabold text-slate-900">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400 sm:hidden">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              {{ slot.time|time:"H:i" }}
+            </span>
+          </div>
+          {# Cards column #}
+          <div class="flex-1 min-w-0 space-y-2 sm:border-l-2 sm:border-slate-100 sm:pl-4">
+            {% for table in slot.tables %}{% event_agenda_card table %}{% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="flex flex-col items-center justify-center py-16 text-center">
+      <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+      </div>
+      <p class="text-sm font-semibold text-slate-700">{% trans "No tables for the selected filters." %}</p>
+    </div>
+  {% endif %}
+
+  {# ── Game filter modal ────────────────────────────────────────────── #}
+  <div id="game-filter-modal"
+       class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+       onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900">{% trans "Filter by game" %}</h3>
+        <button onclick="document.getElementById('game-filter-modal').classList.add('hidden')"
+                class="text-slate-400 hover:text-slate-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="overflow-y-auto p-3">
+        <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}{% if show_past %}show_past=1{% endif %}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
+                  {% if not selected_game_id %}bg-slate-100 text-slate-900{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+          {% trans "All games" %}
+        </a>
+        {% for game in games_in_event %}
+          <a href="?{% if selected_date %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}{% if selected_area %}area={{ selected_area.id }}&{% endif %}game={{ game.id }}{% if show_past %}&show_past=1{% endif %}"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors
+                    {% if selected_game_id == game.id %}bg-slate-100 font-semibold text-slate-900{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+            {% if game.image %}
+              <img src="{{ game.image.url }}" alt="{{ game.name }}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+            {% else %}
+              <div class="w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0"></div>
+            {% endif %}
+            {{ game.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

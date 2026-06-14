@@ -53,6 +53,11 @@ def event_table_card(table):
     return {'table': table}
 
 
+@register.inclusion_tag("tags/event_agenda_card.html")
+def event_agenda_card(table):
+    return {'table': table}
+
+
 @register.inclusion_tag("tags/horizontal_table_card.html", takes_context=True)
 def horizontal_table_card(context, table, show_author_icon=False):
     return {

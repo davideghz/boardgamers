@@ -1,4 +1,5 @@
 import datetime
+from itertools import groupby
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -56,11 +57,9 @@ class EventManagerMixin(LoginRequiredMixin):
         return self._event_cache
 
 
-class EventDetailView(DetailView):
-    model = Event
-    template_name = 'events/event_detail.html'
-    slug_field = 'slug'
-    slug_url_kwarg = 'slug'
+class EventPublicAccessMixin:
+    """Resolve the event by slug, enforcing approval visibility (managers can
+    preview their own pending events)."""
 
     def get_object(self, queryset=None):
         event = super().get_object(queryset)
@@ -70,6 +69,37 @@ class EventDetailView(DetailView):
                 raise Http404
         return event
 
+
+class EventDetailView(EventPublicAccessMixin, DetailView):
+    """Slim event landing page: intro, sponsors, contacts + CTA to the program."""
+    model = Event
+    template_name = 'events/event_detail.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.object
+        user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        context.update({
+            'is_manager': bool(user_profile and event.is_manager(user_profile)),
+            'is_participant': bool(user_profile and event.participants.filter(
+                user_profile=user_profile).exists()),
+            'participant_count': event.participants.count(),
+            'event_dates': event.dates.all(),
+            'table_count': Table.objects.filter(event=event).count(),
+            'today': timezone.localdate(),
+        })
+        return context
+
+
+class EventProgramView(EventPublicAccessMixin, DetailView):
+    """The event program: vertical time agenda with date/area/game filters."""
+    model = Event
+    template_name = 'events/event_program.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
@@ -78,9 +108,6 @@ class EventDetailView(DetailView):
 
         is_manager = bool(user_profile and event.is_manager(user_profile))
         can_create_table = bool(user_profile and event.can_create_table(user_profile))
-        is_participant = bool(user_profile and event.participants.filter(
-            user_profile=user_profile).exists())
-        participant_count = event.participants.count()
 
         # ── Date filtering ────────────────────────────────────────────────
         event_dates = event.dates.all()
@@ -131,7 +158,7 @@ class EventDetailView(DetailView):
         tables_qs = (
             Table.objects
             .filter(event=event)
-            .select_related('game', 'author', 'author__user', 'play_area')
+            .select_related('game', 'author', 'author__user', 'play_area', 'physical_table')
             .prefetch_related(
                 Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
             )
@@ -144,6 +171,12 @@ class EventDetailView(DetailView):
             tables_qs = tables_qs.filter(game_id=selected_game_id)
 
         tables_qs = tables_qs.order_by('time')
+
+        # ── Group tables into a vertical time agenda (by start time) ───────
+        agenda = [
+            {'time': slot_time, 'tables': list(group)}
+            for slot_time, group in groupby(tables_qs, key=lambda tb: tb.time)
+        ]
 
         # ── Games present in this event (for the filter modal) ────────────
         game_ids = (
@@ -158,8 +191,6 @@ class EventDetailView(DetailView):
             'event': event,
             'is_manager': is_manager,
             'can_create_table': can_create_table,
-            'is_participant': is_participant,
-            'participant_count': participant_count,
             'event_dates': event_dates,
             'visible_dates': visible_dates,
             'has_past_dates': has_past_dates,
@@ -169,7 +200,8 @@ class EventDetailView(DetailView):
             'selected_area': selected_area,
             'selected_game_id': selected_game_id,
             'selected_game': selected_game,
-            'tables': tables_qs,
+            'agenda': agenda,
+            'has_tables': bool(agenda),
             'games_in_event': games_in_event,
             'today': today,
         })
