@@ -94,13 +94,26 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         # Get tables from all specified locations
-        tables = (
+        limit = 12
+        today = now().date()
+        base_qs = (
             Table.objects
             .filter(location__in=locations)
             .select_related('location', 'game')
             .prefetch_related('players')
-            .order_by('-date', '-time')[:12]  # Increased limit since we're combining locations
         )
+
+        # Upcoming tables first (closest in time first), then fill the
+        # remaining slots with the most recent past tables as a fallback.
+        future_tables = list(
+            base_qs.filter(date__gte=today).order_by('date', 'time')[:limit]
+        )
+        remaining = limit - len(future_tables)
+        past_tables = (
+            list(base_qs.filter(date__lt=today).order_by('-date', '-time')[:remaining])
+            if remaining > 0 else []
+        )
+        tables = future_tables + past_tables
 
         serializer = self.get_serializer(tables, many=True)
         return Response(serializer.data)
