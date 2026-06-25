@@ -5,23 +5,24 @@
 - [Setup With Docker (Windows)](#setup-with-docker-windows)
 
 ## Project Requirements
-- Python 3.9+
+- Python 3.12
 - PostgreSQL 16 (**important note**: Postgres 17+ is NOT SUPPORTED) with `postgis` extension enabled (see below)
+- GeoDjango native libraries: GDAL, GEOS, PROJ (GDAL ≥ 3.0; any compatible recent version works — exact parity with production is not required)
 - virtualenv
 - Docker Desktop (required on Windows, optional everywhere else)
 - PyCharm (recommended) or any IDE of your choice
 
 ## Setup Without Docker (Linux/MacOS)
 1. Install PostgreSQL (versions 17+ are NOT SUPPORTED) with `pg_config` (PostgreSQL dev tools)
-2. Install GDAL
+2. Install the GeoDjango native libraries (GDAL, GEOS, PROJ)
 ```bash
-# On MacOS
+# On MacOS (GDAL pulls in GEOS and PROJ as dependencies)
 brew install gdal
 ```
 ```bash
 # On Linux
 sudo apt-get update
-sudo apt-get install libgdal-dev
+sudo apt-get install gdal-bin libgdal-dev libgeos-dev libproj-dev
 ```
 3. Create database on your system and enable `postgis` extension
 ```bash
@@ -38,7 +39,7 @@ CREATE EXTENSION postgis;
 5. Activate virtual environment and install project's dependencies
 ```
 source venv/bin/activate
-pip install
+pip install -r requirements.txt
 ```
 6. Run migrations
 ```bash
@@ -57,12 +58,32 @@ CREATE EXTENSION postgis;
 ```
 Heroku docs [HERE](https://devcenter.heroku.com/articles/heroku-postgres-extensions-postgis-full-text-search#postgis)
 
-### GDAL
-Add the buildpack:
+### GDAL / GEOS / PROJ (geo libraries)
+The geo libraries are provided by the [heroku-geo-buildpack](https://github.com/heroku/heroku-geo-buildpack),
+which must be added **before** the Python buildpack:
 ```bash
-heroku buildpacks:add --index 1 heroku-community/apt
+heroku buildpacks:add --index 1 https://github.com/heroku/heroku-geo-buildpack.git
+heroku buildpacks:add heroku/python
 ```
-Heroku docs [HERE](https://help.heroku.com/Q0VCG3DE/how-do-i-install-gdal-on-heroku)
+
+#### Versions
+By default the buildpack installs the latest version available for the current stack — this is the
+recommended setup. You can optionally pin versions via config vars, **but only to versions that are
+prebuilt for your stack** (see the buildpack's [available versions](https://github.com/heroku/heroku-geo-buildpack#available-versions)):
+```bash
+heroku config:set GDAL_VERSION=3.12.3 GEOS_VERSION=3.14.1 PROJ_VERSION=9.8.1 -a <app-name>
+```
+
+> ⚠️ **When upgrading the Heroku stack** (e.g. `heroku-24` → `heroku-26`): pinned versions that are
+> not prebuilt for the new stack will fail the build with a `curl 403` error. Either update the
+> config vars to versions available for the new stack, or unset them to use the defaults:
+> ```bash
+> heroku config:unset GDAL_VERSION GEOS_VERSION PROJ_VERSION -a <app-name>
+> ```
+> Then **purge the build cache** before redeploying (otherwise the failed download is reused):
+> ```bash
+> heroku builds:cache:purge -a <app-name>   # requires: heroku plugins:install heroku-builds
+> ```
 
 ## Email in local development (Mailtrap)
 
@@ -112,8 +133,8 @@ docker compose up -d
 ```
 This command will:
 - Build the Docker images
-- Start the Django container (`.web`)
-- Start the PostgreSQL + PostGIS container (`.db`)
+- Start the Django container (`web`)
+- Start the PostgreSQL + PostGIS container (`db`)
 - Apply migrations automatically
 
 Wait until both of the cointainers are built.
@@ -150,8 +171,8 @@ Select:
 Docker Compose
 ```
 Then configure:
-- Compose file: `.docker-compose.yml`
-- Service: `.web`
+- Compose file: `docker-compose.yml`
+- Service: `web`
 - Python interpreter path: keep default
 - Environment variables: keep default
 
