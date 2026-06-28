@@ -3,6 +3,8 @@ import string
 import uuid
 import random
 import datetime
+from zoneinfo import ZoneInfo
+
 import mistune
 import nh3
 
@@ -320,6 +322,24 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         (LEADERBOARD_EDITABLE, _('Editable')),
     ]
 
+    # ── Lifecycle phase: single time-based source of truth from which BOTH
+    #    table_status and leaderboard_status are derived (see _PHASE_STATUS_MAP).
+    PHASE_UPCOMING = 'upcoming'              # before the game start time
+    PHASE_LIVE = 'live'                      # 0–12h after start
+    PHASE_RECENTLY_ENDED = 'recently_ended'  # 12h–2 days after start
+    PHASE_ARCHIVED = 'archived'              # more than 2 days after start
+
+    # Each phase maps to (table_status, leaderboard_status). Keeping both in one
+    # map is the common approach: change the lifecycle here and both stay in sync.
+    _PHASE_STATUS_MAP = {
+        PHASE_UPCOMING:       (OPEN,    LEADERBOARD_NOT_EDITABLE),
+        PHASE_LIVE:           (ONGOING, LEADERBOARD_EDITABLE),
+        PHASE_RECENTLY_ENDED: (CLOSED,  LEADERBOARD_EDITABLE),
+        PHASE_ARCHIVED:       (CLOSED,  LEADERBOARD_NOT_EDITABLE),
+    }
+    LIVE_WINDOW = datetime.timedelta(hours=12)
+    ARCHIVE_AFTER = datetime.timedelta(days=2)
+
     slug_field_name = 'title'
     title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -399,7 +419,56 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         return {
             self.LEADERBOARD_NOT_EDITABLE: 'text-bg-secondary',
             self.LEADERBOARD_EDITABLE: 'text-bg-primary',
-        }.get(self.status, 'text-bg-light')
+        }.get(self.leaderboard_status, 'text-bg-light')
+
+    # ── Time-based status computation ──────────────────────────────────────
+    def lifecycle_phase(self, at=None):
+        """Return the lifecycle phase (PHASE_*) of this table at a given moment.
+
+        Single source of truth: derived purely from the game date+time, anchored
+        to the project timezone so DST is handled correctly.
+        """
+        tz = ZoneInfo(settings.TIME_ZONE)
+        current = at or timezone.now()
+        game_datetime = datetime.datetime.combine(self.date, self.time, tzinfo=tz)
+        if current < game_datetime:
+            return self.PHASE_UPCOMING
+        if current < game_datetime + self.LIVE_WINDOW:
+            return self.PHASE_LIVE
+        if current < game_datetime + self.ARCHIVE_AFTER:
+            return self.PHASE_RECENTLY_ENDED
+        return self.PHASE_ARCHIVED
+
+    def computed_table_status(self, at=None):
+        """The table_status this table should have, based on time."""
+        return self._PHASE_STATUS_MAP[self.lifecycle_phase(at)][0]
+
+    def computed_leaderboard_status(self, at=None):
+        """The leaderboard_status this table should have, based on time."""
+        return self._PHASE_STATUS_MAP[self.lifecycle_phase(at)][1]
+
+    def recompute_statuses(self, at=None):
+        """Realign BOTH table_status and leaderboard_status on this instance.
+
+        Does not save. Returns True if either value actually changed.
+        """
+        new_table_status, new_leaderboard_status = \
+            self._PHASE_STATUS_MAP[self.lifecycle_phase(at)]
+        changed = (
+            self.status != new_table_status
+            or self.leaderboard_status != new_leaderboard_status
+        )
+        self.status = new_table_status
+        self.leaderboard_status = new_leaderboard_status
+        return changed
+
+    def save(self, *args, **kwargs):
+        # Keep both statuses in sync with the lifecycle on every save, so that
+        # editing the date/time immediately realigns them (no drift waiting for
+        # the cron). Set `_skip_status_recompute = True` to bypass if ever needed.
+        if not getattr(self, '_skip_status_recompute', False):
+            self.recompute_statuses()
+        super().save(*args, **kwargs)
 
     @property
     def start_datetime(self):
