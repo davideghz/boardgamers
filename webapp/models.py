@@ -313,6 +313,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         (ONGOING, _('On Going')),
         (CLOSED, _('Closed')),
     ]
+    # table_status values in which the session is still active and players can
+    # join or leave (everything except CLOSED).
+    JOIN_LEAVE_STATUSES = (OPEN, ONGOING)
 
     LEADERBOARD_NOT_EDITABLE = 'not_editable'
     LEADERBOARD_EDITABLE = 'editable'
@@ -391,6 +394,21 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if hasattr(self, '_prefetched_objects_cache') and 'player_set' in self._prefetched_objects_cache:
             return len(self.player_set.all()) + self.external_players
         return self.player_set.count() + self.external_players
+
+    @property
+    def seats_available(self):
+        """Free seats left (registered players + guests + external considered)."""
+        return self.max_players - self.total_players
+
+    @property
+    def is_session_active(self):
+        """True while the session is open or ongoing (i.e. not closed)."""
+        return self.status in self.JOIN_LEAVE_STATUSES
+
+    @property
+    def is_joinable(self):
+        """True when a new player may join: session active and seats free."""
+        return self.is_session_active and self.seats_available > 0
 
     status = models.CharField(max_length=20, choices=TABLE_STATUS_CHOICES, default=TABLE_STATUS_DEFAULT)
     leaderboard_status = models.CharField(

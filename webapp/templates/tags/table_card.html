@@ -9,7 +9,7 @@
          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full
                  {% if table.status == 'open' %}bg-green-500 text-white
-                 {% elif table.status == 'full' %}bg-orange-500 text-white
+                 {% elif table.status == 'ongoing' %}bg-orange-500 text-white
                  {% else %}bg-slate-600 text-white{% endif %}">
       {{ table.get_status_display }}
     </span>

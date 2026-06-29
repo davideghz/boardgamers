@@ -489,8 +489,8 @@ class JoinTableView(LoginRequiredMixin, View):
             return redirect('table-detail', slug=self.kwargs['slug'])
 
         table = get_object_or_404(Table, slug=self.kwargs['slug'])
-        if table.status == Table.CLOSED:
-            messages.error(request, 'The table is closed. You cannot join.', extra_tags='danger')
+        if not table.is_session_active:
+            messages.error(request, _('The table is closed. You cannot join.'), extra_tags='danger')
             return redirect('table-detail', slug=self.kwargs['slug'])
 
         if table.location and table.location.table_join_permission == table.location.PERM_MEMBERS_ONLY:
@@ -507,6 +507,16 @@ class JoinTableView(LoginRequiredMixin, View):
                 if not is_member:
                     messages.error(request, _('This table is reserved for members.'), extra_tags='danger')
                     return redirect('table-detail', slug=self.kwargs['slug'])
+
+        # Already at the table? (avoids hitting the unique constraint with a 500)
+        if Player.objects.filter(table=table, user_profile=request.user.user_profile).exists():
+            messages.warning(request, _('You are already at this table.'))
+            return redirect('table-detail', slug=self.kwargs['slug'])
+
+        # Capacity check — guards against direct POSTs bypassing the disabled button
+        if table.seats_available <= 0:
+            messages.error(request, _('The table is full.'), extra_tags='danger')
+            return redirect('table-detail', slug=self.kwargs['slug'])
 
         Player.objects.create(
             user_profile=request.user.user_profile,
@@ -538,8 +548,8 @@ class JoinTableView(LoginRequiredMixin, View):
 class LeaveTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=self.kwargs['slug'])
-        if table.status == Table.CLOSED:
-            messages.error(request, 'The table is closed. You cannot leave.', extra_tags='danger')
+        if not table.is_session_active:
+            messages.error(request, _('The table is closed. You cannot leave.'), extra_tags='danger')
             return redirect('table-detail', self.kwargs['slug'])
 
         try:
@@ -577,7 +587,7 @@ class AddGuestToTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=kwargs['slug'])
 
-        if table.status != Table.OPEN:
+        if not table.is_session_active:
             messages.error(request, _("The table is closed."), extra_tags='danger')
             return redirect('table-detail', slug=table.slug)
 
@@ -595,8 +605,7 @@ class AddGuestToTableView(LoginRequiredMixin, View):
             return redirect('table-detail', slug=table.slug)
 
         # Check seats
-        current_count = Player.objects.filter(table=table).count() + table.external_players
-        if current_count >= table.max_players:
+        if table.seats_available <= 0:
             messages.error(request, _("The table is full."), extra_tags='danger')
             return redirect('table-detail', slug=table.slug)
 
