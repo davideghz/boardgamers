@@ -97,17 +97,10 @@ def register_event_participation_on_join(sender, instance, created, **kwargs):
         )
 
 
-@receiver(post_save, sender=Player)
-def notify_players_on_leaderboard_update(sender, instance, created, **kwargs):
-    if instance.position != 99 and instance.user_profile_id:
-        players = instance.table.players.exclude(id=instance.user_profile.id)
-        for player in players:
-            Notification.objects.create(
-                recipient=player,
-                notification_type=NotificationType.LEADERBOARD_UPDATED,
-                table=instance.table,
-                location=instance.table.location,
-            )
+# NB: la notifica di aggiornamento leaderboard NON è più gestita qui via signal.
+# Scattava a ogni Player.save() (N×(N-1) notifiche per un singolo riordino, che
+# salva i player in loop). Ora è inviata una sola volta, in batch, dalla view API
+# update_player_position (webapp/api/views.py) — una notifica per destinatario.
 
 
 @receiver(post_save, sender=Comment)

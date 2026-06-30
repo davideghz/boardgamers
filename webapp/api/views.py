@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from webapp.models import Table, Location, Player, Game
+from webapp.models import Table, Location, Player, Game, Notification, NotificationType
 from webapp.api.serializers import TableSerializer
 from webapp.services.bgg import search_bgg, import_game_from_bgg, fetch_bgg_classifications
 
@@ -37,37 +37,49 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
 
 
             players = request.data.get('players', [])
-
-            # Log per verificare i dati ricevuti
-            print(f"Players data received: {players}")
+            logger.debug("Players data received for table %s: %s", table.id, players)
 
             # Verifica che l'utente sia un player del tavolo o un admin
             if not (request.user.is_superuser or request.user.user_profile in table.players.all()):
                 return Response({'success': False, 'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
             # Aggiorna le posizioni dei giocatori
+            any_position_changed = False
             for player_data in players:
                 player_id = player_data.get('id')
                 position = player_data.get('position')
 
-                # Log per verificare id e posizione
-                print(f"Aggiornamento player ID {player_id} alla posizione {position}")
-
                 if player_id is None or position is None:
-                    print(f"Errore: ID o posizione mancanti per il player: {player_data}")
+                    logger.warning("Missing id or position in player data: %s", player_data)
                     continue
 
                 try:
                     player = Player.objects.get(id=player_id, table=table)  # Usa il filtro per il tavolo corretto
-                    player.position = position
-                    player.save()
-                    print(f"Giocatore {player.display_name} aggiornato alla posizione {player.position}")
+                    if player.position != position:
+                        player.position = position
+                        player.save()
+                        any_position_changed = True
                 except Player.DoesNotExist:
-                    print(f"Errore: Player con ID {player_id} non trovato.")
+                    logger.warning("Player id %s not found for table %s", player_id, table.id)
                     continue
                 except Exception as e:
-                    print(f"Errore durante l'aggiornamento del player con ID {player_id}: {str(e)}")
+                    logger.error("Error updating player id %s: %s", player_id, e)
                     return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Una sola notifica per destinatario per l'intero riordino (non più una
+            # per ogni Player.save()). Inviata solo se qualcosa è cambiato davvero
+            # e se la leaderboard è abilitata per il gioco.
+            if any_position_changed and table.game and table.game.leaderboard_enabled:
+                recipients = table.players.exclude(id=request.user.user_profile.id)
+                Notification.objects.bulk_create([
+                    Notification(
+                        recipient=recipient,
+                        notification_type=NotificationType.LEADERBOARD_UPDATED,
+                        table=table,
+                        location=table.location,
+                    )
+                    for recipient in recipients
+                ])
 
             return Response({'success': True}, status=status.HTTP_200_OK)
 
