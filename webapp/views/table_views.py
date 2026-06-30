@@ -126,11 +126,12 @@ class BaseTableDetailView(generic.DetailView):
         leaderboard_enabled = table.game and table.game.leaderboard_enabled
         leaderboard_visible = any(player.position != 99 for player in players)
 
-        user_can_edit_leaderboard = (
-            (self.request.user.is_authenticated and leaderboard_enabled and
-             ((table.leaderboard_status == table.LEADERBOARD_EDITABLE) and
-              self.request.user.user_profile in table.players.all()) or
-             self.request.user.is_superuser)
+        user_can_edit_leaderboard = self.request.user.is_authenticated and (
+            self.request.user.is_superuser or (
+                leaderboard_enabled
+                and table.leaderboard_status == table.LEADERBOARD_EDITABLE
+                and self.request.user.user_profile in table.players.all()
+            )
         )
 
         user_available_guests = None
