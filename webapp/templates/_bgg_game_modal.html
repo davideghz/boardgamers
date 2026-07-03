@@ -84,6 +84,7 @@
   var resultsList = document.getElementById('bgg-results-list');
   var debounceTimer = null;
   var searchToken = 0;  // increments on each new search to discard stale responses
+  var localGamesById = {};  // id → {min_players, max_players} for locally listed games
 
   window.openBggModal = function () {
     modal.style.display = 'flex';
@@ -110,8 +111,8 @@
     return el ? el.value : '';
   }
 
-  function selectGame(gameId, gameName) {
-    if (window.bggSelectCallback) window.bggSelectCallback(gameId, gameName);
+  function selectGame(gameId, gameName, minPlayers, maxPlayers) {
+    if (window.bggSelectCallback) window.bggSelectCallback(gameId, gameName, minPlayers, maxPlayers);
     closeBggModal();
   }
 
@@ -144,9 +145,11 @@
 
   function renderLocalResults(localData, hasMore) {
     var html = '';
+    localGamesById = {};
     if (localData && localData.length) {
       html += sectionTitle('{% trans "Already on board-gamers" %}');
       localData.forEach(function (g) {
+        localGamesById[g.id] = {min_players: g.min_players, max_players: g.max_players};
         html += makeRow(g.name, g.year_published, 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
       });
     }
@@ -186,7 +189,10 @@
     externalEl.innerHTML = html;
   }
 
-  window.bggSelect = function (gameId, gameName) { selectGame(gameId, gameName); };
+  window.bggSelect = function (gameId, gameName) {
+    var g = localGamesById[gameId] || {};
+    selectGame(gameId, gameName, g.min_players, g.max_players);
+  };
 
   window.bggImport = function (bggId) {
     var card = document.getElementById('bgg-btn-' + bggId);
@@ -198,7 +204,7 @@
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      if (data.id) { selectGame(data.id, data.name); }
+      if (data.id) { selectGame(data.id, data.name, data.min_players, data.max_players); }
       else { if (card) { card.disabled = false; } alert('{% trans "Import failed. Please try again." %}'); }
     })
     .catch(function () {

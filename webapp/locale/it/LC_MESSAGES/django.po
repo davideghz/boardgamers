@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 12:44+0200\n"
+"POT-Creation-Date: 2026-07-03 16:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -269,7 +269,9 @@ msgstr "Orario default dei tavoli"
 
 #: webapp/models.py:157
 msgid "Default start time used when creating new tables at this location."
-msgstr "Orario di inizio predefinito usato quando si creano nuovi tavoli in questa location."
+msgstr ""
+"Orario di inizio predefinito usato quando si creano nuovi tavoli in questa "
+"location."
 
 #: webapp/models.py:166 webapp/models.py:171
 msgid "Anyone"
@@ -813,21 +815,21 @@ msgstr "Inserisci almeno 2 caratteri"
 msgid "Searching..."
 msgstr "Ricerca in corso..."
 
-#: webapp/templates/_bgg_game_modal.html:138
-#: webapp/templates/_bgg_game_modal.html:180
+#: webapp/templates/_bgg_game_modal.html:139
+#: webapp/templates/_bgg_game_modal.html:183
 msgid "Import from BGG"
 msgstr "Importa da BGG"
 
-#: webapp/templates/_bgg_game_modal.html:141
+#: webapp/templates/_bgg_game_modal.html:142
 msgid "Searching BoardGameGeek..."
 msgstr "Cercando su BoardGameGeek..."
 
-#: webapp/templates/_bgg_game_modal.html:148
+#: webapp/templates/_bgg_game_modal.html:150
 msgid "Already on board-gamers"
 msgstr "Già su board-gamers"
 
-#: webapp/templates/_bgg_game_modal.html:202
-#: webapp/templates/_bgg_game_modal.html:206
+#: webapp/templates/_bgg_game_modal.html:208
+#: webapp/templates/_bgg_game_modal.html:212
 msgid "Import failed. Please try again."
 msgstr "Importazione fallita. Riprova."
 
@@ -854,7 +856,7 @@ msgstr "Il login con Telegram non è configurato."
 #: webapp/templates/events/event_manage_data.html:92
 #: webapp/templates/events/event_manage_locations.html:102
 #: webapp/templates/events/event_manage_managers.html:115
-#: webapp/templates/events/event_table_add_or_edit.html:181
+#: webapp/templates/events/event_table_add_or_edit.html:182
 #: webapp/templates/locations/location_add_or_edit.html:100
 #: webapp/templates/locations/location_manage_data.html:135
 #: webapp/templates/locations/location_manage_game_detail.html:121
@@ -866,7 +868,7 @@ msgstr "Il login con Telegram non è configurato."
 #: webapp/templates/locations/location_manage_member_detail.html:214
 #: webapp/templates/locations/location_manage_members.html:182
 #: webapp/templates/tables/_table_comments.html:76
-#: webapp/templates/tables/table_add_or_edit.html:153
+#: webapp/templates/tables/table_add_or_edit.html:154
 #: webapp/templates/tables/table_delete.html:30
 #: webapp/templates/tables/table_players.html:167
 msgid "Cancel"
@@ -1803,12 +1805,12 @@ msgid "General info"
 msgstr "Info generali"
 
 #: webapp/templates/events/event_manage_data.html:97
-#: webapp/templates/events/event_table_add_or_edit.html:186
+#: webapp/templates/events/event_table_add_or_edit.html:187
 #: webapp/templates/locations/location_add_or_edit.html:105
 #: webapp/templates/locations/location_manage_data.html:140
 #: webapp/templates/locations/location_manage_game_detail.html:126
 #: webapp/templates/locations/location_manage_member_detail.html:74
-#: webapp/templates/tables/table_add_or_edit.html:159
+#: webapp/templates/tables/table_add_or_edit.html:160
 msgid "Save changes"
 msgstr "Aggiorna"
 
@@ -2052,33 +2054,53 @@ msgstr "Rimuovi gioco"
 msgid "Players"
 msgstr "Giocatori"
 
-#: webapp/templates/events/event_table_add_or_edit.html:171
-#: webapp/templates/tables/table_add_or_edit.html:142
+#: webapp/templates/events/event_table_add_or_edit.html:172
+#: webapp/templates/tables/table_add_or_edit.html:143
 msgid "Join this table as a player"
 msgstr "Unisciti a questo tavolo dopo la creazione"
 
-#: webapp/templates/events/event_table_add_or_edit.html:186
-#: webapp/templates/tables/table_add_or_edit.html:159
+#: webapp/templates/events/event_table_add_or_edit.html:187
+#: webapp/templates/tables/table_add_or_edit.html:160
 msgid "Publish"
 msgstr "Pubblica"
 
-#: webapp/templates/events/event_table_add_or_edit.html:197
-#: webapp/templates/tables/table_add_or_edit.html:170
+#: webapp/templates/events/event_table_add_or_edit.html:198
+#: webapp/templates/tables/table_add_or_edit.html:171
 msgid "Danger Zone"
 msgstr "Zona Pericolosa"
 
-#: webapp/templates/events/event_table_add_or_edit.html:203
-#: webapp/templates/tables/table_add_or_edit.html:176
+#: webapp/templates/events/event_table_add_or_edit.html:204
+#: webapp/templates/tables/table_add_or_edit.html:177
 msgid "Delete table"
 msgstr "Elimina tavolo"
 
-#: webapp/templates/events/event_table_add_or_edit.html:207
-#: webapp/templates/tables/table_add_or_edit.html:180
+#: webapp/templates/events/event_table_add_or_edit.html:208
+#: webapp/templates/tables/table_add_or_edit.html:181
 msgid "This table is closed and cannot be deleted."
 msgstr "Questo tavolo è chiuso e non può essere eliminato."
 
-#: webapp/templates/events/event_table_add_or_edit.html:290
-#: webapp/templates/tables/table_add_or_edit.html:235
+#: webapp/templates/events/event_table_add_or_edit.html:268
+#: webapp/templates/events/event_table_detail.html:162
+#: webapp/templates/tables/table_add_or_edit.html:213
+#: webapp/templates/tables/table_detail.html:157
+msgid "players"
+msgstr "giocatori"
+
+#: webapp/templates/events/event_table_add_or_edit.html:272
+#: webapp/templates/tables/table_add_or_edit.html:217
+msgid "up to"
+msgstr "fino a"
+
+#: webapp/templates/events/event_table_add_or_edit.html:281
+#: webapp/templates/tables/table_add_or_edit.html:226
+#, python-format
+msgid ""
+"%%(game)s is designed for %%(players)s — you can still change these numbers."
+msgstr ""
+"%(game)s è pensato per %(players)s — puoi comunque modificare questi numeri."
+
+#: webapp/templates/events/event_table_add_or_edit.html:320
+#: webapp/templates/tables/table_add_or_edit.html:265
 msgid "Publishing..."
 msgstr "Pubblicazione in corso..."
 
@@ -2108,11 +2130,6 @@ msgstr "liberi"
 #: webapp/templates/events/event_table_detail.html:114
 msgid "Play area"
 msgstr "Area di gioco"
-
-#: webapp/templates/events/event_table_detail.html:162
-#: webapp/templates/tables/table_detail.html:157
-msgid "players"
-msgstr "giocatori"
 
 #: webapp/templates/events/event_table_detail.html:163
 #: webapp/templates/tables/table_detail.html:158
@@ -2538,7 +2555,7 @@ msgstr "Club, associazioni e negozi di giochi sono i benvenuti."
 #: webapp/templates/locations/location_index.html:101
 #: webapp/templates/staticpages/home.html:298
 msgid "View page"
-msgstr ""
+msgstr "Vedi pagina"
 
 #: webapp/templates/locations/location_manage_data.html:11
 #: webapp/templates/locations/location_manage_index.html:24
@@ -2549,9 +2566,9 @@ msgstr "Info location"
 msgid ""
 "Used as the default start time when creating a new table here. You can still "
 "pick a different time for each table."
-msgstr  ""
-"Usato come orario di inizio predefinito quando crei un nuovo tavolo qui."
-"Puoi comunque scegliere un orario diverso per ogni tavolo."
+msgstr ""
+"Usato come orario di inizio predefinito quando crei un nuovo tavolo qui.Puoi "
+"comunque scegliere un orario diverso per ogni tavolo."
 
 #: webapp/templates/locations/location_manage_data.html:112
 msgid "Show tables in homepage"
@@ -2566,7 +2583,7 @@ msgstr ""
 
 #: webapp/templates/locations/location_manage_data.html:174
 msgid "+ Add time slot"
-msgstr ""
+msgstr "+ Aggiungi slot orario"
 
 #: webapp/templates/locations/location_manage_game_detail.html:43
 #: webapp/templates/locations/location_manage_game_detail.html:126
@@ -2589,7 +2606,7 @@ msgstr ""
 
 #: webapp/templates/locations/location_manage_game_detail.html:109
 #: webapp/templates/staticpages/home.html:14
-#: webapp/templates/tables/table_add_or_edit.html:181
+#: webapp/templates/tables/table_add_or_edit.html:182
 msgid "Contact us"
 msgstr "Contattaci"
 
@@ -3554,7 +3571,7 @@ msgid ""
 msgstr ""
 "Se non trovi il gioco, puoi lasciare questo campo vuoto. Lo aggiungeremo noi!"
 
-#: webapp/templates/tables/table_add_or_edit.html:182
+#: webapp/templates/tables/table_add_or_edit.html:183
 msgid "if you still want to delete it."
 msgstr "se vuoi comunque eliminarlo."
 

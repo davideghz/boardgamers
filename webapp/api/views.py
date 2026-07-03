@@ -143,7 +143,8 @@ def bgg_search_view(request):
 
     local_qs = Game.objects.filter(name__icontains=query).order_by('name')[:8]
     local_data = [
-        {'id': g.id, 'name': g.name, 'year_published': g.year_published}
+        {'id': g.id, 'name': g.name, 'year_published': g.year_published,
+         'min_players': g.min_players, 'max_players': g.max_players}
         for g in local_qs
     ]
     return Response({'local': local_data})
@@ -209,4 +210,7 @@ def bgg_import_view(request):
     if not game:
         return Response({'error': 'Game not found on BGG'}, status=404)
 
-    return Response({'id': game.id, 'name': game.name})
+    return Response({
+        'id': game.id, 'name': game.name,
+        'min_players': game.min_players, 'max_players': game.max_players,
+    })

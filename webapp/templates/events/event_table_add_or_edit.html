@@ -159,6 +159,7 @@
           {% if form.max_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.max_players.errors|join:", " }}</p>{% endif %}
         </div>
       </div>
+      <p id="players-hint" class="mt-2 text-[11px] text-slate-400" style="display:none"></p>
       {% if form.non_field_errors %}<p class="mt-1 text-xs text-red-500">{{ form.non_field_errors|join:", " }}</p>{% endif %}
     </div>
 
@@ -262,17 +263,46 @@
       syncStations();
     });
 
-    window.bggSelectCallback = function (gameId, gameName) {
+    /* Build a "2–6 players" style label from the game's player counts */
+    function playersRangeLabel(minPlayers, maxPlayers) {
+      var P = '{% trans "players" %}';
+      if (minPlayers != null && maxPlayers != null) {
+        return (minPlayers === maxPlayers ? String(minPlayers) : minPlayers + '–' + maxPlayers) + ' ' + P;
+      }
+      if (maxPlayers != null) return '{% trans "up to" %} ' + maxPlayers + ' ' + P;
+      if (minPlayers != null) return minPlayers + '+ ' + P;
+      return '';
+    }
+    function updatePlayersHint(gameName, minPlayers, maxPlayers) {
+      var hint = document.getElementById('players-hint');
+      if (!hint) return;
+      var range = playersRangeLabel(minPlayers, maxPlayers);
+      if (!range) { hint.style.display = 'none'; hint.textContent = ''; return; }
+      hint.textContent = '{% trans "%(game)s is designed for %(players)s — you can still change these numbers." %}'
+        .replace('%(players)s', range).replace('%(game)s', function () { return gameName; });
+      hint.style.display = '';
+    }
+
+    window.bggSelectCallback = function (gameId, gameName, minPlayers, maxPlayers) {
       document.getElementById('game-input').value = gameId;
       document.getElementById('game-selected-name').textContent = gameName;
       document.getElementById('game-empty-state').style.display = 'none';
       document.getElementById('game-selected-state').style.display = '';
+
+      // Prefill players from the selected game, when defined
+      var minInput = document.getElementById('{{ form.min_players.id_for_label }}');
+      var maxInput = document.getElementById('{{ form.max_players.id_for_label }}');
+      if (minInput && minPlayers != null) minInput.value = minPlayers;
+      if (maxInput && maxPlayers != null) maxInput.value = maxPlayers;
+
+      updatePlayersHint(gameName, minPlayers, maxPlayers);
     };
     window.clearGame = function () {
       document.getElementById('game-input').value = '';
       document.getElementById('game-selected-name').textContent = '';
       document.getElementById('game-empty-state').style.display = '';
       document.getElementById('game-selected-state').style.display = 'none';
+      updatePlayersHint('', null, null);
     };
 
     document.addEventListener('DOMContentLoaded', function () {
