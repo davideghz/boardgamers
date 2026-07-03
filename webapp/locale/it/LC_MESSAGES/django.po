@@ -2549,7 +2549,9 @@ msgstr "Info location"
 msgid ""
 "Used as the default start time when creating a new table here. You can still "
 "pick a different time for each table."
-msgstr ""
+msgstr  ""
+"Usato come orario di inizio predefinito quando crei un nuovo tavolo qui."
+"Puoi comunque scegliere un orario diverso per ogni tavolo."
 
 #: webapp/templates/locations/location_manage_data.html:112
 msgid "Show tables in homepage"
