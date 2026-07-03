@@ -332,6 +332,8 @@ def remove_player_view(request, slug, player_id):
 def table_create_view(request, location_slug):
     location = get_object_or_404(Location, slug=location_slug)
     initial = {"location": location}
+    if location.default_table_time:
+        initial["time"] = location.default_table_time
 
     if not (request.user.user_profile.is_email_verified or request.user.is_superuser):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")

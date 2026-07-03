@@ -149,6 +149,13 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     enable_calendar = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
     opening_hours = models.JSONField(null=True, blank=True)
+    default_table_time = models.TimeField(
+        default=datetime.time(20, 30),
+        null=False,
+        blank=True,
+        verbose_name=_('Default table time'),
+        help_text=_('Default start time used when creating new tables at this location.'),
+    )
 
     # Permission choices
     PERM_ANYONE = 'anyone'

@@ -374,7 +374,7 @@ class LocationForm(ModelForm, TailwindForm):
 
     class Meta:
         model = Location
-        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage', 'opening_hours']
+        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage', 'opening_hours', 'default_table_time']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
