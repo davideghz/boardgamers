@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 16:26+0200\n"
+"POT-Creation-Date: 2026-07-04 13:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Games"
 msgstr "Giochi"
 
-#: webapp/forms.py:122 webapp/forms.py:182 webapp/forms.py:641
+#: webapp/forms.py:122 webapp/forms.py:182 webapp/forms.py:655
 #: webapp/models.py:392 webapp/models.py:819
 #: webapp/templates/events/event_table_add_or_edit.html:106
 #: webapp/templates/locations/location_manage_game_detail.html:54
@@ -72,19 +72,23 @@ msgstr "Nome"
 msgid "Last name"
 msgstr "Cognome"
 
-#: webapp/forms.py:470 webapp/forms.py:499
+#: webapp/forms.py:470 webapp/forms.py:513
 #: webapp/templates/accounts/account_events.html:73
 #: webapp/templates/accounts/account_locations.html:54
 #: webapp/templates/locations/location_manage_managers.html:83
 msgid "Manager"
 msgstr "Manager"
 
-#: webapp/forms.py:474 webapp/forms.py:503 webapp/forms.py:518
-#: webapp/forms.py:538 webapp/forms.py:556
+#: webapp/forms.py:474 webapp/forms.py:488 webapp/forms.py:517
+#: webapp/forms.py:532 webapp/forms.py:552 webapp/forms.py:570
 msgid "Search by username..."
 msgstr "Cerca per username..."
 
-#: webapp/forms.py:484 webapp/models.py:368 webapp/models.py:713
+#: webapp/forms.py:484
+msgid "Table creator"
+msgstr "Admin tavoli"
+
+#: webapp/forms.py:498 webapp/models.py:368 webapp/models.py:713
 #: webapp/models.py:815 webapp/models.py:849 webapp/models.py:868
 #: webapp/templates/locations/location_manage_games.html:71
 #: webapp/templates/tables/table_add_or_edit.html:33
@@ -92,28 +96,28 @@ msgstr "Cerca per username..."
 msgid "Location"
 msgstr "Location"
 
-#: webapp/forms.py:488
+#: webapp/forms.py:502
 msgid "Search location..."
 msgstr "Cerca location..."
 
-#: webapp/forms.py:514
+#: webapp/forms.py:528
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
-#: webapp/forms.py:525
+#: webapp/forms.py:539
 #: webapp/templates/locations/location_manage_managers.html:119
 msgid "Add me as manager after transfer"
 msgstr "Aggiungimi come manager dopo il trasferimento di owner"
 
-#: webapp/forms.py:534
+#: webapp/forms.py:548
 msgid "Gamer"
 msgstr "Gamer"
 
-#: webapp/forms.py:552
+#: webapp/forms.py:566
 msgid "Linked User Profile"
 msgstr "Profilo utente collegato"
 
-#: webapp/forms.py:572 webapp/forms.py:589 webapp/forms.py:613
+#: webapp/forms.py:586 webapp/forms.py:603 webapp/forms.py:627
 #: webapp/models.py:776 webapp/models.py:833
 #: webapp/templates/locations/location_manage_member_detail.html:169
 #: webapp/templates/locations/location_manage_members.html:175
@@ -122,53 +126,53 @@ msgstr "Profilo utente collegato"
 msgid "Notes"
 msgstr "Note"
 
-#: webapp/forms.py:573
+#: webapp/forms.py:587
 msgid "Optional message to the manager..."
 msgstr "Messaggio opzionale per il manager..."
 
-#: webapp/forms.py:580 webapp/forms.py:603 webapp/models.py:770
+#: webapp/forms.py:594 webapp/forms.py:617 webapp/models.py:770
 #: webapp/templates/locations/location_manage_member_detail.html:153
 #: webapp/views/location_views.py:773
 msgid "Start Date"
 msgstr "Data di inizio"
 
-#: webapp/forms.py:584 webapp/forms.py:608 webapp/models.py:771
+#: webapp/forms.py:598 webapp/forms.py:622 webapp/models.py:771
 #: webapp/templates/locations/location_manage_member_detail.html:161
 #: webapp/views/location_views.py:773
 msgid "End Date"
 msgstr "Data di fine"
 
-#: webapp/forms.py:597 webapp/models.py:774 webapp/models.py:946
+#: webapp/forms.py:611 webapp/models.py:774 webapp/models.py:946
 #: webapp/templates/locations/location_manage_member_detail.html:141
 msgid "Status"
 msgstr "Status"
 
-#: webapp/forms.py:624
+#: webapp/forms.py:638
 msgid "Start date is required when status is Active."
 msgstr ""
 
-#: webapp/forms.py:626
+#: webapp/forms.py:640
 msgid "End date is required when status is Active."
 msgstr ""
 
-#: webapp/forms.py:645 webapp/templates/_bgg_game_modal.html:34
+#: webapp/forms.py:659 webapp/templates/_bgg_game_modal.html:34
 msgid "Search for a game..."
 msgstr "Cerca un gioco..."
 
-#: webapp/forms.py:670 webapp/models.py:827 webapp/views/location_views.py:1154
+#: webapp/forms.py:684 webapp/models.py:827 webapp/views/location_views.py:1154
 msgid "Owner Member"
 msgstr "Socio Proprietario"
 
-#: webapp/forms.py:674
+#: webapp/forms.py:688
 #: webapp/templates/locations/location_manage_game_detail.html:101
 msgid "Search for a member..."
 msgstr "Cerca per socio..."
 
-#: webapp/forms.py:701
+#: webapp/forms.py:715
 msgid "Guest name"
 msgstr "Nome ospite"
 
-#: webapp/forms.py:704 webapp/models.py:302 webapp/models.py:888
+#: webapp/forms.py:718 webapp/models.py:302 webapp/models.py:888
 #: webapp/models.py:930 webapp/models.py:1003 webapp/models.py:1042
 msgid "Name"
 msgstr "Nome"
@@ -698,7 +702,7 @@ msgstr "Creatore"
 msgid "Managers"
 msgstr "Managers"
 
-#: webapp/models.py:954 webapp/templates/events/event_manage_index.html:130
+#: webapp/models.py:954 webapp/templates/events/event_manage_index.html:148
 #: webapp/templates/events/event_manage_locations.html:41
 msgid "Sponsor locations"
 msgstr "Sponsor"
@@ -856,6 +860,7 @@ msgstr "Il login con Telegram non è configurato."
 #: webapp/templates/events/event_manage_data.html:92
 #: webapp/templates/events/event_manage_locations.html:102
 #: webapp/templates/events/event_manage_managers.html:115
+#: webapp/templates/events/event_manage_table_creators.html:102
 #: webapp/templates/events/event_table_add_or_edit.html:182
 #: webapp/templates/locations/location_add_or_edit.html:100
 #: webapp/templates/locations/location_manage_data.html:135
@@ -1079,6 +1084,7 @@ msgstr "Aggiungi un ospite"
 #: webapp/templates/events/event_manage_dates.html:56
 #: webapp/templates/events/event_manage_locations.html:86
 #: webapp/templates/events/event_manage_managers.html:99
+#: webapp/templates/events/event_manage_table_creators.html:86
 #: webapp/templates/locations/location_manage_games.html:24
 #: webapp/templates/locations/location_manage_managers.html:103
 #: webapp/templates/locations/location_manage_members.html:24
@@ -1762,6 +1768,7 @@ msgstr "Mappa non disponibile"
 #: webapp/templates/events/event_manage_managers.html:39
 #: webapp/templates/events/event_manage_participants.html:9
 #: webapp/templates/events/event_manage_physical_tables.html:9
+#: webapp/templates/events/event_manage_table_creators.html:39
 #: webapp/templates/locations/location_manage_data.html:9
 #: webapp/templates/locations/location_manage_game_detail.html:39
 #: webapp/templates/locations/location_manage_games.html:9
@@ -1876,7 +1883,20 @@ msgid_plural "%(n)s managers"
 msgstr[0] "%(n)s manager"
 msgstr[1] "%(n)s managers"
 
-#: webapp/templates/events/event_manage_index.html:132
+#: webapp/templates/events/event_manage_index.html:129
+#: webapp/templates/events/event_manage_table_creators.html:41
+#: webapp/templates/events/event_manage_table_creators.html:50
+msgid "Table creators"
+msgstr "Admin tavoli"
+
+#: webapp/templates/events/event_manage_index.html:131
+#, python-format
+msgid "%(n)s user can create tables"
+msgid_plural "%(n)s users can create tables"
+msgstr[0] "%(n)s admin tavoli"
+msgstr[1] "%(n)s admin tavoli"
+
+#: webapp/templates/events/event_manage_index.html:150
 #, python-format
 msgid "%(n)s location"
 msgid_plural "%(n)s locations"
@@ -1893,6 +1913,7 @@ msgstr "Rimuovi location?"
 
 #: webapp/templates/events/event_manage_locations.html:98
 #: webapp/templates/events/event_manage_managers.html:111
+#: webapp/templates/events/event_manage_table_creators.html:98
 #: webapp/templates/locations/location_manage_managers.html:139
 #: webapp/templates/tables/table_players.html:163
 msgid "Are you sure you want to remove"
@@ -1900,6 +1921,7 @@ msgstr "Sei sicuro di voler rimuovere"
 
 #: webapp/templates/events/event_manage_locations.html:107
 #: webapp/templates/events/event_manage_managers.html:120
+#: webapp/templates/events/event_manage_table_creators.html:107
 #: webapp/templates/locations/location_manage_data.html:192
 #: webapp/templates/locations/location_manage_game_detail.html:159
 #: webapp/templates/locations/location_manage_managers.html:148
@@ -1952,6 +1974,22 @@ msgstr "Nessuna postazione aggiunta."
 #: webapp/templates/events/event_manage_physical_tables.html:73
 msgid "Add station"
 msgstr "Aggiungi postazione"
+
+#: webapp/templates/events/event_manage_table_creators.html:42
+msgid "These users can create tables for this event, in addition to managers."
+msgstr "Questi utenti possono creare tavoli per questo evento, oltre ai gestori."
+
+#: webapp/templates/events/event_manage_table_creators.html:69
+msgid "No table creators assigned yet."
+msgstr "Ancora nessun admin tavoli assegnato."
+
+#: webapp/templates/events/event_manage_table_creators.html:77
+msgid "Add table creator"
+msgstr "Aggiungi admin tavoli"
+
+#: webapp/templates/events/event_manage_table_creators.html:97
+msgid "Remove table creator?"
+msgstr "Rimuovere l'admin tavoli?"
 
 #: webapp/templates/events/event_program.html:13
 msgid "Program"
@@ -3879,10 +3917,18 @@ msgid "Manager removed."
 msgstr "Manager rimosso."
 
 #: webapp/views/event_views.py:666
+msgid "Table creator added."
+msgstr "Admin tavoli aggiunto."
+
+#: webapp/views/event_views.py:681
+msgid "Table creator removed."
+msgstr "Admin tavoli rimosso."
+
+#: webapp/views/event_views.py:702
 msgid "Location added."
 msgstr "Location aggiunta."
 
-#: webapp/views/event_views.py:680
+#: webapp/views/event_views.py:716
 msgid "Location removed."
 msgstr "Location rimossa."
 

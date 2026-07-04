@@ -18,7 +18,7 @@ from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp.forms import (
     EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
-    AddEventManagerForm, AddSponsorLocationForm,
+    AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm,
 )
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant
 from webapp.views.table_views import BaseTableDetailView
@@ -644,6 +644,42 @@ class EventManageManagerRemoveView(EventManagerMixin, View):
         event.managers.remove(manager)
         messages.success(request, _("Manager removed."))
         return redirect('event-manage-managers', slug=slug)
+
+
+class EventManageTableCreatorsView(EventManagerMixin, View):
+    template_name = 'events/event_manage_table_creators.html'
+
+    def get(self, request, slug):
+        event = self._get_event()
+        return render(request, self.template_name, {
+            'event': event,
+            'table_creators': event.allowed_table_creators.all(),
+            'form': AddTableCreatorForm(),
+        })
+
+    def post(self, request, slug):
+        event = self._get_event()
+        form = AddTableCreatorForm(request.POST)
+        if form.is_valid():
+            table_creator = form.cleaned_data['table_creator']
+            event.allowed_table_creators.add(table_creator)
+            messages.success(request, _("Table creator added."))
+            return redirect('event-manage-table-creators', slug=slug)
+        return render(request, self.template_name, {
+            'event': event,
+            'table_creators': event.allowed_table_creators.all(),
+            'form': form,
+        })
+
+
+class EventManageTableCreatorRemoveView(EventManagerMixin, View):
+    def post(self, request, slug, pk):
+        event = self._get_event()
+        from webapp.models import UserProfile as UP
+        table_creator = get_object_or_404(UP, pk=pk)
+        event.allowed_table_creators.remove(table_creator)
+        messages.success(request, _("Table creator removed."))
+        return redirect('event-manage-table-creators', slug=slug)
 
 
 class EventManageLocationsView(EventManagerMixin, View):

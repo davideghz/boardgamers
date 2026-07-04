@@ -478,6 +478,20 @@ class AddEventManagerForm(TailwindForm):
     )
 
 
+class AddTableCreatorForm(TailwindForm):
+    table_creator = ModelChoiceField(
+        queryset=UserProfile.objects.all(),
+        label=_('Table creator'),
+        widget=autocomplete.ModelSelect2(
+            url='userprofile-autocomplete',
+            attrs={
+                'data-placeholder': _('Search by username...'),
+                'data-minimum-input-length': 1,
+            }
+        )
+    )
+
+
 class AddSponsorLocationForm(TailwindForm):
     location = ModelChoiceField(
         queryset=Location.objects.all(),
