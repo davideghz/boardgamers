@@ -223,8 +223,8 @@
       if (!hint) return;
       var range = playersRangeLabel(minPlayers, maxPlayers);
       if (!range) { hint.style.display = 'none'; hint.textContent = ''; return; }
-      hint.textContent = '{% trans "%(game)s is designed for %(players)s — you can still change these numbers." %}'
-        .replace('%(players)s', range).replace('%(game)s', function () { return gameName; });
+      hint.textContent = '{% trans "{game} is designed for {players} — you can still change these numbers." %}'
+        .replace('{players}', range).replace('{game}', function () { return gameName; });
       hint.style.display = '';
     }
 

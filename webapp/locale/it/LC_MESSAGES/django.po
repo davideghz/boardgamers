@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-04 13:42+0200\n"
+"POT-Creation-Date: 2026-07-06 16:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: webapp/admin.py:222 webapp/templates/events/event_manage_index.html:39
+#: webapp/templates/events/event_manage_participants.html:11
+#: webapp/templates/tables/_table_participants.html:5
+msgid "Participants"
+msgstr "Partecipanti"
 
 #: webapp/forms.py:118 webapp/templates/base_webapp.html:143
 #: webapp/templates/base_webapp.html:147 webapp/templates/base_webapp.html:328
@@ -1503,7 +1509,7 @@ msgid "Terms"
 msgstr "Termini"
 
 #: webapp/templates/base_webapp.html:409
-#: webapp/templates/events/event_detail.html:235
+#: webapp/templates/events/event_detail.html:301
 #: webapp/templates/staticpages/contacts.html:8
 msgid "Contacts"
 msgstr "Contatti"
@@ -1721,42 +1727,74 @@ msgstr[1] "%(n)s tavoli in programma"
 msgid "Browse the schedule by time, area and game"
 msgstr "Sfoglia il programma per orario, area e gioco"
 
-#: webapp/templates/events/event_detail.html:161
-msgid "You're attending"
-msgstr "Stai partecipando"
+#: webapp/templates/events/event_detail.html:156
+msgid "Add your phone number"
+msgstr "Aggiungi il tuo numero di telefono"
 
-#: webapp/templates/events/event_detail.html:171
+#: webapp/templates/events/event_detail.html:158
+msgid ""
+"Leave a phone number so the organizers can reach you for last-minute changes."
+msgstr ""
+"Lascia un numero di telefono così gli organizzatori possono contattarti per "
+"cambiamenti dell’ultimo minuto."
+
+#: webapp/templates/events/event_detail.html:164
+msgid "e.g. +39 333 1234567"
+msgstr "es. +39 333 1234567"
+
+#: webapp/templates/events/event_detail.html:168
+msgid "Save number"
+msgstr "Salva numero"
+
+#: webapp/templates/events/event_detail.html:182
+msgid "Don't miss this event"
+msgstr "Non perderti questo evento"
+
+#: webapp/templates/events/event_detail.html:185
+msgid ""
+"Attend to save your spot, get updates and let organizers know you're coming."
+msgstr ""
+"Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
+"agli organizzatori che ci sarai."
+
+#: webapp/templates/events/event_detail.html:195
+#: webapp/templates/events/event_detail.html:237
 msgid "Attend this event"
 msgstr "Partecipa all’evento"
 
-#: webapp/templates/events/event_detail.html:181
+#: webapp/templates/events/event_detail.html:204
+#: webapp/templates/events/event_detail.html:247
 msgid "Log in to attend"
 msgstr "Accedi per partecipare"
 
-#: webapp/templates/events/event_detail.html:186
+#: webapp/templates/events/event_detail.html:227
+msgid "You're attending"
+msgstr "Stai partecipando"
+
+#: webapp/templates/events/event_detail.html:252
 #, python-format
 msgid "%(n)s person attending"
 msgid_plural "%(n)s people attending"
 msgstr[0] "%(n)s persona partecipa"
 msgstr[1] "%(n)s persone partecipano"
 
-#: webapp/templates/events/event_detail.html:201
+#: webapp/templates/events/event_detail.html:267
 #: webapp/templates/events/event_manage_index.html:10
 msgid "Manage event"
 msgstr "Gestisci evento"
 
-#: webapp/templates/events/event_detail.html:213
+#: webapp/templates/events/event_detail.html:279
 #: webapp/templates/events/event_manage_dates.html:11
 #: webapp/templates/events/event_manage_index.html:57
 msgid "Dates"
 msgstr "Date"
 
-#: webapp/templates/events/event_detail.html:264
+#: webapp/templates/events/event_detail.html:330
 #: webapp/templates/locations/location_detail.html:380
 msgid "How to get there"
 msgstr "Come arrivare"
 
-#: webapp/templates/events/event_detail.html:291
+#: webapp/templates/events/event_detail.html:357
 #: webapp/templates/locations/location_detail.html:407
 msgid "Map not available"
 msgstr "Mappa non disponibile"
@@ -1840,12 +1878,6 @@ msgstr "Aggiungi data"
 #: webapp/templates/events/event_manage_index.html:24
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
-
-#: webapp/templates/events/event_manage_index.html:39
-#: webapp/templates/events/event_manage_participants.html:11
-#: webapp/templates/tables/_table_participants.html:5
-msgid "Participants"
-msgstr "Partecipanti"
 
 #: webapp/templates/events/event_manage_index.html:41
 #: webapp/templates/events/event_manage_participants.html:13
@@ -1977,7 +2009,8 @@ msgstr "Aggiungi postazione"
 
 #: webapp/templates/events/event_manage_table_creators.html:42
 msgid "These users can create tables for this event, in addition to managers."
-msgstr "Questi utenti possono creare tavoli per questo evento, oltre ai gestori."
+msgstr ""
+"Questi utenti possono creare tavoli per questo evento, oltre ai gestori."
 
 #: webapp/templates/events/event_manage_table_creators.html:69
 msgid "No table creators assigned yet."
@@ -2131,11 +2164,10 @@ msgstr "fino a"
 
 #: webapp/templates/events/event_table_add_or_edit.html:281
 #: webapp/templates/tables/table_add_or_edit.html:226
-#, python-format
-msgid ""
-"%%(game)s is designed for %%(players)s — you can still change these numbers."
+#, python-brace-format
+msgid "{game} is designed for {players} — you can still change these numbers."
 msgstr ""
-"%(game)s è pensato per %(players)s — puoi comunque modificare questi numeri."
+"{game} è pensato per {players} — puoi comunque modificare questi numeri."
 
 #: webapp/templates/events/event_table_add_or_edit.html:320
 #: webapp/templates/tables/table_add_or_edit.html:265
@@ -3823,7 +3855,7 @@ msgstr ""
 msgid "Can't edit closed tables."
 msgstr "Non è possibile modificare tavoli chiusi."
 
-#: webapp/views/decorators.py:46 webapp/views/event_views.py:412
+#: webapp/views/decorators.py:46 webapp/views/event_views.py:426
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
@@ -3832,7 +3864,7 @@ msgid "Event created! It will be published once approved by an admin."
 msgstr ""
 "Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
 
-#: webapp/views/event_views.py:131
+#: webapp/views/event_views.py:133
 msgid ""
 "Warning: this station is already booked by another table at an overlapping "
 "time."
@@ -3840,95 +3872,95 @@ msgstr ""
 "Attenzione: questa postazione è già occupata da un altro tavolo in un orario "
 "sovrapposto."
 
-#: webapp/views/event_views.py:161
+#: webapp/views/event_views.py:163
 msgid "No station"
 msgstr "Senza postazione"
 
-#: webapp/views/event_views.py:161
+#: webapp/views/event_views.py:163
 msgid "General"
 msgstr "Generale"
 
-#: webapp/views/event_views.py:320
+#: webapp/views/event_views.py:322
 msgid "You're now registered for this event!"
 msgstr "Ora sei iscritto a questo evento!"
 
-#: webapp/views/event_views.py:323
-msgid ""
-"Tip: add a phone number in your profile so organizers can reach you for last-"
-"minute changes."
-msgstr ""
-"Suggerimento: aggiungi un numero di telefono nel tuo profilo così gli "
-"organizzatori possono contattarti per cambiamenti dell’ultimo minuto."
-
-#: webapp/views/event_views.py:326
+#: webapp/views/event_views.py:324
 msgid "You are already registered for this event."
 msgstr "Sei già iscritto a questo evento."
 
-#: webapp/views/event_views.py:369
+#: webapp/views/event_views.py:338
+msgid "Phone number saved."
+msgstr "Numero di telefono salvato."
+
+#: webapp/views/event_views.py:340
+msgid "Please enter a valid phone number."
+msgstr "Inserisci un numero di telefono valido."
+
+#: webapp/views/event_views.py:383
 msgid "You don't have permission to create tables at this event."
 msgstr "Non hai i permessi necessari per creare tavoli a questo evento."
 
-#: webapp/views/event_views.py:373
+#: webapp/views/event_views.py:387
 msgid "You must define at least one date for the event before creating tables."
 msgstr "Devi definire almeno una data per l’evento prima di creare i tavoli."
 
-#: webapp/views/event_views.py:396 webapp/views/table_views.py:373
+#: webapp/views/event_views.py:410 webapp/views/table_views.py:373
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
 
-#: webapp/views/event_views.py:422 webapp/views/table_views.py:404
+#: webapp/views/event_views.py:436 webapp/views/table_views.py:404
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
 
-#: webapp/views/event_views.py:458
+#: webapp/views/event_views.py:472
 msgid "Event updated successfully"
 msgstr "Evento aggiornato con successo."
 
-#: webapp/views/event_views.py:482
+#: webapp/views/event_views.py:496
 msgid "Date added."
 msgstr "Data aggiunta."
 
-#: webapp/views/event_views.py:495
+#: webapp/views/event_views.py:509
 msgid "Date removed."
 msgstr "Data rimossa."
 
-#: webapp/views/event_views.py:519
+#: webapp/views/event_views.py:533
 msgid "Play area added."
 msgstr "Area di gioco aggiunta."
 
-#: webapp/views/event_views.py:532
+#: webapp/views/event_views.py:546
 msgid "Play area removed."
 msgstr "Area di gioco rimossa."
 
-#: webapp/views/event_views.py:582
+#: webapp/views/event_views.py:596
 msgid "Station added."
 msgstr "Postazione aggiunta."
 
-#: webapp/views/event_views.py:595
+#: webapp/views/event_views.py:609
 msgid "Station removed."
 msgstr "Postazione rimossa."
 
-#: webapp/views/event_views.py:630
+#: webapp/views/event_views.py:644
 msgid "Manager added."
 msgstr "Manager aggiunto."
 
-#: webapp/views/event_views.py:645
+#: webapp/views/event_views.py:659
 msgid "Manager removed."
 msgstr "Manager rimosso."
 
-#: webapp/views/event_views.py:666
+#: webapp/views/event_views.py:680
 msgid "Table creator added."
 msgstr "Admin tavoli aggiunto."
 
-#: webapp/views/event_views.py:681
+#: webapp/views/event_views.py:695
 msgid "Table creator removed."
 msgstr "Admin tavoli rimosso."
 
-#: webapp/views/event_views.py:702
+#: webapp/views/event_views.py:716
 msgid "Location added."
 msgstr "Location aggiunta."
 
-#: webapp/views/event_views.py:716
+#: webapp/views/event_views.py:730
 msgid "Location removed."
 msgstr "Location rimossa."
 

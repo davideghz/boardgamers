@@ -142,6 +142,72 @@
         </a>
       </section>
 
+      {# ── Phone request banner (participant without a phone number) ─── #}
+      {% if needs_phone %}
+        <section>
+          <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
+            <div class="flex items-start gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                   class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+              </svg>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-amber-800">{% trans "Add your phone number" %}</p>
+                <p class="text-xs text-amber-700 mt-0.5">
+                  {% trans "Leave a phone number so the organizers can reach you for last-minute changes." %}
+                </p>
+                <form method="post" action="{% url 'event-save-phone' event.slug %}"
+                      class="mt-3 flex flex-col sm:flex-row gap-2 sm:items-center">
+                  {% csrf_token %}
+                  <input type="tel" name="phone" required
+                         placeholder="{% trans 'e.g. +39 333 1234567' %}"
+                         class="flex-1 sm:max-w-xs rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
+                  <button type="submit"
+                          class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-2 text-sm font-bold text-white transition-colors">
+                    {% trans "Save number" %}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+
+      {# ── Attend banner (only for non-attending users) ─── #}
+      {% if event.status == 'approved' and not is_participant %}
+        <section>
+          <div class="rounded-2xl px-6 py-8 text-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+            <h2 class="text-xl md:text-2xl font-extrabold text-white leading-tight mb-2">
+              {% trans "Don't miss this event" %}
+            </h2>
+            <p class="text-sm md:text-base text-slate-300 max-w-md mx-auto mb-6">
+              {% trans "Attend to save your spot, get updates and let organizers know you're coming." %}
+            </p>
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'event-join' event.slug %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-3 rounded-full transition-colors text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                  </svg>
+                  {% trans "Attend this event" %}
+                </button>
+              </form>
+            {% else %}
+              <a href="{% url 'login' %}?next={% url 'event_detail' event.slug %}"
+                 class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-3 rounded-full transition-colors text-sm text-decoration-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                </svg>
+                {% trans "Log in to attend" %}
+              </a>
+            {% endif %}
+          </div>
+        </section>
+      {% endif %}
+
     </div>{# /main col #}
 
     {# ── SIDEBAR (1/3) ──────────────────────────────────── #}

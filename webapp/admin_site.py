@@ -37,6 +37,7 @@ class CustomAdminSite(AdminSite):
         ('others_group', 'Other', [
             ('webapp', 'Game'),
             ('webapp', 'Event'),
+            ('webapp', 'EventParticipant'),
             ('webapp', 'FAQ'),
             ('webapp', 'FAQCategory'),
         ]),

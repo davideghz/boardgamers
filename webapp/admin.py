@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
@@ -210,13 +211,21 @@ class PhysicalTableInline(admin.TabularInline):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'creator', 'status', 'created_at')
+    list_display = ('name', 'city', 'creator', 'status', 'participant_count', 'created_at')
     list_filter = ('status', 'city')
     list_editable = ('status',)
     search_fields = ('name', 'city', 'creator__nickname')
     filter_horizontal = ('managers', 'sponsor_locations', 'allowed_table_creators')
     readonly_fields = ('created_at', 'updated_at')
     inlines = [PlayAreaInline, EventDateInline, PhysicalTableInline]
+
+    @admin.display(description=_('Participants'), ordering='_participant_count')
+    def participant_count(self, obj):
+        return obj._participant_count
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(
+            _participant_count=models.Count('participants', distinct=True))
 
 
 @admin.register(PhysicalTable)

@@ -82,10 +82,12 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         context = super().get_context_data(**kwargs)
         event = self.object
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        is_participant = bool(user_profile and event.participants.filter(
+            user_profile=user_profile).exists())
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
-            'is_participant': bool(user_profile and event.participants.filter(
-                user_profile=user_profile).exists()),
+            'is_participant': is_participant,
+            'needs_phone': is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
             'event_dates': event.dates.all(),
             'table_count': Table.objects.filter(event=event).count(),
@@ -318,12 +320,24 @@ class EventJoinView(LoginRequiredMixin, View):
             event=event, user_profile=user_profile)
         if created:
             messages.success(request, _("You're now registered for this event!"))
-            if not user_profile.phone:
-                messages.info(request, _(
-                    "Tip: add a phone number in your profile so organizers can reach "
-                    "you for last-minute changes."))
         else:
             messages.info(request, _("You are already registered for this event."))
+        return redirect('event_detail', slug=slug)
+
+
+class EventSavePhoneView(LoginRequiredMixin, View):
+    """Save the phone number a participant enters from the event page banner."""
+
+    def post(self, request, slug):
+        get_object_or_404(Event, slug=slug)
+        user_profile = request.user.user_profile
+        phone = (request.POST.get('phone') or '').strip()
+        if phone:
+            user_profile.phone = phone
+            user_profile.save(update_fields=['phone'])
+            messages.success(request, _("Phone number saved."))
+        else:
+            messages.error(request, _("Please enter a valid phone number."))
         return redirect('event_detail', slug=slug)
 
 
