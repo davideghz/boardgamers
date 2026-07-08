@@ -367,9 +367,20 @@ class EventTableDetailView(BaseTableDetailView):
         context = super().get_context_data(**kwargs)
         event = get_object_or_404(Event, slug=self.kwargs['event_slug'])
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        table = self.get_object()
+        # Phone buttons on participants are visible only to the table author,
+        # event managers, event table creators ("table admin") and superusers.
+        can_view_player_phones = bool(
+            self.request.user.is_superuser
+            or (user_profile and (
+                table.author_id == user_profile.id
+                or event.can_create_table(user_profile)
+            ))
+        )
         context.update({
             'event': event,
             'is_event_manager': bool(user_profile and event.is_manager(user_profile)),
+            'can_view_player_phones': can_view_player_phones,
         })
         return context
 
