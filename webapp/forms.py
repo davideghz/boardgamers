@@ -11,7 +11,7 @@ from webapp.models import Table, UserProfile, Comment, Player, Location, GuestPr
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from dal import autocomplete
+from dal import autocomplete, forward
 
 
 class CustomTextInputWidget(TextInput):
@@ -498,6 +498,7 @@ class AddSponsorLocationForm(TailwindForm):
         label=_('Location'),
         widget=autocomplete.ModelSelect2(
             url='location-autocomplete',
+            forward=(forward.Const(True, 'is_public_location'),),
             attrs={
                 'data-placeholder': _('Search location...'),
                 'data-minimum-input-length': 1,
