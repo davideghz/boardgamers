@@ -588,6 +588,10 @@ class MemberForm(ModelForm, TailwindForm):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _enhance_phone_widget(self.fields['phone_number'])
+
     class Meta:
         from webapp.models import Member
         model = Member

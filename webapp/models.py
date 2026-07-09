@@ -723,7 +723,7 @@ class Member(DateTimeModel):
     last_name = models.CharField(max_length=100, verbose_name=_('Last Name'))
     code = models.CharField(max_length=50, blank=True, verbose_name=_('Member Code'))
     email = models.EmailField(blank=True, verbose_name=_('Email'))
-    phone_number = models.CharField(max_length=30, blank=True, verbose_name=_('Phone Number'))
+    phone_number = PhoneNumberField(blank=True, region='IT', verbose_name=_('Phone Number'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
