@@ -22,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
+from phonenumber_field.modelfields import PhoneNumberField
 from webapp.storage_backends import PublicMediaStorage
 
 
@@ -227,7 +228,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
-    phone = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('Phone'))
+    phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
         max_length=7,
@@ -939,7 +940,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True)
     longitude = models.CharField(max_length=25, null=True, blank=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    phone = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('Phone'))
+    phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
     email = models.EmailField(null=True, blank=True, verbose_name=_('Email'))
 
     status = models.CharField(

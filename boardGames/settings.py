@@ -97,7 +97,15 @@ INSTALLED_APPS = [
 
     # JSON widget for admin
     'django_json_widget',
+
+    # phone numbers
+    'phonenumber_field',
 ]
+
+# Phone numbers: default to Italy for numbers typed without an international
+# prefix; store everything in E.164 so tel: links work internationally.
+PHONENUMBER_DEFAULT_REGION = 'IT'
+PHONENUMBER_DB_FORMAT = 'E164'
 
 ROOT_URLCONF = 'boardGames.urls'
 

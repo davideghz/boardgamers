@@ -20,6 +20,8 @@ from webapp.forms import (
     EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm,
 )
+from phonenumber_field.phonenumber import to_python
+
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant
 from webapp.views.table_views import BaseTableDetailView
 
@@ -331,9 +333,12 @@ class EventSavePhoneView(LoginRequiredMixin, View):
     def post(self, request, slug):
         get_object_or_404(Event, slug=slug)
         user_profile = request.user.user_profile
-        phone = (request.POST.get('phone') or '').strip()
-        if phone:
-            user_profile.phone = phone
+        raw = (request.POST.get('phone') or '').strip()
+        # intl-tel-input posts E.164, but validate server-side too: parse with
+        # region IT so national numbers still work if JS is disabled.
+        number = to_python(raw, region='IT') if raw else None
+        if number and number.is_valid():
+            user_profile.phone = number
             user_profile.save(update_fields=['phone'])
             messages.success(request, _("Phone number saved."))
         else:

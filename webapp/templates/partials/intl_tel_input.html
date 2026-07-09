@@ -1,0 +1,39 @@
+{% comment %}
+  intl-tel-input enhancement for any <input class="js-intl-tel-input">.
+  Include once per page inside the body/JS block (e.g. {% block extrabodyjs %}).
+  On submit the input value is rewritten to E.164 (iti.getNumber()); the value
+  is left untouched if libphonenumber (utils) has not loaded yet, so user input
+  is never wiped. Server-side validation stays with django-phonenumber-field.
+{% endcomment %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css">
+<style>
+  .iti { width: 100%; }
+  .iti__selected-dial-code { color: #334155; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInput.min.js"></script>
+<script>
+  (function () {
+    if (!window.intlTelInput) return;
+    document.querySelectorAll('.js-intl-tel-input').forEach(function (input) {
+      if (input.dataset.itiInit) return;
+      input.dataset.itiInit = '1';
+      var iti = window.intlTelInput(input, {
+        initialCountry: 'it',
+        separateDialCode: true,
+        countryOrder: ['it', 'sm', 'ch', 'fr', 'de', 'at'],
+        loadUtils: function () {
+          return import('https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js');
+        },
+      });
+      var form = input.closest('form');
+      if (form) {
+        form.addEventListener('submit', function () {
+          if (typeof iti.getNumber === 'function') {
+            var full = iti.getNumber();
+            if (full) input.value = full;
+          }
+        });
+      }
+    });
+  })();
+</script>
