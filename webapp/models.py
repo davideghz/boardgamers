@@ -3,6 +3,7 @@ import string
 import uuid
 import random
 import datetime
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import mistune
@@ -594,6 +595,29 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
                 name='table_location_xor_event',
             )
         ]
+
+
+class TableLink(DateTimeModel):
+    """An optional external link attached to a Table (rulebook, score sheet,
+    video, …). A table can have any number of them."""
+    table = models.ForeignKey(
+        Table, on_delete=models.CASCADE, related_name='links', verbose_name=_('Table'))
+    label = models.CharField(max_length=100, blank=True, verbose_name=_('Label'))
+    url = models.URLField(max_length=500, verbose_name=_('URL'))
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return self.label or self.url
+
+    @property
+    def display_label(self):
+        """Label to show; falls back to the URL host when no label is set."""
+        if self.label:
+            return self.label
+        netloc = urlparse(self.url).netloc
+        return netloc or self.url
 
 
 class Player(DateTimeModel):

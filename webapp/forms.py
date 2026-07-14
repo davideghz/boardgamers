@@ -3,11 +3,12 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField
+    ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
+    inlineformset_factory
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -164,6 +165,28 @@ class TableForm(ModelForm, TailwindForm):
             self.save_m2m()
         return instance
 
+
+class TableLinkForm(ModelForm):
+    class Meta:
+        model = TableLink
+        fields = ['label', 'url']
+        widgets = {
+            'label': TextInput(attrs={
+                'class': _TW_INPUT,
+                'placeholder': _('e.g. Rulebook, Score sheet…'),
+            }),
+            'url': URLInput(attrs={
+                'class': _TW_INPUT,
+                'placeholder': 'https://…',
+            }),
+        }
+
+
+# One row = one external link (label + url). Extra empty rows are added
+# client-side by cloning empty_form, so extra=1 is enough as a starting point.
+TableLinkFormSet = inlineformset_factory(
+    Table, TableLink, form=TableLinkForm, extra=1, can_delete=True,
+)
 
 
 class AreaTaggedSelect(Select):

@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
-from webapp.models import UserProfile, Table, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
+from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
     Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken, \
     Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
 
@@ -60,12 +60,18 @@ class PlayerInline(admin.TabularInline):
     fields = ('user_profile', 'position', 'score')
 
 
+class TableLinkInline(admin.TabularInline):
+    model = TableLink
+    extra = 0
+    fields = ('label', 'url')
+
+
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
     list_display = ("title", "location", "author", "date", "time", "status", "leaderboard_status")
     list_filter = ("location", "status", "leaderboard_status", "date")
     autocomplete_fields = ("location", "game")
-    inlines = [PlayerInline]
+    inlines = [PlayerInline, TableLinkInline]
 
     def save_model(self, request, obj, form, change):
         if not obj.slug:

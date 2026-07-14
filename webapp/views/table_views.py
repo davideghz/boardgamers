@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, CustomLoginForm, CommentForm, AddTablePlayerForm
+from webapp.forms import TableForm, TableLinkFormSet, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
@@ -328,6 +328,12 @@ def remove_player_view(request, slug, player_id):
     return redirect("table-players", slug=slug)
 
 
+def _links_formset_open(link_formset):
+    """Whether the collapsible extra-links section should start expanded:
+    when the table already has links or when the formset has validation errors."""
+    return bool(link_formset.initial_forms) or any(f.errors for f in link_formset.forms)
+
+
 @login_required
 def table_create_view(request, location_slug):
     location = get_object_or_404(Location, slug=location_slug)
@@ -359,12 +365,16 @@ def table_create_view(request, location_slug):
 
     if request.method == "POST":
         form = TableForm(request.POST)
-        if form.is_valid():
+        link_formset = TableLinkFormSet(request.POST)
+        if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
             table.author = request.user.user_profile
             table.location = location
             table.save()
             form.save_m2m()
+
+            link_formset.instance = table
+            link_formset.save()
 
             if request.POST.get("join_table"):
                 with transaction.atomic():
@@ -376,8 +386,14 @@ def table_create_view(request, location_slug):
         if date_param := request.GET.get('date'):
             initial['date'] = date_param
         form = TableForm(initial=initial)
+        link_formset = TableLinkFormSet()
 
-    context = {"form": form, "location": location}
+    context = {
+        "form": form,
+        "link_formset": link_formset,
+        "links_formset_open": _links_formset_open(link_formset),
+        "location": location,
+    }
 
     return render(request, "tables/table_add_or_edit.html", context)
 
@@ -396,17 +412,26 @@ def table_update_view(request, location_slug, table_slug):
 
     if request.method == "POST":
         form = TableForm(request.POST, instance=table)
-        if form.is_valid():
+        link_formset = TableLinkFormSet(request.POST, instance=table)
+        if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
             table.location = location  # Assegna manualmente la location
             table.save()
             form.save_m2m()  # Per salvare correttamente i giochi
+            link_formset.save()
             messages.success(request, _("Table was updated successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
         form = TableForm(instance=table)
+        link_formset = TableLinkFormSet(instance=table)
 
-    context = {"form": form, "location": location, "table": table}
+    context = {
+        "form": form,
+        "link_formset": link_formset,
+        "links_formset_open": _links_formset_open(link_formset),
+        "location": location,
+        "table": table,
+    }
     return render(request, "tables/table_add_or_edit.html", context)
 
 

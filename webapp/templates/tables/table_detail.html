@@ -75,6 +75,26 @@
         </section>
       {% endif %}
 
+      {# Extra links #}
+      {% if table.links.all %}
+        <section>
+          <h2 class="text-sm font-bold text-slate-900 mb-2">{% trans "Useful links" %}</h2>
+          <ul class="space-y-1.5">
+            {% for link in table.links.all %}
+              <li>
+                <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline break-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0 text-slate-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                  </svg>
+                  <span>{{ link.display_label }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
       {# Info grid #}
       <section class="grid grid-cols-2 gap-3">
 
