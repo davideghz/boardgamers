@@ -18,8 +18,9 @@ from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp.forms import (
     EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
-    AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm,
+    AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
 )
+from webapp.views.table_views import _links_formset_open
 from phonenumber_field.phonenumber import to_python
 
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant
@@ -414,12 +415,15 @@ def event_table_create_view(request, event_slug):
 
     if request.method == 'POST':
         form = EventTableForm(request.POST, event=event)
-        if form.is_valid():
+        link_formset = TableLinkFormSet(request.POST)
+        if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
             table.author = user_profile
             table.event = event
             table.save()
             form.save_m2m()
+            link_formset.instance = table
+            link_formset.save()
             if request.POST.get("join_table"):
                 with transaction.atomic():
                     table.players.add(user_profile)
@@ -428,8 +432,14 @@ def event_table_create_view(request, event_slug):
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
         form = EventTableForm(initial=initial, event=event)
+        link_formset = TableLinkFormSet()
 
-    return render(request, 'events/event_table_add_or_edit.html', {'form': form, 'event': event})
+    return render(request, 'events/event_table_add_or_edit.html', {
+        'form': form,
+        'event': event,
+        'link_formset': link_formset,
+        'links_formset_open': _links_formset_open(link_formset),
+    })
 
 
 @login_required
@@ -444,18 +454,27 @@ def event_table_update_view(request, event_slug, table_slug):
 
     if request.method == 'POST':
         form = EventTableForm(request.POST, instance=table, event=event)
-        if form.is_valid():
+        link_formset = TableLinkFormSet(request.POST, instance=table)
+        if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
             table.event = event
             table.save()
             form.save_m2m()
+            link_formset.save()
             messages.success(request, _("Table was updated successfully"))
             _warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
         form = EventTableForm(instance=table, event=event)
+        link_formset = TableLinkFormSet(instance=table)
 
-    return render(request, 'events/event_table_add_or_edit.html', {'form': form, 'event': event, 'table': table})
+    return render(request, 'events/event_table_add_or_edit.html', {
+        'form': form,
+        'event': event,
+        'table': table,
+        'link_formset': link_formset,
+        'links_formset_open': _links_formset_open(link_formset),
+    })
 
 
 class EventManageIndexView(LoginRequiredMixin, DetailView):

@@ -174,6 +174,43 @@
     </div>
     {% endif %}
 
+    {# ── Extra links (collapsible) ───────────────────────────────────── #}
+    <div>
+      <button type="button" id="links-toggle"
+              class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hover:text-slate-700 transition-colors bg-transparent border-0 p-0 cursor-pointer">
+        <svg id="links-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 transition-transform{% if links_formset_open %} rotate-90{% endif %}">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+        {% trans "Extra links" %} <span class="font-normal text-slate-400 normal-case">({% trans "optional" %})</span>
+      </button>
+
+      <div id="links-body" class="mt-3 space-y-3"{% if not links_formset_open %} style="display:none"{% endif %}>
+        <p class="text-[11px] text-slate-400 -mt-1">
+          {% trans "Add links to useful resources: rulebook, a Google sheet, a video…" %}
+        </p>
+        {{ link_formset.management_form }}
+        {% if link_formset.non_form_errors %}
+          <p class="text-xs text-red-500">{{ link_formset.non_form_errors|join:", " }}</p>
+        {% endif %}
+
+        <div id="links-container" class="space-y-3">
+          {% for lf in link_formset %}
+            {% include "tables/_table_link_row.html" %}
+          {% endfor %}
+        </div>
+
+        <button type="button" id="links-add"
+                class="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          {% trans "Add link" %}
+        </button>
+
+        <template id="links-empty-form">
+          {% include "tables/_table_link_row.html" with lf=link_formset.empty_form %}
+        </template>
+      </div>
+    </div>
+
     {# ── Submit / Cancel ─────────────────────────────────────────────── #}
     <div class="flex gap-3 pt-2">
       <a href="{% if table %}{% url 'event_table_detail' event_slug=event.slug table_slug=table.slug %}{% else %}{% url 'event_detail' event.slug %}{% endif %}"
@@ -320,6 +357,58 @@
         btn.innerHTML = '<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> {% trans "Publishing..." %}';
         form.requestSubmit(btn);
       });
+    });
+
+    /* ── Extra links: collapse + add/remove formset rows ─────────────── */
+    document.addEventListener('DOMContentLoaded', function () {
+      var toggle = document.getElementById('links-toggle');
+      var body = document.getElementById('links-body');
+      var chevron = document.getElementById('links-chevron');
+      if (toggle && body) {
+        toggle.addEventListener('click', function () {
+          var open = body.style.display === 'none';
+          body.style.display = open ? '' : 'none';
+          if (chevron) chevron.classList.toggle('rotate-90', open);
+        });
+      }
+
+      var container = document.getElementById('links-container');
+      var addBtn = document.getElementById('links-add');
+      var tpl = document.getElementById('links-empty-form');
+      var total = document.getElementById('id_links-TOTAL_FORMS');
+
+      if (addBtn && container && tpl && total) {
+        addBtn.addEventListener('click', function () {
+          var idx = parseInt(total.value, 10);
+          var wrap = document.createElement('div');
+          wrap.innerHTML = tpl.innerHTML.replace(/__prefix__/g, idx).trim();
+          var row = wrap.firstElementChild;
+          container.appendChild(row);
+          total.value = idx + 1;
+          var urlInput = row.querySelector('input[type="url"]');
+          if (urlInput) urlInput.focus();
+        });
+      }
+
+      // Remove a row. Persisted rows are kept hidden with DELETE checked (so the
+      // server deletes them); brand-new rows are just dropped from the DOM.
+      if (container) {
+        container.addEventListener('click', function (e) {
+          var btn = e.target.closest('.link-remove');
+          if (!btn) return;
+          var row = btn.closest('.table-link-row');
+          if (!row) return;
+          var idField = row.querySelector('input[name$="-id"]');
+          if (idField && idField.value) {
+            var del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            if (del) del.checked = true;
+            row.querySelectorAll('input').forEach(function (i) { i.removeAttribute('required'); });
+            row.style.display = 'none';
+          } else {
+            row.remove();
+          }
+        });
+      }
     });
   </script>
 {% endblock extrabodyjs %}
