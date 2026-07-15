@@ -5,7 +5,7 @@
 
   {# Game cover thumbnail #}
   <div class="w-16 sm:w-20 flex-shrink-0 overflow-hidden bg-slate-100">
-    {% if table.game and table.game.image %}
+    {% if table.custom_cover or table.game and table.game.image %}
       <img src="{{ table.cover_url }}" alt="{{ table.game }}"
            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     {% else %}

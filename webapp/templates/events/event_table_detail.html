@@ -14,7 +14,7 @@
 
   {# ── COVER IMAGE (mobile only) ─────────────────────────────────────── #}
   <div class="md:hidden w-full h-48 rounded-2xl overflow-hidden mb-6 relative">
-    {% if table.game and table.game.image %}
+    {% if table.custom_cover or table.game and table.game.image %}
       <img src="{{ table.cover_url }}" alt="{{ table.game }}" class="w-full h-full object-cover">
     {% else %}
       <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-slate-100">
@@ -155,7 +155,7 @@
 
         {# Cover image — desktop only #}
         <div class="hidden md:block rounded-xl overflow-hidden relative">
-          {% if table.game and table.game.image %}
+          {% if table.custom_cover or table.game and table.game.image %}
             <img src="{{ table.cover_url }}" alt="{{ table.game }}" class="w-full h-40 object-cover">
           {% else %}
             <div class="w-full h-40 flex flex-col items-center justify-center gap-2 bg-slate-100">
