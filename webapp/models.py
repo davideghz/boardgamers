@@ -392,6 +392,10 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
+    custom_cover = models.ImageField(
+        upload_to='table-covers', null=True, blank=True, storage=PublicMediaStorage(),
+        verbose_name=_('Custom cover'),
+        help_text=_('Optional image shown instead of the game cover.'))
 
     @property
     def total_players(self):
@@ -428,6 +432,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
 
     @cached_property
     def cover_url(self):
+        if self.custom_cover and hasattr(self.custom_cover, 'url'):
+            return self.custom_cover.url
         if self.game and self.game.image and hasattr(self.game.image, 'url'):
             return self.game.image.url
         else:

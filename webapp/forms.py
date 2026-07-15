@@ -118,6 +118,19 @@ class TailwindForm(Form):
                 field.widget.attrs['class'] = css
 
 
+#: Maximum allowed size for a table's custom cover image.
+CUSTOM_COVER_MAX_SIZE = 200 * 1024  # 200 KB
+
+
+def validate_custom_cover_size(cover):
+    """Reject freshly uploaded cover images larger than the allowed size.
+    An unchanged existing image is a FieldFile without a fresh upload and is
+    left untouched."""
+    if cover and hasattr(cover, 'size') and cover.size > CUSTOM_COVER_MAX_SIZE:
+        raise ValidationError(_("The image is too large (max 200 KB)."))
+    return cover
+
+
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
@@ -149,6 +162,9 @@ class TableForm(ModelForm, TailwindForm):
         if description is None or len(description) < 2:
             raise ValidationError("Description is too short")
         return description
+
+    def clean_custom_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('custom_cover'))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -242,6 +258,9 @@ class EventTableForm(ModelForm, TailwindForm):
             self.fields['physical_table'].queryset = PhysicalTable.objects.none()
         self.fields['play_area'].required = False
         self.fields['physical_table'].required = False
+
+    def clean_custom_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('custom_cover'))
 
     def clean(self):
         cleaned_data = super().clean()

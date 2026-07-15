@@ -414,7 +414,7 @@ def event_table_create_view(request, event_slug):
             pass
 
     if request.method == 'POST':
-        form = EventTableForm(request.POST, event=event)
+        form = EventTableForm(request.POST, request.FILES, event=event)
         link_formset = TableLinkFormSet(request.POST)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
@@ -453,7 +453,7 @@ def event_table_update_view(request, event_slug, table_slug):
         return redirect('event_table_detail', event_slug=event_slug, table_slug=table_slug)
 
     if request.method == 'POST':
-        form = EventTableForm(request.POST, instance=table, event=event)
+        form = EventTableForm(request.POST, request.FILES, instance=table, event=event)
         link_formset = TableLinkFormSet(request.POST, instance=table)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)

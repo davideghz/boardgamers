@@ -364,7 +364,7 @@ def table_create_view(request, location_slug):
                 return redirect("location-detail", location_slug)
 
     if request.method == "POST":
-        form = TableForm(request.POST)
+        form = TableForm(request.POST, request.FILES)
         link_formset = TableLinkFormSet(request.POST)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
@@ -411,7 +411,7 @@ def table_update_view(request, location_slug, table_slug):
     location = table.location  # Ora la location è sempre valida
 
     if request.method == "POST":
-        form = TableForm(request.POST, instance=table)
+        form = TableForm(request.POST, request.FILES, instance=table)
         link_formset = TableLinkFormSet(request.POST, instance=table)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
