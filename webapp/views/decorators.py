@@ -35,7 +35,7 @@ def only_author_or_admin_can_edit(view_func):
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
         table = get_object_or_404(Table, slug=table_slug)
-        is_author = request.user == table.author.user
+        is_author = table.author_id is not None and request.user == table.author.user
         is_admin = request.user.is_staff
         is_location_manager = False
         if request.user.is_authenticated and table.location_id:
@@ -82,7 +82,7 @@ def author_or_admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         table = get_object_or_404(Table, slug=kwargs['slug'])
-        if table.author.user == request.user or request.user.is_superuser:
+        if (table.author_id is not None and table.author.user == request.user) or request.user.is_superuser:
             return view_func(request, *args, **kwargs)
         return HttpResponseForbidden("Request not allowed")
     return _wrapped_view
