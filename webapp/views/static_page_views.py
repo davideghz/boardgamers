@@ -1,7 +1,7 @@
 import json
 
 from django.contrib import messages
-from django.contrib.gis.geoip2 import GeoIP2
+from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import get_language_info, gettext_lazy as _
 
+from geoip2.errors import AddressNotFoundError
 from meta.views import Meta
 import mistune
 import nh3
@@ -251,8 +252,12 @@ def debug(request, template_name="staticpages/debug.html"):
     if user_ip == '127.0.0.1':
         user_ip = '93.66.88.167'
 
-    city = g.city(user_ip)
-    user_point = g.geos(user_ip)
+    try:
+        city = g.city(user_ip)
+        user_point = g.geos(user_ip)
+    except (AddressNotFoundError, GeoIP2Exception, ValueError):
+        city = None
+        user_point = Point(9.19, 45.46, srid=4326)
 
     pozzobonelli = Point(9.1948628, 45.5216581, srid=4326)
     cherso = Point(9.1979062, 45.5206266, srid=4326)

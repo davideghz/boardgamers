@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.gis.geoip2 import GeoIP2
+from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
+from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DbDistance
+from geoip2.errors import AddressNotFoundError
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -72,7 +74,12 @@ class TableIndexView(generic.ListView):
             user_ip = self.request.META.get('REMOTE_ADDR')
         if user_ip == '127.0.0.1':
             user_ip = '93.66.88.167'
-        user_point = g.geos(user_ip)
+        try:
+            user_point = g.geos(user_ip)
+        except (AddressNotFoundError, GeoIP2Exception, ValueError):
+            # IP not in the GeoIP database (e.g. datacenter/bot) or malformed:
+            # fall back to a default point so table ordering by distance still works.
+            user_point = Point(9.19, 45.46, srid=4326)
 
         today = timezone.localdate()
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
