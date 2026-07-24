@@ -81,6 +81,8 @@ class Command(BaseCommand):
                     'game': game_name,
                     'creator_name': table.author.nickname if table.author else "un utente",
                     'location_name': table.location.name if table.location else "Location non disponibile",
+                    'date': table.date.strftime('%d/%m/%Y'),
+                    'time': table.time.strftime('%H:%M'),
                     # SES non fa escaping dell'HTML: la descrizione va messa in sicurezza qui.
                     'description': escape(description).replace("\n", "<br>") if description else "",
                     'description_text': description,

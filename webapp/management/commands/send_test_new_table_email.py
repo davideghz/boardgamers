@@ -101,6 +101,8 @@ class Command(BaseCommand):
             'game': game,
             'creator_name': opts['creator'],
             'location_name': opts['location'],
+            'date': now.strftime('%d/%m/%Y'),
+            'time': now.strftime('%H:%M'),
             'description': escape(description).replace('\n', '<br>') if description else '',
             'description_text': description,
             'button_href': settings.DOMAIN_URL + '/tables/serata-giochi',
