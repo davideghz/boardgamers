@@ -18,7 +18,7 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
-        parser.add_argument('recipient', help="Indirizzo email destinatario della prova")
+        parser.add_argument('recipient', nargs='?', help="Indirizzo email destinatario della prova")
         parser.add_argument('--name', default='Davide', help="Nickname destinatario (saluto)")
         parser.add_argument('--creator', default='Marco', help="Nome del creatore del tavolo")
         parser.add_argument('--location', default='Ludoteca di Prova', help="Nome location")
@@ -28,6 +28,10 @@ class Command(BaseCommand):
                             help="Descrizione del tavolo (multi-riga con \\n)")
         parser.add_argument('--no-game', action='store_true', help="Simula un tavolo senza gioco")
         parser.add_argument('--no-description', action='store_true', help="Simula un tavolo senza descrizione")
+        parser.add_argument('--show-template', action='store_true',
+                            help="Non invia nulla: stampa il template live 'NewTableNotification' su SES")
+        parser.add_argument('--simple', action='store_true',
+                            help="Invia una mail v2 SEMPLICE (senza template) per isolare trasporto vs template")
 
     def handle(self, *args, **opts):
         required = ['AWS_SES_REGION_NAME', 'AWS_SES_ACCESS_KEY_ID', 'AWS_SES_SECRET_ACCESS_KEY']
@@ -45,6 +49,45 @@ class Command(BaseCommand):
             aws_access_key_id=settings.AWS_SES_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SES_SECRET_ACCESS_KEY,
         )
+
+        self.stdout.write(f"Region: {settings.AWS_SES_REGION_NAME} | From: {settings.DEFAULT_FROM_EMAIL}")
+
+        # 1) Diagnostica: stampa il template attualmente su SES
+        if opts['show_template']:
+            try:
+                t = client.get_email_template(TemplateName='NewTableNotification')
+                content = t['TemplateContent']
+                self.stdout.write(self.style.SUCCESS("=== Subject live su SES ==="))
+                self.stdout.write(content.get('Subject', '(nessuno)'))
+                self.stdout.write(self.style.SUCCESS("=== Html live (primi 600 char) ==="))
+                self.stdout.write((content.get('Html') or '')[:600])
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Errore get_email_template: {e}"))
+            return
+
+        recipient = opts['recipient']
+
+        # 2) Diagnostica: mail v2 SEMPLICE (senza template) per isolare il trasporto
+        if opts['simple']:
+            self.stdout.write(f"Invio mail v2 SEMPLICE (no template) a {recipient}...")
+            try:
+                response = client.send_email(
+                    FromEmailAddress=settings.DEFAULT_FROM_EMAIL,
+                    Destination={'ToAddresses': [recipient]},
+                    Content={
+                        'Simple': {
+                            'Subject': {'Data': 'Test semplice SES v2'},
+                            'Body': {
+                                'Text': {'Data': 'Corpo di prova (nessun template).'},
+                                'Html': {'Data': '<p>Corpo di prova (nessun template).</p>'},
+                            },
+                        }
+                    },
+                )
+                self.stdout.write(self.style.SUCCESS(f"Inviata (semplice). MessageId: {response.get('MessageId')}"))
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Errore invio semplice: {e}"))
+            return
 
         game = '' if opts['no_game'] else opts['game']
         description = '' if opts['no_description'] else opts['description']
