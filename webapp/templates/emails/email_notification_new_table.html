@@ -1,10 +1,11 @@
 {% load i18n %}
 
 {% trans "Hey" %} {{ user_profile.nickname }},
-{% trans "A new table has been created in " %}{{ location_name }}.
+{% blocktrans %}A new table has been created by {{ creator_name }} at {{ location_name }}.{% endblocktrans %}
 
-{% trans "Game:" %} {{ game }}
-{% trans "Date and time:" %} {{ date }}, {{ time }}
+{% trans "Game:" %} {% verbatim %}{{#if game}}{{game}}{{else}}{% endverbatim %}{% trans "Not decided yet" %}{% verbatim %}{{/if}}{% endverbatim %}
+{% trans "Date and time:" %} {{ date }}, {{ time }}{% verbatim %}{{#if description_text}}
+{% endverbatim %}{% trans "Description:" %} {% verbatim %}{{description_text}}{{/if}}{% endverbatim %}
 
 {{ button_href }}
 Board-Gamers.com
