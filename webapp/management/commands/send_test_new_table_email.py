@@ -32,6 +32,8 @@ class Command(BaseCommand):
                             help="Non invia nulla: stampa il template live 'NewTableNotification' su SES")
         parser.add_argument('--simple', action='store_true',
                             help="Invia una mail v2 SEMPLICE (senza template) per isolare trasporto vs template")
+        parser.add_argument('--render-test', action='store_true',
+                            help="Non invia: chiede a SES di renderizzare il template e mostra l'errore se fallisce")
 
     def handle(self, *args, **opts):
         required = ['AWS_SES_REGION_NAME', 'AWS_SES_ACCESS_KEY_ID', 'AWS_SES_SECRET_ACCESS_KEY']
@@ -103,6 +105,22 @@ class Command(BaseCommand):
             'description_text': description,
             'button_href': settings.DOMAIN_URL + '/tables/serata-giochi',
         }
+
+        # 3) Diagnostica: chiedi a SES di renderizzare il template. Se il rendering
+        #    fallisce (es. condizionali non supportati) qui vediamo l'errore esatto,
+        #    mentre send_email restituisce comunque un MessageId senza consegnare.
+        if opts['render_test']:
+            self.stdout.write("Test di rendering del template 'NewTableNotification' su SES...")
+            try:
+                r = client.test_render_email_template(
+                    TemplateName='NewTableNotification',
+                    TemplateData=json.dumps(template_data),
+                )
+                self.stdout.write(self.style.SUCCESS("RENDER OK. Anteprima:"))
+                self.stdout.write((r.get('RenderedTemplate') or '')[:800])
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"RENDER FALLITO: {e}"))
+            return
 
         recipient = opts['recipient']
         self.stdout.write(

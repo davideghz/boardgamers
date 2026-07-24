@@ -47,13 +47,19 @@ class Command(BaseCommand):
             'Text': text_part,
         }
 
+        # Elimina e ricrea il template così è sempre nativo SES v2:
+        # un template creato in origine con l'API v1 resta in modalità "basic"
+        # e NON supporta i condizionali Handlebars {{#if}}, anche se aggiornato
+        # via v2. Ricrearlo con create_email_template garantisce il rendering
+        # avanzato (conditionals) usato nell'oggetto e nel corpo.
         try:
-            self.stdout.write(f"Tentativo di aggiornamento del template '{template_name}'...")
-            client.update_email_template(TemplateName=template_name, TemplateContent=template_content)
-            self.stdout.write(self.style.SUCCESS(f"Template '{template_name}' aggiornato con successo."))
-        except client.exceptions.NotFoundException:
-            self.stdout.write(f"Template '{template_name}' non trovato. Tentativo di creazione...")
+            try:
+                client.delete_email_template(TemplateName=template_name)
+                self.stdout.write(f"Template '{template_name}' esistente eliminato.")
+            except client.exceptions.NotFoundException:
+                self.stdout.write(f"Template '{template_name}' non presente, verrà creato.")
+
             client.create_email_template(TemplateName=template_name, TemplateContent=template_content)
-            self.stdout.write(self.style.SUCCESS(f"Template '{template_name}' creato con successo."))
+            self.stdout.write(self.style.SUCCESS(f"Template '{template_name}' creato (nativo v2) con successo."))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Errore durante l'operazione: {str(e)}"))
