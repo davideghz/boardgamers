@@ -369,7 +369,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Location'))
     event = models.ForeignKey(
-        'Event', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
+        'Event', on_delete=models.CASCADE, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
     play_area = models.ForeignKey(
         'PlayArea',
         on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
