@@ -78,6 +78,23 @@ def horizontal_table_card(context, table, show_author_icon=False):
 
 
 @register.simple_tag(takes_context=True)
+def query_transform(context, **kwargs):
+    """Return the current querystring (without leading '?') with the given
+    params overridden. A param passed as '' or None is removed. Any other
+    current params are preserved, which keeps independent filters composable."""
+    request = context.get('request')
+    if request is None:
+        return ''
+    params = request.GET.copy()
+    for key, value in kwargs.items():
+        if value in ('', None):
+            params.pop(key, None)
+        else:
+            params[key] = value
+    return params.urlencode()
+
+
+@register.simple_tag(takes_context=True)
 def alternate_url(context, lang_code):
     request = context["request"]
     current_url = request.build_absolute_uri()

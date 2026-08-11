@@ -4477,6 +4477,9 @@ msgid_plural "%(n)s categories configured"
 msgstr[0] "%(n)s categoria configurata"
 msgstr[1] "%(n)s categorie configurate"
 
+msgid "All categories"
+msgstr "Tutte le categorie"
+
 #~ msgid "Don't miss this event"
 #~ msgstr "Non perderti questo evento"
 

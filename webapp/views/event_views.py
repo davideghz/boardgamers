@@ -281,6 +281,16 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             except (ValueError, TypeError):
                 selected_game_id = None
 
+        # ── Category filtering ────────────────────────────────────────────
+        categories = event.table_categories.all()
+        selected_category_id = self.request.GET.get('category')
+        selected_category = None
+        if selected_category_id:
+            try:
+                selected_category = categories.get(id=selected_category_id)
+            except (EventTableCategory.DoesNotExist, ValueError):
+                selected_category_id = None
+
         # ── Tables queryset ───────────────────────────────────────────────
         tables_qs = (
             Table.objects
@@ -300,6 +310,8 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             )
         if selected_game_id:
             tables_qs = tables_qs.filter(game_id=selected_game_id)
+        if selected_category:
+            tables_qs = tables_qs.filter(category=selected_category)
 
         tables_qs = tables_qs.order_by('time')
 
@@ -339,6 +351,9 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'selected_area': selected_area,
             'selected_game_id': selected_game_id,
             'selected_game': selected_game,
+            'categories': categories,
+            'selected_category_id': selected_category_id,
+            'selected_category': selected_category,
             'view_mode': view_mode,
             'view_qs': '&view=grid' if view_mode == 'grid' else '',
             'agenda': agenda,
