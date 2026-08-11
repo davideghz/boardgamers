@@ -239,7 +239,7 @@
           </a>
 
           {# Author / event manager actions #}
-          {% if table.status != table.CLOSED and user.user_profile == table.author or request.user.is_superuser %}
+          {% if request.user.is_superuser or is_event_manager or table.status != table.CLOSED and user.user_profile == table.author %}
             <div class="border-t border-slate-100 pt-4 space-y-2">
               <a href="{% url 'event-table-update' event_slug=event.slug table_slug=table.slug %}"
                  class="inline-flex items-center justify-center gap-1.5 w-full border border-slate-200 text-slate-600 text-sm font-semibold py-2.5 rounded-full hover:bg-slate-50 transition-colors text-decoration-none">
