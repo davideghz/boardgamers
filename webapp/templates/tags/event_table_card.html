@@ -52,6 +52,9 @@
 
     {# Title + area + description #}
     <div class="min-w-0 flex-1 flex flex-col gap-1 pt-0.5">
+      {% if table.category %}
+        <span class="self-start text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{{ table.category.name }}</span>
+      {% endif %}
       <h3 class="font-bold text-sm text-slate-900 leading-snug line-clamp-2">
         {% if table.title %}{{ table.title }}{% elif table.game %}{{ table.game }}{% else %}{% trans "Table" %}{% endif %}
       </h3>

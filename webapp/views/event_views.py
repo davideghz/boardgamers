@@ -19,11 +19,12 @@ from django.views.generic import CreateView, DetailView, UpdateView
 from webapp.forms import (
     EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
+    EventTableCategoryForm,
 )
 from webapp.views.table_views import _links_formset_open
 from phonenumber_field.phonenumber import to_python
 
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant
+from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory
 from webapp.views.table_views import BaseTableDetailView
 
 
@@ -284,7 +285,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         tables_qs = (
             Table.objects
             .filter(event=event)
-            .select_related('game', 'author', 'author__user', 'play_area', 'physical_table')
+            .select_related('game', 'author', 'author__user', 'play_area', 'physical_table', 'category')
             .prefetch_related(
                 Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
             )
@@ -631,6 +632,57 @@ class EventManageAreasReorderView(EventManagerMixin, View):
             data = json.loads(request.body)
             for item in data.get('areas', []):
                 PlayArea.objects.filter(pk=item['id'], event=event).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=400)
+
+
+class EventManageCategoriesView(EventManagerMixin, View):
+    template_name = 'events/event_manage_categories.html'
+
+    def get(self, request, slug):
+        event = self._get_event()
+        return render(request, self.template_name, {
+            'event': event,
+            'categories': event.table_categories.all(),
+            'form': EventTableCategoryForm(),
+        })
+
+    def post(self, request, slug):
+        event = self._get_event()
+        form = EventTableCategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.event = event
+            max_order = event.table_categories.aggregate(m=Max('order'))['m'] or 0
+            category.order = max_order + 1
+            category.save()
+            messages.success(request, _("Category added."))
+            return redirect('event-manage-categories', slug=slug)
+        return render(request, self.template_name, {
+            'event': event,
+            'categories': event.table_categories.all(),
+            'form': form,
+        })
+
+
+class EventManageCategoryDeleteView(EventManagerMixin, View):
+    def post(self, request, slug, pk):
+        event = self._get_event()
+        EventTableCategory.objects.filter(pk=pk, event=event).delete()
+        messages.success(request, _("Category removed."))
+        return redirect('event-manage-categories', slug=slug)
+
+
+class EventManageCategoriesReorderView(EventManagerMixin, View):
+    def post(self, request, slug):
+        import json
+        from django.http import JsonResponse
+        event = self._get_event()
+        try:
+            data = json.loads(request.body)
+            for item in data.get('categories', []):
+                EventTableCategory.objects.filter(pk=item['id'], event=event).update(order=item['order'])
             return JsonResponse({'success': True})
         except Exception:
             return JsonResponse({'success': False}, status=400)

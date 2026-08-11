@@ -373,6 +373,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     play_area = models.ForeignKey(
         'PlayArea',
         on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
+    category = models.ForeignKey(
+        'EventTableCategory',
+        on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Category'))
     physical_table = models.ForeignKey(
         'PhysicalTable',
         on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Station'))
@@ -1079,6 +1082,24 @@ class EventDate(DateTimeModel):
         verbose_name_plural = _('Event Dates')
         ordering = ['date']
         unique_together = [('event', 'date')]
+
+
+class EventTableCategory(DateTimeModel):
+    """A per-event table category ("tipologia"), e.g. wargames, RPG, retrogaming.
+    Defined by event managers and assigned to the event's tables."""
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='table_categories', verbose_name=_('Event'))
+    name = models.CharField(max_length=144, verbose_name=_('Name'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return f"{self.event.name} — {self.name}"
+
+    class Meta:
+        verbose_name = _('Event Table Category')
+        verbose_name_plural = _('Event Table Categories')
+        ordering = ['order', 'name']
+        unique_together = [('event', 'name')]
 
 
 class PhysicalTable(DateTimeModel):

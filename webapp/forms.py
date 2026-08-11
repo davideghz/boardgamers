@@ -8,7 +8,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -134,7 +134,7 @@ def validate_custom_cover_size(cover):
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category']
         widgets = {
             'location': HiddenInput(),
             'games': autocomplete.ModelSelect2Multiple(
@@ -252,12 +252,16 @@ class EventTableForm(ModelForm, TailwindForm):
             self.fields['physical_table'].label_from_instance = (
                 lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
             )
+            self.fields['category'].queryset = EventTableCategory.objects.filter(event=event)
         else:
             self.fields['date'].input_formats = ['%Y-%m-%d']
             self.fields['play_area'].queryset = PlayArea.objects.none()
             self.fields['physical_table'].queryset = PhysicalTable.objects.none()
+            self.fields['category'].queryset = EventTableCategory.objects.none()
         self.fields['play_area'].required = False
         self.fields['physical_table'].required = False
+        self.fields['category'].required = False
+        self.fields['category'].empty_label = _('No category')
 
     def clean_custom_cover(self):
         return validate_custom_cover_size(self.cleaned_data.get('custom_cover'))
@@ -502,6 +506,12 @@ class EventDateForm(TailwindForm):
 class PlayAreaForm(ModelForm, TailwindForm):
     class Meta:
         model = PlayArea
+        fields = ['name']
+
+
+class EventTableCategoryForm(ModelForm, TailwindForm):
+    class Meta:
+        model = EventTableCategory
         fields = ['name']
 
 

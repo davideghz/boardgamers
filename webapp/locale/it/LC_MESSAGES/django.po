@@ -4441,6 +4441,42 @@ msgstr "Vedi tutti gli eventi"
 msgid "Events we take part in"
 msgstr "Eventi a cui partecipiamo"
 
+msgid "No category"
+msgstr "Nessuna categoria"
+
+msgid "Category added."
+msgstr "Categoria aggiunta."
+
+msgid "Category removed."
+msgstr "Categoria rimossa."
+
+msgid "Table categories"
+msgstr "Categorie tavoli"
+
+msgid "Categories"
+msgstr "Categorie"
+
+msgid "Add category"
+msgstr "Aggiungi categoria"
+
+msgid "No categories added yet."
+msgstr "Nessuna categoria ancora aggiunta."
+
+msgid "Remove this category?"
+msgstr "Rimuovere questa categoria?"
+
+msgid ""
+"Categories you can assign to the event's tables (e.g. wargames, RPG, "
+"retrogaming). Drag to reorder."
+msgstr ""
+"Categorie che puoi assegnare ai tavoli dell'evento (es. wargames, giochi di "
+"ruolo, retrogaming). Trascina per riordinare."
+
+msgid "%(n)s category configured"
+msgid_plural "%(n)s categories configured"
+msgstr[0] "%(n)s categoria configurata"
+msgstr[1] "%(n)s categorie configurate"
+
 #~ msgid "Don't miss this event"
 #~ msgstr "Non perderti questo evento"
 

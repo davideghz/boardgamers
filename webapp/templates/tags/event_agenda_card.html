@@ -62,6 +62,10 @@
         </svg>
         {{ table.total_players }}/{{ table.max_players }}
       </span>
+      {# Category #}
+      {% if table.category %}
+        <span class="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{{ table.category.name }}</span>
+      {% endif %}
       {# Station conflict #}
       {% if table.has_conflict %}
         <span class="flex items-center gap-1 text-red-600 font-semibold">

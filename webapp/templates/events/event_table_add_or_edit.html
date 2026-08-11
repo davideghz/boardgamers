@@ -89,6 +89,17 @@
       </div>
     {% endif %}
 
+    {# ── Category (tipologia) ─────────────────────────────────────────── #}
+    {% if form.category.field.queryset.exists %}
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.category.id_for_label }}">
+          {{ form.category.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+        </label>
+        {{ form.category }}
+        {% if form.category.errors %}<p class="mt-1 text-xs text-red-500">{{ form.category.errors|join:", " }}</p>{% endif %}
+      </div>
+    {% endif %}
+
     {# ── Station (postazione) ─────────────────────────────────────────── #}
     {% if form.physical_table.field.queryset.exists %}
       <div>
