@@ -23,6 +23,7 @@ from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
 from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player
+from webapp.views.event_views import upcoming_events_queryset
 
 # for debug page
 import environ
@@ -102,6 +103,7 @@ def homepage_view(request):
     context = {
         'future_tables': future_tables,
         'past_tables': past_tables,
+        'upcoming_events': upcoming_events_queryset(limit=6),
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'login_form': CustomLoginForm(),
@@ -109,6 +111,7 @@ def homepage_view(request):
         'followed_future_tables': followed_future_tables,
         'followed_past_tables': followed_past_tables,
         'followed_location_ids': followed_location_ids,
+        'today': today,
         'meta': Meta(
             title=_("Find Board Game Tables Near You - Board-Gamers.com"),
             description=_("Discover board game tables near you, create new games and meet other players."),

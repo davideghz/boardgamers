@@ -116,6 +116,7 @@ urlpatterns = [
          name="location-table-update"),
 
     # EVENTS
+    path("events/", event_views.EventListView.as_view(), name="event-index"),
     path("events/new/", event_views.EventCreateView.as_view(), name="event-create"),
     path("events/<slug:slug>/", event_views.EventDetailView.as_view(), name="event_detail"),
     path("events/<slug:slug>/program/", event_views.EventProgramView.as_view(), name="event-program"),

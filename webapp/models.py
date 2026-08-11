@@ -1019,6 +1019,28 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def can_create_table(self, user_profile):
         return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
 
+    @cached_property
+    def sorted_dates(self):
+        # Uses the prefetched `dates` cache when available (EventDate.Meta already
+        # orders by date, but sort defensively to stay correct without prefetch).
+        return sorted(self.dates.all(), key=lambda d: d.date)
+
+    @property
+    def start_date(self):
+        dates = self.sorted_dates
+        return dates[0].date if dates else None
+
+    @property
+    def end_date(self):
+        dates = self.sorted_dates
+        return dates[-1].date if dates else None
+
+    def is_upcoming(self, today=None):
+        """True if the event has at least one date today or in the future."""
+        if today is None:
+            today = timezone.localdate()
+        return any(d.date >= today for d in self.sorted_dates)
+
     def __str__(self):
         return self.name
 

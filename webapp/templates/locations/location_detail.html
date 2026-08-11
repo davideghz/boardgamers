@@ -139,6 +139,16 @@
         </div>
       </section>
 
+      {# ── Eventi sponsorizzati ─────────────────────────── #}
+      {% if sponsored_events %}
+        <section>
+          <h2 class="text-lg font-bold text-slate-900 mb-4">{% trans "Events we take part in" %}</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for event in sponsored_events %}{% event_card event today %}{% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
       {# ── Giochi più giocati ──────────────────────────── #}
       <section>
         <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">

@@ -168,6 +168,23 @@
 
   </section>
 
+  {# ── EVENTI ───────────────────────────────────────────────────────── #}
+  {% if upcoming_events %}
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <h2 class="text-lg font-bold text-slate-900">{% trans "Upcoming events" %}</h2>
+        <a href="{% url 'event-index' %}" class="text-sm text-blue-600 font-semibold hover:underline">
+          {% trans "See all events" %} →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {% for event in upcoming_events %}
+          {% event_card event today %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
   {# ── LOCATIONS ────────────────────────────────────────────────────── #}
   {% if user_created_locations or nearby_locations %}
     <section class="mb-10">

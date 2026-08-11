@@ -48,6 +48,11 @@ def table_card(table):
     }
 
 
+@register.inclusion_tag("tags/event_card.html")
+def event_card(event, today=None):
+    return {'event': event, 'today': today}
+
+
 @register.inclusion_tag("tags/event_table_card.html")
 def event_table_card(table):
     return {'table': table}

@@ -22,7 +22,7 @@ from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnership
     MembershipRequestForm, MembershipEditForm, LocationGameForm, LocationPermissionsForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame, \
-    TelegramGroupConfig, Player
+    TelegramGroupConfig, Player, Event
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -210,6 +210,14 @@ class LocationDetailView(DetailView):
         context['followers_count'] = followers_count
         context['has_pending_membership'] = has_pending_membership
         context['is_active_member'] = is_active_member
+        context['sponsored_events'] = (
+            location.sponsored_events
+            .filter(status=Event.APPROVED, dates__date__gte=today)
+            .prefetch_related('dates')
+            .distinct()
+            .order_by('name')
+        )
+        context['today'] = today
         context['meta'] = self.get_object().as_meta(self.request)
 
         return context

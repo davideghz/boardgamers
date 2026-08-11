@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Max, Prefetch, Q
+from django.db.models import Max, Min, Prefetch, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -97,6 +97,46 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'today': timezone.localdate(),
         })
         return context
+
+
+def upcoming_events_queryset(limit=None):
+    """Approved events with at least one date today or later, ordered by their
+    next upcoming date. Prefetches `dates` so Event.start_date/end_date are cheap."""
+    today = timezone.localdate()
+    qs = (
+        Event.objects.filter(status=Event.APPROVED, dates__date__gte=today)
+        .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)))
+        .prefetch_related('dates')
+        .order_by('next_date')
+        .distinct()
+    )
+    return qs[:limit] if limit else qs
+
+
+class EventListView(View):
+    """Public index of upcoming (and, optionally, past) approved events."""
+    template_name = 'events/event_list.html'
+
+    def get(self, request, *args, **kwargs):
+        today = timezone.localdate()
+        show_past = request.GET.get('past') == '1'
+        past_events = (
+            Event.objects.filter(status=Event.APPROVED)
+            .exclude(dates__date__gte=today)
+            .filter(dates__isnull=False)
+            .annotate(last_date=Max('dates__date'))
+            .prefetch_related('dates')
+            .order_by('-last_date')
+            .distinct()
+        )
+        context = {
+            'upcoming_events': upcoming_events_queryset(),
+            'past_events': past_events if show_past else past_events[:6],
+            'has_past_events': past_events.exists(),
+            'show_past': show_past,
+            'today': today,
+        }
+        return render(request, self.template_name, context)
 
 
 def _station_conflict_ids(event, date):

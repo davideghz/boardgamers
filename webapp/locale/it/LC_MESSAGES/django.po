@@ -4420,6 +4420,27 @@ msgstr "Questo ospite è già al tavolo."
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
 
+msgid "Conventions, tournaments and game days near you."
+msgstr "Fiere, tornei e giornate di gioco vicino a te."
+
+msgid "Upcoming events"
+msgstr "Prossimi eventi"
+
+msgid "No upcoming events at the moment. Check back soon!"
+msgstr "Nessun evento in programma al momento. Torna a trovarci presto!"
+
+msgid "Past events"
+msgstr "Eventi passati"
+
+msgid "See all past events"
+msgstr "Vedi tutti gli eventi passati"
+
+msgid "See all events"
+msgstr "Vedi tutti gli eventi"
+
+msgid "Events we take part in"
+msgstr "Eventi a cui partecipiamo"
+
 #~ msgid "Don't miss this event"
 #~ msgstr "Non perderti questo evento"
 
