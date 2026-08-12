@@ -98,10 +98,48 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'table_count': Table.objects.filter(event=event).count(),
             'today': timezone.localdate(),
         })
+        if user_profile:
+            my_agenda, my_tables_overlap = self._my_tables_agenda(event, user_profile)
+            context['my_tables_agenda'] = my_agenda
+            context['my_tables_overlap'] = my_tables_overlap
         context['meta'] = event.as_meta(self.request)
         context['event_jsonld'] = json.dumps(
             event.structured_data(self.request), ensure_ascii=False)
         return context
+
+    @staticmethod
+    def _my_tables_agenda(event, user_profile):
+        """Agenda (grouped by date, then time) of the tables this user joined in
+        the event, plus a flag set when two of them overlap in time."""
+        tables = list(
+            Table.objects
+            .filter(event=event, players=user_profile)
+            .select_related('game', 'play_area', 'physical_table', 'category', 'event')
+            .prefetch_related('player_set')
+            .order_by('date', 'time')
+        )
+        # Mark every table that overlaps another one this user joined.
+        has_overlap = False
+        for i, table in enumerate(tables):
+            for other in tables[i + 1:]:
+                if table.overlaps_with(other):
+                    has_overlap = True
+                    table.overlaps = other.overlaps = True
+
+        agenda = [
+            {
+                'date': day,
+                'slots': [
+                    {'time': slot_time, 'tables': list(slot_tables)}
+                    for slot_time, slot_tables in groupby(day_tables, key=lambda t: t.time)
+                ],
+            }
+            for day, day_tables in (
+                (day, list(group))
+                for day, group in groupby(tables, key=lambda t: t.date)
+            )
+        ]
+        return agenda, has_overlap
 
 
 def upcoming_events_queryset(limit=None):
