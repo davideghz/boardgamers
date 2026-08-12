@@ -356,7 +356,10 @@ META_USE_TITLE_TAG = True
 META_SITE_PROTOCOL = SITE_PROTOCOL
 META_SITE_DOMAIN = SITE_DOMAIN
 META_USE_JSON_LD_SCHEMA = False
+META_USE_OG_PROPERTIES = True
 META_USE_TWITTER_PROPERTIES = True
+META_SITE_NAME = 'Board Gamers'
+META_FB_TYPE = 'Website'  # og:type default (neutral, valid for listing pages)
 
 LOGGING = {
     'version': 1,

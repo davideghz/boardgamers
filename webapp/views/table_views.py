@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -164,6 +166,8 @@ class BaseTableDetailView(generic.DetailView):
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,
             'meta': table.as_meta(self.request),
+            'table_jsonld': json.dumps(
+                table.structured_data(self.request), ensure_ascii=False),
         })
         return context
 

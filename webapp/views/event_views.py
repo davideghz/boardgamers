@@ -1,4 +1,5 @@
 import datetime
+import json
 from collections import defaultdict
 from itertools import groupby
 
@@ -97,6 +98,9 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'table_count': Table.objects.filter(event=event).count(),
             'today': timezone.localdate(),
         })
+        context['meta'] = event.as_meta(self.request)
+        context['event_jsonld'] = json.dumps(
+            event.structured_data(self.request), ensure_ascii=False)
         return context
 
 
@@ -363,6 +367,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'games_in_event': games_in_event,
             'today': today,
         })
+        context['meta'] = event.as_meta(self.request)
         return context
 
 

@@ -471,3 +471,7 @@
     }
   </script>
 {% endblock %}
+
+{% block jsonld %}
+  <script type="application/ld+json">{{ location_jsonld|safe }}</script>
+{% endblock %}

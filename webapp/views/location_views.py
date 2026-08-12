@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from datetime import date, timedelta
 
@@ -219,6 +220,8 @@ class LocationDetailView(DetailView):
         )
         context['today'] = today
         context['meta'] = self.get_object().as_meta(self.request)
+        context['location_jsonld'] = json.dumps(
+            location.structured_data(self.request), ensure_ascii=False)
 
         return context
 

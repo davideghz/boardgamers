@@ -87,6 +87,18 @@
   </style>
 
   {% block style %}{% endblock style %}
+
+  <!-- STRUCTURED DATA: Organization (site-wide) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Board Gamers",
+    "url": "{{ request.scheme }}://{{ request.get_host }}/",
+    "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/favicon/apple-touch-icon.png' %}",
+    "sameAs": ["https://github.com/davideghz/boardgamers"]
+  }
+  </script>
   {% block jsonld %}{% endblock jsonld %}
 
   <!-- Google Tag Manager -->

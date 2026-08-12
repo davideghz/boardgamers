@@ -37,6 +37,18 @@ def _plain_text(markdown_text):
     return plain[:160]
 
 
+def _absolute_url(url, request=None):
+    """Make a possibly-relative URL absolute for structured data / OG tags.
+    S3 media URLs are already absolute; STATIC_URL fallbacks are not."""
+    if not url:
+        return None
+    if url.startswith(('http://', 'https://')):
+        return url
+    if request is not None:
+        return request.build_absolute_uri(url)
+    return settings.DOMAIN_URL + url
+
+
 class DateTimeModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
@@ -198,6 +210,68 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
 
     def get_meta_description(self):
         return _("Game nights in %(address)s") % {'address': self.address}
+
+    # Maps opening_hours JSON day keys ('0'=Monday .. '6'=Sunday) to schema.org.
+    _SCHEMA_WEEKDAYS = [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    def as_schema_place(self, request=None):
+        """schema.org/Place fragment for this location, embeddable inside other
+        entities (e.g. a Table's `location`) or wrapped with @context standalone."""
+        place = {
+            '@type': 'Place',
+            'name': self.name,
+            'url': _absolute_url(reverse('location-detail', kwargs={'slug': self.slug}), request),
+        }
+        if self.cover:
+            place['image'] = _absolute_url(self.cover_url, request)
+        if self.address or self.city:
+            postal = {'@type': 'PostalAddress'}
+            if self.address:
+                postal['streetAddress'] = self.address
+            if self.city:
+                postal['addressLocality'] = self.city
+            place['address'] = postal
+        if self.latitude and self.longitude:
+            place['geo'] = {
+                '@type': 'GeoCoordinates',
+                'latitude': self.latitude,
+                'longitude': self.longitude,
+            }
+        if self.website:
+            place['sameAs'] = self.website
+        specs = self._opening_hours_schema()
+        if specs:
+            place['openingHoursSpecification'] = specs
+        return place
+
+    def _opening_hours_schema(self):
+        """Build schema.org openingHoursSpecification from the opening_hours JSON."""
+        if not self.opening_hours:
+            return []
+        specs = []
+        for key, day in self.opening_hours.items():
+            try:
+                weekday = self._SCHEMA_WEEKDAYS[int(key)]
+            except (ValueError, IndexError):
+                continue
+            if not day.get('is_open'):
+                continue
+            for slot in day.get('slots', []):
+                if slot.get('open') and slot.get('close'):
+                    specs.append({
+                        '@type': 'OpeningHoursSpecification',
+                        'dayOfWeek': f'https://schema.org/{weekday}',
+                        'opens': slot['open'],
+                        'closes': slot['close'],
+                    })
+        return specs
+
+    def structured_data(self, request=None):
+        """schema.org/Place JSON-LD payload for the location page."""
+        data = {'@context': 'https://schema.org'}
+        data.update(self.as_schema_place(request))
+        return data
 
     def __str__(self):
         return f"{self.name} - {self.city}"
@@ -590,6 +664,48 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if self.event:
             return self.event.cover_url
         return None
+
+    def get_absolute_url(self):
+        if self.event_id:
+            return reverse('event_table_detail',
+                           kwargs={'event_slug': self.event.slug, 'table_slug': self.slug})
+        return reverse('table-detail', kwargs={'slug': self.slug})
+
+    def structured_data(self, request=None):
+        """schema.org/Event JSON-LD payload for a table (a game session).
+        Location tables reference their venue Place; event tables link the
+        parent event via `superEvent` and inherit its venue as `location`."""
+        data = {
+            '@context': 'https://schema.org',
+            '@type': 'Event',
+            'name': self.title,
+            'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus': 'https://schema.org/EventScheduled',
+            'startDate': self.start_datetime.isoformat(),
+            'endDate': self.end_datetime.isoformat(),
+            'url': _absolute_url(self.get_absolute_url(), request),
+            'maximumAttendeeCapacity': self.max_players,
+        }
+        description = _plain_text(self.description)
+        if description:
+            data['description'] = description
+        image = self.get_meta_image()
+        if image:
+            data['image'] = _absolute_url(image, request)
+        if self.location_id:
+            data['location'] = self.location.as_schema_place(request)
+        elif self.event_id:
+            data['superEvent'] = {
+                '@type': 'Event',
+                'name': self.event.name,
+                'url': _absolute_url(self.event.get_absolute_url(), request),
+            }
+            venue = self.event.as_schema_place()
+            if venue:
+                data['location'] = venue
+        if self.author and self.author.nickname:
+            data['organizer'] = {'@type': 'Organization', 'name': self.author.nickname}
+        return data
 
     class Meta:
         verbose_name = "Table"
@@ -1000,6 +1116,9 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         return _("%(name)s - Board-Gamers.com") % {'name': self.name}
 
     def get_meta_description(self):
+        description = _plain_text(self.description)
+        if description:
+            return description
         return _("%(name)s — gaming event") % {'name': self.name}
 
     @cached_property
@@ -1007,6 +1126,54 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         if self.cover and hasattr(self.cover, 'url'):
             return self.cover.url
         return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
+
+    def structured_data(self, request=None):
+        """schema.org/Event JSON-LD payload for search-engine rich results.
+        Relative URLs are made absolute from `request` when available, else
+        from settings.DOMAIN_URL (S3 media URLs are already absolute)."""
+        data = {
+            '@context': 'https://schema.org',
+            '@type': 'Event',
+            'name': self.name,
+            'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+            'eventStatus': 'https://schema.org/EventScheduled',
+            'url': _absolute_url(self.get_absolute_url(), request),
+        }
+        if self.start_date:
+            data['startDate'] = self.start_date.isoformat()
+        if self.end_date:
+            data['endDate'] = self.end_date.isoformat()
+        description = _plain_text(self.description)
+        if description:
+            data['description'] = description
+        if self.cover:
+            data['image'] = _absolute_url(self.cover_url, request)
+        place = self.as_schema_place()
+        if place:
+            data['location'] = place
+        if self.creator and self.creator.nickname:
+            data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
+        return data
+
+    def as_schema_place(self):
+        """schema.org/Place fragment for this event's venue, or None if unknown.
+        Embeddable as the `location` of the event and of its tables."""
+        if not (self.address or self.city):
+            return None
+        place = {'@type': 'Place', 'name': self.city or self.name}
+        postal = {'@type': 'PostalAddress'}
+        if self.address:
+            postal['streetAddress'] = self.address
+        if self.city:
+            postal['addressLocality'] = self.city
+        place['address'] = postal
+        if self.latitude and self.longitude:
+            place['geo'] = {
+                '@type': 'GeoCoordinates',
+                'latitude': self.latitude,
+                'longitude': self.longitude,
+            }
+        return place
 
     def get_absolute_url(self):
         return reverse('event_detail', kwargs={'slug': self.slug})

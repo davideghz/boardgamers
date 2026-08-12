@@ -443,3 +443,7 @@
     </script>
   {% endif %}
 {% endblock extrabodyjs %}
+
+{% block jsonld %}
+  <script type="application/ld+json">{{ table_jsonld|safe }}</script>
+{% endblock %}

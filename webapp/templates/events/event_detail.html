@@ -381,3 +381,7 @@
 {% block extrabodyjs %}
   {% if needs_phone %}{% include "partials/intl_tel_input.html" %}{% endif %}
 {% endblock %}
+
+{% block jsonld %}
+  <script type="application/ld+json">{{ event_jsonld|safe }}</script>
+{% endblock %}
