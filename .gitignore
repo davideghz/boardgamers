@@ -5,6 +5,10 @@
 __pycache__/
 .pyc
 
+# makemessages temp artifacts (template copies xgettext parses, then deletes)
+*.html.py
+*.txt.py
+
 # Python Packages
 venv/
 .venv/
