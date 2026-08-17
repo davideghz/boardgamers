@@ -458,6 +458,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
     external_players = models.PositiveIntegerField(null=False, blank=True, default=0,
                                                    verbose_name=_('External players'))
+    unlimited_seats = models.BooleanField(
+        default=False, null=False, blank=True, verbose_name=_('Unlimited seats'),
+        help_text=_('No seat limit: anyone can join and no empty seats are shown.'))
     date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
     time = models.TimeField(default=datetime.time(20, 30), null=False, blank=True, verbose_name=_('Hour'))
     duration = models.PositiveIntegerField(
@@ -497,8 +500,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
 
     @property
     def is_joinable(self):
-        """True when a new player may join: session active and seats free."""
-        return self.is_session_active and self.seats_available > 0
+        """True when a new player may join: session active and (unlimited or seats free)."""
+        return self.is_session_active and (self.unlimited_seats or self.seats_available > 0)
 
     status = models.CharField(max_length=20, choices=TABLE_STATUS_CHOICES, default=TABLE_STATUS_DEFAULT)
     leaderboard_status = models.CharField(
@@ -684,8 +687,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             'startDate': self.start_datetime.isoformat(),
             'endDate': self.end_datetime.isoformat(),
             'url': _absolute_url(self.get_absolute_url(), request),
-            'maximumAttendeeCapacity': self.max_players,
         }
+        if not self.unlimited_seats:
+            data['maximumAttendeeCapacity'] = self.max_players
         description = _plain_text(self.description)
         if description:
             data['description'] = description

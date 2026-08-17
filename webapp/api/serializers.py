@@ -16,7 +16,7 @@ class TableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Table
         fields = ['title', 'status', 'slug', 'cover_url', 'description', 'location_name', 'date', 'time',
-                  'current_players', 'max_players', 'game']
+                  'current_players', 'max_players', 'unlimited_seats', 'game']
 
     def get_current_players(self, obj):
         return obj.players.count()

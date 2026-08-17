@@ -150,6 +150,8 @@ class TableForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['date'].input_formats = ['%Y-%m-%d']
+        self.fields['unlimited_seats'].widget.attrs.update({
+            'class': 'w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer'})
 
     def clean_title(self):
         title = self.cleaned_data['title']
@@ -168,6 +170,8 @@ class TableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data.get('unlimited_seats'):
+            return cleaned_data
         min_players = cleaned_data.get('min_players')
         max_players = cleaned_data.get('max_players')
         if min_players and max_players and max_players < min_players:
@@ -262,6 +266,8 @@ class EventTableForm(ModelForm, TailwindForm):
         self.fields['physical_table'].required = False
         self.fields['category'].required = False
         self.fields['category'].empty_label = _('No category')
+        self.fields['unlimited_seats'].widget.attrs.update({
+            'class': 'w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer'})
 
     def clean_custom_cover(self):
         return validate_custom_cover_size(self.cleaned_data.get('custom_cover'))
@@ -274,6 +280,9 @@ class EventTableForm(ModelForm, TailwindForm):
         play_area = cleaned_data.get('play_area')
         if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
             self.add_error('physical_table', _("The selected station does not belong to the selected area."))
+
+        if cleaned_data.get('unlimited_seats'):
+            return cleaned_data
 
         min_players = cleaned_data.get('min_players')
         max_players = cleaned_data.get('max_players')

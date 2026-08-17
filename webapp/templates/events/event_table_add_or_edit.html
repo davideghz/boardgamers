@@ -214,6 +214,15 @@
       </div>
       <p id="players-hint" class="mt-2 text-[11px] text-slate-400" style="display:none"></p>
       {% if form.non_field_errors %}<p class="mt-1 text-xs text-red-500">{{ form.non_field_errors|join:", " }}</p>{% endif %}
+
+      {# ── Unlimited seats ──────────────────────────────────────────── #}
+      <div class="flex items-start gap-3 mt-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+        {{ form.unlimited_seats }}
+        <label for="{{ form.unlimited_seats.id_for_label }}" class="cursor-pointer select-none">
+          <span class="block text-sm font-semibold text-slate-700">{% trans "Unlimited seats" %}</span>
+          <span class="block text-xs text-slate-500">{% trans "No seat limit — anyone can join and no empty seats are shown." %}</span>
+        </label>
+      </div>
     </div>
 
     {# ── Join table checkbox (only on create) ───────────────────────── #}
@@ -394,6 +403,22 @@
       document.getElementById('game-selected-state').style.display = 'none';
       updatePlayersHint('', null, null);
     };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var unlimited = document.getElementById('{{ form.unlimited_seats.id_for_label }}');
+      var minInput = document.getElementById('{{ form.min_players.id_for_label }}');
+      var maxInput = document.getElementById('{{ form.max_players.id_for_label }}');
+      function syncSeats() {
+        if (!unlimited) return;
+        [minInput, maxInput].forEach(function (el) {
+          if (!el) return;
+          el.readOnly = unlimited.checked;
+          el.classList.toggle('opacity-40', unlimited.checked);
+          el.classList.toggle('pointer-events-none', unlimited.checked);
+        });
+      }
+      if (unlimited) { unlimited.addEventListener('change', syncSeats); syncSeats(); }
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
       var btn = document.getElementById('publish-btn');

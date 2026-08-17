@@ -275,7 +275,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
 
             # Check available seats (includes guest players)
             current_players = Player.objects.filter(table=table).count() + table.external_players
-            if current_players >= table.max_players:
+            if not table.unlimited_seats and current_players >= table.max_players:
                 messages.error(request, _("The table is full."), extra_tags="danger")
                 return redirect("table-players", slug=table.slug)
 
@@ -452,7 +452,7 @@ def add_external_player(request, slug, available_seats):
     table = get_object_or_404(Table, slug=slug)
 
     if request.method == "POST":
-        if available_seats > 0:
+        if available_seats > 0 or table.unlimited_seats:
             table.external_players += 1
             table.save()
 
@@ -553,7 +553,7 @@ class JoinTableView(LoginRequiredMixin, View):
             return redirect('table-detail', slug=self.kwargs['slug'])
 
         # Capacity check — guards against direct POSTs bypassing the disabled button
-        if table.seats_available <= 0:
+        if not table.unlimited_seats and table.seats_available <= 0:
             messages.error(request, _('The table is full.'), extra_tags='danger')
             return redirect('table-detail', slug=self.kwargs['slug'])
 
