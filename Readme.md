@@ -102,14 +102,28 @@ For local development, emails are sent via [Mailtrap](https://mailtrap.io), an S
 > In production, replace these with your SMTP provider credentials (e.g. AWS SES).
 
 ## Translations
-To avoid to generate po file for dependencies, run:
+To extract translatable strings (ignoring the virtualenv), run:
 ```
-python manage.py makemessages -l it -i "venv/*" -i "static/*" -i "migrations/*" -i "node_modules/*"
+python manage.py makemessages -l it --no-location -i "venv/*"
 ```
 Add your translations, then, in order to compile locales run:
 ```
 python manage.py compilemessages
 ```
+
+> **Why `--no-location`.** Without it the `.po` stores a `#: file:line` comment
+> for every string; when code moves, those line numbers shift and the file
+> shows a huge diff even when no translation changed. `--no-location` drops
+> those comments so the diff only reflects real string changes. Trade-off: you
+> lose the "where is this string used" context that tools like Poedit rely on.
+> Use it **consistently** — mixing runs with and without the flag flips all the
+> location comments back and forth. The first run after adopting it produces a
+> one-time large diff that strips the existing location comments.
+>
+> `venv/*` is the only ignore that matters here (the virtualenv lives at
+> `./venv`); there is no top-level `static/`, `migrations/`, or `node_modules/`
+> to skip. Both `django.po` **and** the compiled `django.mo` are committed to
+> git — production does not recompile them.
 
 ---
 
