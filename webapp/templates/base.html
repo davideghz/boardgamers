@@ -135,6 +135,67 @@
       background-size: 1.25em 1.25em;
       padding-right: 2.5rem;
     }
+
+    /* ── 3rd-party widgets: dark overrides (phase 4) ───────────────────── */
+    /* Native select chevron: lighten in dark */
+    .dark select:not(.select2-hidden-accessible) {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+
+    /* select2 (dal_select2, default theme) */
+    .dark .select2-dropdown { background-color: var(--surface); border-color: var(--border); }
+    .dark .select2-container--default .select2-selection--single,
+    .dark .select2-container--default .select2-selection--multiple {
+      background-color: var(--surface); border-color: var(--border);
+    }
+    .dark .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--text); }
+    .dark .select2-container--default .select2-selection__placeholder { color: var(--text-muted); }
+    .dark .select2-container--default .select2-selection--single .select2-selection__arrow b { border-top-color: var(--text-muted); }
+    .dark .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b { border-bottom-color: var(--text-muted); }
+    .dark .select2-container--default .select2-search--dropdown .select2-search__field {
+      background-color: var(--surface-3); border-color: var(--border); color: var(--text);
+    }
+    .dark .select2-results__option { color: var(--text-2); }
+    .dark .select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: var(--elevated); color: #fff; }
+    .dark .select2-container--default .select2-results__option[aria-selected=true] { background-color: var(--surface-3); color: var(--text); }
+    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      background-color: var(--surface-3); border-color: var(--border); color: var(--text);
+    }
+    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: var(--text-muted); }
+
+    /* flatpickr */
+    .dark .flatpickr-calendar { background: var(--surface); border-color: var(--border); color: var(--text); box-shadow: 0 4px 20px rgba(0,0,0,.5); }
+    .dark .flatpickr-calendar.arrowTop:before { border-bottom-color: var(--border); }
+    .dark .flatpickr-calendar.arrowTop:after { border-bottom-color: var(--surface); }
+    .dark .flatpickr-calendar.arrowBottom:before { border-top-color: var(--border); }
+    .dark .flatpickr-calendar.arrowBottom:after { border-top-color: var(--surface); }
+    .dark .flatpickr-months .flatpickr-month,
+    .dark .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .dark .flatpickr-current-month input.cur-year { color: var(--text); fill: var(--text); }
+    .dark .flatpickr-monthDropdown-months { background: var(--surface); }
+    .dark .flatpickr-months .flatpickr-prev-month svg,
+    .dark .flatpickr-months .flatpickr-next-month svg { fill: var(--text-2); }
+    .dark .flatpickr-months .flatpickr-prev-month:hover svg,
+    .dark .flatpickr-months .flatpickr-next-month:hover svg { fill: var(--text); }
+    .dark span.flatpickr-weekday { color: var(--text-muted); }
+    .dark .flatpickr-day { color: var(--text-2); }
+    .dark .flatpickr-day:hover,
+    .dark .flatpickr-day.prevMonthDay:hover,
+    .dark .flatpickr-day.nextMonthDay:hover { background: var(--surface-3); border-color: var(--surface-3); }
+    .dark .flatpickr-day.today { border-color: var(--text-muted); }
+    .dark .flatpickr-day.selected,
+    .dark .flatpickr-day.selected:hover { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .dark .flatpickr-day.flatpickr-disabled,
+    .dark .flatpickr-day.prevMonthDay,
+    .dark .flatpickr-day.nextMonthDay { color: var(--text-muted); opacity: .55; }
+    .dark .flatpickr-innerContainer, .dark .flatpickr-rContainer { border-color: var(--border); }
+    .dark .flatpickr-time input, .dark .flatpickr-time .flatpickr-am-pm { color: var(--text); }
+    .dark .flatpickr-time input:hover,
+    .dark .flatpickr-time input:focus,
+    .dark .flatpickr-time .flatpickr-am-pm:hover { background: var(--surface-3); }
+    .dark .numInputWrapper span { border-color: var(--border); }
+    .dark .numInputWrapper span.arrowUp:after { border-bottom-color: var(--text-muted); }
+    .dark .numInputWrapper span.arrowDown:after { border-top-color: var(--text-muted); }
   </style>
 
   {% block style %}{% endblock style %}

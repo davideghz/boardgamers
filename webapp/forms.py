@@ -72,14 +72,14 @@ class CustomCheckboxInputWidget(CheckboxInput):
 
 
 _TW_INPUT = (
-    'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 '
-    'placeholder:text-slate-400 focus:outline-none focus:ring-2 '
-    'focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors'
+    'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content '
+    'placeholder:text-content-muted focus:outline-none focus:ring-2 '
+    'focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors'
 )
 _TW_INPUT_ERR = (
-    'w-full rounded-xl border border-red-400 px-4 py-3 text-sm text-slate-700 '
-    'placeholder:text-slate-400 focus:outline-none focus:ring-2 '
-    'focus:ring-red-400/20 focus:border-red-400 bg-white transition-colors'
+    'w-full rounded-xl border border-red-400 px-4 py-3 text-sm text-content '
+    'placeholder:text-content-muted focus:outline-none focus:ring-2 '
+    'focus:ring-red-400/20 focus:border-red-400 bg-surface transition-colors'
 )
 
 
@@ -111,7 +111,7 @@ class TailwindForm(Form):
             elif isinstance(w, Textarea):
                 field.widget = Textarea(attrs={'class': f'{css} resize-none', 'rows': 4})
             elif isinstance(w, CheckboxInput):
-                field.widget.attrs['class'] = 'w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500'
+                field.widget.attrs['class'] = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
             elif isinstance(w, (TextInput, EmailInput, URLInput, NumberInput)):
                 field.widget.attrs['class'] = css
             elif isinstance(w, Select):
@@ -151,7 +151,7 @@ class TableForm(ModelForm, TailwindForm):
         super().__init__(*args, **kwargs)
         self.fields['date'].input_formats = ['%Y-%m-%d']
         self.fields['unlimited_seats'].widget.attrs.update({
-            'class': 'w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer'})
+            'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
 
     def clean_title(self):
         title = self.cleaned_data['title']
@@ -267,7 +267,7 @@ class EventTableForm(ModelForm, TailwindForm):
         self.fields['category'].required = False
         self.fields['category'].empty_label = _('No category')
         self.fields['unlimited_seats'].widget.attrs.update({
-            'class': 'w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer'})
+            'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
 
     def clean_custom_cover(self):
         return validate_custom_cover_size(self.cleaned_data.get('custom_cover'))
@@ -501,13 +501,13 @@ class EventForm(ModelForm, TailwindForm):
 
 
 class EventDateForm(TailwindForm):
-    date = DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'})
+    date = DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from django.forms import DateField
         self.fields['date'] = DateField(
-            widget=DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'}),
+            widget=DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'}),
             input_formats=['%Y-%m-%d'],
         )
 
@@ -722,9 +722,9 @@ class MembershipEditForm(TailwindForm):
 
 
 _TW_SELECT = (
-    'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 '
+    'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content '
     'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 '
-    'bg-white transition-colors'
+    'bg-surface transition-colors'
 )
 
 
@@ -793,7 +793,7 @@ class GuestProfileForm(ModelForm):
     name = CharField(
         widget=TextInput(attrs={
             'placeholder': _("Guest name"),
-            'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors',
+            'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors',
         }),
         label=_("Name"),
         max_length=100,

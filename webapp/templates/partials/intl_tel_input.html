@@ -8,7 +8,15 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css">
 <style>
   .iti { width: 100%; }
-  .iti__selected-dial-code { color: #334155; }
+  .iti__selected-dial-code { color: var(--text-2); }
+  /* dark overrides (phase 4) */
+  .dark .iti__dropdown-content { background-color: var(--surface); border-color: var(--border); color: var(--text); }
+  .dark .iti__search-input { background-color: var(--surface); color: var(--text); border-bottom-color: var(--border); }
+  .dark .iti__country-list { background-color: var(--surface); }
+  .dark .iti__country { color: var(--text); }
+  .dark .iti__country.iti__highlight, .dark .iti__country:hover { background-color: var(--surface-3); }
+  .dark .iti__dial-code { color: var(--text-muted); }
+  .dark .iti__arrow { border-top-color: var(--text-muted); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInput.min.js"></script>
 <script>
