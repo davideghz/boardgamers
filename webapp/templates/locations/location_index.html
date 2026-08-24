@@ -5,14 +5,14 @@
 
   {# ── Header ───────────────────────────────────────────────────────── #}
   <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Locations" %}</h1>
-    <p class="text-sm text-slate-500 mt-1">{% trans "Discover all board game locations near you. Find the perfect place for your next game!" %}</p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Locations" %}</h1>
+    <p class="text-sm text-content-muted mt-1">{% trans "Discover all board game locations near you. Find the perfect place for your next game!" %}</p>
   </div>
 
   {# ── Your locations ────────────────────────────────────────────────── #}
   {% if user_created_locations %}
     <section class="mb-8">
-      <h2 class="text-base font-bold text-slate-900 mb-3">{% trans "Your locations" %}</h2>
+      <h2 class="text-base font-bold text-content mb-3">{% trans "Your locations" %}</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {% for location in user_created_locations %}
           {% location_card location %}
@@ -24,34 +24,34 @@
   {# ── Nearby / all locations ────────────────────────────────────────── #}
   <section class="mb-8">
     <div class="flex items-center justify-between mb-1 gap-3 flex-wrap">
-      <h2 class="text-base font-bold text-slate-900">{% trans "Locations" %}</h2>
-      <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+      <h2 class="text-base font-bold text-content">{% trans "Locations" %}</h2>
+      <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5">
         <button id="btn-loc-list"
                 onclick="showLocTab('list')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm">
           {% trans "List" %}
         </button>
         <button id="btn-loc-map"
                 onclick="showLocTab('map')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
           {% trans "Map" %}
         </button>
       </div>
     </div>
 
     {% if not user.is_authenticated %}
-      <p class="text-xs text-slate-500 mb-3">
+      <p class="text-xs text-content-muted mb-3">
         <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
         {% trans "to see near tables." %}
       </p>
     {% elif user.user_profile.city %}
-      <p class="text-xs text-slate-500 mb-3">
+      <p class="text-xs text-content-muted mb-3">
         {% trans "Tables near to" %} <strong>{{ user.user_profile.city }}</strong>
         &nbsp;·&nbsp;
         <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
       </p>
     {% else %}
-      <p class="text-xs text-slate-500 mb-3">
+      <p class="text-xs text-content-muted mb-3">
         <a href="{% url 'user-profile-edit' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Set your address" %}</a>
         {% trans "to see near tables." %}
       </p>
@@ -63,8 +63,8 @@
         {% for location in nearby_locations %}
           {% location_card location %}
         {% empty %}
-          <div class="col-span-4 rounded-xl border border-slate-200 bg-white px-6 py-12 text-center">
-            <p class="text-sm text-slate-500">{% trans "No locations available yet." %}</p>
+          <div class="col-span-4 rounded-xl border border-divider bg-surface px-6 py-12 text-center">
+            <p class="text-sm text-content-muted">{% trans "No locations available yet." %}</p>
           </div>
         {% endfor %}
       </div>
@@ -77,13 +77,13 @@
   </section>
 
   {# ── Add location CTA ─────────────────────────────────────────────── #}
-  <div class="mt-2 max-w-lg flex flex-col sm:flex-row sm:items-center gap-3 border border-slate-200 rounded-xl p-4 bg-white">
+  <div class="mt-2 max-w-lg flex flex-col sm:flex-row sm:items-center gap-3 border border-divider rounded-xl p-4 bg-surface">
     <div class="flex-1">
-      <p class="text-sm font-semibold text-slate-900">{% trans "Have a location to add?" %}</p>
-      <p class="text-xs text-slate-500">{% trans "Clubs, associations, game shops are welcome." %}</p>
+      <p class="text-sm font-semibold text-content">{% trans "Have a location to add?" %}</p>
+      <p class="text-xs text-content-muted">{% trans "Clubs, associations, game shops are welcome." %}</p>
     </div>
     <a href="{% url 'location-create' %}"
-       class="flex items-center justify-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+       class="flex items-center justify-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
       {% trans "Add location" %}
     </a>
@@ -100,8 +100,8 @@
     ];
     const _viewPageLabel = "{% trans 'View page' %}";
 
-    const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm';
-    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900';
+    const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
+    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
 
     function showLocTab(tab) {
       const isList = tab === 'list';

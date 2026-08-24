@@ -4,11 +4,11 @@
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-slate-500 mb-1">
+    <p class="text-sm text-content-muted mb-1">
       <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
       <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
     </p>
-    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Members" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Members" %}</h1>
   </div>
 
   <div class="flex gap-8 items-start">
@@ -19,12 +19,12 @@
       {# Mobile actions (hidden on lg+) #}
       <div class="flex gap-2 mb-4 lg:hidden">
         <a href="{% url 'location-add-member' location.slug %}"
-           class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
+           class="flex items-center gap-1.5 bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
           {% trans "Add" %}
         </a>
         <a href="{% url 'location-members-csv' location.slug %}"
-           class="flex items-center gap-1.5 border border-slate-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-decoration-none">
+           class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           CSV
         </a>
@@ -34,33 +34,33 @@
       <div class="mb-3">
         <div class="relative">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-               class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none">
+               class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
           <input id="member-search" type="search" autocomplete="off"
                  placeholder="{% trans 'Search by name, email, code…' %}"
-                 class="w-full pl-9 pr-4 py-2.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-slate-400">
+                 class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
         </div>
-        <p id="member-no-results" class="hidden text-sm text-slate-400 mt-4 text-center">{% trans "No members found." %}</p>
+        <p id="member-no-results" class="hidden text-sm text-content-muted mt-4 text-center">{% trans "No members found." %}</p>
       </div>
 
       {# Member list #}
       <div class="space-y-2" id="member-list">
         {% for member in members %}
-          <div class="relative flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 transition-colors"
+          <div class="relative flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:border-divider hover:bg-surface-alt transition-colors"
                data-search="{{ member.first_name|lower }} {{ member.last_name|lower }} {{ member.user_profile.nickname|lower|default:'' }} {{ member.email|lower }} {{ member.code|lower }} {{ member.phone_number|lower }}">
             {# Full-card link #}
             <a href="{% url 'location-member-detail' location.slug member.uuid %}" class="absolute inset-0 rounded-xl" aria-label="{{ member.full_name }}"></a>
 
             {# Avatar #}
-            <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-slate-500">
+            <div class="w-9 h-9 rounded-full bg-surface-input flex items-center justify-center flex-shrink-0 text-sm font-bold text-content-muted">
               {{ member.first_name|first }}{{ member.last_name|first }}
             </div>
 
             {# Name + status on the same row #}
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <p class="text-sm font-bold text-slate-900 truncate">{{ member.full_name }}</p>
+                <p class="text-sm font-bold text-content truncate">{{ member.full_name }}</p>
                 {% with membership=member.active_membership %}
                   {% if membership %}
                     <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Active" %}</span>
@@ -69,18 +69,18 @@
                       {% if pending and pending.status == 'pending' %}
                         <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "Pending" %}</span>
                       {% elif pending and pending.status == 'expired' %}
-                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{% trans "Expired" %}</span>
+                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Expired" %}</span>
                       {% elif pending and pending.status == 'rejected' %}
                         <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">{% trans "Rejected" %}</span>
                       {% else %}
-                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-400">{% trans "No membership" %}</span>
+                        <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "No membership" %}</span>
                       {% endif %}
                     {% endwith %}
                   {% endif %}
                 {% endwith %}
               </div>
               {% if member.user_profile %}
-                <p class="text-[11px] text-slate-400 truncate mt-0.5">{{ member.user_profile.nickname }}</p>
+                <p class="text-[11px] text-content-muted truncate mt-0.5">{{ member.user_profile.nickname }}</p>
               {% endif %}
             </div>
 
@@ -93,13 +93,13 @@
                       <button type="button"
                               data-member-uuid="{{ member.uuid }}"
                               data-member-name="{{ member.full_name }}"
-                              class="js-approve-btn p-1.5 rounded-lg text-slate-300 hover:text-green-600 hover:bg-green-50 transition-colors">
+                              class="js-approve-btn p-1.5 rounded-lg text-content-muted hover:text-green-600 hover:bg-green-50 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
                       </button>
                       <form method="post" action="{% url 'location-approve-membership' location.slug member.uuid %}" class="relative z-10">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="reject">
-                        <button type="submit" class="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
+                        <button type="submit" class="p-1.5 rounded-lg text-content-muted hover:text-red-500 hover:bg-red-50 transition-colors">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
                         </button>
                       </form>
@@ -110,22 +110,22 @@
             {% endwith %}
 
             {# Chevron #}
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0 text-slate-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0 text-content-muted">
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>
 
           </div>
         {% empty %}
-          <div class="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-slate-200 bg-white">
-            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400">
+          <div class="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-divider bg-surface">
+            <div class="w-12 h-12 rounded-full bg-surface-input flex items-center justify-center mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-content-muted">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
               </svg>
             </div>
-            <p class="text-sm font-semibold text-slate-700">{% trans "No members yet" %}</p>
-            <p class="text-xs text-slate-400 mt-1 mb-4">{% trans "Add the first member manually or wait for membership requests." %}</p>
+            <p class="text-sm font-semibold text-content">{% trans "No members yet" %}</p>
+            <p class="text-xs text-content-muted mt-1 mb-4">{% trans "Add the first member manually or wait for membership requests." %}</p>
             <a href="{% url 'location-add-member' location.slug %}"
-               class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+               class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
               {% trans "Add member" %}
             </a>
@@ -138,12 +138,12 @@
     {# ── Sidebar ─────────────────────────────────────────────────────── #}
     <aside class="hidden lg:flex flex-col gap-2 w-44 flex-shrink-0 sticky top-6 self-start">
       <a href="{% url 'location-add-member' location.slug %}"
-         class="flex items-center gap-2 bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
+         class="flex items-center gap-2 bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
         {% trans "Add member" %}
       </a>
       <a href="{% url 'location-members-csv' location.slug %}"
-         class="flex items-center gap-2 border border-slate-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-decoration-none">
+         class="flex items-center gap-2 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
         {% trans "Download CSV" %}
       </a>
@@ -154,31 +154,31 @@
   {# ── Approve membership dialog ─────────────────────────────────────── #}
   <div id="approve-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="approve-backdrop"></div>
-    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-      <p class="text-base font-bold text-slate-900 mb-1">{% trans "Approve membership" %}</p>
-      <p class="text-sm text-slate-500 mb-4">{% trans "for" %} <strong id="approve-member-name"></strong></p>
+    <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <p class="text-base font-bold text-content mb-1">{% trans "Approve membership" %}</p>
+      <p class="text-sm text-content-muted mb-4">{% trans "for" %} <strong id="approve-member-name"></strong></p>
 
       <form method="post" id="approve-form" class="space-y-3">
         {% csrf_token %}
         <input type="hidden" name="action" value="approve">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="id_start_date">{% trans "Start date" %}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="id_start_date">{% trans "Start date" %}</label>
           <input type="date" name="start_date" id="id_start_date" required
-                 class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors">
+                 class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="id_end_date">{% trans "End date" %}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="id_end_date">{% trans "End date" %}</label>
           <input type="date" name="end_date" id="id_end_date" required
-                 class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors">
+                 class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="id_notes">{% trans "Notes" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span></label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="id_notes">{% trans "Notes" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></label>
           <textarea name="notes" id="id_notes" rows="2"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors resize-none"></textarea>
+                    class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors resize-none"></textarea>
         </div>
         <div class="flex gap-3 pt-1">
           <button type="button" id="approve-cancel"
-                  class="flex-1 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                  class="flex-1 rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
             {% trans "Cancel" %}
           </button>
           <button type="submit"

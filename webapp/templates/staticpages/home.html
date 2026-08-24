@@ -7,13 +7,13 @@
 
   {# ── Contributor banner ───────────────────────────────────────────── #}
   <div id="alert-container" class="hidden mb-6">
-    <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+    <div class="flex items-center justify-between gap-3 rounded-xl border border-divider bg-surface px-4 py-3 text-sm text-content">
       <span>
         <strong>{% trans "Hey!" %}</strong> 🫵
         {% trans "Do you know your way around code and want to contribute to Board-Gamers?" %}
         <a href="{% url 'contacts' %}" class="text-blue-600 font-semibold hover:underline ml-1">{% trans "Contact us" %}</a> 😎
       </span>
-      <button id="alert-close" type="button" class="flex-shrink-0 text-slate-400 hover:text-slate-600 transition-colors">
+      <button id="alert-close" type="button" class="flex-shrink-0 text-content-muted hover:text-content-soft transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
@@ -37,24 +37,24 @@
   {# ── PAGE HEADER ─────────────────────────────────────────────────── #}
   <div class="mb-8">
     {% if user.is_authenticated %}
-      <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">
+      <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">
         {% trans "Welcome back" %}, {{ user.user_profile }}
       </h1>
     {% else %}
-      <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">
+      <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">
         {% trans "Find your next game night" %}
       </h1>
     {% endif %}
-    <p class="text-sm text-slate-500">{% trans "Accept the challenge, join a table!" %}</p>
+    <p class="text-sm text-content-muted">{% trans "Accept the challenge, join a table!" %}</p>
 
     {% if not user.is_authenticated %}
       <div class="flex items-center gap-3 mt-4">
         <a href="{% url 'signup' %}"
-           class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+           class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
           {% trans "Create a free account" %}
         </a>
         <a href="{% url 'login' %}"
-           class="flex items-center gap-1.5 border border-slate-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-slate-50 transition-colors text-decoration-none">
+           class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-surface-alt transition-colors text-decoration-none">
           Login
         </a>
       </div>
@@ -66,16 +66,16 @@
 
     {# Header: title + toggle #}
     <div class="flex items-center justify-between mb-1 gap-3 flex-wrap">
-      <h2 class="text-lg font-bold text-slate-900">{% trans "Tables" %}</h2>
-      <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+      <h2 class="text-lg font-bold text-content">{% trans "Tables" %}</h2>
+      <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5">
         <button id="btn-upcoming"
                 onclick="showTab('upcoming')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm">
           {% trans "Upcoming" %}
         </button>
         <button id="btn-past"
                 onclick="showTab('past')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
           {% trans "Past" %}
         </button>
       </div>
@@ -83,18 +83,18 @@
 
     {# Subtitle message — mirrors Locations section style #}
     {% if not user.is_authenticated %}
-      <p class="text-xs text-slate-500 mb-4">
+      <p class="text-xs text-content-muted mb-4">
         <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
         {% trans "to see tables from locations you follow." %}
       </p>
     {% elif followed_future_tables %}
-      <p class="text-xs text-slate-500 mb-4">
+      <p class="text-xs text-content-muted mb-4">
         {% trans "Follow new" %}
         <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
         {% trans "to see their open tables here." %}
       </p>
     {% else %}
-      <p class="text-xs text-slate-500 mb-4">
+      <p class="text-xs text-content-muted mb-4">
         {% trans "No open tables from the locations you follow." %}
         {% trans "Follow new" %}
         <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
@@ -114,7 +114,7 @@
             </div>
           </div>
         {% else %}
-          <p class="text-sm text-slate-500 italic">{% trans "No open tables right now — why not create one?" %}</p>
+          <p class="text-sm text-content-muted italic">{% trans "No open tables right now — why not create one?" %}</p>
         {% endif %}
       {% else %}
         {% if future_tables %}
@@ -126,7 +126,7 @@
             </div>
           </div>
         {% else %}
-          <p class="text-sm text-slate-500 italic">{% trans "No open tables right now — why not create one?" %}</p>
+          <p class="text-sm text-content-muted italic">{% trans "No open tables right now — why not create one?" %}</p>
         {% endif %}
       {% endif %}
     </div>
@@ -143,7 +143,7 @@
             </div>
           </div>
         {% else %}
-          <p class="text-sm text-slate-500 italic">{% trans "No past tables from the locations you follow." %}</p>
+          <p class="text-sm text-content-muted italic">{% trans "No past tables from the locations you follow." %}</p>
         {% endif %}
       {% else %}
         {% if past_tables %}
@@ -155,7 +155,7 @@
             </div>
           </div>
         {% else %}
-          <p class="text-sm text-slate-500 italic">{% trans "No past tables yet." %}</p>
+          <p class="text-sm text-content-muted italic">{% trans "No past tables yet." %}</p>
         {% endif %}
       {% endif %}
     </div>
@@ -172,7 +172,7 @@
   {% if upcoming_events %}
     <section class="mb-10">
       <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 class="text-lg font-bold text-slate-900">{% trans "Upcoming events" %}</h2>
+        <h2 class="text-lg font-bold text-content">{% trans "Upcoming events" %}</h2>
         <a href="{% url 'event-index' %}" class="text-sm text-blue-600 font-semibold hover:underline">
           {% trans "See all events" %} →
         </a>
@@ -191,34 +191,34 @@
 
       {# Header: title + toggle #}
       <div class="flex items-center justify-between mb-1 gap-3 flex-wrap">
-        <h2 class="text-lg font-bold text-slate-900">{% trans "Locations" %}</h2>
-        <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+        <h2 class="text-lg font-bold text-content">{% trans "Locations" %}</h2>
+        <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5">
           <button id="btn-loc-list"
                   onclick="showLocTab('list')"
-                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm">
+                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm">
             {% trans "List" %}
           </button>
           <button id="btn-loc-map"
                   onclick="showLocTab('map')"
-                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900">
+                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
             {% trans "Map" %}
           </button>
         </div>
       </div>
 
       {% if not user.is_authenticated %}
-        <p class="text-xs text-slate-500 mb-4">
+        <p class="text-xs text-content-muted mb-4">
           <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
           {% trans "to see near tables." %}
         </p>
       {% elif user.user_profile.city %}
-        <p class="text-xs text-slate-500 mb-4">
+        <p class="text-xs text-content-muted mb-4">
           {% trans "Locations near to" %} <strong>{{ user.user_profile.city }}</strong>
           &nbsp;·&nbsp;
           <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
         </p>
       {% else %}
-        <p class="text-xs text-slate-500 mb-4">
+        <p class="text-xs text-content-muted mb-4">
           <a href="{% url 'user-profile-edit' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Set your address" %}</a>
           {% trans "to see near tables." %}
         </p>
@@ -247,13 +247,13 @@
         </a>
       </div>
 
-      <div class="mt-5 max-w-lg flex flex-col sm:flex-row sm:items-center gap-3 border border-slate-200 rounded-xl p-4 bg-white">
+      <div class="mt-5 max-w-lg flex flex-col sm:flex-row sm:items-center gap-3 border border-divider rounded-xl p-4 bg-surface">
         <div class="flex-1">
-          <p class="text-sm font-semibold text-slate-900">{% trans "Have a location to add?" %}</p>
-          <p class="text-xs text-slate-500">{% trans "Clubs, associations, game shops are welcome." %}</p>
+          <p class="text-sm font-semibold text-content">{% trans "Have a location to add?" %}</p>
+          <p class="text-xs text-content-muted">{% trans "Clubs, associations, game shops are welcome." %}</p>
         </div>
         <a href="{% url 'location-create' %}"
-           class="flex items-center justify-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+           class="flex items-center justify-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> {% trans "Add location" %}
         </a>
       </div>
@@ -262,24 +262,24 @@
 
   {# ── ABOUT ───────────────────────────────────────── #}
   <section>
-    <div class="rounded-2xl p-6 md:p-8" style="background:linear-gradient(135deg,#eff6ff,#fdf4ff)">
+    <div class="rounded-2xl p-6 md:p-8 accent-wash">
       <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-2">{% trans "The project" %}</p>
-      <h2 class="text-xl font-bold text-slate-900 mb-3">{% trans "About Board-Gamers.com" %}</h2>
-      <p class="text-sm text-slate-500 max-w-lg mb-2">
+      <h2 class="text-xl font-bold text-content mb-3">{% trans "About Board-Gamers.com" %}</h2>
+      <p class="text-sm text-content-muted max-w-lg mb-2">
         {% trans "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of a group of board game enthusiasts." %}
       </p>
-      <p class="text-sm text-slate-500 max-w-lg mb-5">
+      <p class="text-sm text-content-muted max-w-lg mb-5">
         {% trans "Our goal is to make it easier to meet up and play in person, supporting cultural associations and local game shops." %}
       </p>
       <div class="flex flex-wrap gap-3">
         {% if not user.is_authenticated %}
         <a href="{% url 'signup' %}"
-           class="bg-slate-900 text-white text-sm font-bold px-5 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+           class="bg-elevated text-white text-sm font-bold px-5 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
           {% trans "Join free" %}
         </a>
         {% endif %}
         <a href="{% url 'about' %}"
-           class="border border-slate-300 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white transition-colors text-decoration-none">
+           class="border border-divider text-content text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-surface transition-colors text-decoration-none">
           {% trans "Discover more" %} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
         </a>
       </div>
@@ -297,8 +297,8 @@
       document.getElementById('tab-upcoming').style.display = isUpcoming ? '' : 'none';
       document.getElementById('tab-past').style.display    = isUpcoming ? 'none' : '';
 
-      const btnActive   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm';
-      const btnInactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900';
+      const btnActive   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
+      const btnInactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
       document.getElementById('btn-upcoming').className = isUpcoming ? btnActive : btnInactive;
       document.getElementById('btn-past').className     = isUpcoming ? btnInactive : btnActive;
     }
@@ -315,8 +315,8 @@
     const _viewPageLabel = "{% trans 'View page' %}";
 
     // ── Locations toggle ─────────────────────────────────────────────────
-    const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm';
-    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900';
+    const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
+    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
 
     function showLocTab(tab) {
       const isList = tab === 'list';

@@ -7,14 +7,14 @@
     .select2-container .select2-selection--single {
       height: 48px !important;
       border-radius: 0.75rem !important;
-      border-color: #e2e8f0 !important;
+      border-color: var(--border) !important;
       display: flex !important;
       align-items: center !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__rendered {
       line-height: 48px !important;
       padding-left: 1rem !important;
-      color: #475569 !important;
+      color: var(--text-2) !important;
       font-size: 0.875rem !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -22,11 +22,11 @@
     }
     .select2-dropdown {
       border-radius: 0.75rem !important;
-      border-color: #e2e8f0 !important;
+      border-color: var(--border) !important;
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
     }
     .select2-container--default .select2-results__option--highlighted[aria-selected] {
-      background-color: #1e293b !important;
+      background-color: var(--elevated) !important;
     }
   </style>
 {% endblock %}
@@ -34,12 +34,12 @@
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-slate-500 mb-1">
+    <p class="text-sm text-content-muted mb-1">
       <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
       <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
       <a href="{% url 'location-manage-members' location.slug %}" class="text-blue-600 hover:underline">{% trans "Members" %}</a> ›
     </p>
-    <h1 class="text-2xl font-extrabold text-slate-900">
+    <h1 class="text-2xl font-extrabold text-content">
       {% if is_new %}{% trans "Add member" %}{% else %}{{ member.full_name }}{% endif %}
     </h1>
   </div>
@@ -52,9 +52,9 @@
     {% for field in form %}
       {% if not field.is_hidden %}
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ field.id_for_label }}">
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">
             {{ field.label }}
-            {% if not field.field.required %}<span class="font-normal text-slate-400">({% trans "optional" %})</span>{% endif %}
+            {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
           </label>
           {{ field }}
           {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
@@ -64,12 +64,12 @@
 
     <div class="flex gap-3 pt-2">
       <a href="{% url 'location-manage-members' location.slug %}"
-         class="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+         class="flex items-center justify-center gap-2 rounded-full border border-divider px-4 py-3 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
         {% trans "Cancel" %}
       </a>
       <button type="submit"
-              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
         {% if is_new %}{% trans "Add member" %}{% else %}{% trans "Save changes" %}{% endif %}
       </button>
@@ -79,14 +79,14 @@
 
   {% if not is_new and member %}
     <div class="max-w-xl mt-10">
-      <h2 class="text-lg font-extrabold text-slate-900 mb-4">{% trans "Membership history" %}</h2>
+      <h2 class="text-lg font-extrabold text-content mb-4">{% trans "Membership history" %}</h2>
 
       {% if not memberships %}
-        <p class="text-sm text-slate-400">{% trans "No memberships yet." %}</p>
+        <p class="text-sm text-content-muted">{% trans "No memberships yet." %}</p>
       {% else %}
         <div class="space-y-3">
           {% for ms in memberships %}
-              <div class="rounded-xl border border-slate-200 bg-white p-4">
+              <div class="rounded-xl border border-divider bg-surface p-4">
               <div class="flex items-start justify-between gap-3">
                 <div class="flex-1 min-w-0">
                   {# Status badge #}
@@ -95,23 +95,23 @@
                   {% elif ms.status == 'pending' %}
                     <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 mb-2">{% trans "Pending" %}</span>
                   {% elif ms.status == 'expired' %}
-                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 mb-2">{% trans "Expired" %}</span>
+                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted mb-2">{% trans "Expired" %}</span>
                   {% elif ms.status == 'rejected' %}
                     <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 mb-2">{% trans "Rejected" %}</span>
                   {% endif %}
 
                   {# Date range #}
-                  <p class="text-xs text-slate-500">
+                  <p class="text-xs text-content-muted">
                     {% if ms.start_date %}{{ ms.start_date }}{% else %}—{% endif %}
                     {% trans "to" %}
                     {% if ms.end_date %}{{ ms.end_date }}{% else %}—{% endif %}
                   </p>
 
                   {% if ms.notes %}
-                    <p class="mt-1 text-xs text-slate-600">{{ ms.notes }}</p>
+                    <p class="mt-1 text-xs text-content-soft">{{ ms.notes }}</p>
                   {% endif %}
                   {% if ms.approved_by %}
-                    <p class="mt-1 text-[10px] text-slate-400">{% trans "Approved by" %}: {{ ms.approved_by.nickname }}</p>
+                    <p class="mt-1 text-[10px] text-content-muted">{% trans "Approved by" %}: {{ ms.approved_by.nickname }}</p>
                   {% endif %}
                 </div>
 
@@ -119,11 +119,11 @@
                 <div class="flex items-center gap-1 flex-shrink-0">
                   <button type="button"
                           onclick="(function(btn){ var panel = btn.closest('.rounded-xl').querySelector('.ms-edit-panel'); panel.classList.toggle('hidden'); })(this)"
-                          class="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors px-2 py-1 rounded-lg hover:bg-slate-50">
+                          class="text-xs font-semibold text-content-muted hover:text-blue-600 transition-colors px-2 py-1 rounded-lg hover:bg-surface-alt">
                     {% trans "Edit" %}
                   </button>
                   <button type="button"
-                          class="js-delete-ms-btn text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
+                          class="js-delete-ms-btn text-xs font-semibold text-content-muted hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
                           data-delete-url="{% url 'location-delete-membership' location.slug member.uuid ms.uuid %}"
                           data-ms-label="{{ ms.get_status_display }} {% if ms.start_date %}({{ ms.start_date|date:'d/m/Y' }}{% if ms.end_date %} – {{ ms.end_date|date:'d/m/Y' }}{% endif %}){% endif %}">
                     {% trans "Delete" %}
@@ -132,15 +132,15 @@
               </div>
 
               {# Collapsible edit form #}
-              <div class="ms-edit-panel hidden mt-4 pt-4 border-t border-slate-100">
+              <div class="ms-edit-panel hidden mt-4 pt-4 border-t border-divider-soft">
                 <form method="post" action="{% url 'location-edit-membership' location.slug member.uuid ms.uuid %}" class="space-y-3">
                   {% csrf_token %}
 
                   {# Render status field #}
                   <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">{% trans "Status" %}</label>
+                    <label class="block text-xs font-semibold text-content-soft mb-1">{% trans "Status" %}</label>
                     <select name="status"
-                            class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors">
+                            class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
                       <option value="pending" {% if ms.status == 'pending' %}selected{% endif %}>{% trans "Pending" %}</option>
                       <option value="active" {% if ms.status == 'active' %}selected{% endif %}>{% trans "Active" %}</option>
                       <option value="expired" {% if ms.status == 'expired' %}selected{% endif %}>{% trans "Expired" %}</option>
@@ -150,35 +150,35 @@
 
                   {# Start date #}
                   <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">{% trans "Start Date" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span></label>
+                    <label class="block text-xs font-semibold text-content-soft mb-1">{% trans "Start Date" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></label>
                     <input type="date" name="start_date"
                            value="{{ ms.start_date|date:'Y-m-d'|default:'' }}"
-                           class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors">
+                           class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
                   </div>
 
                   {# End date #}
                   <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">{% trans "End Date" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span></label>
+                    <label class="block text-xs font-semibold text-content-soft mb-1">{% trans "End Date" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></label>
                     <input type="date" name="end_date"
                            value="{{ ms.end_date|date:'Y-m-d'|default:'' }}"
-                           class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors">
+                           class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
                   </div>
 
                   {# Notes #}
                   <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">{% trans "Notes" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span></label>
+                    <label class="block text-xs font-semibold text-content-soft mb-1">{% trans "Notes" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></label>
                     <textarea name="notes" rows="2"
-                              class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors resize-none">{{ ms.notes }}</textarea>
+                              class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors resize-none">{{ ms.notes }}</textarea>
                   </div>
 
                   <div class="flex gap-3 pt-1">
                     <button type="button"
                             onclick="(function(btn){ btn.closest('.ms-edit-panel').classList.add('hidden'); })(this)"
-                            class="flex-1 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                            class="flex-1 rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
                       {% trans "Cancel" %}
                     </button>
                     <button type="submit"
-                            class="flex-1 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+                            class="flex-1 rounded-full bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
                       {% trans "Save" %}
                     </button>
                   </div>
@@ -192,7 +192,7 @@
       <form method="post" action="{% url 'location-add-membership' location.slug member.uuid %}" class="mt-4">
         {% csrf_token %}
         <button type="submit"
-                class="flex items-center gap-1.5 border border-slate-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-slate-50 transition-colors">
+                class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-surface-alt transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
           {% trans "New membership" %}
         </button>
@@ -203,14 +203,14 @@
   {# ── Delete membership modal ───────────────────────────────────────── #}
   <div id="delete-ms-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="delete-ms-backdrop"></div>
-    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-      <p class="text-base font-bold text-slate-900 mb-1">{% trans "Delete membership" %}</p>
-      <p class="text-sm text-slate-500 mb-5"><span id="delete-ms-label"></span></p>
+    <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <p class="text-base font-bold text-content mb-1">{% trans "Delete membership" %}</p>
+      <p class="text-sm text-content-muted mb-5"><span id="delete-ms-label"></span></p>
       <form method="post" id="delete-ms-form">
         {% csrf_token %}
         <div class="flex gap-3">
           <button type="button" id="delete-ms-cancel"
-                  class="flex-1 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                  class="flex-1 rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
             {% trans "Cancel" %}
           </button>
           <button type="submit"

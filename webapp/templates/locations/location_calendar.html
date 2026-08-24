@@ -8,38 +8,38 @@
   {# ── Header ───────────────────────────────────────────────────────── #}
   <div class="flex items-start justify-between gap-4 mb-5 flex-wrap">
     <div>
-      <p class="text-sm text-slate-500 mb-1">
+      <p class="text-sm text-content-muted mb-1">
         <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
       </p>
       <div class="flex items-center gap-3 flex-wrap">
-        <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Calendar" %}</h1>
+        <h1 class="text-2xl font-extrabold text-content">{% trans "Calendar" %}</h1>
       </div>
     </div>
     <div class="flex items-center gap-2 flex-shrink-0">
       {# Scroll arrows #}
       <button type="button" onclick="scrollCal(-1)"
-              class="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white
-                     text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
+              class="flex items-center justify-center w-8 h-8 rounded-lg border border-divider bg-surface
+                     text-content-muted hover:text-content hover:bg-surface-alt transition-colors shadow-sm">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
         </svg>
       </button>
       <button type="button" onclick="scrollCal(1)"
-              class="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white
-                     text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm">
+              class="flex items-center justify-center w-8 h-8 rounded-lg border border-divider bg-surface
+                     text-content-muted hover:text-content hover:bg-surface-alt transition-colors shadow-sm">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
         </svg>
       </button>
       {# Reservation mode toggle — managers only #}
       {% if is_manager %}
-      <div class="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+      <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5">
         <button id="btn-res-normal" type="button" onclick="setResMode(false)"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm">
           {% trans "Normal" %}
         </button>
         <button id="btn-res-mode" type="button" onclick="setResMode(true)"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
           {% trans "Reservations" %}
         </button>
       </div>
@@ -59,12 +59,12 @@
       <div class="flex items-center gap-1.5">
         <input id="new-group-color" type="color" value="#16a34a"
                title="{% trans 'Group color' %}"
-               class="w-7 h-7 rounded-lg border border-violet-300 bg-white cursor-pointer p-0.5 flex-shrink-0"
+               class="w-7 h-7 rounded-lg border border-violet-300 bg-surface cursor-pointer p-0.5 flex-shrink-0"
                style="padding:2px">
         <input id="new-group-input" type="text" maxlength="20" autocomplete="off"
                placeholder="{% trans 'New group...' %}"
-               class="rounded-lg border border-violet-300 bg-white px-2.5 py-1.5 text-xs text-slate-700
-                      placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400/30
+               class="rounded-lg border border-violet-300 bg-surface px-2.5 py-1.5 text-xs text-content
+                      placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-violet-400/30
                       focus:border-violet-500 w-32"
                onkeydown="if(event.key==='Enter')addGroup()">
         <button type="button" onclick="addGroup()"
@@ -81,32 +81,32 @@
   {% endif %}
 
   {# ── Calendar grid ───────────────────────────────────────────────── #}
-  <div id="cal-grid" class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+  <div id="cal-grid" class="overflow-x-auto rounded-xl border border-divider shadow-sm">
     <table class="border-collapse" style="min-width: max-content">
 
       <thead>
         <tr>
-          <th class="sticky left-0 z-20 bg-slate-50 border-b border-r border-slate-200
-                     p-0 text-center text-xs font-bold text-slate-400 uppercase tracking-wide w-8">
+          <th class="sticky left-0 z-20 bg-surface-alt border-b border-r border-divider
+                     p-0 text-center text-xs font-bold text-content-muted uppercase tracking-wide w-8">
             <span style="writing-mode:vertical-rl;display:inline-block;padding:8px 0">
               {% trans "Table" %}
             </span>
           </th>
           {% for dh in date_headers %}
-          <th class="border-b border-r border-slate-200 px-1 pt-2 pb-1.5 text-center
+          <th class="border-b border-r border-divider px-1 pt-2 pb-1.5 text-center
                      min-w-[150px] w-[150px]
                      {% if dh.month_changed and not forloop.first %}border-l-2 border-l-slate-300{% endif %}
-                     {% if dh.is_weekend %}bg-slate-100{% else %}bg-slate-50{% endif %}">
+                     {% if dh.is_weekend %}bg-surface-input{% else %}bg-surface-alt{% endif %}">
             {% if dh.month_changed %}
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">{{ dh.date|date:"M" }}</span>
+              <span class="block text-[9px] font-bold text-content-muted uppercase tracking-wide mb-0.5">{{ dh.date|date:"M" }}</span>
             {% else %}
               <span class="block h-3 mb-0.5"></span>
             {% endif %}
-            <span class="block text-[10px] font-medium text-slate-400">{{ dh.date|date:"D" }}</span>
+            <span class="block text-[10px] font-medium text-content-muted">{{ dh.date|date:"D" }}</span>
             {% if dh.is_today %}
               <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-sm font-extrabold leading-none">{{ dh.date|date:"j" }}</span>
             {% else %}
-              <span class="block text-sm font-extrabold leading-tight {% if dh.is_weekend %}text-slate-400{% else %}text-slate-700{% endif %}">{{ dh.date|date:"j" }}</span>
+              <span class="block text-sm font-extrabold leading-tight {% if dh.is_weekend %}text-content-muted{% else %}text-content{% endif %}">{{ dh.date|date:"j" }}</span>
             {% endif %}
             <div class="h-4 mt-1 flex items-center justify-center">
               {% if dh.sessions %}
@@ -121,12 +121,12 @@
       <tbody>
         {% for row in rows %}
         <tr>
-          <td class="sticky left-0 z-10 bg-white border-b border-r border-slate-200
+          <td class="sticky left-0 z-10 bg-surface border-b border-r border-divider
                      p-0 h-[150px] w-8 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
             <div style="writing-mode:vertical-rl;height:100%;display:flex;align-items:center;
                         justify-content:center;gap:6px;padding:6px 4px;overflow:hidden">
-              <span class="text-sm font-bold text-slate-800" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:128px">{{ row.table.nome }}</span>
-              {% if row.table.sala %}<span class="text-[10px] text-slate-400" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:80px">{{ row.table.sala }}</span>{% endif %}
+              <span class="text-sm font-bold text-content" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:128px">{{ row.table.nome }}</span>
+              {% if row.table.sala %}<span class="text-[10px] text-content-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:80px">{{ row.table.sala }}</span>{% endif %}
             </div>
           </td>
 
@@ -135,9 +135,9 @@
               data-col="{{ forloop.counter0 }}"
               onclick="onCellClick(event,{{ forloop.parentloop.counter0 }},{{ forloop.counter0 }})"
               style="height:150px;max-height:150px"
-              class="cal-cell border-b border-r border-slate-100 w-[150px] align-top p-0 relative
+              class="cal-cell border-b border-r border-divider-soft w-[150px] align-top p-0 relative
                      {% if cell.month_changed and not forloop.first %}border-l border-l-slate-200{% endif %}
-                     {% if cell.is_weekend %}bg-slate-50{% endif %}">
+                     {% if cell.is_weekend %}bg-surface-alt{% endif %}">
 
             <div class="cell-content flex flex-col h-[150px] overflow-hidden">
               {% if cell.sessions %}
@@ -157,7 +157,7 @@
               <div class="flex justify-end pr-1 pb-1 mt-auto pt-0.5">
                 <a href="{% url 'location-table-create' location.slug %}?date={{ cell.date|date:'Y-m-d' }}"
                    class="add-session-btn flex items-center justify-center w-5 h-5 rounded
-                          text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                          text-content-muted hover:text-blue-600 hover:bg-blue-50 transition-colors"
                    title="{% trans 'Add session' %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -225,8 +225,8 @@
   }
 
   // ── Scroll arrows ────────────────────────────────────────────────────
-  const ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-slate-900 shadow-sm';
-  const INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-slate-500 hover:text-slate-900';
+  const ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
+  const INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
 
   window.scrollCal = function (dir) {
     document.getElementById('cal-grid').scrollBy({ left: dir * 300, behavior: 'smooth' });

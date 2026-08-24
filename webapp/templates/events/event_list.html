@@ -6,13 +6,13 @@
 
   {# ── PAGE HEADER ─────────────────────────────────────────────────── #}
   <div class="mb-8">
-    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">{% trans "Events" %}</h1>
-    <p class="text-sm text-slate-500">{% trans "Conventions, tournaments and game days near you." %}</p>
+    <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">{% trans "Events" %}</h1>
+    <p class="text-sm text-content-muted">{% trans "Conventions, tournaments and game days near you." %}</p>
   </div>
 
   {# ── UPCOMING ─────────────────────────────────────────────────────── #}
   <section class="mb-10">
-    <h2 class="text-lg font-bold text-slate-900 mb-4">{% trans "Upcoming events" %}</h2>
+    <h2 class="text-lg font-bold text-content mb-4">{% trans "Upcoming events" %}</h2>
 
     {% if upcoming_events %}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -21,14 +21,14 @@
         {% endfor %}
       </div>
     {% else %}
-      <p class="text-sm text-slate-500 italic">{% trans "No upcoming events at the moment. Check back soon!" %}</p>
+      <p class="text-sm text-content-muted italic">{% trans "No upcoming events at the moment. Check back soon!" %}</p>
     {% endif %}
   </section>
 
   {# ── PAST ─────────────────────────────────────────────────────────── #}
   {% if has_past_events %}
     <section class="mb-10">
-      <h2 class="text-lg font-bold text-slate-900 mb-4">{% trans "Past events" %}</h2>
+      <h2 class="text-lg font-bold text-content mb-4">{% trans "Past events" %}</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {% for event in past_events %}

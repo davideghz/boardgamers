@@ -3,8 +3,8 @@
 
 {% block content %}
 <div class="max-w-sm mx-auto py-16 text-center">
-  <h1 class="text-xl font-bold text-slate-900 mb-2">Telegram Login — Test</h1>
-  <p class="text-xs text-slate-400 mb-8">Pagina di test, non visibile agli utenti.</p>
+  <h1 class="text-xl font-bold text-content mb-2">Telegram Login — Test</h1>
+  <p class="text-xs text-content-muted mb-8">Pagina di test, non visibile agli utenti.</p>
 
   {% if user.is_authenticated %}
     <div class="rounded-xl border border-green-200 bg-green-50 p-4 mb-6">
@@ -15,7 +15,7 @@
   {% else %}
     {% if telegram_auth_url %}
       <a href="{{ telegram_auth_url }}"
-         class="inline-flex items-center gap-2 border border-slate-200 rounded-full px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+         class="inline-flex items-center gap-2 border border-divider rounded-full px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#2AABEE"/></svg>
         Accedi con Telegram
       </a>

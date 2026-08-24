@@ -4,24 +4,24 @@
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-slate-500 mb-1">
+    <p class="text-sm text-content-muted mb-1">
       <a href="{% url 'account-index' %}" class="text-blue-600 hover:underline">{% trans "Account" %}</a> ›
     </p>
-    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "My Guests" %}</h1>
-    <p class="text-sm text-slate-500 mt-1">{% trans "Create guest identities to bring to game tables." %}</p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "My Guests" %}</h1>
+    <p class="text-sm text-content-muted mt-1">{% trans "Create guest identities to bring to game tables." %}</p>
   </div>
 
   {# ── Guest list ──────────────────────────────────────────────────── #}
   {% if guests %}
     <div class="space-y-2 mb-6 max-w-lg">
       {% for guest in guests %}
-        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white">
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface">
           <div class="w-9 h-9 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-xs font-bold flex-shrink-0 text-amber-600">
             {{ guest.name|slice:":2"|upper }}
           </div>
 
           {# ── View mode ── #}
-          <p class="flex-1 text-sm font-semibold text-slate-900 guest-name-display" data-guest-id="{{ guest.id }}">{{ guest.name }}</p>
+          <p class="flex-1 text-sm font-semibold text-content guest-name-display" data-guest-id="{{ guest.id }}">{{ guest.name }}</p>
 
           {# ── Edit mode (hidden by default) ── #}
           <form method="post" action="{% url 'account-guest-update' guest.id %}"
@@ -29,24 +29,24 @@
                 data-guest-id="{{ guest.id }}">
             {% csrf_token %}
             <input type="text" name="name" value="{{ guest.name }}" maxlength="100" required
-                   class="flex-1 rounded-lg border border-blue-400 px-2 py-1 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                   class="flex-1 rounded-lg border border-blue-400 px-2 py-1 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20">
             <button type="submit" class="text-blue-500 hover:text-blue-700 transition-colors" title="{% trans 'Save' %}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </button>
-            <button type="button" class="text-slate-300 hover:text-slate-500 transition-colors guest-cancel-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Cancel' %}">
+            <button type="button" class="text-content-muted hover:text-content-muted transition-colors guest-cancel-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Cancel' %}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
             </button>
           </form>
 
           {# ── Actions (edit + delete) ── #}
           <div class="flex items-center gap-2 guest-actions" data-guest-id="{{ guest.id }}">
-            <button type="button" class="text-slate-300 hover:text-blue-400 transition-colors guest-edit-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Edit guest' %}">
+            <button type="button" class="text-content-muted hover:text-blue-400 transition-colors guest-edit-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Edit guest' %}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
             </button>
             <form method="post" action="{% url 'account-guest-delete' guest.id %}">
               {% csrf_token %}
               <button type="submit"
-                      class="text-slate-300 hover:text-red-400 transition-colors"
+                      class="text-content-muted hover:text-red-400 transition-colors"
                       title="{% trans 'Delete guest' %}"
                       onclick="return confirm('{% trans "Delete guest" %} {{ guest.name }}?')">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
@@ -57,16 +57,16 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="text-sm text-slate-400 italic mb-6">{% trans "No guests yet." %}</p>
+    <p class="text-sm text-content-muted italic mb-6">{% trans "No guests yet." %}</p>
   {% endif %}
 
   {# ── Add guest form ──────────────────────────────────────────────── #}
-  <div class="max-w-lg border border-slate-200 rounded-xl p-4 bg-white">
-    <p class="text-sm font-bold text-slate-900 mb-3">{% trans "Add a guest" %}</p>
+  <div class="max-w-lg border border-divider rounded-xl p-4 bg-surface">
+    <p class="text-sm font-bold text-content mb-3">{% trans "Add a guest" %}</p>
     <form method="post" action="{% url 'account-guest-create' %}" class="flex items-end gap-3">
       {% csrf_token %}
       <div class="flex-1">
-        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.name.id_for_label }}">
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.name.id_for_label }}">
           {{ form.name.label }}
         </label>
         {{ form.name }}
@@ -75,7 +75,7 @@
         {% endif %}
       </div>
       <button type="submit"
-              class="flex items-center gap-1.5 bg-slate-900 text-white text-sm font-bold px-4 py-3 rounded-full hover:bg-slate-700 transition-colors whitespace-nowrap">
+              class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-3 rounded-full hover:bg-slate-700 transition-colors whitespace-nowrap">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
         {% trans "Add" %}
       </button>

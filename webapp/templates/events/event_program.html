@@ -6,15 +6,15 @@
 
   {# ── Header ───────────────────────────────────────────────────────── #}
   <div class="mb-6">
-    <p class="text-sm text-slate-500 mb-1">
+    <p class="text-sm text-content-muted mb-1">
       <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
     </p>
     <div class="flex items-center justify-between gap-3 flex-wrap">
-      <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Program" %}</h1>
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Program" %}</h1>
       {% if can_create_table %}
         {% if event.dates.exists %}
           <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% endif %}"
-             class="flex items-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-700 transition-colors text-decoration-none">
+             class="flex items-center gap-1.5 bg-elevated text-white rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-700 transition-colors text-decoration-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
@@ -22,7 +22,7 @@
           </a>
         {% else %}
           <a href="{% url 'event-manage-dates' event.slug %}"
-             class="flex items-center gap-1.5 bg-slate-200 text-slate-500 rounded-full px-3 py-1.5 text-xs font-bold hover:bg-slate-300 transition-colors text-decoration-none">
+             class="flex items-center gap-1.5 bg-surface-input text-content-muted rounded-full px-3 py-1.5 text-xs font-bold hover:bg-surface-input transition-colors text-decoration-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
@@ -40,14 +40,14 @@
       {% for event_date in visible_dates %}
         <a href="?{% query_transform date=event_date.date|date:'Y-m-d' %}"
            class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
-                  {% if selected_date == event_date.date %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                  {% if selected_date == event_date.date %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
           {{ event_date.date|date:"j M" }}
         </a>
       {% endfor %}
       {% if has_past_dates %}
         <a href="?{% if show_past %}{% query_transform show_past='' %}{% else %}{% query_transform show_past='1' %}{% endif %}"
            class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors border-dashed
-                  {% if show_past %}bg-slate-100 text-slate-700 border-slate-400{% else %}bg-white text-slate-400 border-slate-200 hover:border-slate-400{% endif %}">
+                  {% if show_past %}bg-surface-input text-content border-slate-400{% else %}bg-surface text-content-muted border-divider hover:border-slate-400{% endif %}">
           {% if show_past %}{% trans "Hide past days" %}{% else %}{% trans "Show past days" %}{% endif %}
         </a>
       {% endif %}
@@ -59,13 +59,13 @@
     {% if play_areas %}
       <a href="?{% query_transform area='' %}"
          class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
-                {% if not selected_area %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                {% if not selected_area %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
         {% trans "All areas" %}
       </a>
       {% for area in play_areas %}
         <a href="?{% query_transform area=area.id %}"
            class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
-                  {% if selected_area.id == area.id %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                  {% if selected_area.id == area.id %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
           {{ area.name }}
         </a>
       {% endfor %}
@@ -86,7 +86,7 @@
           </span>
         {% else %}
           <button type="button" onclick="document.getElementById('game-filter-modal').classList.remove('hidden')"
-                  class="flex items-center gap-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors">
+                  class="flex items-center gap-1.5 border border-divider text-content-soft hover:bg-surface-alt rounded-full px-3 py-1.5 text-xs font-semibold transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
             </svg>
@@ -102,13 +102,13 @@
     <div class="flex flex-wrap items-center gap-2 mb-6">
       <a href="?{% query_transform category='' %}"
          class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
-                {% if not selected_category %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                {% if not selected_category %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
         {% trans "All categories" %}
       </a>
       {% for category in categories %}
         <a href="?{% query_transform category=category.id %}"
            class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
-                  {% if selected_category.id == category.id %}bg-blue-600 text-white border-blue-600{% else %}bg-white text-slate-600 border-slate-200 hover:border-slate-400{% endif %}">
+                  {% if selected_category.id == category.id %}bg-blue-600 text-white border-blue-600{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
           {{ category.name }}
         </a>
       {% endfor %}
@@ -117,10 +117,10 @@
 
   {# ── View toggle (list / grid) ────────────────────────────────────── #}
   <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-    <div class="inline-flex rounded-full bg-slate-100 p-0.5">
+    <div class="inline-flex rounded-full bg-surface-input p-0.5">
       <a href="?{% query_transform view='' %}"
          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors text-decoration-none
-                {% if view_mode != 'grid' %}bg-white text-slate-900 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">
+                {% if view_mode != 'grid' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
         </svg>
@@ -128,7 +128,7 @@
       </a>
       <a href="?{% query_transform view='grid' %}"
          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors text-decoration-none
-                {% if view_mode == 'grid' %}bg-white text-slate-900 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">
+                {% if view_mode == 'grid' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
         </svg>
@@ -150,12 +150,12 @@
   {# ── Program ──────────────────────────────────────────────────────── #}
   {% if not has_tables %}
     <div class="flex flex-col items-center justify-center py-16 text-center">
-      <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400">
+      <div class="w-12 h-12 rounded-full bg-surface-input flex items-center justify-center mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-content-muted">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>
       </div>
-      <p class="text-sm font-semibold text-slate-700">{% trans "No tables for the selected filters." %}</p>
+      <p class="text-sm font-semibold text-content">{% trans "No tables for the selected filters." %}</p>
     </div>
   {% elif view_mode == 'grid' %}
     {# ── Grid: stations/areas × time ──────────────────────────────── #}
@@ -163,11 +163,11 @@
       <table class="border-separate border-spacing-1 min-w-full">
         <thead>
           <tr>
-            <th class="sticky left-0 z-10 bg-white w-12"></th>
+            <th class="sticky left-0 z-10 bg-surface w-12"></th>
             {% for col in grid.columns %}
               <th class="min-w-[160px] px-2 py-2 text-left align-bottom">
-                <p class="text-xs font-bold text-slate-900 leading-tight">{{ col.label }}</p>
-                {% if col.sub %}<p class="text-[10px] text-slate-400 leading-tight">{{ col.sub }}</p>{% endif %}
+                <p class="text-xs font-bold text-content leading-tight">{{ col.label }}</p>
+                {% if col.sub %}<p class="text-[10px] text-content-muted leading-tight">{{ col.sub }}</p>{% endif %}
               </th>
             {% endfor %}
           </tr>
@@ -175,11 +175,11 @@
         <tbody>
           {% for row in grid.rows %}
             <tr>
-              <td class="sticky left-0 z-10 bg-white text-right pr-2 align-top pt-2">
-                <span class="text-xs font-extrabold text-slate-900">{{ row.time|time:"H:i" }}</span>
+              <td class="sticky left-0 z-10 bg-surface text-right pr-2 align-top pt-2">
+                <span class="text-xs font-extrabold text-content">{{ row.time|time:"H:i" }}</span>
               </td>
               {% for cell in row.cells %}
-                <td class="align-top min-w-[160px] rounded-lg {% if cell %}bg-slate-50{% endif %}">
+                <td class="align-top min-w-[160px] rounded-lg {% if cell %}bg-surface-alt{% endif %}">
                   <div class="space-y-1 p-1">
                     {% for table in cell %}{% event_grid_cell table %}{% endfor %}
                   </div>
@@ -197,15 +197,15 @@
         <div class="flex flex-col sm:flex-row sm:gap-4">
           {# Time: above the cards on mobile, left column on desktop #}
           <div class="flex-shrink-0 sm:w-16 sm:text-right sm:pt-1 mb-1.5 sm:mb-0">
-            <span class="inline-flex items-center gap-1 text-sm font-extrabold text-slate-900">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400 sm:hidden">
+            <span class="inline-flex items-center gap-1 text-sm font-extrabold text-content">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-content-muted sm:hidden">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
               {{ slot.time|time:"H:i" }}
             </span>
           </div>
           {# Cards column #}
-          <div class="flex-1 min-w-0 space-y-2 sm:border-l-2 sm:border-slate-100 sm:pl-4">
+          <div class="flex-1 min-w-0 space-y-2 sm:border-l-2 sm:border-divider-soft sm:pl-4">
             {% for table in slot.tables %}{% event_agenda_card table %}{% endfor %}
           </div>
         </div>
@@ -217,11 +217,11 @@
   <div id="game-filter-modal"
        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
        onclick="if(event.target===this)this.classList.add('hidden')">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">{% trans "Filter by game" %}</h3>
+    <div class="bg-surface rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-divider-soft">
+        <h3 class="text-base font-bold text-content">{% trans "Filter by game" %}</h3>
         <button onclick="document.getElementById('game-filter-modal').classList.add('hidden')"
-                class="text-slate-400 hover:text-slate-700 transition-colors">
+                class="text-content-muted hover:text-content transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
@@ -230,17 +230,17 @@
       <div class="overflow-y-auto p-3">
         <a href="?{% query_transform game='' %}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
-                  {% if not selected_game_id %}bg-slate-100 text-slate-900{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                  {% if not selected_game_id %}bg-surface-input text-content{% else %}text-content-soft hover:bg-surface-alt{% endif %}">
           {% trans "All games" %}
         </a>
         {% for game in games_in_event %}
           <a href="?{% query_transform game=game.id %}"
              class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors
-                    {% if selected_game_id == game.id %}bg-slate-100 font-semibold text-slate-900{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                    {% if selected_game_id == game.id %}bg-surface-input font-semibold text-content{% else %}text-content-soft hover:bg-surface-alt{% endif %}">
             {% if game.image %}
               <img src="{{ game.image.url }}" alt="{{ game.name }}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
             {% else %}
-              <div class="w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0"></div>
+              <div class="w-8 h-8 rounded-lg bg-surface-input flex-shrink-0"></div>
             {% endif %}
             {{ game.name }}
           </a>

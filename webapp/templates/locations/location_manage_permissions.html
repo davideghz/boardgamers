@@ -4,12 +4,12 @@
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-slate-500 mb-1">
+    <p class="text-sm text-content-muted mb-1">
       <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
       <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
     </p>
-    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Permissions" %}</h1>
-    <p class="text-sm text-slate-500 mt-1">{% trans "Control who can create and join tables at this location." %}</p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Permissions" %}</h1>
+    <p class="text-sm text-content-muted mt-1">{% trans "Control who can create and join tables at this location." %}</p>
   </div>
 
   {% if not location.enable_membership %}
@@ -32,22 +32,22 @@
 
     {# Table creation permission #}
     <div class="space-y-2">
-      <p class="text-sm font-bold text-slate-900">{% trans "Who can create tables?" %}</p>
+      <p class="text-sm font-bold text-content">{% trans "Who can create tables?" %}</p>
       {% for value, label in form.instance.TABLE_CREATION_CHOICES %}
         {% with is_members_only=value|stringformat:"s" %}
           {% if is_members_only == 'members_only' and not location.enable_membership %}
-            <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 cursor-not-allowed opacity-50">
+            <label class="flex items-center gap-3 p-4 rounded-xl border border-divider-soft bg-surface-alt cursor-not-allowed opacity-50">
               <input type="radio" name="table_creation_permission" value="{{ value }}" disabled
-                     class="w-4 h-4 border-slate-300">
-              <span class="text-sm font-medium text-slate-400">{{ label }}</span>
+                     class="w-4 h-4 border-divider">
+              <span class="text-sm font-medium text-content-muted">{{ label }}</span>
             </label>
           {% else %}
             <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all
-                          {% if form.table_creation_permission.value == value %}border-slate-900 bg-slate-50{% else %}border-slate-200 bg-white hover:border-slate-300{% endif %}">
+                          {% if form.table_creation_permission.value == value %}border-content bg-surface-alt{% else %}border-divider bg-surface hover:border-divider{% endif %}">
               <input type="radio" name="table_creation_permission" value="{{ value }}"
                      {% if form.table_creation_permission.value == value %}checked{% endif %}
-                     class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500">
-              <span class="text-sm font-medium text-slate-800">{{ label }}</span>
+                     class="w-4 h-4 text-content border-divider focus:ring-slate-500">
+              <span class="text-sm font-medium text-content">{{ label }}</span>
             </label>
           {% endif %}
         {% endwith %}
@@ -59,22 +59,22 @@
 
     {# Table join permission #}
     <div class="space-y-2">
-      <p class="text-sm font-bold text-slate-900">{% trans "Who can join tables?" %}</p>
+      <p class="text-sm font-bold text-content">{% trans "Who can join tables?" %}</p>
       {% for value, label in form.instance.TABLE_JOIN_CHOICES %}
         {% with is_members_only=value|stringformat:"s" %}
           {% if is_members_only == 'members_only' and not location.enable_membership %}
-            <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50 cursor-not-allowed opacity-50">
+            <label class="flex items-center gap-3 p-4 rounded-xl border border-divider-soft bg-surface-alt cursor-not-allowed opacity-50">
               <input type="radio" name="table_join_permission" value="{{ value }}" disabled
-                     class="w-4 h-4 border-slate-300">
-              <span class="text-sm font-medium text-slate-400">{{ label }}</span>
+                     class="w-4 h-4 border-divider">
+              <span class="text-sm font-medium text-content-muted">{{ label }}</span>
             </label>
           {% else %}
             <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all
-                          {% if form.table_join_permission.value == value %}border-slate-900 bg-slate-50{% else %}border-slate-200 bg-white hover:border-slate-300{% endif %}">
+                          {% if form.table_join_permission.value == value %}border-content bg-surface-alt{% else %}border-divider bg-surface hover:border-divider{% endif %}">
               <input type="radio" name="table_join_permission" value="{{ value }}"
                      {% if form.table_join_permission.value == value %}checked{% endif %}
-                     class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500">
-              <span class="text-sm font-medium text-slate-800">{{ label }}</span>
+                     class="w-4 h-4 text-content border-divider focus:ring-slate-500">
+              <span class="text-sm font-medium text-content">{{ label }}</span>
             </label>
           {% endif %}
         {% endwith %}
@@ -85,7 +85,7 @@
     </div>
 
     <button type="submit"
-            class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors">
+            class="w-full flex items-center justify-center gap-2 bg-elevated text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors">
       {% trans "Save permissions" %}
     </button>
   </form>

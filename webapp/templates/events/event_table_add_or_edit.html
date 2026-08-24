@@ -5,14 +5,14 @@
 
   {# ── Page header ──────────────────────────────────────────────────── #}
   <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-slate-900">
+    <h1 class="text-2xl font-extrabold text-content">
       {% if form.instance.pk %}
         {% trans "Edit table" %}
       {% else %}
         {% trans "Create a new table" %}
       {% endif %}
     </h1>
-    <p class="text-sm text-slate-500 mt-1">
+    <p class="text-sm text-content-muted mt-1">
       <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">← {{ event.name }}</a>
     </p>
   </div>
@@ -22,34 +22,34 @@
     {{ form.event }}
 
     {# ── Event display ────────────────────────────────────────────────── #}
-    <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+    <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
       {% if event.cover %}
         <img src="{{ event.cover_url }}" alt="{{ event.name }}"
              class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
       {% else %}
-        <div class="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+        <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-content-muted"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
         </div>
       {% endif %}
       <div class="min-w-0">
-        <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{% trans "Event" %}</p>
-        <p class="text-sm font-bold text-slate-900 truncate">{{ event.name }}</p>
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-content-muted">{% trans "Event" %}</p>
+        <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
       </div>
     </div>
 
     {# ── Title & Description ─────────────────────────────────────────── #}
     <div class="space-y-3">
-      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{% trans "Details" %}</p>
+      <p class="text-xs font-semibold text-content-muted uppercase tracking-wide">{% trans "Details" %}</p>
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.title.id_for_label }}">
-          {{ form.title.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.title.id_for_label }}">
+          {{ form.title.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.title }}
         {% if form.title.errors %}<p class="mt-1 text-xs text-red-500">{{ form.title.errors|join:", " }}</p>{% endif %}
       </div>
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.description.id_for_label }}">
-          {{ form.description.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.description.id_for_label }}">
+          {{ form.description.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.description }}
         {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
@@ -58,20 +58,20 @@
 
     {# ── Date & Time ─────────────────────────────────────────────────── #}
     <div>
-      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{% trans "Date and time" %}</p>
+      <p class="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3">{% trans "Date and time" %}</p>
       <div class="grid grid-cols-3 gap-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
           {{ form.date }}
           {% if form.date.errors %}<p class="mt-1 text-xs text-red-500">{{ form.date.errors|join:", " }}</p>{% endif %}
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
           {{ form.time }}
           {% if form.time.errors %}<p class="mt-1 text-xs text-red-500">{{ form.time.errors|join:", " }}</p>{% endif %}
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.duration.id_for_label }}">{{ form.duration.label }}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.duration.id_for_label }}">{{ form.duration.label }}</label>
           {{ form.duration }}
           {% if form.duration.errors %}<p class="mt-1 text-xs text-red-500">{{ form.duration.errors|join:", " }}</p>{% endif %}
         </div>
@@ -81,8 +81,8 @@
     {# ── Play Area ────────────────────────────────────────────────────── #}
     {% if form.play_area.field.queryset.exists %}
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.play_area.id_for_label }}">
-          {{ form.play_area.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.play_area.id_for_label }}">
+          {{ form.play_area.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.play_area }}
         {% if form.play_area.errors %}<p class="mt-1 text-xs text-red-500">{{ form.play_area.errors|join:", " }}</p>{% endif %}
@@ -92,8 +92,8 @@
     {# ── Category (tipologia) ─────────────────────────────────────────── #}
     {% if form.category.field.queryset.exists %}
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.category.id_for_label }}">
-          {{ form.category.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.category.id_for_label }}">
+          {{ form.category.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.category }}
         {% if form.category.errors %}<p class="mt-1 text-xs text-red-500">{{ form.category.errors|join:", " }}</p>{% endif %}
@@ -103,8 +103,8 @@
     {# ── Station (postazione) ─────────────────────────────────────────── #}
     {% if form.physical_table.field.queryset.exists %}
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.physical_table.id_for_label }}">
-          {{ form.physical_table.label }} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.physical_table.id_for_label }}">
+          {{ form.physical_table.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.physical_table }}
         {% if form.physical_table.errors %}<p class="mt-1 text-xs text-red-500">{{ form.physical_table.errors|join:", " }}</p>{% endif %}
@@ -113,8 +113,8 @@
 
     {# ── Game ────────────────────────────────────────────────────────── #}
     <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1">
-        {% trans "Game" %} <span class="font-normal text-slate-400">({% trans "optional" %})</span>
+      <label class="block text-xs font-semibold text-content-soft mb-1">
+        {% trans "Game" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
       </label>
 
       <input type="hidden" name="game" id="game-input"
@@ -122,7 +122,7 @@
 
       <div id="game-empty-state"{% if form.instance.game %} style="display:none"{% endif %}>
         <button type="button" onclick="openBggModal()"
-                class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 px-4 py-3 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
+                class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-divider px-4 py-3 text-sm font-semibold text-content-muted hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
@@ -131,11 +131,11 @@
       </div>
 
       <div id="game-selected-state"{% if not form.instance.game %} style="display:none"{% endif %}>
-        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-400 flex-shrink-0">
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-muted flex-shrink-0">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
           </svg>
-          <p id="game-selected-name" class="text-sm font-semibold text-slate-900 flex-1 min-w-0 truncate">
+          <p id="game-selected-name" class="text-sm font-semibold text-content flex-1 min-w-0 truncate">
             {% if form.instance.game %}{{ form.instance.game.name }}{% endif %}
           </p>
           <div class="flex items-center gap-2 flex-shrink-0">
@@ -144,7 +144,7 @@
               {% trans "Change" %}
             </button>
             <button type="button" onclick="clearGame()"
-                    class="text-slate-400 hover:text-red-500 transition-colors bg-transparent border-0 p-0 cursor-pointer"
+                    class="text-content-muted hover:text-red-500 transition-colors bg-transparent border-0 p-0 cursor-pointer"
                     title="{% trans "Remove game" %}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -158,15 +158,15 @@
     {# ── Custom cover (collapsible) ──────────────────────────────────── #}
     <div>
       <button type="button" id="cover-toggle"
-              class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hover:text-slate-700 transition-colors bg-transparent border-0 p-0 cursor-pointer">
+              class="flex items-center gap-1.5 text-xs font-semibold text-content-muted uppercase tracking-wide hover:text-content transition-colors bg-transparent border-0 p-0 cursor-pointer">
         <svg id="cover-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 transition-transform{% if form.instance.custom_cover %} rotate-90{% endif %}">
           <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
         </svg>
-        {% trans "Custom cover" %} <span class="font-normal text-slate-400 normal-case">({% trans "optional" %})</span>
+        {% trans "Custom cover" %} <span class="font-normal text-content-muted normal-case">({% trans "optional" %})</span>
       </button>
 
       <div id="cover-body" class="mt-3 space-y-3"{% if not form.instance.custom_cover %} style="display:none"{% endif %}>
-        <p class="text-[11px] text-slate-400 -mt-1">
+        <p class="text-[11px] text-content-muted -mt-1">
           {% trans "Upload an image to show instead of the game cover." %} {% trans "Max 200Kb" %}
         </p>
 
@@ -174,18 +174,18 @@
         <div id="cover-preview-wrap" class="flex items-center gap-3{% if not form.instance.custom_cover %} hidden{% endif %}">
           <img id="cover-preview" alt=""
                src="{% if form.instance.custom_cover %}{{ form.instance.custom_cover.url }}{% endif %}"
-               class="w-20 h-20 rounded-lg object-cover border border-slate-200 flex-shrink-0">
+               class="w-20 h-20 rounded-lg object-cover border border-divider flex-shrink-0">
           {% if form.instance.custom_cover %}
             <label class="flex items-center gap-2 text-xs font-semibold text-red-600 cursor-pointer select-none">
               <input type="checkbox" name="custom_cover-clear" id="custom_cover-clear_id"
-                     class="w-4 h-4 rounded border-slate-300 text-red-600 cursor-pointer">
+                     class="w-4 h-4 rounded border-divider text-red-600 cursor-pointer">
               {% trans "Remove current image" %}
             </label>
           {% endif %}
         </div>
 
         <label for="id_custom_cover"
-               class="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors cursor-pointer">
+               class="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-divider px-4 py-2.5 text-sm font-semibold text-content-muted hover:border-blue-400 hover:text-blue-600 transition-colors cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
           <span id="cover-btn-label">{% trans "Choose an image" %}</span>
         </label>
@@ -199,38 +199,38 @@
 
     {# ── Players ─────────────────────────────────────────────────────── #}
     <div>
-      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{% trans "Players" %}</p>
+      <p class="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3">{% trans "Players" %}</p>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.min_players.id_for_label }}">{{ form.min_players.label }}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.min_players.id_for_label }}">{{ form.min_players.label }}</label>
           {{ form.min_players }}
           {% if form.min_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.min_players.errors|join:", " }}</p>{% endif %}
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.max_players.id_for_label }}">{{ form.max_players.label }}</label>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.max_players.id_for_label }}">{{ form.max_players.label }}</label>
           {{ form.max_players }}
           {% if form.max_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.max_players.errors|join:", " }}</p>{% endif %}
         </div>
       </div>
-      <p id="players-hint" class="mt-2 text-[11px] text-slate-400" style="display:none"></p>
+      <p id="players-hint" class="mt-2 text-[11px] text-content-muted" style="display:none"></p>
       {% if form.non_field_errors %}<p class="mt-1 text-xs text-red-500">{{ form.non_field_errors|join:", " }}</p>{% endif %}
 
       {# ── Unlimited seats ──────────────────────────────────────────── #}
-      <div class="flex items-start gap-3 mt-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+      <div class="flex items-start gap-3 mt-3 p-3 rounded-xl border border-divider bg-surface-alt">
         {{ form.unlimited_seats }}
         <label for="{{ form.unlimited_seats.id_for_label }}" class="cursor-pointer select-none">
-          <span class="block text-sm font-semibold text-slate-700">{% trans "Unlimited seats" %}</span>
-          <span class="block text-xs text-slate-500">{% trans "No seat limit — anyone can join and no empty seats are shown." %}</span>
+          <span class="block text-sm font-semibold text-content">{% trans "Unlimited seats" %}</span>
+          <span class="block text-xs text-content-muted">{% trans "No seat limit — anyone can join and no empty seats are shown." %}</span>
         </label>
       </div>
     </div>
 
     {# ── Join table checkbox (only on create) ───────────────────────── #}
     {% if not form.instance.pk %}
-    <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+    <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
       <input type="checkbox" name="join_table" id="join_table" checked
-             class="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer">
-      <label for="join_table" class="text-sm font-semibold text-slate-700 cursor-pointer select-none">
+             class="w-4 h-4 rounded border-divider text-blue-600 cursor-pointer">
+      <label for="join_table" class="text-sm font-semibold text-content cursor-pointer select-none">
         {% trans "Join this table as a player" %}
       </label>
     </div>
@@ -239,15 +239,15 @@
     {# ── Extra links (collapsible) ───────────────────────────────────── #}
     <div>
       <button type="button" id="links-toggle"
-              class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide hover:text-slate-700 transition-colors bg-transparent border-0 p-0 cursor-pointer">
+              class="flex items-center gap-1.5 text-xs font-semibold text-content-muted uppercase tracking-wide hover:text-content transition-colors bg-transparent border-0 p-0 cursor-pointer">
         <svg id="links-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 transition-transform{% if links_formset_open %} rotate-90{% endif %}">
           <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
         </svg>
-        {% trans "Extra links" %} <span class="font-normal text-slate-400 normal-case">({% trans "optional" %})</span>
+        {% trans "Extra links" %} <span class="font-normal text-content-muted normal-case">({% trans "optional" %})</span>
       </button>
 
       <div id="links-body" class="mt-3 space-y-3"{% if not links_formset_open %} style="display:none"{% endif %}>
-        <p class="text-[11px] text-slate-400 -mt-1">
+        <p class="text-[11px] text-content-muted -mt-1">
           {% trans "Add links to useful resources: rulebook, a Google sheet, a video…" %}
         </p>
         {{ link_formset.management_form }}
@@ -262,7 +262,7 @@
         </div>
 
         <button type="button" id="links-add"
-                class="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
+                class="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-divider px-4 py-2.5 text-sm font-semibold text-content-muted hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
           {% trans "Add link" %}
         </button>
@@ -276,12 +276,12 @@
     {# ── Submit / Cancel ─────────────────────────────────────────────── #}
     <div class="flex gap-3 pt-2">
       <a href="{% if table %}{% url 'event_table_detail' event_slug=event.slug table_slug=table.slug %}{% else %}{% url 'event_detail' event.slug %}{% endif %}"
-         class="flex-1 flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+         class="flex-1 flex items-center justify-center gap-2 rounded-full border border-divider px-4 py-3 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
         {% trans "Cancel" %}
       </a>
       <button id="publish-btn" type="submit"
-              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
         {% if form.instance.pk %}{% trans "Save changes" %}{% else %}{% trans "Publish" %}{% endif %}
       </button>
@@ -293,7 +293,7 @@
   {% if table %}
     <div class="mt-10 max-w-xl">
       <div class="relative border-t-2 border-dashed border-red-200 pt-6">
-        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 text-xs font-bold text-red-500 uppercase tracking-wider">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-surface px-3 text-xs font-bold text-red-500 uppercase tracking-wider">
           {% trans "Danger Zone" %}
         </span>
         {% if table.status != 'closed' %}
@@ -303,7 +303,7 @@
             {% trans "Delete table" %}
           </a>
         {% else %}
-          <p class="text-sm text-slate-500 text-center">
+          <p class="text-sm text-content-muted text-center">
             {% trans "This table is closed and cannot be deleted." %}
           </p>
         {% endif %}

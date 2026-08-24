@@ -113,6 +113,9 @@
       --text-muted: #94a3b8;
     }
     body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    /* Accent wash (light blue→purple) for "about"/CTA cards — theme-aware */
+    .accent-wash { background: linear-gradient(135deg, #eff6ff, #fdf4ff); }
+    .dark .accent-wash { background: linear-gradient(135deg, #10203f, #1c1633); }
     .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .prose-sm { font-size: 0.875rem; }

@@ -18,7 +18,7 @@
         </form>
         <button onclick="document.getElementById('avatar-input').click()"
                 title="{% trans 'Change avatar' %}"
-                class="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center hover:bg-slate-700 transition-colors shadow">
+                class="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-elevated text-white flex items-center justify-center hover:bg-slate-700 transition-colors shadow">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
         </button>
       {% endif %}
@@ -26,16 +26,16 @@
 
     {# Name + actions #}
     <div class="flex-1 min-w-0 pt-1">
-      <h1 class="text-2xl font-extrabold text-slate-900 truncate">{{ userprofile.nickname }}</h1>
+      <h1 class="text-2xl font-extrabold text-content truncate">{{ userprofile.nickname }}</h1>
       {% if userprofile.show_full_name and userprofile.user.first_name %}
-        <p class="text-sm text-slate-600 mt-0.5">{{ userprofile.user.get_full_name }}</p>
+        <p class="text-sm text-content-soft mt-0.5">{{ userprofile.user.get_full_name }}</p>
       {% endif %}
-      <p class="text-sm text-slate-400 mt-0.5">
+      <p class="text-sm text-content-muted mt-0.5">
         {{ tables|length }} {% trans "tables played" %}
       </p>
       {% if userprofile.user == user %}
         <a href="{% url 'user-profile-edit' %}"
-           class="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-slate-600 border border-slate-200 rounded-full px-3 py-1.5 hover:bg-slate-50 transition-colors text-decoration-none">
+           class="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-content-soft border border-divider rounded-full px-3 py-1.5 hover:bg-surface-alt transition-colors text-decoration-none">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
           {% trans "Edit profile" %}
         </a>
@@ -47,16 +47,16 @@
   {# ── Games played ─────────────────────────────────────────────────── #}
   {% if games_played %}
     <section>
-      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-3">{% trans "Games played" %}</h2>
+      <h2 class="text-sm font-bold text-content-muted uppercase tracking-wide mb-3">{% trans "Games played" %}</h2>
       <div class="space-y-2">
         {% for game in games_played %}
-          <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white">
+          <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface">
             <img src="{{ game.cover_url }}" alt="{{ game.name }}"
                  class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-slate-900 truncate">{{ game.name }}</p>
+              <p class="text-sm font-bold text-content truncate">{{ game.name }}</p>
               <div class="flex items-center gap-3 mt-0.5">
-                <span class="flex items-center gap-1 text-xs text-slate-500">
+                <span class="flex items-center gap-1 text-xs text-content-muted">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
                   {{ game.play_count|default:0 }} {% trans "tables" %}
                 </span>
@@ -73,7 +73,7 @@
       </div>
     </section>
   {% else %}
-    <p class="text-sm text-slate-400 italic">{% trans "No tables played yet." %}</p>
+    <p class="text-sm text-content-muted italic">{% trans "No tables played yet." %}</p>
   {% endif %}
 
 {% endblock content %}

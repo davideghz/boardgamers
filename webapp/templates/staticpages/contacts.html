@@ -5,8 +5,8 @@
 <div class="max-w-lg">
 
   <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Contacts" %}</h1>
-    <p class="text-sm text-slate-500 mt-1">{% trans "We'd love to hear from you! Fill out this form to get in touch." %}</p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Contacts" %}</h1>
+    <p class="text-sm text-content-muted mt-1">{% trans "We'd love to hear from you! Fill out this form to get in touch." %}</p>
   </div>
 
   <form method="post" class="space-y-4">
@@ -14,33 +14,33 @@
 
     {# Name #}
     <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
       <input type="text"
              id="{{ form.name.id_for_label }}"
              name="name"
              value="{{ form.name.value|default:'' }}"
-             class="w-full rounded-xl border {% if form.name.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-slate-200 focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 bg-white transition-colors">
+             class="w-full rounded-xl border {% if form.name.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors">
       {% if form.name.errors %}<p class="mt-1 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
     </div>
 
     {# Email #}
     <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
       <input type="email"
              id="{{ form.email.id_for_label }}"
              name="email"
              value="{{ form.email.value|default:'' }}"
-             class="w-full rounded-xl border {% if form.email.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-slate-200 focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 bg-white transition-colors">
+             class="w-full rounded-xl border {% if form.email.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors">
       {% if form.email.errors %}<p class="mt-1 text-xs text-red-500">{{ form.email.errors|join:", " }}</p>{% endif %}
     </div>
 
     {# Message #}
     <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
       <textarea id="{{ form.message.id_for_label }}"
                 name="message"
                 rows="5"
-                class="w-full rounded-xl border {% if form.message.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-slate-200 focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 bg-white transition-colors resize-none">{{ form.message.value|default:'' }}</textarea>
+                class="w-full rounded-xl border {% if form.message.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors resize-none">{{ form.message.value|default:'' }}</textarea>
       {% if form.message.errors %}<p class="mt-1 text-xs text-red-500">{{ form.message.errors|join:", " }}</p>{% endif %}
     </div>
 
@@ -48,20 +48,20 @@
     <div>{{ form.captcha }}</div>
 
     <button type="submit"
-            class="w-full flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+            class="w-full flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
       {% trans "Send message" %}
     </button>
   </form>
 
   <div class="flex items-center gap-3 my-6">
-    <div class="flex-1 h-px bg-slate-200"></div>
-    <span class="text-xs text-slate-400">{% trans "or" %}</span>
-    <div class="flex-1 h-px bg-slate-200"></div>
+    <div class="flex-1 h-px bg-surface-input"></div>
+    <span class="text-xs text-content-muted">{% trans "or" %}</span>
+    <div class="flex-1 h-px bg-surface-input"></div>
   </div>
 
   <a href="https://t.me/+_NNLpH7xKt5hMjE0" target="_blank"
-     class="flex items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-700 hover:shadow-md hover:border-slate-300 transition-all text-decoration-none">
+     class="flex items-center justify-center gap-3 rounded-full border border-divider bg-surface px-5 py-4 text-sm font-bold text-content hover:shadow-md hover:border-divider transition-all text-decoration-none">
     <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
       <path d="M128,0C57.307,0 0,57.307 0,128C0,198.693 57.307,256 128,256C198.693,256 256,198.693 256,128C256,57.307 198.693,0 128,0Z" fill="#40B3E0"/>
       <path d="M190.283,73.631L167.421,188.898C167.421,188.898 164.224,196.892 155.431,193.055L102.673,152.607L83.489,143.335L51.195,132.463C51.195,132.463 46.239,130.705 45.759,126.868C45.28,123.031 51.355,120.953 51.355,120.953L179.731,70.593C179.731,70.593 190.283,65.957 190.283,73.631" fill="#FFFFFF"/>
