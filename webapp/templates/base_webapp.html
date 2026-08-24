@@ -9,9 +9,9 @@
   {# ── Language suggestion banner ────────────────────────────────────── #}
   <div id="lang-banner"
        class="hidden fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2
-              bg-white border border-slate-200 rounded-2xl shadow-lg px-4 py-3">
-    <p class="text-sm font-semibold text-slate-800 mb-0.5">🌐 Switch to English?</p>
-    <p class="text-xs text-slate-500 mb-3">Would you like to view this site in English?</p>
+              bg-surface border border-divider rounded-2xl shadow-lg px-4 py-3">
+    <p class="text-sm font-semibold text-content mb-0.5">🌐 Switch to English?</p>
+    <p class="text-xs text-content-muted mb-3">Would you like to view this site in English?</p>
     <div class="flex gap-2">
       <form action="{% url 'set_language' %}" method="post" class="flex-1">
         {% csrf_token %}
@@ -19,12 +19,12 @@
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
                 onclick="localStorage.setItem('bgLangPromptDone','1')"
-                class="w-full rounded-full bg-slate-900 text-white text-xs font-semibold px-3 py-2 hover:bg-slate-700 transition-colors">
+                class="w-full rounded-full bg-elevated text-white text-xs font-semibold px-3 py-2 hover:bg-slate-700 transition-colors">
           Switch to English
         </button>
       </form>
       <button onclick="dismissLangBanner()"
-              class="flex-1 rounded-full border border-slate-200 text-xs font-semibold text-slate-600 px-3 py-2 hover:bg-slate-50 transition-colors">
+              class="flex-1 rounded-full border border-divider text-xs font-semibold text-content-soft px-3 py-2 hover:bg-surface-alt transition-colors">
         Keep Italian
       </button>
     </div>
@@ -52,18 +52,18 @@
       <div class="hidden md:block flex-shrink-0" id="sidebar-spacer" style="width:var(--sidebar-width); transition:width .2s"></div>
 
       {# Fixed panel #}
-      <div class="fixed inset-y-0 left-0 z-30 hidden md:flex flex-col border-r border-slate-200 bg-slate-50"
+      <div class="fixed inset-y-0 left-0 z-30 hidden md:flex flex-col border-r border-divider bg-surface-alt"
            id="sidebar-fixed" style="width:var(--sidebar-width); transition:width .2s; overflow:hidden">
 
         {# Header: logo + collapse toggle #}
         <div id="sidebar-header" class="flex items-center justify-between p-3 flex-shrink-0">
           <a id="sidebar-logo" href="{% url 'home' %}"
-             class="flex items-center gap-2 text-slate-900 font-extrabold text-lg px-1 overflow-hidden whitespace-nowrap">
+             class="flex items-center gap-2 text-content font-extrabold text-lg px-1 overflow-hidden whitespace-nowrap">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
             <span class="sidebar-text">Board Gamers</span>
           </a>
           <button id="sidebar-toggle"
-                  class="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0">
+                  class="p-1.5 rounded-md text-content-muted hover:text-content hover:bg-surface-input transition-colors flex-shrink-0">
             {# chevron-left = expanded state (click to collapse) #}
             <span id="sidebar-icon-expanded">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
@@ -88,7 +88,7 @@
           {# CTA #}
           <div class="mb-1">
             <a id="sidebar-cta" href="{% url 'locations-index' %}"
-               class="w-full flex items-center justify-center gap-1.5 bg-slate-900 text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
+               class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
               <span class="sidebar-text">{% trans "New table" %}</span>
             </a>
@@ -96,7 +96,7 @@
 
           {# Feed group #}
           <div>
-            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-content-muted font-semibold">
               {% trans "Feed" %}
             </div>
             <ul class="flex flex-col gap-0.5 list-none">
@@ -104,7 +104,7 @@
                 <a href="{% url 'home' %}"
                    data-label="Home"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'home' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                          {% if request.resolver_match.url_name == 'home' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
                   <span class="sidebar-text">{% trans "Home" %}</span>
                 </a>
@@ -114,7 +114,7 @@
                   <a href="{% url 'account-tables' %}"
                      data-label="{% trans "My tables" %}"
                      class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                            {% if request.resolver_match.url_name == 'account-tables' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                            {% if request.resolver_match.url_name == 'account-tables' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
                     <span class="sidebar-text">{% trans "My tables" %}</span>
                   </a>
@@ -125,7 +125,7 @@
 
           {# Esplora group #}
           <div>
-            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-content-muted font-semibold">
               {% trans "Explore" %}
             </div>
             <ul class="flex flex-col gap-0.5 list-none">
@@ -133,7 +133,7 @@
                 <a href="{% url 'locations-index' %}"
                    data-label="{% trans "Locations" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'locations-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                          {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                   <span class="sidebar-text">{% trans "Locations" %}</span>
                 </a>
@@ -142,7 +142,7 @@
                 <a href="{% url 'event-index' %}"
                    data-label="{% trans "Events" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                          {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
                   <span class="sidebar-text">{% trans "Events" %}</span>
                 </a>
@@ -151,7 +151,7 @@
                 <a href="{% url 'game-list' %}"
                    data-label="{% trans "Games" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                          {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" /></svg>
                   <span class="sidebar-text">{% trans "Games" %}</span>
                 </a>
@@ -160,7 +160,7 @@
                 <a href="{% url 'table-index' %}"
                    data-label="{% trans "Tables" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'table-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                          {% if request.resolver_match.url_name == 'table-index' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
                   <span class="sidebar-text">{% trans "Tables" %}</span>
                 </a>
@@ -175,7 +175,7 @@
                 <a href="{% url 'about' %}"
                    data-label="{% trans "About" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'about' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                          {% if request.resolver_match.url_name == 'about' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
                   <span class="sidebar-text">{% trans "About" %}</span>
                 </a>
@@ -186,20 +186,20 @@
         </div>
 
         {# Footer: account + logout + language #}
-        <div class="border-t border-slate-200 p-3 flex-shrink-0">
+        <div class="border-t border-divider p-3 flex-shrink-0">
           <ul class="flex flex-col gap-0.5 list-none">
             {% if user.is_authenticated %}
               <li>
-                <div class="flex items-center rounded-lg {% if request.resolver_match.url_name == 'account-index' %}bg-slate-100{% endif %}">
+                <div class="flex items-center rounded-lg {% if request.resolver_match.url_name == 'account-index' %}bg-surface-input{% endif %}">
                   <a href="{% url 'account-index' %}"
                      data-label="{{ user.user_profile.nickname }}"
                      class="sidebar-nav-link flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors
-                            {% if request.resolver_match.url_name == 'account-index' %}text-slate-900 font-semibold{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                            {% if request.resolver_match.url_name == 'account-index' %}text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                     {% if user.user_profile.avatar %}
                       <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
                            class="flex-shrink-0 w-6 h-6 rounded-full object-cover">
                     {% else %}
-                      <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center" style="font-size:.6rem; font-weight:700">
+                      <span class="flex-shrink-0 w-6 h-6 rounded-full bg-surface-input text-content flex items-center justify-center" style="font-size:.6rem; font-weight:700">
                         {{ user.user_profile.nickname|first|upper }}
                       </span>
                     {% endif %}
@@ -208,10 +208,10 @@
                   <a href="{% url 'account-notifications' %}"
                      title="{% trans "Notifications" %}"
                      class="sidebar-text relative flex-shrink-0 p-2 mr-1 rounded-md transition-colors
-                            {% if request.resolver_match.url_name == 'account-notifications' %}text-slate-900 bg-slate-200{% else %}text-slate-400 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+                            {% if request.resolver_match.url_name == 'account-notifications' %}text-content bg-surface-input{% else %}text-content-muted hover:text-content hover:bg-surface-input{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
                     {% if unread_notifications_count > 0 %}
-                      <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-1 ring-white"></span>
+                      <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-1 ring-surface"></span>
                     {% endif %}
                   </a>
                 </div>
@@ -221,7 +221,7 @@
                   {% csrf_token %}
                   <button type="submit"
                           data-label="{% trans "Logout" %}"
-                          class="sidebar-nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                          class="sidebar-nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-content-muted hover:bg-surface-input hover:text-content">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
                     <span class="sidebar-text">{% trans "Logout" %}</span>
                   </button>
@@ -230,23 +230,34 @@
             {% else %}
               <li>
                 <a href="{% url 'login' %}" data-label="Login"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-content-muted hover:bg-surface-input hover:text-content">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
                   <span class="sidebar-text">Login</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'signup' %}" data-label="{% trans "Signup" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-content-muted hover:bg-surface-input hover:text-content">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
                   <span class="sidebar-text">{% trans "Signup" %}</span>
                 </a>
               </li>
             {% endif %}
             <li>
+              <button id="theme-toggle" type="button" data-label="{% trans "Theme" %}"
+                      class="js-theme-toggle sidebar-nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-content-muted hover:bg-surface-input hover:text-content-soft">
+                {# moon = light mode (click to switch to dark) #}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 block dark:hidden"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
+                {# sun = dark mode (click to switch to light) #}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 hidden dark:block"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
+                <span class="sidebar-text block dark:hidden">{% trans "Dark mode" %}</span>
+                <span class="sidebar-text hidden dark:block">{% trans "Light mode" %}</span>
+              </button>
+            </li>
+            <li>
               <a href="{% url 'select-language' %}{% if 'select-language' not in request.path %}?next={{ request.get_full_path|urlencode }}{% endif %}"
                  data-label="{% trans "Language" %}"
-                 class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                 class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-content-muted hover:bg-surface-input hover:text-content-soft">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" /></svg>
                 <span class="sidebar-text">{% trans "Language" %}</span>
               </a>
@@ -257,14 +268,14 @@
       </div>{# /sidebar-fixed #}
 
       {# ── MAIN CONTENT ─────────────────────────────────────────────── #}
-      <div class="flex-1 flex flex-col min-w-0 bg-white">
+      <div class="flex-1 flex flex-col min-w-0 bg-surface">
 
         {# Mobile topbar #}
-        <div class="md:hidden flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-40">
-          <button id="mobile-menu-btn" class="p-2 rounded-md text-slate-500 hover:bg-slate-100 transition-colors">
+        <div class="md:hidden flex items-center gap-3 px-4 py-3 border-b border-divider bg-surface sticky top-0 z-40">
+          <button id="mobile-menu-btn" class="p-2 rounded-md text-content-muted hover:bg-surface-input transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
           </button>
-          <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-slate-900 text-base">
+          <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-content text-base">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
             Board Gamers
           </a>
@@ -272,9 +283,9 @@
             <a href="{% url 'account-index' %}" class="ml-auto flex-shrink-0">
               {% if user.user_profile.avatar %}
                 <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
-                     class="w-8 h-8 rounded-full object-cover ring-2 ring-slate-200">
+                     class="w-8 h-8 rounded-full object-cover ring-2 ring-divider">
               {% else %}
-                <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs ring-2 ring-slate-200">
+                <span class="w-8 h-8 rounded-full bg-surface-input text-content-soft flex items-center justify-center font-bold text-xs ring-2 ring-divider">
                   {{ user.user_profile.nickname|first|upper }}
                 </span>
               {% endif %}
@@ -287,14 +298,14 @@
 
         {# Mobile drawer #}
         <div id="mobile-drawer"
-             class="md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col"
+             class="md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-surface border-r border-divider flex flex-col"
              style="transform:translateX(-100%); transition:transform .2s ease">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-            <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-slate-900 text-base">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
+            <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-content text-base">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
               Board Gamers
             </a>
-            <button onclick="closeMobileSidebar()" class="p-2 rounded-md text-slate-400 hover:bg-slate-100">
+            <button onclick="closeMobileSidebar()" class="p-2 rounded-md text-content-muted hover:bg-surface-input">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
             </button>
           </div>
@@ -302,21 +313,21 @@
 
             {# CTA #}
             <a href="{% url 'locations-index' %}"
-               class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
+               class="w-full flex items-center justify-center gap-2 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
               {% trans "New table" %}
             </a>
 
             {# Feed #}
             <div>
-              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{% trans "Feed" %}</p>
+              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-content-muted font-semibold">{% trans "Feed" %}</p>
               <div class="flex flex-col gap-0.5">
-                <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'home' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'home' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
                   {% trans "Home" %}
                 </a>
                 {% if user.is_authenticated %}
-                  <a href="{% url 'account-tables' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'account-tables' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                  <a href="{% url 'account-tables' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'account-tables' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
                     {% trans "My tables" %}
                   </a>
@@ -326,25 +337,25 @@
 
             {# Explore #}
             <div>
-              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{% trans "Explore" %}</p>
+              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-content-muted font-semibold">{% trans "Explore" %}</p>
               <div class="flex flex-col gap-0.5">
-                <a href="{% url 'locations-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'locations-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                <a href="{% url 'locations-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                   {% trans "Locations" %}
                 </a>
-                <a href="{% url 'event-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                <a href="{% url 'event-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
                   {% trans "Events" %}
                 </a>
-                <a href="{% url 'game-list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                <a href="{% url 'game-list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" /></svg>
                   {% trans "Games" %}
                 </a>
-                <a href="{% url 'table-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'table-index' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                <a href="{% url 'table-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'table-index' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
                   {% trans "Tables" %}
                 </a>
-                <a href="{% url 'about' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'about' %}bg-slate-100 text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                <a href="{% url 'about' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'about' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
                   {% trans "About" %}
                 </a>
@@ -352,15 +363,15 @@
             </div>
 
           </div>
-          <div class="border-t border-slate-200 px-3 py-4 flex flex-col gap-1">
+          <div class="border-t border-divider px-3 py-4 flex flex-col gap-1">
             {% if user.is_authenticated %}
-              <div class="flex items-center rounded-lg {% if request.resolver_match.url_name == 'account-index' %}bg-slate-100{% endif %}">
-                <a href="{% url 'account-index' %}" class="flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium {% if request.resolver_match.url_name == 'account-index' %}text-slate-900 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+              <div class="flex items-center rounded-lg {% if request.resolver_match.url_name == 'account-index' %}bg-surface-input{% endif %}">
+                <a href="{% url 'account-index' %}" class="flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium {% if request.resolver_match.url_name == 'account-index' %}text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   {% if user.user_profile.avatar %}
                     <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
                          class="flex-shrink-0 w-6 h-6 rounded-full object-cover">
                   {% else %}
-                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center" style="font-size:.6rem; font-weight:700">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-surface-input text-content flex items-center justify-center" style="font-size:.6rem; font-weight:700">
                       {{ user.user_profile.nickname|first|upper }}
                     </span>
                   {% endif %}
@@ -368,32 +379,39 @@
                 </a>
                 <a href="{% url 'account-notifications' %}"
                    title="{% trans "Notifications" %}"
-                   class="relative flex-shrink-0 p-2 mr-1 rounded-md transition-colors {% if request.resolver_match.url_name == 'account-notifications' %}text-slate-900 bg-slate-200{% else %}text-slate-400 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+                   class="relative flex-shrink-0 p-2 mr-1 rounded-md transition-colors {% if request.resolver_match.url_name == 'account-notifications' %}text-content bg-surface-input{% else %}text-content-muted hover:text-content hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
                   {% if unread_notifications_count > 0 %}
-                    <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-1 ring-white"></span>
+                    <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-1 ring-surface"></span>
                   {% endif %}
                 </a>
               </div>
               <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-content-soft hover:bg-surface-input">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
                   {% trans "Logout" %}
                 </button>
               </form>
             {% else %}
-              <a href="{% url 'login' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+              <a href="{% url 'login' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-content-soft hover:bg-surface-input">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
                 Login
               </a>
-              <a href="{% url 'signup' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">
+              <a href="{% url 'signup' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-content-soft hover:bg-surface-input">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
                 {% trans "Signup" %}
               </a>
             {% endif %}
+            <button type="button"
+                    class="js-theme-toggle w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-content-muted hover:bg-surface-input">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 block dark:hidden"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden dark:block"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
+              <span class="block dark:hidden">{% trans "Dark mode" %}</span>
+              <span class="hidden dark:block">{% trans "Light mode" %}</span>
+            </button>
             <a href="{% url 'select-language' %}{% if 'select-language' not in request.path %}?next={{ request.get_full_path|urlencode }}{% endif %}"
-               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-100">
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-content-muted hover:bg-surface-input">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" /></svg>
               {% trans "Language" %}
             </a>
@@ -410,16 +428,16 @@
         </main>
 
         {# Footer #}
-        <footer class="border-t border-slate-200 mt-12">
+        <footer class="border-t border-divider mt-12">
           <div class="max-w-5xl mx-auto px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2 text-slate-400 text-sm">
+            <div class="flex items-center gap-2 text-content-muted text-sm">
               <span>© {% now "Y" %} Board Gamers</span>
             </div>
-            <div class="flex items-center gap-6 text-xs text-slate-400">
-              <a href="{% url 'about' %}" class="hover:text-slate-700 transition-colors">{% trans "About" %}</a>
-              <a href="{% url 'privacy' %}" class="hover:text-slate-700 transition-colors">{% trans "Privacy" %}</a>
-              <a href="{% url 'terms' %}" class="hover:text-slate-700 transition-colors">{% trans "Terms" %}</a>
-              <a href="{% url 'contacts' %}" class="hover:text-slate-700 transition-colors">{% trans "Contacts" %}</a>
+            <div class="flex items-center gap-6 text-xs text-content-muted">
+              <a href="{% url 'about' %}" class="hover:text-content transition-colors">{% trans "About" %}</a>
+              <a href="{% url 'privacy' %}" class="hover:text-content transition-colors">{% trans "Privacy" %}</a>
+              <a href="{% url 'terms' %}" class="hover:text-content transition-colors">{% trans "Terms" %}</a>
+              <a href="{% url 'contacts' %}" class="hover:text-content transition-colors">{% trans "Contacts" %}</a>
             </div>
           </div>
         </footer>
@@ -433,6 +451,26 @@
 
 {% block bodyjs %}
   <script>
+    // ── Theme toggle (light/dark) ──────────────────────────────────────
+    // Anti-flash in <head> already set .dark from localStorage/OS. Here we
+    // wire the toggles and keep <meta theme-color> in sync.
+    (function () {
+      const THEME_KEY = 'bgTheme';
+      const meta = document.getElementById('meta-theme-color');
+      function apply(dark) {
+        document.documentElement.classList.toggle('dark', dark);
+        if (meta) meta.setAttribute('content', dark ? '#0b1120' : '#ffffff');
+      }
+      apply(document.documentElement.classList.contains('dark'));
+      document.querySelectorAll('.js-theme-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const dark = !document.documentElement.classList.contains('dark');
+          apply(dark);
+          try { localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light'); } catch (e) {}
+        });
+      });
+    })();
+
     // ── Desktop sidebar collapse ───────────────────────────────────────
     const sidebarFixed         = document.getElementById('sidebar-fixed');
     const sidebarSpacer        = document.getElementById('sidebar-spacer');
