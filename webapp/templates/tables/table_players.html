@@ -34,20 +34,20 @@
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-slate-500 mb-1">
+    <p class="text-sm text-content-muted mb-1">
       <a href="{% url 'table-detail' table.slug %}" class="text-blue-600 hover:underline">{{ table.title }}</a> ›
     </p>
-    <h1 class="text-2xl font-extrabold text-slate-900">{% trans "Manage players" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Manage players" %}</h1>
   </div>
 
   <div class="max-w-xl space-y-6">
 
     {# ── Current players ─────────────────────────────────────────────── #}
-    <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">{% trans "Players" %}</p>
+    <div class="rounded-xl border border-divider bg-surface overflow-hidden">
+      <div class="px-4 py-3 border-b border-divider-soft flex items-center justify-between">
+        <p class="text-xs font-bold uppercase tracking-widest text-content-muted">{% trans "Players" %}</p>
         {% if table.status == table.CLOSED %}
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 flex items-center gap-1">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted flex items-center gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
             </svg>
@@ -57,7 +57,7 @@
       </div>
 
       {% if players %}
-        <ul class="divide-y divide-slate-100">
+        <ul class="divide-y divide-divider-soft">
           {% for player in players %}
             <li class="flex items-center gap-3 px-4 py-3">
               {% if player.is_guest %}
@@ -65,18 +65,18 @@
                   {{ player.guest_profile.name|slice:":2"|upper }}
                 </div>
                 <div class="flex-1 min-w-0">
-                  <span class="text-sm font-semibold text-slate-800 truncate block">{{ player.guest_profile.name }}</span>
-                  <span class="text-xs text-slate-400">{% trans "guest of" %} {{ player.guest_profile.owner.nickname }}</span>
+                  <span class="text-sm font-semibold text-content truncate block">{{ player.guest_profile.name }}</span>
+                  <span class="text-xs text-content-muted">{% trans "guest of" %} {{ player.guest_profile.owner.nickname }}</span>
                 </div>
               {% else %}
                 <img src="{{ player.user_profile.avatar_url }}" alt="{{ player.user_profile.nickname }}"
                      class="w-9 h-9 rounded-full object-cover flex-shrink-0">
-                <span class="flex-1 text-sm font-semibold text-slate-800 truncate">{{ player.user_profile.nickname }}</span>
+                <span class="flex-1 text-sm font-semibold text-content truncate">{{ player.user_profile.nickname }}</span>
               {% endif %}
               <button type="button"
                       data-remove-url="{% url 'remove-player' table.slug player.id %}"
                       data-nickname="{{ player.display_name }}"
-                      class="js-remove-player flex-shrink-0 p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
+                      class="js-remove-player flex-shrink-0 p-1.5 rounded-lg text-content-muted hover:text-red-500 hover:bg-red-50 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
@@ -85,19 +85,19 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p class="px-4 py-6 text-sm text-slate-400 text-center">{% trans "No players yet." %}</p>
+        <p class="px-4 py-6 text-sm text-content-muted text-center">{% trans "No players yet." %}</p>
       {% endif %}
     </div>
 
     {# ── Invite / Full ────────────────────────────────────────────────── #}
     {% if available_seats > 0 or table.unlimited_seats %}
-      <div class="rounded-xl border border-slate-200 bg-white p-4">
-        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "Invite a gamer" %}</p>
+      <div class="rounded-xl border border-divider bg-surface p-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-content-muted mb-3">{% trans "Invite a gamer" %}</p>
         <form method="post" action="{% url 'table-add-player' table.slug %}" class="flex flex-col sm:flex-row gap-2">
           {% csrf_token %}
           <div class="flex-1 min-w-0">{{ add_player_form.player }}</div>
           <button type="submit"
-                  class="flex-shrink-0 flex items-center justify-center gap-1.5 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+                  class="flex-shrink-0 flex items-center justify-center gap-1.5 rounded-full bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
             </svg>
@@ -106,25 +106,25 @@
         </form>
       </div>
     {% else %}
-      <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-400 flex-shrink-0">
+      <div class="rounded-xl border border-divider-soft bg-surface-alt px-4 py-3 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
           <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
         </svg>
-        <p class="text-sm text-slate-500 font-medium">{% trans "Table is full" %}</p>
+        <p class="text-sm text-content-muted font-medium">{% trans "Table is full" %}</p>
       </div>
     {% endif %}
 
     {# ── External players ─────────────────────────────────────────────── #}
-    <div class="rounded-xl border border-slate-200 bg-white p-4">
-      <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">{% trans "External players" %}</p>
+    <div class="rounded-xl border border-divider bg-surface p-4">
+      <p class="text-xs font-bold uppercase tracking-widest text-content-muted mb-3">{% trans "External players" %}</p>
       <div class="flex items-center gap-4">
-        <span class="text-3xl font-extrabold text-slate-900 w-10 text-center">{{ table.external_players }}</span>
+        <span class="text-3xl font-extrabold text-content w-10 text-center">{{ table.external_players }}</span>
         <div class="flex items-center gap-2">
           <form method="post" action="{% url 'remove_external_player' table.slug %}" class="js-external-form">
             {% csrf_token %}
             <button type="submit"
                     {% if table.external_players <= 0 %}disabled{% endif %}
-                    class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                    class="w-9 h-9 flex items-center justify-center rounded-full border border-divider text-content-soft hover:bg-surface-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
               </svg>
@@ -134,7 +134,7 @@
             {% csrf_token %}
             <button type="submit"
                     {% if available_seats <= 0 and not table.unlimited_seats %}disabled{% endif %}
-                    class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                    class="w-9 h-9 flex items-center justify-center rounded-full border border-divider text-content-soft hover:bg-surface-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
@@ -144,7 +144,7 @@
             <form method="post" action="{% url 'clear_external_players' table.slug %}" class="js-external-form">
               {% csrf_token %}
               <button type="submit"
-                      class="ml-1 text-xs text-slate-400 hover:text-red-500 transition-colors">
+                      class="ml-1 text-xs text-content-muted hover:text-red-500 transition-colors">
                 {% trans "Clear" %}
               </button>
             </form>
@@ -158,12 +158,12 @@
   {# ── Remove player confirm dialog ─────────────────────────────────── #}
   <div id="remove-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="remove-dialog-backdrop"></div>
-    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-      <p class="text-base font-bold text-slate-900 mb-1">{% trans "Remove player?" %}</p>
-      <p class="text-sm text-slate-500 mb-5">{% trans "Are you sure you want to remove" %} <strong id="remove-dialog-text"></strong>?</p>
+    <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <p class="text-base font-bold text-content mb-1">{% trans "Remove player?" %}</p>
+      <p class="text-sm text-content-muted mb-5">{% trans "Are you sure you want to remove" %} <strong id="remove-dialog-text"></strong>?</p>
       <div class="flex gap-3">
         <button type="button" id="remove-dialog-cancel"
-                class="flex-1 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                class="flex-1 rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
           {% trans "Cancel" %}
         </button>
         <form method="post" id="remove-dialog-form">

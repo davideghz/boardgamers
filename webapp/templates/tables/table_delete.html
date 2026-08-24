@@ -12,9 +12,9 @@
         </svg>
       </div>
 
-      <h1 class="text-xl font-extrabold text-slate-900 text-center mb-2">{% trans "Confirm delete" %}</h1>
-      <p class="text-sm text-slate-500 text-center mb-8">
-        {% trans "Are you sure you want to delete" %} <strong class="text-slate-700">«{{ table.title }}»</strong>?
+      <h1 class="text-xl font-extrabold text-content text-center mb-2">{% trans "Confirm delete" %}</h1>
+      <p class="text-sm text-content-muted text-center mb-8">
+        {% trans "Are you sure you want to delete" %} <strong class="text-content">«{{ table.title }}»</strong>?
         {% trans "This action cannot be undone." %}
       </p>
 
@@ -26,7 +26,7 @@
           {% trans "Delete" %}
         </button>
         <a href="{% url 'table-detail' table.slug %}"
-           class="w-full flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors text-decoration-none">
+           class="w-full flex items-center justify-center gap-2 rounded-full border border-divider bg-surface px-4 py-3 text-sm font-bold text-content hover:bg-surface-alt transition-colors text-decoration-none">
           {% trans "Cancel" %}
         </a>
       </form>
