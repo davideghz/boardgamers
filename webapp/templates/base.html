@@ -196,6 +196,48 @@
     .dark .numInputWrapper span { border-color: var(--border); }
     .dark .numInputWrapper span.arrowUp:after { border-bottom-color: var(--text-muted); }
     .dark .numInputWrapper span.arrowDown:after { border-top-color: var(--text-muted); }
+
+    /* ── Accent adjustments for dark (phase 5, WCAG AA) ─────────────────
+       Raw accent utilities are kept in the markup; here we retune them for
+       a dark ground without per-element dark: variants. `html.dark` raises
+       specificity so these win over the plain utilities (and any dark:).
+       Light -200/-300 accent text (on dark/coloured fills) is left as-is. */
+    /* Accent TEXT: lighten dark shades to reach AA contrast on dark surfaces */
+    html.dark .text-blue-500, html.dark .text-blue-600, html.dark .text-blue-700, html.dark .text-blue-800,
+    html.dark .hover\:text-blue-600:hover, html.dark .hover\:text-blue-700:hover, html.dark .hover\:text-blue-800:hover { color: #60a5fa; }
+    html.dark .text-red-500, html.dark .text-red-600, html.dark .text-red-700,
+    html.dark .hover\:text-red-500:hover, html.dark .hover\:text-red-700:hover { color: #f87171; }
+    html.dark .text-green-600, html.dark .text-green-700,
+    html.dark .text-emerald-600, html.dark .text-emerald-700 { color: #4ade80; }
+    html.dark .text-amber-500, html.dark .text-amber-600, html.dark .text-amber-700, html.dark .text-amber-800 { color: #fbbf24; }
+    html.dark .text-orange-600, html.dark .text-orange-700 { color: #fb923c; }
+    html.dark .text-violet-600, html.dark .text-violet-700, html.dark .text-purple-500, html.dark .text-purple-600, html.dark .text-purple-700 { color: #c4b5fd; }
+
+    /* Accent BACKGROUND tints: replace bright -50/-100 washes with translucent dark tints */
+    html.dark .bg-blue-50, html.dark .hover\:bg-blue-50:hover { background-color: rgba(37,99,235,.14); }
+    html.dark .bg-blue-100 { background-color: rgba(37,99,235,.24); }
+    html.dark .bg-red-50, html.dark .hover\:bg-red-50:hover { background-color: rgba(239,68,68,.13); }
+    html.dark .bg-red-100 { background-color: rgba(239,68,68,.22); }
+    html.dark .bg-green-50, html.dark .hover\:bg-green-50:hover { background-color: rgba(34,197,94,.13); }
+    html.dark .bg-green-100, html.dark .hover\:bg-green-100:hover { background-color: rgba(34,197,94,.22); }
+    html.dark .bg-emerald-50 { background-color: rgba(16,185,129,.13); }
+    html.dark .bg-amber-50 { background-color: rgba(245,158,11,.13); }
+    html.dark .bg-amber-100, html.dark .hover\:bg-amber-100:hover { background-color: rgba(245,158,11,.22); }
+    html.dark .bg-orange-50 { background-color: rgba(249,115,22,.13); }
+    html.dark .bg-orange-100 { background-color: rgba(249,115,22,.22); }
+    html.dark .bg-violet-50 { background-color: rgba(139,92,246,.13); }
+    html.dark .bg-purple-50 { background-color: rgba(168,85,247,.13); }
+    html.dark .bg-purple-100 { background-color: rgba(168,85,247,.22); }
+    html.dark .bg-yellow-50 { background-color: rgba(234,179,8,.13); }
+
+    /* Accent BORDERS on those tinted panels */
+    html.dark .border-blue-200 { border-color: rgba(59,130,246,.30); }
+    html.dark .border-red-200 { border-color: rgba(239,68,68,.30); }
+    html.dark .border-green-200 { border-color: rgba(34,197,94,.30); }
+    html.dark .border-amber-200 { border-color: rgba(245,158,11,.30); }
+    html.dark .border-orange-200 { border-color: rgba(249,115,22,.30); }
+    html.dark .border-violet-200, html.dark .border-violet-300 { border-color: rgba(139,92,246,.30); }
+    html.dark .border-purple-200 { border-color: rgba(168,85,247,.30); }
   </style>
 
   {% block style %}{% endblock style %}
