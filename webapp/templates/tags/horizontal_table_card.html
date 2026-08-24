@@ -1,9 +1,9 @@
 {% load i18n %}
 <a href="{% if table.event %}{% url 'event_table_detail' event_slug=table.event.slug table_slug=table.slug %}{% else %}{% url 'table-detail' slug=table.slug %}{% endif %}"
-   class="group flex items-center rounded-xl border border-slate-200 bg-white overflow-hidden hover:shadow-md hover:border-slate-300 transition-all text-decoration-none py-3">
+   class="group flex items-center rounded-xl border border-divider bg-surface overflow-hidden hover:shadow-md hover:border-divider transition-all text-decoration-none py-3">
 
   {# Cover image — contained square like location logo #}
-  <div class="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 self-center ml-3">
+  <div class="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-divider bg-surface-input self-center ml-3">
     <img src="{{ table.cover_url }}" alt="{{ table.game }}" class="w-full h-full object-cover">
   </div>
 
@@ -12,13 +12,13 @@
 
     {# Date + time + status #}
     <div class="flex items-center justify-between gap-2">
-      <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+      <span class="text-[10px] font-semibold text-content-muted uppercase tracking-wide">
         {{ table.date|date:"D j M" }} · {{ table.time|time:"H:i" }}
       </span>
       <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full
         {% if table.status == 'open' %}bg-green-100 text-green-700
         {% elif table.status == 'ongoing' %}bg-blue-100 text-blue-700
-        {% else %}bg-slate-100 text-slate-500{% endif %}">
+        {% else %}bg-surface-input text-content-muted{% endif %}">
         {{ table.get_status_display }}
       </span>
     </div>
@@ -32,11 +32,11 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
         </svg>
       {% endif %}
-      <p class="text-sm font-bold text-slate-900 truncate">{{ table.title }}</p>
+      <p class="text-sm font-bold text-content truncate">{{ table.title }}</p>
     </div>
 
     {# Game + location + time #}
-    <div class="flex flex-col gap-0.5 text-xs text-slate-400">
+    <div class="flex flex-col gap-0.5 text-xs text-content-muted">
       {% if table.game %}
         <span class="text-blue-600 font-semibold truncate">{{ table.game }}</span>
       {% endif %}

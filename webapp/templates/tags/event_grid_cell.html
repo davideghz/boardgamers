@@ -1,12 +1,12 @@
 {% load i18n %}
 
 <a href="{% url 'event_table_detail' event_slug=table.event.slug table_slug=table.slug %}"
-   class="block rounded-lg border bg-white px-2 py-1.5 hover:shadow-sm transition-all
-          {% if table.has_conflict %}border-red-300 ring-1 ring-red-200{% else %}border-slate-200 hover:border-slate-300{% endif %}">
-  <p class="text-xs font-bold text-slate-900 leading-snug line-clamp-2">
+   class="block rounded-lg border bg-surface px-2 py-1.5 hover:shadow-sm transition-all
+          {% if table.has_conflict %}border-red-300 ring-1 ring-red-200{% else %}border-divider hover:border-divider{% endif %}">
+  <p class="text-xs font-bold text-content leading-snug line-clamp-2">
     {% if table.title %}{{ table.title }}{% elif table.game %}{{ table.game }}{% else %}{% trans "Game TBD" %}{% endif %}
   </p>
-  <div class="flex items-center justify-between gap-1 mt-1 text-[10px] text-slate-500">
+  <div class="flex items-center justify-between gap-1 mt-1 text-[10px] text-content-muted">
     <span>{{ table.time|time:"H:i" }}–{{ table.end_time|time:"H:i" }}</span>
     <span class="flex items-center gap-0.5">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3">

@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <a href="{% url 'event_detail' event.slug %}"
-   class="group flex flex-col rounded-xl border border-slate-200 hover:shadow-sm transition-all overflow-hidden w-full bg-white cursor-pointer">
+   class="group flex flex-col rounded-xl border border-divider hover:shadow-sm transition-all overflow-hidden w-full bg-surface cursor-pointer">
 
   {# Cover image #}
   <div class="w-full h-[150px] overflow-hidden relative">
@@ -27,9 +27,9 @@
 
   {# Body #}
   <div class="p-3 flex-1 flex flex-col gap-1.5">
-    <h3 class="font-bold text-sm text-slate-900 leading-snug line-clamp-2">{{ event.name }}</h3>
+    <h3 class="font-bold text-sm text-content leading-snug line-clamp-2">{{ event.name }}</h3>
     {% if event.start_date %}
-      <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+      <span class="flex items-center gap-1.5 text-xs font-semibold text-content-muted">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-500"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
         {% if event.start_date == event.end_date %}
           {{ event.start_date|date:"j M Y" }}
