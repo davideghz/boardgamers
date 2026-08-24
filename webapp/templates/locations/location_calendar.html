@@ -49,8 +49,8 @@
 
   {# ── Reservation toolbar (hidden in normal mode, managers only) ──── #}
   {% if is_manager %}
-  <div id="res-toolbar" class="hidden mb-4 p-3 bg-violet-50 border border-violet-200 rounded-xl space-y-3">
-    <p class="text-xs font-semibold text-violet-700">
+  <div id="res-toolbar" class="hidden mb-4 p-3 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/30 rounded-xl space-y-3">
+    <p class="text-xs font-semibold text-violet-700 dark:text-violet-300">
       {% trans "Select a group then click cells to reserve them. Click again to remove." %}
     </p>
     <div class="flex flex-wrap items-center gap-2">
@@ -59,11 +59,11 @@
       <div class="flex items-center gap-1.5">
         <input id="new-group-color" type="color" value="#16a34a"
                title="{% trans 'Group color' %}"
-               class="w-7 h-7 rounded-lg border border-violet-300 bg-surface cursor-pointer p-0.5 flex-shrink-0"
+               class="w-7 h-7 rounded-lg border border-violet-300 dark:border-violet-500/40 bg-surface cursor-pointer p-0.5 flex-shrink-0"
                style="padding:2px">
         <input id="new-group-input" type="text" maxlength="20" autocomplete="off"
                placeholder="{% trans 'New group...' %}"
-               class="rounded-lg border border-violet-300 bg-surface px-2.5 py-1.5 text-xs text-content
+               class="rounded-lg border border-violet-300 dark:border-violet-500/40 bg-surface px-2.5 py-1.5 text-xs text-content
                       placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-violet-400/30
                       focus:border-violet-500 w-32"
                onkeydown="if(event.key==='Enter')addGroup()">
@@ -95,7 +95,7 @@
           {% for dh in date_headers %}
           <th class="border-b border-r border-divider px-1 pt-2 pb-1.5 text-center
                      min-w-[150px] w-[150px]
-                     {% if dh.month_changed and not forloop.first %}border-l-2 border-l-slate-300{% endif %}
+                     {% if dh.month_changed and not forloop.first %}border-l-2 border-l-divider{% endif %}
                      {% if dh.is_weekend %}bg-surface-input{% else %}bg-surface-alt{% endif %}">
             {% if dh.month_changed %}
               <span class="block text-[9px] font-bold text-content-muted uppercase tracking-wide mb-0.5">{{ dh.date|date:"M" }}</span>
@@ -110,7 +110,7 @@
             {% endif %}
             <div class="h-4 mt-1 flex items-center justify-center">
               {% if dh.sessions %}
-                <span class="text-[9px] font-bold bg-blue-100 text-blue-600 rounded-full px-1.5 py-px leading-none">{{ dh.sessions|length }}</span>
+                <span class="text-[9px] font-bold bg-blue-100 dark:bg-blue-500/25 text-blue-600 dark:text-blue-300 rounded-full px-1.5 py-px leading-none">{{ dh.sessions|length }}</span>
               {% endif %}
             </div>
           </th>
@@ -136,7 +136,7 @@
               onclick="onCellClick(event,{{ forloop.parentloop.counter0 }},{{ forloop.counter0 }})"
               style="height:150px;max-height:150px"
               class="cal-cell border-b border-r border-divider-soft w-[150px] align-top p-0 relative
-                     {% if cell.month_changed and not forloop.first %}border-l border-l-slate-200{% endif %}
+                     {% if cell.month_changed and not forloop.first %}border-l border-l-divider-soft{% endif %}
                      {% if cell.is_weekend %}bg-surface-alt{% endif %}">
 
             <div class="cell-content flex flex-col h-[150px] overflow-hidden">
@@ -157,7 +157,7 @@
               <div class="flex justify-end pr-1 pb-1 mt-auto pt-0.5">
                 <a href="{% url 'location-table-create' location.slug %}?date={{ cell.date|date:'Y-m-d' }}"
                    class="add-session-btn flex items-center justify-center w-5 h-5 rounded
-                          text-content-muted hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                          text-content-muted hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/20 transition-colors"
                    title="{% trans 'Add session' %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -290,7 +290,7 @@
       wrap.style.cssText =
         'display:inline-flex;align-items:center;border-radius:999px;font-size:12px;font-weight:700;' +
         'border:2px solid ' + g.color + ';' +
-        'background:' + (isSelected ? g.color : 'white') + ';' +
+        'background:' + (isSelected ? g.color : 'var(--surface)') + ';' +
         'color:' + (isSelected ? 'white' : g.color) + ';' +
         'transition:background .15s,color .15s;overflow:hidden;';
 
@@ -416,7 +416,7 @@
     cursor: cell;
   }
   #cal-grid.reservation-mode .cal-cell:hover {
-    background-color: #f1f5f9;
+    background-color: var(--surface-3);
   }
 
   /* Push session content below the reservation label */
