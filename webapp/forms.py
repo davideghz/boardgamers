@@ -531,11 +531,26 @@ class PhysicalTableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, event=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.event = event
         if event is not None:
+            # Set event on the instance so ModelForm.validate_unique() can check
+            # the (event, name) unique_together constraint at validation time,
+            # instead of letting a duplicate name blow up as an IntegrityError.
+            self.instance.event = event
             self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
         else:
             self.fields['play_area'].queryset = PlayArea.objects.none()
         self.fields['play_area'].required = False
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name and self.event is not None:
+            qs = PhysicalTable.objects.filter(event=self.event, name=name)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise ValidationError(_('A station with this name already exists for this event.'))
+        return name
 
 
 
