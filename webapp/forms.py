@@ -171,6 +171,13 @@ class TableForm(ModelForm, TailwindForm):
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data.get('unlimited_seats'):
+            # min/max are irrelevant for unlimited tables, but the columns are
+            # NOT NULL: when the form leaves them blank, fall back to the model
+            # defaults instead of writing None (which raises IntegrityError).
+            if cleaned_data.get('min_players') is None:
+                cleaned_data['min_players'] = Table._meta.get_field('min_players').default
+            if cleaned_data.get('max_players') is None:
+                cleaned_data['max_players'] = Table._meta.get_field('max_players').default
             return cleaned_data
         min_players = cleaned_data.get('min_players')
         max_players = cleaned_data.get('max_players')
@@ -282,6 +289,13 @@ class EventTableForm(ModelForm, TailwindForm):
             self.add_error('physical_table', _("The selected station does not belong to the selected area."))
 
         if cleaned_data.get('unlimited_seats'):
+            # min/max are irrelevant for unlimited tables, but the columns are
+            # NOT NULL: when the form leaves them blank, fall back to the model
+            # defaults instead of writing None (which raises IntegrityError).
+            if cleaned_data.get('min_players') is None:
+                cleaned_data['min_players'] = Table._meta.get_field('min_players').default
+            if cleaned_data.get('max_players') is None:
+                cleaned_data['max_players'] = Table._meta.get_field('max_players').default
             return cleaned_data
 
         min_players = cleaned_data.get('min_players')
