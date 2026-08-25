@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-17 15:06+0200\n"
+"POT-Creation-Date: 2026-08-25 15:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,6 +62,9 @@ msgstr "Nome"
 
 msgid "Last name"
 msgstr "Cognome"
+
+msgid "A station with this name already exists for this event."
+msgstr "Esiste già una postazione con questo nome per questo evento."
 
 msgid "Manager"
 msgstr "Manager"
@@ -1023,6 +1026,15 @@ msgstr "Esci"
 msgid "Signup"
 msgstr "Registrati"
 
+msgid "Theme"
+msgstr ""
+
+msgid "Dark mode"
+msgstr "Modalità scura"
+
+msgid "Light mode"
+msgstr "Modalità chiara"
+
 msgid "Language"
 msgstr "Lingua"
 
@@ -1228,6 +1240,9 @@ msgstr "Numero di telefono"
 
 msgid "Save number"
 msgstr "Salva numero"
+
+msgid "Event concluded"
+msgstr "Evento concluso"
 
 #, python-format
 msgid "%(n)s person attending"
@@ -2803,6 +2818,9 @@ msgstr "Senza postazione"
 
 msgid "General"
 msgstr "Generale"
+
+msgid "This event has already ended, registration is closed."
+msgstr "Questo evento è già terminato, le iscrizioni sono chiuse."
 
 msgid "You're now registered for this event!"
 msgstr "Ora sei iscritto a questo evento!"

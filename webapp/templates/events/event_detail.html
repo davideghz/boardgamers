@@ -307,7 +307,14 @@
           {# Participate CTA #}
           {% if event.status == 'approved' %}
             <div>
-              {% if user.is_authenticated %}
+              {% if is_concluded %}
+                <div class="flex items-center justify-center gap-2 w-full rounded-full bg-surface-alt border border-divider px-3 py-2.5 text-sm font-semibold text-content-muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  {% trans "Event concluded" %}
+                </div>
+              {% elif user.is_authenticated %}
                 {% if is_participant %}
                   <div class="flex items-center justify-center gap-2 w-full rounded-full bg-green-50 border border-green-200 px-3 py-2.5 text-sm font-semibold text-green-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">

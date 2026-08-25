@@ -404,6 +404,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'has_conflicts': bool(conflict_ids),
             'games_in_event': games_in_event,
             'today': today,
+            'is_concluded': event.is_concluded(today),
         })
         context['meta'] = event.as_meta(self.request)
         return context
@@ -418,6 +419,9 @@ class EventJoinView(LoginRequiredMixin, View):
         if event.status != Event.APPROVED and not (
                 request.user.is_superuser or event.is_manager(user_profile)):
             raise Http404
+        if event.is_concluded():
+            messages.info(request, _("This event has already ended, registration is closed."))
+            return redirect('event_detail', slug=slug)
         participant, created = EventParticipant.objects.get_or_create(
             event=event, user_profile=user_profile)
         if created:

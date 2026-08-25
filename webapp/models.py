@@ -1215,6 +1215,17 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             today = timezone.localdate()
         return any(d.date >= today for d in self.sorted_dates)
 
+    def is_concluded(self, today=None):
+        """True if the event has dates and all of them are in the past.
+
+        An event without any date is not considered concluded (it is simply
+        undated / still being set up).
+        """
+        if today is None:
+            today = timezone.localdate()
+        dates = self.sorted_dates
+        return bool(dates) and all(d.date < today for d in dates)
+
     def __str__(self):
         return self.name
 
