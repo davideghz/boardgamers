@@ -421,5 +421,5 @@
 {% endblock extrabodyjs %}
 
 {% block jsonld %}
-  <script type="application/ld+json">{{ table_jsonld|safe }}</script>
+  {% if table_jsonld %}<script type="application/ld+json">{{ table_jsonld|safe }}</script>{% endif %}
 {% endblock %}

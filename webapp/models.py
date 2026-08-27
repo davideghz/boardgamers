@@ -675,9 +675,20 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         return reverse('table-detail', kwargs={'slug': self.slug})
 
     def structured_data(self, request=None):
-        """schema.org/Event JSON-LD payload for a table (a game session).
-        Location tables reference their venue Place; event tables link the
-        parent event via `superEvent` and inherit its venue as `location`."""
+        """schema.org/Event JSON-LD payload for a table (a game session), or
+        None. Location tables reference their venue Place; event tables link the
+        parent event via `superEvent` and inherit its venue as `location`.
+        `location` is required by schema.org, so when the venue is unknown (an
+        event table whose parent event has no address) we return None and the
+        view skips the markup rather than emit a payload Search Console flags."""
+        if self.location_id:
+            location = self.location.as_schema_place(request)
+        elif self.event_id:
+            location = self.event.as_schema_place()
+        else:
+            location = None
+        if not location:
+            return None
         data = {
             '@context': 'https://schema.org',
             '@type': 'Event',
@@ -687,7 +698,14 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             'startDate': self.start_datetime.isoformat(),
             'endDate': self.end_datetime.isoformat(),
             'url': _absolute_url(self.get_absolute_url(), request),
+            'location': location,
         }
+        if self.event_id:
+            data['superEvent'] = {
+                '@type': 'Event',
+                'name': self.event.name,
+                'url': _absolute_url(self.event.get_absolute_url(), request),
+            }
         if not self.unlimited_seats:
             data['maximumAttendeeCapacity'] = self.max_players
         description = _plain_text(self.description)
@@ -696,17 +714,6 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         image = self.get_meta_image()
         if image:
             data['image'] = _absolute_url(image, request)
-        if self.location_id:
-            data['location'] = self.location.as_schema_place(request)
-        elif self.event_id:
-            data['superEvent'] = {
-                '@type': 'Event',
-                'name': self.event.name,
-                'url': _absolute_url(self.event.get_absolute_url(), request),
-            }
-            venue = self.event.as_schema_place()
-            if venue:
-                data['location'] = venue
         if self.author and self.author.nickname:
             data['organizer'] = {'@type': 'Organization', 'name': self.author.nickname}
         return data
@@ -1132,9 +1139,16 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
 
     def structured_data(self, request=None):
-        """schema.org/Event JSON-LD payload for search-engine rich results.
-        Relative URLs are made absolute from `request` when available, else
-        from settings.DOMAIN_URL (S3 media URLs are already absolute)."""
+        """schema.org/Event JSON-LD payload for search-engine rich results, or
+        None. `startDate` and `location` are required by schema.org; when either
+        is unknown (undated event, or no venue address) we return None so the
+        view skips the markup rather than emit an invalid payload that Search
+        Console flags. Relative URLs are made absolute from `request` when
+        available, else from settings.DOMAIN_URL (S3 media URLs are already
+        absolute)."""
+        place = self.as_schema_place()
+        if not self.start_date or not place:
+            return None
         data = {
             '@context': 'https://schema.org',
             '@type': 'Event',
@@ -1142,9 +1156,9 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
             'eventStatus': 'https://schema.org/EventScheduled',
             'url': _absolute_url(self.get_absolute_url(), request),
+            'startDate': self.start_date.isoformat(),
+            'location': place,
         }
-        if self.start_date:
-            data['startDate'] = self.start_date.isoformat()
         if self.end_date:
             data['endDate'] = self.end_date.isoformat()
         description = _plain_text(self.description)
@@ -1152,9 +1166,6 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['description'] = description
         if self.cover:
             data['image'] = _absolute_url(self.cover_url, request)
-        place = self.as_schema_place()
-        if place:
-            data['location'] = place
         if self.creator and self.creator.nickname:
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data

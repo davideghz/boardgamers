@@ -152,6 +152,7 @@ class BaseTableDetailView(generic.DetailView):
                 owner=self.request.user.user_profile
             ).exclude(id__in=already_at_table)
 
+        table_data = table.structured_data(self.request)
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
@@ -166,8 +167,8 @@ class BaseTableDetailView(generic.DetailView):
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,
             'meta': table.as_meta(self.request),
-            'table_jsonld': json.dumps(
-                table.structured_data(self.request), ensure_ascii=False),
+            'table_jsonld': (
+                json.dumps(table_data, ensure_ascii=False) if table_data else None),
         })
         return context
 

@@ -469,5 +469,5 @@
 {% endblock %}
 
 {% block jsonld %}
-  <script type="application/ld+json">{{ event_jsonld|safe }}</script>
+  {% if event_jsonld %}<script type="application/ld+json">{{ event_jsonld|safe }}</script>{% endif %}
 {% endblock %}

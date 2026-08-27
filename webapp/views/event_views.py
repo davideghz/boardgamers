@@ -103,8 +103,9 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             context['my_tables_agenda'] = my_agenda
             context['my_tables_overlap'] = my_tables_overlap
         context['meta'] = event.as_meta(self.request)
-        context['event_jsonld'] = json.dumps(
-            event.structured_data(self.request), ensure_ascii=False)
+        event_data = event.structured_data(self.request)
+        context['event_jsonld'] = (
+            json.dumps(event_data, ensure_ascii=False) if event_data else None)
         return context
 
     @staticmethod
