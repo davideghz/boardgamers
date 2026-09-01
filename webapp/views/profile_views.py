@@ -200,6 +200,7 @@ def disconnect_social(request, provider):
     return redirect('user-profile-edit')
 
 
+@login_required
 def upload_avatar(request):
     default_url = reverse('user-profile-detail', args=[request.user.user_profile.slug])
     next_url = request.POST.get('next') or request.GET.get('next') or default_url
