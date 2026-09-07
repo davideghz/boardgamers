@@ -200,6 +200,8 @@
     }
     .guest-add .btn { width: auto; padding: 9px 16px; }
 
+    .footer-action { margin: 16px 12px 0; }
+
     .state {
       padding: 48px 24px;
       text-align: center;
@@ -617,6 +619,7 @@
     listEl.innerHTML = '';
     if (!data.tables.length) {
       showState(STRINGS.no_tables);
+      listEl.appendChild(createTableButton(data.location));
       return;
     }
 
@@ -629,6 +632,20 @@
       }
       listEl.appendChild(card(table));
     });
+
+    listEl.appendChild(createTableButton(data.location));
+  }
+
+  function createTableButton(location) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'footer-action';
+    const button = text('button', 'btn secondary', STRINGS.create_table);
+    button.type = 'button';
+    // Creating a table needs the full form, and a logged-in session the webview
+    // does not have — so this leaves for the browser.
+    button.addEventListener('click', function () { tg.openLink(location.web_url); });
+    wrapper.appendChild(button);
+    return wrapper;
   }
 
   const ERRORS = {

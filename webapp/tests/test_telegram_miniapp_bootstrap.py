@@ -81,6 +81,8 @@ class BootstrapTest(TestCase):
         self.assertIsNone(body['profile'])
         self.assertEqual(body['telegram_user']['first_name'], 'Dave')
         self.assertEqual(body['location']['name'], self.location.name)
+        self.assertTrue(body['location']['web_url'].endswith(
+            f"/locations/{self.location.slug}/"))
         self.assertEqual(len(body['tables']), 1)
 
     def test_linked_user_is_recognised(self):

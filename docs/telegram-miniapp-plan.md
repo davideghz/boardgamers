@@ -3,8 +3,8 @@
 Piano di lavoro per portare la prenotazione dei tavoli dentro Telegram, sul modello di
 `t.me/GameNightSestoBot/prenota`.
 
-Stato: **fasi 0-5 implementate**; restano la 6 (annuncio automatico alla
-creazione tavolo) e la 7 (i18n).
+Stato: **fasi 0-5 implementate**; la **6 è in stand-by** (annuncio automatico
+alla creazione tavolo: parcheggiata, non scartata), resta la 7 (i18n).
 
 Scostamento dalla fase 3: i bottoni Partecipa/Esci stanno **su ogni card**,
 non sul `MainButton`. Il MainButton è unico e globale, quindi ha senso nel
@@ -214,7 +214,7 @@ esistenti prima di collegare la Mini App.
 | **3** | Endpoint join/leave + `MainButton`, gestione utente non collegato. | prenotazione end-to-end da Telegram |
 | **4** | Dettaglio tavolo + ospiti. | |
 | **5** | Bot: `/prenota`, bottone su `/tables`, `setMyCommands`, link in Manage › Telegram. | |
-| **6** | Annuncio automatico nuovo tavolo. | |
+| **6** | Annuncio automatico nuovo tavolo. **IN STAND-BY.** | |
 | **7** | i18n (`preferred_language`, fallback `user.language_code`), `docs/`, test end-to-end. | |
 
 Le fasi 0–3 sono il minimo rilasciabile e possono andare in produzione da sole.

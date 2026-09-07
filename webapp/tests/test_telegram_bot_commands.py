@@ -99,6 +99,20 @@ class BotCommandTest(TestCase):
         self.assertIn('Nessun tavolo aperto', send.call_args.args[1])
         self.assertEqual(self.buttons(send)[0]['url'], miniapp_link(self.location))
 
+    def test_tables_offers_creating_one(self):
+        make_table(location=self.location, author=UserProfileFactory())
+
+        send = self.send('/tables')
+
+        labels = [b['text'] for b in self.buttons(send)]
+        self.assertIn('➕ Crea un tavolo', labels)
+
+    def test_empty_listing_offers_creating_one(self):
+        send = self.send('/tables')
+
+        labels = [b['text'] for b in self.buttons(send)]
+        self.assertIn('➕ Crea un tavolo', labels)
+
     def test_inactive_config_is_ignored(self):
         self.config.active = False
         self.config.save()

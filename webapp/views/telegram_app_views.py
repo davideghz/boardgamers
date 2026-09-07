@@ -46,6 +46,7 @@ def miniapp(request):
         'external_players': _('%(count)s players signed up elsewhere'),
         'one_external_player': _('1 player signed up elsewhere'),
         'open_website': _('Open on Board-Gamers'),
+        'create_table': _('Create a table'),
         'join': _('Join'),
         'leave': _('Leave'),
         'working': _('One moment…'),

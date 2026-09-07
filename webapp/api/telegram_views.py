@@ -149,6 +149,12 @@ def _not_configured(chat_id, message_thread_id):
     )
 
 
+def _create_table_button(location):
+    base_url = f"{settings.SITE_PROTOCOL}://{settings.SITE_DOMAIN}"
+    return {"text": "➕ Crea un tavolo",
+            "url": f"{base_url}/locations/{location.slug}/"}
+
+
 def _miniapp_button(location):
     """URL button opening the Mini App.
 
@@ -209,10 +215,12 @@ def _handle_tables(chat_id, message_thread_id=None):
     if not tables:
         # Still offer the app: it is where a table gets created or watched for,
         # and an empty listing is exactly when people go looking.
+        rows = [[miniapp_button]] if miniapp_button else []
+        rows.append([_create_table_button(location)])
         send_message(
             chat_id,
             f"🎲 <b>{location.name}</b>\n\nNessun tavolo aperto al momento.",
-            reply_markup={"inline_keyboard": [[miniapp_button]]} if miniapp_button else None,
+            reply_markup={"inline_keyboard": rows},
             message_thread_id=message_thread_id,
         )
         return
@@ -232,6 +240,7 @@ def _handle_tables(chat_id, message_thread_id=None):
 
     location_url = f"{base_url}/locations/{location.slug}/"
     buttons.append([{"text": "📍 Tutti i tavoli →", "url": location_url}])
+    buttons.append([_create_table_button(location)])
 
     if miniapp_button:
         buttons.insert(0, [miniapp_button])

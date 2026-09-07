@@ -96,6 +96,8 @@ def bootstrap(request):
             'slug': location.slug,
             'city': location.city or '',
             'cover_url': location.cover_url,
+            'web_url': request.build_absolute_uri(
+                reverse('location-detail', kwargs={'slug': location.slug})),
         },
         'tables': [_serialize_table(t, joined_table_ids) for t in tables],
     })
