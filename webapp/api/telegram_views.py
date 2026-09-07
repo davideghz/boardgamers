@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from webapp.models import Location, Table, TelegramGroupConfig, TelegramSetupToken
-from webapp.services.telegram import send_message
+from webapp.services.telegram import miniapp_link, send_message
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +74,8 @@ def telegram_webhook(request):
             _handle_setup(chat_id, chat_title, args, message_thread_id, thread_title)
         elif command == '/tables':
             _handle_tables(chat_id, message_thread_id)
+        elif command == '/join':
+            _handle_join(chat_id, message_thread_id)
     except Exception:
         logger.exception("Error handling Telegram command %r", command)
 
@@ -109,7 +111,7 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_titl
         send_message(
             chat_id,
             f"✅ Bot configurato per <b>{token.location.name}</b>!\n\n"
-            f"Usa /tables per vedere i tavoli aperti.",
+            f"Usa /tables per l'elenco e /join per prenotare.",
             message_thread_id=message_thread_id,
         )
         return
@@ -127,23 +129,67 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_titl
     send_message(
         chat_id,
         f"✅ Bot configurato per <b>{token.location.name}</b>!\n\n"
-        f"Usa /tables per vedere i tavoli aperti.",
+        f"Usa /tables per l'elenco e /join per prenotare.",
+        message_thread_id=message_thread_id,
+    )
+
+
+def _config_for(chat_id):
+    return TelegramGroupConfig.objects.select_related('location').filter(
+        chat_id=chat_id, active=True
+    ).first()
+
+
+def _not_configured(chat_id, message_thread_id):
+    send_message(
+        chat_id,
+        "⚠️ Questo gruppo non è ancora configurato.\n"
+        "Chiedi al manager della location di generare un token dalla pagina di gestione.",
+        message_thread_id=message_thread_id,
+    )
+
+
+def _miniapp_button(location):
+    """URL button opening the Mini App.
+
+    Deliberately a URL button and not a `web_app` one: inline `web_app` buttons
+    are rejected in groups, while a t.me link opens the Mini App just the same.
+    """
+    link = miniapp_link(location)
+    if not link:
+        return None
+    return {"text": "📅 Prenota un tavolo", "url": link}
+
+
+def _handle_join(chat_id, message_thread_id=None):
+    config = _config_for(chat_id)
+    if not config:
+        _not_configured(chat_id, message_thread_id)
+        return
+
+    location = config.location
+    button = _miniapp_button(location)
+    if not button:
+        send_message(
+            chat_id,
+            "⚠️ La Mini App non è configurata. Contatta l'amministratore del sito.",
+            message_thread_id=message_thread_id,
+        )
+        return
+
+    send_message(
+        chat_id,
+        f"🎲 <b>{location.name}</b>\n\n"
+        f"Apri la lista dei tavoli e prenota il tuo posto.",
+        reply_markup={"inline_keyboard": [[button]]},
         message_thread_id=message_thread_id,
     )
 
 
 def _handle_tables(chat_id, message_thread_id=None):
-    config = TelegramGroupConfig.objects.select_related('location').filter(
-        chat_id=chat_id, active=True
-    ).first()
-
+    config = _config_for(chat_id)
     if not config:
-        send_message(
-            chat_id,
-            "⚠️ Questo gruppo non è ancora configurato.\n"
-            "Chiedi al manager della location di generare un token dalla pagina di gestione.",
-            message_thread_id=message_thread_id,
-        )
+        _not_configured(chat_id, message_thread_id)
         return
 
     today = timezone.localdate()
@@ -181,6 +227,10 @@ def _handle_tables(chat_id, message_thread_id=None):
 
     location_url = f"{base_url}/locations/{location.slug}/"
     buttons.append([{"text": "📍 Tutti i tavoli →", "url": location_url}])
+
+    miniapp_button = _miniapp_button(location)
+    if miniapp_button:
+        buttons.insert(0, [miniapp_button])
 
     send_message(
         chat_id,

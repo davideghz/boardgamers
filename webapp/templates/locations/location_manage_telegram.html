@@ -109,6 +109,28 @@
       <div id="token-error" class="hidden mt-4 text-xs text-red-600 font-medium"></div>
     </div>
 
+    {# ── Mini App link ─────────────────────────────────────────────────── #}
+    {% if miniapp_link %}
+      <div class="rounded-xl border border-divider bg-surface p-5">
+        <h2 class="text-sm font-bold text-content mb-1">{% trans "Booking link" %}</h2>
+        <p class="text-xs text-content-muted mb-4">
+          {% trans "Opens the table list inside Telegram, where members can book a seat. Pin it in your group or add it to the group description." %}
+        </p>
+
+        <div class="relative">
+          <pre id="miniapp-link" class="bg-elevated text-green-300 text-xs rounded-lg px-4 py-3 overflow-x-auto whitespace-pre-wrap break-all">{{ miniapp_link }}</pre>
+          <button onclick="copyMiniappLink(this)"
+                  class="absolute top-2 right-2 text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md transition-colors">
+            {% trans "Copy" %}
+          </button>
+        </div>
+
+        <p class="text-xs text-content-muted mt-3">
+          {% trans "Only users who connected their Telegram account to Board-Gamers can book; everyone else sees the list." %}
+        </p>
+      </div>
+    {% endif %}
+
     {# ── Available commands ────────────────────────────────────────────── #}
     <div class="rounded-xl border border-divider bg-surface-alt p-5">
       <h2 class="text-sm font-bold text-content mb-3">{% trans "Available commands" %}</h2>
@@ -121,6 +143,10 @@
           <code class="bg-surface-input text-content px-1.5 py-0.5 rounded font-mono">/tables</code>
           — {% trans "Show upcoming open tables for this location." %}
         </li>
+        <li>
+          <code class="bg-surface-input text-content px-1.5 py-0.5 rounded font-mono">/join</code>
+          — {% trans "Post a button that opens the booking app." %}
+        </li>
       </ul>
     </div>
 
@@ -128,6 +154,15 @@
 
   <script>
     const BOT_USERNAME = "{{ bot_username|escapejs }}";
+
+    function copyMiniappLink(button) {
+      const link = document.getElementById('miniapp-link').textContent;
+      navigator.clipboard.writeText(link).then(function () {
+        const original = button.textContent;
+        button.textContent = '{% trans "Copied" %}';
+        setTimeout(function () { button.textContent = original; }, 1500);
+      });
+    }
 
     document.getElementById('btn-generate').addEventListener('click', function() {
       const btn = this;

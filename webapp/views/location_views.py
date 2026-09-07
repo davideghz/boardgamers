@@ -1009,10 +1009,12 @@ class LocationManageTelegramView(LoginRequiredMixin, View):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
         configs = location.telegram_configs.filter(active=True)
+        from webapp.services.telegram import miniapp_link
         return render(request, 'locations/location_manage_telegram.html', {
             'location': location,
             'configs': configs,
             'bot_username': django_settings.TELEGRAM_BOT_USERNAME,
+            'miniapp_link': miniapp_link(location),
             'meta': Meta(title=_("Telegram – %(name)s") % {'name': location.name}),
         })
 

@@ -58,6 +58,21 @@ def send_message(chat_id, text, reply_markup=None, message_thread_id=None):
         logger.error("Telegram sendMessage failed: %s", e)
 
 
+def miniapp_link(location):
+    """Shareable link that opens the Mini App on `location`.
+
+    BotFather hosts one Mini App short name per URL, so the location travels in
+    `startapp` — Telegram hands it back as `start_param` inside the signed
+    initData. Returns '' when the bot username is not configured, so callers can
+    simply hide the link.
+    """
+    username = settings.TELEGRAM_BOT_USERNAME
+    short_name = settings.TELEGRAM_MINIAPP_SHORT_NAME
+    if not username or not short_name:
+        return ''
+    return f"https://t.me/{username}/{short_name}?startapp={location.slug}"
+
+
 # ── Mini App initData ─────────────────────────────────────────────────────────
 
 def validate_init_data(raw, max_age=INIT_DATA_MAX_AGE):

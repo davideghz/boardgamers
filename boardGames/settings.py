@@ -24,6 +24,9 @@ SITE_DOMAIN = env('SITE_DOMAIN', default='localhost:8000')
 TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_BOT_USERNAME = env('TELEGRAM_BOT_USERNAME', default='')
 TELEGRAM_WEBHOOK_SECRET = env('TELEGRAM_WEBHOOK_SECRET', default='')
+# BotFather short name of the Mini App (/newapp). Part of the shareable
+# link, so changing it breaks every link already pinned in a group.
+TELEGRAM_MINIAPP_SHORT_NAME = env('TELEGRAM_MINIAPP_SHORT_NAME', default='join')
 BGG_API_TOKEN = env('BGG_API_TOKEN', default='')
 
 # Web Push (VAPID)
