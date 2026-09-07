@@ -3,7 +3,7 @@ from django.urls import path, include
 
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
-from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views
+from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete, MemberAutocomplete
 from .views.location_views import FollowLocationView
@@ -204,5 +204,6 @@ urlpatterns = [
     path('test/debug', static_page_views.debug, name='debug'),
     path('test/widget', static_page_views.test_widget, name='test_widget'),
     path('test/telegram-login', static_page_views.test_telegram_login, name='test_telegram_login'),
+    path('telegram/app/', telegram_app_views.miniapp, name='telegram-miniapp'),
 
 ]

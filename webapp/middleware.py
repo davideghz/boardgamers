@@ -20,6 +20,9 @@ class UserLanguageRedirectMiddleware:
 
     def __call__(self, request):
         # Skip for non-GET requests, AJAX, API calls, admin, static files, etc.
+        # /telegram/ is skipped too: the Mini App takes its language from
+        # initData, and Telegram delivers initData in the URL fragment — not
+        # worth risking it across a redirect.
         if (request.method != 'GET' or
             request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
             request.path.startswith('/api/') or
@@ -27,6 +30,7 @@ class UserLanguageRedirectMiddleware:
             request.path.startswith('/static/') or
             request.path.startswith('/media/') or
             request.path.startswith('/__debug__/') or
+            request.path.startswith('/telegram/') or  # Telegram Mini App
             request.path.startswith('/i18n/') or
             request.path.startswith('/login/') or  # Social auth URLs
             request.path.startswith('/complete/') or  # Social auth callback URLs

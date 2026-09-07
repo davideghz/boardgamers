@@ -1,0 +1,230 @@
+{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'it' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% trans "Tables" %}</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* Colours come from Telegram's themeParams, so the app follows the light or
+       dark theme the viewer already chose. The fallbacks are for the case where
+       the page is opened outside Telegram. */
+    :root {
+      --bg: var(--tg-theme-bg-color, #ffffff);
+      --secondary-bg: var(--tg-theme-secondary-bg-color, #f1f1f1);
+      --text: var(--tg-theme-text-color, #000000);
+      --hint: var(--tg-theme-hint-color, #707579);
+      --link: var(--tg-theme-link-color, #2481cc);
+      --accent: var(--tg-theme-button-color, #2481cc);
+      --accent-text: var(--tg-theme-button-text-color, #ffffff);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0 0 24px;
+      background: var(--secondary-bg);
+      color: var(--text);
+      font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg);
+    }
+    .header img {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .header h1 { margin: 0; font-size: 17px; font-weight: 600; }
+    .header p { margin: 2px 0 0; font-size: 13px; color: var(--hint); }
+
+    .day {
+      margin: 20px 16px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--hint);
+    }
+
+    .card {
+      background: var(--bg);
+      border-radius: var(--radius);
+      margin: 0 12px 8px;
+      padding: 14px;
+    }
+    .card h2 { margin: 0; font-size: 16px; font-weight: 600; }
+    .card .game { margin: 2px 0 0; font-size: 14px; color: var(--hint); }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--hint);
+    }
+    .meta .time { font-weight: 600; color: var(--text); }
+
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--secondary-bg);
+      font-size: 12px;
+    }
+    .pill.full { color: #d1435b; }
+    .pill.joined { background: var(--accent); color: var(--accent-text); }
+
+    .players {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--hint);
+      overflow-wrap: anywhere;
+    }
+
+    .state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--hint);
+      font-size: 15px;
+    }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header class="header" id="header" hidden>
+  <img id="location-cover" alt="">
+  <div>
+    <h1 id="location-name"></h1>
+    <p id="location-city"></p>
+  </div>
+</header>
+
+<main id="list"></main>
+
+<p class="state" id="state">{{ strings.loading }}</p>
+
+{{ strings|json_script:"i18n" }}
+
+<script>
+(function () {
+  const STRINGS = JSON.parse(document.getElementById('i18n').textContent);
+  const BOOTSTRAP_URL = "{{ bootstrap_url|escapejs }}";
+
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const stateEl = document.getElementById('state');
+  const listEl = document.getElementById('list');
+  const headerEl = document.getElementById('header');
+
+  function showState(message) {
+    listEl.innerHTML = '';
+    stateEl.textContent = message;
+    stateEl.hidden = false;
+  }
+
+  function text(tag, className, value) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = value;
+    return el;
+  }
+
+  function seatsPill(table) {
+    if (table.unlimited_seats) return text('span', 'pill', STRINGS.unlimited);
+    if (table.seats_available === 0) return text('span', 'pill full', STRINGS.no_seats);
+    if (table.seats_available === 1) return text('span', 'pill', STRINGS.one_seat_free);
+    return text('span', 'pill',
+      STRINGS.seats_free.replace('%(count)s', table.seats_available));
+  }
+
+  function card(table) {
+    const el = document.createElement('article');
+    el.className = 'card';
+    el.appendChild(text('h2', null, table.title || table.game));
+    // Titles often just repeat the game name — don't print it twice.
+    if (table.title && table.game && table.title !== table.game) {
+      el.appendChild(text('p', 'game', table.game));
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.appendChild(text('span', 'time', table.time_label));
+    meta.appendChild(text('span', null,
+      table.unlimited_seats
+        ? '👥 ' + table.players_count
+        : '👥 ' + table.players_count + '/' + table.max_players));
+    meta.appendChild(seatsPill(table));
+    if (table.is_joined) meta.appendChild(text('span', 'pill joined', STRINGS.joined));
+    el.appendChild(meta);
+
+    if (table.players.length) {
+      el.appendChild(text('p', 'players', table.players.join(' · ')));
+    }
+    return el;
+  }
+
+  function render(data) {
+    document.getElementById('location-name').textContent = data.location.name;
+    document.getElementById('location-city').textContent = data.location.city;
+    const cover = document.getElementById('location-cover');
+    cover.src = data.location.cover_url;
+    cover.alt = data.location.name;
+    headerEl.hidden = false;
+
+    if (!data.tables.length) {
+      showState(STRINGS.no_tables);
+      return;
+    }
+
+    stateEl.hidden = true;
+    let currentDay = null;
+    data.tables.forEach(function (table) {
+      if (table.date !== currentDay) {
+        currentDay = table.date;
+        listEl.appendChild(text('h2', 'day', table.day_label));
+      }
+      listEl.appendChild(card(table));
+    });
+  }
+
+  const ERRORS = {
+    no_location: STRINGS.no_location,
+    unknown_location: STRINGS.unknown_location,
+  };
+
+  if (!tg || !tg.initData) {
+    showState(STRINGS.outside_telegram);
+    return;
+  }
+
+  tg.ready();
+  tg.expand();
+
+  fetch(BOOTSTRAP_URL, {headers: {'X-Telegram-Init-Data': tg.initData}})
+    .then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok) throw new Error(body.error || 'generic');
+        return body;
+      });
+    })
+    .then(render)
+    .catch(function (error) {
+      showState(ERRORS[error.message] || STRINGS.generic_error);
+    });
+})();
+</script>
+
+</body>
+</html>

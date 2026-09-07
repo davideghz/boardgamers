@@ -5,12 +5,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import resolve_url, get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from webapp.models import Table
+from webapp.services.telegram import profile_from_init_data, validate_init_data
 
 
 def only_admin_can_edit_closed_table(view_func):
@@ -85,4 +86,29 @@ def author_or_admin_required(view_func):
         if (table.author_id is not None and table.author.user == request.user) or request.user.is_superuser:
             return view_func(request, *args, **kwargs)
         return HttpResponseForbidden("Request not allowed")
+    return _wrapped_view
+
+def telegram_miniapp_auth(view_func):
+    """Authenticate a Telegram Mini App request from its signed `initData`.
+
+    Populates `request.telegram_user` (the validated payload's user),
+    `request.telegram_start_param` (the location the app was opened for) and
+    `request.telegram_profile` (the linked UserProfile, or None when the
+    Telegram account was never connected to a Board-Gamers one).
+
+    Deliberately ignores the Django session: inside Telegram's iframe the
+    session cookie is unreliable, and the signature is the only identity worth
+    trusting here. That also makes these endpoints immune to CSRF — a third
+    party cannot set this header, nor forge its contents.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        data = validate_init_data(request.headers.get('X-Telegram-Init-Data', ''))
+        if data is None:
+            return JsonResponse({'error': 'invalid_init_data'}, status=401)
+
+        request.telegram_user = data.get('user') or {}
+        request.telegram_start_param = data.get('start_param', '')
+        request.telegram_profile = profile_from_init_data(data)
+        return view_func(request, *args, **kwargs)
     return _wrapped_view
