@@ -3,7 +3,6 @@ import logging
 import secrets
 from datetime import timedelta
 
-import requests as http_requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden
@@ -13,36 +12,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from webapp.models import Location, Table, TelegramGroupConfig, TelegramSetupToken
+from webapp.services.telegram import send_message
 
 logger = logging.getLogger(__name__)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
-
-def _send_message(chat_id, text, reply_markup=None, message_thread_id=None):
-    token = settings.TELEGRAM_BOT_TOKEN
-    if not token:
-        logger.warning("TELEGRAM_BOT_TOKEN not set")
-        return
-    payload = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
-    if message_thread_id:
-        payload['message_thread_id'] = message_thread_id
-    if reply_markup:
-        payload['reply_markup'] = reply_markup
-    try:
-        resp = http_requests.post(
-            f"https://api.telegram.org/bot{token}/sendMessage",
-            json=payload,
-            timeout=5,
-        )
-        if not resp.ok:
-            logger.error("Telegram sendMessage error %s: %s", resp.status_code, resp.text)
-        else:
-            logger.info("Telegram sendMessage ok: %s", resp.text[:200])
-    except Exception as e:
-        logger.error("Telegram sendMessage failed: %s", e)
-
-
 
 def _is_location_manager(user, location):
     if not user.is_authenticated:
@@ -107,7 +82,7 @@ def telegram_webhook(request):
 
 def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_title=''):
     if not args:
-        _send_message(chat_id, "Usa: <code>/setup &lt;token&gt;</code>", message_thread_id=message_thread_id)
+        send_message(chat_id, "Usa: <code>/setup &lt;token&gt;</code>", message_thread_id=message_thread_id)
         return
 
     token_str = args[0]
@@ -118,7 +93,7 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_titl
             expires_at__gt=timezone.now(),
         )
     except TelegramSetupToken.DoesNotExist:
-        _send_message(chat_id, "❌ Token non valido o scaduto.\nGenera un nuovo token dalla pagina di gestione della location.", message_thread_id=message_thread_id)
+        send_message(chat_id, "❌ Token non valido o scaduto.\nGenera un nuovo token dalla pagina di gestione della location.", message_thread_id=message_thread_id)
         return
 
     existing = TelegramGroupConfig.objects.filter(chat_id=chat_id).first()
@@ -131,7 +106,7 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_titl
         existing.save(update_fields=['location', 'chat_title', 'message_thread_id', 'message_thread_title', 'active'])
         token.used = True
         token.save(update_fields=['used'])
-        _send_message(
+        send_message(
             chat_id,
             f"✅ Bot configurato per <b>{token.location.name}</b>!\n\n"
             f"Usa /tables per vedere i tavoli aperti.",
@@ -149,7 +124,7 @@ def _handle_setup(chat_id, chat_title, args, message_thread_id=None, thread_titl
     token.used = True
     token.save(update_fields=['used'])
 
-    _send_message(
+    send_message(
         chat_id,
         f"✅ Bot configurato per <b>{token.location.name}</b>!\n\n"
         f"Usa /tables per vedere i tavoli aperti.",
@@ -163,7 +138,7 @@ def _handle_tables(chat_id, message_thread_id=None):
     ).first()
 
     if not config:
-        _send_message(
+        send_message(
             chat_id,
             "⚠️ Questo gruppo non è ancora configurato.\n"
             "Chiedi al manager della location di generare un token dalla pagina di gestione.",
@@ -184,7 +159,7 @@ def _handle_tables(chat_id, message_thread_id=None):
     base_url = f"{settings.SITE_PROTOCOL}://{settings.SITE_DOMAIN}"
 
     if not tables:
-        _send_message(
+        send_message(
             chat_id,
             f"🎲 <b>{location.name}</b>\n\nNessun tavolo aperto al momento.",
             message_thread_id=message_thread_id,
@@ -207,7 +182,7 @@ def _handle_tables(chat_id, message_thread_id=None):
     location_url = f"{base_url}/locations/{location.slug}/"
     buttons.append([{"text": "📍 Tutti i tavoli →", "url": location_url}])
 
-    _send_message(
+    send_message(
         chat_id,
         "\n".join(lines),
         reply_markup={"inline_keyboard": buttons},
