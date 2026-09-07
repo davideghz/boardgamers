@@ -92,6 +92,36 @@
       overflow-wrap: anywhere;
     }
 
+    .actions { margin-top: 12px; }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+    .btn.secondary {
+      background: var(--secondary-bg);
+      color: var(--text);
+    }
+    .btn[disabled] { opacity: .5; cursor: default; }
+
+    .banner {
+      margin: 12px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: var(--bg);
+    }
+    .banner h2 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+    .banner p { margin: 0 0 12px; font-size: 13px; color: var(--hint); }
+
     .state {
       padding: 48px 24px;
       text-align: center;
@@ -112,6 +142,12 @@
   </div>
 </header>
 
+<section class="banner" id="connect" hidden>
+  <h2 id="connect-title"></h2>
+  <p id="connect-body"></p>
+  <button class="btn" id="connect-btn" type="button"></button>
+</section>
+
 <main id="list"></main>
 
 <p class="state" id="state">{{ strings.loading }}</p>
@@ -122,11 +158,18 @@
 (function () {
   const STRINGS = JSON.parse(document.getElementById('i18n').textContent);
   const BOOTSTRAP_URL = "{{ bootstrap_url|escapejs }}";
+  const JOIN_URL = "{{ join_url|escapejs }}";
+  const LEAVE_URL = "{{ leave_url|escapejs }}";
+  const SLUG_PLACEHOLDER = "{{ slug_placeholder|escapejs }}";
+  const CONNECT_URL = "{{ connect_url|escapejs }}";
 
   const tg = window.Telegram && window.Telegram.WebApp;
   const stateEl = document.getElementById('state');
   const listEl = document.getElementById('list');
   const headerEl = document.getElementById('header');
+  const connectEl = document.getElementById('connect');
+
+  let linked = false;
 
   function showState(message) {
     listEl.innerHTML = '';
@@ -147,6 +190,24 @@
     if (table.seats_available === 1) return text('span', 'pill', STRINGS.one_seat_free);
     return text('span', 'pill',
       STRINGS.seats_free.replace('%(count)s', table.seats_available));
+  }
+
+  function actionButton(table, el) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn' + (table.is_joined ? ' secondary' : '');
+    button.textContent = table.is_joined ? STRINGS.leave : STRINGS.join;
+
+    // A full table can still be left, just not joined.
+    const full = !table.unlimited_seats && table.seats_available === 0;
+    button.disabled = !table.is_joined && full;
+
+    button.addEventListener('click', function () {
+      button.disabled = true;
+      button.textContent = STRINGS.working;
+      act(table, el);
+    });
+    return button;
   }
 
   function card(table) {
@@ -172,10 +233,50 @@
     if (table.players.length) {
       el.appendChild(text('p', 'players', table.players.join(' · ')));
     }
+
+    // Booking is only offered once the Telegram account is connected; everyone
+    // else reads the list and sees the banner at the top.
+    if (linked) {
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+      actions.appendChild(actionButton(table, el));
+      el.appendChild(actions);
+    }
     return el;
   }
 
+  function act(table, el) {
+    const url = (table.is_joined ? LEAVE_URL : JOIN_URL)
+      .replace(SLUG_PLACEHOLDER, encodeURIComponent(table.slug));
+
+    post(url)
+      .then(function (body) {
+        el.replaceWith(card(body.table));
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        body.warnings.forEach(function (warning) { tg.showAlert(warning.detail); });
+      })
+      .catch(function (error) {
+        // The refusal may itself be the news (table filled up while reading),
+        // so redraw from the server's view rather than trusting the old card.
+        tg.showAlert(error.detail || STRINGS.generic_error);
+        refresh();
+      });
+  }
+
+  function renderConnectBanner() {
+    document.getElementById('connect-title').textContent = STRINGS.connect_title;
+    document.getElementById('connect-body').textContent = STRINGS.connect_body;
+    const button = document.getElementById('connect-btn');
+    button.textContent = STRINGS.connect_action;
+    // Opened outside the Mini App on purpose: the Telegram OAuth flow does not
+    // complete inside this webview.
+    button.onclick = function () { tg.openLink(CONNECT_URL); };
+    connectEl.hidden = false;
+  }
+
   function render(data) {
+    linked = data.linked;
+
     document.getElementById('location-name').textContent = data.location.name;
     document.getElementById('location-city').textContent = data.location.city;
     const cover = document.getElementById('location-cover');
@@ -183,6 +284,10 @@
     cover.alt = data.location.name;
     headerEl.hidden = false;
 
+    connectEl.hidden = true;
+    if (!linked) renderConnectBanner();
+
+    listEl.innerHTML = '';
     if (!data.tables.length) {
       showState(STRINGS.no_tables);
       return;
@@ -204,6 +309,29 @@
     unknown_location: STRINGS.unknown_location,
   };
 
+  function request(url, options) {
+    const settings = Object.assign({headers: {}}, options);
+    settings.headers['X-Telegram-Init-Data'] = tg.initData;
+    return fetch(url, settings).then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok) throw body && body.error ? body : {error: 'generic'};
+        return body;
+      });
+    });
+  }
+
+  function post(url) {
+    return request(url, {method: 'POST'});
+  }
+
+  function refresh() {
+    return request(BOOTSTRAP_URL)
+      .then(render)
+      .catch(function (error) {
+        showState(ERRORS[error.error] || STRINGS.generic_error);
+      });
+  }
+
   if (!tg || !tg.initData) {
     showState(STRINGS.outside_telegram);
     return;
@@ -211,18 +339,7 @@
 
   tg.ready();
   tg.expand();
-
-  fetch(BOOTSTRAP_URL, {headers: {'X-Telegram-Init-Data': tg.initData}})
-    .then(function (response) {
-      return response.json().then(function (body) {
-        if (!response.ok) throw new Error(body.error || 'generic');
-        return body;
-      });
-    })
-    .then(render)
-    .catch(function (error) {
-      showState(ERRORS[error.message] || STRINGS.generic_error);
-    });
+  refresh();
 })();
 </script>
 

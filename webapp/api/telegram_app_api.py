@@ -7,9 +7,12 @@ Every endpoint authenticates from the signed `initData` header — see
 from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.utils import formats, timezone
-from django.views.decorators.http import require_GET
+from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
 
 from webapp.models import Location, Player, Table
+from webapp.services.tables import TableActionError, join_table, leave_table
 from webapp.views.decorators import telegram_miniapp_auth
 
 
@@ -89,3 +92,61 @@ def bootstrap(request):
         },
         'tables': [_serialize_table(t, joined_table_ids) for t in tables],
     })
+
+
+# ── Actions ───────────────────────────────────────────────────────────────────
+
+def _resolve_table(slug):
+    """The Mini App only ever operates on a location's tables. Event tables have
+    their own sign-up flow on the website, and are not listed here — so a
+    crafted request must not be able to reach one through this API."""
+    return Table.objects.filter(slug=slug, location__isnull=False).first()
+
+
+def _table_state(table, profile):
+    """The table as the client should redraw it after an action."""
+    joined = set(
+        Player.objects
+        .filter(user_profile=profile, table=table)
+        .values_list('table_id', flat=True)
+    )
+    return _serialize_table(table, joined)
+
+
+def _table_action(request, slug, action):
+    if request.telegram_profile is None:
+        return JsonResponse(
+            {'error': 'not_linked',
+             'detail': _('Connect your Board-Gamers account to book a seat.')},
+            status=403)
+
+    table = _resolve_table(slug)
+    if table is None:
+        return JsonResponse({'error': 'unknown_table'}, status=404)
+
+    try:
+        result = action(request.telegram_profile, table)
+    except TableActionError as error:
+        return JsonResponse(
+            {'error': error.code, 'detail': str(error.message)}, status=409)
+
+    warnings = getattr(result, 'warnings', [])
+    table.refresh_from_db()
+    return JsonResponse({
+        'table': _table_state(table, request.telegram_profile),
+        'warnings': [{'code': w.code, 'detail': str(w.message)} for w in warnings],
+    })
+
+
+@csrf_exempt
+@require_POST
+@telegram_miniapp_auth
+def join(request, slug):
+    return _table_action(request, slug, join_table)
+
+
+@csrf_exempt
+@require_POST
+@telegram_miniapp_auth
+def leave(request, slug):
+    return _table_action(request, slug, leave_table)

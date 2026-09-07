@@ -3,7 +3,11 @@
 Piano di lavoro per portare la prenotazione dei tavoli dentro Telegram, sul modello di
 `t.me/GameNightSestoBot/prenota`.
 
-Stato: **fasi 0-2 implementate**; dalla 3 in poi da fare.
+Stato: **fasi 0-3 implementate**; dalla 4 in poi da fare.
+
+Scostamento dalla fase 3: i bottoni Partecipa/Esci stanno **su ogni card**,
+non sul `MainButton`. Il MainButton è unico e globale, quindi ha senso nel
+dettaglio (fase 4), non su una lista dove le azioni sono N.
 
 ---
 
