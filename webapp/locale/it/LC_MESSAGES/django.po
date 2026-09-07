@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-25 15:09+0200\n"
+"POT-Creation-Date: 2026-09-07 17:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,9 @@ msgstr ""
 
 msgid "Participants"
 msgstr "Partecipanti"
+
+msgid "Connect your Board-Gamers account to book a seat."
+msgstr "Collega il tuo account Board-Gamers per prenotare un posto."
 
 msgid "The image is too large (max 200 KB)."
 msgstr ""
@@ -570,6 +573,41 @@ msgstr "Questo account %(provider)s è già collegato a un altro utente."
 
 msgid "The Google email address is already associated with another account."
 msgstr "L'indirizzo email Google è già associato a un altro account."
+
+msgid "The table is closed. You cannot join."
+msgstr "Il tavolo è chiuso. Non puoi unirti."
+
+msgid "This table is reserved for members."
+msgstr "Tavolo riservato ai soci"
+
+msgid "You are already at this table."
+msgstr "Sei già in questo tavolo."
+
+msgid "The table is full."
+msgstr "Tavolo completo"
+
+msgid ""
+"Heads up: you're also signed up for another table at an overlapping time."
+msgstr ""
+"Attenzione: sei già iscritto a un altro tavolo in un orario sovrapposto."
+
+msgid "The table is closed. You cannot leave."
+msgstr "Questo tavolo è chiuso. Non puoi uscire."
+
+msgid "You are not at this table."
+msgstr "Non sei in questo tavolo."
+
+msgid "The table is closed."
+msgstr "Il tavolo è chiuso"
+
+msgid "Only table players can add guests."
+msgstr "Solo i giocatori del tavolo possono aggiungere ospiti."
+
+msgid "This guest is already at the table."
+msgstr "Questo ospite è già al tavolo."
+
+msgid "You don't have permission to remove this guest."
+msgstr "Non hai il permesso di rimuovere questo ospite."
 
 #, python-format
 msgid "The table \"%(table_title)s\" has been deleted by the organizer"
@@ -2146,6 +2184,19 @@ msgstr "Assicurati che il bot"
 msgid "is already a member of the group before running the command."
 msgstr "sia già membro del gruppo prima di lanciare il comando."
 
+msgid "Booking link"
+msgstr "Link di prenotazione"
+
+msgid ""
+"Opens the table list inside Telegram, where members can book a seat. Pin it "
+"in your group or add it to the group description."
+msgstr "Apre l’elenco dei tavoli dentro Telegram, dove i soci possono prenotare un posto. Fissalo nel gruppo o mettilo nella descrizione."
+
+msgid ""
+"Only users who connected their Telegram account to Board-Gamers can book; "
+"everyone else sees the list."
+msgstr "Solo chi ha collegato il proprio account Telegram a Board-Gamers può prenotare; gli altri vedono comunque l’elenco."
+
 msgid "Available commands"
 msgstr "Comandi disponibili"
 
@@ -2156,6 +2207,12 @@ msgstr ""
 
 msgid "Show upcoming open tables for this location."
 msgstr "Mostra i prossimi tavoli aperti per questa location."
+
+msgid "Post a button that opens the booking app."
+msgstr "Pubblica un bottone che apre l’app di prenotazione."
+
+msgid "Copied"
+msgstr "Copiato!"
 
 msgid "Generating…"
 msgstr "Generazione in corso…"
@@ -3133,49 +3190,87 @@ msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-msgid "Cannot add players to a closed table."
-msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."
-
-msgid "The table is full."
-msgstr "Tavolo completo"
-
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
 
-msgid "You can remove players only from tables that are open or ongoing."
-msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
+msgid "Loading tables…"
+msgstr "Carico i tavoli…"
 
-msgid "The table is closed. You cannot join."
-msgstr "Il tavolo è chiuso. Non puoi unirti."
+msgid "Open this page from Telegram to see the tables."
+msgstr "Apri questa pagina da Telegram per vedere i tavoli."
 
-msgid "This table is reserved for members."
-msgstr "Tavolo riservato ai soci"
+msgid "This link does not specify a location."
+msgstr "Questo link non indica nessuna location."
 
-msgid "You are already at this table."
-msgstr "Sei già in questo tavolo."
+msgid "Location not found."
+msgstr "Location non trovata."
+
+msgid "Something went wrong. Try reopening the app."
+msgstr "Qualcosa è andato storto. Prova a riaprire l’app."
+
+msgid "No upcoming tables here yet."
+msgstr "Non c’è ancora nessun tavolo in programma."
+
+#, python-format
+msgid "%(count)s seats left"
+msgstr "%(count)s posti liberi"
+
+msgid "1 seat left"
+msgstr "1 posto libero"
+
+msgid "Full"
+msgstr "Completo"
+
+msgid "You are in"
+msgstr "Ci sei"
+
+msgid "Links"
+msgstr "Link"
+
+msgid "Bring a guest"
+msgstr "Porta un ospite"
+
+#, python-format
+msgid "%(count)s players signed up elsewhere"
+msgstr "%(count)s iscritti altrove"
+
+msgid "1 player signed up elsewhere"
+msgstr "1 iscritto altrove"
+
+msgid "Open on Board-Gamers"
+msgstr "Apri su Board-Gamers"
+
+msgid "Create a table"
+msgstr "Crea un tavolo"
+
+msgid "Join"
+msgstr "Partecipa"
+
+msgid "Leave"
+msgstr "Esci"
+
+msgid "One moment…"
+msgstr "Un attimo…"
+
+msgid "Connect your account to book"
+msgstr "Collega il tuo account per prenotare"
 
 msgid ""
-"Heads up: you're also signed up for another table at an overlapping time."
-msgstr ""
-"Attenzione: sei già iscritto a un altro tavolo in un orario sovrapposto."
+"Link your Telegram account to Board-Gamers and you can join a table straight "
+"from here."
+msgstr "Collega il tuo account Telegram a Board-Gamers e potrai unirti a un tavolo direttamente da qui."
 
-msgid "The table is closed. You cannot leave."
-msgstr "Questo tavolo è chiuso. Non puoi uscire."
+msgid "Connect account"
+msgstr "Collega account"
 
-msgid "The table is closed."
-msgstr "Il tavolo è chiuso"
+#~ msgid "Cannot add players to a closed table."
+#~ msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."
 
-msgid "Only table players can add guests."
-msgstr "Solo i giocatori del tavolo possono aggiungere ospiti."
-
-msgid "This guest is already at the table."
-msgstr "Questo ospite è già al tavolo."
-
-msgid "You don't have permission to remove this guest."
-msgstr "Non hai il permesso di rimuovere questo ospite."
+#~ msgid "You can remove players only from tables that are open or ongoing."
+#~ msgstr "Puoi rimuovere giocatori solo da tavoli aperti o in corso."
 
 #, fuzzy
 #~| msgid "Message"

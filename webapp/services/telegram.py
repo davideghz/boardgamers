@@ -128,6 +128,24 @@ def _is_fresh(auth_date, max_age):
     return timezone.now() - issued_at <= max_age
 
 
+def miniapp_language(profile, telegram_user):
+    """Which language to answer a Mini App request in.
+
+    A linked account's own preference wins — it is a deliberate choice — and
+    otherwise we take the language the person's Telegram client is set to.
+    Returns None when neither yields a language the site supports, leaving
+    whatever Django already activated.
+    """
+    supported = {code for code, _name in settings.LANGUAGES}
+
+    if profile and profile.preferred_language in supported:
+        return profile.preferred_language
+
+    # Telegram sends IETF tags: "it", "en", "en-GB", "pt-BR".
+    code = ((telegram_user or {}).get('language_code') or '').split('-')[0]
+    return code if code in supported else None
+
+
 def profile_from_init_data(data):
     """Map a validated initData payload to the linked UserProfile.
 

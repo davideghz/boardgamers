@@ -21,6 +21,7 @@ from webapp.services.tables import (
 )
 from webapp.templatetags.custom_tags import render_markdown
 from webapp.views.decorators import telegram_miniapp_auth
+from webapp.views.telegram_app_views import ui_strings
 
 
 def _serialize_table(table, joined_table_ids):
@@ -86,6 +87,9 @@ def bootstrap(request):
         )
 
     return JsonResponse({
+        # Re-sent in the viewer's own language: the shell was rendered before
+        # anyone knew who was opening it.
+        'strings': ui_strings(),
         'linked': profile is not None,
         'telegram_user': {
             'first_name': request.telegram_user.get('first_name', ''),

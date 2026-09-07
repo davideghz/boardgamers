@@ -7,11 +7,14 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import resolve_url, get_object_or_404, redirect
+from django.utils import translation
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from webapp.models import Table
-from webapp.services.telegram import profile_from_init_data, validate_init_data
+from webapp.services.telegram import (
+    miniapp_language, profile_from_init_data, validate_init_data,
+)
 
 
 def only_admin_can_edit_closed_table(view_func):
@@ -110,5 +113,13 @@ def telegram_miniapp_auth(view_func):
         request.telegram_user = data.get('user') or {}
         request.telegram_start_param = data.get('start_param', '')
         request.telegram_profile = profile_from_init_data(data)
-        return view_func(request, *args, **kwargs)
+
+        # Everything the endpoints return is user-facing — labels, day names,
+        # refusal messages — so pick the language once, here, rather than in
+        # each of them.
+        language = miniapp_language(request.telegram_profile, request.telegram_user)
+        if not language:
+            return view_func(request, *args, **kwargs)
+        with translation.override(language):
+            return view_func(request, *args, **kwargs)
     return _wrapped_view

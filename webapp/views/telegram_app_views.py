@@ -17,15 +17,14 @@ SLUG_PLACEHOLDER = '__slug__'
 ID_PLACEHOLDER = 0
 
 
-@xframe_options_exempt
-def miniapp(request):
-    """Serve the Mini App shell.
+def ui_strings():
+    """Every user-facing label in the Mini App.
 
-    `xframe_options_exempt` is not optional: Telegram Web embeds Mini Apps in an
-    iframe, and the project's default X-Frame-Options DENY would render this as
-    a blank page on desktop.
+    Evaluated per request so it follows the active language: the shell renders
+    them from whatever Django guessed, and the bootstrap endpoint re-sends them
+    in the language the signed initData actually identifies.
     """
-    strings = {
+    return {
         'loading': _('Loading tables…'),
         'outside_telegram': _('Open this page from Telegram to see the tables.'),
         'no_location': _('This link does not specify a location.'),
@@ -56,6 +55,18 @@ def miniapp(request):
             'table straight from here.'),
         'connect_action': _('Connect account'),
     }
+
+
+@xframe_options_exempt
+def miniapp(request):
+    """Serve the Mini App shell.
+
+    `xframe_options_exempt` is not optional: Telegram Web embeds Mini Apps in an
+    iframe, and the project's default X-Frame-Options DENY would render this as
+    a blank page on desktop.
+    """
+    strings = ui_strings()
+
     return render(request, 'telegram/miniapp.html', {
         'strings': strings,
         'bootstrap_url': reverse('telegram-miniapp-bootstrap'),

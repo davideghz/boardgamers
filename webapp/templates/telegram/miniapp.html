@@ -237,6 +237,8 @@
 
 <script>
 (function () {
+  // Server-rendered from the request's best guess; the bootstrap response
+  // replaces them with the viewer's actual language.
   const STRINGS = JSON.parse(document.getElementById('i18n').textContent);
   const BOOTSTRAP_URL = "{{ bootstrap_url|escapejs }}";
   const DETAIL_URL = "{{ detail_url|escapejs }}";
@@ -605,6 +607,7 @@
 
   function render(data) {
     linked = data.linked;
+    Object.assign(STRINGS, data.strings || {});
 
     document.getElementById('location-name').textContent = data.location.name;
     document.getElementById('location-city').textContent = data.location.city;
