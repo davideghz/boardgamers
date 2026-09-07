@@ -22,6 +22,9 @@ from meta.views import Meta
 from webapp.forms import TableForm, TableLinkFormSet, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
+from webapp.services.tables import (
+    TableActionError, add_guest, join_table, leave_table, remove_guest,
+)
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
 
@@ -522,65 +525,27 @@ class CommentDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMes
         return reverse_lazy('table-detail', kwargs={'slug': table.slug})
 
 
+def _report_table_action_error(request, error):
+    """Render a TableActionError the way the views used to render it inline."""
+    if error.level == 'warning':
+        messages.warning(request, error.message)
+    else:
+        messages.error(request, error.message, extra_tags='danger')
+
+
 class JoinTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        if not request.user.user_profile.is_email_verified:
-            messages.error(request, 'Verify email to join table.', extra_tags='danger')
-            return redirect('table-detail', slug=self.kwargs['slug'])
-
         table = get_object_or_404(Table, slug=self.kwargs['slug'])
-        if not table.is_session_active:
-            messages.error(request, _('The table is closed. You cannot join.'), extra_tags='danger')
+
+        try:
+            result = join_table(request.user.user_profile, table)
+        except TableActionError as error:
+            _report_table_action_error(request, error)
             return redirect('table-detail', slug=self.kwargs['slug'])
-
-        if table.location and table.location.table_join_permission == table.location.PERM_MEMBERS_ONLY:
-            up = request.user.user_profile
-            loc = table.location
-            is_manager = loc.creator == up or up in loc.managers.all()
-            if not is_manager and not request.user.is_superuser:
-                from webapp.models import Membership
-                is_member = Membership.objects.filter(
-                    member__location=loc,
-                    member__user_profile=up,
-                    status=Membership.ACTIVE,
-                ).exists()
-                if not is_member:
-                    messages.error(request, _('This table is reserved for members.'), extra_tags='danger')
-                    return redirect('table-detail', slug=self.kwargs['slug'])
-
-        # Already at the table? (avoids hitting the unique constraint with a 500)
-        if Player.objects.filter(table=table, user_profile=request.user.user_profile).exists():
-            messages.warning(request, _('You are already at this table.'))
-            return redirect('table-detail', slug=self.kwargs['slug'])
-
-        # Capacity check — guards against direct POSTs bypassing the disabled button
-        if not table.unlimited_seats and table.seats_available <= 0:
-            messages.error(request, _('The table is full.'), extra_tags='danger')
-            return redirect('table-detail', slug=self.kwargs['slug'])
-
-        Player.objects.create(
-            user_profile=request.user.user_profile,
-            table=table
-        )
-
-        # Create simple comment for player joining
-        Comment.objects.create(
-            table=table,
-            content=f"PLAYER_IN:{request.user.user_profile.nickname}",
-            comment_type=CommentType.SYSTEM
-        )
 
         messages.success(request, 'Table joined!')
-
-        # Non-blocking warning if the user is now booked on overlapping tables
-        if table.event_id:
-            others = Table.objects.filter(
-                event_id=table.event_id, date=table.date,
-                players=request.user.user_profile,
-            ).exclude(id=table.id)
-            if any(table.overlaps_with(o) for o in others):
-                messages.warning(request, _(
-                    "Heads up: you're also signed up for another table at an overlapping time."))
+        for warning in result.warnings:
+            messages.warning(request, warning.message)
 
         return redirect('table-detail', slug=self.kwargs['slug'])
 
@@ -588,37 +553,11 @@ class JoinTableView(LoginRequiredMixin, View):
 class LeaveTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=self.kwargs['slug'])
-        if not table.is_session_active:
-            messages.error(request, _('The table is closed. You cannot leave.'), extra_tags='danger')
-            return redirect('table-detail', self.kwargs['slug'])
 
         try:
-            player = get_object_or_404(Player, user_profile=request.user.user_profile, table=table)
-            nickname = player.user_profile.nickname
-
-            # Cascade-remove guests owned by this user at this table
-            guest_players = Player.objects.filter(
-                table=table, guest_profile__owner=request.user.user_profile
-            ).select_related('guest_profile')
-            for gp in guest_players:
-                Comment.objects.create(
-                    table=table,
-                    content=f"GUEST_REMOVED:{gp.guest_profile.name}",
-                    comment_type=CommentType.SYSTEM
-                )
-            guest_players.delete()
-
-            # Create system comment for player leaving before deleting the player
-            Comment.objects.create(
-                table=table,
-                content=f"PLAYER_OUT:{nickname}",
-                comment_type=CommentType.SYSTEM
-            )
-
-            player.delete()
-
-        except Player.DoesNotExist:
-            pass
+            leave_table(request.user.user_profile, table)
+        except TableActionError as error:
+            _report_table_action_error(request, error)
 
         return redirect('table-detail', slug=self.kwargs['slug'])
 
@@ -626,55 +565,26 @@ class LeaveTableView(LoginRequiredMixin, View):
 class AddGuestToTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=kwargs['slug'])
+        guest = get_object_or_404(
+            GuestProfile, id=request.POST.get('guest_id'), owner=request.user.user_profile)
 
-        if not table.is_session_active:
-            messages.error(request, _("The table is closed."), extra_tags='danger')
-            return redirect('table-detail', slug=table.slug)
+        try:
+            add_guest(request.user.user_profile, table, guest)
+        except TableActionError as error:
+            _report_table_action_error(request, error)
 
-        # Only players at the table can add guests
-        if not Player.objects.filter(table=table, user_profile=request.user.user_profile).exists():
-            messages.error(request, _("Only table players can add guests."), extra_tags='danger')
-            return redirect('table-detail', slug=table.slug)
-
-        guest_id = request.POST.get('guest_id')
-        guest = get_object_or_404(GuestProfile, id=guest_id, owner=request.user.user_profile)
-
-        # Check not already at table
-        if Player.objects.filter(table=table, guest_profile=guest).exists():
-            messages.warning(request, _("This guest is already at the table."))
-            return redirect('table-detail', slug=table.slug)
-
-        # Check seats
-        if table.seats_available <= 0:
-            messages.error(request, _("The table is full."), extra_tags='danger')
-            return redirect('table-detail', slug=table.slug)
-
-        Player.objects.create(table=table, guest_profile=guest)
-        Comment.objects.create(
-            table=table,
-            content=f"GUEST_ADDED:{guest.name}",
-            comment_type=CommentType.SYSTEM
-        )
         return redirect('table-detail', slug=table.slug)
 
 
 class RemoveGuestFromTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=kwargs['slug'])
-        player = get_object_or_404(Player, id=kwargs['player_id'], table=table, guest_profile__isnull=False)
+        player = get_object_or_404(
+            Player, id=kwargs['player_id'], table=table, guest_profile__isnull=False)
 
-        # Permission: guest owner or table author
-        if not (player.guest_profile.owner == request.user.user_profile or
-                table.author == request.user.user_profile or
-                request.user.is_superuser):
-            messages.error(request, _("You don't have permission to remove this guest."), extra_tags='danger')
-            return redirect('table-detail', slug=table.slug)
+        try:
+            remove_guest(request.user.user_profile, table, player)
+        except TableActionError as error:
+            _report_table_action_error(request, error)
 
-        name = player.guest_profile.name
-        player.delete()
-        Comment.objects.create(
-            table=table,
-            content=f"GUEST_REMOVED:{name}",
-            comment_type=CommentType.SYSTEM
-        )
         return redirect('table-detail', slug=table.slug)
