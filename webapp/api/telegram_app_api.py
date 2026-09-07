@@ -16,7 +16,8 @@ from django.views.decorators.http import require_GET, require_POST
 
 from webapp.models import GuestProfile, Location, Player, Table
 from webapp.services.tables import (
-    TableActionError, add_guest, join_table, leave_table, remove_guest,
+    TableActionError, add_guest, can_manage_roster, join_table, leave_table,
+    remove_guest,
 )
 from webapp.templatetags.custom_tags import render_markdown
 from webapp.views.decorators import telegram_miniapp_auth
@@ -166,8 +167,7 @@ def _may_remove(player, table, profile):
     if profile is None:
         return False
     return (player.guest_profile.owner_id == profile.id
-            or table.author_id == profile.id
-            or profile.user.is_superuser)
+            or can_manage_roster(profile, table))
 
 
 def _serialize_detail(table, profile, request):

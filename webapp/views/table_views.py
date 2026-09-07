@@ -23,7 +23,8 @@ from webapp.forms import TableForm, TableLinkFormSet, CustomLoginForm, CommentFo
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
 from webapp.services.tables import (
-    TableActionError, add_guest, join_table, leave_table, remove_guest,
+    TableActionError, add_guest, can_manage_roster, join_table, leave_table,
+    remove_guest,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -228,6 +229,12 @@ class TableDetailView(BaseTableDetailView):
             'is_active_member': is_active_member,
             'has_pending_membership': has_pending_membership,
             'is_location_manager': is_location_manager,
+            # Mirrors the service rule, so the template never offers a control
+            # the action would then refuse.
+            'can_manage_roster': (
+                self.request.user.is_authenticated
+                and can_manage_roster(self.request.user.user_profile, table)
+            ),
         })
         return context
 
@@ -236,8 +243,7 @@ class TableDetailView(BaseTableDetailView):
 def table_players_view(request, slug):
     table = get_object_or_404(Table, slug=slug)
 
-    # Solo l'autore del tavolo o l'admin può accedere
-    if not (request.user.is_superuser or table.author.user == request.user):
+    if not can_manage_roster(request.user.user_profile, table):
         messages.error(request, "You do not have permission to manage players for this table.", extra_tags="danger")
         return redirect("table-detail", slug=slug)
 
@@ -258,14 +264,8 @@ class AddTablePlayerView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         table = get_object_or_404(Table, slug=kwargs['slug'])
 
-        # Permission check
-        if not (request.user.is_superuser or table.author.user == request.user):
+        if not can_manage_roster(request.user.user_profile, table):
             messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
-            return redirect("table-players", slug=table.slug)
-
-        # Table status check — autore e admin possono sempre aggiungere
-        if table.status == Table.CLOSED and not (request.user.is_superuser or table.author.user == request.user):
-            messages.error(request, _("Cannot add players to a closed table."), extra_tags="danger")
             return redirect("table-players", slug=table.slug)
 
         form = AddTablePlayerForm(request.POST)
@@ -305,14 +305,8 @@ def remove_player_view(request, slug, player_id):
     table = get_object_or_404(Table, slug=slug)
     player = get_object_or_404(Player, id=player_id, table=table)
 
-    # Controllo permessi
-    if not (request.user.is_superuser or table.author.user == request.user):
+    if not can_manage_roster(request.user.user_profile, table):
         messages.error(request, _("You don’t have permission to remove players from this table."), extra_tags="danger")
-        return redirect("table-players", slug=slug)
-
-    # Controllo stato tavolo — autore e admin possono sempre rimuovere
-    if table.status not in [Table.OPEN, Table.ONGOING] and not (request.user.is_superuser or table.author.user == request.user):
-        messages.error(request, _("You can remove players only from tables that are open or ongoing."), extra_tags="danger")
         return redirect("table-players", slug=slug)
 
     # Cascade-remove guests owned by this player

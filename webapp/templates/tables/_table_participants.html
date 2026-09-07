@@ -17,7 +17,7 @@
             <p class="text-xs text-content-muted">{% trans "guest of" %} {{ player_obj.guest_profile.owner.nickname }}</p>
           </div>
           {% if user.is_authenticated and table.is_session_active %}
-            {% if user.user_profile == player_obj.guest_profile.owner or user.user_profile == table.author %}
+            {% if user.user_profile == player_obj.guest_profile.owner or can_manage_roster %}
               <form method="post" action="{% url 'table-remove-guest' table.slug player_obj.id %}">
                 {% csrf_token %}
                 <button type="submit" class="text-content-muted hover:text-red-400 transition-colors" title="{% trans 'Remove guest' %}">

@@ -47,6 +47,28 @@ def is_active_member(profile, location):
     ).exists()
 
 
+def can_manage_roster(profile, table):
+    """Who may add or remove *other people* at a table.
+
+    The table's author, superusers, and the staff of whatever hosts the table —
+    the location, or the event when it belongs to one (a table has exactly one
+    of the two, per the `table_location_xor_event` constraint).
+
+    Distinct from joining or leaving, which is about one's own seat.
+    """
+    if profile is None:
+        return False
+    if table.author_id == profile.id or profile.user.is_superuser:
+        return True
+    if table.location_id:
+        location = table.location
+        return (location.creator_id == profile.id
+                or location.managers.filter(id=profile.id).exists())
+    if table.event_id:
+        return table.event.is_manager(profile)
+    return False
+
+
 def _is_location_staff(profile, location):
     return (
         location.creator == profile
@@ -169,8 +191,7 @@ def add_guest(profile, table, guest):
 def remove_guest(profile, table, player):
     """Remove a guest Player row. Returns the guest's name."""
     if not (player.guest_profile.owner == profile
-            or table.author == profile
-            or profile.user.is_superuser):
+            or can_manage_roster(profile, table)):
         raise TableActionError(
             'forbidden', _("You don't have permission to remove this guest."))
 
