@@ -41,12 +41,19 @@ class Command(BaseCommand):
         parser.add_argument(
             '--dry-run', action='store_true',
             help="Print what would be sent without calling Telegram.")
+        parser.add_argument(
+            '--show', action='store_true',
+            help="Print what Telegram currently has registered, and change nothing.")
 
     def handle(self, *args, **options):
         token = settings.TELEGRAM_BOT_TOKEN
         if not token:
             self.stdout.write(self.style.WARNING(
                 "TELEGRAM_BOT_TOKEN is not set — nothing to do."))
+            return
+
+        if options['show']:
+            self.show(token)
             return
 
         for language_code, commands in COMMANDS.items():
@@ -74,3 +81,36 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.ERROR(
                     f"[{label}] {response.status_code}: {response.text}"))
+
+    def show(self, token):
+        """What Telegram is actually serving to clients right now.
+
+        Clients cache the "/" menu, so this is the way to tell a failed
+        registration apart from a stale menu on your phone.
+        """
+        for language_code in COMMANDS:
+            label = language_code or 'default'
+            params = {'language_code': language_code} if language_code else {}
+            try:
+                response = requests.get(
+                    f"{TELEGRAM_API_BASE}/bot{token}/getMyCommands",
+                    params=params,
+                    timeout=10,
+                )
+            except requests.RequestException as error:
+                self.stdout.write(self.style.ERROR(f"[{label}] request failed: {error}"))
+                continue
+
+            if not response.ok:
+                self.stdout.write(self.style.ERROR(
+                    f"[{label}] {response.status_code}: {response.text}"))
+                continue
+
+            registered = response.json().get('result', [])
+            if not registered:
+                self.stdout.write(self.style.WARNING(
+                    f"[{label}] nothing registered — run this command without --show"))
+                continue
+            for command in registered:
+                self.stdout.write(
+                    f"[{label}] /{command['command']} — {command['description']}")
