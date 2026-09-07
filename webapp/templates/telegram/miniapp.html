@@ -17,6 +17,7 @@
       --link: var(--tg-theme-link-color, #2481cc);
       --accent: var(--tg-theme-button-color, #2481cc);
       --accent-text: var(--tg-theme-button-text-color, #ffffff);
+      --danger: #d1435b;
       --radius: 12px;
     }
 
@@ -30,6 +31,8 @@
       font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
+
+    a { color: var(--link); }
 
     .header {
       display: flex;
@@ -62,6 +65,7 @@
       margin: 0 12px 8px;
       padding: 14px;
     }
+    .card.tappable { cursor: pointer; }
     .card h2 { margin: 0; font-size: 16px; font-weight: 600; }
     .card .game { margin: 2px 0 0; font-size: 14px; color: var(--hint); }
 
@@ -82,7 +86,7 @@
       background: var(--secondary-bg);
       font-size: 12px;
     }
-    .pill.full { color: #d1435b; }
+    .pill.full { color: var(--danger); }
     .pill.joined { background: var(--accent); color: var(--accent-text); }
 
     .players {
@@ -107,10 +111,7 @@
       cursor: pointer;
       -webkit-appearance: none;
     }
-    .btn.secondary {
-      background: var(--secondary-bg);
-      color: var(--text);
-    }
+    .btn.secondary { background: var(--secondary-bg); color: var(--text); }
     .btn[disabled] { opacity: .5; cursor: default; }
 
     .banner {
@@ -121,6 +122,83 @@
     }
     .banner h2 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
     .banner p { margin: 0 0 12px; font-size: 13px; color: var(--hint); }
+
+    /* ── Detail ─────────────────────────────────────────────────────────── */
+
+    .cover {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      background: var(--secondary-bg);
+    }
+
+    .detail-head { padding: 16px; background: var(--bg); }
+    .detail-head h1 { margin: 0; font-size: 20px; font-weight: 700; }
+    .detail-head .game { margin: 4px 0 0; font-size: 15px; color: var(--hint); }
+
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--hint);
+    }
+
+    .block {
+      margin: 8px 0 0;
+      padding: 16px;
+      background: var(--bg);
+    }
+    .block h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--hint);
+    }
+    .block .prose { font-size: 15px; }
+    .block .prose p { margin: 0 0 8px; }
+    .block .prose p:last-child { margin-bottom: 0; }
+    .block .prose ul, .block .prose ol { margin: 0 0 8px; padding-left: 20px; }
+
+    .roster { list-style: none; margin: 0; padding: 0; }
+    .roster li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--secondary-bg);
+    }
+    .roster li:last-child { border-bottom: 0; }
+    .roster .name { flex: 1; overflow-wrap: anywhere; }
+    .roster .remove {
+      border: 0;
+      background: none;
+      color: var(--danger);
+      font: inherit;
+      font-size: 13px;
+      padding: 2px 4px;
+      cursor: pointer;
+    }
+
+    .links { list-style: none; margin: 0; padding: 0; }
+    .links li { padding: 7px 0; }
+
+    .guest-add { display: flex; gap: 8px; }
+    .guest-add select {
+      flex: 1;
+      min-width: 0;
+      padding: 9px;
+      border-radius: 8px;
+      border: 1px solid var(--secondary-bg);
+      background: var(--secondary-bg);
+      color: var(--text);
+      font: inherit;
+    }
+    .guest-add .btn { width: auto; padding: 9px 16px; }
 
     .state {
       padding: 48px 24px;
@@ -149,6 +227,7 @@
 </section>
 
 <main id="list"></main>
+<article id="detail" hidden></article>
 
 <p class="state" id="state">{{ strings.loading }}</p>
 
@@ -158,18 +237,26 @@
 (function () {
   const STRINGS = JSON.parse(document.getElementById('i18n').textContent);
   const BOOTSTRAP_URL = "{{ bootstrap_url|escapejs }}";
+  const DETAIL_URL = "{{ detail_url|escapejs }}";
   const JOIN_URL = "{{ join_url|escapejs }}";
   const LEAVE_URL = "{{ leave_url|escapejs }}";
+  const GUEST_ADD_URL = "{{ guest_add_url|escapejs }}";
+  const GUEST_REMOVE_URL = "{{ guest_remove_url|escapejs }}";
   const SLUG_PLACEHOLDER = "{{ slug_placeholder|escapejs }}";
+  const ID_PLACEHOLDER = "{{ id_placeholder|escapejs }}";
   const CONNECT_URL = "{{ connect_url|escapejs }}";
 
   const tg = window.Telegram && window.Telegram.WebApp;
   const stateEl = document.getElementById('state');
   const listEl = document.getElementById('list');
+  const detailEl = document.getElementById('detail');
   const headerEl = document.getElementById('header');
   const connectEl = document.getElementById('connect');
 
   let linked = false;
+  let mainButtonHandler = null;
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
 
   function showState(message) {
     listEl.innerHTML = '';
@@ -184,13 +271,61 @@
     return el;
   }
 
-  function seatsPill(table) {
-    if (table.unlimited_seats) return text('span', 'pill', STRINGS.unlimited);
-    if (table.seats_available === 0) return text('span', 'pill full', STRINGS.no_seats);
-    if (table.seats_available === 1) return text('span', 'pill', STRINGS.one_seat_free);
-    return text('span', 'pill',
-      STRINGS.seats_free.replace('%(count)s', table.seats_available));
+  function url(template, slug) {
+    return template.replace(SLUG_PLACEHOLDER, encodeURIComponent(slug));
   }
+
+  function request(target, options) {
+    const settings = Object.assign({headers: {}}, options);
+    settings.headers['X-Telegram-Init-Data'] = tg.initData;
+    return fetch(target, settings).then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok) throw body && body.error ? body : {error: 'generic'};
+        return body;
+      });
+    });
+  }
+
+  function post(target, payload) {
+    const options = {method: 'POST'};
+    if (payload) {
+      options.body = JSON.stringify(payload);
+      options.headers = {'Content-Type': 'application/json'};
+    }
+    return request(target, options);
+  }
+
+  function fail(error) {
+    tg.showAlert((error && error.detail) || STRINGS.generic_error);
+  }
+
+  function isFull(table) {
+    return !table.unlimited_seats && table.seats_available === 0;
+  }
+
+  function seatsLabel(table) {
+    if (table.unlimited_seats) return STRINGS.unlimited;
+    if (table.seats_available === 0) return STRINGS.no_seats;
+    if (table.seats_available === 1) return STRINGS.one_seat_free;
+    return STRINGS.seats_free.replace('%(count)s', table.seats_available);
+  }
+
+  function headcount(table) {
+    return table.unlimited_seats
+      ? '👥 ' + table.players_count
+      : '👥 ' + table.players_count + '/' + table.max_players;
+  }
+
+  function toggleSeat(table) {
+    return post(url(table.is_joined ? LEAVE_URL : JOIN_URL, table.slug))
+      .then(function (body) {
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        (body.warnings || []).forEach(function (w) { tg.showAlert(w.detail); });
+        return body;
+      });
+  }
+
+  // ── List ────────────────────────────────────────────────────────────────
 
   function actionButton(table, el) {
     const button = document.createElement('button');
@@ -199,20 +334,27 @@
     button.textContent = table.is_joined ? STRINGS.leave : STRINGS.join;
 
     // A full table can still be left, just not joined.
-    const full = !table.unlimited_seats && table.seats_available === 0;
-    button.disabled = !table.is_joined && full;
+    button.disabled = !table.is_joined && isFull(table);
 
-    button.addEventListener('click', function () {
+    button.addEventListener('click', function (event) {
+      event.stopPropagation();  // don't open the detail view as well
       button.disabled = true;
       button.textContent = STRINGS.working;
-      act(table, el);
+      toggleSeat(table)
+        .then(function (body) { el.replaceWith(card(body.table)); })
+        .catch(function (error) {
+          // The refusal may itself be the news (the table filled up while the
+          // list was open), so redraw from the server's view.
+          fail(error);
+          refresh();
+        });
     });
     return button;
   }
 
   function card(table) {
     const el = document.createElement('article');
-    el.className = 'card';
+    el.className = 'card tappable';
     el.appendChild(text('h2', null, table.title || table.game));
     // Titles often just repeat the game name — don't print it twice.
     if (table.title && table.game && table.title !== table.game) {
@@ -222,11 +364,9 @@
     const meta = document.createElement('div');
     meta.className = 'meta';
     meta.appendChild(text('span', 'time', table.time_label));
-    meta.appendChild(text('span', null,
-      table.unlimited_seats
-        ? '👥 ' + table.players_count
-        : '👥 ' + table.players_count + '/' + table.max_players));
-    meta.appendChild(seatsPill(table));
+    meta.appendChild(text('span', null, headcount(table)));
+    meta.appendChild(text('span', 'pill' + (isFull(table) ? ' full' : ''),
+                          seatsLabel(table)));
     if (table.is_joined) meta.appendChild(text('span', 'pill joined', STRINGS.joined));
     el.appendChild(meta);
 
@@ -242,26 +382,213 @@
       actions.appendChild(actionButton(table, el));
       el.appendChild(actions);
     }
+
+    el.addEventListener('click', function () { openDetail(table.slug); });
     return el;
   }
 
-  function act(table, el) {
-    const url = (table.is_joined ? LEAVE_URL : JOIN_URL)
-      .replace(SLUG_PLACEHOLDER, encodeURIComponent(table.slug));
+  // ── Detail ──────────────────────────────────────────────────────────────
 
-    post(url)
-      .then(function (body) {
-        el.replaceWith(card(body.table));
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        body.warnings.forEach(function (warning) { tg.showAlert(warning.detail); });
-      })
-      .catch(function (error) {
-        // The refusal may itself be the news (table filled up while reading),
-        // so redraw from the server's view rather than trusting the old card.
-        tg.showAlert(error.detail || STRINGS.generic_error);
-        refresh();
-      });
+  function block(title) {
+    const el = document.createElement('section');
+    el.className = 'block';
+    if (title) el.appendChild(text('h2', null, title));
+    return el;
   }
+
+  function rosterBlock(table) {
+    const el = block(STRINGS.players_title);
+    const list = document.createElement('ul');
+    list.className = 'roster';
+
+    table.players.forEach(function (player) {
+      const row = document.createElement('li');
+      row.appendChild(text('span', 'name', player.name));
+      if (player.can_remove) {
+        const button = text('button', 'remove', STRINGS.remove);
+        button.type = 'button';
+        button.addEventListener('click', function () {
+          button.disabled = true;
+          post(GUEST_REMOVE_URL
+                .replace(SLUG_PLACEHOLDER, encodeURIComponent(table.slug))
+                .replace(ID_PLACEHOLDER, player.id))
+            .then(function (body) { renderDetail(body.table); })
+            .catch(function (error) { button.disabled = false; fail(error); });
+        });
+        row.appendChild(button);
+      }
+      list.appendChild(row);
+    });
+
+    if (table.external_players) {
+      const label = table.external_players === 1
+        ? STRINGS.one_external_player
+        : STRINGS.external_players.replace('%(count)s', table.external_players);
+      const row = document.createElement('li');
+      row.appendChild(text('span', 'name', label));
+      list.appendChild(row);
+    }
+
+    el.appendChild(list);
+    return el;
+  }
+
+  function guestBlock(table) {
+    const el = block(STRINGS.guests_title);
+    const row = document.createElement('div');
+    row.className = 'guest-add';
+
+    const select = document.createElement('select');
+    table.guests.forEach(function (guest) {
+      const option = document.createElement('option');
+      option.value = guest.id;
+      option.textContent = guest.name;
+      select.appendChild(option);
+    });
+
+    const button = text('button', 'btn', STRINGS.add_guest);
+    button.type = 'button';
+    button.addEventListener('click', function () {
+      button.disabled = true;
+      post(url(GUEST_ADD_URL, table.slug), {guest_id: Number(select.value)})
+        .then(function (body) { renderDetail(body.table); })
+        .catch(function (error) { button.disabled = false; fail(error); });
+    });
+
+    row.appendChild(select);
+    row.appendChild(button);
+    el.appendChild(row);
+    return el;
+  }
+
+  function linksBlock(table) {
+    const el = block(STRINGS.links_title);
+    const list = document.createElement('ul');
+    list.className = 'links';
+    table.links.forEach(function (link) {
+      const row = document.createElement('li');
+      const anchor = text('a', null, link.label);
+      anchor.href = link.url;
+      anchor.addEventListener('click', function (event) {
+        event.preventDefault();
+        tg.openLink(link.url);
+      });
+      row.appendChild(anchor);
+      list.appendChild(row);
+    });
+    el.appendChild(list);
+    return el;
+  }
+
+  function setMainButton(table) {
+    if (!tg.MainButton) return;
+    if (mainButtonHandler) tg.MainButton.offClick(mainButtonHandler);
+    mainButtonHandler = null;
+
+    if (!linked || (!table.is_joined && isFull(table))) {
+      tg.MainButton.hide();
+      return;
+    }
+
+    mainButtonHandler = function () {
+      tg.MainButton.showProgress();
+      toggleSeat(table)
+        .catch(fail)
+        .then(function () { return openDetail(table.slug); })
+        .then(function () { tg.MainButton.hideProgress(); });
+    };
+    tg.MainButton.setText(table.is_joined ? STRINGS.leave : STRINGS.join);
+    tg.MainButton.onClick(mainButtonHandler);
+    tg.MainButton.show();
+  }
+
+  function renderDetail(table) {
+    detailEl.innerHTML = '';
+
+    if (table.cover_url) {
+      const cover = document.createElement('img');
+      cover.className = 'cover';
+      cover.src = table.cover_url;
+      cover.alt = '';
+      detailEl.appendChild(cover);
+    }
+
+    const head = document.createElement('div');
+    head.className = 'detail-head';
+    head.appendChild(text('h1', null, table.title || table.game));
+    if (table.title && table.game && table.title !== table.game) {
+      head.appendChild(text('p', 'game', table.game));
+    }
+
+    const facts = document.createElement('div');
+    facts.className = 'facts';
+    facts.appendChild(text('span', 'pill', table.day_label));
+    facts.appendChild(text('span', 'pill',
+      table.time_label + '–' + table.end_time_label));
+    facts.appendChild(text('span', 'pill', headcount(table)));
+    facts.appendChild(text('span', 'pill' + (isFull(table) ? ' full' : ''),
+                           seatsLabel(table)));
+    head.appendChild(facts);
+    detailEl.appendChild(head);
+
+    if (table.description_html) {
+      const el = block(STRINGS.description_title);
+      const prose = document.createElement('div');
+      prose.className = 'prose';
+      // Sanitised server-side by nh3 down to p/strong/em/ul/ol/li/br — the same
+      // filter the website renders table descriptions with.
+      prose.innerHTML = table.description_html;
+      el.appendChild(prose);
+      detailEl.appendChild(el);
+    }
+
+    detailEl.appendChild(rosterBlock(table));
+    if (table.guests.length) detailEl.appendChild(guestBlock(table));
+    if (table.links.length) detailEl.appendChild(linksBlock(table));
+
+    const openWeb = block(null);
+    const anchor = text('a', null, STRINGS.open_website);
+    anchor.href = table.web_url;
+    anchor.addEventListener('click', function (event) {
+      event.preventDefault();
+      tg.openLink(table.web_url);
+    });
+    openWeb.appendChild(anchor);
+    detailEl.appendChild(openWeb);
+
+    setMainButton(table);
+
+    headerEl.hidden = true;
+    connectEl.hidden = true;
+    listEl.hidden = true;
+    stateEl.hidden = true;
+    detailEl.hidden = false;
+    if (tg.BackButton) tg.BackButton.show();
+    window.scrollTo(0, 0);
+  }
+
+  function openDetail(slug) {
+    return request(url(DETAIL_URL, slug))
+      .then(function (body) { renderDetail(body.table); })
+      .catch(fail);
+  }
+
+  function closeDetail() {
+    if (mainButtonHandler) {
+      tg.MainButton.offClick(mainButtonHandler);
+      mainButtonHandler = null;
+    }
+    if (tg.MainButton) tg.MainButton.hide();
+    if (tg.BackButton) tg.BackButton.hide();
+
+    detailEl.hidden = true;
+    detailEl.innerHTML = '';
+    listEl.hidden = false;
+    // The list may be stale after a booking made from the detail view.
+    refresh();
+  }
+
+  // ── Bootstrap ───────────────────────────────────────────────────────────
 
   function renderConnectBanner() {
     document.getElementById('connect-title').textContent = STRINGS.connect_title;
@@ -309,21 +636,6 @@
     unknown_location: STRINGS.unknown_location,
   };
 
-  function request(url, options) {
-    const settings = Object.assign({headers: {}}, options);
-    settings.headers['X-Telegram-Init-Data'] = tg.initData;
-    return fetch(url, settings).then(function (response) {
-      return response.json().then(function (body) {
-        if (!response.ok) throw body && body.error ? body : {error: 'generic'};
-        return body;
-      });
-    });
-  }
-
-  function post(url) {
-    return request(url, {method: 'POST'});
-  }
-
   function refresh() {
     return request(BOOTSTRAP_URL)
       .then(render)
@@ -339,6 +651,7 @@
 
   tg.ready();
   tg.expand();
+  if (tg.BackButton) tg.BackButton.onClick(closeDetail);
   refresh();
 })();
 </script>

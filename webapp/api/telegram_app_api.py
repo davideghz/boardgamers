@@ -4,15 +4,21 @@ Every endpoint authenticates from the signed `initData` header — see
 `telegram_miniapp_auth` — never from the Django session.
 """
 
+import json
+
 from django.db.models import Prefetch
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from webapp.models import Location, Player, Table
-from webapp.services.tables import TableActionError, join_table, leave_table
+from webapp.models import GuestProfile, Location, Player, Table
+from webapp.services.tables import (
+    TableActionError, add_guest, join_table, leave_table, remove_guest,
+)
+from webapp.templatetags.custom_tags import render_markdown
 from webapp.views.decorators import telegram_miniapp_auth
 
 
@@ -150,3 +156,133 @@ def join(request, slug):
 @telegram_miniapp_auth
 def leave(request, slug):
     return _table_action(request, slug, leave_table)
+
+
+# ── Detail ────────────────────────────────────────────────────────────────────
+
+def _may_remove(player, table, profile):
+    """Mirrors remove_guest's permission rule, so the client only draws a remove
+    control where the action would actually succeed."""
+    if profile is None:
+        return False
+    return (player.guest_profile.owner_id == profile.id
+            or table.author_id == profile.id
+            or profile.user.is_superuser)
+
+
+def _serialize_detail(table, profile, request):
+    players = list(
+        table.player_set
+        .select_related('user_profile', 'guest_profile', 'guest_profile__owner')
+        .all()
+    )
+    is_joined = any(p.user_profile_id == getattr(profile, 'id', None) for p in players)
+
+    # Guests this viewer could still bring: their own, not already seated here.
+    guests = []
+    if profile and is_joined:
+        seated = {p.guest_profile_id for p in players if p.guest_profile_id}
+        guests = [
+            {'id': g.id, 'name': g.name}
+            for g in GuestProfile.objects.filter(owner=profile).exclude(id__in=seated)
+        ]
+
+    return {
+        'slug': table.slug,
+        'title': table.title,
+        'game': table.game.name if table.game else '',
+        'cover_url': table.cover_url,
+        'date': table.date.isoformat(),
+        'day_label': formats.date_format(table.date, 'l j E'),
+        'time_label': table.time.strftime('%H:%M'),
+        'end_time_label': table.end_time.strftime('%H:%M'),
+        # Sanitised by the same filter the website uses: p/strong/em/ul/ol/li/br.
+        'description_html': str(render_markdown(table.description)),
+        'players': [
+            {
+                'id': p.id,
+                'name': p.display_name,
+                'is_guest': p.is_guest,
+                'can_remove': p.is_guest and _may_remove(p, table, profile),
+            }
+            for p in players
+        ],
+        'players_count': table.total_players,
+        'max_players': table.max_players,
+        'seats_available': max(0, table.seats_available),
+        'unlimited_seats': table.unlimited_seats,
+        'external_players': table.external_players,
+        'is_joined': is_joined,
+        'links': [
+            {'label': link.display_label, 'url': link.url}
+            for link in table.links.all()
+        ],
+        'guests': guests,
+        'web_url': request.build_absolute_uri(
+            reverse('table-detail', kwargs={'slug': table.slug})),
+    }
+
+
+@require_GET
+@telegram_miniapp_auth
+def detail(request, slug):
+    table = _resolve_table(slug)
+    if table is None:
+        return JsonResponse({'error': 'unknown_table'}, status=404)
+    return JsonResponse(
+        {'table': _serialize_detail(table, request.telegram_profile, request)})
+
+
+# ── Guests ────────────────────────────────────────────────────────────────────
+
+def _guest_action(request, slug, resolve, action):
+    if request.telegram_profile is None:
+        return JsonResponse(
+            {'error': 'not_linked',
+             'detail': _('Connect your Board-Gamers account to book a seat.')},
+            status=403)
+
+    table = _resolve_table(slug)
+    if table is None:
+        return JsonResponse({'error': 'unknown_table'}, status=404)
+
+    target = resolve(request, table)
+    if target is None:
+        return JsonResponse({'error': 'unknown_guest'}, status=404)
+
+    try:
+        action(request.telegram_profile, table, target)
+    except TableActionError as error:
+        return JsonResponse(
+            {'error': error.code, 'detail': str(error.message)}, status=409)
+
+    table.refresh_from_db()
+    return JsonResponse(
+        {'table': _serialize_detail(table, request.telegram_profile, request)})
+
+
+@csrf_exempt
+@require_POST
+@telegram_miniapp_auth
+def guest_add(request, slug):
+    def resolve(req, table):
+        try:
+            guest_id = json.loads(req.body or '{}').get('guest_id')
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return None
+        # Scoped to the viewer: nobody can seat someone else's guest.
+        return GuestProfile.objects.filter(
+            id=guest_id, owner=req.telegram_profile).first()
+
+    return _guest_action(request, slug, resolve, add_guest)
+
+
+@csrf_exempt
+@require_POST
+@telegram_miniapp_auth
+def guest_remove(request, slug, player_id):
+    def resolve(req, table):
+        return Player.objects.filter(
+            id=player_id, table=table, guest_profile__isnull=False).first()
+
+    return _guest_action(request, slug, resolve, remove_guest)

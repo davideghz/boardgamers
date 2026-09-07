@@ -14,6 +14,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 # Stand-in the client substitutes with a real slug. The `slug` URL converter
 # accepts underscores, so this reverses cleanly.
 SLUG_PLACEHOLDER = '__slug__'
+ID_PLACEHOLDER = 0
 
 
 @xframe_options_exempt
@@ -36,6 +37,15 @@ def miniapp(request):
         'no_seats': _('Full'),
         'unlimited': _('Unlimited seats'),
         'joined': _('You are in'),
+        'players_title': _('Players'),
+        'description_title': _('Description'),
+        'links_title': _('Links'),
+        'guests_title': _('Bring a guest'),
+        'add_guest': _('Add'),
+        'remove': _('Remove'),
+        'external_players': _('%(count)s players signed up elsewhere'),
+        'one_external_player': _('1 player signed up elsewhere'),
+        'open_website': _('Open on Board-Gamers'),
         'join': _('Join'),
         'leave': _('Leave'),
         'working': _('One moment…'),
@@ -48,9 +58,16 @@ def miniapp(request):
     return render(request, 'telegram/miniapp.html', {
         'strings': strings,
         'bootstrap_url': reverse('telegram-miniapp-bootstrap'),
+        'detail_url': reverse('telegram-miniapp-detail', kwargs={'slug': SLUG_PLACEHOLDER}),
         'join_url': reverse('telegram-miniapp-join', kwargs={'slug': SLUG_PLACEHOLDER}),
         'leave_url': reverse('telegram-miniapp-leave', kwargs={'slug': SLUG_PLACEHOLDER}),
+        'guest_add_url': reverse(
+            'telegram-miniapp-guest-add', kwargs={'slug': SLUG_PLACEHOLDER}),
+        'guest_remove_url': reverse(
+            'telegram-miniapp-guest-remove',
+            kwargs={'slug': SLUG_PLACEHOLDER, 'player_id': ID_PLACEHOLDER}),
         'slug_placeholder': SLUG_PLACEHOLDER,
+        'id_placeholder': str(ID_PLACEHOLDER),
         # Absolute: this one is opened in the external browser, where the
         # Telegram OAuth flow actually works.
         'connect_url': request.build_absolute_uri(reverse('connect-telegram')),

@@ -4,6 +4,9 @@ from webapp.api.views import TableViewSet, bgg_search_view, bgg_search_external_
 from webapp.api.telegram_views import telegram_webhook, generate_setup_token
 from webapp.api.telegram_app_api import (
     bootstrap as telegram_miniapp_bootstrap,
+    detail as telegram_miniapp_detail,
+    guest_add as telegram_miniapp_guest_add,
+    guest_remove as telegram_miniapp_guest_remove,
     join as telegram_miniapp_join,
     leave as telegram_miniapp_leave,
 )
@@ -18,6 +21,9 @@ urlpatterns = [
     path('telegram/app/bootstrap/', telegram_miniapp_bootstrap, name='telegram-miniapp-bootstrap'),
     path('telegram/app/tables/<slug:slug>/join/', telegram_miniapp_join, name='telegram-miniapp-join'),
     path('telegram/app/tables/<slug:slug>/leave/', telegram_miniapp_leave, name='telegram-miniapp-leave'),
+    path('telegram/app/tables/<slug:slug>/', telegram_miniapp_detail, name='telegram-miniapp-detail'),
+    path('telegram/app/tables/<slug:slug>/guests/add/', telegram_miniapp_guest_add, name='telegram-miniapp-guest-add'),
+    path('telegram/app/tables/<slug:slug>/guests/<int:player_id>/remove/', telegram_miniapp_guest_remove, name='telegram-miniapp-guest-remove'),
     path('bgg/search/', bgg_search_view, name='bgg-search'),
     path('bgg/search/external/', bgg_search_external_view, name='bgg-search-external'),
     path('bgg/import/', bgg_import_view, name='bgg-import'),
