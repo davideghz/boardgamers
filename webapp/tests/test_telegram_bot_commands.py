@@ -93,10 +93,11 @@ class BotCommandTest(TestCase):
         buttons = self.buttons(send)
         self.assertEqual(buttons[0]['url'], miniapp_link(self.location))
 
-    def test_tables_without_tables_says_nothing_is_open(self):
+    def test_tables_without_tables_still_offers_the_mini_app(self):
         send = self.send('/tables')
 
         self.assertIn('Nessun tavolo aperto', send.call_args.args[1])
+        self.assertEqual(self.buttons(send)[0]['url'], miniapp_link(self.location))
 
     def test_inactive_config_is_ignored(self):
         self.config.active = False
