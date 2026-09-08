@@ -16,7 +16,10 @@ from webapp.models import UserProfile, Player, Table, Notification, Notification
 
 @receiver(user_logged_out)
 def on_user_logged_out(sender, request, user, **kwargs):
-    messages.add_message(request, messages.SUCCESS, 'Successfully logged out.')
+    # fail_silently: logging out does not always happen through a request that
+    # went past the message middleware (the test client's logout, for one).
+    messages.add_message(request, messages.SUCCESS, _('Successfully logged out.'),
+                         fail_silently=True)
 
 
 @receiver(user_logged_in)
