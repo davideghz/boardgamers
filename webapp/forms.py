@@ -789,6 +789,12 @@ class ApproveMembershipForm(TailwindForm):
         label=_('Notes'),
         widget=CustomTextareaWidget(),
     )
+    # Never required: a member often hands in the signed form later, and that
+    # must not stop a manager from approving the membership today.
+    signed_document = BooleanField(
+        required=False,
+        label=_('Signed document received'),
+    )
 
 
 class MembershipEditForm(TailwindForm):
@@ -812,6 +818,10 @@ class MembershipEditForm(TailwindForm):
         required=False,
         label=_('Notes'),
         widget=CustomTextareaWidget(),
+    )
+    signed_document = BooleanField(
+        required=False,
+        label=_('Signed document received'),
     )
 
     def clean(self):

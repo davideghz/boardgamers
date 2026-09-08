@@ -557,6 +557,8 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
         location = self.get_object()
         members = location.members.prefetch_related('memberships').all()
         context['members'] = members
+        # Only nag about signed forms when the location actually publishes some.
+        context['has_documents'] = location.membership_documents.filter(is_active=True).exists()
         context['is_owner'] = location.creator == self.request.user.user_profile
         context['meta'] = Meta(
             title=_("Members %(name)s - Boardgamers.com") % {'name': location.name},
@@ -711,6 +713,7 @@ class ApproveMembershipView(LoginRequiredMixin, View):
                     pending.start_date = form.cleaned_data['start_date']
                     pending.end_date = form.cleaned_data['end_date']
                     pending.notes = form.cleaned_data.get('notes', '')
+                    pending.signed_document = form.cleaned_data.get('signed_document', False)
                     pending.approved_by = user_profile
                     pending.save()
                     messages.success(request, _("Membership for %(name)s approved.") % {'name': member.full_name})
@@ -736,6 +739,7 @@ class EditMembershipView(LoginRequiredMixin, View):
             membership.start_date = form.cleaned_data['start_date'] or None
             membership.end_date = form.cleaned_data['end_date'] or None
             membership.notes = form.cleaned_data.get('notes', '')
+            membership.signed_document = form.cleaned_data.get('signed_document', False)
             membership.save()
             messages.success(request, _("Membership updated successfully."))
         else:
@@ -783,7 +787,7 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
             _('Phone'), _('Date of Birth'), _('Place of Birth'), _('Nationality'),
             _('Address'), _('ZIP Code'), _('City'), _('Province'),
             _('Username'), _('Membership Status'),
-            _('Start Date'), _('End Date'),
+            _('Start Date'), _('End Date'), _('Signed document received'),
         ])
 
         members = location.members.prefetch_related('memberships', 'user_profile').order_by('last_name', 'first_name')
@@ -806,6 +810,7 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
                 latest.get_status_display() if latest else '',
                 latest.start_date.isoformat() if latest and latest.start_date else '',
                 latest.end_date.isoformat() if latest and latest.end_date else '',
+                _('Yes') if latest and latest.signed_document else _('No'),
             ])
 
         return response

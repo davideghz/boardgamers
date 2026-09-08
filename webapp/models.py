@@ -939,6 +939,21 @@ class Member(DateTimeModel):
         return f"{self.first_name} {self.last_name}"
 
     @property
+    def current_membership(self):
+        """The membership that matters right now: the active one, else the latest."""
+        return self.active_membership or self.memberships.first()
+
+    @property
+    def needs_signed_document(self):
+        """True while the member's current membership still lacks the signed form."""
+        membership = self.current_membership
+        return bool(
+            membership
+            and membership.status in (Membership.PENDING, Membership.ACTIVE)
+            and not membership.signed_document
+        )
+
+    @property
     def has_complete_personal_data(self):
         """True when every field the membership form needs is filled in."""
         return all(getattr(self, field) for field in self.REQUIRED_PERSONAL_DATA_FIELDS)
@@ -996,6 +1011,9 @@ class Membership(DateTimeModel):
         db_index=True, verbose_name=_('Status')
     )
     notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    #: Set by a manager once the member hands in the signed paper form.
+    signed_document = models.BooleanField(
+        default=False, verbose_name=_('Signed document received'))
     approved_by = models.ForeignKey(
         UserProfile, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='approved_memberships',

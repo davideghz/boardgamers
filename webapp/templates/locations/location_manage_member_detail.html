@@ -88,6 +88,11 @@
                   {% elif ms.status == 'rejected' %}
                     <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 mb-2">{% trans "Rejected" %}</span>
                   {% endif %}
+                  {% if ms.signed_document %}
+                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted mb-2">{% trans "Signed" %}</span>
+                  {% elif ms.status == 'pending' or ms.status == 'active' %}
+                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border border-divider text-content-muted mb-2">{% trans "Signed form missing" %}</span>
+                  {% endif %}
 
                   {# Date range #}
                   <p class="text-xs text-content-muted">
@@ -159,6 +164,13 @@
                     <textarea name="notes" rows="2"
                               class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors resize-none">{{ ms.notes }}</textarea>
                   </div>
+
+                  {# Signed document #}
+                  <label class="flex items-center gap-2 text-xs font-semibold text-content-soft cursor-pointer select-none">
+                    <input type="checkbox" name="signed_document" value="on" {% if ms.signed_document %}checked{% endif %}
+                           class="w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500 cursor-pointer">
+                    {% trans "Signed document received" %}
+                  </label>
 
                   <div class="flex gap-3 pt-1">
                     <button type="button"

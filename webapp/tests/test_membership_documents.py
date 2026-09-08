@@ -3,6 +3,7 @@ from unittest import mock
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from webapp.factories import UserProfileFactory, LocationFactory
 from webapp.models import Member, Membership, MembershipDocument
@@ -143,3 +144,81 @@ class MembershipDocumentVisibilityTest(TestCase):
             {'first_name': 'Mario', 'last_name': 'Rossi'}, follow=True)
         texts = [str(message) for message in response.context['messages']]
         self.assertTrue(any('firmare' in text or 'sign' in text for text in texts), texts)
+
+
+class SignedDocumentFlagTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.owner = UserProfileFactory()
+        self.location = LocationFactory(creator=self.owner, enable_membership=True)
+        self.member = Member.objects.create(
+            location=self.location, first_name='Mario', last_name='Rossi')
+        self.membership = Membership.objects.create(
+            member=self.member, status=Membership.PENDING)
+        self.approve_url = reverse('location-approve-membership', kwargs={
+            'slug': self.location.slug, 'member_uuid': self.member.uuid})
+        self.client.force_login(self.owner.user)
+
+    def _approve(self, **extra):
+        return self.client.post(self.approve_url, {
+            'action': 'approve', 'start_date': '2026-01-01', 'end_date': '2026-12-31', **extra,
+        })
+
+    def test_approving_records_the_signed_document(self):
+        self._approve(signed_document='on')
+        self.membership.refresh_from_db()
+        self.assertEqual(self.membership.status, Membership.ACTIVE)
+        self.assertTrue(self.membership.signed_document)
+
+    def test_approving_is_not_blocked_without_the_signed_document(self):
+        self._approve()
+        self.membership.refresh_from_db()
+        self.assertEqual(self.membership.status, Membership.ACTIVE)
+        self.assertFalse(self.membership.signed_document)
+
+    def test_editing_a_membership_toggles_the_flag(self):
+        edit_url = reverse('location-edit-membership', kwargs={
+            'slug': self.location.slug, 'member_uuid': self.member.uuid,
+            'membership_uuid': self.membership.uuid})
+
+        self.client.post(edit_url, {'status': Membership.PENDING, 'signed_document': 'on'})
+        self.membership.refresh_from_db()
+        self.assertTrue(self.membership.signed_document)
+
+        self.client.post(edit_url, {'status': Membership.PENDING})
+        self.membership.refresh_from_db()
+        self.assertFalse(self.membership.signed_document)
+
+    def test_needs_signed_document_follows_the_current_membership(self):
+        self.assertTrue(self.member.needs_signed_document)
+
+        self.membership.signed_document = True
+        self.membership.save()
+        self.assertFalse(self.member.needs_signed_document)
+
+        self.membership.signed_document = False
+        self.membership.status = Membership.REJECTED
+        self.membership.save()
+        self.assertFalse(self.member.needs_signed_document)
+
+    def test_the_list_only_nags_when_documents_exist(self):
+        list_url = reverse('location-manage-members', kwargs={'slug': self.location.slug})
+        # The id also appears in the page script; the input itself does not.
+        self.assertNotContains(self.client.get(list_url), 'id="member-unsigned-filter"')
+
+        MembershipDocument.objects.create(
+            location=self.location, name='Modulo di adesione',
+            file='membership-documents/modulo.pdf')
+        response = self.client.get(list_url)
+        self.assertContains(response, 'id="member-unsigned-filter"')
+        self.assertContains(response, 'data-signed="0"')
+
+    def test_csv_reports_the_flag(self):
+        self.membership.signed_document = True
+        self.membership.save()
+        response = self.client.get(
+            reverse('location-members-csv', kwargs={'slug': self.location.slug}))
+        self.assertEqual(response.status_code, 200)
+        header, row = response.content.decode('utf-8').strip().splitlines()[:2]
+        self.assertEqual(header.split(',')[-1].strip('"'), _('Signed document received'))
+        self.assertEqual(row.split(',')[-1].strip('"'), _('Yes'))

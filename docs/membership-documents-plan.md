@@ -5,7 +5,7 @@ cartaceo. Obiettivo: i manager di una location caricano il modulo di adesione,
 il socio che invia la richiesta lo scarica, lo stampa e lo firma; il manager
 registra a mano l'avvenuta consegna.
 
-> Stato: **Fasi 1 e 2 implementate** (branch `membership-documents`); Fasi 3-4 da fare.
+> Stato: **Fasi 1, 2 e 3 implementate** (branch `membership-documents`); resta la Fase 4.
 
 ## Scope
 
@@ -161,7 +161,7 @@ Le view di gestione seguono lo schema esistente: `LoginRequiredMixin` +
   location per ogni membership `PENDING` o `ACTIVE`, così il socio li ritrova.
 - **Dettaglio location**: eventuale link accanto al bottone di richiesta.
 
-## Fase 3 — Flag documento firmato
+## Fase 3 — Flag documento firmato ✅ fatta
 
 ```python
 # su Membership

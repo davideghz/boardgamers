@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 16:57+0200\n"
+"POT-Creation-Date: 2026-09-08 17:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,6 +113,9 @@ msgstr "Data di inizio"
 
 msgid "End Date"
 msgstr "Data di fine"
+
+msgid "Signed document received"
+msgstr "Modulo firmato ricevuto"
 
 msgid "Status"
 msgstr "Status"
@@ -2085,6 +2088,12 @@ msgstr "Storico membership"
 msgid "No memberships yet."
 msgstr "Ancora nessuna membership."
 
+msgid "Signed"
+msgstr "Firmato"
+
+msgid "Signed form missing"
+msgstr "Modulo non firmato"
+
 msgid "to"
 msgstr "al"
 
@@ -2108,6 +2117,9 @@ msgstr "Documenti"
 
 msgid "Search by name, email, code…"
 msgstr "Cerca per nome, email, codice…"
+
+msgid "Only members without a signed form"
+msgstr "Solo soci senza modulo firmato"
 
 msgid "No members found."
 msgstr "Nessun socio trovato."
@@ -2134,6 +2146,9 @@ msgstr "Data di inizio"
 msgid "End date"
 msgstr "Data di fine"
 
+msgid "You can approve without it and tick this later."
+msgstr "Puoi approvare anche senza: lo spunterai più avanti."
+
 msgid "Approve"
 msgstr "Approva"
 
@@ -2144,7 +2159,10 @@ msgid ""
 "Documents your members download, print and sign — the membership form, the "
 "privacy notice, the statute. Active documents are shown to anyone requesting "
 "a membership."
-msgstr "I documenti che i tuoi soci scaricano, stampano e firmano: il modulo di adesione, l'informativa privacy, lo statuto. I documenti attivi vengono mostrati a chi richiede l'iscrizione."
+msgstr ""
+"I documenti che i tuoi soci scaricano, stampano e firmano: il modulo di "
+"adesione, l'informativa privacy, lo statuto. I documenti attivi vengono "
+"mostrati a chi richiede l'iscrizione."
 
 msgid "Hidden"
 msgstr "Nascosto"
@@ -2372,7 +2390,9 @@ msgstr ""
 msgid ""
 "To become a member you have to print these documents, sign them and hand "
 "them in. You can download them again later from your memberships page."
-msgstr "Per diventare socio devi stampare questi documenti, firmarli e consegnarli. Puoi riscaricarli più avanti dalla pagina delle tue iscrizioni."
+msgstr ""
+"Per diventare socio devi stampare questi documenti, firmarli e consegnarli. "
+"Puoi riscaricarli più avanti dalla pagina delle tue iscrizioni."
 
 msgid "Send Request"
 msgstr "Invia richiesta"
@@ -2873,6 +2893,9 @@ msgstr "Conflitto"
 msgid "Created by you"
 msgstr "Creati da te"
 
+msgid "Yes"
+msgstr "Sì"
+
 msgid "My Account - Board-Gamers.com"
 msgstr "Il Mio Account - Board-Gamers.com"
 
@@ -3158,10 +3181,13 @@ msgstr "Username"
 msgid "Membership Status"
 msgstr "Membership"
 
+msgid "No"
+msgstr "No"
+
 msgid "Membership deleted."
 msgstr "Membership cancellata."
 
-#,, python-format
+#, python-format
 msgid "Membership documents %(name)s - Boardgamers.com"
 msgstr "Documenti di adesione %(name)s - Boardgamers.com"
 
@@ -3194,7 +3220,9 @@ msgstr "Richiesta di membership inviata. Un manager la esaminerà."
 msgid ""
 "Remember to print and sign the membership documents: you can download them "
 "from \"My memberships\"."
-msgstr "Ricordati di stampare e firmare i documenti di adesione: li trovi in \"Le mie iscrizioni\"."
+msgstr ""
+"Ricordati di stampare e firmare i documenti di adesione: li trovi in \"Le "
+"mie iscrizioni\"."
 
 #, python-format
 msgid "Games – %(name)s"
