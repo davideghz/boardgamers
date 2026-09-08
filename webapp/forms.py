@@ -456,11 +456,14 @@ class LocationForm(ModelForm, TailwindForm):
 
     class Meta:
         model = Location
-        fields = ['name', 'creator', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage', 'opening_hours', 'default_table_time']
+        # `creator` is deliberately absent: it is set on creation by the view
+        # and changed only through the owner-only transfer flow. As an editable
+        # (even hidden) field, anyone allowed to edit a location could take it
+        # over or blank it by tampering with the posted value.
+        fields = ['name', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage', 'opening_hours', 'default_table_time']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['creator'].widget = HiddenInput()
         self.fields['cover'].required = False
         self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
         self.fields['opening_hours'].required = False

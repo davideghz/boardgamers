@@ -35,17 +35,22 @@ class LocationManagementTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_manage_managers_access(self):
+        url = reverse('location-manage-managers', kwargs={'slug': self.location.slug})
+        # The transfer form's action is owner-only and, unlike its label, does
+        # not change with the active language.
+        transfer_url = reverse('location-transfer-ownership', kwargs={'slug': self.location.slug})
+
         # Owner access
         self.client.force_login(self.owner.user)
-        response = self.client.get(reverse('location-manage-managers', kwargs={'slug': self.location.slug}))
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Transfer Ownership')
+        self.assertContains(response, transfer_url)
 
-        # Manager access
+        # Manager access: no way to transfer ownership
         self.client.force_login(self.manager.user)
-        response = self.client.get(reverse('location-manage-managers', kwargs={'slug': self.location.slug}))
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Transfer Ownership')
+        self.assertNotContains(response, transfer_url)
 
         # Regular user access
         self.client.force_login(self.regular_user.user)
@@ -100,20 +105,44 @@ class LocationManagementTest(TestCase):
         self.location.refresh_from_db()
         self.assertEqual(self.location.creator, self.owner)
 
-    def test_update_location_data(self):
-        self.client.force_login(self.manager.user)
-        new_name = "New Location Name"
-        response = self.client.post(reverse('location-manage-data', kwargs={'slug': self.location.slug}), {
-            'name': new_name,
+    def _location_data(self, **overrides):
+        return {
+            'name': "New Location Name",
             'description': 'New description',
             'address': 'New Address',
             'city': 'New City',
             'latitude': '45.0',
             'longitude': '9.0',
-            'is_public': True
-        })
+            'is_public': True,
+            **overrides,
+        }
+
+    def test_update_location_data(self):
+        self.client.force_login(self.manager.user)
+        data = self._location_data()
+        self.client.post(
+            reverse('location-manage-data', kwargs={'slug': self.location.slug}), data)
 
         self.location.refresh_from_db()
-        self.assertEqual(self.location.name, new_name)
+        self.assertEqual(self.location.name, data['name'])
         # Verify creator hasn't changed
+        self.assertEqual(self.location.creator, self.owner)
+
+    def test_a_manager_cannot_take_over_the_location(self):
+        """Ownership only moves through the owner-only transfer flow."""
+        self.client.force_login(self.manager.user)
+        self.client.post(
+            reverse('location-manage-data', kwargs={'slug': self.location.slug}),
+            self._location_data(creator=self.manager.id))
+
+        self.location.refresh_from_db()
+        self.assertEqual(self.location.creator, self.owner)
+
+    def test_updating_a_location_cannot_blank_the_owner(self):
+        self.client.force_login(self.manager.user)
+        self.client.post(
+            reverse('location-manage-data', kwargs={'slug': self.location.slug}),
+            self._location_data(creator=''))
+
+        self.location.refresh_from_db()
         self.assertEqual(self.location.creator, self.owner)

@@ -264,11 +264,8 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
     def get_form_class(self):
         return LocationForm
 
-    def form_valid(self, form):
-        location = form.save(commit=False)
-        # Don't change the creator
-        location.save()
-        return super(LocationUpdateView, self).form_valid(form)
+    # No form_valid override: the form has no `creator` field, so the owner is
+    # preserved by simply saving the instance.
 
     def get_success_url(self):
         return reverse("account-locations")
@@ -356,11 +353,7 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
             raise PermissionDenied("You don't have permission to edit this location.")
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        location = form.save(commit=False)
-        # Don't change the creator
-        location.save()
-        return super(LocationManageDataView, self).form_valid(form)
+    # No form_valid override: see LocationUpdateView.
 
     def get_success_url(self):
         return reverse("location-manage", kwargs={'slug': self.object.slug})
