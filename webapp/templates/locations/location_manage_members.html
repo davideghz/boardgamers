@@ -48,7 +48,7 @@
       <div class="space-y-2" id="member-list">
         {% for member in members %}
           <div class="relative flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:border-divider hover:bg-surface-alt transition-colors"
-               data-search="{{ member.first_name|lower }} {{ member.last_name|lower }} {{ member.user_profile.nickname|lower|default:'' }} {{ member.email|lower }} {{ member.code|lower }} {{ member.phone_number|lower }}">
+               data-search="{{ member.first_name|lower }} {{ member.last_name|lower }} {{ member.user_profile.nickname|lower|default:'' }} {{ member.email|lower }} {{ member.fiscal_code|lower }} {{ member.phone_number|lower }}">
             {# Full-card link #}
             <a href="{% url 'location-member-detail' location.slug member.uuid %}" class="absolute inset-0 rounded-xl" aria-label="{{ member.full_name }}"></a>
 

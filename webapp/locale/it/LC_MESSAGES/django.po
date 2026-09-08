@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-07 17:12+0200\n"
+"POT-Creation-Date: 2026-09-08 16:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -377,6 +377,9 @@ msgstr "Notifica"
 msgid "Notifications"
 msgstr "Notifiche"
 
+msgid "Enter a valid fiscal code (16 characters), or leave the field empty."
+msgstr "Inserisci un codice fiscale valido (16 caratteri), oppure lascia il campo vuoto."
+
 msgid "User Profile"
 msgstr "Profilo Utente"
 
@@ -386,14 +389,35 @@ msgstr "Nome"
 msgid "Last Name"
 msgstr "Cognome"
 
-msgid "Member Code"
-msgstr "Codice Fiscale"
+msgid "Fiscal Code"
+msgstr "Codice fiscale"
 
 msgid "Email"
 msgstr "Email"
 
 msgid "Phone Number"
 msgstr "Numero di telefono"
+
+msgid "Date of Birth"
+msgstr "Data di nascita"
+
+msgid "Place of Birth"
+msgstr "Luogo di nascita"
+
+msgid "Nationality"
+msgstr "Nazionalità"
+
+msgid "Address"
+msgstr "Indirizzo"
+
+msgid "ZIP Code"
+msgstr "CAP"
+
+msgid "City"
+msgstr "Città"
+
+msgid "Province"
+msgstr "Provincia"
 
 msgid "Member"
 msgstr "Associato/a"
@@ -505,12 +529,6 @@ msgstr "Approvato"
 
 msgid "Cover"
 msgstr "Immagine di copertina"
-
-msgid "Address"
-msgstr "Indirizzo"
-
-msgid "City"
-msgstr "Città"
 
 msgid "Creator"
 msgstr "Creatore"
@@ -848,11 +866,30 @@ msgstr "Tutte le locations"
 msgid "Add your club, association or game shop."
 msgstr "Aggiungi il tuo club, associazione o negozio di giochi."
 
+msgid "My details"
+msgstr "I miei dati"
+
+#, python-format
+msgid ""
+"These are the details %(name)s holds for you. Keep them up to date: the "
+"association uses them for your membership form."
+msgstr ""
+"Questi sono i dati che %(name)s ha su di te. Tienili aggiornati: l'associazione li usa per il tuo modulo di adesione."
+
+msgid "Save changes"
+msgstr "Aggiorna"
+
 msgid "Active memberships"
 msgstr "Membership attive"
 
+msgid "Details to complete"
+msgstr "Dati da completare"
+
 msgid "From"
 msgstr "Dal"
+
+msgid "Edit my details"
+msgstr "Modifica i miei dati"
 
 msgid "No active memberships"
 msgstr "Nessuna iscrizione attiva"
@@ -1361,9 +1398,6 @@ msgstr "Aggiungi categoria"
 
 msgid "General info"
 msgstr "Info generali"
-
-msgid "Save changes"
-msgstr "Aggiorna"
 
 msgid "Event dates"
 msgstr "Date evento"
@@ -2190,12 +2224,16 @@ msgstr "Link di prenotazione"
 msgid ""
 "Opens the table list inside Telegram, where members can book a seat. Pin it "
 "in your group or add it to the group description."
-msgstr "Apre l’elenco dei tavoli dentro Telegram, dove i soci possono prenotare un posto. Fissalo nel gruppo o mettilo nella descrizione."
+msgstr ""
+"Apre l’elenco dei tavoli dentro Telegram, dove i soci possono prenotare un "
+"posto. Fissalo nel gruppo o mettilo nella descrizione."
 
 msgid ""
 "Only users who connected their Telegram account to Board-Gamers can book; "
 "everyone else sees the list."
-msgstr "Solo chi ha collegato il proprio account Telegram a Board-Gamers può prenotare; gli altri vedono comunque l’elenco."
+msgstr ""
+"Solo chi ha collegato il proprio account Telegram a Board-Gamers può "
+"prenotare; gli altri vedono comunque l’elenco."
 
 msgid "Available commands"
 msgstr "Comandi disponibili"
@@ -2270,6 +2308,15 @@ msgstr "Invia richiesta"
 
 msgid "Back to location"
 msgstr "Torna alla location"
+
+msgid "Personal data"
+msgstr "Dati anagrafici"
+
+msgid ""
+"These details go on the association's membership form. Leave the fiscal code "
+"empty if you don't have an Italian one."
+msgstr ""
+"Questi dati finiscono sul modulo di adesione dell'associazione. Lascia vuoto il codice fiscale se non ne hai uno italiano."
 
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
@@ -2810,6 +2857,16 @@ msgstr "Le Mie Iscrizioni - Board-Gamers.com"
 msgid "View your active and past memberships."
 msgstr "Visualizza le tue membership attive e passate."
 
+msgid "This membership is no longer editable."
+msgstr "Questa iscrizione non è più modificabile."
+
+msgid "Your details have been updated."
+msgstr "I tuoi dati sono stati aggiornati."
+
+#,, python-format
+msgid "My details - %(name)s"
+msgstr "I miei dati - %(name)s"
+
 msgid "Notification preferences updated"
 msgstr "Preferenze di notifica aggiornate"
 
@@ -3022,9 +3079,6 @@ msgstr "Membership aggiornata con successo."
 
 msgid "New membership created."
 msgstr "Nuova membership creata"
-
-msgid "Code"
-msgstr "Codice Fiscale"
 
 msgid "Username"
 msgstr "Username"
@@ -3261,10 +3315,15 @@ msgstr "Collega il tuo account per prenotare"
 msgid ""
 "Link your Telegram account to Board-Gamers and you can join a table straight "
 "from here."
-msgstr "Collega il tuo account Telegram a Board-Gamers e potrai unirti a un tavolo direttamente da qui."
+msgstr ""
+"Collega il tuo account Telegram a Board-Gamers e potrai unirti a un tavolo "
+"direttamente da qui."
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Member Code"
+#~ msgstr "Codice Fiscale"
 
 #~ msgid "Cannot add players to a closed table."
 #~ msgstr "Non è possibile aggiungere giocatori a tavoli chiusi."

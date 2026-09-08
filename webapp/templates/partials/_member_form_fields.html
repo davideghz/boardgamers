@@ -1,0 +1,62 @@
+{% comment %}
+Renders a member form: the identifying fields first, then the personal data an
+association needs on its membership form, collapsed unless already filled in.
+Expects `form` to be a MemberForm / MemberPersonalDataForm.
+{% endcomment %}
+{% load i18n %}
+
+{% for field in form.main_fields %}
+  {% if not field.is_hidden %}
+    <div>
+      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">
+        {{ field.label }}
+        {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
+      </label>
+      {{ field }}
+      {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+    </div>
+  {% endif %}
+{% endfor %}
+
+{# ── Personal data (collapsible) ───────────────────────────────────── #}
+<div>
+  <button type="button" id="personal-data-toggle"
+          class="flex items-center gap-1.5 text-xs font-semibold text-content-muted uppercase tracking-wide hover:text-content transition-colors bg-transparent border-0 p-0 cursor-pointer">
+    <svg id="personal-data-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 transition-transform{% if form.personal_data_expanded %} rotate-90{% endif %}">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+    </svg>
+    {% trans "Personal data" %}
+  </button>
+
+  <div id="personal-data-body" class="mt-3 space-y-4"{% if not form.personal_data_expanded %} style="display:none"{% endif %}>
+    <p class="text-[11px] text-content-muted -mt-1">
+      {% trans "These details go on the association's membership form. Leave the fiscal code empty if you don't have an Italian one." %}
+    </p>
+
+    {% for field in form.personal_fields %}
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">
+          {{ field.label }}
+          {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  /* Runs inline, after the markup above is already in the DOM. */
+  (function () {
+    var toggle = document.getElementById('personal-data-toggle');
+    var body = document.getElementById('personal-data-body');
+    var chevron = document.getElementById('personal-data-chevron');
+    if (!toggle || !body) return;
+    toggle.addEventListener('click', function () {
+      var open = body.style.display === 'none';
+      body.style.display = open ? '' : 'none';
+      if (chevron) chevron.classList.toggle('rotate-90', open);
+    });
+  })();
+</script>

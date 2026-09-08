@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -6,8 +7,9 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm
-from webapp.models import Notification, Membership, Table, GuestProfile, Event
+from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
+    MemberPersonalDataForm
+from webapp.models import Notification, Membership, Table, GuestProfile, Event, Member
 from django.db.models import Q
 
 
@@ -154,6 +156,36 @@ def memberships(request, template_name='accounts/account_memberships.html'):
             title=_("My Memberships - Board-Gamers.com"),
             description=_("View your active and past memberships."),
         )
+    })
+
+
+@login_required
+def member_data(request, member_uuid):
+    """
+    Let a member review and correct the personal data a location holds for
+    them. Members are per-location, so this edits one location's record.
+    """
+    user_profile = request.user.user_profile
+    member = get_object_or_404(Member, uuid=member_uuid, user_profile=user_profile)
+    if not member.memberships.filter(status__in=[Membership.PENDING, Membership.ACTIVE]).exists():
+        raise PermissionDenied(_("This membership is no longer editable."))
+
+    if request.method == 'POST':
+        form = MemberPersonalDataForm(request.POST, instance=member)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Your details have been updated."))
+            return redirect('account-memberships')
+    else:
+        form = MemberPersonalDataForm(instance=member)
+
+    return render(request, 'accounts/account_member_data.html', {
+        'member': member,
+        'location': member.location,
+        'form': form,
+        'meta': Meta(
+            title=_("My details - %(name)s") % {'name': member.location.name},
+        ),
     })
 
 

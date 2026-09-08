@@ -162,6 +162,8 @@ urlpatterns = [
     path("account/notifications/", account_views.notifications, name="account-notifications"),
     path("account/notifications/edit", account_views.edit_notification_preferences, name="account-notifications-edit"),
     path("account/memberships/", account_views.memberships, name="account-memberships"),
+    path("account/memberships/<uuid:member_uuid>/data/", account_views.member_data,
+         name="account-member-data"),
     path("account/guests/", account_views.guests, name="account-guests"),
     path("account/guests/create/", account_views.create_guest, name="account-guest-create"),
     path("account/guests/<int:guest_id>/delete/", account_views.delete_guest, name="account-guest-delete"),

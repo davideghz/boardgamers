@@ -131,9 +131,9 @@ class MembershipInline(admin.TabularInline):
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'code', 'location', 'user_profile', 'email')
+    list_display = ('first_name', 'last_name', 'fiscal_code', 'location', 'user_profile', 'email')
     list_filter = ('location',)
-    search_fields = ('first_name', 'last_name', 'code', 'email')
+    search_fields = ('first_name', 'last_name', 'fiscal_code', 'email')
     inlines = [MembershipInline]
 
 

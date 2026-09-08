@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
+from django.core.validators import RegexValidator
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -864,6 +865,17 @@ class Notification(DateTimeModel):
         return f"To {self.recipient.nickname} [{self.notification_type}]"
 
 
+#: Soft check on the Italian fiscal code: shape only (16 chars, letters and
+#: digits in the right places), tolerant of "omocodia" codes where digits are
+#: replaced by letters. Blank values skip validation, so members without an
+#: Italian fiscal code can leave the field empty.
+validate_fiscal_code = RegexValidator(
+    regex=r'^[A-Z]{6}[0-9A-Z]{2}[A-Z][0-9A-Z]{2}[A-Z][0-9A-Z]{3}[A-Z]$',
+    flags=re.IGNORECASE,
+    message=_('Enter a valid fiscal code (16 characters), or leave the field empty.'),
+)
+
+
 class Member(DateTimeModel):
     """
     Rappresenta una persona fisica associata a una location.
@@ -879,11 +891,34 @@ class Member(DateTimeModel):
         verbose_name=_('User Profile')
     )
 
+    #: Personal data carried over when the same user joins another location.
+    PERSONAL_DATA_FIELDS = (
+        'first_name', 'last_name', 'fiscal_code', 'email', 'phone_number',
+        'birth_date', 'birth_place', 'nationality',
+        'address', 'zip_code', 'city', 'province',
+    )
+    #: Fields an association needs to fill in the membership form.
+    REQUIRED_PERSONAL_DATA_FIELDS = (
+        'fiscal_code', 'birth_date', 'birth_place', 'address', 'zip_code', 'city', 'province',
+    )
+
     first_name = models.CharField(max_length=100, verbose_name=_('First Name'))
     last_name = models.CharField(max_length=100, verbose_name=_('Last Name'))
-    code = models.CharField(max_length=50, blank=True, verbose_name=_('Member Code'))
+    fiscal_code = models.CharField(
+        max_length=16, blank=True, validators=[validate_fiscal_code],
+        verbose_name=_('Fiscal Code')
+    )
     email = models.EmailField(blank=True, verbose_name=_('Email'))
     phone_number = PhoneNumberField(blank=True, region='IT', verbose_name=_('Phone Number'))
+
+    birth_date = models.DateField(null=True, blank=True, verbose_name=_('Date of Birth'))
+    birth_place = models.CharField(max_length=100, blank=True, verbose_name=_('Place of Birth'))
+    nationality = models.CharField(max_length=100, blank=True, verbose_name=_('Nationality'))
+    address = models.CharField(max_length=200, blank=True, verbose_name=_('Address'))
+    zip_code = models.CharField(max_length=10, blank=True, verbose_name=_('ZIP Code'))
+    city = models.CharField(max_length=100, blank=True, verbose_name=_('City'))
+    province = models.CharField(max_length=2, blank=True, verbose_name=_('Province'))
+
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
@@ -894,9 +929,35 @@ class Member(DateTimeModel):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    def save(self, *args, **kwargs):
+        self.fiscal_code = self.fiscal_code.strip().upper()
+        self.province = self.province.strip().upper()
+        super().save(*args, **kwargs)
+
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def has_complete_personal_data(self):
+        """True when every field the membership form needs is filled in."""
+        return all(getattr(self, field) for field in self.REQUIRED_PERSONAL_DATA_FIELDS)
+
+    @classmethod
+    def personal_data_from_latest(cls, user_profile):
+        """
+        Personal data of the most recent Member record of `user_profile`, to
+        prefill the form when the same person joins another location.
+
+        Members are per-location, so the data is copied once and then lives
+        independently: each location owns its own copy.
+        """
+        if user_profile is None:
+            return {}
+        latest = cls.objects.filter(user_profile=user_profile).order_by('-created_at').first()
+        if latest is None:
+            return {}
+        return {field: getattr(latest, field) for field in cls.PERSONAL_DATA_FIELDS}
 
     @property
     def active_membership(self):

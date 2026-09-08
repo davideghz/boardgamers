@@ -663,7 +663,31 @@ class AddTablePlayerForm(TailwindForm):
 
 
 
-class MemberForm(ModelForm, TailwindForm):
+#: Personal-data fields shared by the manager-facing and member-facing forms.
+MEMBER_PERSONAL_DATA_FIELDS = [
+    'fiscal_code', 'birth_date', 'birth_place', 'nationality',
+    'address', 'zip_code', 'city', 'province',
+]
+
+
+class MemberPersonalDataFieldsMixin:
+    """Splits a member form in two, so templates can collapse the personal data."""
+
+    @property
+    def main_fields(self):
+        return [self[name] for name in self.fields if name not in MEMBER_PERSONAL_DATA_FIELDS]
+
+    @property
+    def personal_fields(self):
+        return [self[name] for name in MEMBER_PERSONAL_DATA_FIELDS if name in self.fields]
+
+    @property
+    def personal_data_expanded(self):
+        """Keep the block open when it already has something to show."""
+        return any(field.value() or field.errors for field in self.personal_fields)
+
+
+class MemberForm(MemberPersonalDataFieldsMixin, ModelForm, TailwindForm):
     """Tailwind-styled version of MemberForm for the v2 UI."""
     user_profile = ModelChoiceField(
         queryset=UserProfile.objects.all(),
@@ -685,10 +709,27 @@ class MemberForm(ModelForm, TailwindForm):
     class Meta:
         from webapp.models import Member
         model = Member
-        fields = ['first_name', 'last_name', 'code', 'email', 'phone_number', 'user_profile']
+        fields = ['first_name', 'last_name', 'email', 'phone_number'] \
+                 + MEMBER_PERSONAL_DATA_FIELDS + ['user_profile']
 
 
-class MembershipRequestForm(TailwindForm):
+class MemberPersonalDataForm(MemberPersonalDataFieldsMixin, ModelForm, TailwindForm):
+    """
+    Personal data a member fills in themselves: the details an association
+    needs on the membership form. Used both when requesting a membership and
+    when the member later corrects their own data.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _enhance_phone_widget(self.fields['phone_number'])
+
+    class Meta:
+        model = Member
+        fields = ['first_name', 'last_name', 'email', 'phone_number'] + MEMBER_PERSONAL_DATA_FIELDS
+
+
+class MembershipRequestForm(MemberPersonalDataForm):
     """Form for a logged-in user to request a membership for a location."""
     notes = CharField(
         required=False,

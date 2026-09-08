@@ -15,8 +15,9 @@
     <h2 class="text-xs font-bold uppercase tracking-widest text-content-muted mb-3">{% trans "Active memberships" %}</h2>
     <div class="space-y-2 mb-8">
       {% for membership in active_memberships %}
+        <div class="rounded-xl border border-divider bg-surface hover:shadow-md transition-all">
         <a href="{% url 'location-detail' membership.member.location.slug %}"
-           class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
+           class="flex items-center gap-3 p-3 text-decoration-none">
           <img src="{{ membership.member.location.cover_url }}" alt="{{ membership.member.location.name }}"
                class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
           <div class="flex-1 min-w-0">
@@ -27,8 +28,11 @@
               {% else %}
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Active" %}</span>
               {% endif %}
-              {% if membership.member.code %}
-                <span class="text-[10px] text-content-muted"># {{ membership.member.code }}</span>
+              {% if membership.member.fiscal_code %}
+                <span class="text-[10px] text-content-muted"># {{ membership.member.fiscal_code }}</span>
+              {% endif %}
+              {% if not membership.member.has_complete_personal_data %}
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">{% trans "Details to complete" %}</span>
               {% endif %}
             </div>
             <p class="text-xs text-content-muted mt-0.5">
@@ -44,6 +48,17 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
           </svg>
         </a>
+        {# Kept outside the card's anchor: nested links are invalid HTML. #}
+        <div class="px-3 pb-3">
+          <a href="{% url 'account-member-data' membership.member.uuid %}"
+             class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+            </svg>
+            {% trans "Edit my details" %}
+          </a>
+        </div>
+        </div>
       {% endfor %}
     </div>
   {% else %}
@@ -76,8 +91,8 @@
               {% else %}
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">{% trans "Rejected" %}</span>
               {% endif %}
-              {% if membership.member.code %}
-                <span class="text-[10px] text-content-muted"># {{ membership.member.code }}</span>
+              {% if membership.member.fiscal_code %}
+                <span class="text-[10px] text-content-muted"># {{ membership.member.fiscal_code }}</span>
               {% endif %}
             </div>
             <p class="text-xs text-content-muted mt-0.5">

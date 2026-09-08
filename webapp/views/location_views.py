@@ -779,8 +779,10 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
 
         writer = csv.writer(response)
         writer.writerow([
-            _('First Name'), _('Last Name'), _('Code'), _('Email'),
-            _('Phone'), _('Username'), _('Membership Status'),
+            _('First Name'), _('Last Name'), _('Fiscal Code'), _('Email'),
+            _('Phone'), _('Date of Birth'), _('Place of Birth'), _('Nationality'),
+            _('Address'), _('ZIP Code'), _('City'), _('Province'),
+            _('Username'), _('Membership Status'),
             _('Start Date'), _('End Date'),
         ])
 
@@ -790,9 +792,16 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
             writer.writerow([
                 member.first_name,
                 member.last_name,
-                member.code,
+                member.fiscal_code,
                 member.email,
                 member.phone_number,
+                member.birth_date.isoformat() if member.birth_date else '',
+                member.birth_place,
+                member.nationality,
+                member.address,
+                member.zip_code,
+                member.city,
+                member.province,
                 member.user_profile.nickname if member.user_profile else '',
                 latest.get_status_display() if latest else '',
                 latest.start_date.isoformat() if latest and latest.start_date else '',
@@ -829,6 +838,23 @@ class RequestMembershipView(LoginRequiredMixin, View):
             status__in=[Membership.PENDING, Membership.ACTIVE],
         ).first()
 
+    def _build_form(self, request, location, user_profile, data=None):
+        """
+        The request form also collects the personal data the association needs
+        on its membership form. Bind it to the member record of this location
+        when there is one, otherwise prefill it from the member's most recent
+        record elsewhere, falling back to the account's own details.
+        """
+        member = Member.objects.filter(location=location, user_profile=user_profile).first()
+        if member is not None:
+            return MembershipRequestForm(data, instance=member), member
+        initial = Member.personal_data_from_latest(user_profile) or {
+            'first_name': request.user.first_name or user_profile.nickname,
+            'last_name': request.user.last_name or '',
+            'email': request.user.email or '',
+        }
+        return MembershipRequestForm(data, initial=initial), None
+
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         if not location.enable_membership:
@@ -837,7 +863,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
         if self._get_existing_membership(user_profile, location):
             messages.warning(request, _("You already have a pending or active membership for this location."))
             return redirect('location-detail', slug=location.slug)
-        form = MembershipRequestForm()
+        form, _member = self._build_form(request, location, user_profile)
         return render(request, 'locations/location_request_membership.html', {
             'location': location,
             'form': form,
@@ -850,25 +876,22 @@ class RequestMembershipView(LoginRequiredMixin, View):
         location = get_object_or_404(Location, slug=slug)
         if not location.enable_membership:
             raise PermissionDenied(_("This location does not accept membership requests."))
-        form = MembershipRequestForm(request.POST)
         user_profile = request.user.user_profile
+        form, member = self._build_form(request, location, user_profile, data=request.POST)
 
         if form.is_valid():
-            # Check if user already has a member record for this location
-            member, created = Member.objects.get_or_create(
-                location=location,
-                user_profile=user_profile,
-                defaults={
-                    'first_name': request.user.first_name or user_profile.nickname,
-                    'last_name': request.user.last_name or '',
-                    'email': request.user.email or '',
-                }
-            )
-
             # Check if there's already a pending or active membership
-            if member.memberships.filter(status__in=[Membership.PENDING, Membership.ACTIVE]).exists():
+            if member is not None and member.memberships.filter(
+                    status__in=[Membership.PENDING, Membership.ACTIVE]).exists():
                 messages.warning(request, _("You already have a pending or active membership for this location."))
                 return redirect('location-detail', slug=location.slug)
+
+            # The form doubles as the member's personal data: create the member
+            # record on the first request, update it on a later one.
+            member = form.save(commit=False)
+            member.location = location
+            member.user_profile = user_profile
+            member.save()
 
             # Create pending membership
             Membership.objects.create(

@@ -18,18 +18,10 @@
     </p>
   </div>
 
-  <form method="post" action="{% url 'location-request-membership' location.slug %}" class="space-y-4">
+  <form method="post" action="{% url 'location-request-membership' location.slug %}" class="space-y-5">
     {% csrf_token %}
 
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
-      <textarea id="{{ form.notes.id_for_label }}"
-                name="notes"
-                rows="4"
-                placeholder="{{ form.notes.field.widget.attrs.placeholder|default:'' }}"
-                class="w-full rounded-xl border {% if form.notes.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors resize-none">{{ form.notes.value|default:'' }}</textarea>
-      {% if form.notes.errors %}<p class="mt-1 text-xs text-red-500">{{ form.notes.errors|join:", " }}</p>{% endif %}
-    </div>
+    {% include "partials/_member_form_fields.html" %}
 
     <button type="submit"
             class="w-full flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
@@ -44,3 +36,7 @@
 
 </div>
 {% endblock content %}
+
+{% block extrabodyjs %}
+  {% include "partials/intl_tel_input.html" %}
+{% endblock %}
