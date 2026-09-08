@@ -1,7 +1,9 @@
 import datetime
+from importlib import import_module
+from unittest import mock
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase, Client
+from django.test import TestCase, SimpleTestCase, Client
 from django.urls import reverse
 
 from webapp.factories import UserProfileFactory, LocationFactory
@@ -234,3 +236,39 @@ class ManageMemberDetailRenderTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="personal-data-body"')
+
+
+class FiscalCodeMigrationGuardTest(SimpleTestCase):
+    """
+    The 0068 data migration shrinks the column from 50 to 16 characters. It
+    must normalize what fits and refuse rather than drop what does not.
+    """
+
+    migration = import_module('webapp.migrations.0068_member_fiscal_code_and_personal_data')
+
+    def _apps(self, values):
+        members = [mock.Mock(id=index, fiscal_code=value)
+                   for index, value in enumerate(values, start=1)]
+        manager = mock.Mock()
+        manager.exclude.return_value.only.return_value.iterator.return_value = iter(members)
+        apps = mock.Mock()
+        apps.get_model.return_value.objects = manager
+        return apps, members
+
+    def test_values_that_fit_are_normalized(self):
+        apps, members = self._apps([' rssmra85m01h501z '])
+        self.migration.normalize_fiscal_code(apps, None)
+        self.assertEqual(members[0].fiscal_code, 'RSSMRA85M01H501Z')
+        members[0].save.assert_called_once_with(update_fields=['fiscal_code'])
+
+    def test_untouched_values_are_not_rewritten(self):
+        apps, members = self._apps(['RSSMRA85M01H501Z'])
+        self.migration.normalize_fiscal_code(apps, None)
+        members[0].save.assert_not_called()
+
+    def test_a_value_that_would_be_lost_stops_the_migration(self):
+        apps, members = self._apps(['SOCIO-2024-000000123'])
+        with self.assertRaises(RuntimeError) as ctx:
+            self.migration.normalize_fiscal_code(apps, None)
+        self.assertIn('SOCIO-2024-000000123', str(ctx.exception))
+        members[0].save.assert_not_called()

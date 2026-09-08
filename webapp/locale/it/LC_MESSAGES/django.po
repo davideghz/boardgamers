@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 17:04+0200\n"
+"POT-Creation-Date: 2026-09-08 17:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -905,6 +905,12 @@ msgstr "Membership attive"
 
 msgid "Details to complete"
 msgstr "Dati da completare"
+
+msgid "Form handed in"
+msgstr "Modulo consegnato"
+
+msgid "Form to hand in"
+msgstr "Modulo da consegnare"
 
 msgid "From"
 msgstr "Dal"

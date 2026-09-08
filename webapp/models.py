@@ -284,6 +284,12 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         else:
             return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
 
+    @property
+    def has_active_membership_documents(self):
+        """Whether this location publishes documents members have to sign.
+        Filters in Python so a prefetch of `membership_documents` is reused."""
+        return any(document.is_active for document in self.membership_documents.all())
+
     def save(self, *args, **kwargs):
         if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)

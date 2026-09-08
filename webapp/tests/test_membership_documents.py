@@ -127,6 +127,19 @@ class MembershipDocumentVisibilityTest(TestCase):
         self.assertContains(response, 'Modulo di adesione')
         self.assertNotContains(response, 'Vecchio modulo')
 
+    def test_memberships_page_shows_whether_the_form_came_back(self):
+        member = Member.objects.create(
+            location=self.location, user_profile=self.user_profile,
+            first_name='Mario', last_name='Rossi')
+        membership = Membership.objects.create(member=member, status=Membership.ACTIVE)
+
+        url = reverse('account-memberships')
+        self.assertContains(self.client.get(url), _('Form to hand in'))
+
+        membership.signed_document = True
+        membership.save()
+        self.assertContains(self.client.get(url), _('Form handed in'))
+
     def test_memberships_page_lists_only_active_documents(self):
         member = Member.objects.create(
             location=self.location, user_profile=self.user_profile,

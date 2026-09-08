@@ -8,14 +8,30 @@ from django.db import migrations, models
 def normalize_fiscal_code(apps, schema_editor):
     """
     `code` was a free-text member code up to 50 characters; `fiscal_code` is
-    capped at 16, so anything longer would break the column alteration.
-    Normalize what fits and clear what cannot be a fiscal code.
+    capped at 16. Uppercase and trim what already fits, and refuse to run if
+    anything would not survive the column change — better a failed release
+    than silently dropped data. The whole migration is one transaction, so
+    nothing is left half-applied.
     """
     Member = apps.get_model('webapp', 'Member')
+    too_long = []
+
     for member in Member.objects.exclude(fiscal_code='').only('id', 'fiscal_code').iterator():
         normalized = member.fiscal_code.strip().upper()
-        member.fiscal_code = normalized if len(normalized) <= 16 else ''
-        member.save(update_fields=['fiscal_code'])
+        if len(normalized) > 16:
+            too_long.append(f'#{member.id}: {member.fiscal_code!r}')
+            continue
+        if normalized != member.fiscal_code:
+            member.fiscal_code = normalized
+            member.save(update_fields=['fiscal_code'])
+
+    if too_long:
+        raise RuntimeError(
+            "Cannot shrink Member.code to a 16-character fiscal_code: "
+            "these members hold a longer value.\n  "
+            + "\n  ".join(too_long)
+            + "\nEdit or clear them, then run the migration again."
+        )
 
 
 def noop(apps, schema_editor):

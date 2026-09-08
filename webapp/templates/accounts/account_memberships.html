@@ -34,6 +34,13 @@
               {% if not membership.member.has_complete_personal_data %}
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">{% trans "Details to complete" %}</span>
               {% endif %}
+              {% if membership.member.location.has_active_membership_documents %}
+                {% if membership.signed_document %}
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Form handed in" %}</span>
+                {% else %}
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-divider text-content-muted">{% trans "Form to hand in" %}</span>
+                {% endif %}
+              {% endif %}
             </div>
             <p class="text-xs text-content-muted mt-0.5">
               {% if membership.start_date and membership.end_date %}
