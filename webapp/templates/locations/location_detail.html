@@ -316,10 +316,11 @@
                 {% trans "My membership" %}
               </a>
             {% elif has_pending_membership %}
-              <span class="flex items-center justify-center gap-1.5 border border-divider rounded-full px-3 py-2.5 text-sm font-semibold text-content-muted cursor-not-allowed">
+              <a href="{% url 'account-memberships' %}"
+                 class="flex items-center justify-center gap-1.5 border border-divider rounded-full px-3 py-2.5 text-sm font-semibold text-content-muted hover:bg-surface-alt transition-colors text-decoration-none">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                 {% trans "Membership pending" %}
-              </span>
+              </a>
             {% else %}
               <a href="{% url 'location-request-membership' location.slug %}"
                  class="flex items-center justify-center gap-1.5 border border-divider rounded-full px-3 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors text-decoration-none">
@@ -438,10 +439,11 @@
       <p class="w-full text-center text-xs text-content-muted mb-2">{% trans "Only members can create tables here." %}</p>
       {% if location.enable_membership %}
         {% if has_pending_membership %}
-          <span class="w-full flex items-center justify-center gap-1.5 border border-divider text-content-muted text-sm font-semibold py-2.5 rounded-full cursor-not-allowed">
+          <a href="{% url 'account-memberships' %}"
+             class="w-full flex items-center justify-center gap-1.5 border border-divider text-content-muted text-sm font-semibold py-2.5 rounded-full hover:bg-surface-alt transition-colors text-decoration-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
             {% trans "Membership pending" %}
-          </span>
+          </a>
         {% else %}
           <a href="{% url 'location-request-membership' location.slug %}"
              class="w-full flex items-center justify-center gap-1.5 border border-divider text-content-soft text-sm font-semibold py-2.5 rounded-full hover:bg-surface-alt transition-colors text-decoration-none">
