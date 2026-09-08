@@ -5,7 +5,7 @@ cartaceo. Obiettivo: i manager di una location caricano il modulo di adesione,
 il socio che invia la richiesta lo scarica, lo stampa e lo firma; il manager
 registra a mano l'avvenuta consegna.
 
-> Stato: **Fasi 1, 2 e 3 implementate** (branch `membership-documents`); resta la Fase 4.
+> Stato: **Fasi 1-4 implementate** (branch `membership-documents`), non ancora in produzione.
 
 ## Scope
 
@@ -179,7 +179,7 @@ signed_document = models.BooleanField(default=False, verbose_name=_('Signed docu
   falso, e la lista soci resta filtrabile per "senza modulo firmato" così il
   manager recupera gli scoperti a posteriori.
 
-## Fase 4 — Rifiniture
+## Fase 4 — Rifiniture ✅ fatta
 
 - Test: permessi upload/eliminazione, visibilità dei documenti al socio,
   rename `code` → `fiscal_code` (regressione su CSV e template), flag firmato.

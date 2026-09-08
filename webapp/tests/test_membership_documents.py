@@ -45,6 +45,12 @@ class MembershipDocumentManagementTest(TestCase):
         self.assertEqual(document.name, 'Modulo di adesione')
         self.assertTrue(document.is_active)
 
+    def test_the_upload_page_explains_how_to_prepare_the_document(self):
+        self.client.force_login(self.owner.user)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _('How to prepare the document'))
+
     def test_unsupported_file_type_is_rejected(self):
         self.client.force_login(self.owner.user)
         response = self.client.post(self.list_url, {
