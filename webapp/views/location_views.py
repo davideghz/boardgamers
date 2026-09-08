@@ -20,10 +20,10 @@ from django.views.generic import DetailView, CreateView
 from meta.views import Meta
 
 from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
-    MembershipRequestForm, MembershipEditForm, LocationGameForm, LocationPermissionsForm
+    MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
-from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, LocationGame, \
-    TelegramGroupConfig, Player, Event
+from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
+    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -827,6 +827,79 @@ class DeleteMembershipView(LoginRequiredMixin, View):
         return redirect('location-member-detail', slug=location.slug, member_uuid=member.uuid)
 
 
+class LocationManageMembershipDocumentsView(LoginRequiredMixin, View):
+    """List and upload the blank documents members have to print and sign."""
+
+    def _check_permission(self, request, location):
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+
+    def _render(self, request, location, form):
+        return render(request, 'locations/location_manage_membership_documents.html', {
+            'location': location,
+            'documents': location.membership_documents.all(),
+            'form': form,
+            'meta': Meta(
+                title=_("Membership documents %(name)s - Boardgamers.com") % {'name': location.name},
+            ),
+        })
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        self._check_permission(request, location)
+        return self._render(request, location, MembershipDocumentForm())
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        self._check_permission(request, location)
+        form = MembershipDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.location = location
+            document.save()
+            messages.success(request, _("Document %(name)s uploaded.") % {'name': document.name})
+            return redirect('location-membership-documents', slug=location.slug)
+        return self._render(request, location, form)
+
+
+class MembershipDocumentActionView(LoginRequiredMixin, View):
+    """Rename, activate/deactivate or delete a membership document."""
+
+    def post(self, request, slug, document_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _require_membership_enabled(location)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+        document = get_object_or_404(MembershipDocument, uuid=document_uuid, location=location)
+
+        action = request.POST.get('action')
+
+        if action == 'delete':
+            # Drop the stored file too: nothing else points at it.
+            document.file.delete(save=False)
+            document.delete()
+            messages.success(request, _("Document deleted."))
+            return redirect('location-membership-documents', slug=location.slug)
+
+        if action == 'toggle':
+            document.is_active = not document.is_active
+            document.save(update_fields=['is_active', 'updated_at'])
+            messages.success(request, _("Document updated."))
+            return redirect('location-membership-documents', slug=location.slug)
+
+        name = (request.POST.get('name') or '').strip()
+        if name:
+            document.name = name[:200]
+            document.save(update_fields=['name', 'updated_at'])
+            messages.success(request, _("Document updated."))
+        else:
+            messages.error(request, _("The name cannot be empty."), extra_tags='danger')
+        return redirect('location-membership-documents', slug=location.slug)
+
+
 class RequestMembershipView(LoginRequiredMixin, View):
     """View for a logged-in user to request a membership for a location."""
 
@@ -867,6 +940,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
         return render(request, 'locations/location_request_membership.html', {
             'location': location,
             'form': form,
+            'documents': location.membership_documents.filter(is_active=True),
             'meta': Meta(
                 title=_("Request Membership - %(name)s") % {'name': location.name},
             ),
@@ -900,11 +974,16 @@ class RequestMembershipView(LoginRequiredMixin, View):
                 notes=form.cleaned_data.get('notes', ''),
             )
             messages.success(request, _("Membership request sent. A manager will review it."))
+            if location.membership_documents.filter(is_active=True).exists():
+                messages.info(request, _(
+                    "Remember to print and sign the membership documents: you can download "
+                    "them from \"My memberships\"."))
             return redirect('location-detail', slug=location.slug)
 
         return render(request, 'locations/location_request_membership.html', {
             'location': location,
             'form': form,
+            'documents': location.membership_documents.filter(is_active=True),
         })
 
 

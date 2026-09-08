@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 16:07+0200\n"
+"POT-Creation-Date: 2026-09-08 16:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,6 +95,12 @@ msgstr "Gamer"
 
 msgid "Linked User Profile"
 msgstr "Profilo utente collegato"
+
+msgid "Unsupported file type. Upload a PDF, DOC, DOCX or ODT file."
+msgstr "Tipo di file non supportato. Carica un file PDF, DOC, DOCX o ODT."
+
+msgid "The file is too large (max 5 MB)."
+msgstr "Il file è troppo grande (massimo 5 MB)."
 
 msgid "Notes"
 msgstr "Note"
@@ -378,7 +384,9 @@ msgid "Notifications"
 msgstr "Notifiche"
 
 msgid "Enter a valid fiscal code (16 characters), or leave the field empty."
-msgstr "Inserisci un codice fiscale valido (16 caratteri), oppure lascia il campo vuoto."
+msgstr ""
+"Inserisci un codice fiscale valido (16 caratteri), oppure lascia il campo "
+"vuoto."
 
 msgid "User Profile"
 msgstr "Profilo Utente"
@@ -445,6 +453,15 @@ msgstr "Membership"
 
 msgid "Memberships"
 msgstr "Memberships"
+
+msgid "File"
+msgstr "File"
+
+msgid "Membership Document"
+msgstr "Documento di adesione"
+
+msgid "Membership Documents"
+msgstr "Documenti di adesione"
 
 msgid "Owned by Location"
 msgstr "Dell'associazione"
@@ -874,7 +891,8 @@ msgid ""
 "These are the details %(name)s holds for you. Keep them up to date: the "
 "association uses them for your membership form."
 msgstr ""
-"Questi sono i dati che %(name)s ha su di te. Tienili aggiornati: l'associazione li usa per il tuo modulo di adesione."
+"Questi sono i dati che %(name)s ha su di te. Tienili aggiornati: "
+"l'associazione li usa per il tuo modulo di adesione."
 
 msgid "Save changes"
 msgstr "Aggiorna"
@@ -887,6 +905,9 @@ msgstr "Dati da completare"
 
 msgid "From"
 msgstr "Dal"
+
+msgid "Documents to sign"
+msgstr "Documenti da firmare"
 
 msgid "Edit my details"
 msgstr "Modifica i miei dati"
@@ -2082,6 +2103,9 @@ msgstr "Nuova membership"
 msgid "Delete membership"
 msgstr "Cancella membership"
 
+msgid "Documents"
+msgstr "Documenti"
+
 msgid "Search by name, email, code…"
 msgstr "Cerca per nome, email, codice…"
 
@@ -2112,6 +2136,48 @@ msgstr "Data di fine"
 
 msgid "Approve"
 msgstr "Approva"
+
+msgid "Membership documents"
+msgstr "Documenti di adesione"
+
+msgid ""
+"Documents your members download, print and sign — the membership form, the "
+"privacy notice, the statute. Active documents are shown to anyone requesting "
+"a membership."
+msgstr "I documenti che i tuoi soci scaricano, stampano e firmano: il modulo di adesione, l'informativa privacy, lo statuto. I documenti attivi vengono mostrati a chi richiede l'iscrizione."
+
+msgid "Hidden"
+msgstr "Nascosto"
+
+msgid "Uploaded on"
+msgstr "Caricato il"
+
+msgid "Rename"
+msgstr "Rinomina"
+
+msgid "Hide"
+msgstr "Nascondi"
+
+msgid "Show"
+msgstr "Mostra"
+
+msgid "No documents yet"
+msgstr "Ancora nessun documento"
+
+msgid "Upload the form your members have to sign."
+msgstr "Carica il modulo che i tuoi soci devono firmare."
+
+msgid "Upload a document"
+msgstr "Carica un documento"
+
+msgid "PDF, DOC, DOCX or ODT. Max 5 MB."
+msgstr "PDF, DOC, DOCX o ODT. Massimo 5 MB."
+
+msgid "Upload"
+msgstr "Carica"
+
+msgid "Delete document"
+msgstr "Elimina documento"
 
 msgid "Control who can create and join tables at this location."
 msgstr "Decidi chi può creare e unirsi ai tavoli."
@@ -2303,6 +2369,11 @@ msgid "Request a membership for %(name)s. A manager will review your request."
 msgstr ""
 "Richiedi una membership per %(name)s. Un manager esaminerà la tua richiesta."
 
+msgid ""
+"To become a member you have to print these documents, sign them and hand "
+"them in. You can download them again later from your memberships page."
+msgstr "Per diventare socio devi stampare questi documenti, firmarli e consegnarli. Puoi riscaricarli più avanti dalla pagina delle tue iscrizioni."
+
 msgid "Send Request"
 msgstr "Invia richiesta"
 
@@ -2316,7 +2387,8 @@ msgid ""
 "These details go on the association's membership form. Leave the fiscal code "
 "empty if you don't have an Italian one."
 msgstr ""
-"Questi dati finiscono sul modulo di adesione dell'associazione. Lascia vuoto il codice fiscale se non ne hai uno italiano."
+"Questi dati finiscono sul modulo di adesione dell'associazione. Lascia vuoto "
+"il codice fiscale se non ne hai uno italiano."
 
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
@@ -2863,7 +2935,7 @@ msgstr "Questa iscrizione non è più modificabile."
 msgid "Your details have been updated."
 msgstr "I tuoi dati sono stati aggiornati."
 
-#,, python-format
+#, python-format
 msgid "My details - %(name)s"
 msgstr "I miei dati - %(name)s"
 
@@ -3089,6 +3161,23 @@ msgstr "Membership"
 msgid "Membership deleted."
 msgstr "Membership cancellata."
 
+#,, python-format
+msgid "Membership documents %(name)s - Boardgamers.com"
+msgstr "Documenti di adesione %(name)s - Boardgamers.com"
+
+#, python-format
+msgid "Document %(name)s uploaded."
+msgstr "Documento %(name)s caricato."
+
+msgid "Document deleted."
+msgstr "Documento eliminato."
+
+msgid "Document updated."
+msgstr "Documento aggiornato."
+
+msgid "The name cannot be empty."
+msgstr "Il nome non può essere vuoto."
+
 msgid "This location does not accept membership requests."
 msgstr "Questa location non accetta richieste di membership."
 
@@ -3101,6 +3190,11 @@ msgstr "Richiedi Membership - %(name)s"
 
 msgid "Membership request sent. A manager will review it."
 msgstr "Richiesta di membership inviata. Un manager la esaminerà."
+
+msgid ""
+"Remember to print and sign the membership documents: you can download them "
+"from \"My memberships\"."
+msgstr "Ricordati di stampare e firmare i documenti di adesione: li trovi in \"Le mie iscrizioni\"."
 
 #, python-format
 msgid "Games – %(name)s"

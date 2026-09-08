@@ -1,0 +1,182 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-content-muted mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+      <a href="{% url 'location-manage-members' location.slug %}" class="text-blue-600 hover:underline">{% trans "Members" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Membership documents" %}</h1>
+    <p class="text-sm text-content-muted mt-1">
+      {% trans "Documents your members download, print and sign — the membership form, the privacy notice, the statute. Active documents are shown to anyone requesting a membership." %}
+    </p>
+  </div>
+
+  <div class="max-w-xl space-y-8">
+
+    {# ── Document list ─────────────────────────────────────────────── #}
+    <div class="space-y-2">
+      {% for document in documents %}
+        <div class="rounded-xl border border-divider bg-surface p-4{% if not document.is_active %} opacity-60{% endif %}">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <a href="{{ document.file.url }}" target="_blank" rel="noopener"
+                   class="text-sm font-bold text-content hover:underline text-decoration-none">{{ document.name }}</a>
+                {% if document.extension %}
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{{ document.extension }}</span>
+                {% endif %}
+                {% if not document.is_active %}
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Hidden" %}</span>
+                {% endif %}
+              </div>
+              <p class="text-[11px] text-content-muted mt-0.5">
+                {% trans "Uploaded on" %} {{ document.created_at|date:"d/m/Y" }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button type="button"
+                      data-document-uuid="{{ document.uuid }}"
+                      class="js-rename-btn p-1.5 rounded-lg text-content-muted hover:text-content hover:bg-surface-alt transition-colors"
+                      aria-label="{% trans 'Rename' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+              </button>
+
+              <form method="post" action="{% url 'location-membership-document-action' location.slug document.uuid %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle">
+                <button type="submit"
+                        class="p-1.5 rounded-lg text-content-muted hover:text-content hover:bg-surface-alt transition-colors"
+                        aria-label="{% if document.is_active %}{% trans 'Hide' %}{% else %}{% trans 'Show' %}{% endif %}">
+                  {% if document.is_active %}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                  {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243" /></svg>
+                  {% endif %}
+                </button>
+              </form>
+
+              <button type="button"
+                      data-document-uuid="{{ document.uuid }}"
+                      data-document-name="{{ document.name }}"
+                      class="js-delete-btn p-1.5 rounded-lg text-content-muted hover:text-red-500 hover:bg-red-50 transition-colors"
+                      aria-label="{% trans 'Delete' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+              </button>
+            </div>
+          </div>
+
+          {# Rename row, revealed by the pencil #}
+          <form method="post" action="{% url 'location-membership-document-action' location.slug document.uuid %}"
+                id="rename-{{ document.uuid }}" class="hidden mt-3 flex gap-2">
+            {% csrf_token %}
+            <input type="text" name="name" value="{{ document.name }}" maxlength="200" required
+                   class="flex-1 rounded-xl border border-divider px-4 py-2.5 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
+            <button type="submit"
+                    class="rounded-full bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+              {% trans "Save" %}
+            </button>
+          </form>
+        </div>
+      {% empty %}
+        <div class="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-divider bg-surface">
+          <div class="w-10 h-10 rounded-full bg-surface-input flex items-center justify-center mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-muted">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-content">{% trans "No documents yet" %}</p>
+          <p class="text-xs text-content-muted mt-1">{% trans "Upload the form your members have to sign." %}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    {# ── Upload form ───────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-divider bg-surface p-4">
+      <h2 class="text-sm font-extrabold text-content mb-4">{% trans "Upload a document" %}</h2>
+
+      <form method="post" enctype="multipart/form-data"
+            action="{% url 'location-membership-documents' location.slug %}" class="space-y-4">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div>
+            {% if field.name == 'is_active' %}
+              <label class="flex items-center gap-2 text-xs font-semibold text-content-soft cursor-pointer select-none">
+                {{ field }} {{ field.label }}
+              </label>
+            {% else %}
+              <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+            {% endif %}
+            {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+          </div>
+        {% endfor %}
+
+        <p class="text-[11px] text-content-muted">{% trans "PDF, DOC, DOCX or ODT. Max 5 MB." %}</p>
+
+        <button type="submit"
+                class="w-full flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>
+          {% trans "Upload" %}
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  {# ── Delete confirmation ───────────────────────────────────────────── #}
+  <div id="delete-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="delete-backdrop"></div>
+    <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <p class="text-base font-bold text-content mb-1">{% trans "Delete document" %}</p>
+      <p class="text-sm text-content-muted mb-4"><strong id="delete-document-name"></strong></p>
+      <form method="post" id="delete-form" class="flex gap-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <button type="button" id="delete-cancel"
+                class="flex-1 rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
+          {% trans "Cancel" %}
+        </button>
+        <button type="submit"
+                class="flex-1 rounded-full bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-colors">
+          {% trans "Delete" %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+    document.querySelectorAll('.js-rename-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var row = document.getElementById('rename-' + btn.dataset.documentUuid);
+        if (row) row.classList.toggle('hidden');
+      });
+    });
+
+    var deleteDialog = document.getElementById('delete-dialog');
+    var deleteForm = document.getElementById('delete-form');
+    var deleteName = document.getElementById('delete-document-name');
+    var deleteCancel = document.getElementById('delete-cancel');
+    var deleteBackdrop = document.getElementById('delete-backdrop');
+    var deleteActionUrl = "{% url 'location-membership-document-action' location.slug '00000000-0000-0000-0000-000000000000' %}";
+
+    document.querySelectorAll('.js-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        deleteForm.action = deleteActionUrl.replace('00000000-0000-0000-0000-000000000000', btn.dataset.documentUuid);
+        deleteName.textContent = btn.dataset.documentName;
+        deleteDialog.classList.remove('hidden');
+      });
+    });
+    [deleteCancel, deleteBackdrop].forEach(function (el) {
+      el.addEventListener('click', function () { deleteDialog.classList.add('hidden'); });
+    });
+  </script>
+{% endblock %}

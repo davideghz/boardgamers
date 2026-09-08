@@ -49,6 +49,28 @@
           </svg>
         </a>
         {# Kept outside the card's anchor: nested links are invalid HTML. #}
+        {% with documents=membership.member.location.membership_documents.all %}
+          {% if documents %}
+            <div class="px-3 pb-2">
+              <p class="text-[11px] font-bold uppercase tracking-wide text-content-muted mb-1">{% trans "Documents to sign" %}</p>
+              <ul class="space-y-1">
+                {% for document in documents %}
+                  {% if document.is_active %}
+                    <li>
+                      <a href="{{ document.file.url }}" target="_blank" rel="noopener"
+                         class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        {{ document.name }}
+                      </a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
         <div class="px-3 pb-3">
           <a href="{% url 'account-member-data' membership.member.uuid %}"
              class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">

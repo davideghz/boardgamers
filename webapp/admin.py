@@ -7,8 +7,8 @@ from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
-    Membership, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, TelegramSetupToken, \
-    Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
+    Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
+    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
 
 
 
@@ -142,6 +142,13 @@ class MembershipAdmin(admin.ModelAdmin):
     list_display = ('member', 'status', 'start_date', 'end_date', 'approved_by')
     list_filter = ('status', 'member__location')
     search_fields = ('member__first_name', 'member__last_name')
+
+
+@admin.register(MembershipDocument)
+class MembershipDocumentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'is_active', 'created_at')
+    list_filter = ('is_active', 'location')
+    search_fields = ('name', 'location__name')
 
 
 @admin.register(GuestProfile)

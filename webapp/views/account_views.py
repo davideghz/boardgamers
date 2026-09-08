@@ -140,7 +140,7 @@ def memberships(request, template_name='accounts/account_memberships.html'):
     user_profile = request.user.user_profile
     base_qs = Membership.objects.filter(
         member__user_profile=user_profile
-    ).select_related('member__location')
+    ).select_related('member__location').prefetch_related('member__location__membership_documents')
 
     active_memberships = base_qs.filter(
         status__in=[Membership.ACTIVE, Membership.PENDING]

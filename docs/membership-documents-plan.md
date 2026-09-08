@@ -5,7 +5,7 @@ cartaceo. Obiettivo: i manager di una location caricano il modulo di adesione,
 il socio che invia la richiesta lo scarica, lo stampa e lo firma; il manager
 registra a mano l'avvenuta consegna.
 
-> Stato: **Fase 1 implementata** (branch `membership-documents`); Fasi 2-4 da fare.
+> Stato: **Fasi 1 e 2 implementate** (branch `membership-documents`); Fasi 3-4 da fare.
 
 ## Scope
 
@@ -116,7 +116,7 @@ iscrizioni.
 - Aggiornare anche i due usi di `membership.member.code` alle righe 30 e 79 nel
   rename di 1.1.
 
-## Fase 2 — Documento caricabile
+## Fase 2 — Documento caricabile ✅ fatta
 
 ### 2.1 Modello
 

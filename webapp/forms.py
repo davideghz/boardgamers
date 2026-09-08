@@ -8,7 +8,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -727,6 +727,42 @@ class MemberPersonalDataForm(MemberPersonalDataFieldsMixin, ModelForm, TailwindF
     class Meta:
         model = Member
         fields = ['first_name', 'last_name', 'email', 'phone_number'] + MEMBER_PERSONAL_DATA_FIELDS
+
+
+#: What a location may upload as a membership document.
+MEMBERSHIP_DOCUMENT_MAX_SIZE = 5 * 1024 * 1024  # 5 MB
+MEMBERSHIP_DOCUMENT_EXTENSIONS = ('pdf', 'doc', 'docx', 'odt')
+
+
+class MembershipDocumentForm(ModelForm, TailwindForm):
+    """Upload / rename a blank document members have to print and sign."""
+
+    class Meta:
+        model = MembershipDocument
+        fields = ['name', 'file', 'is_active']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['file'].widget.attrs['class'] = (
+            'w-full text-sm text-content-soft file:mr-3 file:rounded-full file:border-0 '
+            'file:bg-surface-input file:px-4 file:py-2 file:text-xs file:font-semibold '
+            'file:text-content-soft hover:file:bg-surface-alt cursor-pointer'
+        )
+        self.fields['file'].widget.attrs['accept'] = ','.join(
+            f'.{extension}' for extension in MEMBERSHIP_DOCUMENT_EXTENSIONS)
+
+    def clean_file(self):
+        uploaded = self.cleaned_data.get('file')
+        # An unchanged file comes back as a FieldFile with no fresh upload.
+        if not uploaded or not hasattr(uploaded, 'content_type'):
+            return uploaded
+        extension = uploaded.name.rsplit('.', 1)[-1].lower() if '.' in uploaded.name else ''
+        if extension not in MEMBERSHIP_DOCUMENT_EXTENSIONS:
+            raise ValidationError(
+                _("Unsupported file type. Upload a PDF, DOC, DOCX or ODT file."))
+        if uploaded.size > MEMBERSHIP_DOCUMENT_MAX_SIZE:
+            raise ValidationError(_("The file is too large (max 5 MB)."))
+        return uploaded
 
 
 class MembershipRequestForm(MemberPersonalDataForm):

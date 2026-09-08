@@ -1012,6 +1012,39 @@ class Membership(DateTimeModel):
         return f"{self.member} [{self.status}]"
 
 
+class MembershipDocument(DateTimeModel):
+    """
+    A blank document a location asks its members to print and sign (membership
+    form, privacy notice, statute...). It is downloaded as it is and holds no
+    personal data, so it lives on the public media bucket like any other file.
+    """
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='membership_documents',
+        verbose_name=_('Location')
+    )
+    name = models.CharField(max_length=200, verbose_name=_('Name'))
+    file = models.FileField(
+        upload_to='membership-documents', storage=PublicMediaStorage(),
+        verbose_name=_('File')
+    )
+    is_active = models.BooleanField(default=True, verbose_name=_('Active'))
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
+
+    class Meta:
+        verbose_name = _('Membership Document')
+        verbose_name_plural = _('Membership Documents')
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.location.name})"
+
+    @property
+    def extension(self):
+        """Uppercase file extension, for the badge next to the download link."""
+        name = self.file.name or ''
+        return name.rsplit('.', 1)[-1].upper() if '.' in name else ''
+
+
 class LocationGame(DateTimeModel):
     """
     Represents a game in a location's library.
