@@ -30,12 +30,15 @@ def _headers():
     return {}
 
 
-ALLOWED_TYPES = {'boardgame', 'rpgitem', 'rpg'}
+# 'rpg' (RPG families) is excluded: its ids live in a separate space, so /thing
+# resolves them to unrelated items (e.g. a videogame) instead of the RPG.
+ALLOWED_TYPES = {'boardgame', 'rpgitem'}
+BGG_TYPES = ','.join(sorted(ALLOWED_TYPES))
 
 
 def search_bgg(query):
     """Search BGG. Returns list of {bgg_id, name, year_published}."""
-    resp = _get(f'{BGG_API_BASE}/search', {'query': query, 'type': 'boardgame,rpgitem,rpg'}, timeout=8)
+    resp = _get(f'{BGG_API_BASE}/search', {'query': query, 'type': BGG_TYPES}, timeout=8)
     root = ElementTree.fromstring(resp.content)
     results = []
     for item in root.findall('item'):
@@ -99,7 +102,7 @@ def fetch_bgg_classifications(bgg_ids):
 
 def fetch_bgg_thing(bgg_id):
     """Fetch full game data from BGG thing endpoint. Returns a dict with all importable fields."""
-    resp = _get(f'{BGG_API_BASE}/thing', {'id': bgg_id, 'type': 'boardgame', 'stats': 1}, timeout=10)
+    resp = _get(f'{BGG_API_BASE}/thing', {'id': bgg_id, 'type': BGG_TYPES, 'stats': 1}, timeout=10)
     root = ElementTree.fromstring(resp.content)
     item = root.find('item')
     if item is None:
