@@ -866,6 +866,9 @@ class LocationGameForm(ModelForm, TailwindForm):
         fields = ['game', 'ownership', 'owner_member', 'physical_location', 'notes']
 
     def __init__(self, *args, location=None, **kwargs):
+        # Set before super().__init__: TailwindForm reads self.errors there,
+        # which triggers validation (and clean_game needs the location).
+        self.location = location
         super().__init__(*args, **kwargs)
         membership_enabled = bool(location and location.enable_membership)
 
@@ -899,6 +902,18 @@ class LocationGameForm(ModelForm, TailwindForm):
         # Apply Tailwind classes to Select widgets (TailwindForm skips them)
         for fn in ('ownership', 'physical_location'):
             self.fields[fn].widget.attrs['class'] = _TW_SELECT
+
+    def clean_game(self):
+        # `location` is not a form field, so ModelForm skips the
+        # (location, game) unique_together check: do it here.
+        game = self.cleaned_data.get('game')
+        if game and self.location:
+            duplicates = LocationGame.objects.filter(location=self.location, game=game)
+            if self.instance.pk:
+                duplicates = duplicates.exclude(pk=self.instance.pk)
+            if duplicates.exists():
+                raise ValidationError(_("This game is already in the library."))
+        return game
 
     def clean(self):
         cleaned = super().clean()
