@@ -28,6 +28,7 @@ urlpatterns = [
 
     # TABLE
     path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
+    path("tables/locations/search/", table_views.table_location_search_view, name="table-location-search"),
     path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
     path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
     path('tables/<slug:slug>/join/', table_views.JoinTableView.as_view(), name='join_table'),

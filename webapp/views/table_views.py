@@ -11,7 +11,8 @@ from geoip2.errors import AddressNotFoundError
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Prefetch, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -62,16 +63,54 @@ class IsNotClosedMixin(UserPassesTestMixin):
         return super().handle_no_permission()
 
 
+def _filterable_locations():
+    """Public locations whose tables are listed on the public tables page."""
+    return Location.objects.filter(is_public=True, show_tables_in_homepage=True)
+
+
+def _location_picker_sections(request):
+    """Default cards for the location filter modal: the user's own and followed
+    locations, falling back to the busiest ones (anonymous visitors included)."""
+    if request.user.is_authenticated:
+        profile = request.user.user_profile
+        own = list(_filterable_locations()
+                   .filter(Q(creator=profile) | Q(managers=profile))
+                   .distinct().order_by('name'))
+        followed = list(_filterable_locations()
+                        .filter(followers__user_profile=profile)
+                        .exclude(id__in=[location.id for location in own])
+                        .distinct().order_by('name'))
+        sections = [(title, locations) for title, locations in
+                    [(_("Your locations"), own), (_("Followed locations"), followed)] if locations]
+        if sections:
+            return sections
+    popular = list(_filterable_locations()
+                   .annotate(tables_count=Count('tables'))
+                   .filter(tables_count__gt=0)
+                   .order_by('-tables_count', 'name')[:6])
+    return [(_("Most active locations"), popular)] if popular else []
+
+
+def table_location_search_view(request):
+    """JSON search used by the location filter modal on the tables page."""
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    locations = (_filterable_locations()
+                 .filter(Q(name__icontains=query) | Q(city__icontains=query))
+                 .order_by('name')[:12])
+    return JsonResponse({'results': [
+        {'slug': location.slug, 'name': location.name, 'city': location.city or '', 'cover_url': location.cover_url}
+        for location in locations
+    ]})
+
+
 class TableIndexView(generic.ListView):
     template_name = "tables/table_index.html"
     context_object_name = "tables"
+    paginate_by = 15
 
     def get_queryset(self):
-        return Table.objects.none()
-
-    def get_context_data(self, **kwargs):
-        context = super(TableIndexView, self).get_context_data(**kwargs)
-
         g = GeoIP2()
         x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
@@ -92,14 +131,34 @@ class TableIndexView(generic.ListView):
         players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
-        base_qs = (Table.objects
-                   .select_related('author', 'author__user', 'location')
-                   .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-                   .filter(location__show_tables_in_homepage=True)
-                   .annotate(distance=DbDistance('location__point', user_point)))
+        qs = (Table.objects
+              .select_related('author', 'author__user', 'location')
+              .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
+              .filter(location__show_tables_in_homepage=True)
+              .annotate(distance=DbDistance('location__point', user_point)))
 
-        context['future_tables'] = base_qs.filter(date__gte=today).order_by('date', 'distance')
-        context['past_tables'] = base_qs.filter(date__lt=today).order_by('-date', 'distance')
+        self.tab = 'past' if self.request.GET.get('tab') == 'past' else 'upcoming'
+        self.location_slug = self.request.GET.get('location', '').strip()
+        self.q = self.request.GET.get('q', '').strip()
+
+        if self.location_slug:
+            qs = qs.filter(location__slug=self.location_slug)
+        if self.q:
+            qs = qs.filter(Q(title__icontains=self.q) | Q(description__icontains=self.q))
+
+        if self.tab == 'past':
+            return qs.filter(date__lt=today).order_by('-date', 'distance')
+        return qs.filter(date__gte=today).order_by('date', 'distance')
+
+    def get_context_data(self, **kwargs):
+        context = super(TableIndexView, self).get_context_data(**kwargs)
+        context['tab'] = self.tab
+        context['q'] = self.q
+        context['selected_location'] = self.location_slug
+        context['selected_location_obj'] = (
+            Location.objects.filter(slug=self.location_slug).first() if self.location_slug else None)
+        context['location_picker_sections'] = _location_picker_sections(self.request)
+        context['has_filters'] = bool(self.q or self.location_slug)
         context['login_form'] = CustomLoginForm()
         context['meta'] = Meta(
             title=_("Game Tables - Board-Gamers.com"),

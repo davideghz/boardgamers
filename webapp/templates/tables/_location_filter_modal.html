@@ -1,0 +1,153 @@
+{% load i18n %}
+{# Location filter modal for the tables page. Picking a location sets #location-filter-input and submits its form. #}
+
+<div id="location-filter-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none">
+  <div class="absolute inset-0 bg-black/60" onclick="closeLocationFilterModal()"></div>
+  <div class="relative bg-surface rounded-2xl w-full max-w-lg mx-auto shadow-2xl flex flex-col" style="max-height:88vh">
+
+    {# Header #}
+    <div class="px-6 pt-6 pb-5 flex items-start justify-between gap-4">
+      <h2 class="text-xl font-extrabold text-content leading-tight">{% trans "Filter by location" %}</h2>
+      <button type="button" onclick="closeLocationFilterModal()"
+              class="flex-shrink-0 text-content-muted hover:text-content transition-colors bg-transparent border-0 p-0 cursor-pointer mt-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="border-t border-divider"></div>
+
+    {# Search input #}
+    <div class="px-4 py-4">
+      <div class="relative">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <input id="location-filter-search" type="text" autocomplete="off"
+               placeholder="{% trans 'Search by name or city…' %}"
+               class="w-full pl-10 pr-4 py-3 rounded-2xl border border-divider bg-surface text-sm text-content placeholder:text-content-muted
+                      focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+      </div>
+    </div>
+
+    <div class="border-t border-divider"></div>
+
+    <div class="flex-1 overflow-y-auto px-4 py-4 min-h-[200px]">
+
+      {# Default cards (own / followed / most active), shown while the search is empty #}
+      <div id="location-filter-defaults">
+        {% for title, locations in location_picker_sections %}
+          <p class="text-[10px] font-bold uppercase tracking-widest text-content-muted px-1 {% if not forloop.first %}mt-4{% endif %} mb-2">{{ title }}</p>
+          <div class="space-y-2">
+            {% for location in locations %}
+              <button type="button" onclick="selectLocationFilter('{{ location.slug }}')"
+                      class="w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-colors cursor-pointer {% if location.slug == selected_location %}border-blue-500 bg-surface-alt{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
+                <img src="{{ location.cover_url }}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-content truncate">{{ location.name }}</p>
+                  {% if location.city %}<p class="text-xs text-content-muted truncate">{{ location.city }}</p>{% endif %}
+                </div>
+              </button>
+            {% endfor %}
+          </div>
+        {% empty %}
+          <div class="flex flex-col items-center justify-center py-12 gap-2 text-center">
+            <p class="text-sm font-semibold text-content-muted">{% trans "Search for a location" %}</p>
+            <p class="text-xs text-content-muted">{% trans "Type at least 2 characters" %}</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      {# Loading #}
+      <div id="location-filter-loading" class="hidden flex-col items-center justify-center py-12 gap-3">
+        <svg class="animate-spin w-7 h-7 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <p class="text-sm text-content-muted">{% trans "Searching..." %}</p>
+      </div>
+
+      {# Search results #}
+      <div id="location-filter-results" class="hidden space-y-2"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var modal = document.getElementById('location-filter-modal');
+  var input = document.getElementById('location-filter-search');
+  var defaults = document.getElementById('location-filter-defaults');
+  var loading = document.getElementById('location-filter-loading');
+  var results = document.getElementById('location-filter-results');
+  var hiddenInput = document.getElementById('location-filter-input');
+  var debounceTimer = null;
+  var searchToken = 0;  // discards stale responses
+
+  function show(el) {
+    [defaults, loading, results].forEach(function (x) { x.classList.add('hidden'); x.classList.remove('flex'); });
+    el.classList.remove('hidden');
+    if (el === loading) el.classList.add('flex');
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  window.openLocationFilterModal = function () {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { input.focus(); }, 50);
+  };
+  window.closeLocationFilterModal = function () {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    input.value = '';
+    searchToken++;
+    show(defaults);
+  };
+  window.selectLocationFilter = function (slug) {
+    hiddenInput.value = slug;
+    hiddenInput.form.requestSubmit();
+  };
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.style.display !== 'none') closeLocationFilterModal();
+  });
+
+  results.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-slug]');
+    if (btn) selectLocationFilter(btn.dataset.slug);
+  });
+
+  input.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    var q = input.value.trim();
+    if (q.length < 2) { searchToken++; show(defaults); return; }
+    show(loading);
+    debounceTimer = setTimeout(function () {
+      var token = ++searchToken;
+      fetch('{% url "table-location-search" %}?q=' + encodeURIComponent(q))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (token !== searchToken) return;
+          if (!data.results.length) {
+            results.innerHTML = '<p class="text-sm text-content-muted text-center py-12">{% trans "No locations found." %}</p>';
+          } else {
+            results.innerHTML = data.results.map(function (l) {
+              return '<button type="button" data-slug="' + esc(l.slug) + '" class="w-full flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt text-left transition-colors cursor-pointer">'
+                + '<img src="' + esc(l.cover_url) + '" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">'
+                + '<div class="min-w-0"><p class="text-sm font-semibold text-content truncate">' + esc(l.name) + '</p>'
+                + (l.city ? '<p class="text-xs text-content-muted truncate">' + esc(l.city) + '</p>' : '')
+                + '</div></button>';
+            }).join('');
+          }
+          show(results);
+        })
+        .catch(function () { if (token === searchToken) show(defaults); });
+    }, 300);
+  });
+})();
+</script>

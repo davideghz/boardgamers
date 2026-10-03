@@ -6,37 +6,120 @@
 
   {# ── Header ───────────────────────────────────────────────────────── #}
   <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Upcoming Tables" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Tables" %}</h1>
     <p class="text-sm text-content-muted mt-1">{% trans "Accept the challenge, join a table!" %}</p>
   </div>
 
-  {# ── Future tables ─────────────────────────────────────────────────── #}
-  {% if future_tables %}
-    <div class="space-y-2 mb-10">
-      {% for table in future_tables %}
+  {# ── Tabs ─────────────────────────────────────────────────────────── #}
+  <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5 w-fit mb-4">
+    <a href="{% querystring tab=None page=None %}"
+       class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-decoration-none {% if tab == 'upcoming' %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-muted hover:text-content{% endif %}">
+      {% trans "Upcoming" %}
+    </a>
+    <a href="{% querystring tab='past' page=None %}"
+       class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-decoration-none {% if tab == 'past' %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-muted hover:text-content{% endif %}">
+      {% trans "Past" %}
+    </a>
+  </div>
+
+  {# ── Filters (GET form; page resets on every submit) ─────────────── #}
+  <form method="get" class="flex flex-col sm:flex-row gap-2 mb-5"
+        onsubmit="this.querySelectorAll('input[name]').forEach(function (el) { if (!el.value.trim()) el.disabled = true; })">
+    {% if tab == 'past' %}<input type="hidden" name="tab" value="past">{% endif %}
+    <div class="relative flex-1">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+           class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="search" name="q" value="{{ q }}" autocomplete="off"
+             placeholder="{% trans 'Search in title and description…' %}"
+             class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
+    </div>
+    <input type="hidden" name="location" id="location-filter-input" value="{{ selected_location }}">
+    {% if selected_location_obj %}
+      <div class="sm:w-56 flex items-center gap-2 pl-2 pr-1 py-1.5 text-sm bg-surface border border-blue-500 rounded-xl">
+        <img src="{{ selected_location_obj.cover_url }}" alt="" class="w-6 h-6 rounded-md object-cover flex-shrink-0">
+        <button type="button" onclick="openLocationFilterModal()"
+                class="flex-1 min-w-0 text-left font-semibold text-content truncate bg-transparent border-0 p-0 cursor-pointer">
+          {{ selected_location_obj.name }}
+        </button>
+        <a href="{% querystring location=None page=None %}" title="{% trans 'Remove filter' %}"
+           class="flex-shrink-0 p-1 rounded-lg text-content-muted hover:text-red-500 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+        </a>
+      </div>
+    {% else %}
+      <button type="button" onclick="openLocationFilterModal()"
+              class="sm:w-56 flex items-center gap-2 py-2.5 px-3 text-sm text-content-muted bg-surface border border-divider rounded-xl hover:border-blue-400 hover:text-content transition-colors cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+        <span class="truncate">{% trans "All locations" %}</span>
+      </button>
+    {% endif %}
+    <button type="submit"
+            class="bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors">
+      {% trans "Search" %}
+    </button>
+  </form>
+
+  {% if has_filters %}
+    <div class="flex items-center justify-between gap-3 mb-3 text-xs text-content-muted">
+      <span>
+        {% blocktrans count counter=paginator.count %}{{ counter }} table found{% plural %}{{ counter }} tables found{% endblocktrans %}
+      </span>
+      <a href="{% querystring q=None location=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+    </div>
+  {% endif %}
+
+  {# ── Results ──────────────────────────────────────────────────────── #}
+  {% if tables %}
+    <div class="space-y-2 {% if tab == 'past' %}opacity-70{% endif %}">
+      {% for table in tables %}
         {% horizontal_table_card table %}
       {% endfor %}
     </div>
   {% else %}
-    <div class="flex flex-col items-center justify-center py-12 text-center mb-10">
+    <div class="flex flex-col items-center justify-center py-12 text-center">
       <div class="w-12 h-12 rounded-full bg-surface-input flex items-center justify-center mb-3">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-content-muted"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
       </div>
-      <p class="text-sm font-semibold text-content">{% trans "No upcoming tables." %}</p>
+      <p class="text-sm font-semibold text-content">
+        {% if has_filters %}
+          {% trans "No tables for the selected filters." %}
+        {% elif tab == 'past' %}
+          {% trans "No past tables yet." %}
+        {% else %}
+          {% trans "No upcoming tables." %}
+        {% endif %}
+      </p>
     </div>
   {% endif %}
 
-  {# ── Past tables ───────────────────────────────────────────────────── #}
-  {% if past_tables %}
-    <div class="mb-4">
-      <h2 class="text-base font-bold text-content-muted uppercase tracking-wide text-xs">{% trans "Past tables" %}</h2>
-    </div>
-    <div class="space-y-2 opacity-70">
-      {% for table in past_tables %}
-        {% horizontal_table_card table %}
-      {% endfor %}
-    </div>
+  {# ── Pagination ───────────────────────────────────────────────────── #}
+  {% if is_paginated %}
+    <nav class="flex items-center justify-between gap-3 mt-6" aria-label="{% trans 'Pagination' %}">
+      {% if page_obj.has_previous %}
+        <a href="{% querystring page=page_obj.previous_page_number %}" aria-label="{% trans 'Previous' %}"
+           class="flex items-center gap-1.5 whitespace-nowrap border border-divider text-content-soft text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
+          <span aria-hidden="true">←</span><span class="hidden sm:inline">{% trans "Previous" %}</span>
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+      <span class="text-xs text-content-muted whitespace-nowrap">
+        {% blocktrans with number=page_obj.number total=paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktrans %}
+      </span>
+      {% if page_obj.has_next %}
+        <a href="{% querystring page=page_obj.next_page_number %}" aria-label="{% trans 'Next' %}"
+           class="flex items-center gap-1.5 whitespace-nowrap border border-divider text-content-soft text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
+          <span class="hidden sm:inline">{% trans "Next" %}</span><span aria-hidden="true">→</span>
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+    </nav>
   {% endif %}
 
 </div>
+
+{% include "tables/_location_filter_modal.html" %}
 {% endblock content %}

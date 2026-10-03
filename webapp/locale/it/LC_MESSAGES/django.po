@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:58+0200\n"
+"POT-Creation-Date: 2026-10-03 17:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2833,6 +2833,18 @@ msgstr "Più info"
 msgid "Select language"
 msgstr "Seleziona lingua"
 
+msgid "Filter by location"
+msgstr "Filtra per location"
+
+msgid "Search by name or city…"
+msgstr "Cerca per nome o città…"
+
+msgid "Search for a location"
+msgstr "Cerca una location"
+
+msgid "No locations found."
+msgstr "Nessuna location trovata."
+
 msgid "Comments"
 msgstr "Commenti"
 
@@ -2976,11 +2988,36 @@ msgstr "Condividi"
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
-msgid "Upcoming Tables"
-msgstr "Prossimi Tavoli"
-
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
+
+msgid "Search in title and description…"
+msgstr "Cerca nel titolo e nella descrizione…"
+
+msgid "Search"
+msgstr "Cerca"
+
+#, python-format
+msgid "%(counter)s table found"
+msgid_plural "%(counter)s tables found"
+msgstr[0] "%(counter)s tavolo trovato"
+msgstr[1] "%(counter)s tavoli trovati"
+
+msgid "Clear filters"
+msgstr "Rimuovi filtri"
+
+msgid "Pagination"
+msgstr "Paginazione"
+
+msgid "Previous"
+msgstr "Precedente"
+
+#, python-format
+msgid "Page %(number)s of %(total)s"
+msgstr "Pagina %(number)s di %(total)s"
+
+msgid "Next"
+msgstr "Successiva"
 
 msgid "Manage players"
 msgstr "Gestisci giocatori"
@@ -3467,6 +3504,12 @@ msgid ""
 "forever, open source, member management, tables, rankings and more."
 msgstr ""
 
+msgid "Followed locations"
+msgstr "Location seguite"
+
+msgid "Most active locations"
+msgstr "Location più attive"
+
 msgid "Game Tables - Board-Gamers.com"
 msgstr "Tavoli di Gioco - Board-Gamers.com"
 
@@ -3553,6 +3596,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Upcoming Tables"
+#~ msgstr "Prossimi Tavoli"
 
 #~ msgid "Find your next game night"
 #~ msgstr "Trova la tua prossima serata di gioco"
