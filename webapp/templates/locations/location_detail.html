@@ -137,6 +137,17 @@
             <p class="text-sm text-content-muted italic">{% trans "No past tables." %}</p>
           {% endif %}
         </div>
+
+        {% if future_tables or past_tables %}
+          <div class="mt-3">
+            <a id="see-all-tables" href="{% url 'table-index' %}?location={{ location.slug }}"
+               data-upcoming-href="{% url 'table-index' %}?location={{ location.slug }}"
+               data-past-href="{% url 'table-index' %}?tab=past&location={{ location.slug }}"
+               class="text-sm text-blue-600 font-semibold hover:underline">
+              {% trans "See all tables" %} →
+            </a>
+          </div>
+        {% endif %}
       </section>
 
       {# ── Eventi sponsorizzati ─────────────────────────── #}
@@ -470,6 +481,9 @@
       const inactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
       document.getElementById('btn-upcoming').className = isUpcoming ? active : inactive;
       document.getElementById('btn-past').className     = isUpcoming ? inactive : active;
+      // Keep "See all tables" pointing at the tab being viewed
+      const seeAll = document.getElementById('see-all-tables');
+      if (seeAll) seeAll.href = isUpcoming ? seeAll.dataset.upcomingHref : seeAll.dataset.pastHref;
     }
   </script>
 {% endblock %}

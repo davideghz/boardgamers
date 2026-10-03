@@ -134,7 +134,6 @@ class TableIndexView(generic.ListView):
         qs = (Table.objects
               .select_related('author', 'author__user', 'location')
               .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-              .filter(location__show_tables_in_homepage=True)
               .annotate(distance=DbDistance('location__point', user_point)))
 
         self.tab = 'past' if self.request.GET.get('tab') == 'past' else 'upcoming'
@@ -142,7 +141,11 @@ class TableIndexView(generic.ListView):
         self.q = self.request.GET.get('q', '').strip()
 
         if self.location_slug:
+            # An explicit location filter shows the same tables as the location's own page,
+            # even when the location keeps them out of the public listing.
             qs = qs.filter(location__slug=self.location_slug)
+        else:
+            qs = qs.filter(location__show_tables_in_homepage=True)
         if self.q:
             qs = qs.filter(Q(title__icontains=self.q) | Q(description__icontains=self.q))
 
