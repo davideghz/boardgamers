@@ -34,32 +34,112 @@
     });
   </script>
 
-  {# ── PAGE HEADER ─────────────────────────────────────────────────── #}
-  <div class="mb-8">
-    {% if user.is_authenticated %}
-      <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">
+  {% if user.is_authenticated %}
+
+    {# ── HEADER (logged in): quick links to own/followed locations ──── #}
+    <div class="mb-8">
+      <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-4">
         {% trans "Welcome back" %}, {{ user.user_profile }}
       </h1>
-    {% else %}
-      <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">
-        {% trans "Find your next game night" %}
-      </h1>
-    {% endif %}
-    <p class="text-sm text-content-muted">{% trans "Accept the challenge, join a table!" %}</p>
 
-    {% if not user.is_authenticated %}
-      <div class="flex items-center gap-3 mt-4">
-        <a href="{% url 'signup' %}"
-           class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
-          {% trans "Create a free account" %}
-        </a>
-        <a href="{% url 'login' %}"
-           class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-surface-alt transition-colors text-decoration-none">
-          Login
-        </a>
+      {% if quick_locations %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {% for location, is_creator in quick_locations %}
+            <div class="flex items-center gap-2 rounded-xl border border-divider bg-surface p-2 hover:bg-surface-alt transition-colors">
+              <a href="{% url 'location-detail' location.slug %}" class="flex items-center gap-3 min-w-0 flex-1 text-decoration-none">
+                <img src="{{ location.cover_url }}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-content truncate">{{ location.name }}</div>
+                  <div class="text-xs text-content-muted truncate">
+                    {% if is_creator %}{% trans "Created by you" context "location" %}{% else %}{% trans "Followed" %}{% endif %}{% if location.city %} · {{ location.city }}{% endif %}
+                  </div>
+                </div>
+              </a>
+              {% if is_creator %}
+                <a href="{% url 'location-manage' location.slug %}" title="{% trans "Manage" %}"
+                   class="flex-shrink-0 p-2 rounded-lg text-content-muted hover:text-content hover:bg-surface-input transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                </a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-sm text-content-muted">
+          {% trans "You don't follow any location yet." %}
+          <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Explore locations" %}</a>
+        </p>
+      {% endif %}
+    </div>
+
+  {% else %}
+
+    {# ── HERO (anonymous): positioning for clubs + live agenda ──────── #}
+    <div class="mb-8 rounded-2xl text-white overflow-hidden"
+         style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+      <div class="grid lg:grid-cols-5 gap-6 p-5 md:p-8">
+
+        <div class="lg:col-span-3 flex flex-col justify-center">
+          <span class="inline-flex self-start items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg> {% trans "For board game clubs and associations" %}
+          </span>
+          <h1 class="text-3xl md:text-4xl font-extrabold leading-tight mb-3">
+            {% trans "All your game nights, in one place" %}
+          </h1>
+          <p class="text-sm md:text-base text-blue-100 mb-5">
+            {% trans "Board-Gamers is the free tool for board game associations. And for players, the easiest way to find a table near them." %}
+          </p>
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <a href="{% url 'signup' %}?next={% url 'location-create' %}"
+               class="flex items-center gap-1.5 bg-white text-slate-900 text-sm font-bold px-5 py-3 rounded-full hover:bg-blue-50 transition-colors text-decoration-none">
+              {% trans "Bring your club here" %}
+            </a>
+            <a href="{% url 'table-index' %}"
+               class="flex items-center gap-1.5 border border-white/40 text-white text-sm font-semibold px-5 py-3 rounded-full hover:bg-white/10 transition-colors text-decoration-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg> {% trans "Find a table" %}
+            </a>
+          </div>
+          <p class="text-xs text-blue-200">
+            {% trans "Already have an account?" %}
+            <a href="{% url 'login' %}" class="font-semibold text-white hover:underline">Login</a>
+            <span class="lg:hidden">
+              · <a href="{% url 'about' %}" class="font-semibold text-white hover:underline">{% trans "Discover the tools for clubs" %}</a>
+            </span>
+          </p>
+        </div>
+
+        <div class="hidden lg:block lg:col-span-2 rounded-xl bg-white/5 ring-1 ring-white/10 p-5 self-center">
+          <ul class="flex flex-col gap-4 mb-4">
+              <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-blue-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg></span>
+                <div>
+                  <div class="text-sm font-bold">{% trans "Organize game nights" %}</div>
+                  <div class="text-xs text-blue-200">{% trans "Create tables and let players book a seat with one click." %}</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-blue-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" /></svg></span>
+                <div>
+                  <div class="text-sm font-bold">{% trans "Manage your members" %}</div>
+                  <div class="text-xs text-blue-200">{% trans "Member registry, membership requests and renewals." %}</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-blue-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" /></svg></span>
+                <div>
+                  <div class="text-sm font-bold">{% trans "Keep your community active" %}</div>
+                  <div class="text-xs text-blue-200">{% trans "Telegram bot, rankings and your schedule on your website." %}</div>
+                </div>
+              </li>
+          </ul>
+          <a href="{% url 'about' %}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-white hover:gap-2.5 transition-all text-decoration-none">
+            {% trans "Discover the tools for clubs" %} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
       </div>
-    {% endif %}
-  </div>
+    </div>
+
+  {% endif %}
 
   {# ── TAVOLI ───────────────────────────────────────────────────────── #}
   <section class="mb-10">

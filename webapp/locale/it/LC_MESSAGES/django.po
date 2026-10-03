@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 18:55+0200\n"
+"POT-Creation-Date: 2026-10-03 15:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2711,11 +2711,59 @@ msgid ""
 "Do you know your way around code and want to contribute to Board-Gamers?"
 msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
 
-msgid "Find your next game night"
-msgstr "Trova la tua prossima serata di gioco"
+msgctxt "location"
+msgid "Created by you"
+msgstr "Creata da te"
 
-msgid "Accept the challenge, join a table!"
-msgstr "Accetta la sfida, unisciti a un tavolo!"
+msgid "Followed"
+msgstr "Seguita"
+
+msgid "You don't follow any location yet."
+msgstr "Non segui ancora nessuna location."
+
+msgid "Explore locations"
+msgstr "Esplora le location"
+
+msgid "For board game clubs and associations"
+msgstr "Per APS e club di giochi da tavolo"
+
+msgid "All your game nights, in one place"
+msgstr "Tutte le vostre serate ludiche, in un unico posto"
+
+msgid ""
+"Board-Gamers is the free tool for board game associations. And for players, "
+"the easiest way to find a table near them."
+msgstr ""
+"Board-Gamers è lo strumento gratuito per le APS di giochi da tavolo. E per i "
+"giocatori, il modo più semplice per trovare un tavolo vicino a casa."
+
+msgid "Bring your club here"
+msgstr "Porta qui la tua associazione"
+
+msgid "Find a table"
+msgstr "Trova un tavolo"
+
+msgid "Discover the tools for clubs"
+msgstr "Scopri gli strumenti per le associazioni"
+
+msgid "Organize game nights"
+msgstr "Organizza le serate"
+
+msgid "Create tables and let players book a seat with one click."
+msgstr "Crea i tavoli e i giocatori si prenotano con un clic."
+
+msgid "Manage your members"
+msgstr "Gestisci i soci"
+
+msgid "Member registry, membership requests and renewals."
+msgstr "Libro soci, richieste di iscrizione e rinnovi."
+
+msgid "Keep your community active"
+msgstr "Tieni viva la community"
+
+msgid "Telegram bot, rankings and your schedule on your website."
+msgstr ""
+"Bot Telegram, classifiche e il calendario sul sito della tua associazione."
 
 msgid "to see tables from locations you follow."
 msgstr "per vedere i tavoli delle locations che segui."
@@ -2930,6 +2978,9 @@ msgstr "Modifica tavolo"
 
 msgid "Upcoming Tables"
 msgstr "Prossimi Tavoli"
+
+msgid "Accept the challenge, join a table!"
+msgstr "Accetta la sfida, unisciti a un tavolo!"
 
 msgid "Manage players"
 msgstr "Gestisci giocatori"
@@ -3502,6 +3553,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Find your next game night"
+#~ msgstr "Trova la tua prossima serata di gioco"
 
 #~ msgid "Member Code"
 #~ msgstr "Codice Fiscale"

@@ -118,6 +118,14 @@ def homepage_view(request):
         )
     }
 
+    # Quick links for logged-in users: locations they created first, then the ones they follow
+    quick_locations = []
+    if request.user.is_authenticated:
+        created = list(Location.objects.filter(creator=request.user.user_profile).order_by('name'))
+        followed = Location.objects.filter(id__in=context['followed_location_ids']).exclude(
+            id__in=[location.id for location in created]).order_by('name')
+        quick_locations = [(location, True) for location in created] + [(location, False) for location in followed]
+    context['quick_locations'] = quick_locations
     return render(request, "staticpages/home.html", context)
 
 
