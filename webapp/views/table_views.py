@@ -24,8 +24,8 @@ from webapp.forms import TableForm, TableLinkFormSet, CustomLoginForm, CommentFo
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
 from webapp.services.tables import (
-    TableActionError, add_guest, can_manage_roster, join_table, leave_table,
-    remove_guest,
+    TableActionError, add_guest, can_edit_leaderboard, can_manage_roster, join_table,
+    leave_table, remove_guest,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -201,13 +201,8 @@ class BaseTableDetailView(generic.DetailView):
         leaderboard_enabled = table.game and table.game.leaderboard_enabled
         leaderboard_visible = any(player.position != 99 for player in players)
 
-        user_can_edit_leaderboard = self.request.user.is_authenticated and (
-            self.request.user.is_superuser or (
-                leaderboard_enabled
-                and table.leaderboard_status == table.LEADERBOARD_EDITABLE
-                and self.request.user.user_profile in table.players.all()
-            )
-        )
+        user_can_edit_leaderboard = self.request.user.is_authenticated and can_edit_leaderboard(
+            self.request.user.user_profile, table)
 
         user_available_guests = None
         if (self.request.user.is_authenticated and

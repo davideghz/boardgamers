@@ -9,6 +9,7 @@ from django.utils.timezone import now
 from webapp.models import Table, Location, Player, Game, Notification, NotificationType
 from webapp.api.serializers import TableSerializer
 from webapp.services.bgg import search_bgg, import_game_from_bgg, fetch_bgg_classifications
+from webapp.services.tables import can_edit_leaderboard
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +40,8 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
             players = request.data.get('players', [])
             logger.debug("Players data received for table %s: %s", table.id, players)
 
-            # Verifica che l'utente sia un player del tavolo o un admin
-            if not (request.user.is_superuser or request.user.user_profile in table.players.all()):
+            # Players at the table, its author, location/event staff or an admin
+            if not can_edit_leaderboard(request.user.user_profile, table):
                 return Response({'success': False, 'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
             # Aggiorna le posizioni dei giocatori

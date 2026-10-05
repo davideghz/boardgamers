@@ -69,6 +69,25 @@ def can_manage_roster(profile, table):
     return False
 
 
+def can_edit_leaderboard(profile, table):
+    """Who may reorder a table's leaderboard.
+
+    Superusers always. Everyone else only while the game has a leaderboard and
+    the table's leaderboard is editable: the players at the table, plus whoever
+    can manage its roster (author, location or event staff).
+    """
+    if profile is None:
+        return False
+    if profile.user.is_superuser:
+        return True
+    if not (table.game_id and table.game.leaderboard_enabled):
+        return False
+    if table.leaderboard_status != Table.LEADERBOARD_EDITABLE:
+        return False
+    return (table.player_set.filter(user_profile=profile).exists()
+            or can_manage_roster(profile, table))
+
+
 def _is_location_staff(profile, location):
     return (
         location.creator == profile
