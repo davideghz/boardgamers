@@ -66,6 +66,7 @@
       </label>
 
     </div>
+    <p id="push-status" class="hidden -mt-6 mb-8 text-xs"></p>
 
     {# ── Email notifications ──────────────────────────────────────── #}
     <h2 class="text-base font-bold text-content mb-1">{% trans "Email notifications" %}</h2>
@@ -163,5 +164,42 @@
     </div>
 
   </form>
+
+  {% trans "Push notifications are active on this device." as msg_subscribed %}
+  {% trans "Notifications are blocked in your browser settings: allow them for this site to receive push notifications." as msg_denied %}
+  {% trans "Allow notifications when your browser asks, to receive push notifications on this device." as msg_default %}
+  {% trans "We couldn't enable push notifications on this device. Please try again." as msg_error %}
+  {% trans "This browser doesn't support push notifications." as msg_unsupported %}
+  <script>
+    // Turning a push toggle on (or opening the page with one on) makes sure this browser
+    // really has a push subscription the server knows about, creating it if missing.
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggles = document.querySelectorAll('input[name^="push_notification_"]');
+      const statusEl = document.getElementById('push-status');
+      const messages = {
+        subscribed: ['text-green-600', '{{ msg_subscribed|escapejs }}'],
+        denied: ['text-red-600', '{{ msg_denied|escapejs }}'],
+        'default': ['text-amber-600', '{{ msg_default|escapejs }}'],
+        error: ['text-red-600', '{{ msg_error|escapejs }}'],
+        unsupported: ['text-content-muted', '{{ msg_unsupported|escapejs }}'],
+      };
+
+      function show(result) {
+        const [cls, text] = messages[result] || messages.error;
+        statusEl.className = '-mt-6 mb-8 text-xs ' + cls;
+        statusEl.textContent = text;
+      }
+
+      async function ensure() {
+        if (!window.ensurePushSubscription) { show('unsupported'); return; }
+        show(await window.ensurePushSubscription({ force: true }));
+      }
+
+      toggles.forEach(function (toggle) {
+        toggle.addEventListener('change', function () { if (toggle.checked) ensure(); });
+      });
+      if (Array.from(toggles).some(function (t) { return t.checked; })) ensure();
+    });
+  </script>
 
 {% endblock content %}

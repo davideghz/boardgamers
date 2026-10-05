@@ -551,6 +551,9 @@
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
       const VAPID_PUBLIC_KEY = '{{ vapid_public_key }}';
+      const SYNC_KEY = 'pushSubscriptionSync';
+      const SYNC_EVERY_MS = 24 * 60 * 60 * 1000;
+      const registrationReady = navigator.serviceWorker.register('/service-worker.js');
 
       function urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -559,35 +562,47 @@
         return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
       }
 
-      async function subscribeToPush(registration) {
-        try {
-          const sub = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-          });
-          await fetch('{% url "push-subscribe" %}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-            body: JSON.stringify(sub),
-          });
-        } catch (e) {
-          // User denied permission or browser error — silently ignore
-        }
+      // The browser can hold a subscription the server no longer has (deleted after a
+      // 404/410 from the push service, or a first POST that failed), so an existing
+      // subscription is re-sent too: the endpoint is idempotent (update_or_create).
+      async function syncToServer(sub, force) {
+        const marker = '{{ user.id }}|' + sub.endpoint;
+        let last = null;
+        try { last = JSON.parse(localStorage.getItem(SYNC_KEY)); } catch (e) {}
+        if (!force && last && last.marker === marker && Date.now() - last.at < SYNC_EVERY_MS) return true;
+        const response = await fetch('{% url "push-subscribe" %}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+          body: JSON.stringify(sub),
+        });
+        if (!response.ok) return false;
+        try { localStorage.setItem(SYNC_KEY, JSON.stringify({ marker: marker, at: Date.now() })); } catch (e) {}
+        return true;
       }
 
-      navigator.serviceWorker.register('/service-worker.js').then(async function (registration) {
-        const existing = await registration.pushManager.getSubscription();
-        if (existing) return; // already subscribed
-
-        if (Notification.permission === 'granted') {
-          await subscribeToPush(registration);
-        } else if (Notification.permission !== 'denied') {
-          const permission = await Notification.requestPermission();
-          if (permission === 'granted') {
-            await subscribeToPush(registration);
+      // Makes sure this browser has a push subscription known to the server, asking for
+      // permission if needed. Resolves to 'subscribed', 'denied', 'default' or 'error'.
+      window.ensurePushSubscription = async function (options) {
+        const force = options && options.force;
+        try {
+          let permission = Notification.permission;
+          if (permission === 'default') permission = await Notification.requestPermission();
+          if (permission !== 'granted') return permission;
+          const registration = await registrationReady;
+          let sub = await registration.pushManager.getSubscription();
+          if (!sub) {
+            sub = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+            });
           }
+          return (await syncToServer(sub, force)) ? 'subscribed' : 'error';
+        } catch (e) {
+          return 'error';
         }
-      });
+      };
+
+      if (Notification.permission !== 'denied') window.ensurePushSubscription();
     })();
   </script>
   {% endif %}
