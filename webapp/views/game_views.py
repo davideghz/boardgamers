@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.utils.translation import gettext_lazy as _
@@ -12,21 +12,22 @@ class GameListView(ListView):
     model = Game
     template_name = 'games/game_list.html'
     context_object_name = 'games'
+    paginate_by = 14
 
     def get_queryset(self):
+        self.q = self.request.GET.get('q', '').strip()
         queryset = Game.objects.annotate(
             table_count=Count('created_tables', distinct=True),
             player_count=Count('created_tables__players', distinct=True)
-        ).order_by('-table_count')
-
-        for game in queryset:
-            print(f"Game: {game.name}, Tavoli: {game.table_count}, Giocatori: {game.player_count}")
-
-        return queryset
+        )
+        if self.q:
+            queryset = queryset.filter(Q(name__icontains=self.q) | Q(description__icontains=self.q))
+        # name as tie-breaker keeps pages stable across games with the same table count
+        return queryset.order_by('-table_count', 'name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_games'] = self.get_queryset().count()
+        context['q'] = self.q
         context['meta'] = Meta(
             title=_("Board Games - Board-Gamers.com"),
             description=_("Discover all available board games and create new game tables!"),

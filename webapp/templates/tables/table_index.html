@@ -26,15 +26,8 @@
   <form method="get" class="flex flex-col sm:flex-row gap-2 mb-5"
         onsubmit="this.querySelectorAll('input[name]').forEach(function (el) { if (!el.value.trim()) el.disabled = true; })">
     {% if tab == 'past' %}<input type="hidden" name="tab" value="past">{% endif %}
-    <div class="relative flex-1">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-           class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
-      <input type="search" name="q" value="{{ q }}" autocomplete="off"
-             placeholder="{% trans 'Search in title and description…' %}"
-             class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
-    </div>
+    {% trans "Search in title and description…" as search_placeholder %}
+    {% include "partials/_search_input.html" with placeholder=search_placeholder %}
     <input type="hidden" name="location" id="location-filter-input" value="{{ selected_location }}">
     {% if selected_location_obj %}
       <div class="sm:w-56 flex items-center gap-2 pl-2 pr-1 py-1.5 text-sm bg-surface border border-blue-500 rounded-xl">
@@ -94,30 +87,7 @@
     </div>
   {% endif %}
 
-  {# ── Pagination ───────────────────────────────────────────────────── #}
-  {% if is_paginated %}
-    <nav class="flex items-center justify-between gap-3 mt-6" aria-label="{% trans 'Pagination' %}">
-      {% if page_obj.has_previous %}
-        <a href="{% querystring page=page_obj.previous_page_number %}" aria-label="{% trans 'Previous' %}"
-           class="flex items-center gap-1.5 whitespace-nowrap border border-divider text-content-soft text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
-          <span aria-hidden="true">←</span><span class="hidden sm:inline">{% trans "Previous" %}</span>
-        </a>
-      {% else %}
-        <span></span>
-      {% endif %}
-      <span class="text-xs text-content-muted whitespace-nowrap">
-        {% blocktrans with number=page_obj.number total=paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktrans %}
-      </span>
-      {% if page_obj.has_next %}
-        <a href="{% querystring page=page_obj.next_page_number %}" aria-label="{% trans 'Next' %}"
-           class="flex items-center gap-1.5 whitespace-nowrap border border-divider text-content-soft text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
-          <span class="hidden sm:inline">{% trans "Next" %}</span><span aria-hidden="true">→</span>
-        </a>
-      {% else %}
-        <span></span>
-      {% endif %}
-    </nav>
-  {% endif %}
+  {% include "partials/_pagination.html" %}
 
 </div>
 

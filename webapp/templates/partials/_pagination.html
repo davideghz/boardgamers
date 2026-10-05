@@ -1,0 +1,25 @@
+{% load i18n %}
+{# Prev/next pagination for ListView pages; keeps the other query-string params. #}
+{% if is_paginated %}
+  <nav class="flex items-center justify-between gap-3 mt-6" aria-label="{% trans 'Pagination' %}">
+    {% if page_obj.has_previous %}
+      <a href="{% querystring page=page_obj.previous_page_number %}" aria-label="{% trans 'Previous' %}"
+         class="flex items-center gap-1.5 whitespace-nowrap border border-divider text-content-soft text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
+        <span aria-hidden="true">←</span><span class="hidden sm:inline">{% trans "Previous" %}</span>
+      </a>
+    {% else %}
+      <span></span>
+    {% endif %}
+    <span class="text-xs text-content-muted whitespace-nowrap">
+      {% blocktrans with number=page_obj.number total=paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktrans %}
+    </span>
+    {% if page_obj.has_next %}
+      <a href="{% querystring page=page_obj.next_page_number %}" aria-label="{% trans 'Next' %}"
+         class="flex items-center gap-1.5 whitespace-nowrap border border-divider text-content-soft text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
+        <span class="hidden sm:inline">{% trans "Next" %}</span><span aria-hidden="true">→</span>
+      </a>
+    {% else %}
+      <span></span>
+    {% endif %}
+  </nav>
+{% endif %}

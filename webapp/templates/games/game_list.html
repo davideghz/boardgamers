@@ -9,6 +9,26 @@
     <p class="text-sm text-content-muted mt-1">{% trans "Complete list of board games played on Board-Gamers.com. Find your next favorite game and start playing today!" %}</p>
   </div>
 
+  {# ── Search (GET form; page resets on every submit) ──────────────── #}
+  <form method="get" class="flex gap-2 mb-5 max-w-2xl"
+        onsubmit="this.querySelectorAll('input[name]').forEach(function (el) { if (!el.value.trim()) el.disabled = true; })">
+    {% trans "Search in title and description…" as search_placeholder %}
+    {% include "partials/_search_input.html" with placeholder=search_placeholder %}
+    <button type="submit"
+            class="bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors">
+      {% trans "Search" %}
+    </button>
+  </form>
+
+  {% if q %}
+    <div class="flex items-center justify-between gap-3 mb-3 text-xs text-content-muted max-w-2xl">
+      <span>
+        {% blocktrans count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktrans %}
+      </span>
+      <a href="{% querystring q=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+    </div>
+  {% endif %}
+
   {# ── Game list ─────────────────────────────────────────────────────── #}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
     {% for game in games %}
@@ -46,9 +66,11 @@
       </a>
     {% empty %}
       <div class="col-span-2 rounded-xl border border-divider bg-surface px-6 py-12 text-center">
-        <p class="text-sm text-content-muted">{% trans "No games available yet." %}</p>
+        <p class="text-sm text-content-muted">{% if q %}{% trans "No games match your search." %}{% else %}{% trans "No games available yet." %}{% endif %}</p>
       </div>
     {% endfor %}
   </div>
+
+  {% include "partials/_pagination.html" %}
 
 {% endblock content %}
