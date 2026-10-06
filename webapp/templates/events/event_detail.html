@@ -22,8 +22,23 @@
 
   {# ── HERO ─────────────────────────────────────────────────────────── #}
   <section class="mb-8">
+    {% if event.cover %}
+    {# Cover aligned right, faded into the dark blue diagonally from the left #}
+    <div class="relative overflow-hidden rounded-2xl px-6 md:px-10 pt-16 md:pt-24 pb-7 md:pb-9"
+         style="background-color: #0f172a;">
+      <img src="{{ event.cover_url }}" alt=""
+           class="absolute inset-y-0 right-0 h-full w-full md:w-3/4 object-cover pointer-events-none"
+           style="-webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%); mask-image: linear-gradient(to right, transparent 0%, #000 35%);">
+      <div class="absolute inset-0 pointer-events-none"
+           style="background: linear-gradient(135deg, #0f172a 0%, #0f172a 25%, rgba(30, 58, 95, 0.8) 45%, rgba(30, 64, 175, 0) 80%);"></div>
+      {# On narrow screens the text spans the whole cover: darken it a bit more #}
+      <div class="absolute inset-0 md:hidden pointer-events-none" style="background-color: rgba(15, 23, 42, 0.45);"></div>
+      <div class="relative">
+    {% else %}
     <div class="rounded-2xl px-6 md:px-10 pt-16 md:pt-24 pb-7 md:pb-9"
          style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+      <div>
+    {% endif %}
 
       {% if event.city %}
         <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-blue-300 mb-3">
@@ -91,6 +106,7 @@
           {% trans "See the program" %} →
         </a>
 
+      </div>
       </div>
     </div>
   </section>
