@@ -30,7 +30,7 @@
            class="absolute inset-y-0 right-0 h-full w-full md:w-3/4 object-cover pointer-events-none"
            style="-webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%); mask-image: linear-gradient(to right, transparent 0%, #000 35%);">
       <div class="absolute inset-0 pointer-events-none"
-           style="background: linear-gradient(135deg, #0f172a 0%, #0f172a 25%, rgba(30, 58, 95, 0.8) 45%, rgba(30, 64, 175, 0) 80%);"></div>
+           style="background: linear-gradient(135deg, #0f172a 0%, #0f172a 25%, rgba(15, 23, 42, 0.92) 30%, rgba(30, 58, 95, 0.8) 50%, rgba(30, 64, 175, 0) 85%);"></div>
       {# On narrow screens the text spans the whole cover: darken it a bit more #}
       <div class="absolute inset-0 md:hidden pointer-events-none" style="background-color: rgba(15, 23, 42, 0.45);"></div>
       <div class="relative">
@@ -71,7 +71,7 @@
         {% if event.status == 'approved' %}
           {% if user.is_authenticated %}
             {% if is_participant %}
-              <span class="inline-flex items-center justify-center gap-2 bg-surface/10 border border-white/20 text-slate-200 font-bold px-6 py-3 rounded-full text-sm cursor-default">
+              <span class="inline-flex items-center justify-center gap-2 bg-slate-900/70 backdrop-blur-sm border border-white/30 text-white font-bold px-6 py-3 rounded-full text-sm cursor-default">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-green-400">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
@@ -102,7 +102,7 @@
 
         {# CTA 2 — program #}
         <a href="{% url 'event-program' event.slug %}"
-           class="inline-flex items-center justify-center gap-2 border border-slate-500 text-content-muted hover:text-white hover:border-divider font-semibold px-6 py-3 rounded-full transition-colors text-decoration-none text-sm">
+           class="inline-flex items-center justify-center gap-2 bg-slate-900/70 backdrop-blur-sm border border-white/30 text-slate-100 hover:text-white hover:bg-slate-900/85 hover:border-white/50 font-semibold px-6 py-3 rounded-full transition-colors text-decoration-none text-sm">
           {% trans "See the program" %} →
         </a>
 
