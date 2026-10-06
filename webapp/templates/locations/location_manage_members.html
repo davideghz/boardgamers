@@ -11,6 +11,46 @@
     <h1 class="text-2xl font-extrabold text-content">{% trans "Members" %}</h1>
   </div>
 
+  {# ── Public membership toggle ───────────────────────────────────────── #}
+  <form method="post" action="{% url 'location-toggle-membership' location.slug %}" class="mb-6">
+    {% csrf_token %}
+    <label for="membership-enabled"
+           class="flex items-start justify-between gap-4 p-4 rounded-xl border cursor-pointer transition-colors
+                  {% if location.enable_membership %}border-green-200 bg-green-50{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
+      <div>
+        <p class="text-sm font-semibold text-content">
+          {% trans "Membership requests" %}
+          {% if location.enable_membership %}
+            <span class="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Active" %}</span>
+          {% else %}
+            <span class="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Not active" %}</span>
+          {% endif %}
+        </p>
+        <p class="text-xs text-content-muted mt-0.5">
+          {% if location.enable_membership %}
+            {% trans "Visitors can request a membership from the location page, and members-only permissions are available." %}
+          {% else %}
+            {% trans "You can already manage members here. Turn this on to let visitors request a membership from the location page and to enable members-only permissions." %}
+          {% endif %}
+        </p>
+      </div>
+      <div class="relative flex-shrink-0 mt-0.5">
+        <input type="checkbox" id="membership-enabled" name="enabled"
+               class="sr-only peer" onchange="this.form.submit()"
+               {% if location.enable_membership %}checked{% endif %}>
+        <div class="w-11 h-6 rounded-full bg-surface-input
+                    peer-checked:bg-blue-500
+                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                    after:bg-surface after:rounded-full after:h-5 after:w-5
+                    after:transition-all after:shadow-sm
+                    peer-checked:after:translate-x-5"></div>
+      </div>
+    </label>
+    <noscript>
+      <button type="submit" class="mt-2 text-sm font-semibold text-blue-600 hover:underline">{% trans "Save" %}</button>
+    </noscript>
+  </form>
+
   <div class="flex gap-8 items-start">
 
     {# ── Main content ────────────────────────────────────────────────── #}

@@ -105,8 +105,8 @@
           {% endif %}
           {% if field.html_name == 'owner_member' and not location.enable_membership %}
             <p class="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
-              {% trans "To specify a member as the game owner, ask an admin to enable member management for your association." %}
-              <a href="{% url 'contacts' %}" class="underline font-semibold hover:text-amber-900">{% trans "Contact us" %}</a>.
+              {% trans "To specify a member as the game owner, activate membership requests for your location." %}
+              <a href="{% url 'location-manage-members' location.slug %}" class="underline font-semibold hover:text-amber-900">{% trans "Go to the Members page" %}</a>.
             </p>
           {% endif %}
           {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}

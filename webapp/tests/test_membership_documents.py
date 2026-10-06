@@ -76,13 +76,13 @@ class MembershipDocumentManagementTest(TestCase):
     def test_anonymous_user_is_redirected_to_login(self):
         self.assertEqual(self.client.get(self.list_url).status_code, 302)
 
-    def test_documents_require_membership_to_be_enabled(self):
-        # Consistent with the other member management views: a location with
-        # membership turned off has no such page at all.
+    def test_documents_are_available_with_membership_turned_off(self):
+        # Member management is always available to managers: the flag only
+        # controls what visitors can do.
         self.location.enable_membership = False
         self.location.save()
         self.client.force_login(self.owner.user)
-        self.assertEqual(self.client.get(self.list_url).status_code, 404)
+        self.assertEqual(self.client.get(self.list_url).status_code, 200)
 
     def test_rename_toggle_and_delete(self):
         document = self._document()

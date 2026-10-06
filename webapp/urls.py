@@ -71,6 +71,8 @@ urlpatterns = [
     # LOCATION MEMBERS
     path("locations/<slug:slug>/manage/members/", location_views.LocationManageMembersView.as_view(),
          name="location-manage-members"),
+    path("locations/<slug:slug>/manage/members/toggle/", location_views.ToggleMembershipView.as_view(),
+         name="location-toggle-membership"),
     path("locations/<slug:slug>/manage/members/csv/", location_views.DownloadMembersCSVView.as_view(),
          name="location-members-csv"),
     path("locations/<slug:slug>/manage/members/add/", location_views.AddMemberView.as_view(),

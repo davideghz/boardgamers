@@ -520,12 +520,6 @@ class TransferOwnershipView(LoginRequiredMixin, View):
 
 # ---- Member Management Views ----
 
-def _require_membership_enabled(location):
-    """Raise Http404 if membership is not enabled for this location."""
-    if not location.enable_membership:
-        raise Http404
-
-
 class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
     """View to list and manage members of a location (accessible to owners and managers)"""
     model = Location
@@ -539,7 +533,6 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
             return response
 
         location = self.get_object()
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))
@@ -560,11 +553,43 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
+class ToggleMembershipView(LoginRequiredMixin, View):
+    """
+    Turn the public side of member management on or off. The management area
+    is always available to owners and managers; this flag only decides whether
+    visitors can request a membership and whether members-only options apply.
+    """
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        user_profile = request.user.user_profile
+        if location.creator != user_profile and user_profile not in location.managers.all():
+            raise PermissionDenied(_("You don't have permission to manage this location."))
+
+        location.enable_membership = request.POST.get('enabled') == 'on'
+        update_fields = ['enable_membership']
+        if location.enable_membership:
+            messages.success(request, _("Membership requests are now open to visitors."))
+        else:
+            # Members-only permissions can't be met once nobody can request a
+            # membership: fall back to "anyone" rather than locking people out.
+            if location.table_creation_permission == Location.PERM_MEMBERS_ONLY:
+                location.table_creation_permission = Location.PERM_ANYONE
+                update_fields.append('table_creation_permission')
+            if location.table_join_permission == Location.PERM_MEMBERS_ONLY:
+                location.table_join_permission = Location.PERM_ANYONE
+                update_fields.append('table_join_permission')
+            messages.success(request, _("Membership requests are now closed to visitors."))
+            if len(update_fields) > 1:
+                messages.warning(request, _("Members-only table permissions have been reset to \"Anyone\"."))
+        location.save(update_fields=update_fields)
+        return redirect('location-manage-members', slug=location.slug)
+
+
 class MemberDetailEditView(LoginRequiredMixin, View):
     """View to see and edit a member's details (GET+POST). Accessible to owners and managers."""
 
     def _check_permission(self, request, location):
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))
@@ -630,7 +655,6 @@ class AddMemberView(LoginRequiredMixin, View):
     """View to manually add a member to a location (owner and managers)"""
 
     def _check_permission(self, request, location):
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))
@@ -677,7 +701,6 @@ class ApproveMembershipView(LoginRequiredMixin, View):
 
     def post(self, request, slug, member_uuid):
         location = get_object_or_404(Location, slug=slug)
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
 
         if location.creator != user_profile and user_profile not in location.managers.all():
@@ -720,7 +743,6 @@ class EditMembershipView(LoginRequiredMixin, View):
 
     def post(self, request, slug, member_uuid, membership_uuid):
         location = get_object_or_404(Location, slug=slug)
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage memberships."))
@@ -749,7 +771,6 @@ class AddMembershipView(LoginRequiredMixin, View):
 
     def post(self, request, slug, member_uuid):
         location = get_object_or_404(Location, slug=slug)
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage memberships."))
@@ -765,7 +786,6 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
     def get(self, request, slug):
         import csv
         location = get_object_or_404(Location, slug=slug)
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))
@@ -814,7 +834,6 @@ class DeleteMembershipView(LoginRequiredMixin, View):
 
     def post(self, request, slug, member_uuid, membership_uuid):
         location = get_object_or_404(Location, slug=slug)
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage memberships."))
@@ -829,7 +848,6 @@ class LocationManageMembershipDocumentsView(LoginRequiredMixin, View):
     """List and upload the blank documents members have to print and sign."""
 
     def _check_permission(self, request, location):
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))
@@ -867,7 +885,6 @@ class MembershipDocumentActionView(LoginRequiredMixin, View):
 
     def post(self, request, slug, document_uuid):
         location = get_object_or_404(Location, slug=slug)
-        _require_membership_enabled(location)
         user_profile = request.user.user_profile
         if location.creator != user_profile and user_profile not in location.managers.all():
             raise PermissionDenied(_("You don't have permission to manage this location."))

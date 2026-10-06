@@ -20,8 +20,8 @@
       <div>
         <p class="text-sm font-semibold text-amber-700">{% trans "Membership not enabled" %}</p>
         <p class="text-xs text-amber-600 mt-0.5">
-          {% trans "Members only options are disabled because membership management is not active for this location." %}
-          <a href="{% url 'contacts' %}" class="underline font-medium">{% trans "Contact us." %}</a>
+          {% trans "Members only options are disabled because membership requests are not active for this location." %}
+          <a href="{% url 'location-manage-members' location.slug %}" class="underline font-medium">{% trans "Activate them in the Members page." %}</a>
         </p>
       </div>
     </div>
