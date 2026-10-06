@@ -181,6 +181,7 @@ urlpatterns = [
     # USER PROFILES
     path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
     path('users/upload/avatar/', profile_views.upload_avatar, name='upload-avatar'),
+    path('users/remove/avatar/', profile_views.remove_avatar, name='remove-avatar'),
 
     # AUTOCOMPLETES
     path('location-autocomplete/', LocationAutocomplete.as_view(), name='location-autocomplete'),

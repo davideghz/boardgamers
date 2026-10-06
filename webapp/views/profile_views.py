@@ -7,6 +7,7 @@ from django.db.models import Count, Q, Subquery, OuterRef, Exists, Value
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy, reverse
+from django.views.decorators.http import require_POST
 from django.views.generic import UpdateView
 from django.views.generic.detail import DetailView
 
@@ -209,3 +210,16 @@ def upload_avatar(request):
         if form.is_valid():
             form.save()
     return redirect(next_url)
+
+
+@login_required
+@require_POST
+def remove_avatar(request):
+    user_profile = request.user.user_profile
+    if user_profile.avatar:
+        # Drop the stored file too: nothing else points at it.
+        user_profile.avatar.delete(save=False)
+        user_profile.avatar = None
+        user_profile.save(update_fields=['avatar'])
+        messages.success(request, _("Profile picture removed."))
+    return redirect('user-profile-edit')
