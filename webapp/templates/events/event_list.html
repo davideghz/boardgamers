@@ -5,9 +5,16 @@
 {% block content %}
 
   {# ── PAGE HEADER ─────────────────────────────────────────────────── #}
-  <div class="mb-8">
-    <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">{% trans "Events" %}</h1>
-    <p class="text-sm text-content-muted">{% trans "Conventions, tournaments and game days near you." %}</p>
+  <div class="mb-8 flex items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">{% trans "Events" %}</h1>
+      <p class="text-sm text-content-muted">{% trans "Conventions, tournaments and game days near you." %}</p>
+    </div>
+    <a href="{% url 'event-create' %}"
+       class="flex-shrink-0 flex items-center gap-1.5 bg-elevated text-white text-xs font-bold px-3 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+      {% trans "Create event" %}
+    </a>
   </div>
 
   {# ── UPCOMING ─────────────────────────────────────────────────────── #}
