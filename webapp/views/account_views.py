@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -126,8 +127,14 @@ def notifications(request, template_name='accounts/account_notifications.html'):
     # Aggiorna in blocco quelle non ancora lette
     user_notifications.filter(is_read=False).update(is_read=True)
 
+    paginator = Paginator(user_notifications, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
     return render(request, template_name, {
-        'notifications': user_notifications,
+        'notifications': page_obj.object_list,
+        'paginator': paginator,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
         'meta': Meta(
             title=_("Notifications - Board-Gamers.com"),
             description=_("View your notifications: new tables, comments, invitations and community updates."),
