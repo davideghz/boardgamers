@@ -575,6 +575,9 @@ class PhysicalTableForm(ModelForm, TailwindForm):
         return name
 
 
+#: Characters to type before the user search runs (shared with UserProfileAutocomplete).
+USER_SEARCH_MIN_LENGTH = 2
+
 
 class AddEventManagerForm(TailwindForm):
     manager = ModelChoiceField(
@@ -584,7 +587,7 @@ class AddEventManagerForm(TailwindForm):
             url='userprofile-autocomplete',
             attrs={
                 'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
             }
         )
     )
@@ -598,7 +601,7 @@ class AddTableCreatorForm(TailwindForm):
             url='userprofile-autocomplete',
             attrs={
                 'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
             }
         )
     )
@@ -628,7 +631,7 @@ class AddLocationManagerForm(TailwindForm):
             url='userprofile-autocomplete',
             attrs={
                 'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
             }
         )
     )
@@ -643,7 +646,7 @@ class TransferOwnershipForm(TailwindForm):
             url='userprofile-autocomplete',
             attrs={
                 'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
             }
         )
     )
@@ -663,7 +666,7 @@ class AddTablePlayerForm(TailwindForm):
             url='userprofile-autocomplete',
             attrs={
                 'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
                 'data-width': '100%',
             }
         )
@@ -705,7 +708,7 @@ class MemberForm(MemberPersonalDataFieldsMixin, ModelForm, TailwindForm):
             url='userprofile-autocomplete',
             attrs={
                 'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
             }
         )
     )

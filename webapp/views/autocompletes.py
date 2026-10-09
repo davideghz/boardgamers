@@ -2,6 +2,7 @@ from dal import autocomplete
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models.functions import Lower
 
+from webapp.forms import USER_SEARCH_MIN_LENGTH
 from webapp.models import Game, Location, UserProfile, Member
 
 
@@ -44,12 +45,17 @@ class UserProfileAutocomplete(autocomplete.Select2QuerySetView):
         if not self.request.user.is_authenticated:
             return UserProfile.objects.none()
 
-        qs = UserProfile.objects.all()
+        if len(self.q) < USER_SEARCH_MIN_LENGTH:
+            return UserProfile.objects.none()
 
-        if self.q:
-            qs = qs.filter(nickname__istartswith=self.q)
-
-        return qs
+        # Match anywhere in the nickname, but list prefix matches first
+        return UserProfile.objects.filter(nickname__icontains=self.q).annotate(
+            prefix_match=Case(
+                When(nickname__istartswith=self.q, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        ).order_by('prefix_match', Lower('nickname'))
 
 
 class MemberAutocomplete(autocomplete.Select2QuerySetView):
