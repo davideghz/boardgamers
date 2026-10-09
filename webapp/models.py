@@ -1384,6 +1384,8 @@ class EventDate(DateTimeModel):
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='dates', verbose_name=_('Event'))
     date = models.DateField(verbose_name=_('Date'))
+    opening_time = models.TimeField(null=True, blank=True, verbose_name=_('Opening time'))
+    closing_time = models.TimeField(null=True, blank=True, verbose_name=_('Closing time'))
 
     def __str__(self):
         return f"{self.event.name} — {self.date}"

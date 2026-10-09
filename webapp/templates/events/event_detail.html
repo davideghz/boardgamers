@@ -392,11 +392,18 @@
               </h3>
               <div class="space-y-1">
                 {% for event_date in event_dates %}
-                  <p class="text-sm text-content-soft flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0
+                  <div class="text-sm text-content-soft flex items-start gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[0.45rem]
                                  {% if event_date.date >= today %}bg-green-400{% else %}bg-surface-input{% endif %}"></span>
-                    {{ event_date.date|date:"l, j F Y" }}
-                  </p>
+                    <div>
+                      <p>{{ event_date.date|date:"l, j F Y" }}</p>
+                      {% if event_date.opening_time or event_date.closing_time %}
+                        <p class="text-xs text-content-muted">
+                          {% if event_date.opening_time %}{{ event_date.opening_time|time:"H:i" }}{% else %}…{% endif %}–{% if event_date.closing_time %}{{ event_date.closing_time|time:"H:i" }}{% else %}…{% endif %}
+                        </p>
+                      {% endif %}
+                    </div>
+                  </div>
                 {% endfor %}
               </div>
             </div>

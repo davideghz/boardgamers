@@ -135,6 +135,7 @@ urlpatterns = [
     path("events/<slug:slug>/manage/participants/", event_views.EventManageParticipantsView.as_view(), name="event-manage-participants"),
     path("events/<slug:slug>/manage/data/", event_views.EventManageDataView.as_view(), name="event-manage-data"),
     path("events/<slug:slug>/manage/dates/", event_views.EventManageDatesView.as_view(), name="event-manage-dates"),
+    path("events/<slug:slug>/manage/dates/<int:pk>/update/", event_views.EventManageDateUpdateView.as_view(), name="event-manage-date-update"),
     path("events/<slug:slug>/manage/dates/<int:pk>/delete/", event_views.EventManageDateDeleteView.as_view(), name="event-manage-date-delete"),
     path("events/<slug:slug>/manage/areas/", event_views.EventManageAreasView.as_view(), name="event-manage-areas"),
     path("events/<slug:slug>/manage/areas/reorder/", event_views.EventManageAreasReorderView.as_view(), name="event-manage-areas-reorder"),

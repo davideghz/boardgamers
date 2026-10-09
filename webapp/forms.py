@@ -1,10 +1,12 @@
+import datetime
+
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory
+    inlineformset_factory, DateField, TimeField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -518,15 +520,18 @@ class EventForm(ModelForm, TailwindForm):
 
 
 class EventDateForm(TailwindForm):
-    date = DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'})
+    date = DateField(widget=DateInput(), input_formats=['%Y-%m-%d'])
+    opening_time = TimeField(widget=TimeInput(), required=False, initial=datetime.time(10, 0),
+                             label=_('Opening time'))
+    closing_time = TimeField(widget=TimeInput(), required=False, initial=datetime.time(21, 0),
+                             label=_('Closing time'))
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        from django.forms import DateField
-        self.fields['date'] = DateField(
-            widget=DateInput(attrs={'type': 'date', 'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary'}),
-            input_formats=['%Y-%m-%d'],
-        )
+
+class EventDateTimesForm(ModelForm, TailwindForm):
+    class Meta:
+        model = EventDate
+        fields = ['opening_time', 'closing_time']
+        widgets = {'opening_time': TimeInput(), 'closing_time': TimeInput()}
 
 
 class PlayAreaForm(ModelForm, TailwindForm):

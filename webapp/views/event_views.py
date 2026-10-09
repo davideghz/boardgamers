@@ -18,7 +18,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp.forms import (
-    EventTableForm, EventForm, EventDateForm, PlayAreaForm, PhysicalTableForm,
+    EventTableForm, EventForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
     EventTableCategoryForm,
 )
@@ -630,8 +630,13 @@ class EventManageDatesView(EventManagerMixin, View):
         event = self._event()
         form = EventDateForm(request.POST)
         if form.is_valid():
-            date = form.cleaned_data['date']
-            EventDate.objects.get_or_create(event=event, date=date)
+            EventDate.objects.update_or_create(
+                event=event, date=form.cleaned_data['date'],
+                defaults={
+                    'opening_time': form.cleaned_data['opening_time'],
+                    'closing_time': form.cleaned_data['closing_time'],
+                },
+            )
             messages.success(request, _("Date added."))
             return redirect('event-manage-dates', slug=slug)
         return render(request, self.template_name, {
@@ -639,6 +644,19 @@ class EventManageDatesView(EventManagerMixin, View):
             'dates': event.dates.all(),
             'form': form,
         })
+
+
+class EventManageDateUpdateView(EventManagerMixin, View):
+    def post(self, request, slug, pk):
+        event = self._get_event()
+        event_date = get_object_or_404(EventDate, pk=pk, event=event)
+        form = EventDateTimesForm(request.POST, instance=event_date)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Opening hours updated."))
+        else:
+            messages.error(request, _("Invalid time."))
+        return redirect('event-manage-dates', slug=slug)
 
 
 class EventManageDateDeleteView(EventManagerMixin, View):
