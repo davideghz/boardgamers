@@ -10,7 +10,7 @@
 
   {# ── PANNELLO PROTOTIPO ─────────────────────────────────────────── #}
   <section class="mb-8 p-4 rounded-2xl border-2 border-dashed border-divider bg-surface-alt">
-    <h2 class="text-xs font-bold uppercase tracking-wide text-content-muted mb-3">Pagina di prova · nulla viene salvato</h2>
+    <h2 class="text-xs font-bold uppercase tracking-wide text-content-muted mb-3">Pagina di prova. Nulla viene salvato.</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
       <label class="flex flex-col gap-1">
         <span class="text-content-muted text-xs">Sto guardando come</span>
@@ -247,7 +247,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <label class="flex items-center gap-1.5 text-xs text-content-muted">
           <input type="checkbox" data-action="low-wins" ${S.lowScoreWins ? 'checked' : ''}> vince il punteggio più basso</label>
       </div>
-      <p class="text-xs text-content-muted mb-2">Trascina dalla maniglia a puntini per ordinare · tocca = per il pari merito con chi sta sopra · punti facoltativi.</p>`;
+      <p class="text-xs text-content-muted mb-2">Trascina dalla maniglia a puntini per ordinare. Tocca = per il pari merito con chi sta sopra. Punti facoltativi.</p>`;
     const rows = S.order.map((id, i) => {
       const p = player(id);
       return `<div class="flex items-center gap-2 sm:gap-3 p-2.5 rounded-xl bg-surface-alt" data-id="${id}">
@@ -299,7 +299,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <div class="space-y-2 mb-5">${assign}</div>
       <h3 class="text-xs font-bold uppercase tracking-wide text-content-muted mb-2">2 · Ordine d'arrivo</h3>
       ${S.teamOrder.length
-        ? `<p class="text-xs text-content-muted mb-2">Trascina le squadre dalla maniglia a puntini · tocca = per il pari merito con chi sta sopra · punti facoltativi.</p>
+        ? `<p class="text-xs text-content-muted mb-2">Trascina le squadre dalla maniglia a puntini. Tocca = per il pari merito con chi sta sopra. Punti facoltativi.</p>
            <div id="teamList" class="space-y-2">${blocks}</div>`
         : '<p class="text-sm text-content-muted italic">Assegna i giocatori a una squadra.</p>'}
       ${unassigned && S.teamOrder.length ? `<p class="text-xs text-orange-500 mt-2">${unassigned} giocator${unassigned === 1 ? 'e' : 'i'} senza squadra.</p>` : ''}`;
@@ -420,7 +420,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }));
 
     $('devPerms').textContent =
-      `Può aggiornare la classifica: ${canEdit() ? 'sì' : 'no'} · Può cambiare modalità: ${canChangeMode() ? 'sì' : 'no'}`;
+      `Può aggiornare la classifica: ${canEdit() ? 'sì' : 'no'}. Può cambiare modalità: ${canChangeMode() ? 'sì' : 'no'}.`;
     $('fakeGameName').textContent = GAMES[$('devGameDefault').value];
   }
 
