@@ -334,7 +334,7 @@ fase 1 ✅ (migrazione 0072 in produzione, confronto OK), fase 2 ✅ (`leaderboa
 produzione con numeri identici alla prova; confronto OK).
 Fase 3 ✅ in produzione (backfill rilanciato dopo il deploy, confronto OK).
 Fase 4a ✅ in produzione (nuovo editor + endpoint; confronto OK dopo il deploy).
-Fase 4b ✅ rilasciata (coop/squadre aperti, `/dummy-table/` rimossa).
+Fase 4b ✅ in produzione (coop/squadre aperti, `/dummy-table/` rimossa; confronto OK dopo il deploy).
 Fase 5 ⏳ TODO · Fase 6 ⏳ TODO.
 
 (Risolto) Tra la fase 2 e la 3 il vecchio endpoint scriveva solo `position`: il backfill è stato
