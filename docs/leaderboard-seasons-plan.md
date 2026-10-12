@@ -260,7 +260,7 @@ insieme e chiama `recompute_outcomes()` una sola volta in transazione.
 
 ### Prototipo
 
-Pagina **`/dummy-table/`** (include anche "Senza classifica" tra le modalità di default del gioco) (pubblica anche in produzione per farla provare agli utenti, `X-Robots-Tag: noindex`;
+(RIMOSSA in fase 4b) Pagina **`/dummy-table/`** (include anche "Senza classifica" tra le modalità di default del gioco) (pubblica anche in produzione per farla provare agli utenti, `X-Robots-Tag: noindex`;
 `static_page_views.dummy_table`,
 template `staticpages/dummy_table.html`): stato tutto lato client, pannello per simulare
 ruolo / modalità di default del gioco / numero giocatori / ospite, e anteprima del payload.
@@ -389,10 +389,20 @@ Visibilità **invariata** rispetto alla fase 3 (coop/squadre non ancora aperti a
   409 del vecchio endpoint); editor provato nel browser (server locale su copia, sessione di test,
   tavolo ripristinato dopo); confronto fotografia OK.
 
-### Fase 4b · Apertura coop e squadre + pulizia prototipo
-- Visibilità definitiva: classifica se il tavolo ha risultati oppure modalità effettiva ≠ `none`
-  (coop e squadre compresi); `leaderboard_enabled` non più letto.
-- Rimozione di `/dummy-table/`.
+### Fase 4b · Apertura coop e squadre + pulizia prototipo (implementata)
+- `leaderboard_available` = gioco presente e modalità effettiva ≠ `none` (governa le notifiche);
+  `leaderboard_enabled` non è più letto da nessuna parte (si elimina nella fase 6).
+- Ogni tavolo con un gioco ha la sezione classifica; i tavoli `none` (salvati così o con gioco che
+  suggerisce `none`) mostrano "Questa partita non prevede una classifica" e, a chi può cambiare
+  modalità, "Attiva la classifica". `can_edit_leaderboard` non dipende più dalla modalità: per i
+  tavoli `none` i giocatori non possono attivarla (il server rifiuta il cambio di modalità).
+- Rimossa la pagina `/dummy-table/` (resta il precompilato del form contatti, usato dall'editor).
+- Verifiche sulla copia di produzione (rendering 4a vs 4b su 433 combinazioni): **0 tavoli con
+  risultati cambiati**; cambiano solo i tavoli vuoti di giochi coop/squadre prima non abilitati
+  (ora "Classifica non ancora creata") e di giochi `none` (ora "Questa partita non prevede una
+  classifica"); tavoli senza gioco invariati. Tavolo di gioco di ruolo: il giocatore non vede
+  "Attiva" e il server gli rifiuta il cambio (403), l'autore sì. Notifiche: sì per ffa/coop/teams,
+  no per `none` e senza gioco. Confronto fotografia OK.
 
 ### Fase 5 · Season (rilascio separato)
 Gestione manager, "Stagione Zero" automatica, classifiche Location con selettore, notifiche.

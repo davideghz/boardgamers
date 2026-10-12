@@ -27,7 +27,7 @@ from webapp.models import Table, Comment, Player, UserProfile, Game, Location, C
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
     TableActionError, add_guest, can_edit_leaderboard, can_manage_roster, join_table,
-    can_change_result_mode, leaderboard_available, leave_table, remove_guest, save_table_result,
+    can_change_result_mode, leave_table, remove_guest, save_table_result,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -223,6 +223,8 @@ def _leaderboard_context(table, players, profile, can_edit):
         }
     return {
         'compiled': compiled,
+        # Saved as "no leaderboard", or not filled in and the game suggests none.
+        'no_leaderboard': mode == ResultMode.NONE or (not compiled and table.effective_result_mode == ResultMode.NONE),
         'mode': mode,
         'mode_label': ResultMode(mode).label if mode else '',
         'game_outcome': table.game_outcome,
@@ -270,8 +272,8 @@ class BaseTableDetailView(generic.DetailView):
         user_can_edit_leaderboard = can_edit_leaderboard(profile, table)
         leaderboard = _leaderboard_context(table, list(players), profile, user_can_edit_leaderboard)
         leaderboard_visible = leaderboard['compiled']
-        # Existing results are always shown, whatever the game's mode.
-        leaderboard_enabled = leaderboard_visible or leaderboard_available(table)
+        # Every table with a game has a leaderboard section ("none" ones say so); results always show.
+        leaderboard_enabled = leaderboard_visible or bool(table.game_id)
 
         user_available_guests = None
         if (self.request.user.is_authenticated and

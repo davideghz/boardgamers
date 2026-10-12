@@ -314,9 +314,3 @@ def test_widget(request, template_name="staticpages/test_widget.html"):
 def test_telegram_login(request, template_name="staticpages/test_telegram_login.html"):
     return render(request, template_name, {})
 
-
-def dummy_table(request, template_name="staticpages/dummy_table.html"):
-    """Client-side prototype of the leaderboard compilation UI, public for user testing."""
-    response = render(request, template_name, {})
-    response['X-Robots-Tag'] = 'noindex, nofollow'
-    return response

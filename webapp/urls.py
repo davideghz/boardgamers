@@ -218,7 +218,6 @@ urlpatterns = [
     path('test/debug', static_page_views.debug, name='debug'),
     path('test/widget', static_page_views.test_widget, name='test_widget'),
     path('test/telegram-login', static_page_views.test_telegram_login, name='test_telegram_login'),
-    path('dummy-table/', static_page_views.dummy_table, name='dummy_table'),
     path('telegram/app/', telegram_app_views.miniapp, name='telegram-miniapp'),
 
 ]

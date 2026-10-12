@@ -73,15 +73,13 @@ def can_manage_roster(profile, table):
 
 
 def leaderboard_available(table):
-    """Whether a table's game offers a leaderboard (rollout phase 3).
+    """Whether a table has a leaderboard to fill in: a game and an effective mode other than "none".
 
-    The legacy per-game switch, or a free-for-all mode: the only one the current
-    leaderboard UI can record. Teams/coop arrive with the new UI (phase 4).
-    Tables that already have results always show them (see the table detail view).
+    Drives the leaderboard notifications. A "none" table still shows its section
+    (with "enable the leaderboard" for whoever may change the mode), and tables
+    that already have results always show them (see the table detail view).
     """
-    if not table.game_id:
-        return False
-    return table.game.leaderboard_enabled or table.effective_result_mode == ResultMode.FFA
+    return bool(table.game_id) and table.effective_result_mode != ResultMode.NONE
 
 
 def sync_legacy_result(table):
@@ -220,17 +218,19 @@ def save_table_result(profile, table, data):
 
 
 def can_edit_leaderboard(profile, table):
-    """Who may reorder a table's leaderboard.
+    """Who may fill in a table's leaderboard.
 
-    Superusers always. Everyone else only while the game has a leaderboard and
-    the table's leaderboard is editable: the players at the table, plus whoever
-    can manage its roster (author, location or event staff).
+    Superusers always. Everyone else only for tables with a game, while the
+    leaderboard is editable: the players at the table, plus whoever can manage
+    its roster (author, location or event staff). On a "none" table only the
+    latter can actually enable it: save_table_result() refuses mode changes
+    from the others.
     """
     if profile is None:
         return False
     if profile.user.is_superuser:
         return True
-    if not leaderboard_available(table):
+    if not table.game_id:
         return False
     if table.leaderboard_status != Table.LEADERBOARD_EDITABLE:
         return False
