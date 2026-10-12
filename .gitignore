@@ -32,3 +32,4 @@ Thumbs.db
 # Production data exports (leaderboard modes migration)
 games_prod.csv
 leaderboard_modes_prod.csv
+snapshot_*.json
