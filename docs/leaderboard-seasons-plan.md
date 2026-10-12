@@ -10,7 +10,8 @@ gioco, e introduzione delle **season** per Location.
 - `Player.position` (default `99` = "non compilata") + `Player.score`. Supporta solo
   il tutti contro tutti.
 - Unico punto di scrittura: `update_player_position` in `webapp/api/views.py`.
-- Gate: `Game.leaderboard_enabled`; finestra di modifica governata da
+- Gate: `Game.leaderboard_enabled` (default off, acceso a mano dall'admin; **da eliminare**, vedi §1
+  "Senza classifica"); finestra di modifica governata da
   `Table.leaderboard_status` (derivato dal lifecycle phase, vedi `docs/table-lifecycle.md`).
 - Statistiche Location (`location_views.py`, pagina location): giochi più giocati,
   top winners per gioco, classifica giocatori a **medaglie** (1°/2°/3° + partite) su
@@ -28,17 +29,18 @@ senza modellare l'asimmetria.
 ### Modalità di risultato
 
 ```
-Game.default_result_mode   suggerimento
+Game.default_result_mode   suggerimento (default: none)
 Table.result_mode          valore effettivo, precompilato dal gioco, modificabile
 ```
 
-Valori (tre modalità):
+Valori (tre modalità + "senza classifica"):
 
 | Modalità            | Struttura                      | Cosa si inserisce                           |
 |---------------------|--------------------------------|---------------------------------------------|
 | `ffa` (tutti c. tutti) | ogni giocatore è un lato    | posizione per giocatore (pari merito ok) **oppure** "ha vinto il gioco" |
 | `teams`             | gruppi di giocatori            | squadra + posizione della squadra           |
 | `coop`              | un solo gruppo vs il gioco     | vinto/perso (+ punteggio facoltativo)       |
+| `none` (senza classifica) | nessuna                  | niente (es. giochi di ruolo, partite di prova) |
 
 **Niente modalità semi-cooperativa** (decisione 2026-10-12). I semi-coop (Archipelago,
 Legendary, Cutthroat Caverns, Dead of Winter) si compilano come `ffa`: se il gioco è
@@ -46,10 +48,52 @@ stato battuto è una classifica normale; se ha vinto il gioco si attiva l'interr
 **"Ha vinto il gioco: avete perso tutti"** e le posizioni non vengono chieste. Il gioco
 può suggerire l'interruttore (es. renderlo visibile in evidenza), ma la modalità è `ffa`.
 
+### Senza classifica (`none`) — sostituisce `Game.leaderboard_enabled` (deciso 2026-10-12)
+
+`leaderboard_enabled` serviva **solo** a escludere i giochi senza classifica: viene eliminato e
+assorbito dal valore `none` della modalità.
+
+- **Default di `Game.default_result_mode` = `none`**: si usa in caso di dubbio.
+- Gioco con suggerimento `none` (es. gioco di ruolo): il tavolo nasce senza classifica, la sezione
+  mostra "Questa partita non prevede una classifica". Autore/manager/superadmin possono
+  **"Attiva la classifica"** (parte da `ffa`, con l'avviso ambra della modalità non suggerita).
+- Gioco con classifica: un singolo tavolo può scegliere `none` (es. partita di prova/spiegazione)
+  con il link **"Questa partita non prevede una classifica"** sotto il selettore (non è un quarto
+  pulsante). La scelta si applica subito, senza dati da inserire.
+- Cambiare modalità resta un permesso di autore/manager/superadmin: un giocatore non può attivare
+  né disattivare la classifica.
+- Statistiche: i tavoli `none` contano in "tavoli giocati" e "giochi più giocati", **non** nelle
+  classifiche di season.
+
+### Suggerimento automatico da BGG (nuovi import)
+
+All'import da BGG (`services/bgg.py`) si propone `default_result_mode` dai dati BGG:
+
+| Dato BGG                                         | Suggerimento |
+|--------------------------------------------------|--------------|
+| tipo `rpgitem` (gioco di ruolo)                  | `none`       |
+| meccanica "Cooperative Game"                     | `coop`       |
+| meccanica "Team-Based Game"                      | `teams`      |
+| meccanica "Semi-Cooperative Game"                | `ffa`        |
+| tipo `boardgame` senza le meccaniche sopra        | `ffa`        |
+| dati mancanti / fetch fallito                    | `none`       |
+
+Note:
+- Le meccaniche si riconoscono **per nome** (link `boardgamemechanic` della risposta `/thing`);
+  verificare nomi/id reali contro l'API in fase di sviluppo.
+- Priorità in caso di più meccaniche: Semi-Cooperative → `ffa` prima di Cooperative (molti semi-coop
+  hanno anche il tag Cooperative); poi Cooperative → `coop`; poi Team-Based → `teams`.
+- **Coerenza con "none in caso di dubbio"**: BGG non ha un tag "competitivo", quindi `ffa` si deduce
+  sempre per esclusione. Applicare alla lettera "nel dubbio none" renderebbe `none` quasi tutti i
+  giochi da tavolo, cioè la situazione di oggi. Per questo un `boardgame` BGG senza tag coop/squadre
+  diventa `ffa`, e `none` resta per i giochi di ruolo, i dati mancanti e i giochi creati a mano.
+- È solo un suggerimento: correggibile dall'admin e sul singolo tavolo.
+
 ### Campi
 
 ```
-Table.result_mode      ffa / teams / coop
+Game.default_result_mode   ffa / teams / coop / none   (default none)
+Table.result_mode      ffa / teams / coop / none
 Table.game_outcome     esito dei giocatori CONTRO IL GIOCO: won / lost / null
                        coop → obbligatorio (won/lost)
                        ffa  → null di norma; lost = "ha vinto il gioco, avete perso tutti"
@@ -115,8 +159,8 @@ Table.season   FK Season, null
 
 - Conta la **data del tavolo** (`table.date`), non la data di compilazione della classifica.
 - Il FK `Table.season` è salvato (query + stabilità), valorizzato dalla data.
-- Tavoli che contano: `event IS NULL` (no tavoli di eventi), esclusi i tornei.
-  `game.leaderboard_enabled` resta il gate per la classifica.
+- Tavoli che contano: `event IS NULL` (no tavoli di eventi), esclusi i tornei, e
+  `result_mode != none`.
 - **Buchi permessi**: si può chiudere una season senza aprirne un'altra (es. pausa
   estiva). I tavoli nel buco hanno `season = null` e contano solo nello storico.
 - **Date modificabili**: modificare start/end di una season riassegna i FK dei tavoli
@@ -212,7 +256,7 @@ insieme e chiama `recompute_outcomes()` una sola volta in transazione.
 
 ### Prototipo
 
-Pagina **`/dummy-table/`** (pubblica anche in produzione per farla provare agli utenti, `X-Robots-Tag: noindex`;
+Pagina **`/dummy-table/`** (include anche "Senza classifica" tra le modalità di default del gioco) (pubblica anche in produzione per farla provare agli utenti, `X-Robots-Tag: noindex`;
 `static_page_views.dummy_table`,
 template `staticpages/dummy_table.html`): stato tutto lato client, pannello per simulare
 ruolo / modalità di default del gioco / numero giocatori / ospite, e anteprima del payload.
@@ -231,5 +275,11 @@ conserva punteggi e ordine dei giocatori.
 
 ## Punti ancora da decidere
 
+- Migrazione `leaderboard_enabled` → `default_result_mode` (definita nel principio, dettagli in sviluppo):
+  NON si può mappare "spento" → `none` (nel DB locale Catan, Scythe, Root, Risiko… sono spenti: il flag
+  partiva off e quasi nessuno lo accendeva). Regola: acceso → `ffa`; spento con `bgg_code` → comando
+  una tantum (management command, fuori dalla migrazione: BGG può essere lento/fallire) che applica
+  la tabella "Suggerimento automatico da BGG"; spento senza `bgg_code` → `none`. I tavoli esistenti
+  prendono `result_mode` dal gioco.
 - Migrazione dati (da definire in fase di sviluppo): `position=99` → null (aggiornare anche `leaderboard_visible` in
   `table_views.py` che oggi testa `!= 99`), backfill di `outcome` sui tavoli esistenti (tutti `ffa`).
