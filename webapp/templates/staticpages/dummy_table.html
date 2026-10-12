@@ -72,6 +72,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const MODES = { ffa: 'Tutti contro tutti', teams: 'Squadre', coop: 'Cooperativo' };
   const MODE_LABELS = { ...MODES, none: 'Senza classifica' };
   const GAMES = { ffa: 'Azul', teams: 'Codenames', coop: 'Pandemic', none: 'Dungeons & Dragons' };
+  // Slug reali (prod) dei giochi di esempio, per il link di segnalazione modalità
+  const GAME_SLUGS = { ffa: 'azul', teams: 'codenames', coop: 'pandemic', none: 'dungeons-dragons-gdr' };
+  const CONTACTS_URL = '{% url "contacts" %}';
   const NAMES = ['Anna', 'Marco', 'Luca', 'Giulia', 'Sara', 'Paolo', 'Elena', 'Davide'];
   const TEAM_LETTERS = 'ABCDEFGH'.split('');
 
@@ -395,6 +398,14 @@ window.addEventListener('DOMContentLoaded', () => {
         ${t.score !== null ? `<span class="text-sm font-semibold text-content-soft">${t.score} pt</span>` : ''}</div>`).join('')}</div>`;
   }
 
+  function reportCard() {
+    const href = `${CONTACTS_URL}?topic=result-mode&game=${encodeURIComponent(GAME_SLUGS[$('devGameDefault').value])}`;
+    return `<div class="mt-4 p-3 rounded-xl bg-surface-alt text-xs text-content-muted">
+        Vuoi segnalarci un errore o una modalità suggerita migliore per questo gioco?
+        <a href="${href}" target="_blank" class="font-semibold text-primary hover:underline">Contattaci</a>.
+      </div>`;
+  }
+
   // ── Render ───────────────────────────────────────────────────────
   function render() {
     sortables.forEach(s => s.destroy());
@@ -414,7 +425,8 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="flex gap-2 mt-4">
           <button type="button" data-action="cancel" class="flex-1 border border-divider text-content-soft text-sm font-bold py-2.5 rounded-full hover:bg-surface-input">Annulla</button>
           <button type="button" data-action="save" class="flex-[2] bg-primary text-white text-sm font-bold py-2.5 rounded-full hover:opacity-90">Salva classifica</button>
-        </div>`;
+        </div>
+        ${reportCard()}`;
     } else {
       body = readView();
     }

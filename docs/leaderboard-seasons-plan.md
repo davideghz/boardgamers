@@ -88,6 +88,9 @@ Note:
   giochi da tavolo, cioè la situazione di oggi. Per questo un `boardgame` BGG senza tag coop/squadre
   diventa `ffa`, e `none` resta per i giochi di ruolo, i dati mancanti e i giochi creati a mano.
 - È solo un suggerimento: correggibile dall'admin e sul singolo tavolo.
+- Sotto l'editor della classifica, card "Vuoi segnalarci un errore o una modalità suggerita migliore
+  per questo gioco? Contattaci": link a `contacts?topic=result-mode&game=<slug>`, che precompila il
+  messaggio (IT/EN) con il nome del gioco. Il testo è costruito lato server, mai preso dall'URL.
 
 ### Campi
 

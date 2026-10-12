@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import get_language_info, gettext_lazy as _
+from django.utils.translation import get_language_info, gettext, gettext_lazy as _
 
 from geoip2.errors import AddressNotFoundError
 from meta.views import Meta
@@ -173,6 +173,14 @@ def contacts(request):
         else:
             messages.error(request, MSG_CONTACT_MESSAGE_ERROR, extra_tags='danger')
     else:
+        # "?topic=result-mode&game=<slug>": report a wrong suggested leaderboard
+        # mode for a game. The message is built here, never taken from the URL.
+        if request.GET.get('topic') == 'result-mode':
+            game = Game.objects.filter(slug=request.GET.get('game', '')).first()
+            if game:
+                initial_data['message'] = gettext(
+                    'Hi! The suggested mode for the game "%(game)s" should be: '
+                ) % {'game': game.name}
         form = ContactForm(initial=initial_data)
 
     return render(request, 'staticpages/contacts.html', {
