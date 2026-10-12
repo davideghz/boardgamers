@@ -332,6 +332,7 @@ transazione annullata.
 fase 1 ✅ (migrazione 0072 in produzione, confronto OK), fase 2 ✅ (`leaderboard_backfill` eseguito in
 produzione con numeri identici alla prova; confronto OK).
 Fase 3 ✅ in produzione (backfill rilanciato dopo il deploy, confronto OK).
+Fase 4a ✅ in produzione (nuovo editor + endpoint; confronto OK dopo il deploy).
 
 **Attenzione fino al rilascio della fase 4**: il vecchio endpoint `update-player-position` scrive solo
 `position`, quindi le classifiche compilate da ora in poi non avranno `result_mode`/`outcome`, e i
