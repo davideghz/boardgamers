@@ -215,12 +215,24 @@ window.addEventListener('DOMContentLoaded', () => {
                  ${active ? 'bg-primary text-white' : 'text-content-soft hover:bg-surface'}
                  ${locked && !active ? 'opacity-40 cursor-not-allowed' : ''}">${label}</button>`;
     }).join('');
+    const suggested = $('devGameDefault').value;
     const hint = locked
       ? 'Solo autore del tavolo, manager e admin possono cambiare modalità.'
-      : (S.mode === $('devGameDefault').value ? 'Modalità suggerita.' : `Modalità suggerita: ${MODES[$('devGameDefault').value]}.`);
+      : (S.mode === suggested ? 'Modalità suggerita.' : '');
+    // Modalità diversa da quella suggerita dal gioco: avviso ben visibile
+    const alert = S.mode === suggested ? '' : `
+      <div class="flex items-start gap-3 mt-3 p-3 rounded-xl border border-amber-200 bg-amber-50">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 text-amber-600"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+        <div class="flex-1 text-sm text-amber-800">
+          <p>La modalità suggerita per questo gioco è <strong>${MODES[suggested]}</strong>. Controlla che quella scelta sia corretta.</p>
+          ${locked ? '' : `<button type="button" data-action="mode" data-mode="${suggested}"
+              class="mt-2 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-200 hover:bg-amber-100">Usa ${MODES[suggested]}</button>`}
+        </div>
+      </div>`;
     return `<div class="mb-4">
         <div class="flex gap-1 p-1 rounded-full bg-surface-input">${btns}</div>
-        <p class="text-[11px] text-content-muted mt-1.5 px-2">${hint}</p>
+        ${hint ? `<p class="text-[11px] text-content-muted mt-1.5 px-2">${hint}</p>` : ''}
+        ${alert}
       </div>`;
   }
 

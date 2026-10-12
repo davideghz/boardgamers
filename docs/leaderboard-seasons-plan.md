@@ -177,6 +177,8 @@ Approccio **A + D**: drag & drop esteso, nella stessa sezione della pagina tavol
 
 - **Selettore modalità** in cima (Classico / Squadre / Cooperativo — "Classico" = ffa, più corto di "Tutti contro tutti" su mobile), precompilato dal gioco.
   Cambiarlo dopo il salvataggio azzera la classifica, previa conferma.
+  La modalità resta **libera** (nessun vincolo per gioco): se si sceglie una modalità diversa da
+  quella suggerita compare un **avviso ambra** ben visibile con il pulsante "Usa <suggerita>".
 - **Tutti contro tutti**: lista trascinabile (SortableJS come oggi) + pulsante **"="** su ogni riga
   (pari merito con chi sta sopra, ranking 1-1-3) + **punteggio facoltativo** per riga con
   **"Ordina per punteggio"** (crea i pari merito in automatico; opzione "vince il più basso") +
