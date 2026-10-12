@@ -208,7 +208,8 @@ insieme e chiama `recompute_outcomes()` una sola volta in transazione.
 
 ### Prototipo
 
-Pagina **`/dummy-table/`** (solo `DEBUG=True`, `static_page_views.dummy_table`,
+Pagina **`/dummy-table/`** (pubblica anche in produzione per farla provare agli utenti, `X-Robots-Tag: noindex`;
+`static_page_views.dummy_table`,
 template `staticpages/dummy_table.html`): stato tutto lato client, pannello per simulare
 ruolo / modalità di default del gioco / numero giocatori / ospite, e anteprima del payload.
 Da rimuovere quando la UI viene portata nella pagina tavolo reale.

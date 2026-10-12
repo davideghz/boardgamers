@@ -7,7 +7,6 @@ from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
 from django.db.models import Prefetch, Count
-from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
@@ -309,7 +308,7 @@ def test_telegram_login(request, template_name="staticpages/test_telegram_login.
 
 
 def dummy_table(request, template_name="staticpages/dummy_table.html"):
-    """Client-side prototype of the leaderboard compilation UI (DEBUG only)."""
-    if not settings.DEBUG:
-        raise Http404
-    return render(request, template_name, {})
+    """Client-side prototype of the leaderboard compilation UI, public for user testing."""
+    response = render(request, template_name, {})
+    response['X-Robots-Tag'] = 'noindex, nofollow'
+    return response
