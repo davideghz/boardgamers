@@ -1,9 +1,10 @@
-# Classifica tavoli + Season — piano di design (bozza, 2026-10-12)
+# Classifica tavoli + Season — piano e stato (2026-10-12)
 
 Ripensamento del sistema di classifica del tavolo per supportare più modalità di
 gioco, e introduzione delle **season** per Location.
 
-> Stato: **design in bozza, non implementato.** Nessuna riga di codice scritta.
+> Stato: **nuovo sistema di classifica IN PRODUZIONE** (fasi 0–4b, 2026-10-12).
+> **TODO**: fase 5 (season) e fase 6 (pulizia). Vedi §5 "Rilascio in produzione".
 
 ## Situazione attuale
 
@@ -219,7 +220,7 @@ chiusa **senza** aprirne un'altra (inizio di un buco, es. pausa estiva).
 
 La creazione automatica della "Stagione Zero" **non** notifica.
 
-## 4. UI di compilazione (decisa 2026-10-12, prototipo in corso)
+## 4. UI di compilazione (in produzione dalla fase 4a)
 
 Approccio **A + D**: drag & drop esteso, nella stessa sezione della pagina tavolo.
 
@@ -333,11 +334,12 @@ fase 1 ✅ (migrazione 0072 in produzione, confronto OK), fase 2 ✅ (`leaderboa
 produzione con numeri identici alla prova; confronto OK).
 Fase 3 ✅ in produzione (backfill rilanciato dopo il deploy, confronto OK).
 Fase 4a ✅ in produzione (nuovo editor + endpoint; confronto OK dopo il deploy).
+Fase 4b ✅ rilasciata (coop/squadre aperti, `/dummy-table/` rimossa).
+Fase 5 ⏳ TODO · Fase 6 ⏳ TODO.
 
-**Attenzione fino al rilascio della fase 4**: il vecchio endpoint `update-player-position` scrive solo
-`position`, quindi le classifiche compilate da ora in poi non avranno `result_mode`/`outcome`, e i
-giochi creati da ora restano `none`. Prima di attivare le letture della fase 3 va **rilanciato
-`leaderboard_backfill`** (idempotente) per riallineare.
+(Risolto) Tra la fase 2 e la 3 il vecchio endpoint scriveva solo `position`: il backfill è stato
+rilanciato dopo il deploy della fase 3, e da allora vecchio endpoint e admin restano allineati da soli
+(`sync_legacy_result`).
 
 ### Fase 3 · Lettura dai nuovi campi, con fallback (implementata)
 - "Non compilato" = 99 **oppure** null (`Table.is_position_set`).
@@ -404,13 +406,37 @@ Visibilità **invariata** rispetto alla fase 3 (coop/squadre non ancora aperti a
   "Attiva" e il server gli rifiuta il cambio (403), l'autore sì. Notifiche: sì per ffa/coop/teams,
   no per `none` e senza gioco. Confronto fotografia OK.
 
-### Fase 5 · Season (rilascio separato)
-Gestione manager, "Stagione Zero" automatica, classifiche Location con selettore, notifiche.
+### Fase 5 · Season — ⏳ TODO (rilascio separato)
+Design nel §2 (Season) e §3 (Statistiche). Già fatto: modello `Season` e `Table.season` (migrazione 0072).
 Le Location senza season non cambiano.
+- [ ] Servizio di assegnazione tavolo → season **per data del tavolo** (opzione A): solo tavoli della
+      Location, `event IS NULL`, esclusi i tornei; riassegnazione quando cambiano le date di una season
+      o la data di un tavolo.
+- [ ] Prima season di una Location: creazione automatica di **"Stagione Zero"** (dal primo tavolo a
+      `start_date − 1`), con assegnazione dei tavoli passati.
+- [ ] Vincoli: una sola season attiva per Location (già nel DB), intervalli non sovrapposti, buchi
+      permessi; aprire una season chiude la precedente.
+- [ ] UI manager (`/locations/<slug>/manage/seasons/` + card in `location_manage_index`): crea,
+      chiudi, modifica date (con ricalcolo).
+- [ ] Permessi: risultati delle season chiuse modificabili solo da superadmin e manager della Location
+      (`can_edit_leaderboard`).
+- [ ] Pagina Location: giochi più giocati / gamers / tavoli su tutto lo storico; classifica giocatori
+      (oro → argento → bronzo → più partite giocate) e classifica per gioco sulla **season attiva** +
+      selettore per le precedenti; esclusi i tavoli `none`; ospiti inclusi.
+- [ ] Notifiche ai follower: `SEASON_STARTED` (con link alla classifica finale della precedente se la
+      chiude) / `SEASON_ENDED` solo se si chiude senza aprirne un'altra; "Stagione Zero" silenziosa.
+- [ ] Traduzioni IT/EN, prova generale sulla copia di produzione, backup + confronto fotografia.
 
-### Fase 6 · Pulizia (settimane dopo, a sistema stabile)
-Nuovo backup → `position=99` diventa null, eliminazione di `leaderboard_enabled` e del vecchio
-endpoint. È l'**unica** fase che modifica dati esistenti: per questo va per ultima.
+### Fase 6 · Pulizia — ⏳ TODO (settimane dopo, a sistema stabile)
+È l'**unica** fase che modifica dati esistenti: per questo va per ultima.
+- [ ] Nuovo backup + nuova fotografia (`leaderboard_snapshot`).
+- [ ] `Player.position` nullable, dati `99` → `NULL`, default `NULL`; nel codice: `UNSET_POSITION`,
+      scrittura del 99 in `save_table_result`, template `== 99`, ordinamenti per posizione
+      (il confronto della fotografia normalizza già 99 = null).
+- [ ] Eliminare `Game.leaderboard_enabled` (campo, filtro admin, import BGG): non è più letto dalla 4b.
+- [ ] Eliminare il vecchio endpoint `update-player-position` (prima controllare nei log che non riceva
+      più chiamate da pagine in cache / PWA) e `sync_legacy_result` se non più usato.
+- [ ] Prova generale sulla copia + confronto fotografia dopo il deploy.
 
 ## Fuori scope
 
@@ -421,11 +447,10 @@ endpoint. È l'**unica** fase che modifica dati esistenti: per questo va per ult
 
 ## Punti ancora da decidere
 
-- Migrazione `leaderboard_enabled` → `default_result_mode` (definita nel principio, dettagli in sviluppo):
-  NON si può mappare "spento" → `none` (nel DB locale Catan, Scythe, Root, Risiko… sono spenti: il flag
-  partiva off e quasi nessuno lo accendeva). Regola: acceso → `ffa`; spento con `bgg_code` → comando
-  una tantum (management command, fuori dalla migrazione: BGG può essere lento/fallire) che applica
-  la tabella "Suggerimento automatico da BGG"; spento senza `bgg_code` → `none`. I tavoli esistenti
-  prendono `result_mode` dal gioco.
-- Migrazione dati (da definire in fase di sviluppo): `position=99` → null (aggiornare anche `leaderboard_visible` in
-  `table_views.py` che oggi testa `!= 99`), backfill di `outcome` sui tavoli esistenti (tutti `ffa`).
+Nessuno aperto sul sistema di classifica. Per le season, eventuali dettagli di UI si decidono
+all'inizio della fase 5.
+
+Note storiche risolte:
+- Migrazione `leaderboard_enabled` → `default_result_mode`: fatta in fase 2 (lista rivista
+  `webapp/data/game_result_modes.csv` + `leaderboard_backfill`), senza mappare "spento" → `none`.
+- `position=99` → null: pianificata nella fase 6 (`leaderboard_visible` usa già `Table.is_position_set`).
