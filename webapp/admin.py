@@ -1,4 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db import models
@@ -9,6 +13,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
+from webapp.services import games as game_services
 from webapp.services.tables import sync_legacy_result
 
 
@@ -120,6 +125,81 @@ class GameAdmin(admin.ModelAdmin):
     list_editable = ("bgg_code", "default_result_mode")
     list_filter = (BggCodeFilter, "bgg_imported", "verified", "default_result_mode", "leaderboard_enabled")
     search_fields = ("name",)
+    actions = ["merge_games_action"]
+
+    @admin.action(description=_("Merge the two selected games"))
+    def merge_games_action(self, request, queryset):
+        if queryset.count() != 2:
+            self.message_user(request, _("Select exactly two games to merge."), level=messages.ERROR)
+            return None
+        a, b = queryset.order_by('pk')
+        return redirect(f"{reverse('admin:webapp_game_merge')}?a={a.pk}&b={b.pk}")
+
+    def get_urls(self):
+        return [
+            path('merge/', self.admin_site.admin_view(self.merge_view), name='webapp_game_merge'),
+        ] + super().get_urls()
+
+    def merge_view(self, request):
+        """Confirmation page: pick the game to keep and, field by field, the value that wins."""
+        if not self.has_delete_permission(request) or not self.has_change_permission(request):
+            raise PermissionDenied
+        data = request.POST if request.method == 'POST' else request.GET
+        try:
+            game_a = Game.objects.get(pk=int(data.get('a')))
+            game_b = Game.objects.get(pk=int(data.get('b')))
+        except (TypeError, ValueError, Game.DoesNotExist):
+            self.message_user(request, _("Games not found."), level=messages.ERROR)
+            return redirect('admin:webapp_game_changelist')
+        if game_a.pk == game_b.pk:
+            return redirect('admin:webapp_game_changelist')
+
+        keep = data.get('keep')
+        keeper = {str(game_a.pk): game_a, str(game_b.pk): game_b}.get(keep) or game_services.default_keeper(game_a, game_b)
+        duplicate = game_b if keeper.pk == game_a.pk else game_a
+
+        if request.method == 'POST' and 'confirm' in request.POST:
+            choices = {f: request.POST.get(f'choice_{f}', 'keeper') for f in game_services.MERGEABLE_FIELDS}
+            duplicate_repr = f'{duplicate} (#{duplicate.pk})'
+            result = game_services.merge_games(keeper, duplicate, choices)
+            keeper.refresh_from_db()
+            summary = _("Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library entries "
+                        "moved, %(merged)d library entries merged.") % {
+                'dup': duplicate_repr, 'keeper': keeper, 'tables': result.tables_moved,
+                'moved': result.library_moved, 'merged': result.library_merged}
+            self.log_change(request, keeper, summary)
+            self.message_user(request, summary, level=messages.SUCCESS)
+            return redirect('admin:webapp_game_change', keeper.pk)
+
+        def display(game, field):
+            value = getattr(game, field)
+            if field == 'default_result_mode':
+                return game.get_default_result_mode_display()
+            return value
+
+        rows = [{
+            'field': field,
+            'label': Game._meta.get_field(field).verbose_name,
+            'keeper': display(keeper, field),
+            'duplicate': display(duplicate, field),
+            'choice': game_services.default_choice(field, keeper, duplicate),
+            'is_image': field == 'image',
+        } for field in game_services.differing_fields(keeper, duplicate)]
+
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'title': _("Merge games"),
+            'game_a': game_a, 'game_b': game_b,
+            'keeper': keeper, 'duplicate': duplicate,
+            'rows': rows,
+            'tables_to_move': Table.objects.filter(game=duplicate).count(),
+            'library_to_move': LocationGame.objects.filter(game=duplicate).count(),
+            'library_conflicts': game_services.library_conflicts(keeper, duplicate),
+            'different_bgg': bool(keeper.bgg_code and duplicate.bgg_code and keeper.bgg_code != duplicate.bgg_code),
+            'or_flags': [(f, getattr(keeper, f) or getattr(duplicate, f)) for f in game_services.OR_FLAGS],
+        }
+        return TemplateResponse(request, 'admin/webapp/game/merge.html', context)
 
 
 @admin.register(LocationFollower)

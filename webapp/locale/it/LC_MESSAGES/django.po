@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 16:09+0200\n"
+"POT-Creation-Date: 2026-10-12 17:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Merge the two selected games"
+msgstr "Unisci i due giochi selezionati"
+
+msgid "Select exactly two games to merge."
+msgstr "Seleziona esattamente due giochi da unire."
+
+msgid "Games not found."
+msgstr "Giochi non trovati."
+
+#, python-format
+msgid ""
+"Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library "
+"entries moved, %(merged)d library entries merged."
+msgstr "%(dup)s unito in %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di ludoteca spostate, %(merged)d voci di ludoteca unite."
+
+msgid "Merge games"
+msgstr "Unisci giochi"
 
 msgid "Participants"
 msgstr "Partecipanti"
@@ -1126,6 +1144,68 @@ msgstr "Non ci sono nuovi tavoli."
 msgid "Past tables"
 msgstr "Tavoli passati"
 
+msgid "Home"
+msgstr "Home"
+
+msgid "Game to keep:"
+msgstr "Gioco da tenere:"
+
+#, python-format
+msgid ""
+"The kept game keeps its address (<code>/games/%(keeper_slug)s/</code>). "
+"<strong>#%(dup_pk)s %(dup)s</strong> will be deleted and its address will "
+"stop working."
+msgstr "Il gioco tenuto mantiene il suo indirizzo (<code>/games/%(keeper_slug)s/</code>). <strong>#%(dup_pk)s %(dup)s</strong> verrà eliminato e il suo indirizzo smetterà di funzionare."
+
+#, python-format
+msgid ""
+"<strong>Warning:</strong> the two games have different BGG codes (%(a)s and "
+"%(b)s). They may be different games or editions."
+msgstr "<strong>Attenzione:</strong> i due giochi hanno codici BGG diversi (%(a)s e %(b)s). Potrebbero essere giochi o edizioni diverse."
+
+msgid "What will be moved"
+msgstr "Cosa verrà spostato"
+
+#, python-format
+msgid "%(n)s table (with its players and results)"
+msgid_plural "%(n)s tables (with their players and results)"
+msgstr[0] "%(n)s tavolo (con i suoi giocatori e risultati)"
+msgstr[1] "%(n)s tavoli (con i loro giocatori e risultati)"
+
+#, python-format
+msgid "%(n)s library entry"
+msgid_plural "%(n)s library entries"
+msgstr[0] "%(n)s voce di ludoteca"
+msgstr[1] "%(n)s voci di ludoteca"
+
+msgid ""
+"These locations have both games in their library: the kept game's entry "
+"stays and the duplicate's notes are appended to it."
+msgstr "Queste location hanno entrambi i giochi in ludoteca: resta la voce del gioco tenuto e le note del doppione vengono aggiunte in coda."
+
+#, fuzzy
+#| msgid "Notes"
+msgid "notes"
+msgstr "Note"
+
+msgid "Different fields: choose the value to keep"
+msgstr "Campi diversi: scegli il valore da tenere"
+
+msgid "Field"
+msgstr "Campo"
+
+msgid "Kept game"
+msgstr "Gioco tenuto"
+
+msgid "Duplicate"
+msgstr "Doppione"
+
+msgid "The two games have the same values in every field."
+msgstr "I due giochi hanno gli stessi valori in tutti i campi."
+
+msgid "Flags kept if true on either game:"
+msgstr "Flag mantenuti se veri su almeno uno dei due giochi:"
+
 msgid "Welcome back"
 msgstr "Bentornato/a"
 
@@ -1239,9 +1319,6 @@ msgstr "Hai già un account?"
 
 msgid "Feed"
 msgstr "Feed"
-
-msgid "Home"
-msgstr "Home"
 
 msgid "Explore"
 msgstr "Esplora"
@@ -3066,17 +3143,17 @@ msgstr "Classifica"
 msgid "Not enabled for this game."
 msgstr "Non abilitata per questo gioco."
 
-msgid "Create Leaderboard"
-msgstr "Crea Classifica"
-
-msgid "Leaderboard not created yet."
-msgstr "Classifica non ancora creata."
-
 msgid "This game session has no leaderboard."
 msgstr "Questa partita non prevede una classifica."
 
 msgid "Enable the leaderboard"
 msgstr "Attiva la classifica"
+
+msgid "Create Leaderboard"
+msgstr "Crea Classifica"
+
+msgid "Leaderboard not created yet."
+msgstr "Classifica non ancora creata."
 
 msgid "Cooperative victory"
 msgstr "Vittoria cooperativa"
@@ -3104,7 +3181,9 @@ msgstr "Questa partita non prevede una classifica"
 msgid ""
 "The suggested mode for this game is <strong>{mode}</strong>. Check that the "
 "chosen one is correct."
-msgstr "La modalità suggerita per questo gioco è <strong>{mode}</strong>. Controlla che quella scelta sia corretta."
+msgstr ""
+"La modalità suggerita per questo gioco è <strong>{mode}</strong>. Controlla "
+"che quella scelta sia corretta."
 
 #, python-brace-format
 msgid "Use {mode}"

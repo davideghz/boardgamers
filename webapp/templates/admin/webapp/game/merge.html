@@ -1,0 +1,103 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .merge-table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+  .merge-table th, .merge-table td { padding: 8px; border-bottom: 1px solid var(--hairline-color); vertical-align: top; text-align: left; }
+  .merge-table td.value { width: 42%; }
+  .merge-table .text { max-height: 160px; overflow: auto; white-space: pre-wrap; font-size: 12px; }
+  .merge-table img { max-width: 140px; max-height: 140px; display: block; margin-top: 4px; }
+  .merge-warning { padding: 10px 12px; margin: 12px 0; border-radius: 4px; background: #fff3cd; color: #664d03; border: 1px solid #ffe69c; }
+  .merge-keep a { margin-right: 12px; }
+  .merge-keep strong { margin-right: 12px; }
+</style>
+
+<p class="merge-keep">
+  {% translate "Game to keep:" %}
+  {% if keeper.pk == game_a.pk %}<strong>#{{ game_a.pk }} {{ game_a.name }}</strong>{% else %}<a href="?a={{ game_a.pk }}&b={{ game_b.pk }}&keep={{ game_a.pk }}">#{{ game_a.pk }} {{ game_a.name }}</a>{% endif %}
+  {% if keeper.pk == game_b.pk %}<strong>#{{ game_b.pk }} {{ game_b.name }}</strong>{% else %}<a href="?a={{ game_a.pk }}&b={{ game_b.pk }}&keep={{ game_b.pk }}">#{{ game_b.pk }} {{ game_b.name }}</a>{% endif %}
+</p>
+<p>
+  {% blocktranslate with keeper_slug=keeper.slug dup=duplicate.name dup_pk=duplicate.pk %}The kept game keeps its address (<code>/games/{{ keeper_slug }}/</code>). <strong>#{{ dup_pk }} {{ dup }}</strong> will be deleted and its address will stop working.{% endblocktranslate %}
+</p>
+
+{% if different_bgg %}
+  <div class="merge-warning">
+    {% blocktranslate with a=keeper.bgg_code b=duplicate.bgg_code %}<strong>Warning:</strong> the two games have different BGG codes ({{ a }} and {{ b }}). They may be different games or editions.{% endblocktranslate %}
+  </div>
+{% endif %}
+
+<h2>{% translate "What will be moved" %}</h2>
+<ul>
+  <li>{% blocktranslate count n=tables_to_move %}{{ n }} table (with its players and results){% plural %}{{ n }} tables (with their players and results){% endblocktranslate %}</li>
+  <li>{% blocktranslate count n=library_to_move %}{{ n }} library entry{% plural %}{{ n }} library entries{% endblocktranslate %}</li>
+</ul>
+{% if library_conflicts %}
+  <div class="merge-warning">
+    {% translate "These locations have both games in their library: the kept game's entry stays and the duplicate's notes are appended to it." %}
+    <ul>{% for entry in library_conflicts %}<li>{{ entry.location }}{% if entry.notes %} — {% translate "notes" %}: “{{ entry.notes|truncatechars:80 }}”{% endif %}</li>{% endfor %}</ul>
+  </div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="a" value="{{ game_a.pk }}">
+  <input type="hidden" name="b" value="{{ game_b.pk }}">
+  <input type="hidden" name="keep" value="{{ keeper.pk }}">
+
+  <h2>{% translate "Different fields: choose the value to keep" %}</h2>
+  {% if rows %}
+    <table class="merge-table">
+      <thead>
+        <tr>
+          <th>{% translate "Field" %}</th>
+          <th>{% translate "Kept game" %} (#{{ keeper.pk }})</th>
+          <th>{% translate "Duplicate" %} (#{{ duplicate.pk }})</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <th>{{ row.label|capfirst }}</th>
+            <td class="value">
+              <label>
+                <input type="radio" name="choice_{{ row.field }}" value="keeper" {% if row.choice == 'keeper' %}checked{% endif %}>
+                {% if row.is_image %}{% if row.keeper %}<img src="{{ row.keeper.url }}" alt="">{% else %}—{% endif %}
+                {% else %}<div class="text">{% if row.keeper is None or row.keeper == "" %}—{% else %}{{ row.keeper }}{% endif %}</div>{% endif %}
+              </label>
+            </td>
+            <td class="value">
+              <label>
+                <input type="radio" name="choice_{{ row.field }}" value="duplicate" {% if row.choice == 'duplicate' %}checked{% endif %}>
+                {% if row.is_image %}{% if row.duplicate %}<img src="{{ row.duplicate.url }}" alt="">{% else %}—{% endif %}
+                {% else %}<div class="text">{% if row.duplicate is None or row.duplicate == "" %}—{% else %}{{ row.duplicate }}{% endif %}</div>{% endif %}
+              </label>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>{% translate "The two games have the same values in every field." %}</p>
+  {% endif %}
+
+  <p>{% translate "Flags kept if true on either game:" %}
+    {% for name, value in or_flags %}<code>{{ name }}</code> = {{ value|yesno }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  </p>
+
+  <div class="submit-row">
+    <input type="submit" name="confirm" value="{% translate 'Merge games' %}" class="default">
+    <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}
