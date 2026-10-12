@@ -102,9 +102,7 @@ Table.game_outcome     esito dei giocatori CONTRO IL GIOCO: won / lost / null
                        ffa  → null di norma; lost = "ha vinto il gioco, avete perso tutti"
                        teams → sempre null
 Table.coop_score       int null, solo coop (es. Hanabi 0–25)
-                       PROPOSTA (da confermare): eliminarlo e ripetere il punteggio di gruppo
-                       su Player.score di ogni giocatore, come per le squadre → regola unica
-                       "il punteggio sta sempre su Player.score"
+                       (deciso 2026-10-12: resta sul tavolo, non ripetuto su Player.score)
 
 Player.team            etichetta/numero gruppo, vuoto in ffa e coop
 Player.position        posizione valida per le medaglie (vedi sotto)
