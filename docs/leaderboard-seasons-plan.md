@@ -337,15 +337,35 @@ produzione con numeri identici alla prova; confronto OK).
 giochi creati da ora restano `none`. Prima di attivare le letture della fase 3 va **rilanciato
 `leaderboard_backfill`** (idempotente) per riallineare.
 
-### Fase 3 · Lettura dai nuovi campi, con fallback
-- "Non compilato" = 99 **oppure** null (convivenza dati vecchi/nuovi).
-- Visibilità classifica da `result_mode` invece che da `leaderboard_enabled`.
-- Visualizzazione dei tavoli già compilati identica.
-- **Cambiamento visibile da comunicare**: molti giochi oggi senza classifica (Catan, Scythe…)
-  inizieranno a mostrarla; sui tavoli passati comparirà "non compilata" (finestra chiusa,
-  nessun dato vecchio alterato).
+### Fase 3 · Lettura dai nuovi campi, con fallback (implementata)
+- "Non compilato" = 99 **oppure** null (`Table.is_position_set`).
+- **Visibilità (rivista)**: la classifica si vede se il tavolo **ha già risultati**, oppure il gioco
+  aveva `leaderboard_enabled`, oppure la modalità effettiva (`Table.effective_result_mode` = quella
+  del tavolo, altrimenti quella del gioco) è **`ffa`** (`services.tables.leaderboard_available`).
+  Coop/squadre NON si aprono in questa fase: la UI attuale sa registrare solo classifiche "tutti
+  contro tutti" (5 giochi abilitati sono ora coop/teams, con 6 tavoli già compilati: restano
+  visibili e identici). Nessuna classifica esistente sparisce.
+- Vecchio endpoint e admin: dopo aver scritto le posizioni chiamano `sync_legacy_result` (tavolo
+  senza modalità con posizioni → `ffa`, poi `recompute_outcomes`). Così da questa fase i nuovi
+  risultati sono già allineati senza bisogno di rilanciare il backfill.
+- Import BGG: `suggest_result_mode` (rpgitem → none; Semi-Cooperative → ffa; Cooperative → coop;
+  Team-Based → teams; altrimenti ffa).
+- Admin: `default_result_mode` modificabile in lista giochi; `result_mode` filtrabile; `team` /
+  `outcome` (sola lettura) sui giocatori.
+- **Verifiche sulla copia di produzione**: sezione classifica renderizzata (anonimo + giocatore)
+  con codice vecchio e nuovo su 413 combinazioni → **tutti i tavoli con risultati identici**; le
+  uniche differenze (30) sono tavoli di giochi `ffa` prima non abilitati, che ora mostrano la
+  classifica come i giochi abilitati. Endpoint su un tavolo nuovo: `ffa` + esiti corretti + una
+  notifica; suggerimenti BGG identici alla regola rivista; confronto fotografia OK.
+- Dopo il deploy: rilanciare `leaderboard_backfill` una volta (allinea i risultati compilati tra
+  il deploy della fase 2 e questo), poi confronto.
+- **Cambiamento visibile da comunicare**: i giochi "tutti contro tutti" prima senza classifica
+  (Catan, Scythe…) iniziano a mostrarla; sui tavoli passati compare "Classifica non ancora creata"
+  (finestra chiusa, nessun dato alterato).
 
 ### Fase 4 · Nuova UI di compilazione
+- Visibilità definitiva: classifica se il tavolo ha risultati oppure modalità effettiva ≠ `none`
+  (coop e squadre compresi); `leaderboard_enabled` non più letto.
 - Endpoint "salva risultato" su pagina tavolo **e** tavolo evento.
 - **`update-player-position` resta attivo e compatibile** (PWA / pagine aperte da tempo): imposta
   `ffa` e ricalcola gli esiti.

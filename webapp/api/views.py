@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from webapp.models import Table, Location, Player, Game, Notification, NotificationType
 from webapp.api.serializers import TableSerializer
 from webapp.services.bgg import search_bgg, import_game_from_bgg, fetch_bgg_classifications
-from webapp.services.tables import can_edit_leaderboard
+from webapp.services.tables import can_edit_leaderboard, leaderboard_available, sync_legacy_result
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +67,13 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
                     logger.error("Error updating player id %s: %s", player_id, e)
                     return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+            # This legacy UI only records free-for-all rankings: keep result_mode/outcomes in sync.
+            sync_legacy_result(table)
+
             # Una sola notifica per destinatario per l'intero riordino (non più una
             # per ogni Player.save()). Inviata solo se qualcosa è cambiato davvero
             # e se la leaderboard è abilitata per il gioco.
-            if any_position_changed and table.game and table.game.leaderboard_enabled:
+            if any_position_changed and leaderboard_available(table):
                 recipients = table.players.exclude(id=request.user.user_profile.id)
                 Notification.objects.bulk_create([
                     Notification(

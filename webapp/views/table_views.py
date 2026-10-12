@@ -25,7 +25,7 @@ from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
 from webapp.services.tables import (
     TableActionError, add_guest, can_edit_leaderboard, can_manage_roster, join_table,
-    leave_table, remove_guest,
+    leaderboard_available, leave_table, remove_guest,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -198,8 +198,9 @@ class BaseTableDetailView(generic.DetailView):
         ).order_by('position')
         current_players = players.count() + external_players
 
-        leaderboard_enabled = table.game and table.game.leaderboard_enabled
-        leaderboard_visible = any(player.position != 99 for player in players)
+        leaderboard_visible = any(Table.is_position_set(player.position) for player in players)
+        # Existing results are always shown, whatever the game's mode.
+        leaderboard_enabled = leaderboard_visible or leaderboard_available(table)
 
         user_can_edit_leaderboard = self.request.user.is_authenticated and can_edit_leaderboard(
             self.request.user.user_profile, table)

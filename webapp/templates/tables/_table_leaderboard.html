@@ -46,7 +46,7 @@
             </span>
           {% endif %}
           <span class="flex-1 text-sm font-medium text-content">{{ player.display_name }}</span>
-          {% if player.position == 99 %}
+          {% if player.position == 99 or player.position is None %}
             <span class="leaderboard-badge text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "NEW" %}</span>
           {% else %}
             <span class="leaderboard-badge text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-600 text-white">{{ player.position }}</span>

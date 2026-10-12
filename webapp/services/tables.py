@@ -13,7 +13,7 @@ from collections import namedtuple
 
 from django.utils.translation import gettext_lazy as _
 
-from webapp.models import Comment, CommentType, Membership, Player, Table
+from webapp.models import Comment, CommentType, Membership, Player, ResultMode, Table
 
 
 class TableActionError(Exception):
@@ -69,6 +69,33 @@ def can_manage_roster(profile, table):
     return False
 
 
+def leaderboard_available(table):
+    """Whether a table's game offers a leaderboard (rollout phase 3).
+
+    The legacy per-game switch, or a free-for-all mode: the only one the current
+    leaderboard UI can record. Teams/coop arrive with the new UI (phase 4).
+    Tables that already have results always show them (see the table detail view).
+    """
+    if not table.game_id:
+        return False
+    return table.game.leaderboard_enabled or table.effective_result_mode == ResultMode.FFA
+
+
+def sync_legacy_result(table):
+    """After positions are written by a legacy path (old endpoint, admin): keep the new fields in sync.
+
+    Legacy paths only record free-for-all rankings, so a table without a mode that
+    has positions becomes "ffa" (queryset update: no table signals). Then outcomes
+    are recomputed. Positions and scores are never changed.
+    """
+    if table.result_mode is None and any(
+        Table.is_position_set(p) for p in table.player_set.values_list('position', flat=True)
+    ):
+        Table.objects.filter(pk=table.pk).update(result_mode=ResultMode.FFA)
+        table.result_mode = ResultMode.FFA
+    table.recompute_outcomes()
+
+
 def can_edit_leaderboard(profile, table):
     """Who may reorder a table's leaderboard.
 
@@ -80,7 +107,7 @@ def can_edit_leaderboard(profile, table):
         return False
     if profile.user.is_superuser:
         return True
-    if not (table.game_id and table.game.leaderboard_enabled):
+    if not leaderboard_available(table):
         return False
     if table.leaderboard_status != Table.LEADERBOARD_EDITABLE:
         return False

@@ -126,7 +126,8 @@ def table_status_change_notifications(sender, instance, created, **kwargs):
         return
 
     # 1) leaderboard_status → EDITABLE / NOT_EDITABLE
-    if instance.tracker.has_changed('leaderboard_status') and instance.game_id and instance.game.leaderboard_enabled:
+    from webapp.services.tables import leaderboard_available  # local import: avoid import cycles
+    if instance.tracker.has_changed('leaderboard_status') and leaderboard_available(instance):
         old_lb = instance.tracker.previous('leaderboard_status')
         new_lb = instance.leaderboard_status
 

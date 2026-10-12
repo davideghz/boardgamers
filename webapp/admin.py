@@ -9,6 +9,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
+from webapp.services.tables import sync_legacy_result
 
 
 
@@ -57,7 +58,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 class PlayerInline(admin.TabularInline):
     model = Player
     extra = 0
-    fields = ('user_profile', 'position', 'score')
+    fields = ('user_profile', 'position', 'score', 'team', 'outcome')
+    readonly_fields = ('outcome',)
 
 
 class TableLinkInline(admin.TabularInline):
@@ -69,7 +71,7 @@ class TableLinkInline(admin.TabularInline):
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
     list_display = ("title", "location", "author", "date", "time", "status", "leaderboard_status")
-    list_filter = ("location", "status", "leaderboard_status", "date")
+    list_filter = ("location", "status", "leaderboard_status", "result_mode", "date")
     autocomplete_fields = ("location", "game")
     inlines = [PlayerInline, TableLinkInline]
 
@@ -77,6 +79,11 @@ class TableAdmin(admin.ModelAdmin):
         if not obj.slug:
             obj.slug = obj.create_unique_slug()
         super().save_model(request, obj, form, change)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        # Positions may have been edited in the inline: keep result_mode/outcomes in sync.
+        sync_legacy_result(form.instance)
 
 
 @admin.register(Comment)
@@ -86,8 +93,13 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ("user_profile", "table", "position", "score")
-    list_filter = ("user_profile", "table", "score", "position")
+    list_display = ("user_profile", "table", "position", "score", "team", "outcome")
+    list_filter = ("user_profile", "table", "score", "position", "outcome")
+    readonly_fields = ("outcome",)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        sync_legacy_result(obj.table)
 
 
 @admin.register(Location)
@@ -104,9 +116,9 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
-    list_display = ("name", "bgg_code")
-    list_editable = ("bgg_code",)
-    list_filter = (BggCodeFilter, "bgg_imported", "verified", "leaderboard_enabled")
+    list_display = ("name", "bgg_code", "default_result_mode")
+    list_editable = ("bgg_code", "default_result_mode")
+    list_filter = (BggCodeFilter, "bgg_imported", "verified", "default_result_mode", "leaderboard_enabled")
     search_fields = ("name",)
 
 

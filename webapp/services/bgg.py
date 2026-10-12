@@ -145,8 +145,12 @@ def fetch_bgg_thing(bgg_id):
                 except (ValueError, TypeError):
                     pass
 
+    mechanics = [link.get('value') for link in item.findall('link') if link.get('type') == 'boardgamemechanic']
+
     return {
         'name': name,
+        'bgg_type': item.get('type'),
+        'mechanics': mechanics,
         'description': description,
         'bgg_code': str(bgg_id),
         'year_published': get_int('yearpublished'),
@@ -157,6 +161,28 @@ def fetch_bgg_thing(bgg_id):
         'weight': weight,
         'image_url': image_url,
     }
+
+
+def suggest_result_mode(bgg_type, mechanics):
+    """Suggested leaderboard mode from BGG data (see docs/leaderboard-seasons-plan.md).
+
+    BGG has no "competitive" tag, so free-for-all is inferred when no coop/team
+    mechanic is listed. Semi-cooperative games are recorded as free-for-all.
+    """
+    from webapp.models import ResultMode
+
+    if bgg_type == 'rpgitem':
+        return ResultMode.NONE
+    if bgg_type != 'boardgame':
+        return ResultMode.NONE
+    mechanics = set(mechanics or [])
+    if 'Semi-Cooperative Game' in mechanics:
+        return ResultMode.FFA
+    if 'Cooperative Game' in mechanics:
+        return ResultMode.COOP
+    if 'Team-Based Game' in mechanics:
+        return ResultMode.TEAMS
+    return ResultMode.FFA
 
 
 def import_game_from_bgg(bgg_id):
@@ -184,6 +210,7 @@ def import_game_from_bgg(bgg_id):
         max_playtime=data['max_playtime'],
         weight=data['weight'],
         leaderboard_enabled=False,
+        default_result_mode=suggest_result_mode(data['bgg_type'], data['mechanics']),
         bgg_imported=True,
     )
     game.slug = game.create_unique_slug()

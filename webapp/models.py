@@ -599,6 +599,20 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     # Legacy "no position" marker on Player.position (to become NULL in the cleanup phase).
     UNSET_POSITION = 99
 
+    @classmethod
+    def is_position_set(cls, position):
+        """A real position (not NULL nor the legacy 99 marker)."""
+        return position not in (None, cls.UNSET_POSITION)
+
+    @property
+    def effective_result_mode(self):
+        """The table's own result mode, else the one suggested by its game."""
+        if self.result_mode:
+            return self.result_mode
+        if self.game_id:
+            return self.game.default_result_mode
+        return ResultMode.NONE
+
     def recompute_outcomes(self):
         """Derive Player.outcome from the recorded result. Never touches position or score.
 
