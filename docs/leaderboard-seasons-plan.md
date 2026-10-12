@@ -293,6 +293,13 @@ Punti del codice che oggi dipendono da `position=99` / `leaderboard_enabled` (da
 - **Prova generale in locale su copia di produzione** (ripristino del backup nel DB locale)
   prima di ogni fase che tocca i dati.
 
+Fotografia di produzione (2026-10-12, `snapshot_phase0.json`, fuori da git): 2090 giocatori,
+512 con posizione, 129 tavoli con risultati. Nessun tavolo compilato a metà (tutti i giocatori di un
+tavolo hanno posizione oppure nessuno). Due casi anomali da rispettare nel popolamento (fase 2):
+- tavolo **60**: solo posizioni 2 e 3, nessun 1° (probabilmente il vincitore è stato rimosso) →
+  nessun `won`, posizioni lasciate come sono;
+- tavolo **92**: due giocatori al 4° posto (pari merito già presente nei dati) → va rispettato.
+
 ### Fase 1 · Solo aggiunte al DB (nessun cambiamento visibile)
 Nuovi campi facoltativi/con default + modello `Season`. `position`, 99 e `leaderboard_enabled`
 restano intatti; il codice si comporta come oggi.
