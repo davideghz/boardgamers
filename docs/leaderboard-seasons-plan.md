@@ -331,6 +331,7 @@ transazione annullata.
 **Stato rilascio (2026-10-12)**: fase 0 ✅ (backup + fotografia `snapshot_phase0.json`),
 fase 1 ✅ (migrazione 0072 in produzione, confronto OK), fase 2 ✅ (`leaderboard_backfill` eseguito in
 produzione con numeri identici alla prova; confronto OK).
+Fase 3 ✅ in produzione (backfill rilanciato dopo il deploy, confronto OK).
 
 **Attenzione fino al rilascio della fase 4**: il vecchio endpoint `update-player-position` scrive solo
 `position`, quindi le classifiche compilate da ora in poi non avranno `result_mode`/`outcome`, e i
