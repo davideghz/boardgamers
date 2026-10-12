@@ -175,7 +175,7 @@ La creazione automatica della "Stagione Zero" **non** notifica.
 
 Approccio **A + D**: drag & drop esteso, nella stessa sezione della pagina tavolo.
 
-- **Selettore modalità** in cima (Classico / Squadre / Cooperativo — "Classico" = ffa, più corto di "Tutti contro tutti" su mobile), precompilato dal gioco.
+- **Selettore modalità** in cima (Tutti contro tutti / Squadre / Cooperativo; pulsanti a larghezza proporzionale al testo, così stanno su una riga anche a 320px), precompilato dal gioco.
   Cambiarlo dopo il salvataggio azzera la classifica, previa conferma.
   La modalità resta **libera** (nessun vincolo per gioco): se si sceglie una modalità diversa da
   quella suggerita compare un **avviso ambra** ben visibile con il pulsante "Usa <suggerita>".

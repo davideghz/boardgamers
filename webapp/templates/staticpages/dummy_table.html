@@ -25,7 +25,7 @@
       <label class="flex flex-col gap-1">
         <span class="text-content-muted text-xs">Modalità di default del gioco</span>
         <select id="devGameDefault" class="rounded-lg border border-divider bg-surface-input text-content px-2 py-1.5">
-          <option value="ffa">Classico</option>
+          <option value="ffa">Tutti contro tutti</option>
           <option value="teams">Squadre</option>
           <option value="coop">Cooperativo</option>
         </select>
@@ -67,7 +67,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
-  const MODES = { ffa: 'Classico', teams: 'Squadre', coop: 'Cooperativo' };
+  const MODES = { ffa: 'Tutti contro tutti', teams: 'Squadre', coop: 'Cooperativo' };
   const GAMES = { ffa: 'Azul', teams: 'Codenames', coop: 'Pandemic' };
   const NAMES = ['Anna', 'Marco', 'Luca', 'Giulia', 'Sara', 'Paolo', 'Elena', 'Davide'];
   const TEAM_LETTERS = 'ABCDEFGH'.split('');
@@ -211,7 +211,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const btns = Object.entries(MODES).map(([k, label]) => {
       const active = S.mode === k;
       return `<button type="button" data-action="mode" data-mode="${k}" ${locked ? 'disabled' : ''}
-          class="flex-1 px-2 py-2 rounded-full text-xs sm:text-sm font-bold transition-colors
+          class="flex-auto px-2 py-2 rounded-full text-xs sm:text-sm font-bold transition-colors
                  ${active ? 'bg-primary text-white' : 'text-content-soft hover:bg-surface'}
                  ${locked && !active ? 'opacity-40 cursor-not-allowed' : ''}">${label}</button>`;
     }).join('');
