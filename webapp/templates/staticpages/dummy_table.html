@@ -25,7 +25,7 @@
       <label class="flex flex-col gap-1">
         <span class="text-content-muted text-xs">Modalità di default del gioco</span>
         <select id="devGameDefault" class="rounded-lg border border-divider bg-surface-input text-content px-2 py-1.5">
-          <option value="ffa">Tutti contro tutti</option>
+          <option value="ffa">Individuale</option>
           <option value="teams">Squadre</option>
           <option value="coop">Cooperativo</option>
         </select>
@@ -67,7 +67,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
-  const MODES = { ffa: 'Tutti contro tutti', teams: 'Squadre', coop: 'Cooperativo' };
+  const MODES = { ffa: 'Individuale', teams: 'Squadre', coop: 'Cooperativo' };
   const GAMES = { ffa: 'Azul', teams: 'Codenames', coop: 'Pandemic' };
   const NAMES = ['Anna', 'Marco', 'Luca', 'Giulia', 'Sara', 'Paolo', 'Elena', 'Davide'];
   const TEAM_LETTERS = 'ABCDEFGH'.split('');

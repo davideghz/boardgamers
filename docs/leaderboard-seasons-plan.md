@@ -175,7 +175,7 @@ La creazione automatica della "Stagione Zero" **non** notifica.
 
 Approccio **A + D**: drag & drop esteso, nella stessa sezione della pagina tavolo.
 
-- **Selettore modalità** in cima (Tutti contro tutti / Squadre / Coop), precompilato dal gioco.
+- **Selettore modalità** in cima (Individuale / Squadre / Cooperativo — "Individuale" = ffa, più corto di "Tutti contro tutti" su mobile), precompilato dal gioco.
   Cambiarlo dopo il salvataggio azzera la classifica, previa conferma.
 - **Tutti contro tutti**: lista trascinabile (SortableJS come oggi) + pulsante **"="** su ogni riga
   (pari merito con chi sta sopra, ranking 1-1-3) + **punteggio facoltativo** per riga con
