@@ -328,6 +328,15 @@ il comando fallisce e annulla tutto. Prova sulla copia di produzione: 658 giochi
 seconda esecuzione senza modifiche. Regole squadre/coop/"ha vinto il gioco"/pareggio verificate in
 transazione annullata.
 
+**Stato rilascio (2026-10-12)**: fase 0 ✅ (backup + fotografia `snapshot_phase0.json`),
+fase 1 ✅ (migrazione 0072 in produzione, confronto OK), fase 2 ✅ (`leaderboard_backfill` eseguito in
+produzione con numeri identici alla prova; confronto OK).
+
+**Attenzione fino al rilascio della fase 4**: il vecchio endpoint `update-player-position` scrive solo
+`position`, quindi le classifiche compilate da ora in poi non avranno `result_mode`/`outcome`, e i
+giochi creati da ora restano `none`. Prima di attivare le letture della fase 3 va **rilanciato
+`leaderboard_backfill`** (idempotente) per riallineare.
+
 ### Fase 3 · Lettura dai nuovi campi, con fallback
 - "Non compilato" = 99 **oppure** null (convivenza dati vecchi/nuovi).
 - Visibilità classifica da `result_mode` invece che da `leaderboard_enabled`.
