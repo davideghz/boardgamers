@@ -102,6 +102,9 @@ Table.game_outcome     esito dei giocatori CONTRO IL GIOCO: won / lost / null
                        ffa  → null di norma; lost = "ha vinto il gioco, avete perso tutti"
                        teams → sempre null
 Table.coop_score       int null, solo coop (es. Hanabi 0–25)
+                       PROPOSTA (da confermare): eliminarlo e ripetere il punteggio di gruppo
+                       su Player.score di ogni giocatore, come per le squadre → regola unica
+                       "il punteggio sta sempre su Player.score"
 
 Player.team            etichetta/numero gruppo, vuoto in ffa e coop
 Player.position        posizione valida per le medaglie (vedi sotto)
@@ -268,6 +271,62 @@ Da rimuovere quando la UI viene portata nella pagina tavolo reale.
 Comportamenti confermati sul prototipo: trascinare una riga le toglie il "=" (il pari merito
 non segue chi viene spostato); cambiare modalità azzera squadre, pari merito ed esito coop ma
 conserva punteggi e ordine dei giocatori.
+
+## 5. Rilascio in produzione (deciso 2026-10-12)
+
+Requisito: **massima retrocompatibilità, nessun risultato perso o alterato**. Principio:
+**prima si aggiunge, poi si cambia, solo alla fine si toglie**. Ogni fase è un deploy separato,
+verificato prima di passare alla successiva.
+
+Punti del codice che oggi dipendono da `position=99` / `leaderboard_enabled` (da tenere allineati):
+`table_views.py` (detail + `leaderboard_visible`), `tables/_table_leaderboard.html`,
+`table_detail.html` e **`events/event_table_detail.html`** (stesso endpoint), `location_views.py`
+(statistiche medaglie), `profile_views.py` (vittorie), `api/views.py` (`update_player_position`),
+`signals.py`, `services/tables.py`, `services/bgg.py`, `admin.py`.
+
+### Fase 0 · Rete di sicurezza
+- Backup prima di ogni rilascio che tocca il DB: `heroku pg:backups:capture -a boardgamers`.
+- **Fotografia dei risultati**: `python manage.py leaderboard_snapshot` (JSON su stdout: ogni
+  Player con tavolo, utente/ospite, posizione normalizzata 99→null, punteggio) e
+  `--compare FILE` (esce con errore se un risultato manca o è cambiato; i nuovi giocatori
+  sono solo informativi). Il confronto va rifatto dopo ogni fase.
+- **Prova generale in locale su copia di produzione** (ripristino del backup nel DB locale)
+  prima di ogni fase che tocca i dati.
+
+### Fase 1 · Solo aggiunte al DB (nessun cambiamento visibile)
+Nuovi campi facoltativi/con default + modello `Season`. `position`, 99 e `leaderboard_enabled`
+restano intatti; il codice si comporta come oggi.
+
+### Fase 2 · Popolamento nuovi campi (dati vecchi non toccati)
+- `Table.result_mode` dei tavoli esistenti **ricavato dai loro dati, non dal gioco**: tavolo con
+  posizioni compilate → `ffa` (è stato giocato così), anche se il gioco ora suggerisce coop/squadre.
+- `Player.outcome` calcolato dalle posizioni esistenti (99 → null).
+- `Game.default_result_mode` caricato da **`webapp/data/game_result_modes.csv`** (versionato, solo
+  `slug,mode`, dati pubblici; generato dalla revisione di `leaderboard_modes_prod.csv`, che resta
+  fuori da git). Prima del caricamento rivedere le 7 righe "DA VERIFICARE".
+- Verifica: `leaderboard_snapshot --compare` = OK.
+
+### Fase 3 · Lettura dai nuovi campi, con fallback
+- "Non compilato" = 99 **oppure** null (convivenza dati vecchi/nuovi).
+- Visibilità classifica da `result_mode` invece che da `leaderboard_enabled`.
+- Visualizzazione dei tavoli già compilati identica.
+- **Cambiamento visibile da comunicare**: molti giochi oggi senza classifica (Catan, Scythe…)
+  inizieranno a mostrarla; sui tavoli passati comparirà "non compilata" (finestra chiusa,
+  nessun dato vecchio alterato).
+
+### Fase 4 · Nuova UI di compilazione
+- Endpoint "salva risultato" su pagina tavolo **e** tavolo evento.
+- **`update-player-position` resta attivo e compatibile** (PWA / pagine aperte da tempo): imposta
+  `ffa` e ricalcola gli esiti.
+- Rimozione di `/dummy-table/`.
+
+### Fase 5 · Season (rilascio separato)
+Gestione manager, "Stagione Zero" automatica, classifiche Location con selettore, notifiche.
+Le Location senza season non cambiano.
+
+### Fase 6 · Pulizia (settimane dopo, a sistema stabile)
+Nuovo backup → `position=99` diventa null, eliminazione di `leaderboard_enabled` e del vecchio
+endpoint. È l'**unica** fase che modifica dati esistenti: per questo va per ultima.
 
 ## Fuori scope
 
