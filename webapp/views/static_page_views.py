@@ -7,6 +7,7 @@ from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
 from django.db.models import Prefetch, Count
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
@@ -304,4 +305,11 @@ def test_widget(request, template_name="staticpages/test_widget.html"):
 
 
 def test_telegram_login(request, template_name="staticpages/test_telegram_login.html"):
+    return render(request, template_name, {})
+
+
+def dummy_table(request, template_name="staticpages/dummy_table.html"):
+    """Client-side prototype of the leaderboard compilation UI (DEBUG only)."""
+    if not settings.DEBUG:
+        raise Http404
     return render(request, template_name, {})

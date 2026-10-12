@@ -1,0 +1,530 @@
+{% extends "base_webapp.html" %}
+{% comment %}
+  Prototipo UI di compilazione classifica (solo DEBUG, /dummy-table/).
+  Tutto lo stato è lato client: nessun modello, nessuna chiamata al backend.
+  Piano: docs/leaderboard-seasons-plan.md
+{% endcomment %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  {# ── PANNELLO PROTOTIPO ─────────────────────────────────────────── #}
+  <section class="mb-8 p-4 rounded-2xl border-2 border-dashed border-divider bg-surface-alt">
+    <h2 class="text-xs font-bold uppercase tracking-wide text-content-muted mb-3">Pannello prototipo (solo DEBUG)</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+      <label class="flex flex-col gap-1">
+        <span class="text-content-muted text-xs">Sto guardando come</span>
+        <select id="devRole" class="rounded-lg border border-divider bg-surface-input text-content px-2 py-1.5">
+          <option value="author">Autore del tavolo</option>
+          <option value="manager">Manager della location</option>
+          <option value="superadmin">Superadmin</option>
+          <option value="player">Giocatore del tavolo</option>
+          <option value="viewer">Visitatore</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-content-muted text-xs">Modalità di default del gioco</span>
+        <select id="devGameDefault" class="rounded-lg border border-divider bg-surface-input text-content px-2 py-1.5">
+          <option value="ffa">Tutti contro tutti</option>
+          <option value="teams">Squadre</option>
+          <option value="coop">Cooperativo</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-content-muted text-xs">Numero giocatori</span>
+        <select id="devPlayers" class="rounded-lg border border-divider bg-surface-input text-content px-2 py-1.5">
+          <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>8</option>
+        </select>
+      </label>
+      <div class="flex items-end gap-3">
+        <label class="flex items-center gap-2 py-1.5">
+          <input type="checkbox" id="devGuest" checked> <span>Includi un ospite</span>
+        </label>
+        <button id="devReset" class="ml-auto text-xs font-semibold px-3 py-1.5 rounded-full border border-divider text-content-soft hover:bg-surface-input">Reset</button>
+      </div>
+    </div>
+    <p id="devPerms" class="mt-3 text-xs text-content-muted"></p>
+    <details class="mt-3">
+      <summary class="text-xs font-semibold text-content-soft cursor-pointer">Payload che riceverebbe l'endpoint "salva risultato"</summary>
+      <pre id="devPayload" class="mt-2 text-[11px] leading-snug p-3 rounded-lg bg-surface-input text-content overflow-x-auto">— nessun salvataggio —</pre>
+    </details>
+  </section>
+
+  {# ── FINTO HEADER TAVOLO ────────────────────────────────────────── #}
+  <div class="mb-6">
+    <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">Tavolo di prova</h1>
+    <span class="text-primary font-bold text-base" id="fakeGameName">Azul</span>
+    <p class="text-sm text-content-muted mt-1">Sabato 10 ottobre · 20:30 · Ludoteca di prova</p>
+  </div>
+
+  {# ── CLASSIFICA ─────────────────────────────────────────────────── #}
+  <section id="lb"></section>
+</div>
+{% endblock content %}
+
+
+{% block extrabodyjs %}
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const MODES = { ffa: 'Tutti contro tutti', teams: 'Squadre', coop: 'Cooperativo' };
+  const GAMES = { ffa: 'Azul', teams: 'Codenames', coop: 'Pandemic' };
+  const NAMES = ['Anna', 'Marco', 'Luca', 'Giulia', 'Sara', 'Paolo', 'Elena', 'Davide'];
+  const TEAM_LETTERS = 'ABCDEFGH'.split('');
+
+  const $ = id => document.getElementById(id);
+  const lb = $('lb');
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  let S, snapshot = null, sortables = [];
+
+  // ── Stato ────────────────────────────────────────────────────────
+  function freshState() {
+    const n = parseInt($('devPlayers').value, 10);
+    const withGuest = $('devGuest').checked;
+    const players = [];
+    for (let i = 0; i < n; i++) {
+      const guest = withGuest && i === n - 1;
+      players.push({
+        id: i + 1,
+        name: guest ? 'Fede' : NAMES[i],
+        guestOf: guest ? NAMES[0] : null,
+        score: '',
+        team: null,
+      });
+    }
+    return {
+      mode: $('devGameDefault').value,
+      compiled: false,
+      editing: false,
+      lostToGame: false,       // ffa: "ha vinto il gioco"
+      lowScoreWins: false,
+      coopOutcome: null,       // coop: 'won' | 'lost'
+      coopScore: '',
+      players,
+      order: players.map(p => p.id),   // ffa: ordine d'arrivo
+      ties: [],                        // ffa: id in pari merito con il precedente
+      teamOrder: [],                   // teams: etichette in ordine d'arrivo
+      teamTies: [],
+      teamScores: {},
+      saved: null,
+      error: null,
+    };
+  }
+
+  const role = () => $('devRole').value;
+  const canChangeMode = () => ['superadmin', 'author', 'manager'].includes(role());
+  const canEdit = () => ['superadmin', 'author', 'manager', 'player'].includes(role());
+  const player = id => S.players.find(p => p.id === id);
+  const displayName = p => p.guestOf ? `${p.name} <span class="text-content-muted font-normal">(ospite di ${esc(p.guestOf)})</span>` : esc(p.name);
+  const num = v => (v === '' || v === null || isNaN(Number(v))) ? null : Number(v);
+
+  // Ranking "da competizione": 1, 1, 3, 4…
+  function rank(order, ties) {
+    const pos = {};
+    order.forEach((key, i) => {
+      pos[key] = (i > 0 && ties.includes(key)) ? pos[order[i - 1]] : i + 1;
+    });
+    return pos;
+  }
+
+  function teamMembers(label) { return S.players.filter(p => p.team === label); }
+
+  function syncTeams() {
+    const used = new Set(S.players.map(p => p.team).filter(Boolean));
+    S.teamOrder = S.teamOrder.filter(t => used.has(t));
+    used.forEach(t => { if (!S.teamOrder.includes(t)) S.teamOrder.push(t); });
+    S.teamTies = S.teamTies.filter(t => S.teamOrder.includes(t));
+  }
+
+  // ── Calcolo risultato (quello che farebbe recompute_outcomes) ─────
+  function outcomeFromPositions(positions) {
+    const vals = Object.values(positions);
+    if (vals.length > 1 && vals.every(v => v === 1)) return () => 'draw';
+    return key => positions[key] === 1 ? 'won' : 'lost';
+  }
+
+  function computeResult() {
+    const res = { result_mode: S.mode, game_outcome: null, coop_score: null, players: [] };
+    if (S.mode === 'ffa') {
+      if (S.lostToGame) {
+        res.game_outcome = 'lost';
+        res.players = S.order.map(id => ({ id, team: null, position: null, score: num(player(id).score), outcome: 'lost' }));
+      } else {
+        const pos = rank(S.order, S.ties);
+        const out = outcomeFromPositions(pos);
+        res.players = S.order.map(id => ({ id, team: null, position: pos[id], score: num(player(id).score), outcome: out(id) }));
+      }
+    } else if (S.mode === 'teams') {
+      const pos = rank(S.teamOrder, S.teamTies);
+      const out = outcomeFromPositions(pos);
+      S.teamOrder.forEach(t => teamMembers(t).forEach(p => res.players.push({
+        id: p.id, team: t, position: pos[t], score: num(S.teamScores[t] ?? ''), outcome: out(t),
+      })));
+    } else {
+      res.game_outcome = S.coopOutcome;
+      res.coop_score = num(S.coopScore);
+      res.players = S.players.map(p => ({
+        id: p.id, team: null, position: S.coopOutcome === 'won' ? 1 : null, score: null, outcome: S.coopOutcome,
+      }));
+    }
+    return res;
+  }
+
+  function validate() {
+    if (S.mode === 'teams') {
+      if (S.players.some(p => !p.team)) return 'Assegna una squadra a tutti i giocatori.';
+      if (S.teamOrder.length < 2) return 'Servono almeno 2 squadre.';
+    }
+    if (S.mode === 'coop' && !S.coopOutcome) return 'Indica se avete vinto o perso.';
+    return null;
+  }
+
+  // ── Pezzi di UI ──────────────────────────────────────────────────
+  const ICON_HANDLE = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" /></svg>';
+  const ICON_TROPHY = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-yellow-400"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" /></svg>';
+
+  function badge(pos) {
+    const base = 'inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold';
+    if (pos === null || pos === undefined) return `<span class="${base} bg-surface-input text-content-muted">—</span>`;
+    const cls = { 1: 'bg-yellow-400 text-yellow-950', 2: 'bg-slate-300 text-slate-800', 3: 'bg-orange-400 text-orange-950' }[pos]
+      || 'bg-surface-input text-content-soft';
+    return `<span class="${base} ${cls}">${pos}</span>`;
+  }
+
+  function tieButton(key, active, kind) {
+    return `<button type="button" data-action="${kind}" data-key="${esc(key)}"
+        title="Pari merito con chi sta sopra"
+        class="flex-shrink-0 w-8 h-8 rounded-full text-sm font-extrabold border transition-colors
+               ${active ? 'bg-primary text-white border-primary' : 'border-divider text-content-muted hover:bg-surface-input'}">=</button>`;
+  }
+
+  function scoreInput(value, attrs, placeholder = 'Punti') {
+    return `<input type="number" inputmode="numeric" value="${esc(value ?? '')}" placeholder="${placeholder}" ${attrs}
+        class="w-20 flex-shrink-0 rounded-lg border border-divider bg-surface text-content text-sm px-2 py-1.5 text-right">`;
+  }
+
+  function modeSelector() {
+    const locked = !canChangeMode();
+    const btns = Object.entries(MODES).map(([k, label]) => {
+      const active = S.mode === k;
+      return `<button type="button" data-action="mode" data-mode="${k}" ${locked ? 'disabled' : ''}
+          class="flex-1 px-2 py-2 rounded-full text-xs sm:text-sm font-bold transition-colors
+                 ${active ? 'bg-primary text-white' : 'text-content-soft hover:bg-surface'}
+                 ${locked && !active ? 'opacity-40 cursor-not-allowed' : ''}">${label}</button>`;
+    }).join('');
+    const hint = locked
+      ? 'Solo autore del tavolo, manager e admin possono cambiare modalità.'
+      : (S.mode === $('devGameDefault').value ? 'Suggerita dal gioco.' : `Il gioco suggerisce: ${MODES[$('devGameDefault').value]}.`);
+    return `<div class="mb-4">
+        <div class="flex gap-1 p-1 rounded-full bg-surface-input">${btns}</div>
+        <p class="text-[11px] text-content-muted mt-1.5 px-2">${hint}</p>
+      </div>`;
+  }
+
+  // ── Editor: tutti contro tutti ───────────────────────────────────
+  function editFfa() {
+    const toggle = `<label class="flex items-center gap-3 p-3 mb-3 rounded-xl border border-divider cursor-pointer">
+        <input type="checkbox" data-action="lost-to-game" ${S.lostToGame ? 'checked' : ''} class="w-4 h-4">
+        <span class="text-sm text-content"><strong>Ha vinto il gioco</strong>: avete perso tutti
+          <span class="block text-xs text-content-muted">Per i giochi semi-cooperativi (es. Archipelago, Legendary).</span></span>
+      </label>`;
+    if (S.lostToGame) {
+      return toggle + `<div class="space-y-2">${S.order.map(id => `
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-alt">
+            ${badge(null)}<span class="flex-1 text-sm font-medium text-content">${displayName(player(id))}</span>
+          </div>`).join('')}</div>
+        <p class="text-xs text-content-muted mt-2">Nessuna posizione: tutti risultano sconfitti.</p>`;
+    }
+    const pos = rank(S.order, S.ties);
+    const hasScores = S.players.some(p => num(p.score) !== null);
+    const tools = `<div class="flex flex-wrap items-center gap-3 mb-3">
+        <button type="button" data-action="sort-score" ${hasScores ? '' : 'disabled'}
+          class="text-xs font-semibold px-3 py-1.5 rounded-full border border-divider text-content-soft hover:bg-surface-input disabled:opacity-40 disabled:cursor-not-allowed">
+          Ordina per punteggio</button>
+        <label class="flex items-center gap-1.5 text-xs text-content-muted">
+          <input type="checkbox" data-action="low-wins" ${S.lowScoreWins ? 'checked' : ''}> vince il punteggio più basso</label>
+      </div>
+      <p class="text-xs text-content-muted mb-2">Trascina con ≡ per ordinare · tocca = per il pari merito con chi sta sopra · punti facoltativi.</p>`;
+    const rows = S.order.map((id, i) => {
+      const p = player(id);
+      return `<div class="flex items-center gap-2 sm:gap-3 p-2.5 rounded-xl bg-surface-alt" data-id="${id}">
+          <span class="handle text-content-muted cursor-move touch-none">${ICON_HANDLE}</span>
+          ${badge(pos[id])}
+          <span class="flex-1 min-w-0 truncate text-sm font-medium text-content">${displayName(p)}</span>
+          ${scoreInput(p.score, `data-score-player="${id}"`)}
+          ${i > 0 ? tieButton(id, S.ties.includes(id), 'tie') : '<span class="w-8 flex-shrink-0"></span>'}
+        </div>`;
+    }).join('');
+    return toggle + tools + `<div id="ffaList" class="space-y-2">${rows}</div>`;
+  }
+
+  // ── Editor: squadre ──────────────────────────────────────────────
+  function editTeams() {
+    const labels = S.teamOrder;
+    const nextLabel = TEAM_LETTERS.find(l => !labels.includes(l));
+    const assign = S.players.map(p => {
+      const chips = labels.map(t => `<button type="button" data-action="assign" data-player="${p.id}" data-team="${t}"
+          class="w-8 h-8 rounded-full text-xs font-bold border transition-colors
+                 ${p.team === t ? 'bg-primary text-white border-primary' : 'border-divider text-content-soft hover:bg-surface-input'}">${t}</button>`).join('');
+      const add = nextLabel ? `<button type="button" data-action="assign" data-player="${p.id}" data-team="${nextLabel}"
+          title="Nuova squadra" class="w-8 h-8 rounded-full text-sm font-bold border border-dashed border-divider text-content-muted hover:bg-surface-input">+</button>` : '';
+      return `<div class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-alt">
+          <span class="flex-1 min-w-0 truncate text-sm font-medium text-content">${displayName(p)}</span>
+          <div class="flex flex-wrap justify-end gap-1">${chips}${add}</div>
+        </div>`;
+    }).join('');
+
+    const pos = rank(S.teamOrder, S.teamTies);
+    const blocks = S.teamOrder.map((t, i) => `
+      <div class="flex items-center gap-2 sm:gap-3 p-2.5 rounded-xl bg-surface-alt" data-team="${t}">
+        <span class="handle text-content-muted cursor-move touch-none">${ICON_HANDLE}</span>
+        ${badge(pos[t])}
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-content">Squadra ${t}</div>
+          <div class="text-xs text-content-muted truncate">${teamMembers(t).map(p => esc(p.name)).join(', ')}</div>
+        </div>
+        ${scoreInput(S.teamScores[t], `data-score-team="${t}"`)}
+        ${i > 0 ? tieButton(t, S.teamTies.includes(t), 'team-tie') : '<span class="w-8 flex-shrink-0"></span>'}
+      </div>`).join('');
+
+    const unassigned = S.players.filter(p => !p.team).length;
+    return `
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-content-muted">1 · Componi le squadre</h3>
+        <button type="button" data-action="one-vs-all" class="text-xs font-semibold text-primary hover:underline">1 contro tutti</button>
+      </div>
+      <div class="space-y-2 mb-5">${assign}</div>
+      <h3 class="text-xs font-bold uppercase tracking-wide text-content-muted mb-2">2 · Ordine d'arrivo</h3>
+      ${S.teamOrder.length
+        ? `<p class="text-xs text-content-muted mb-2">Trascina le squadre con ≡ · = per il pari merito · punti facoltativi.</p>
+           <div id="teamList" class="space-y-2">${blocks}</div>`
+        : '<p class="text-sm text-content-muted italic">Assegna i giocatori a una squadra.</p>'}
+      ${unassigned && S.teamOrder.length ? `<p class="text-xs text-orange-500 mt-2">${unassigned} giocator${unassigned === 1 ? 'e' : 'i'} senza squadra.</p>` : ''}`;
+  }
+
+  // ── Editor: cooperativo ──────────────────────────────────────────
+  function editCoop() {
+    const btn = (val, label, on) => `<button type="button" data-action="coop" data-value="${val}"
+        class="flex-1 py-4 rounded-2xl text-base font-extrabold border-2 transition-colors
+               ${S.coopOutcome === val ? on : 'border-divider text-content-soft hover:bg-surface-input'}">${label}</button>`;
+    return `
+      <div class="flex gap-3 mb-4">
+        ${btn('won', 'Abbiamo vinto', 'bg-green-600 border-green-600 text-white')}
+        ${btn('lost', 'Abbiamo perso', 'bg-red-600 border-red-600 text-white')}
+      </div>
+      <label class="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface-alt mb-3">
+        <span class="text-sm text-content">Punteggio di gruppo <span class="text-xs text-content-muted">(facoltativo, es. Hanabi)</span></span>
+        ${scoreInput(S.coopScore, 'data-coop-score')}
+      </label>
+      <p class="text-xs text-content-muted">Partecipanti: ${S.players.map(p => esc(p.name)).join(', ')}.
+        ${S.coopOutcome === 'won' ? 'Tutti ricevono l\'oro.' : ''}</p>`;
+  }
+
+  // ── Vista (classifica salvata) ───────────────────────────────────
+  function readView() {
+    const r = S.saved;
+    if (!r) {
+      return canEdit()
+        ? `<button type="button" data-action="start" class="w-full bg-primary text-white text-sm font-bold py-2.5 rounded-full hover:opacity-90">Compila classifica</button>`
+        : '<p class="text-sm text-content-muted italic">Classifica non ancora compilata.</p>';
+    }
+    const pl = id => player(id);
+    if (r.result_mode === 'coop') {
+      const won = r.game_outcome === 'won';
+      return `<div class="p-4 rounded-2xl mb-3 ${won ? 'bg-green-600' : 'bg-red-600'} text-white">
+          <div class="text-lg font-extrabold">${won ? 'Vittoria cooperativa' : 'Ha vinto il gioco'}</div>
+          ${r.coop_score !== null ? `<div class="text-sm opacity-90">Punteggio di gruppo: ${r.coop_score}</div>` : ''}
+        </div>
+        <div class="space-y-2">${r.players.map(x => `<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-alt">
+          ${badge(x.position)}<span class="flex-1 text-sm font-medium text-content">${displayName(pl(x.id))}</span></div>`).join('')}</div>`;
+    }
+    if (r.result_mode === 'ffa' && r.game_outcome === 'lost') {
+      return `<div class="p-4 rounded-2xl mb-3 bg-red-600 text-white"><div class="text-lg font-extrabold">Ha vinto il gioco</div>
+          <div class="text-sm opacity-90">Tutti i giocatori risultano sconfitti.</div></div>
+        <div class="space-y-2">${r.players.map(x => `<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-alt">
+          ${badge(null)}<span class="flex-1 text-sm font-medium text-content">${displayName(pl(x.id))}</span></div>`).join('')}</div>`;
+    }
+    if (r.result_mode === 'ffa') {
+      const sorted = [...r.players].sort((a, b) => a.position - b.position);
+      const draw = sorted.every(x => x.outcome === 'draw');
+      return `${draw ? '<p class="text-sm font-semibold text-content mb-2">Pareggio</p>' : ''}
+        <div class="space-y-2">${sorted.map(x => `<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-alt">
+          ${badge(x.position)}<span class="flex-1 text-sm font-medium text-content">${displayName(pl(x.id))}</span>
+          ${x.score !== null ? `<span class="text-sm font-semibold text-content-soft">${x.score} pt</span>` : ''}</div>`).join('')}</div>`;
+    }
+    // teams
+    const teams = [];
+    r.players.forEach(x => {
+      let t = teams.find(t => t.label === x.team);
+      if (!t) teams.push(t = { label: x.team, position: x.position, score: x.score, members: [] });
+      t.members.push(pl(x.id));
+    });
+    teams.sort((a, b) => a.position - b.position);
+    return `<div class="space-y-2">${teams.map(t => `<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-alt">
+        ${badge(t.position)}
+        <div class="flex-1 min-w-0"><div class="text-sm font-bold text-content">Squadra ${t.label}</div>
+          <div class="text-xs text-content-muted">${t.members.map(p => esc(p.name)).join(', ')}</div></div>
+        ${t.score !== null ? `<span class="text-sm font-semibold text-content-soft">${t.score} pt</span>` : ''}</div>`).join('')}</div>`;
+  }
+
+  // ── Render ───────────────────────────────────────────────────────
+  function render() {
+    sortables.forEach(s => s.destroy());
+    sortables = [];
+
+    const modeBadge = S.saved && !S.editing
+      ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">${MODES[S.saved.result_mode]}</span>` : '';
+    const editBtn = S.saved && !S.editing && canEdit()
+      ? `<button type="button" data-action="edit" class="text-xs text-primary font-semibold hover:underline">Modifica</button>` : '';
+
+    let body;
+    if (S.editing) {
+      const editor = { ffa: editFfa, teams: editTeams, coop: editCoop }[S.mode]();
+      body = `${modeSelector()}${editor}
+        ${S.error ? `<p class="text-sm text-red-500 font-semibold mt-3">${esc(S.error)}</p>` : ''}
+        <div class="flex gap-2 mt-4">
+          <button type="button" data-action="cancel" class="flex-1 border border-divider text-content-soft text-sm font-bold py-2.5 rounded-full hover:bg-surface-input">Annulla</button>
+          <button type="button" data-action="save" class="flex-[2] bg-primary text-white text-sm font-bold py-2.5 rounded-full hover:opacity-90">Salva classifica</button>
+        </div>`;
+    } else {
+      body = readView();
+    }
+
+    lb.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-bold text-content flex items-center gap-1.5">${ICON_TROPHY} Classifica ${modeBadge}</h2>
+        ${editBtn}
+      </div>${body}`;
+
+    const ffaList = $('ffaList');
+    if (ffaList) sortables.push(new Sortable(ffaList, {
+      animation: 150, handle: '.handle', ghostClass: 'opacity-50',
+      onEnd: evt => {
+        S.order = Array.from(ffaList.children).map(el => parseInt(el.dataset.id, 10));
+        // il pari merito non segue chi viene spostato
+        S.ties = S.ties.filter(id => id !== parseInt(evt.item.dataset.id, 10));
+        render();
+      },
+    }));
+    const teamList = $('teamList');
+    if (teamList) sortables.push(new Sortable(teamList, {
+      animation: 150, handle: '.handle', ghostClass: 'opacity-50',
+      onEnd: evt => {
+        S.teamOrder = Array.from(teamList.children).map(el => el.dataset.team);
+        S.teamTies = S.teamTies.filter(t => t !== evt.item.dataset.team);
+        render();
+      },
+    }));
+
+    $('devPerms').textContent =
+      `Può aggiornare la classifica: ${canEdit() ? 'sì' : 'no'} · Può cambiare modalità: ${canChangeMode() ? 'sì' : 'no'}`;
+    $('fakeGameName').textContent = GAMES[$('devGameDefault').value];
+  }
+
+  const toggleIn = (arr, x) => arr.includes(x) ? arr.filter(v => v !== x) : [...arr, x];
+
+  // ── Eventi ───────────────────────────────────────────────────────
+  lb.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el || el.tagName === 'INPUT') return;
+    S.error = null;
+    switch (el.dataset.action) {
+      case 'start':
+      case 'edit':
+        snapshot = clone(S);
+        S.editing = true;
+        break;
+      case 'cancel':
+        S = snapshot; S.editing = false; snapshot = null;
+        break;
+      case 'mode': {
+        const m = el.dataset.mode;
+        if (m === S.mode) return;
+        if (S.saved && !confirm('Cambiare modalità azzera la classifica compilata. Continuare?')) return;
+        S.mode = m;
+        S.lostToGame = false; S.ties = []; S.coopOutcome = null;
+        S.players.forEach(p => { p.team = null; });
+        S.teamOrder = []; S.teamTies = []; S.teamScores = {};
+        break;
+      }
+      case 'tie':
+        S.ties = toggleIn(S.ties, parseInt(el.dataset.key, 10));
+        break;
+      case 'team-tie':
+        S.teamTies = toggleIn(S.teamTies, el.dataset.key);
+        break;
+      case 'sort-score': {
+        const sign = S.lowScoreWins ? 1 : -1;
+        const val = id => num(player(id).score);
+        S.order = [...S.order].sort((a, b) => {
+          const va = val(a), vb = val(b);
+          if (va === null && vb === null) return 0;
+          if (va === null) return 1;
+          if (vb === null) return -1;
+          return sign * (va - vb);
+        });
+        S.ties = S.order.filter((id, i) => i > 0 && val(id) !== null && val(id) === val(S.order[i - 1]));
+        break;
+      }
+      case 'assign': {
+        const p = player(parseInt(el.dataset.player, 10));
+        p.team = p.team === el.dataset.team ? null : el.dataset.team;
+        syncTeams();
+        break;
+      }
+      case 'one-vs-all':
+        S.players.forEach((p, i) => { p.team = i === 0 ? 'A' : 'B'; });
+        S.teamOrder = ['A', 'B']; S.teamTies = [];
+        break;
+      case 'coop':
+        S.coopOutcome = el.dataset.value;
+        break;
+      case 'save': {
+        const err = validate();
+        if (err) { S.error = err; break; }
+        S.saved = computeResult();
+        S.editing = false; snapshot = null;
+        $('devPayload').textContent = JSON.stringify(S.saved, null, 2);
+        break;
+      }
+      default:
+        return;
+    }
+    render();
+  });
+
+  lb.addEventListener('change', e => {
+    const a = e.target.dataset.action;
+    if (a === 'lost-to-game') { S.lostToGame = e.target.checked; render(); }
+    if (a === 'low-wins') { S.lowScoreWins = e.target.checked; }
+  });
+
+  // Gli input punteggio aggiornano lo stato senza re-render (per non perdere il focus)
+  lb.addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.scorePlayer) {
+      player(parseInt(t.dataset.scorePlayer, 10)).score = t.value;
+      const sortBtn = lb.querySelector('[data-action="sort-score"]');
+      if (sortBtn) sortBtn.disabled = !S.players.some(p => num(p.score) !== null);
+    }
+    if (t.dataset.scoreTeam) S.teamScores[t.dataset.scoreTeam] = t.value;
+    if (t.hasAttribute('data-coop-score')) S.coopScore = t.value;
+  });
+
+  // ── Pannello prototipo ───────────────────────────────────────────
+  const reset = () => { S = freshState(); snapshot = null; $('devPayload').textContent = '— nessun salvataggio —'; render(); };
+  $('devRole').addEventListener('change', () => {
+    if (S.editing && !canEdit()) { S = snapshot || S; S.editing = false; }
+    render();
+  });
+  $('devGameDefault').addEventListener('change', reset);
+  $('devPlayers').addEventListener('change', reset);
+  $('devGuest').addEventListener('change', reset);
+  $('devReset').addEventListener('click', reset);
+
+  reset();
+});
+</script>
+{% endblock extrabodyjs %}
