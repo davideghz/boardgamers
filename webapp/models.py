@@ -99,6 +99,27 @@ class SlugModel(models.Model):
         super().save(*args, **kwargs)
 
 
+class ResultMode(models.TextChoices):
+    """How a table's result is recorded (see docs/leaderboard-seasons-plan.md)."""
+    FFA = 'ffa', _('Free for all')
+    TEAMS = 'teams', _('Teams')
+    COOP = 'coop', _('Cooperative')
+    NONE = 'none', _('No leaderboard')
+
+
+class GameOutcome(models.TextChoices):
+    """Outcome of the players against the game itself (coop, or "the game won")."""
+    WON = 'won', _('Won')
+    LOST = 'lost', _('Lost')
+
+
+class PlayerOutcome(models.TextChoices):
+    """Normalised per-player outcome, derived from the recorded result."""
+    WON = 'won', _('Won')
+    LOST = 'lost', _('Lost')
+    DRAW = 'draw', _('Draw')
+
+
 class Game(DateTimeModel, ModelMeta, SlugModel):
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
@@ -115,6 +136,10 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     year_published = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Year published'))
 
     leaderboard_enabled = models.BooleanField(default=False, db_index=True)
+    default_result_mode = models.CharField(
+        max_length=10, choices=ResultMode.choices, default=ResultMode.NONE,
+        # DB-level default too, so code that predates this column can still insert games
+        db_default=ResultMode.NONE, verbose_name=_('Suggested result mode'))
     bgg_imported = models.BooleanField(default=False, db_index=True)
     verified = models.BooleanField(default=False, db_index=True)
 
@@ -516,6 +541,14 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         choices=LEADERBOARD_STATUS_CHOICES,
         default=LEADERBOARD_STATUS_DEAFULT
     )
+    # Result recording (null until set; see docs/leaderboard-seasons-plan.md)
+    result_mode = models.CharField(
+        max_length=10, choices=ResultMode.choices, null=True, blank=True, verbose_name=_('Result mode'))
+    game_outcome = models.CharField(
+        max_length=10, choices=GameOutcome.choices, null=True, blank=True, verbose_name=_('Outcome against the game'))
+    coop_score = models.IntegerField(null=True, blank=True, verbose_name=_('Group score'))
+    season = models.ForeignKey(
+        'Season', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Season'))
 
     @cached_property
     def cover_url(self):
@@ -772,6 +805,11 @@ class Player(DateTimeModel):
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
     position = models.IntegerField(default=99, db_index=True)
+    # DB-level default too, so code that predates this column can still insert players
+    team = models.CharField(max_length=10, blank=True, default='', db_default='', verbose_name=_('Team'))
+    outcome = models.CharField(
+        max_length=10, choices=PlayerOutcome.choices, null=True, blank=True, db_index=True,
+        verbose_name=_('Outcome'))
 
     @property
     def display_name(self):
@@ -799,6 +837,30 @@ class Player(DateTimeModel):
                 name='unique_guest_profile_table'
             ),
         ]
+
+
+class Season(DateTimeModel):
+    """A leaderboard period of a Location. At most one active (end_date is null) per Location."""
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='seasons', verbose_name=_('Location'))
+    name = models.CharField(max_length=100, verbose_name=_('Name'))
+    start_date = models.DateField(verbose_name=_('Start date'))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_('End date'))
+
+    class Meta:
+        verbose_name = _('Season')
+        verbose_name_plural = _('Seasons')
+        ordering = ['-start_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['location'],
+                condition=models.Q(end_date__isnull=True),
+                name='unique_active_season_per_location',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.name} ({self.location})'
 
 
 class CommentType(models.TextChoices):

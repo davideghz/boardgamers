@@ -302,6 +302,13 @@ tavolo hanno posizione oppure nessuno). Due casi anomali da rispettare nel popol
 Nuovi campi facoltativi/con default + modello `Season`. `position`, 99 e `leaderboard_enabled`
 restano intatti; il codice si comporta come oggi.
 
+Implementata nella migrazione `0072_leaderboard_modes_and_seasons` (solo `ADD COLUMN` / `CREATE`).
+Le due colonne `NOT NULL` (`Game.default_result_mode`, `Player.team`) usano **`db_default`**: su
+Heroku le migrazioni girano prima che il nuovo codice sia attivo, e senza default nel DB il codice
+vecchio fallirebbe nell'inserire giocatori/giochi in quella finestra. Provata sulla copia di
+produzione: migrate → confronto OK → insert "stile codice vecchio" OK → rollback a 0071 → confronto
+OK → riapplicata → confronto OK; pagine tavolo/location/home/giochi rispondono 200.
+
 ### Fase 2 · Popolamento nuovi campi (dati vecchi non toccati)
 - `Table.result_mode` dei tavoli esistenti **ricavato dai loro dati, non dal gioco**: tavolo con
   posizioni compilate → `ffa` (è stato giocato così), anche se il gioco ora suggerisce coop/squadre.

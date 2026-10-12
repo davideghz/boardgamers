@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 14:34+0200\n"
+"POT-Creation-Date: 2026-10-12 15:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -190,6 +190,27 @@ msgstr "Messaggio inviato con successo!"
 msgid "Form error. Please check the entered data."
 msgstr "Errore nel form. Controlla i dati inseriti."
 
+msgid "Free for all"
+msgstr "Tutti contro tutti"
+
+msgid "Teams"
+msgstr "Squadre"
+
+msgid "Cooperative"
+msgstr "Cooperativo"
+
+msgid "No leaderboard"
+msgstr "Senza classifica"
+
+msgid "Won"
+msgstr "Vinto"
+
+msgid "Lost"
+msgstr "Perso"
+
+msgid "Draw"
+msgstr "Pareggio"
+
 msgid "Minimum players"
 msgstr "Minimo giocatori"
 
@@ -207,6 +228,9 @@ msgstr "Peso"
 
 msgid "Year published"
 msgstr "Anno pubblicazione"
+
+msgid "Suggested result mode"
+msgstr "Modalità suggerita"
 
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
@@ -324,6 +348,18 @@ msgstr "Immagine personalizzata"
 msgid "Optional image shown instead of the game cover."
 msgstr "Immagine opzionale mostrata al posto della copertina del gioco."
 
+msgid "Result mode"
+msgstr "Modalità di classifica"
+
+msgid "Outcome against the game"
+msgstr "Esito contro il gioco"
+
+msgid "Group score"
+msgstr "Punteggio di gruppo"
+
+msgid "Season"
+msgstr "Season"
+
 #, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
 msgstr "%(game)s - %(date)s - Board-Gamers.com"
@@ -352,6 +388,21 @@ msgstr "Etichetta"
 
 msgid "URL"
 msgstr "URL"
+
+msgid "Team"
+msgstr "Team"
+
+msgid "Outcome"
+msgstr "Esito"
+
+msgid "Start date"
+msgstr "Data di inizio"
+
+msgid "End date"
+msgstr "Data di fine"
+
+msgid "Seasons"
+msgstr "Season"
 
 msgid "User Comment"
 msgstr "Commento Utente"
@@ -1550,9 +1601,6 @@ msgstr "Sei sicuro di voler rimuovere"
 msgid "Remove"
 msgstr "Rimuovi"
 
-msgid "Team"
-msgstr "Team"
-
 msgid "No managers assigned yet."
 msgstr "Ancora nessun manager assegnato."
 
@@ -2230,12 +2278,6 @@ msgstr "Approva membership"
 
 msgid "for"
 msgstr "per"
-
-msgid "Start date"
-msgstr "Data di inizio"
-
-msgid "End date"
-msgstr "Data di fine"
 
 msgid "You can approve without it and tick this later."
 msgstr "Puoi approvare anche senza: lo spunterai più avanti."
@@ -3832,11 +3874,6 @@ msgstr "Collega account"
 #~| msgid "Light"
 #~ msgid "midnight"
 #~ msgstr "Bassa"
-
-#, fuzzy
-#~| msgid "Monday"
-#~ msgid "Mon"
-#~ msgstr "Lunedì"
 
 #, fuzzy
 #~| msgid "Tuesday"
