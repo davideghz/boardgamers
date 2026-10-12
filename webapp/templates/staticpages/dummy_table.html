@@ -217,7 +217,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }).join('');
     const hint = locked
       ? 'Solo autore del tavolo, manager e admin possono cambiare modalità.'
-      : (S.mode === $('devGameDefault').value ? 'Suggerita dal gioco.' : `Il gioco suggerisce: ${MODES[$('devGameDefault').value]}.`);
+      : (S.mode === $('devGameDefault').value ? 'Modalità suggerita.' : `Modalità suggerita: ${MODES[$('devGameDefault').value]}.`);
     return `<div class="mb-4">
         <div class="flex gap-1 p-1 rounded-full bg-surface-input">${btns}</div>
         <p class="text-[11px] text-content-muted mt-1.5 px-2">${hint}</p>
