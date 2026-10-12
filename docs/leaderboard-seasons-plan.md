@@ -318,6 +318,16 @@ OK → riapplicata → confronto OK; pagine tavolo/location/home/giochi rispondo
   fuori da git). Prima del caricamento rivedere le 7 righe "DA VERIFICARE".
 - Verifica: `leaderboard_snapshot --compare` = OK.
 
+Implementata con il comando **`leaderboard_backfill`** (`--dry-run` per l'anteprima, tutto in una
+transazione, idempotente, non tocca mai `position`/`score`, scrive con `update`/`bulk_update` quindi
+niente signal né notifiche) e il metodo **`Table.recompute_outcomes()`** (unica fonte degli esiti,
+riusato dalla nuova UI). Controllo di coerenza finale: se un giocatore con posizione resta senza esito
+il comando fallisce e annulla tutto. Prova sulla copia di produzione: 658 giochi aggiornati
+(536 ffa, 89 coop, 33 teams; 16 restano none), 129 tavoli marcati `ffa`, esiti 128 won / 384 lost
+(= 128 primi posti), tavolo 60 tutti lost, tavolo 92 pari merito al 4° rispettato; confronto OK;
+seconda esecuzione senza modifiche. Regole squadre/coop/"ha vinto il gioco"/pareggio verificate in
+transazione annullata.
+
 ### Fase 3 · Lettura dai nuovi campi, con fallback
 - "Non compilato" = 99 **oppure** null (convivenza dati vecchi/nuovi).
 - Visibilità classifica da `result_mode` invece che da `leaderboard_enabled`.

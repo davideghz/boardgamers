@@ -596,6 +596,49 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         """The table_status this table should have, based on time."""
         return self._PHASE_STATUS_MAP[self.lifecycle_phase(at)][0]
 
+    # Legacy "no position" marker on Player.position (to become NULL in the cleanup phase).
+    UNSET_POSITION = 99
+
+    def recompute_outcomes(self):
+        """Derive Player.outcome from the recorded result. Never touches position or score.
+
+        Single source of truth for outcomes (see docs/leaderboard-seasons-plan.md):
+        ffa/teams use the positions (shared 1st = everyone won, all tied = draw),
+        "the game won" and coop use game_outcome, no mode / no positions = no outcome.
+        Writes with bulk_update, so no Player signals fire.
+        """
+        players = list(self.player_set.all())
+
+        def position(p):
+            return None if p.position in (None, self.UNSET_POSITION) else p.position
+
+        mode = self.result_mode
+        if mode == ResultMode.COOP:
+            for p in players:
+                p.outcome = self.game_outcome
+        elif mode in (ResultMode.FFA, ResultMode.TEAMS):
+            ranked = [p for p in players if position(p) is not None]
+            if mode == ResultMode.FFA and self.game_outcome == GameOutcome.LOST:
+                outcome_of = lambda p: PlayerOutcome.LOST
+            elif not ranked:
+                outcome_of = lambda p: None
+            else:
+                # A side is a player (ffa) or a team; in teams every member carries the team position.
+                sides = {(p.team if mode == ResultMode.TEAMS else p.pk): position(p) for p in ranked}
+                draw = len(sides) > 1 and all(v == 1 for v in sides.values())
+                outcome_of = lambda p: (
+                    None if position(p) is None
+                    else PlayerOutcome.DRAW if draw
+                    else PlayerOutcome.WON if position(p) == 1
+                    else PlayerOutcome.LOST
+                )
+            for p in players:
+                p.outcome = outcome_of(p)
+        else:
+            for p in players:
+                p.outcome = None
+        Player.objects.bulk_update(players, ['outcome'])
+
     def computed_leaderboard_status(self, at=None):
         """The leaderboard_status this table should have, based on time."""
         return self._PHASE_STATUS_MAP[self.lifecycle_phase(at)][1]
