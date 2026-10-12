@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 15:31+0200\n"
+"POT-Creation-Date: 2026-10-12 16:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -671,6 +671,39 @@ msgstr "Questo account %(provider)s è già collegato a un altro utente."
 
 msgid "The Google email address is already associated with another account."
 msgstr "L'indirizzo email Google è già associato a un altro account."
+
+msgid "Invalid value."
+msgstr "Valore non valido."
+
+msgid "You cannot edit this leaderboard."
+msgstr "Non puoi modificare questa classifica."
+
+msgid "Invalid result mode."
+msgstr "Modalità non valida."
+
+msgid "Only the table author and the managers can change the mode."
+msgstr "Solo l'autore del tavolo e i manager possono cambiare modalità."
+
+msgid "Invalid outcome."
+msgstr "Esito non valido."
+
+msgid "Invalid players."
+msgstr "Giocatori non validi."
+
+msgid "The players of this table have changed: reload the page."
+msgstr "I giocatori di questo tavolo sono cambiati: ricarica la pagina."
+
+msgid "Tell us whether you won or lost."
+msgstr "Indica se avete vinto o perso."
+
+msgid "Invalid positions."
+msgstr "Posizioni non valide."
+
+msgid "Assign a team to every player."
+msgstr "Assegna una squadra a tutti i giocatori."
+
+msgid "At least 2 teams are needed."
+msgstr "Servono almeno 2 squadre."
 
 msgid "The table is closed. You cannot join."
 msgstr "Il tavolo è chiuso. Non puoi unirti."
@@ -1812,9 +1845,6 @@ msgstr "Aggiungi a Google Calendar"
 
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
-
-msgid "Leaderboard Updated"
-msgstr "Classifica Aggiornata"
 
 msgid "Played tables"
 msgstr "Tavoli giocati"
@@ -3036,23 +3066,147 @@ msgstr "Classifica"
 msgid "Not enabled for this game."
 msgstr "Non abilitata per questo gioco."
 
-msgid "Use the"
-msgstr "Usa l'icona"
-
-msgid "to adjust the positions"
-msgstr "per modificare le posizioni"
-
 msgid "Create Leaderboard"
 msgstr "Crea Classifica"
 
 msgid "Leaderboard not created yet."
 msgstr "Classifica non ancora creata."
 
-msgid "NEW"
-msgstr "NUOVO"
+msgid "This game session has no leaderboard."
+msgstr "Questa partita non prevede una classifica."
 
-msgid "Update Leaderboard"
-msgstr "Aggiorna Classifica"
+msgid "Enable the leaderboard"
+msgstr "Attiva la classifica"
+
+msgid "Cooperative victory"
+msgstr "Vittoria cooperativa"
+
+msgid "The game won"
+msgstr "Ha vinto il gioco"
+
+msgid "All players lost."
+msgstr "Tutti i giocatori risultano sconfitti."
+
+#, python-format
+msgid "Team %(label)s"
+msgstr "Squadra %(label)s"
+
+msgid "Suggested mode."
+msgstr "Modalità suggerita."
+
+msgid "Only the table author, managers and admins can change the mode."
+msgstr "Solo autore del tavolo, manager e admin possono cambiare modalità."
+
+msgid "This game session has no leaderboard"
+msgstr "Questa partita non prevede una classifica"
+
+#, python-brace-format
+msgid ""
+"The suggested mode for this game is <strong>{mode}</strong>. Check that the "
+"chosen one is correct."
+msgstr "La modalità suggerita per questo gioco è <strong>{mode}</strong>. Controlla che quella scelta sia corretta."
+
+#, python-brace-format
+msgid "Use {mode}"
+msgstr "Usa {mode}"
+
+msgid "<strong>The game won</strong>: you all lost"
+msgstr "<strong>Ha vinto il gioco</strong>: avete perso tutti"
+
+msgid "For semi-cooperative games."
+msgstr "Per i giochi semi-cooperativi."
+
+msgid "No positions: all players lost."
+msgstr "Nessuna posizione: tutti risultano sconfitti."
+
+msgid "Sort by score"
+msgstr "Ordina per punteggio"
+
+msgid "lowest score wins"
+msgstr "vince il punteggio più basso"
+
+msgid ""
+"Drag by the dotted handle to reorder. Tap = for a tie with the player above. "
+"Points are optional."
+msgstr ""
+"Trascina dalla maniglia a puntini per ordinare. Tocca = per il pari merito "
+"con chi sta sopra. Punti facoltativi."
+
+msgid "Points"
+msgstr "Punti"
+
+msgid "Tie with the one above"
+msgstr "Pari merito con chi sta sopra"
+
+msgid "1 · Build the teams"
+msgstr "1 · Componi le squadre"
+
+msgid "1 vs all"
+msgstr "1 contro tutti"
+
+msgid ""
+"Tap + to create a new team. Tap a letter to assign the player to that team. "
+"Tap it again to remove them."
+msgstr ""
+"Tocca + per creare una nuova squadra. Tocca una lettera per assegnare il "
+"giocatore a quella squadra. Toccala di nuovo per toglierlo."
+
+msgid "New team"
+msgstr "Nuova squadra"
+
+msgid "2 · Finishing order"
+msgstr "2 · Ordine d'arrivo"
+
+msgid ""
+"Drag the teams by the dotted handle. Tap = for a tie with the team above. "
+"Points are optional."
+msgstr ""
+"Trascina le squadre dalla maniglia a puntini. Tocca = per il pari merito con "
+"chi sta sopra. Punti facoltativi."
+
+msgid "Assign the players to a team."
+msgstr "Assegna i giocatori a una squadra."
+
+#, python-brace-format
+msgid "Players without a team: {count}."
+msgstr "Giocatori senza squadra: {count}."
+
+#, python-brace-format
+msgid "Team {team}"
+msgstr "Squadra {team}"
+
+msgid "We won"
+msgstr "Abbiamo vinto"
+
+msgid "We lost"
+msgstr "Abbiamo perso"
+
+msgid "(optional)"
+msgstr "(facoltativo)"
+
+msgid "Everyone gets gold."
+msgstr "Tutti ricevono l'oro."
+
+#, python-brace-format
+msgid "Players: {names}."
+msgstr "Partecipanti: {names}."
+
+#, python-brace-format
+msgid "(guest of {name})"
+msgstr "(ospite di {name})"
+
+msgid "Save leaderboard"
+msgstr "Salva classifica"
+
+msgid "Something went wrong, please try again."
+msgstr "Qualcosa è andato storto, riprova."
+
+msgid "Changing the mode clears the saved leaderboard. Continue?"
+msgstr "Cambiare modalità azzera la classifica compilata. Continuare?"
+
+msgid "Want to report a mistake or a better suggested mode for this game?"
+msgstr ""
+"Vuoi segnalarci un errore o una modalità suggerita migliore per questo gioco?"
 
 msgid "Remove link"
 msgstr "Rimuovi link"
@@ -3736,6 +3890,26 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#, python-format
+#~ msgid "Use %s"
+#~ msgstr "Usa %s"
+
+#, python-format
+#~ msgid "Team %s"
+#~ msgstr "Squadra %s"
+
+#~ msgid "Leaderboard Updated"
+#~ msgstr "Classifica Aggiornata"
+
+#~ msgid "to adjust the positions"
+#~ msgstr "per modificare le posizioni"
+
+#~ msgid "NEW"
+#~ msgstr "NUOVO"
+
+#~ msgid "Update Leaderboard"
+#~ msgstr "Aggiorna Classifica"
 
 #~ msgid "Contact us."
 #~ msgstr "Contattaci"

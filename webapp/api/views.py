@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from webapp.models import Table, Location, Player, Game, Notification, NotificationType
+from webapp.models import Table, Location, Player, Game, Notification, NotificationType, ResultMode
 from webapp.api.serializers import TableSerializer
 from webapp.services.bgg import search_bgg, import_game_from_bgg, fetch_bgg_classifications
 from webapp.services.tables import can_edit_leaderboard, leaderboard_available, sync_legacy_result
@@ -36,6 +36,12 @@ class TableViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response({'success': False, 'error': 'Leaderboard is not editable'},
                                 status=status.HTTP_403_FORBIDDEN)
 
+
+            # Legacy free-for-all editor (cached pages / old PWA): it must not overwrite
+            # a result recorded in another mode by the new editor.
+            if table.result_mode not in (None, ResultMode.FFA):
+                return Response({'success': False, 'error': 'Page outdated: reload'},
+                                status=status.HTTP_409_CONFLICT)
 
             players = request.data.get('players', [])
             logger.debug("Players data received for table %s: %s", table.id, players)

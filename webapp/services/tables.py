@@ -11,9 +11,12 @@ rows and the system comments that feed the table timeline).
 
 from collections import namedtuple
 
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
-from webapp.models import Comment, CommentType, Membership, Player, ResultMode, Table
+from webapp.models import (
+    Comment, CommentType, GameOutcome, Membership, Notification, NotificationType, Player, ResultMode, Table,
+)
 
 
 class TableActionError(Exception):
@@ -94,6 +97,126 @@ def sync_legacy_result(table):
         Table.objects.filter(pk=table.pk).update(result_mode=ResultMode.FFA)
         table.result_mode = ResultMode.FFA
     table.recompute_outcomes()
+
+
+def can_change_result_mode(profile, table):
+    """Who may change how a table's result is recorded: author, location/event staff, superusers."""
+    return can_manage_roster(profile, table)
+
+
+def _is_competition_ranking(positions):
+    """1, 1, 3, 4… : starts at 1, each value repeats the previous (tie) or equals its rank."""
+    ordered = sorted(positions)
+    return bool(ordered) and ordered[0] == 1 and all(
+        p == ordered[i - 1] or p == i + 1 for i, p in enumerate(ordered) if i > 0
+    )
+
+
+def _int_or_none(value, field):
+    if value in (None, ''):
+        return None
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise TableActionError('invalid_' + field, _('Invalid value.'))
+    return value
+
+
+def save_table_result(profile, table, data):
+    """Validate and store a table result sent by the leaderboard editor.
+
+    `data`: {result_mode, game_outcome, coop_score, players: [{id, team, position, score}]}.
+    Every player of the table must be listed. Positions are recomputed server side
+    for coop and "the game won"; outcomes always come from Table.recompute_outcomes().
+    Notifies the other players once if anything changed. Returns the saved table.
+    """
+    if not can_edit_leaderboard(profile, table):
+        raise TableActionError('forbidden', _('You cannot edit this leaderboard.'))
+
+    mode = data.get('result_mode')
+    if mode not in ResultMode.values:
+        raise TableActionError('invalid_mode', _('Invalid result mode.'))
+    if mode != table.effective_result_mode and not can_change_result_mode(profile, table):
+        raise TableActionError('mode_forbidden', _('Only the table author and the managers can change the mode.'))
+
+    game_outcome = data.get('game_outcome') or None
+    if game_outcome is not None and game_outcome not in GameOutcome.values:
+        raise TableActionError('invalid_outcome', _('Invalid outcome.'))
+    coop_score = _int_or_none(data.get('coop_score'), 'coop_score')
+
+    players = {p.pk: p for p in table.player_set.all()}
+    rows = data.get('players') or []
+    try:
+        sent = {int(r['id']): r for r in rows}
+    except (KeyError, TypeError, ValueError):
+        raise TableActionError('invalid_players', _('Invalid players.'))
+    if set(sent) != set(players):
+        raise TableActionError('players_changed', _('The players of this table have changed: reload the page.'))
+
+    team_of, position_of, score_of = {}, {}, {}
+    for pid, row in sent.items():
+        team_of[pid] = str(row.get('team') or '').strip()[:10]
+        position_of[pid] = _int_or_none(row.get('position'), 'position')
+        score = _int_or_none(row.get('score'), 'score')
+        score_of[pid] = 0 if score is None else score  # Player.score is not nullable: 0 = not entered
+
+    if mode == ResultMode.NONE:
+        game_outcome, coop_score = None, None
+        team_of = dict.fromkeys(players, '')
+        position_of = dict.fromkeys(players)
+    elif mode == ResultMode.COOP:
+        if game_outcome is None:
+            raise TableActionError('outcome_required', _('Tell us whether you won or lost.'))
+        team_of = dict.fromkeys(players, '')
+        # A coop win is a gold medal for everyone; a loss gives no position.
+        position_of = dict.fromkeys(players, 1 if game_outcome == GameOutcome.WON else None)
+    elif mode == ResultMode.FFA:
+        coop_score = None
+        team_of = dict.fromkeys(players, '')
+        if game_outcome == GameOutcome.LOST:
+            position_of = dict.fromkeys(players)
+        else:
+            game_outcome = None
+            if None in position_of.values() or not _is_competition_ranking(position_of.values()):
+                raise TableActionError('invalid_positions', _('Invalid positions.'))
+    else:  # teams
+        game_outcome, coop_score = None, None
+        if '' in team_of.values():
+            raise TableActionError('team_required', _('Assign a team to every player.'))
+        team_position = {}
+        for pid, team in team_of.items():
+            pos = position_of[pid]
+            if pos is None or team_position.setdefault(team, pos) != pos:
+                raise TableActionError('invalid_positions', _('Invalid positions.'))
+        if len(team_position) < 2:
+            raise TableActionError('teams_required', _('At least 2 teams are needed.'))
+        if not _is_competition_ranking(team_position.values()):
+            raise TableActionError('invalid_positions', _('Invalid positions.'))
+
+    def signature():
+        return (table.result_mode, table.game_outcome, table.coop_score,
+                sorted((p.pk, p.team, p.position, p.score) for p in players.values()))
+
+    with transaction.atomic():
+        before = signature()
+        for pid, player in players.items():
+            # Player.position is not nullable until the cleanup phase: "no position" is still 99.
+            position = position_of[pid] if position_of[pid] is not None else Table.UNSET_POSITION
+            player.team, player.position, player.score = team_of[pid], position, score_of[pid]
+        Player.objects.bulk_update(list(players.values()), ['team', 'position', 'score'])
+        table.result_mode, table.game_outcome, table.coop_score = mode, game_outcome, coop_score
+        # queryset update: no table signals (status notifications) fire.
+        Table.objects.filter(pk=table.pk).update(
+            result_mode=mode, game_outcome=game_outcome, coop_score=coop_score)
+        table.recompute_outcomes()
+        changed = signature() != before
+
+        if changed:
+            recipients = table.players.exclude(id=profile.id)
+            Notification.objects.bulk_create([
+                Notification(recipient=recipient, notification_type=NotificationType.LEADERBOARD_UPDATED,
+                             table=table, location=table.location)
+                for recipient in recipients
+            ])
+    return table
 
 
 def can_edit_leaderboard(profile, table):

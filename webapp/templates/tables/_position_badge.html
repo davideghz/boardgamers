@@ -1,0 +1,6 @@
+{# Position badge: gold/silver/bronze for 1-3, neutral otherwise, dash when no position. Expects `pos`. #}
+{% if pos == 1 %}<span class="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold bg-yellow-400 text-yellow-950">1</span>
+{% elif pos == 2 %}<span class="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold bg-slate-300 text-slate-800">2</span>
+{% elif pos == 3 %}<span class="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold bg-orange-400 text-orange-950">3</span>
+{% elif pos %}<span class="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold bg-surface-input text-content-soft">{{ pos }}</span>
+{% else %}<span class="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold bg-surface-input text-content-muted">—</span>{% endif %}

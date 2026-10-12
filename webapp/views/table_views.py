@@ -15,6 +15,7 @@ from django.db.models import Count, Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from urllib.parse import urlencode
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import generic, View
@@ -22,10 +23,11 @@ from meta.views import Meta
 
 from webapp.forms import TableForm, TableLinkFormSet, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership
+from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
+    GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
     TableActionError, add_guest, can_edit_leaderboard, can_manage_roster, join_table,
-    leaderboard_available, leave_table, remove_guest,
+    can_change_result_mode, leaderboard_available, leave_table, remove_guest, save_table_result,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -170,6 +172,72 @@ class TableIndexView(generic.ListView):
         return context
 
 
+def _leaderboard_context(table, players, profile, can_edit):
+    """What the leaderboard section shows (read view) and the editor's initial data."""
+    is_set = Table.is_position_set
+    mode = table.result_mode
+    ranked = [p for p in players if is_set(p.position)]
+    if mode == ResultMode.NONE:
+        compiled = True
+    elif mode == ResultMode.COOP:
+        compiled = table.game_outcome is not None
+    elif mode == ResultMode.FFA:
+        compiled = bool(ranked) or table.game_outcome == GameOutcome.LOST
+    elif mode == ResultMode.TEAMS:
+        compiled = bool(ranked)
+    else:
+        compiled = bool(ranked)  # legacy rows without a mode (should not exist after the backfill)
+        mode = ResultMode.FFA if compiled else None
+
+    # Player.score is not nullable: 0 means "not entered" unless someone scored something.
+    show_scores = any(p.score for p in players)
+    ordered = sorted(ranked, key=lambda p: p.position)
+    teams = []
+    if mode == ResultMode.TEAMS:
+        for p in ordered:
+            if not teams or teams[-1]['label'] != p.team:
+                teams.append({'label': p.team, 'position': p.position, 'score': p.score, 'members': []})
+            teams[-1]['members'].append(p)
+    suggested = table.game.default_result_mode if table.game_id else ResultMode.NONE
+
+    editor = None
+    if can_edit:
+        editor = {
+            'saveUrl': reverse('table-save-result', args=[table.slug]),
+            'contactsUrl': (reverse('contacts') + '?' + urlencode({'topic': 'result-mode', 'game': table.game.slug})
+                            if table.game_id else None),
+            'canChangeMode': can_change_result_mode(profile, table),
+            'suggested': suggested,
+            'effective': table.effective_result_mode,
+            'saved': {
+                'result_mode': mode, 'game_outcome': table.game_outcome, 'coop_score': table.coop_score,
+            } if compiled else None,
+            'players': [{
+                'id': p.pk,
+                'name': p.guest_profile.name if p.guest_profile_id else (p.user_profile.nickname if p.user_profile_id else '—'),
+                'guestOf': p.guest_profile.owner.nickname if p.guest_profile_id else None,
+                'position': p.position if is_set(p.position) else None,
+                'score': p.score if show_scores else None,
+                'team': p.team,
+            } for p in players],
+        }
+    return {
+        'compiled': compiled,
+        'mode': mode,
+        'mode_label': ResultMode(mode).label if mode else '',
+        'game_outcome': table.game_outcome,
+        'coop_score': table.coop_score,
+        'rows': ordered,
+        'unranked': [p for p in players if not is_set(p.position)],
+        'all_players': players,
+        'teams': teams,
+        'draw': bool(ranked) and all(p.outcome == PlayerOutcome.DRAW for p in ranked),
+        'show_scores': show_scores,
+        'can_change_mode': bool(profile) and can_change_result_mode(profile, table),
+        'editor': editor,
+    }
+
+
 class BaseTableDetailView(generic.DetailView):
     """Shared logic for both location-table and event-table detail pages."""
     model = Table
@@ -198,12 +266,12 @@ class BaseTableDetailView(generic.DetailView):
         ).order_by('position')
         current_players = players.count() + external_players
 
-        leaderboard_visible = any(Table.is_position_set(player.position) for player in players)
+        profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        user_can_edit_leaderboard = can_edit_leaderboard(profile, table)
+        leaderboard = _leaderboard_context(table, list(players), profile, user_can_edit_leaderboard)
+        leaderboard_visible = leaderboard['compiled']
         # Existing results are always shown, whatever the game's mode.
         leaderboard_enabled = leaderboard_visible or leaderboard_available(table)
-
-        user_can_edit_leaderboard = self.request.user.is_authenticated and can_edit_leaderboard(
-            self.request.user.user_profile, table)
 
         user_available_guests = None
         if (self.request.user.is_authenticated and
@@ -226,6 +294,7 @@ class BaseTableDetailView(generic.DetailView):
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
             'leaderboard_visible': leaderboard_visible,
+            'leaderboard': leaderboard,
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,
             'meta': table.as_meta(self.request),
@@ -600,6 +669,26 @@ class JoinTableView(LoginRequiredMixin, View):
             messages.warning(request, warning.message)
 
         return redirect('table-detail', slug=self.kwargs['slug'])
+
+
+class SaveTableResultView(LoginRequiredMixin, View):
+    """JSON endpoint of the leaderboard editor: validates and stores the whole result."""
+
+    def post(self, request, *args, **kwargs):
+        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        try:
+            data = json.loads(request.body)
+        except (ValueError, TypeError):
+            return JsonResponse({'success': False, 'error': 'invalid_json'}, status=400)
+        if not isinstance(data, dict):
+            return JsonResponse({'success': False, 'error': 'invalid_json'}, status=400)
+        try:
+            save_table_result(request.user.user_profile, table, data)
+        except TableActionError as error:
+            status = 403 if error.code in ('forbidden', 'mode_forbidden') else 400
+            return JsonResponse({'success': False, 'error': error.code, 'message': str(error.message)},
+                                status=status)
+        return JsonResponse({'success': True})
 
 
 class LeaveTableView(LoginRequiredMixin, View):

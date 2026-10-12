@@ -364,12 +364,33 @@ giochi creati da ora restano `none`. Prima di attivare le letture della fase 3 v
   (Catan, Scythe…) iniziano a mostrarla; sui tavoli passati compare "Classifica non ancora creata"
   (finestra chiusa, nessun dato alterato).
 
-### Fase 4 · Nuova UI di compilazione
+### Fase 4a · Nuova UI di compilazione (implementata)
+Visibilità **invariata** rispetto alla fase 3 (coop/squadre non ancora aperti ai giochi senza classifica).
+- **Visualizzazione generata dal server** (`tables/_table_leaderboard.html` + `_position_badge.html`):
+  medaglie oro/argento/bronzo, squadre, riquadri coop e "ha vinto il gioco", "Pareggio", "Senza
+  classifica" con "Attiva la classifica" (solo chi può cambiare modalità). Punti mostrati solo se
+  almeno un giocatore del tavolo ha un punteggio ≠ 0 (`Player.score` non è nullable: 0 = non inserito).
+- **Editor** (`tables/_table_leaderboard_js.html`, condiviso da pagina tavolo e tavolo evento):
+  porta la pagina di prova; testi tradotti IT/EN; dopo il salvataggio ricarica la pagina.
+  Segnaposto dei testi in stile `{nome}`: in Django `{{ _("...") }}` raddoppia i `%`.
+- **Endpoint** `POST /tables/<slug>/result/` (`SaveTableResultView` → `services.tables.save_table_result`):
+  stessi permessi/finestra di oggi (`can_edit_leaderboard`), cambio modalità solo per
+  `can_change_result_mode` (autore, staff location/evento, superuser); valida classifica "da
+  competizione" (1,1,3…), squadre (tutti assegnati, ≥2, posizione unica per squadra), coop (esito
+  obbligatorio; posizioni calcolate dal server: vinto = 1 a tutti); tutti i giocatori devono essere
+  presenti; scrive con `bulk_update`/`update` + `recompute_outcomes`; una notifica per destinatario
+  solo se qualcosa è cambiato. "Nessuna posizione" resta salvata come 99 fino alla fase 6.
+- **Vecchio endpoint**: resta attivo; risponde 409 se il tavolo ha un risultato in un'altra modalità
+  (pagine vecchie in cache non possono sovrascrivere squadre/coop).
+- **Verifiche sulla copia di produzione**: per tutti i 129 tavoli con risultati la nuova
+  visualizzazione mostra esattamente giocatori e posizioni del DB; endpoint provato in tutti i casi
+  (pari merito, notifiche, errori, permessi, squadre, coop, ha vinto il gioco, senza classifica,
+  409 del vecchio endpoint); editor provato nel browser (server locale su copia, sessione di test,
+  tavolo ripristinato dopo); confronto fotografia OK.
+
+### Fase 4b · Apertura coop e squadre + pulizia prototipo
 - Visibilità definitiva: classifica se il tavolo ha risultati oppure modalità effettiva ≠ `none`
   (coop e squadre compresi); `leaderboard_enabled` non più letto.
-- Endpoint "salva risultato" su pagina tavolo **e** tavolo evento.
-- **`update-player-position` resta attivo e compatibile** (PWA / pagine aperte da tempo): imposta
-  `ffa` e ricalcola gli esiti.
 - Rimozione di `/dummy-table/`.
 
 ### Fase 5 · Season (rilascio separato)

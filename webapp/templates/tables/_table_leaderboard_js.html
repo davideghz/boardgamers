@@ -1,0 +1,456 @@
+{% load i18n %}
+{# Leaderboard editor (needs Sortable). Data: #leaderboard-editor-data, from _leaderboard_context(). #}
+{# Read view is rendered server side; this only drives the editor and reloads the page after saving. #}
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const dataEl = document.getElementById('leaderboard-editor-data');
+  const section = document.getElementById('leaderboardSection');
+  if (!dataEl || !section) return;
+  const D = JSON.parse(dataEl.textContent);
+  if (!D) return;
+
+  const T = {
+    modes: { ffa: '{{ _("Free for all")|escapejs }}', teams: '{{ _("Teams")|escapejs }}', coop: '{{ _("Cooperative")|escapejs }}', none: '{{ _("No leaderboard")|escapejs }}' },
+    suggestedHere: '{{ _("Suggested mode.")|escapejs }}',
+    locked: '{{ _("Only the table author, managers and admins can change the mode.")|escapejs }}',
+    noLeaderboardLink: '{{ _("This game session has no leaderboard")|escapejs }}',
+    alert: '{{ _("The suggested mode for this game is <strong>{mode}</strong>. Check that the chosen one is correct.")|escapejs }}',
+    use: '{{ _("Use {mode}")|escapejs }}',
+    lostToGame: '{{ _("<strong>The game won</strong>: you all lost")|escapejs }}',
+    lostToGameHint: '{{ _("For semi-cooperative games.")|escapejs }}',
+    lostToGameNote: '{{ _("No positions: all players lost.")|escapejs }}',
+    sortByScore: '{{ _("Sort by score")|escapejs }}',
+    lowestWins: '{{ _("lowest score wins")|escapejs }}',
+    ffaHelp: '{{ _("Drag by the dotted handle to reorder. Tap = for a tie with the player above. Points are optional.")|escapejs }}',
+    points: '{{ _("Points")|escapejs }}',
+    tieTitle: '{{ _("Tie with the one above")|escapejs }}',
+    buildTeams: '{{ _("1 · Build the teams")|escapejs }}',
+    oneVsAll: '{{ _("1 vs all")|escapejs }}',
+    teamsHelp: '{{ _("Tap + to create a new team. Tap a letter to assign the player to that team. Tap it again to remove them.")|escapejs }}',
+    newTeam: '{{ _("New team")|escapejs }}',
+    finishingOrder: '{{ _("2 · Finishing order")|escapejs }}',
+    teamsOrderHelp: '{{ _("Drag the teams by the dotted handle. Tap = for a tie with the team above. Points are optional.")|escapejs }}',
+    assignFirst: '{{ _("Assign the players to a team.")|escapejs }}',
+    unassigned: '{{ _("Players without a team: {count}.")|escapejs }}',
+    team: '{{ _("Team {team}")|escapejs }}',
+    weWon: '{{ _("We won")|escapejs }}',
+    weLost: '{{ _("We lost")|escapejs }}',
+    groupScore: '{{ _("Group score")|escapejs }}',
+    optional: '{{ _("(optional)")|escapejs }}',
+    allGold: '{{ _("Everyone gets gold.")|escapejs }}',
+    participants: '{{ _("Players: {names}.")|escapejs }}',
+    guestOf: '{{ _("(guest of {name})")|escapejs }}',
+    cancel: '{{ _("Cancel")|escapejs }}',
+    save: '{{ _("Save leaderboard")|escapejs }}',
+    errTeams: '{{ _("Assign a team to every player.")|escapejs }}',
+    errTwoTeams: '{{ _("At least 2 teams are needed.")|escapejs }}',
+    errCoop: '{{ _("Tell us whether you won or lost.")|escapejs }}',
+    errGeneric: '{{ _("Something went wrong, please try again.")|escapejs }}',
+    confirmReset: '{{ _("Changing the mode clears the saved leaderboard. Continue?")|escapejs }}',
+    report: '{{ _("Want to report a mistake or a better suggested mode for this game?")|escapejs }}',
+    contactUs: '{{ _("Contact us")|escapejs }}',
+  };
+  const MODES = ['ffa', 'teams', 'coop'];
+  const TEAM_LETTERS = 'ABCDEFGH'.split('');
+  const CSRF = '{{ csrf_token }}';
+
+  const readEl = document.getElementById('lbRead');
+  const editorEl = document.getElementById('lbEditor');
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // Placeholders are {name}-style: Django's _() in templates doubles any '%'.
+  const fmt = (s, v) => s.replace(/\{[a-z]+\}/, v);
+  const num = v => (v === '' || v === null || v === undefined || isNaN(Number(v))) ? null : Number(v);
+  const toggleIn = (arr, x) => arr.includes(x) ? arr.filter(v => v !== x) : [...arr, x];
+
+  let S = null, sortables = [];
+
+  // ── Stato iniziale dal risultato salvato ─────────────────────────
+  function initialState(startMode) {
+    const players = D.players.map(p => ({ id: p.id, name: p.name, guestOf: p.guestOf, score: p.score ?? '', team: null }));
+    const st = {
+      mode: startMode, lostToGame: false, lowScoreWins: false, coopOutcome: null, coopScore: '',
+      players, order: players.map(p => p.id), ties: [], teamOrder: [], teamTies: [], teamScores: {}, error: null,
+    };
+    const saved = D.saved;
+    if (!saved || saved.result_mode !== startMode) return st;
+    const byPos = [...D.players].sort((a, b) => (a.position ?? 1e9) - (b.position ?? 1e9));
+    if (saved.result_mode === 'ffa') {
+      st.lostToGame = saved.game_outcome === 'lost';
+      st.order = byPos.map(p => p.id);
+      st.ties = byPos.filter((p, i) => i > 0 && p.position !== null && p.position === byPos[i - 1].position).map(p => p.id);
+    } else if (saved.result_mode === 'teams') {
+      D.players.forEach(p => { st.players.find(x => x.id === p.id).team = p.team || null; });
+      const seen = [];
+      byPos.forEach(p => { if (p.team && !seen.find(t => t.team === p.team)) seen.push({ team: p.team, position: p.position, score: p.score }); });
+      st.teamOrder = seen.map(t => t.team);
+      st.teamTies = seen.filter((t, i) => i > 0 && t.position === seen[i - 1].position).map(t => t.team);
+      seen.forEach(t => { st.teamScores[t.team] = t.score ?? ''; });
+    } else if (saved.result_mode === 'coop') {
+      st.coopOutcome = saved.game_outcome;
+      st.coopScore = saved.coop_score ?? '';
+    }
+    return st;
+  }
+
+  const player = id => S.players.find(p => p.id === id);
+  const displayName = p => p.guestOf ? `${esc(p.name)} <span class="text-content-muted font-normal">${esc(fmt(T.guestOf, p.guestOf))}</span>` : esc(p.name);
+  const teamMembers = label => S.players.filter(p => p.team === label);
+
+  function rank(order, ties) {
+    const pos = {};
+    order.forEach((key, i) => { pos[key] = (i > 0 && ties.includes(key)) ? pos[order[i - 1]] : i + 1; });
+    return pos;
+  }
+
+  function syncTeams() {
+    const used = new Set(S.players.map(p => p.team).filter(Boolean));
+    S.teamOrder = S.teamOrder.filter(t => used.has(t));
+    used.forEach(t => { if (!S.teamOrder.includes(t)) S.teamOrder.push(t); });
+    S.teamTies = S.teamTies.filter(t => S.teamOrder.includes(t));
+  }
+
+  // ── Payload per l'endpoint "salva risultato" ──────────────────────
+  function payload() {
+    const res = { result_mode: S.mode, game_outcome: null, coop_score: null, players: [] };
+    if (S.mode === 'ffa') {
+      if (S.lostToGame) res.game_outcome = 'lost';
+      const pos = rank(S.order, S.ties);
+      res.players = S.order.map(id => ({ id, team: '', position: S.lostToGame ? null : pos[id], score: num(player(id).score) }));
+    } else if (S.mode === 'teams') {
+      const pos = rank(S.teamOrder, S.teamTies);
+      res.players = S.players.map(p => ({ id: p.id, team: p.team || '', position: p.team ? pos[p.team] : null, score: p.team ? num(S.teamScores[p.team]) : null }));
+    } else if (S.mode === 'coop') {
+      res.game_outcome = S.coopOutcome;
+      res.coop_score = num(S.coopScore);
+      res.players = S.players.map(p => ({ id: p.id, team: '', position: null, score: num(p.score) }));
+    } else {
+      res.players = S.players.map(p => ({ id: p.id, team: '', position: null, score: null }));
+    }
+    return res;
+  }
+
+  function validate() {
+    if (S.mode === 'teams') {
+      if (S.players.some(p => !p.team)) return T.errTeams;
+      if (S.teamOrder.length < 2) return T.errTwoTeams;
+    }
+    if (S.mode === 'coop' && !S.coopOutcome) return T.errCoop;
+    return null;
+  }
+
+  // ── Pezzi di UI ──────────────────────────────────────────────────
+  const ICON_HANDLE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
+  const ICON_WARN = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0 text-amber-600"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>';
+
+  function badge(pos) {
+    const base = 'inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-full text-xs font-extrabold';
+    if (pos === null || pos === undefined) return `<span class="${base} bg-surface-input text-content-muted">—</span>`;
+    const cls = { 1: 'bg-yellow-400 text-yellow-950', 2: 'bg-slate-300 text-slate-800', 3: 'bg-orange-400 text-orange-950' }[pos] || 'bg-surface-input text-content-soft';
+    return `<span class="${base} ${cls}">${pos}</span>`;
+  }
+
+  function tieButton(key, active, kind) {
+    return `<button type="button" data-action="${kind}" data-key="${esc(key)}" title="${esc(T.tieTitle)}"
+        class="flex-shrink-0 w-8 h-8 rounded-full text-sm font-extrabold border transition-colors
+               ${active ? 'bg-primary text-white border-primary' : 'border-divider text-content-muted hover:bg-surface-input'}">=</button>`;
+  }
+
+  function scoreInput(value, attrs) {
+    return `<input type="number" inputmode="numeric" value="${esc(value ?? '')}" placeholder="${esc(T.points)}" ${attrs}
+        class="w-20 flex-shrink-0 rounded-lg border border-divider bg-surface text-content text-sm px-2 py-1.5 text-right">`;
+  }
+
+  function modeSelector() {
+    const locked = !D.canChangeMode;
+    const btns = MODES.map(k => {
+      const active = S.mode === k;
+      return `<button type="button" data-action="mode" data-mode="${k}" ${locked ? 'disabled' : ''}
+          class="flex-auto px-2 py-2 rounded-full text-xs sm:text-sm font-bold transition-colors
+                 ${active ? 'bg-primary text-white' : 'text-content-soft hover:bg-surface'}
+                 ${locked && !active ? 'opacity-40 cursor-not-allowed' : ''}">${esc(T.modes[k])}</button>`;
+    }).join('');
+    const hint = locked ? T.locked : (S.mode === D.suggested ? T.suggestedHere : '');
+    const noLeaderboard = locked ? '' : `<button type="button" data-action="mode" data-mode="none"
+        class="mt-2 px-2 text-xs font-semibold text-content-muted underline hover:text-content">${esc(T.noLeaderboardLink)}</button>`;
+    const alert = S.mode === D.suggested ? '' : `
+      <div class="flex items-start gap-3 mt-3 p-3 rounded-xl border border-amber-200 bg-amber-50">
+        ${ICON_WARN}
+        <div class="flex-1 text-sm text-amber-800">
+          <p>${fmt(T.alert, esc(T.modes[D.suggested]))}</p>
+          ${locked ? '' : `<button type="button" data-action="mode" data-mode="${D.suggested}"
+              class="mt-2 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-200 hover:bg-amber-100">${esc(fmt(T.use, T.modes[D.suggested]))}</button>`}
+        </div>
+      </div>`;
+    return `<div class="mb-4">
+        <div class="flex gap-1 p-1 rounded-full bg-surface-input">${btns}</div>
+        ${hint ? `<p class="text-[11px] text-content-muted mt-1.5 px-2">${esc(hint)}</p>` : ''}
+        ${noLeaderboard}
+        ${alert}
+      </div>`;
+  }
+
+  function editFfa() {
+    const toggle = `<label class="flex items-center gap-3 p-3 mb-3 rounded-xl border border-divider cursor-pointer">
+        <input type="checkbox" data-action="lost-to-game" ${S.lostToGame ? 'checked' : ''} class="w-4 h-4">
+        <span class="text-sm text-content">${T.lostToGame}
+          <span class="block text-xs text-content-muted">${esc(T.lostToGameHint)}</span></span>
+      </label>`;
+    if (S.lostToGame) {
+      return toggle + `<div class="space-y-2">${S.order.map(id => `
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-alt">
+            ${badge(null)}<span class="flex-1 text-sm font-medium text-content">${displayName(player(id))}</span>
+          </div>`).join('')}</div>
+        <p class="text-xs text-content-muted mt-2">${esc(T.lostToGameNote)}</p>`;
+    }
+    const pos = rank(S.order, S.ties);
+    const hasScores = S.players.some(p => num(p.score) !== null);
+    const tools = `<div class="flex flex-wrap items-center gap-3 mb-3">
+        <button type="button" data-action="sort-score" ${hasScores ? '' : 'disabled'}
+          class="text-xs font-semibold px-3 py-1.5 rounded-full border border-divider text-content-soft hover:bg-surface-input disabled:opacity-40 disabled:cursor-not-allowed">${esc(T.sortByScore)}</button>
+        <label class="flex items-center gap-1.5 text-xs text-content-muted">
+          <input type="checkbox" data-action="low-wins" ${S.lowScoreWins ? 'checked' : ''}> ${esc(T.lowestWins)}</label>
+      </div>
+      <p class="text-xs text-content-muted mb-2">${esc(T.ffaHelp)}</p>`;
+    const rows = S.order.map((id, i) => {
+      const p = player(id);
+      return `<div class="flex items-center gap-2 sm:gap-3 p-2.5 rounded-xl bg-surface-alt" data-id="${id}">
+          <span class="handle text-content-muted cursor-move touch-none">${ICON_HANDLE}</span>
+          ${badge(pos[id])}
+          <span class="flex-1 min-w-0 truncate text-sm font-medium text-content">${displayName(p)}</span>
+          ${scoreInput(p.score, `data-score-player="${id}"`)}
+          ${i > 0 ? tieButton(id, S.ties.includes(id), 'tie') : '<span class="w-8 flex-shrink-0"></span>'}
+        </div>`;
+    }).join('');
+    return toggle + tools + `<div id="lbFfaList" class="space-y-2">${rows}</div>`;
+  }
+
+  function editTeams() {
+    const labels = S.teamOrder;
+    const nextLabel = TEAM_LETTERS.find(l => !labels.includes(l));
+    const assign = S.players.map(p => {
+      const chips = labels.map(t => `<button type="button" data-action="assign" data-player="${p.id}" data-team="${t}"
+          class="w-8 h-8 rounded-full text-xs font-bold border transition-colors
+                 ${p.team === t ? 'bg-primary text-white border-primary' : 'border-divider text-content-soft hover:bg-surface-input'}">${t}</button>`).join('');
+      const add = nextLabel ? `<button type="button" data-action="assign" data-player="${p.id}" data-team="${nextLabel}"
+          title="${esc(T.newTeam)}" class="w-8 h-8 rounded-full text-sm font-bold border border-dashed border-divider text-content-muted hover:bg-surface-input">+</button>` : '';
+      return `<div class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-alt">
+          <span class="flex-1 min-w-0 truncate text-sm font-medium text-content">${displayName(p)}</span>
+          <div class="flex flex-wrap justify-end gap-1">${chips}${add}</div>
+        </div>`;
+    }).join('');
+    const pos = rank(S.teamOrder, S.teamTies);
+    const blocks = S.teamOrder.map((t, i) => `
+      <div class="flex items-center gap-2 sm:gap-3 p-2.5 rounded-xl bg-surface-alt" data-team="${t}">
+        <span class="handle text-content-muted cursor-move touch-none">${ICON_HANDLE}</span>
+        ${badge(pos[t])}
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-content">${esc(fmt(T.team, t))}</div>
+          <div class="text-xs text-content-muted truncate">${teamMembers(t).map(p => esc(p.name)).join(', ')}</div>
+        </div>
+        ${scoreInput(S.teamScores[t], `data-score-team="${t}"`)}
+        ${i > 0 ? tieButton(t, S.teamTies.includes(t), 'team-tie') : '<span class="w-8 flex-shrink-0"></span>'}
+      </div>`).join('');
+    const unassigned = S.players.filter(p => !p.team).length;
+    return `
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-content-muted">${esc(T.buildTeams)}</h3>
+        <button type="button" data-action="one-vs-all" class="text-xs font-semibold text-primary hover:underline">${esc(T.oneVsAll)}</button>
+      </div>
+      <p class="text-xs text-content-muted mb-2">${esc(T.teamsHelp)}</p>
+      <div class="space-y-2 mb-5">${assign}</div>
+      <h3 class="text-xs font-bold uppercase tracking-wide text-content-muted mb-2">${esc(T.finishingOrder)}</h3>
+      ${S.teamOrder.length
+        ? `<p class="text-xs text-content-muted mb-2">${esc(T.teamsOrderHelp)}</p><div id="lbTeamList" class="space-y-2">${blocks}</div>`
+        : `<p class="text-sm text-content-muted italic">${esc(T.assignFirst)}</p>`}
+      ${unassigned && S.teamOrder.length ? `<p class="text-xs text-orange-500 mt-2">${esc(fmt(T.unassigned, unassigned))}</p>` : ''}`;
+  }
+
+  function editCoop() {
+    const btn = (val, label, on) => `<button type="button" data-action="coop" data-value="${val}"
+        class="flex-1 py-4 rounded-2xl text-base font-extrabold border-2 transition-colors
+               ${S.coopOutcome === val ? on : 'border-divider text-content-soft hover:bg-surface-input'}">${esc(label)}</button>`;
+    return `
+      <div class="flex gap-3 mb-4">
+        ${btn('won', T.weWon, 'bg-green-600 border-green-600 text-white')}
+        ${btn('lost', T.weLost, 'bg-red-600 border-red-600 text-white')}
+      </div>
+      <label class="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface-alt mb-3">
+        <span class="text-sm text-content">${esc(T.groupScore)} <span class="text-xs text-content-muted">${esc(T.optional)}</span></span>
+        ${scoreInput(S.coopScore, 'data-coop-score')}
+      </label>
+      <p class="text-xs text-content-muted">${esc(fmt(T.participants, S.players.map(p => p.name).join(', ')))}
+        ${S.coopOutcome === 'won' ? esc(T.allGold) : ''}</p>`;
+  }
+
+  function reportCard() {
+    if (!D.contactsUrl) return '';
+    return `<div class="mt-4 p-3 rounded-xl bg-surface-alt text-xs text-content-muted">
+        ${esc(T.report)} <a href="${esc(D.contactsUrl)}" target="_blank" class="font-semibold text-primary hover:underline">${esc(T.contactUs)}</a>.
+      </div>`;
+  }
+
+  // ── Render editor ────────────────────────────────────────────────
+  function render() {
+    sortables.forEach(s => s.destroy());
+    sortables = [];
+    const editor = { ffa: editFfa, teams: editTeams, coop: editCoop }[S.mode]();
+    editorEl.innerHTML = `${modeSelector()}${editor}
+      ${S.error ? `<p class="text-sm text-red-500 font-semibold mt-3">${esc(S.error)}</p>` : ''}
+      <div class="flex gap-2 mt-4">
+        <button type="button" data-action="cancel" class="flex-1 border border-divider text-content-soft text-sm font-bold py-2.5 rounded-full hover:bg-surface-input">${esc(T.cancel)}</button>
+        <button type="button" data-action="save" class="flex-[2] bg-primary text-white text-sm font-bold py-2.5 rounded-full hover:opacity-90 disabled:opacity-50">${esc(T.save)}</button>
+      </div>
+      ${reportCard()}`;
+
+    const ffaList = document.getElementById('lbFfaList');
+    if (ffaList) sortables.push(new Sortable(ffaList, {
+      animation: 150, handle: '.handle', ghostClass: 'opacity-50',
+      onEnd: evt => {
+        S.order = Array.from(ffaList.children).map(el => parseInt(el.dataset.id, 10));
+        S.ties = S.ties.filter(id => id !== parseInt(evt.item.dataset.id, 10));  // the tie does not follow the moved row
+        render();
+      },
+    }));
+    const teamList = document.getElementById('lbTeamList');
+    if (teamList) sortables.push(new Sortable(teamList, {
+      animation: 150, handle: '.handle', ghostClass: 'opacity-50',
+      onEnd: evt => {
+        S.teamOrder = Array.from(teamList.children).map(el => el.dataset.team);
+        S.teamTies = S.teamTies.filter(t => t !== evt.item.dataset.team);
+        render();
+      },
+    }));
+  }
+
+  function openEditor(mode) {
+    S = initialState(mode);
+    readEl.classList.add('hidden');
+    section.querySelectorAll('.lb-read-only').forEach(el => el.classList.add('hidden'));
+    editorEl.classList.remove('hidden');
+    render();
+  }
+
+  function closeEditor() {
+    sortables.forEach(s => s.destroy());
+    sortables = [];
+    editorEl.classList.add('hidden');
+    editorEl.innerHTML = '';
+    readEl.classList.remove('hidden');
+    section.querySelectorAll('.lb-read-only').forEach(el => el.classList.remove('hidden'));
+  }
+
+  async function submit(body) {
+    const saveBtn = editorEl.querySelector('[data-action="save"]');
+    if (saveBtn) saveBtn.disabled = true;
+    try {
+      const r = await fetch(D.saveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.ok && data.success) { window.location.reload(); return; }
+      S.error = data.message || T.errGeneric;
+    } catch (e) {
+      S.error = T.errGeneric;
+    }
+    render();
+  }
+
+  // Bottoni della vista (server side): compila / modifica / attiva
+  section.addEventListener('click', e => {
+    const el = e.target.closest('[data-lb-action]');
+    if (!el) return;
+    const a = el.dataset.lbAction;
+    if (a === 'start') openEditor(D.effective === 'none' ? 'ffa' : D.effective);
+    if (a === 'edit') openEditor(D.saved ? D.saved.result_mode : D.effective);
+    if (a === 'enable') openEditor('ffa');
+  });
+
+  editorEl.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el || el.tagName === 'INPUT') return;
+    S.error = null;
+    switch (el.dataset.action) {
+      case 'cancel':
+        closeEditor();
+        return;
+      case 'mode': {
+        const m = el.dataset.mode;
+        if (m === S.mode) return;
+        const hasSaved = D.saved && D.saved.result_mode !== 'none';
+        if (hasSaved && !confirm(T.confirmReset)) return;
+        if (m === 'none') {
+          // Nothing to fill in: the choice is saved right away.
+          S.mode = 'none';
+          submit(payload());
+          return;
+        }
+        const keepScores = S.players.map(p => p.score);
+        S = initialState(m);
+        S.players.forEach((p, i) => { p.score = keepScores[i]; });
+        break;
+      }
+      case 'tie':
+        S.ties = toggleIn(S.ties, parseInt(el.dataset.key, 10));
+        break;
+      case 'team-tie':
+        S.teamTies = toggleIn(S.teamTies, el.dataset.key);
+        break;
+      case 'sort-score': {
+        const sign = S.lowScoreWins ? 1 : -1;
+        const val = id => num(player(id).score);
+        S.order = [...S.order].sort((a, b) => {
+          const va = val(a), vb = val(b);
+          if (va === null && vb === null) return 0;
+          if (va === null) return 1;
+          if (vb === null) return -1;
+          return sign * (va - vb);
+        });
+        S.ties = S.order.filter((id, i) => i > 0 && val(id) !== null && val(id) === val(S.order[i - 1]));
+        break;
+      }
+      case 'assign': {
+        const p = player(parseInt(el.dataset.player, 10));
+        p.team = p.team === el.dataset.team ? null : el.dataset.team;
+        syncTeams();
+        break;
+      }
+      case 'one-vs-all':
+        S.players.forEach((p, i) => { p.team = i === 0 ? 'A' : 'B'; });
+        S.teamOrder = ['A', 'B']; S.teamTies = [];
+        break;
+      case 'coop':
+        S.coopOutcome = el.dataset.value;
+        break;
+      case 'save': {
+        const err = validate();
+        if (err) { S.error = err; break; }
+        submit(payload());
+        return;
+      }
+      default:
+        return;
+    }
+    render();
+  });
+
+  editorEl.addEventListener('change', e => {
+    const a = e.target.dataset.action;
+    if (a === 'lost-to-game') { S.lostToGame = e.target.checked; render(); }
+    if (a === 'low-wins') { S.lowScoreWins = e.target.checked; }
+  });
+
+  // Score inputs update the state without re-rendering (keeps the focus).
+  editorEl.addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.scorePlayer) {
+      player(parseInt(t.dataset.scorePlayer, 10)).score = t.value;
+      const sortBtn = editorEl.querySelector('[data-action="sort-score"]');
+      if (sortBtn) sortBtn.disabled = !S.players.some(p => num(p.score) !== null);
+    }
+    if (t.dataset.scoreTeam) S.teamScores[t.dataset.scoreTeam] = t.value;
+    if (t.hasAttribute('data-coop-score')) S.coopScore = t.value;
+  });
+});
+</script>
