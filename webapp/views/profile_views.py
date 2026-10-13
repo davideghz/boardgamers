@@ -89,9 +89,6 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
         connected = {sa.provider for sa in social_auths}
         has_password = user.has_usable_password()
 
-        # For the email section: use the "primary" provider
-        first_auth = social_auths[0] if social_auths else None
-        context['social_provider'] = first_auth.provider if first_auth else None
         context['has_usable_password'] = has_password
         context['connected_providers'] = connected
 
