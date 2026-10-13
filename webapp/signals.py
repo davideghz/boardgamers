@@ -102,8 +102,8 @@ def register_event_participation_on_join(sender, instance, created, **kwargs):
 
 # NB: la notifica di aggiornamento leaderboard NON è più gestita qui via signal.
 # Scattava a ogni Player.save() (N×(N-1) notifiche per un singolo riordino, che
-# salva i player in loop). Ora è inviata una sola volta, in batch, dalla view API
-# update_player_position (webapp/api/views.py) — una notifica per destinatario.
+# salva i player in loop). Ora è inviata una sola volta, in batch, da
+# save_table_result (webapp/services/tables.py) — una notifica per destinatario.
 
 
 @receiver(post_save, sender=Comment)

@@ -1,6 +1,5 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from webapp.api.views import TableViewSet, bgg_search_view, bgg_search_external_view, bgg_import_view
+from django.urls import path, re_path
+from webapp.api.views import tables_by_location_view, bgg_search_view, bgg_search_external_view, bgg_import_view
 from webapp.views.pwa_views import push_subscribe
 from webapp.api.search_views import user_search_view, location_search_view, member_search_view
 from webapp.api.telegram_views import telegram_webhook, generate_setup_token
@@ -13,11 +12,9 @@ from webapp.api.telegram_app_api import (
     leave as telegram_miniapp_leave,
 )
 
-router = DefaultRouter()
-router.register(r'tables', TableViewSet, basename='table')
-
 urlpatterns = [
-    path('', include(router.urls)),
+    re_path(r'^tables/by-location/(?P<location_slugs>[\w,-]+)/$', tables_by_location_view,
+            name='tables-by-location'),
     path('telegram/webhook/', telegram_webhook, name='telegram-webhook'),
     path('telegram/generate-token/<slug:slug>/', generate_setup_token, name='telegram-generate-token'),
     path('telegram/app/bootstrap/', telegram_miniapp_bootstrap, name='telegram-miniapp-bootstrap'),

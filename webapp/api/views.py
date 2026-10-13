@@ -1,144 +1,58 @@
 import logging
 
-from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from webapp.models import Table, Location, Player, Game, Notification, NotificationType, ResultMode
+from webapp.models import Table, Location, Game
 from webapp.api.serializers import TableSerializer
 from webapp.services.bgg import search_bgg, import_game_from_bgg, fetch_bgg_classifications
-from webapp.services.tables import can_edit_leaderboard, leaderboard_available, sync_legacy_result
 
 logger = logging.getLogger(__name__)
 
 
-class TableViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Table.objects.all()
-    serializer_class = TableSerializer
-    permission_classes = [IsAuthenticated]
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def tables_by_location_view(request, location_slugs):
+    """Public tables of one or more locations (comma-separated slugs), for the
+    embeddable widget (boardGames/static/widget/widget.js)."""
+    # Split the comma-separated slugs and remove any empty strings
+    slugs = [slug.strip() for slug in location_slugs.split(',') if slug.strip()]
 
-    def get_permissions(self):
-        # Rendi pubblica solo l'azione by_location
-        if self.action == 'by_location':
-            return [AllowAny()]
-        return super().get_permissions()
+    # Get all valid locations
+    locations = Location.objects.filter(slug__in=slugs)
 
-    @action(detail=True, methods=['post'], url_path='update-player-position')
-    def update_player_position(self, request, pk=None):
-        try:
-            table = self.get_object()
-
-            # Verifica se la classifica è modificabile
-            if table.leaderboard_status == Table.LEADERBOARD_NOT_EDITABLE and not request.user.is_superuser:
-                print(f"Errore: La classifica per il tavolo '{table.title}' non è modificabile.")
-                return Response({'success': False, 'error': 'Leaderboard is not editable'},
-                                status=status.HTTP_403_FORBIDDEN)
-
-
-            # Legacy free-for-all editor (cached pages / old PWA): it must not overwrite
-            # a result recorded in another mode by the new editor.
-            if table.result_mode not in (None, ResultMode.FFA):
-                return Response({'success': False, 'error': 'Page outdated: reload'},
-                                status=status.HTTP_409_CONFLICT)
-
-            players = request.data.get('players', [])
-            logger.debug("Players data received for table %s: %s", table.id, players)
-
-            # Players at the table, its author, location/event staff or an admin
-            if not can_edit_leaderboard(request.user.user_profile, table):
-                return Response({'success': False, 'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
-
-            # Aggiorna le posizioni dei giocatori
-            any_position_changed = False
-            for player_data in players:
-                player_id = player_data.get('id')
-                position = player_data.get('position')
-
-                if player_id is None or position is None:
-                    logger.warning("Missing id or position in player data: %s", player_data)
-                    continue
-
-                try:
-                    player = Player.objects.get(id=player_id, table=table)  # Usa il filtro per il tavolo corretto
-                    if player.position != position:
-                        player.position = position
-                        player.save()
-                        any_position_changed = True
-                except Player.DoesNotExist:
-                    logger.warning("Player id %s not found for table %s", player_id, table.id)
-                    continue
-                except Exception as e:
-                    logger.error("Error updating player id %s: %s", player_id, e)
-                    return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # This legacy UI only records free-for-all rankings: keep result_mode/outcomes in sync.
-            sync_legacy_result(table)
-
-            # Una sola notifica per destinatario per l'intero riordino (non più una
-            # per ogni Player.save()). Inviata solo se qualcosa è cambiato davvero
-            # e se la leaderboard è abilitata per il gioco.
-            if any_position_changed and leaderboard_available(table):
-                recipients = table.players.exclude(id=request.user.user_profile.id)
-                Notification.objects.bulk_create([
-                    Notification(
-                        recipient=recipient,
-                        notification_type=NotificationType.LEADERBOARD_UPDATED,
-                        table=table,
-                        location=table.location,
-                    )
-                    for recipient in recipients
-                ])
-
-            return Response({'success': True}, status=status.HTTP_200_OK)
-
-        except Table.DoesNotExist:
-            return Response({'success': False, 'error': 'Table not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            print(f"Errore inaspettato: {str(e)}")
-            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['get'], url_path=r'by-location/(?P<location_slugs>[\w,-]+)')
-
-    def by_location(self, request, location_slugs=None):
-        # Split the comma-separated slugs and remove any empty strings
-        slugs = [slug.strip() for slug in location_slugs.split(',') if slug.strip()]
-
-        # Get all valid locations
-        locations = Location.objects.filter(slug__in=slugs)
-
-        # If no valid locations found, return 404
-        if not locations.exists():
-            return Response(
-                {'error': 'No valid locations found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        # Get tables from all specified locations
-        limit = 12
-        today = now().date()
-        base_qs = (
-            Table.objects
-            .filter(location__in=locations)
-            .select_related('location', 'game')
-            .prefetch_related('players')
+    # If no valid locations found, return 404
+    if not locations.exists():
+        return Response(
+            {'error': 'No valid locations found'},
+            status=status.HTTP_404_NOT_FOUND
         )
 
-        # Upcoming tables first (closest in time first), then fill the
-        # remaining slots with the most recent past tables as a fallback.
-        future_tables = list(
-            base_qs.filter(date__gte=today).order_by('date', 'time')[:limit]
-        )
-        remaining = limit - len(future_tables)
-        past_tables = (
-            list(base_qs.filter(date__lt=today).order_by('-date', '-time')[:remaining])
-            if remaining > 0 else []
-        )
-        tables = future_tables + past_tables
+    # Get tables from all specified locations
+    limit = 12
+    today = now().date()
+    base_qs = (
+        Table.objects
+        .filter(location__in=locations)
+        .select_related('location', 'game')
+        .prefetch_related('players')
+    )
 
-        serializer = self.get_serializer(tables, many=True)
-        return Response(serializer.data)
+    # Upcoming tables first (closest in time first), then fill the
+    # remaining slots with the most recent past tables as a fallback.
+    future_tables = list(
+        base_qs.filter(date__gte=today).order_by('date', 'time')[:limit]
+    )
+    remaining = limit - len(future_tables)
+    past_tables = (
+        list(base_qs.filter(date__lt=today).order_by('-date', '-time')[:remaining])
+        if remaining > 0 else []
+    )
+    tables = future_tables + past_tables
+
+    return Response(TableSerializer(tables, many=True, context={'request': request}).data)
 
 
 @api_view(['GET'])
