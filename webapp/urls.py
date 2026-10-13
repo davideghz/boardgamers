@@ -5,7 +5,7 @@ from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
-from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, UserProfileAutocomplete, MemberAutocomplete
+from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, MemberAutocomplete, user_search_view
 from .views.location_views import FollowLocationView
 
 sitemaps = {
@@ -188,8 +188,8 @@ urlpatterns = [
     # AUTOCOMPLETES
     path('location-autocomplete/', LocationAutocomplete.as_view(), name='location-autocomplete'),
     path('games-autocomplete/', GamesAutocomplete.as_view(), name='games-autocomplete'),
-    path('userprofile-autocomplete/', UserProfileAutocomplete.as_view(), name='userprofile-autocomplete'),
     path('member-autocomplete/<slug:location_slug>/', MemberAutocomplete.as_view(), name='member-autocomplete'),
+    path('api/users/search/', user_search_view, name='user-search'),
 
     # AUTH
     path('accounts/login/', auth_views.CustomLoginView.as_view(authentication_form=CustomLoginForm), name='login'),

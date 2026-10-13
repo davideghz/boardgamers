@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory, DateField, TimeField
+    inlineformset_factory, DateField, TimeField, Widget
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -95,6 +95,36 @@ def _enhance_phone_widget(field):
     widget.attrs['class'] = f"{widget.attrs.get('class', '')} js-intl-tel-input".strip()
 
 
+class UserPickerWidget(Widget):
+    """Picks a UserProfile through a search modal (nickname, public full name, exact email).
+
+    Renders a hidden input holding the profile id plus a "select" button and a
+    card for the current choice; static/js/user_picker.js drives the modal and
+    queries `user_search_view`.
+    """
+    template_name = 'partials/_user_picker_widget.html'
+
+    class Media:
+        js = ('js/user_picker.js',)
+
+    def __init__(self, attrs=None, button_label=None):
+        super().__init__(attrs)
+        self.button_label = button_label or _('Select a user')
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        profile = None
+        if value:
+            profile = UserProfile.objects.filter(pk=value).first() if str(value).isdigit() else None
+        context['widget'].update({
+            'profile': profile,
+            'button_label': self.button_label,
+            'search_url': reverse('user-search'),
+            'min_length': USER_SEARCH_MIN_LENGTH,
+        })
+        return context
+
+
 class TailwindForm(Form):
     def __init__(self, *args, **kwargs):
         super(Form, self).__init__(*args, **kwargs)
@@ -102,7 +132,7 @@ class TailwindForm(Form):
             w = field.widget
             if isinstance(w, HiddenInput):
                 continue
-            if hasattr(w, 'url'):  # dal autocomplete — leave untouched
+            if hasattr(w, 'url') or isinstance(w, UserPickerWidget):  # styled by their own templates
                 continue
             has_err = bool(self.errors.get(field_name))
             css = _TW_INPUT_ERR if has_err else _TW_INPUT
@@ -575,7 +605,7 @@ class PhysicalTableForm(ModelForm, TailwindForm):
         return name
 
 
-#: Characters to type before the user search runs (shared with UserProfileAutocomplete).
+#: Characters to type before the user search runs (shared with the user picker search).
 USER_SEARCH_MIN_LENGTH = 2
 
 
@@ -583,13 +613,7 @@ class AddEventManagerForm(TailwindForm):
     manager = ModelChoiceField(
         queryset=UserProfile.objects.all(),
         label=_('Manager'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
-            }
-        )
+        widget=UserPickerWidget(button_label=_('Select a manager'))
     )
 
 
@@ -597,13 +621,7 @@ class AddTableCreatorForm(TailwindForm):
     table_creator = ModelChoiceField(
         queryset=UserProfile.objects.all(),
         label=_('Table creator'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
-            }
-        )
+        widget=UserPickerWidget(button_label=_('Select a table creator'))
     )
 
 
@@ -627,13 +645,7 @@ class AddLocationManagerForm(TailwindForm):
     manager = ModelChoiceField(
         queryset=UserProfile.objects.all(),
         label=_('Manager'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
-            }
-        )
+        widget=UserPickerWidget(button_label=_('Select a manager'))
     )
 
 
@@ -642,13 +654,7 @@ class TransferOwnershipForm(TailwindForm):
     new_owner = ModelChoiceField(
         queryset=UserProfile.objects.all(),
         label=_('New Owner'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
-            }
-        )
+        widget=UserPickerWidget(button_label=_('Select the new owner'))
     )
     add_as_manager = BooleanField(
         required=False,
@@ -662,14 +668,7 @@ class AddTablePlayerForm(TailwindForm):
     player = ModelChoiceField(
         queryset=UserProfile.objects.all(),
         label=_('Gamer'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
-                'data-width': '100%',
-            }
-        )
+        widget=UserPickerWidget(button_label=_('Select a gamer'))
     )
 
 
@@ -704,13 +703,7 @@ class MemberForm(MemberPersonalDataFieldsMixin, ModelForm, TailwindForm):
         queryset=UserProfile.objects.all(),
         required=False,
         label=_('Linked User Profile'),
-        widget=autocomplete.ModelSelect2(
-            url='userprofile-autocomplete',
-            attrs={
-                'data-placeholder': _('Search by username...'),
-                'data-minimum-input-length': USER_SEARCH_MIN_LENGTH,
-            }
-        )
+        widget=UserPickerWidget(button_label=_('Select a user'))
     )
 
     def __init__(self, *args, **kwargs):

@@ -1,0 +1,45 @@
+{% load i18n %}
+{# Rendered by forms.UserPickerWidget; static/js/user_picker.js opens the search modal and fills the hidden input. #}
+<div class="js-user-picker"
+     data-search-url="{{ widget.search_url }}"
+     data-min-length="{{ widget.min_length }}"
+     data-required="{{ widget.required|yesno:'1,' }}"
+     data-title="{{ widget.button_label }}"
+     data-placeholder="{% trans 'Nickname, name or email…' %}"
+     data-hint="{% trans 'Search by nickname, by name (if the user shows it on their profile) or by full email address.' %}"
+     data-min-length-text="{% blocktrans with count=widget.min_length %}Type at least {{ count }} characters{% endblocktrans %}"
+     data-searching-text="{% trans 'Searching...' %}"
+     data-no-results-text="{% trans 'No users found.' %}"
+     data-email-match-text="{% trans 'Email match' %}">
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.profile.pk|default:'' }}"{% include "django/forms/widgets/attrs.html" %}>
+
+  {# Empty state #}
+  <button type="button" data-picker-open{% if widget.profile %} style="display:none"{% endif %}
+          class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-divider px-4 py-3 text-sm font-semibold text-content-muted hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+    </svg>
+    {{ widget.button_label }}
+  </button>
+
+  {# Selected state #}
+  <div data-picker-selected class="flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface-alt"{% if not widget.profile %} style="display:none"{% endif %}>
+    <img data-picker-avatar src="{{ widget.profile.avatar_url|default:'' }}" alt="" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+    <div class="flex-1 min-w-0">
+      <p data-picker-nickname class="text-sm font-semibold text-content truncate">{{ widget.profile.nickname|default:'' }}</p>
+      <p data-picker-fullname class="text-xs text-content-muted truncate"{% if not widget.profile.show_full_name %} style="display:none"{% endif %}>{% if widget.profile.show_full_name %}{{ widget.profile.user.get_full_name }}{% endif %}</p>
+    </div>
+    <button type="button" data-picker-open
+            class="text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer flex-shrink-0">
+      {% trans "Change" %}
+    </button>
+    {% if not widget.required %}
+      <button type="button" data-picker-clear title="{% trans 'Remove' %}"
+              class="flex-shrink-0 p-1 rounded-lg text-content-muted hover:text-red-500 bg-transparent border-0 cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    {% endif %}
+  </div>
+</div>

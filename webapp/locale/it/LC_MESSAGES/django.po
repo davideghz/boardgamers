@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 10:48+0200\n"
+"POT-Creation-Date: 2026-10-13 15:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,9 @@ msgstr "Partecipanti"
 
 msgid "Connect your Board-Gamers account to book a seat."
 msgstr "Collega il tuo account Board-Gamers per prenotare un posto."
+
+msgid "Select a user"
+msgstr "Seleziona un utente"
 
 msgid "The image is too large (max 200 KB)."
 msgstr ""
@@ -98,11 +101,14 @@ msgstr "Esiste già una postazione con questo nome per questo evento."
 msgid "Manager"
 msgstr "Manager"
 
-msgid "Search by username..."
-msgstr "Cerca per username..."
+msgid "Select a manager"
+msgstr "Seleziona un manager"
 
 msgid "Table creator"
 msgstr "Admin tavoli"
+
+msgid "Select a table creator"
+msgstr "Seleziona un admin tavoli"
 
 msgid "Location"
 msgstr "Location"
@@ -113,11 +119,17 @@ msgstr "Cerca location..."
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
+msgid "Select the new owner"
+msgstr "Seleziona il nuovo owner"
+
 msgid "Add me as manager after transfer"
 msgstr "Aggiungimi come manager dopo il trasferimento di owner"
 
 msgid "Gamer"
 msgstr "Gamer"
+
+msgid "Select a gamer"
+msgstr "Seleziona un gamer"
 
 msgid "Linked User Profile"
 msgstr "Profilo utente collegato"
@@ -2725,6 +2737,26 @@ msgstr "Pagina %(number)s di %(total)s"
 msgid "Next"
 msgstr "Successiva"
 
+msgid "Nickname, name or email…"
+msgstr "Nickname, nome o email…"
+
+msgid ""
+"Search by nickname, by name (if the user shows it on their profile) or by "
+"full email address."
+msgstr ""
+"Cerca per nickname, per nome (se l'utente lo mostra nel profilo) o per "
+"indirizzo email completo."
+
+#, python-format
+msgid "Type at least %(count)s characters"
+msgstr "Inserisci almeno %(count)s caratteri"
+
+msgid "No users found."
+msgstr "Nessun utente trovato."
+
+msgid "Email match"
+msgstr "Email corrispondente"
+
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
 
@@ -3978,6 +4010,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Search by username..."
+#~ msgstr "Cerca per username..."
 
 #~ msgid "No tables yet"
 #~ msgstr "Ancora nessun tavolo."

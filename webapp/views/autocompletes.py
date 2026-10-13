@@ -1,6 +1,7 @@
 from dal import autocomplete
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models.functions import Lower
+from django.http import JsonResponse
 
 from webapp.forms import USER_SEARCH_MIN_LENGTH
 from webapp.models import Game, Location, UserProfile, Member
@@ -39,23 +40,55 @@ class GamesAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
-class UserProfileAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        # Don't forget to filter out results depending on the visitor !
-        if not self.request.user.is_authenticated:
-            return UserProfile.objects.none()
+#: Maximum number of users returned by user_search_view.
+USER_SEARCH_LIMIT = 12
 
-        if len(self.q) < USER_SEARCH_MIN_LENGTH:
-            return UserProfile.objects.none()
 
-        # Match anywhere in the nickname, but list prefix matches first
-        return UserProfile.objects.filter(nickname__icontains=self.q).annotate(
-            prefix_match=Case(
-                When(nickname__istartswith=self.q, then=Value(0)),
-                default=Value(1),
+def search_user_profiles(query):
+    """Users matching `query`, for the user picker.
+
+    Every word must match the nickname, or the first/last name of users who
+    chose to show their full name. A whole email address matches exactly:
+    partial emails never match, so addresses can't be guessed piece by piece.
+    """
+    query = query.strip()
+    if len(query) < USER_SEARCH_MIN_LENGTH:
+        return UserProfile.objects.none()
+
+    public_name = Q(show_full_name=True)
+    words = Q()
+    for word in query.split():
+        words &= Q(nickname__icontains=word) | (public_name & (
+            Q(user__first_name__icontains=word) | Q(user__last_name__icontains=word)))
+
+    return (UserProfile.objects
+            .filter(user__is_active=True)
+            .filter(words | Q(user__email__iexact=query))
+            .select_related('user')
+            .annotate(rank=Case(
+                When(nickname__iexact=query, then=Value(0)),
+                When(nickname__istartswith=query, then=Value(1)),
+                default=Value(2),
                 output_field=IntegerField(),
-            )
-        ).order_by('prefix_match', Lower('nickname'))
+            ))
+            .order_by('rank', Lower('nickname'))[:USER_SEARCH_LIMIT])
+
+
+def user_search_view(request):
+    """JSON search used by the user picker widget (UserPickerWidget)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'results': []}, status=403)
+    query = request.GET.get('q', '').strip()
+    return JsonResponse({'results': [
+        {
+            'id': profile.pk,
+            'nickname': profile.nickname,
+            'full_name': profile.user.get_full_name() if profile.show_full_name else '',
+            'avatar_url': profile.avatar_url,
+            'email_match': profile.user.email.lower() == query.lower(),
+        }
+        for profile in search_user_profiles(query)
+    ]})
 
 
 class MemberAutocomplete(autocomplete.Select2QuerySetView):
