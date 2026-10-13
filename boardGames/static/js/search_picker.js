@@ -80,6 +80,8 @@
     input.placeholder = picker.dataset.placeholder;
     hint.textContent = picker.dataset.hint;
     input.value = '';
+    showingDefaults = false;
+    loadDefaults();
     showDefaults();
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -100,22 +102,34 @@
     return url + (url.indexOf('?') === -1 ? '?' : '&') + 'exclude=' + encodeURIComponent(picker.dataset.exclude);
   }
 
-  // Quick picks (data-defaults-url, e.g. the user's favorites) while the search is empty.
-  function showDefaults() {
-    searchToken++;
-    results = [];
-    message(picker.dataset.minLengthText);
+  // Quick picks (data-defaults-url, e.g. the user's favorites) while the search is too
+  // short: fetched once per opening, listed under the "type at least N characters" text.
+  var defaults = null;        // quick picks of the open picker, null until loaded
+  var showingDefaults = false;
+
+  function loadDefaults() {
+    defaults = null;
     if (!picker.dataset.defaultsUrl) return;
-    var token = searchToken;
+    var target = picker;
     fetch(withExclude(picker.dataset.defaultsUrl), {credentials: 'same-origin'})
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (token !== searchToken || !data.results.length) return;
-        results = data.results;
-        body.innerHTML = '<p class="text-[10px] font-bold uppercase tracking-widest text-content-muted px-1 mb-2">'
-          + esc(picker.dataset.defaultsTitle) + '</p>' + rows(data.results);
+        if (target !== picker) return;  // modal closed or reopened meanwhile
+        defaults = data.results;
+        if (showingDefaults) { showingDefaults = false; showDefaults(); }
       })
       .catch(function () {});
+  }
+
+  function showDefaults() {
+    searchToken++;  // discard a pending search
+    if (showingDefaults) return;  // already on screen: don't redraw on every keystroke
+    showingDefaults = true;
+    results = defaults || [];
+    if (!results.length) { message(picker.dataset.minLengthText); return; }
+    body.innerHTML = '<p class="text-xs text-content-muted text-center mb-4">' + esc(picker.dataset.minLengthText) + '</p>'
+      + '<p class="text-[10px] font-bold uppercase tracking-widest text-content-muted px-1 mb-2">'
+      + esc(picker.dataset.defaultsTitle) + '</p>' + rows(results);
   }
 
   function rows(data) {
@@ -131,6 +145,7 @@
   }
 
   function render(data) {
+    showingDefaults = false;
     results = data;
     if (!data.length) { message(picker.dataset.noResultsText); return; }
     body.innerHTML = rows(data);
@@ -143,6 +158,7 @@
       showDefaults();
       return;
     }
+    showingDefaults = false;
     body.innerHTML = '<div class="flex flex-col items-center justify-center py-12 gap-3">' + SPINNER
       + '<p class="text-sm text-content-muted">' + esc(picker.dataset.searchingText) + '</p></div>';
     debounceTimer = setTimeout(function () {
