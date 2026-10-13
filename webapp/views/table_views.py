@@ -261,14 +261,17 @@ class BaseTableDetailView(generic.DetailView):
         # Every table with a game has a leaderboard section ("none" ones say so); results always show.
         leaderboard_enabled = leaderboard_visible or bool(table.game_id)
 
+        # The guest picker items (see search_picker.js), None when the user can't bring guests
         user_available_guests = None
+        user_has_guests = False
         if (self.request.user.is_authenticated and
                 table.status == Table.OPEN and
                 Player.objects.filter(table=table, user_profile=self.request.user.user_profile).exists()):
             already_at_table = players.filter(guest_profile__isnull=False).values_list('guest_profile_id', flat=True)
-            user_available_guests = GuestProfile.objects.filter(
-                owner=self.request.user.user_profile
-            ).exclude(id__in=already_at_table)
+            guests = GuestProfile.objects.filter(owner=self.request.user.user_profile)
+            user_has_guests = guests.exists()
+            user_available_guests = [{'id': guest.id, 'title': guest.name}
+                                     for guest in guests.exclude(id__in=already_at_table)]
 
         table_data = table.structured_data(self.request)
         context = super().get_context_data(**kwargs)
@@ -285,6 +288,7 @@ class BaseTableDetailView(generic.DetailView):
             'leaderboard': leaderboard,
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,
+            'user_has_guests': user_has_guests,
             'meta': table.as_meta(self.request),
             'table_jsonld': (
                 json.dumps(table_data, ensure_ascii=False) if table_data else None),

@@ -2,7 +2,9 @@
    (users, locations, members). One search modal is shared by every picker on the page;
    texts and the search URL come from the data-* attributes of the picker that opened it.
    Results are {id, title, subtitle, image_url, badge} (webapp/api/search_views.py).
-   While the search is empty it lists the quick picks of data-defaults-url, if any. */
+   While the search is empty it lists the quick picks of data-defaults-url, if any.
+   data-local-items filters a json_script list instead of searching; data-submit-on-select
+   submits the picker's form as soon as an item is picked. */
 (function () {
   if (window.SearchPicker) return;  // the script can be included once per form
 
@@ -81,8 +83,12 @@
     hint.textContent = picker.dataset.hint;
     input.value = '';
     showingDefaults = false;
-    loadDefaults();
-    showDefaults();
+    if (picker.dataset.localItems) {
+      searchLocal();
+    } else {
+      loadDefaults();
+      showDefaults();
+    }
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     setTimeout(function () { input.focus(); }, 50);
@@ -135,7 +141,10 @@
   function rows(data) {
     return '<div class="space-y-2">' + data.map(function (item, i) {
       return '<button type="button" data-index="' + i + '" class="w-full flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt text-left transition-colors cursor-pointer">'
-        + '<img src="' + esc(item.image_url) + '" alt="" class="w-10 h-10 ' + esc(picker.dataset.imageClass) + ' object-cover flex-shrink-0">'
+        + (item.image_url
+          ? '<img src="' + esc(item.image_url) + '" alt="" class="w-10 h-10 ' + esc(picker.dataset.imageClass) + ' object-cover flex-shrink-0">'
+          : '<div class="w-10 h-10 ' + esc(picker.dataset.imageClass) + ' bg-surface-input flex items-center justify-center flex-shrink-0 text-xs font-bold text-content-muted">'
+            + esc(item.title.slice(0, 2).toUpperCase()) + '</div>')
         + '<div class="min-w-0 flex-1"><p class="text-sm font-semibold text-content truncate">' + esc(item.title) + '</p>'
         + (item.subtitle ? '<p class="text-xs text-content-muted truncate">' + esc(item.subtitle) + '</p>' : '')
         + '</div>'
@@ -151,8 +160,22 @@
     body.innerHTML = rows(data);
   }
 
+  // Lower case without accents, for the local filter.
+  function normalize(text) {
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  // Pickers with data-local-items (the id of a json_script list) filter it in the
+  // browser instead of querying a search URL.
+  function searchLocal() {
+    var q = normalize(input.value.trim());
+    var items = JSON.parse(document.getElementById(picker.dataset.localItems).textContent);
+    render(items.filter(function (item) { return normalize(item.title).indexOf(q) !== -1; }));
+  }
+
   function search() {
     clearTimeout(debounceTimer);
+    if (picker.dataset.localItems) { searchLocal(); return; }
     var q = input.value.trim();
     if (q.length < +picker.dataset.minLength) {
       showDefaults();
@@ -184,7 +207,16 @@
 
   function select(item) {
     if (!item || !picker) return;
-    setValue(picker, item);
+    var target = picker;
+    if (target.dataset.submitOnSelect) {
+      // e.g. the guest picker: picking is the action, submit the form right away
+      target.querySelector('input[type=hidden]').value = item.id;
+      target.querySelectorAll('[data-picker-open]').forEach(function (b) { b.disabled = true; });
+      close();
+      target.closest('form').requestSubmit();
+      return;
+    }
+    setValue(target, item);
     close();
   }
 

@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n static %}
 
 <section>
   <h2 class="text-sm font-bold text-content mb-3">
@@ -61,27 +61,39 @@
       {% endif %}
     {% endfor %}
 
-    {# Add guest section #}
+    {# Add guest section: the guest picker adds the picked guest right away #}
     {% if user_available_guests is not None %}
       <div class="pt-1">
         {% if user_available_guests %}
-          <form method="post" action="{% url 'table-add-guest' table.slug %}" class="flex items-center gap-2">
+          {{ user_available_guests|json_script:"guest-picker-items" }}
+          <form method="post" action="{% url 'table-add-guest' table.slug %}">
             {% csrf_token %}
-            <select name="guest_id"
-                    class="flex-1 rounded-xl border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface">
-              {% for g in user_available_guests %}
-                <option value="{{ g.id }}">{{ g.name }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit"
-                    class="flex items-center gap-1 text-sm font-semibold text-content-soft border border-divider px-3 py-2 rounded-xl hover:bg-surface-alt transition-colors whitespace-nowrap">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-              {% trans "Add guest" %}
-            </button>
+            <div class="js-search-picker"
+                 data-local-items="guest-picker-items"
+                 data-submit-on-select="1"
+                 data-min-length="0"
+                 data-image-class="rounded-full"
+                 data-title="{% trans 'Add guest' %}"
+                 data-placeholder="{% trans 'Search your guests…' %}"
+                 data-hint=""
+                 data-no-results-text="{% trans 'No guests found.' %}">
+              <input type="hidden" name="guest_id">
+              <button type="button" data-picker-open
+                      class="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-content-soft border-2 border-dashed border-divider px-3 py-2 rounded-xl bg-transparent hover:border-blue-400 hover:text-blue-600 transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                {% trans "Add guest" %}
+              </button>
+            </div>
           </form>
-        {% else %}
+          <script src="{% static 'js/search_picker.js' %}"></script>
+        {% elif user_has_guests %}
           <p class="text-xs text-content-muted italic">
             {% trans "All your guests are already at the table." %}
+            <a href="{% url 'account-guests' %}" class="text-blue-600 hover:underline">{% trans "Manage guests" %}</a>
+          </p>
+        {% else %}
+          <p class="text-xs text-content-muted italic">
+            {% trans "You have no guests yet." %}
             <a href="{% url 'account-guests' %}" class="text-blue-600 hover:underline">{% trans "Manage guests" %}</a>
           </p>
         {% endif %}

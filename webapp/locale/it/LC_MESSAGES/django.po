@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 16:00+0200\n"
+"POT-Creation-Date: 2026-10-13 16:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3375,11 +3375,20 @@ msgstr ""
 msgid "Add guest"
 msgstr "Aggiungi ospite"
 
+msgid "Search your guests…"
+msgstr "Cerca tra i tuoi ospiti…"
+
+msgid "No guests found."
+msgstr "Nessun ospite trovato."
+
 msgid "All your guests are already at the table."
 msgstr "Tutti i tuoi ospiti sono già al tavolo."
 
 msgid "Manage guests"
 msgstr "Gestisci ospiti"
+
+msgid "You have no guests yet."
+msgstr "Non hai ancora ospiti."
 
 msgid "external gamer"
 msgstr "gamer anonimo"
