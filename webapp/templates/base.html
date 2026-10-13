@@ -123,10 +123,8 @@
     .prose-sm ol { list-style: decimal; padding-left: 1.25rem; margin: 0.25rem 0; }
     .prose-sm p { margin-bottom: 0.5rem; }
     .prose-sm p:last-child { margin-bottom: 0; }
-    /* Select2 — remove default min-width that causes mobile overflow */
-    .select2-container { min-width: 0 !important; width: 100% !important; }
     /* Native select reset — removes browser arrow and adds a consistent chevron */
-    select:not(.select2-hidden-accessible) {
+    select {
       appearance: none;
       -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -138,30 +136,9 @@
 
     /* ── 3rd-party widgets: dark overrides (phase 4) ───────────────────── */
     /* Native select chevron: lighten in dark */
-    .dark select:not(.select2-hidden-accessible) {
+    .dark select {
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     }
-
-    /* select2 (dal_select2, default theme) */
-    .dark .select2-dropdown { background-color: var(--surface); border-color: var(--border); }
-    .dark .select2-container--default .select2-selection--single,
-    .dark .select2-container--default .select2-selection--multiple {
-      background-color: var(--surface); border-color: var(--border);
-    }
-    .dark .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--text); }
-    .dark .select2-container--default .select2-selection__placeholder { color: var(--text-muted); }
-    .dark .select2-container--default .select2-selection--single .select2-selection__arrow b { border-top-color: var(--text-muted); }
-    .dark .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b { border-bottom-color: var(--text-muted); }
-    .dark .select2-container--default .select2-search--dropdown .select2-search__field {
-      background-color: var(--surface-3); border-color: var(--border); color: var(--text);
-    }
-    .dark .select2-results__option { color: var(--text-2); }
-    .dark .select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: var(--elevated); color: #fff; }
-    .dark .select2-container--default .select2-results__option[aria-selected=true] { background-color: var(--surface-3); color: var(--text); }
-    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice {
-      background-color: var(--surface-3); border-color: var(--border); color: var(--text);
-    }
-    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: var(--text-muted); }
 
     /* flatpickr */
     .dark .flatpickr-calendar { background: var(--surface); border-color: var(--border); color: var(--text); box-shadow: 0 4px 20px rgba(0,0,0,.5); }

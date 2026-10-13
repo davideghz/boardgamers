@@ -1,36 +1,6 @@
 {% extends "base_webapp.html" %}
 {% load i18n %}
 
-{% block style %}
-  {{ form.media.css }}
-  <style>
-    .select2-container .select2-selection--single {
-      height: 48px !important;
-      border-radius: 0.75rem !important;
-      border-color: var(--border) !important;
-      display: flex !important;
-      align-items: center !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      line-height: 48px !important;
-      padding-left: 1rem !important;
-      color: var(--text-2) !important;
-      font-size: 0.875rem !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      height: 48px !important;
-    }
-    .select2-dropdown {
-      border-radius: 0.75rem !important;
-      border-color: var(--border) !important;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-      background-color: var(--elevated) !important;
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
 
   <div class="mb-6">
@@ -95,14 +65,7 @@
             {{ field.label }}
             {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
           </label>
-          {% if field.html_name == 'owner_member' and field.field.disabled %}
-            {# Mimic Select2 disabled/placeholder appearance when membership is not enabled #}
-            <div class="w-full h-12 rounded-xl border border-divider px-4 text-sm text-content-muted bg-surface opacity-50 cursor-not-allowed flex items-center select-none">
-              {% trans "Search for a member..." %}
-            </div>
-          {% else %}
-            {{ field }}
-          {% endif %}
+          {{ field }}
           {% if field.html_name == 'owner_member' and not location.enable_membership %}
             <p class="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
               {% trans "To specify a member as the game owner, activate membership requests for your location." %}
@@ -178,7 +141,6 @@
       document.getElementById('game-selected-state').style.display = '';
     };
   </script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   {{ form.media.js }}
 
   {% if location.enable_membership %}
@@ -188,15 +150,11 @@
       var ownershipEl = document.getElementById('id_ownership');
       var memberEl    = document.getElementById('id_owner_member');
       if (!ownershipEl || !memberEl) return;
+      var memberPicker = memberEl.closest('.js-search-picker');
 
       function syncMemberField() {
-        var isLocation = ownershipEl.value === 'location';
-        if (isLocation) {
-          $(memberEl).val(null).trigger('change');   // clear select2 value
-          $(memberEl).prop('disabled', true).trigger('change');
-        } else {
-          $(memberEl).prop('disabled', false).trigger('change');
-        }
+        // A game owned by the location has no member owner
+        window.SearchPicker.setDisabled(memberPicker, ownershipEl.value === 'location');
       }
 
       ownershipEl.addEventListener('change', syncMemberField);

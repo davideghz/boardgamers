@@ -1,9 +1,9 @@
-/* User picker: drives the .js-user-picker blocks rendered by forms.UserPickerWidget.
-   One search modal is shared by every picker on the page; texts and the search URL
-   come from the data-* attributes of the picker that opened it. */
+/* Search picker: drives the .js-search-picker blocks rendered by forms.SearchPickerWidget
+   (users, locations, members). One search modal is shared by every picker on the page;
+   texts and the search URL come from the data-* attributes of the picker that opened it.
+   Results are {id, title, subtitle, image_url, badge} (webapp/api/search_views.py). */
 (function () {
-  if (window.UserPicker) return;  // the script can be included once per form
-  window.UserPicker = true;
+  if (window.SearchPicker) return;  // the script can be included once per form
 
   var SPINNER = '<svg class="animate-spin w-7 h-7 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">'
     + '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>'
@@ -97,13 +97,13 @@
   function render(data) {
     results = data;
     if (!data.length) { message(picker.dataset.noResultsText); return; }
-    body.innerHTML = '<div class="space-y-2">' + data.map(function (u, i) {
+    body.innerHTML = '<div class="space-y-2">' + data.map(function (item, i) {
       return '<button type="button" data-index="' + i + '" class="w-full flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt text-left transition-colors cursor-pointer">'
-        + '<img src="' + esc(u.avatar_url) + '" alt="" class="w-10 h-10 rounded-full object-cover flex-shrink-0">'
-        + '<div class="min-w-0 flex-1"><p class="text-sm font-semibold text-content truncate">' + esc(u.nickname) + '</p>'
-        + (u.full_name ? '<p class="text-xs text-content-muted truncate">' + esc(u.full_name) + '</p>' : '')
+        + '<img src="' + esc(item.image_url) + '" alt="" class="w-10 h-10 ' + esc(picker.dataset.imageClass) + ' object-cover flex-shrink-0">'
+        + '<div class="min-w-0 flex-1"><p class="text-sm font-semibold text-content truncate">' + esc(item.title) + '</p>'
+        + (item.subtitle ? '<p class="text-xs text-content-muted truncate">' + esc(item.subtitle) + '</p>' : '')
         + '</div>'
-        + (u.email_match ? '<span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">' + esc(picker.dataset.emailMatchText) + '</span>' : '')
+        + (item.badge && picker.dataset.badgeText ? '<span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">' + esc(picker.dataset.badgeText) + '</span>' : '')
         + '</button>';
     }).join('') + '</div>';
   }
@@ -128,27 +128,27 @@
     }, 300);
   }
 
-  function setValue(target, user) {
-    target.querySelector('input[type=hidden]').value = user ? user.id : '';
-    target.querySelector('[data-picker-selected]').style.display = user ? '' : 'none';
-    target.querySelector('[data-picker-open]').style.display = user ? 'none' : '';
-    if (!user) return;
-    target.querySelector('[data-picker-avatar]').src = user.avatar_url;
-    target.querySelector('[data-picker-nickname]').textContent = user.nickname;
-    var fullName = target.querySelector('[data-picker-fullname]');
-    fullName.textContent = user.full_name;
-    fullName.style.display = user.full_name ? '' : 'none';
+  function setValue(target, item) {
+    target.querySelector('input[type=hidden]').value = item ? item.id : '';
+    target.querySelector('[data-picker-selected]').style.display = item ? '' : 'none';
+    target.querySelector('[data-picker-open]').style.display = item ? 'none' : '';
+    if (!item) return;
+    target.querySelector('[data-picker-image]').src = item.image_url;
+    target.querySelector('[data-picker-title]').textContent = item.title;
+    var subtitle = target.querySelector('[data-picker-subtitle]');
+    subtitle.textContent = item.subtitle;
+    subtitle.style.display = item.subtitle ? '' : 'none';
   }
 
-  function select(user) {
-    if (!user || !picker) return;
-    setValue(picker, user);
+  function select(item) {
+    if (!item || !picker) return;
+    setValue(picker, item);
     close();
   }
 
   document.addEventListener('click', function (e) {
-    var target = e.target.closest('.js-user-picker');
-    if (!target) return;
+    var target = e.target.closest('.js-search-picker');
+    if (!target || target.dataset.disabled) return;
     if (e.target.closest('[data-picker-open]')) open(target);
     else if (e.target.closest('[data-picker-clear]')) setValue(target, null);
   });
@@ -156,7 +156,7 @@
   // A hidden input is skipped by browser validation: open the search instead of
   // submitting a required picker left empty.
   document.addEventListener('submit', function (e) {
-    var pickers = e.target.querySelectorAll('.js-user-picker[data-required="1"]');
+    var pickers = e.target.querySelectorAll('.js-search-picker[data-required="1"]:not([data-disabled])');
     for (var i = 0; i < pickers.length; i++) {
       if (!pickers[i].querySelector('input[type=hidden]').value) {
         e.preventDefault();
@@ -165,4 +165,15 @@
       }
     }
   }, true);
+
+  window.SearchPicker = {
+    // Disable (and clear) or re-enable a picker; a disabled picker submits nothing.
+    setDisabled: function (target, disabled) {
+      var hidden = target.querySelector('input[type=hidden]');
+      if (disabled) { setValue(target, null); target.dataset.disabled = '1'; }
+      else delete target.dataset.disabled;
+      hidden.disabled = disabled;
+      target.querySelectorAll('[data-picker-open]').forEach(function (b) { b.disabled = disabled; });
+    }
+  };
 })();

@@ -139,7 +139,7 @@
     show(loading);
     debounceTimer = setTimeout(function () {
       var token = ++searchToken;
-      fetch('{% url "table-location-search" %}?q=' + encodeURIComponent(q))
+      fetch('{% url "location-search" %}?tables=1&q=' + encodeURIComponent(q))
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (token !== searchToken) return;
@@ -148,9 +148,9 @@
           } else {
             results.innerHTML = data.results.map(function (l) {
               return '<button type="button" data-slug="' + esc(l.slug) + '" class="w-full flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt text-left transition-colors cursor-pointer">'
-                + '<img src="' + esc(l.cover_url) + '" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">'
-                + '<div class="min-w-0"><p class="text-sm font-semibold text-content truncate">' + esc(l.name) + '</p>'
-                + (l.city ? '<p class="text-xs text-content-muted truncate">' + esc(l.city) + '</p>' : '')
+                + '<img src="' + esc(l.image_url) + '" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">'
+                + '<div class="min-w-0"><p class="text-sm font-semibold text-content truncate">' + esc(l.title) + '</p>'
+                + (l.subtitle ? '<p class="text-xs text-content-muted truncate">' + esc(l.subtitle) + '</p>' : '')
                 + '</div></button>';
             }).join('');
           }

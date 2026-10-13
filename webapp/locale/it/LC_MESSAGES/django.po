@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 15:28+0200\n"
+"POT-Creation-Date: 2026-10-13 15:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,17 +44,54 @@ msgstr "Partecipanti"
 msgid "Connect your Board-Gamers account to book a seat."
 msgstr "Collega il tuo account Board-Gamers per prenotare un posto."
 
+msgid "Select"
+msgstr "Seleziona"
+
+msgid "Search…"
+msgstr "Cerca…"
+
+msgid "No results found."
+msgstr "Nessun risultato."
+
 msgid "Select a user"
 msgstr "Seleziona un utente"
 
-msgid "The image is too large (max 200 KB)."
+msgid "Nickname, name or email…"
+msgstr "Nickname, nome o email…"
+
+msgid ""
+"Search by nickname, by name (if the user shows it on their profile) or by "
+"full email address."
 msgstr ""
+"Cerca per nickname, per nome (se l'utente lo mostra nel profilo) o per "
+"indirizzo email completo."
 
-msgid "Games"
-msgstr "Giochi"
+msgid "No users found."
+msgstr "Nessun utente trovato."
 
-msgid "Game"
-msgstr "Gioco"
+msgid "Email match"
+msgstr "Email corrispondente"
+
+msgid "Select a location"
+msgstr "Seleziona una location"
+
+msgid "Search by name or city…"
+msgstr "Cerca per nome o città…"
+
+msgid "No locations found."
+msgstr "Nessuna location trovata."
+
+msgid "Select a member"
+msgstr "Seleziona un socio"
+
+msgid "Name or nickname…"
+msgstr "Nome o nickname…"
+
+msgid "No members found."
+msgstr "Nessun socio trovato."
+
+msgid "The image is too large (max 200 KB)."
+msgstr "L'immagine è troppo grande (max 200 KB)."
 
 msgid "Maximum players cannot be less than minimum players."
 msgstr "Il numero massimo di giocatori non può essere inferiore al minimo."
@@ -113,9 +150,6 @@ msgstr "Seleziona un admin tavoli"
 msgid "Location"
 msgstr "Location"
 
-msgid "Search location..."
-msgstr "Cerca location..."
-
 msgid "New Owner"
 msgstr "Nuovo Owner"
 
@@ -164,14 +198,8 @@ msgstr ""
 msgid "End date is required when status is Active."
 msgstr ""
 
-msgid "Search for a game..."
-msgstr "Cerca un gioco..."
-
-msgid "Owner Member"
-msgstr "Socio Proprietario"
-
-msgid "Search for a member..."
-msgstr "Cerca per socio..."
+msgid "Game"
+msgstr "Gioco"
 
 msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
@@ -573,6 +601,9 @@ msgstr "A casa di un socio"
 msgid "Ownership"
 msgstr "Proprietà"
 
+msgid "Owner Member"
+msgstr "Socio Proprietario"
+
 msgid "Physical Location"
 msgstr "Ubicazione"
 
@@ -802,6 +833,9 @@ msgstr "Il tavolo %(title)s è stato chiuso."
 
 msgid "Add a game"
 msgstr "Aggiungi Gioco"
+
+msgid "Search for a game..."
+msgstr "Cerca un gioco..."
 
 msgid "Search among 70.000+ board games"
 msgstr "Cercalo tra oltre 70.000 giochi da tavolo"
@@ -1370,6 +1404,9 @@ msgstr "Feed"
 
 msgid "Explore"
 msgstr "Esplora"
+
+msgid "Games"
+msgstr "Giochi"
 
 msgid "Tables"
 msgstr "Tavoli"
@@ -2394,9 +2431,6 @@ msgstr "Cerca per nome, email, codice…"
 msgid "Only members without a signed form"
 msgstr "Solo soci senza modulo firmato"
 
-msgid "No members found."
-msgstr "Nessun socio trovato."
-
 msgid "No membership"
 msgstr "Nessuna membership"
 
@@ -2737,25 +2771,11 @@ msgstr "Pagina %(number)s di %(total)s"
 msgid "Next"
 msgstr "Successiva"
 
-msgid "Nickname, name or email…"
-msgstr "Nickname, nome o email…"
-
-msgid ""
-"Search by nickname, by name (if the user shows it on their profile) or by "
-"full email address."
-msgstr ""
-"Cerca per nickname, per nome (se l'utente lo mostra nel profilo) o per "
-"indirizzo email completo."
-
 #, python-format
-msgid "Type at least %(count)s characters"
-msgstr "Inserisci almeno %(count)s caratteri"
-
-msgid "No users found."
-msgstr "Nessun utente trovato."
-
-msgid "Email match"
-msgstr "Email corrispondente"
+msgid "Type at least %(count)s character"
+msgid_plural "Type at least %(count)s characters"
+msgstr[0] "Inserisci almeno %(count)s carattere"
+msgstr[1] "Inserisci almeno %(count)s caratteri"
 
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
@@ -3125,14 +3145,8 @@ msgstr "Seleziona lingua"
 msgid "Filter by location"
 msgstr "Filtra per location"
 
-msgid "Search by name or city…"
-msgstr "Cerca per nome o città…"
-
 msgid "Search for a location"
 msgstr "Cerca una location"
-
-msgid "No locations found."
-msgstr "Nessuna location trovata."
 
 msgid "Comments"
 msgstr "Commenti"
@@ -4010,6 +4024,12 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Search location..."
+#~ msgstr "Cerca location..."
+
+#~ msgid "Search for a member..."
+#~ msgstr "Cerca per socio..."
 
 #~ msgid "Search by username..."
 #~ msgstr "Cerca per username..."

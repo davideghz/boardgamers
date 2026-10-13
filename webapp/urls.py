@@ -5,7 +5,6 @@ from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
-from .views.autocompletes import GamesAutocomplete, LocationAutocomplete, MemberAutocomplete, user_search_view
 from .views.location_views import FollowLocationView
 
 sitemaps = {
@@ -28,7 +27,6 @@ urlpatterns = [
 
     # TABLE
     path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
-    path("tables/locations/search/", table_views.table_location_search_view, name="table-location-search"),
     path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
     path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
     path('tables/<slug:slug>/join/', table_views.JoinTableView.as_view(), name='join_table'),
@@ -185,12 +183,6 @@ urlpatterns = [
     path('users/upload/avatar/', profile_views.upload_avatar, name='upload-avatar'),
     path('users/remove/avatar/', profile_views.remove_avatar, name='remove-avatar'),
 
-    # AUTOCOMPLETES
-    path('location-autocomplete/', LocationAutocomplete.as_view(), name='location-autocomplete'),
-    path('games-autocomplete/', GamesAutocomplete.as_view(), name='games-autocomplete'),
-    path('member-autocomplete/<slug:location_slug>/', MemberAutocomplete.as_view(), name='member-autocomplete'),
-    path('api/users/search/', user_search_view, name='user-search'),
-
     # AUTH
     path('accounts/login/', auth_views.CustomLoginView.as_view(authentication_form=CustomLoginForm), name='login'),
     path('accounts/signup/', auth_views.SignupView.as_view(), name='signup'),
@@ -209,7 +201,6 @@ urlpatterns = [
     # PWA
     path('manifest.json', pwa_views.manifest_json, name='pwa-manifest'),
     path('service-worker.js', pwa_views.service_worker_js, name='pwa-service-worker'),
-    path('api/push/subscribe/', pwa_views.push_subscribe, name='push-subscribe'),
 
     # SITEMAP
     path('sitemap.xml', sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),

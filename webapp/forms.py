@@ -14,7 +14,6 @@ from webapp.models import Table, TableLink, UserProfile, Comment, Player, Locati
 
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from dal import autocomplete, forward
 
 
 class CustomTextInputWidget(TextInput):
@@ -95,34 +94,107 @@ def _enhance_phone_widget(field):
     widget.attrs['class'] = f"{widget.attrs.get('class', '')} js-intl-tel-input".strip()
 
 
-class UserPickerWidget(Widget):
-    """Picks a UserProfile through a search modal (nickname, public full name, exact email).
+class SearchPickerWidget(Widget):
+    """Picks an object through a search modal instead of a select.
 
-    Renders a hidden input holding the profile id plus a "select" button and a
-    card for the current choice; static/js/user_picker.js drives the modal and
-    queries `user_search_view`.
+    Renders a hidden input holding the object id, a "select" button and a card
+    for the current choice; static/js/search_picker.js drives the shared modal
+    and queries the JSON search at `search_url` (see webapp/api/search_views.py).
+    Subclasses set the search URL, the texts and how to show the current value.
     """
-    template_name = 'partials/_user_picker_widget.html'
+    template_name = 'partials/_search_picker_widget.html'
+    search_url_name = None
+    min_length = 2
+    image_class = 'rounded-lg'
+    button_label = _('Select')
+    placeholder = _('Search…')
+    hint = ''
+    no_results_text = _('No results found.')
+    badge_text = ''
 
     class Media:
-        js = ('js/user_picker.js',)
+        js = ('js/search_picker.js',)
 
     def __init__(self, attrs=None, button_label=None):
         super().__init__(attrs)
-        self.button_label = button_label or _('Select a user')
+        if button_label:
+            self.button_label = button_label
+
+    def get_search_url(self):
+        return reverse(self.search_url_name)
+
+    def get_item(self, value):
+        """The search result dict (title, subtitle, image_url) for the current value."""
+        raise NotImplementedError
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        profile = None
-        if value:
-            profile = UserProfile.objects.filter(pk=value).first() if str(value).isdigit() else None
         context['widget'].update({
-            'profile': profile,
+            'item': self.get_item(value) if value and str(value).isdigit() else None,
+            'search_url': self.get_search_url(),
+            'min_length': self.min_length,
+            'image_class': self.image_class,
             'button_label': self.button_label,
-            'search_url': reverse('user-search'),
-            'min_length': USER_SEARCH_MIN_LENGTH,
+            'placeholder': self.placeholder,
+            'hint': self.hint,
+            'no_results_text': self.no_results_text,
+            'badge_text': self.badge_text,
         })
         return context
+
+
+class UserPickerWidget(SearchPickerWidget):
+    """Picks a UserProfile by nickname, public full name or exact email."""
+    search_url_name = 'user-search'
+    image_class = 'rounded-full'
+    button_label = _('Select a user')
+    placeholder = _('Nickname, name or email…')
+    hint = _('Search by nickname, by name (if the user shows it on their profile) or by full email address.')
+    no_results_text = _('No users found.')
+    badge_text = _('Email match')
+
+    @property
+    def min_length(self):
+        return USER_SEARCH_MIN_LENGTH
+
+    def get_item(self, value):
+        from webapp.api.search_views import user_profile_result
+        profile = UserProfile.objects.select_related('user').filter(pk=value).first()
+        return profile and user_profile_result(profile)
+
+
+class LocationPickerWidget(SearchPickerWidget):
+    """Picks a public Location by name or city."""
+    search_url_name = 'location-search'
+    button_label = _('Select a location')
+    placeholder = _('Search by name or city…')
+    no_results_text = _('No locations found.')
+
+    def get_item(self, value):
+        from webapp.api.search_views import location_result
+        location = Location.objects.filter(pk=value).first()
+        return location and location_result(location)
+
+
+class MemberPickerWidget(SearchPickerWidget):
+    """Picks a Member of `location` by name or linked nickname (managers only)."""
+    min_length = 1
+    image_class = 'rounded-full'
+    button_label = _('Select a member')
+    placeholder = _('Name or nickname…')
+    no_results_text = _('No members found.')
+
+    def __init__(self, location, attrs=None, button_label=None):
+        super().__init__(attrs, button_label)
+        self.location = location
+
+    def get_search_url(self):
+        return reverse('member-search', kwargs={'slug': self.location.slug})
+
+    def get_item(self, value):
+        from webapp.api.search_views import member_result
+        member = self.location.members.select_related('user_profile').filter(pk=value).first()
+        return member and member_result(member)
 
 
 class TailwindForm(Form):
@@ -132,7 +204,7 @@ class TailwindForm(Form):
             w = field.widget
             if isinstance(w, HiddenInput):
                 continue
-            if hasattr(w, 'url') or isinstance(w, UserPickerWidget):  # styled by their own templates
+            if isinstance(w, SearchPickerWidget):  # styled by its own template
                 continue
             has_err = bool(self.errors.get(field_name))
             css = _TW_INPUT_ERR if has_err else _TW_INPUT
@@ -169,14 +241,7 @@ class TableForm(ModelForm, TailwindForm):
         exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category']
         widgets = {
             'location': HiddenInput(),
-            'games': autocomplete.ModelSelect2Multiple(
-                url='games-autocomplete',
-                attrs={'data-placeholder': _('Games')},
-            ),
-            'game': autocomplete.ModelSelect2(
-                url='games-autocomplete',
-                attrs={'data-placeholder': _('Game')},
-            ),
+            'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
 
     def __init__(self, *args, **kwargs):
@@ -269,10 +334,7 @@ class EventTableForm(ModelForm, TailwindForm):
         widgets = {
             'event': HiddenInput(),
             'physical_table': AreaTaggedSelect(),
-            'game': autocomplete.ModelSelect2(
-                url='games-autocomplete',
-                attrs={'data-placeholder': _('Game')},
-            ),
+            'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
 
     def __init__(self, *args, event=None, **kwargs):
@@ -627,16 +689,9 @@ class AddTableCreatorForm(TailwindForm):
 
 class AddSponsorLocationForm(TailwindForm):
     location = ModelChoiceField(
-        queryset=Location.objects.all(),
+        queryset=Location.objects.filter(is_public=True),
         label=_('Location'),
-        widget=autocomplete.ModelSelect2(
-            url='location-autocomplete',
-            forward=(forward.Const(True, 'is_public_location'),),
-            attrs={
-                'data-placeholder': _('Search location...'),
-                'data-minimum-input-length': 1,
-            }
-        )
+        widget=LocationPickerWidget(),
     )
 
 
@@ -853,13 +908,7 @@ class LocationGameForm(ModelForm, TailwindForm):
     game = ModelChoiceField(
         queryset=Game.objects.all(),
         label=_('Game'),
-        widget=autocomplete.ModelSelect2(
-            url='games-autocomplete',
-            attrs={
-                'data-placeholder': _('Search for a game...'),
-                'data-minimum-input-length': 1,
-            }
-        )
+        widget=HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
     )
 
     class Meta:
@@ -876,28 +925,12 @@ class LocationGameForm(ModelForm, TailwindForm):
         # owner_member is always visible; set required=False (FK is nullable)
         self.fields['owner_member'].required = False
 
-        if membership_enabled:
-            # Swap in the autocomplete widget scoped to this location.
-            # Built here (not at class level) to avoid TailwindForm triggering
-            # reverse() on a URL that requires args.
-            url = reverse('member-autocomplete', kwargs={'location_slug': location.slug})
-            self.fields['owner_member'] = ModelChoiceField(
-                queryset=Member.objects.filter(location=location),
-                required=False,
-                label=_('Owner Member'),
-                widget=autocomplete.ModelSelect2(
-                    url=url,
-                    attrs={
-                        'data-placeholder': _('Search for a member...'),
-                        'data-minimum-input-length': 1,
-                    }
-                )
-            )
-        else:
-            # Membership not enabled: field is shown but fully disabled.
-            # Widget rendering is handled in the template to match Select2 appearance.
-            if location:
-                self.fields['owner_member'].queryset = Member.objects.filter(location=location)
+        if location:
+            # Built here: the member search URL depends on the location.
+            self.fields['owner_member'].queryset = Member.objects.filter(location=location)
+            self.fields['owner_member'].widget = MemberPickerWidget(location)
+        if not membership_enabled:
+            # Membership not enabled: the picker is shown but disabled.
             self.fields['owner_member'].disabled = True
 
         # Apply Tailwind classes to Select widgets (TailwindForm skips them)

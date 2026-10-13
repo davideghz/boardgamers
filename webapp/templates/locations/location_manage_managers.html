@@ -174,7 +174,7 @@
     if (trBtn) {
       trBtn.addEventListener('click', () => {
         // No new owner picked yet: open the user search instead of the confirm dialog
-        const picker = document.querySelector('#transferOwnershipForm .js-user-picker');
+        const picker = document.querySelector('#transferOwnershipForm .js-search-picker');
         if (!picker.querySelector('input[type=hidden]').value) {
           picker.querySelector('[data-picker-open]').click();
           return;

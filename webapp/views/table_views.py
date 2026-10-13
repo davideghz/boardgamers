@@ -93,20 +93,6 @@ def _location_picker_sections(request):
     return [(_("Most active locations"), popular)] if popular else []
 
 
-def table_location_search_view(request):
-    """JSON search used by the location filter modal on the tables page."""
-    query = request.GET.get('q', '').strip()
-    if len(query) < 2:
-        return JsonResponse({'results': []})
-    locations = (_filterable_locations()
-                 .filter(Q(name__icontains=query) | Q(city__icontains=query))
-                 .order_by('name')[:12])
-    return JsonResponse({'results': [
-        {'slug': location.slug, 'name': location.name, 'city': location.city or '', 'cover_url': location.cover_url}
-        for location in locations
-    ]})
-
-
 class TableIndexView(generic.ListView):
     template_name = "tables/table_index.html"
     context_object_name = "tables"

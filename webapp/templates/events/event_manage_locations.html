@@ -1,36 +1,6 @@
 {% extends "base_webapp.html" %}
 {% load i18n %}
 
-{% block style %}
-  {{ form.media.css }}
-  <style>
-    .select2-container .select2-selection--single {
-      height: 48px !important;
-      border-radius: 0.75rem !important;
-      border-color: var(--border) !important;
-      display: flex !important;
-      align-items: center !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-      line-height: 48px !important;
-      padding-left: 1rem !important;
-      color: var(--text-2) !important;
-      font-size: 0.875rem !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-      height: 48px !important;
-    }
-    .select2-dropdown {
-      border-radius: 0.75rem !important;
-      border-color: var(--border) !important;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-      background-color: var(--elevated) !important;
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
 
   <div class="mb-6">
@@ -114,7 +84,6 @@
 {% endblock content %}
 
 {% block extrabodyjs %}
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   {{ form.media.js }}
   <script>
     const dialog = document.getElementById('remove-dialog');

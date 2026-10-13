@@ -78,10 +78,6 @@ INSTALLED_APPS = [
     # webApp
     'webapp',
 
-    # autocompletes
-    'dal',
-    'dal_select2',
-
     # AWS S3
     'storages',
 
