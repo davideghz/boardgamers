@@ -10,7 +10,7 @@ from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
     MemberPersonalDataForm
-from webapp.models import Notification, Membership, Table, GuestProfile, Event, Member
+from webapp.models import Notification, Membership, Table, GuestProfile, Event, Member, Location
 from django.db.models import Q
 
 
@@ -88,27 +88,44 @@ def locations(request, template_name='accounts/account_locations.html'):
 
 @login_required
 def tables(request, template_name='accounts/account_tables.html'):
-    user = request.user
-    user_profile = user.user_profile
-    created_tables = user_profile.created_tables.all()
-    joined_tables = user_profile.joined_tables.all()
-
-    today = timezone.localdate()
+    user_profile = request.user.user_profile
     base_qs = (
         Table.objects
         .filter(Q(author=user_profile) | Q(players=user_profile))
-        .select_related('author', 'location', 'game')
         .distinct()
     )
-    future_tables = base_qs.filter(date__gte=today).order_by('date', 'time')
-    past_tables = base_qs.filter(date__lt=today).order_by('-date', '-time')
+    # Locations of the user's tables: the only ones worth offering in the filter.
+    my_locations = list(Location.objects.filter(tables__in=base_qs).distinct().order_by('name'))
+
+    tab = 'past' if request.GET.get('tab') == 'past' else 'upcoming'
+    q = request.GET.get('q', '').strip()
+    location_slug = request.GET.get('location', '').strip()
+
+    qs = base_qs.select_related('author', 'location', 'game')
+    if location_slug:
+        qs = qs.filter(location__slug=location_slug)
+    if q:
+        qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q) | Q(game__name__icontains=q))
+    today = timezone.localdate()
+    if tab == 'past':
+        qs = qs.filter(date__lt=today).order_by('-date', '-time')
+    else:
+        qs = qs.filter(date__gte=today).order_by('date', 'time')
+
+    paginator = Paginator(qs, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, template_name, {
-        'user': user,
-        'created_tables': created_tables,
-        'joined_tables': joined_tables,
-        'future_tables': future_tables,
-        'past_tables': past_tables,
+        'tables': page_obj.object_list,
+        'paginator': paginator,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'tab': tab,
+        'q': q,
+        'selected_location': location_slug,
+        'selected_location_obj': next((loc for loc in my_locations if loc.slug == location_slug), None),
+        'location_picker_sections': [(_("Locations of your tables"), my_locations)] if my_locations else [],
+        'has_filters': bool(q or location_slug),
         'meta': Meta(
             title=_("My Tables - Board-Gamers.com"),
             description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),

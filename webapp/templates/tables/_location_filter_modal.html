@@ -1,5 +1,6 @@
 {% load i18n %}
-{# Location filter modal for the tables page. Picking a location sets #location-filter-input and submits its form. #}
+{# Location filter modal for the tables pages. Picking a location sets #location-filter-input and submits its form. #}
+{# With local_filter=True the search only narrows the default cards (no server-side search). #}
 
 <div id="location-filter-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none">
   <div class="absolute inset-0 bg-black/60" onclick="closeLocationFilterModal()"></div>
@@ -42,7 +43,7 @@
           <p class="text-[10px] font-bold uppercase tracking-widest text-content-muted px-1 {% if not forloop.first %}mt-4{% endif %} mb-2">{{ title }}</p>
           <div class="space-y-2">
             {% for location in locations %}
-              <button type="button" onclick="selectLocationFilter('{{ location.slug }}')"
+              <button type="button" onclick="selectLocationFilter('{{ location.slug }}')" data-search="{{ location.name|lower }} {{ location.city|default:''|lower }}"
                       class="w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-colors cursor-pointer {% if location.slug == selected_location %}border-blue-500 bg-surface-alt{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
                 <img src="{{ location.cover_url }}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
                 <div class="min-w-0">
@@ -106,6 +107,7 @@
     modal.style.display = 'none';
     document.body.style.overflow = '';
     input.value = '';
+    input.dispatchEvent(new Event('input'));
     searchToken++;
     show(defaults);
   };
@@ -122,6 +124,14 @@
     if (btn) selectLocationFilter(btn.dataset.slug);
   });
 
+  {% if local_filter %}
+  input.addEventListener('input', function () {
+    var q = input.value.trim().toLowerCase();
+    defaults.querySelectorAll('button[data-search]').forEach(function (btn) {
+      btn.style.display = btn.dataset.search.indexOf(q) === -1 ? 'none' : '';
+    });
+  });
+  {% else %}
   input.addEventListener('input', function () {
     clearTimeout(debounceTimer);
     var q = input.value.trim();
@@ -149,5 +159,6 @@
         .catch(function () { if (token === searchToken) show(defaults); });
     }, 300);
   });
+  {% endif %}
 })();
 </script>

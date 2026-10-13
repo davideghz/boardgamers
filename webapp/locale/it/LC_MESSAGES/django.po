@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 17:02+0200\n"
+"POT-Creation-Date: 2026-10-13 10:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,9 @@ msgstr "Giochi non trovati."
 msgid ""
 "Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library "
 "entries moved, %(merged)d library entries merged."
-msgstr "%(dup)s unito in %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di ludoteca spostate, %(merged)d voci di ludoteca unite."
+msgstr ""
+"%(dup)s unito in %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di "
+"ludoteca spostate, %(merged)d voci di ludoteca unite."
 
 msgid "Merge games"
 msgstr "Unisci giochi"
@@ -1132,17 +1134,44 @@ msgstr "Questo browser non supporta le notifiche push."
 msgid "My tables"
 msgstr "I miei tavoli"
 
-msgid "No tables yet"
-msgstr "Ancora nessun tavolo."
+msgid "Upcoming"
+msgstr "In programma"
 
-msgid "Join or create a table to get started."
-msgstr "Unisciti o crea un tavolo per iniziare."
+msgid "Past"
+msgstr "Vecchi"
+
+msgid "Search by title, game or description…"
+msgstr "Cerca per titolo, gioco o descrizione…"
+
+msgid "Remove filter"
+msgstr "Rimuovi filtri"
+
+msgid "All locations"
+msgstr "Tutte le locations"
+
+msgid "Search"
+msgstr "Cerca"
+
+#, python-format
+msgid "%(counter)s table found"
+msgid_plural "%(counter)s tables found"
+msgstr[0] "%(counter)s tavolo trovato"
+msgstr[1] "%(counter)s tavoli trovati"
+
+msgid "Clear filters"
+msgstr "Rimuovi filtri"
+
+msgid "No tables for the selected filters."
+msgstr "Non ci sono tavoli per i filtri selezionati."
+
+msgid "No past tables yet."
+msgstr "Ancora nessun tavolo passato."
 
 msgid "No upcoming tables."
 msgstr "Non ci sono nuovi tavoli."
 
-msgid "Past tables"
-msgstr "Tavoli passati"
+msgid "Join or create a table to get started."
+msgstr "Unisciti o crea un tavolo per iniziare."
 
 msgid "Home"
 msgstr "Home"
@@ -1155,13 +1184,18 @@ msgid ""
 "The kept game keeps its address (<code>/games/%(keeper_slug)s/</code>). "
 "<strong>#%(dup_pk)s %(dup)s</strong> will be deleted and its address will "
 "stop working."
-msgstr "Il gioco tenuto mantiene il suo indirizzo (<code>/games/%(keeper_slug)s/</code>). <strong>#%(dup_pk)s %(dup)s</strong> verrà eliminato e il suo indirizzo smetterà di funzionare."
+msgstr ""
+"Il gioco tenuto mantiene il suo indirizzo (<code>/games/%(keeper_slug)s/</"
+"code>). <strong>#%(dup_pk)s %(dup)s</strong> verrà eliminato e il suo "
+"indirizzo smetterà di funzionare."
 
 #, python-format
 msgid ""
 "<strong>Warning:</strong> the two games have different BGG codes (%(a)s and "
 "%(b)s). They may be different games or editions."
-msgstr "<strong>Attenzione:</strong> i due giochi hanno codici BGG diversi (%(a)s e %(b)s). Potrebbero essere giochi o edizioni diverse."
+msgstr ""
+"<strong>Attenzione:</strong> i due giochi hanno codici BGG diversi (%(a)s e "
+"%(b)s). Potrebbero essere giochi o edizioni diverse."
 
 msgid "What will be moved"
 msgstr "Cosa verrà spostato"
@@ -1181,7 +1215,9 @@ msgstr[1] "%(n)s voci di ludoteca"
 msgid ""
 "These locations have both games in their library: the kept game's entry "
 "stays and the duplicate's notes are appended to it."
-msgstr "Queste location hanno entrambi i giochi in ludoteca: resta la voce del gioco tenuto e le note del doppione vengono aggiunte in coda."
+msgstr ""
+"Queste location hanno entrambi i giochi in ludoteca: resta la voce del gioco "
+"tenuto e le note del doppione vengono aggiunte in coda."
 
 #, fuzzy
 #| msgid "Notes"
@@ -1770,9 +1806,6 @@ msgstr "Mostra giorni passati"
 msgid "All areas"
 msgstr "Tutte le aree"
 
-msgid "Remove filter"
-msgstr "Rimuovi filtri"
-
 msgid "Filter by game"
 msgstr "Filtra per gioco"
 
@@ -1791,9 +1824,6 @@ msgid ""
 msgstr ""
 "Alcuni tavoli condividono una postazione in orari sovrapposti. I tavoli in "
 "conflitto sono segnalati qui sotto."
-
-msgid "No tables for the selected filters."
-msgstr "Non ci sono tavoli per i filtri selezionati."
 
 msgid "All games"
 msgstr "Tutti i giochi"
@@ -1969,17 +1999,11 @@ msgstr ""
 msgid "Search in title and description…"
 msgstr "Cerca nel titolo e nella descrizione…"
 
-msgid "Search"
-msgstr "Cerca"
-
 #, python-format
 msgid "%(counter)s game found"
 msgid_plural "%(counter)s games found"
 msgstr[0] "%(counter)s gioco trovato"
 msgstr[1] "%(counter)s giochi trovati"
-
-msgid "Clear filters"
-msgstr "Rimuovi filtri"
 
 msgid "gamers"
 msgstr "gamers"
@@ -2035,9 +2059,6 @@ msgstr "Aggiungi gruppo"
 msgid "Add session"
 msgstr "Aggiungi sessione"
 
-msgid "All locations"
-msgstr "Tutte le locations"
-
 msgid "Follow"
 msgstr "Segui"
 
@@ -2049,12 +2070,6 @@ msgstr "Sito web"
 
 msgid "Tables at this location"
 msgstr "Tavoli in questa location"
-
-msgid "Upcoming"
-msgstr "In programma"
-
-msgid "Past"
-msgstr "Vecchi"
 
 msgid "No upcoming tables — why not create one?"
 msgstr "Nessun tavolo in programma — perché non crearne uno?"
@@ -3037,9 +3052,6 @@ msgstr "Nessun tavolo aperto al momento — perché non crearne uno?"
 msgid "No past tables from the locations you follow."
 msgstr "Nessun tavolo passato nelle locations che segui."
 
-msgid "No past tables yet."
-msgstr "Ancora nessun tavolo passato."
-
 msgid "See all events"
 msgstr "Vedi tutti gli eventi"
 
@@ -3362,12 +3374,6 @@ msgstr "Modifica tavolo"
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
-#, python-format
-msgid "%(counter)s table found"
-msgid_plural "%(counter)s tables found"
-msgstr[0] "%(counter)s tavolo trovato"
-msgstr[1] "%(counter)s tavoli trovati"
-
 msgid "Manage players"
 msgstr "Gestisci giocatori"
 
@@ -3421,6 +3427,9 @@ msgid ""
 msgstr ""
 "Gestisci le tue locations: crea nuove locations, modifica i dati e gestisci "
 "i tuoi tavoli di gioco."
+
+msgid "Locations of your tables"
+msgstr "Location dei tuoi tavoli"
 
 msgid "My Tables - Board-Gamers.com"
 msgstr "I Miei Tavoli - Board-Gamers.com"
@@ -3969,6 +3978,12 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "No tables yet"
+#~ msgstr "Ancora nessun tavolo."
+
+#~ msgid "Past tables"
+#~ msgstr "Tavoli passati"
 
 #, python-format
 #~ msgid "Use %s"
