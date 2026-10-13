@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
-from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, Notification, Member, \
+from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
 from webapp.services import games as game_services
@@ -205,6 +205,13 @@ class GameAdmin(admin.ModelAdmin):
 @admin.register(LocationFollower)
 class LocationFollowerAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(FavoriteUser)
+class FavoriteUserAdmin(admin.ModelAdmin):
+    list_display = ('owner', 'favorite', 'created_at')
+    search_fields = ('owner__nickname', 'favorite__nickname')
+    autocomplete_fields = ('owner', 'favorite')
 
 
 @admin.register(Notification)

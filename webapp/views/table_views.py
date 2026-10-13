@@ -363,7 +363,7 @@ def table_players_view(request, slug):
         return redirect("table-detail", slug=slug)
 
     players = Player.objects.filter(table=table).select_related("user_profile", "guest_profile", "guest_profile__owner")
-    add_player_form = AddTablePlayerForm()
+    add_player_form = AddTablePlayerForm(table=table)
 
     return render(request, "tables/table_players.html", {
         "table": table,
@@ -383,7 +383,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
             messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
             return redirect("table-players", slug=table.slug)
 
-        form = AddTablePlayerForm(request.POST)
+        form = AddTablePlayerForm(request.POST, table=table)
         if form.is_valid():
             user_profile = form.cleaned_data['player']
 

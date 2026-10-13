@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 15:39+0200\n"
+"POT-Creation-Date: 2026-10-13 16:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,6 +71,9 @@ msgstr "Nessun utente trovato."
 
 msgid "Email match"
 msgstr "Email corrispondente"
+
+msgid "Your favorites"
+msgstr "I tuoi preferiti"
 
 msgid "Select a location"
 msgstr "Seleziona una location"
@@ -475,6 +478,12 @@ msgstr "Follower Location"
 
 msgid "Location Followers"
 msgstr "Follower Location"
+
+msgid "Favorite User"
+msgstr "Utente preferito"
+
+msgid "Favorite Users"
+msgstr "Utenti preferiti"
 
 msgid "New table created"
 msgstr "Nuovo tavolo creato"
@@ -2792,6 +2801,12 @@ msgstr "per ricevere una nuova email di verifica."
 msgid "tables played"
 msgstr "tavoli giocati"
 
+msgid "In your favorites"
+msgstr "Nei tuoi preferiti"
+
+msgid "Add to favorites"
+msgstr "Aggiungi ai preferiti"
+
 msgid "Games played"
 msgstr "Giochi giocati"
 
@@ -3854,6 +3869,14 @@ msgstr "Non ci sono tavoli in questo periodo."
 #, python-format
 msgid "Join a table: %(url)s"
 msgstr "Unisciti a un tavolo: %(url)s"
+
+#, python-format
+msgid "%(nickname)s removed from your favorites."
+msgstr "%(nickname)s rimosso dai tuoi preferiti."
+
+#, python-format
+msgid "%(nickname)s added to your favorites."
+msgstr "%(nickname)s aggiunto ai tuoi preferiti."
 
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"

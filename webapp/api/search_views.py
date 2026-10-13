@@ -2,13 +2,13 @@
 location filter modal. Each result carries `id`, `title`, `subtitle` and
 `image_url`, the fields static/js/search_picker.js renders."""
 from django.conf import settings
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, Exists, OuterRef
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from webapp.forms import USER_SEARCH_MIN_LENGTH
-from webapp.models import Location, UserProfile, Member
+from webapp.models import FavoriteUser, Location, UserProfile, Member
 
 #: Maximum number of results returned by every search.
 SEARCH_LIMIT = 12
@@ -17,12 +17,14 @@ SEARCH_LIMIT = 12
 LOCATION_SEARCH_MIN_LENGTH = 2
 
 
-def search_user_profiles(query):
+def search_user_profiles(query, owner=None, excluded=()):
     """Users matching `query`, for the user picker.
 
     Every word must match the nickname, or the first/last name of users who
     chose to show their full name. A whole email address matches exactly:
     partial emails never match, so addresses can't be guessed piece by piece.
+    The favorites of `owner` come right after an exact nickname match; the
+    `excluded` ids (e.g. players already at the table) are left out.
     """
     query = query.strip()
     if len(query) < USER_SEARCH_MIN_LENGTH:
@@ -34,17 +36,28 @@ def search_user_profiles(query):
         words &= Q(nickname__icontains=word) | (public_name & (
             Q(user__first_name__icontains=word) | Q(user__last_name__icontains=word)))
 
+    is_favorite = Exists(FavoriteUser.objects.filter(owner=owner, favorite=OuterRef('pk')))
     return (UserProfile.objects
             .filter(user__is_active=True)
             .filter(words | Q(user__email__iexact=query))
+            .exclude(pk__in=excluded)
             .select_related('user')
             .annotate(rank=Case(
                 When(nickname__iexact=query, then=Value(0)),
-                When(nickname__istartswith=query, then=Value(1)),
-                default=Value(2),
+                When(is_favorite, then=Value(1)),
+                When(nickname__istartswith=query, then=Value(2)),
+                default=Value(3),
                 output_field=IntegerField(),
             ))
             .order_by('rank', Lower('nickname'))[:SEARCH_LIMIT])
+
+
+def favorite_user_profiles(owner):
+    """The favorite users of `owner`, by nickname: the picker's quick picks."""
+    return (UserProfile.objects
+            .filter(favorited_by__owner=owner, user__is_active=True)
+            .select_related('user')
+            .order_by(Lower('nickname')))
 
 
 def user_profile_result(profile):
@@ -56,15 +69,28 @@ def user_profile_result(profile):
     }
 
 
+def _excluded_ids(request):
+    """Ids listed in ?exclude=1,2,3 (e.g. the players already at the table)."""
+    return [int(pk) for pk in request.GET.get('exclude', '').split(',') if pk.strip().isdigit()]
+
+
 def user_search_view(request):
     """Users for the user picker. The email is never returned: `badge` only
-    flags an exact email match."""
+    flags an exact email match. With `favorites=1` it returns the current
+    user's favorites instead of searching."""
     if not request.user.is_authenticated:
         return JsonResponse({'results': []}, status=403)
+    owner = request.user.user_profile
+    excluded = _excluded_ids(request)
+    if request.GET.get('favorites'):
+        return JsonResponse({'results': [
+            user_profile_result(profile)
+            for profile in favorite_user_profiles(owner).exclude(pk__in=excluded)
+        ]})
     query = request.GET.get('q', '').strip()
     return JsonResponse({'results': [
         {**user_profile_result(profile), 'badge': profile.user.email.lower() == query.lower()}
-        for profile in search_user_profiles(query)
+        for profile in search_user_profiles(query, owner, excluded)
     ]})
 
 

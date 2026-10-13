@@ -1,7 +1,8 @@
 /* Search picker: drives the .js-search-picker blocks rendered by forms.SearchPickerWidget
    (users, locations, members). One search modal is shared by every picker on the page;
    texts and the search URL come from the data-* attributes of the picker that opened it.
-   Results are {id, title, subtitle, image_url, badge} (webapp/api/search_views.py). */
+   Results are {id, title, subtitle, image_url, badge} (webapp/api/search_views.py).
+   While the search is empty it lists the quick picks of data-defaults-url, if any. */
 (function () {
   if (window.SearchPicker) return;  // the script can be included once per form
 
@@ -59,7 +60,7 @@
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         e.preventDefault();  // never submit the page form from here
-        if (results.length) select(results[0]);
+        if (results.length && input.value.trim()) select(results[0]);
       }
     });
     document.addEventListener('keydown', function (e) {
@@ -79,8 +80,7 @@
     input.placeholder = picker.dataset.placeholder;
     hint.textContent = picker.dataset.hint;
     input.value = '';
-    results = [];
-    message(picker.dataset.minLengthText);
+    showDefaults();
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     setTimeout(function () { input.focus(); }, 50);
@@ -94,10 +94,32 @@
     picker = null;
   }
 
-  function render(data) {
-    results = data;
-    if (!data.length) { message(picker.dataset.noResultsText); return; }
-    body.innerHTML = '<div class="space-y-2">' + data.map(function (item, i) {
+  // Appends the ids the picker must not offer (data-exclude) to a search URL.
+  function withExclude(url) {
+    if (!picker.dataset.exclude) return url;
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'exclude=' + encodeURIComponent(picker.dataset.exclude);
+  }
+
+  // Quick picks (data-defaults-url, e.g. the user's favorites) while the search is empty.
+  function showDefaults() {
+    searchToken++;
+    results = [];
+    message(picker.dataset.minLengthText);
+    if (!picker.dataset.defaultsUrl) return;
+    var token = searchToken;
+    fetch(withExclude(picker.dataset.defaultsUrl), {credentials: 'same-origin'})
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (token !== searchToken || !data.results.length) return;
+        results = data.results;
+        body.innerHTML = '<p class="text-[10px] font-bold uppercase tracking-widest text-content-muted px-1 mb-2">'
+          + esc(picker.dataset.defaultsTitle) + '</p>' + rows(data.results);
+      })
+      .catch(function () {});
+  }
+
+  function rows(data) {
+    return '<div class="space-y-2">' + data.map(function (item, i) {
       return '<button type="button" data-index="' + i + '" class="w-full flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt text-left transition-colors cursor-pointer">'
         + '<img src="' + esc(item.image_url) + '" alt="" class="w-10 h-10 ' + esc(picker.dataset.imageClass) + ' object-cover flex-shrink-0">'
         + '<div class="min-w-0 flex-1"><p class="text-sm font-semibold text-content truncate">' + esc(item.title) + '</p>'
@@ -108,20 +130,24 @@
     }).join('') + '</div>';
   }
 
+  function render(data) {
+    results = data;
+    if (!data.length) { message(picker.dataset.noResultsText); return; }
+    body.innerHTML = rows(data);
+  }
+
   function search() {
     clearTimeout(debounceTimer);
     var q = input.value.trim();
     if (q.length < +picker.dataset.minLength) {
-      searchToken++;
-      results = [];
-      message(picker.dataset.minLengthText);
+      showDefaults();
       return;
     }
     body.innerHTML = '<div class="flex flex-col items-center justify-center py-12 gap-3">' + SPINNER
       + '<p class="text-sm text-content-muted">' + esc(picker.dataset.searchingText) + '</p></div>';
     debounceTimer = setTimeout(function () {
       var token = ++searchToken;
-      fetch(picker.dataset.searchUrl + '?q=' + encodeURIComponent(q), {credentials: 'same-origin'})
+      fetch(withExclude(picker.dataset.searchUrl + '?q=' + encodeURIComponent(q)), {credentials: 'same-origin'})
         .then(function (r) { return r.json(); })
         .then(function (data) { if (token === searchToken) render(data.results); })
         .catch(function () { if (token === searchToken) message(picker.dataset.noResultsText); });

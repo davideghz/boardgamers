@@ -111,6 +111,8 @@ class SearchPickerWidget(Widget):
     hint = ''
     no_results_text = _('No results found.')
     badge_text = ''
+    #: Title of the quick picks listed while the search is empty (see get_defaults_url).
+    defaults_title = ''
 
     class Media:
         js = ('js/search_picker.js',)
@@ -119,9 +121,15 @@ class SearchPickerWidget(Widget):
         super().__init__(attrs)
         if button_label:
             self.button_label = button_label
+        #: Ids never offered by the search (e.g. the players already at the table).
+        self.exclude_ids = []
 
     def get_search_url(self):
         return reverse(self.search_url_name)
+
+    def get_defaults_url(self):
+        """JSON list shown while the search is empty, or None for no quick picks."""
+        return None
 
     def get_item(self, value):
         """The search result dict (title, subtitle, image_url) for the current value."""
@@ -139,6 +147,9 @@ class SearchPickerWidget(Widget):
             'hint': self.hint,
             'no_results_text': self.no_results_text,
             'badge_text': self.badge_text,
+            'defaults_url': self.get_defaults_url(),
+            'defaults_title': self.defaults_title,
+            'exclude': ','.join(str(pk) for pk in self.exclude_ids),
         })
         return context
 
@@ -152,10 +163,14 @@ class UserPickerWidget(SearchPickerWidget):
     hint = _('Search by nickname, by name (if the user shows it on their profile) or by full email address.')
     no_results_text = _('No users found.')
     badge_text = _('Email match')
+    defaults_title = _('Your favorites')
 
     @property
     def min_length(self):
         return USER_SEARCH_MIN_LENGTH
+
+    def get_defaults_url(self):
+        return reverse(self.search_url_name) + '?favorites=1'
 
     def get_item(self, value):
         from webapp.api.search_views import user_profile_result
@@ -726,6 +741,12 @@ class AddTablePlayerForm(TailwindForm):
         widget=UserPickerWidget(button_label=_('Select a gamer'))
     )
 
+    def __init__(self, *args, table=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if table is not None:
+            # Don't offer the players already at the table (AddTablePlayerView
+            # still reports them if posted)
+            self.fields['player'].widget.exclude_ids = list(table.players.values_list('pk', flat=True))
 
 
 #: Personal-data fields shared by the manager-facing and member-facing forms.

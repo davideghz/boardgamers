@@ -12,6 +12,8 @@
      data-searching-text="{% trans 'Searching...' %}"
      data-no-results-text="{{ widget.no_results_text }}"
      data-badge-text="{{ widget.badge_text }}"
+     {% if widget.defaults_url %}data-defaults-url="{{ widget.defaults_url }}" data-defaults-title="{{ widget.defaults_title }}"{% endif %}
+     {% if widget.exclude %}data-exclude="{{ widget.exclude }}"{% endif %}
      {% if widget.attrs.disabled %}data-disabled="1"{% endif %}>
   <input type="hidden" name="{{ widget.name }}" value="{{ widget.item.id|default:'' }}"{% include "django/forms/widgets/attrs.html" %}>
 

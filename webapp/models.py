@@ -954,6 +954,25 @@ class LocationFollower(DateTimeModel):
         return f"{self.user_profile.nickname} follows {self.location.name}"
 
 
+class FavoriteUser(DateTimeModel):
+    """A user another user marked as favorite: private to `owner`, needs no
+    confirmation and sends no notification. Favorites are the quick picks of
+    the user picker (e.g. adding players to a table)."""
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='favorite_users')
+    favorite = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='favorited_by')
+
+    class Meta:
+        verbose_name = _('Favorite User')
+        verbose_name_plural = _('Favorite Users')
+        constraints = [
+            models.UniqueConstraint(fields=['owner', 'favorite'], name='unique_favorite_user'),
+            models.CheckConstraint(condition=~models.Q(owner=models.F('favorite')), name='favorite_user_not_self'),
+        ]
+
+    def __str__(self):
+        return f"{self.owner.nickname} ★ {self.favorite.nickname}"
+
+
 class NotificationType(models.TextChoices):
     NEW_TABLE = 'new_table', _('New table created')
     NEW_PLAYER = 'new_player', _('New player joined')

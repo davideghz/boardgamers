@@ -15,7 +15,7 @@ from django.conf import settings as django_settings
 
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
-from webapp.models import UserProfile, Game, Player, Table
+from webapp.models import UserProfile, Game, Player, Table, FavoriteUser
 
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -62,9 +62,27 @@ class UserProfileDetailView(DetailView):
             ).order_by('-is_win', '-date'),
             'form': UserProfileAvatarForm(instance=user_profile),
             'games_played': games_played,
+            'is_favorite': (self.request.user.is_authenticated and FavoriteUser.objects.filter(
+                owner=self.request.user.user_profile, favorite=user_profile).exists()),
             'meta': self.get_object().as_meta(self.request)
         })
         return context
+
+
+@login_required
+@require_POST
+def toggle_favorite_user(request, slug):
+    """Add the user to the current user's favorites, or remove them. No notification."""
+    favorite = get_object_or_404(UserProfile, slug=slug)
+    owner = request.user.user_profile
+    if favorite != owner:
+        deleted, _count = FavoriteUser.objects.filter(owner=owner, favorite=favorite).delete()
+        if deleted:
+            messages.success(request, _("%(nickname)s removed from your favorites.") % {'nickname': favorite.nickname})
+        else:
+            FavoriteUser.objects.create(owner=owner, favorite=favorite)
+            messages.success(request, _("%(nickname)s added to your favorites.") % {'nickname': favorite.nickname})
+    return redirect('user-profile-detail', slug=favorite.slug)
 
 
 class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):

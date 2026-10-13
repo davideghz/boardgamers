@@ -180,6 +180,7 @@ urlpatterns = [
 
     # USER PROFILES
     path('users/<str:slug>/', profile_views.UserProfileDetailView.as_view(), name='user-profile-detail'),
+    path('users/<str:slug>/favorite/', profile_views.toggle_favorite_user, name='user-favorite-toggle'),
     path('users/upload/avatar/', profile_views.upload_avatar, name='upload-avatar'),
     path('users/remove/avatar/', profile_views.remove_avatar, name='remove-avatar'),
 
