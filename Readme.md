@@ -6,14 +6,15 @@
 
 ## Project Requirements
 - Python 3.12
-- PostgreSQL 16 (**important note**: Postgres 17+ is NOT SUPPORTED) with `postgis` extension enabled (see below)
+- PostgreSQL 14+ (Django 6 minimum; production runs PostgreSQL 18 + PostGIS 3.6) with the `postgis` extension enabled (see below)
 - GeoDjango native libraries: GDAL, GEOS, PROJ (GDAL ≥ 3.0; any compatible recent version works — exact parity with production is not required)
 - virtualenv
 - Docker Desktop (required on Windows, optional everywhere else)
 - PyCharm (recommended) or any IDE of your choice
 
 ## Setup Without Docker (Linux/MacOS)
-1. Install PostgreSQL (versions 17+ are NOT SUPPORTED) with `pg_config` (PostgreSQL dev tools)
+1. Install PostgreSQL 14+ (18 recommended, to match production) and PostGIS, with `pg_config` (PostgreSQL dev tools).
+   On MacOS, [Postgres.app](https://postgresapp.com) ships PostgreSQL + PostGIS out of the box.
 2. Install the GeoDjango native libraries (GDAL, GEOS, PROJ)
 ```bash
 # On MacOS (GDAL pulls in GEOS and PROJ as dependencies)
@@ -151,7 +152,12 @@ This command will:
 - Start the PostgreSQL + PostGIS container (`db`)
 - Apply migrations automatically
 
-Wait until both of the cointainers are built.
+> **Upgrading from the old PostgreSQL 16 setup.** The database now runs PostgreSQL 18 + PostGIS 3.6
+> (same as production) on a new volume, `postgres18_data`. Your old data is not migrated: after
+> `docker compose up -d` the database starts empty, so run `populate_db` again (step 3). The old
+> volume can then be removed with `docker volume ls` / `docker volume rm <project>_postgres_data`.
+
+Wait until both of the containers are built.
 You can verify their status with:
 ```bash
 docker compose ps
@@ -231,8 +237,8 @@ docker compose exec web bash
 
 ## Management Commands
 
-### Production Cron Jobs
-In production, the following commands are scheduled via cron:
+### Production Scheduled Jobs
+In production, the following commands are scheduled via Heroku Scheduler:
 - `update_table_status`: Runs **Hourly at :00**
 - `batch_notification`: Runs **Hourly at :30**
 - `send_queued_notifications`: Runs **Every 10 minutes**

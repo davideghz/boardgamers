@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   db:
-    image: postgis/postgis:16-3.4
+    image: postgis/postgis:18-3.6
     container_name: boardgamers-db
     restart: always
     environment:
@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres18_data:/var/lib/postgresql
 
   web:
     build: .
@@ -28,4 +28,4 @@ services:
       - db
 
 volumes:
-  postgres_data:
+  postgres18_data:
