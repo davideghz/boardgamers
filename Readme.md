@@ -2,13 +2,17 @@
 
 - [Project Requirements](#project-requirements)
 - [Setup Without Docker (Linux/MacOS)](#setup-without-docker-linuxmacos)
+- [Heroku Setup](#heroku-setup)
+- [Email in local development (Mailtrap)](#email-in-local-development-mailtrap)
+- [Translations](#translations)
 - [Setup With Docker (Windows)](#setup-with-docker-windows)
+- [Management Commands](#management-commands)
 
 ## Project Requirements
 - Python 3.12
 - PostgreSQL 14+ (Django 6 minimum; production runs PostgreSQL 18 + PostGIS 3.6) with the `postgis` extension enabled (see below)
 - GeoDjango native libraries: GDAL, GEOS, PROJ (GDAL ≥ 3.0; any compatible recent version works — exact parity with production is not required)
-- virtualenv
+- A Python virtual environment (`venv`)
 - Docker Desktop (required on Windows, optional everywhere else)
 - PyCharm (recommended) or any IDE of your choice
 
@@ -37,8 +41,15 @@ CREATE EXTENSION postgis;
 \q
 ```
 4. Make a copy of `.env_template`, name it `.env`, and add the right values.
-5. Activate virtual environment and install project's dependencies
-```
+   `GDAL_LIBRARY_PATH` / `GEOS_LIBRARY_PATH` must point to the libraries on your machine: the
+   template has the Linux paths; on MacOS remove them to use the defaults in
+   `boardGames/local_settings.py`, or set them to e.g.
+   `/Applications/Postgres.app/Contents/Versions/latest/lib/libgdal.dylib` and `.../libgeos_c.dylib`.
+   Optional integrations (Telegram bot, web push/VAPID, BGG API) read `TELEGRAM_*`, `VAPID_*` and
+   `BGG_API_TOKEN` (see `boardGames/settings.py`); leave them unset if you don't need them.
+5. Create and activate the virtual environment, then install the project's dependencies
+```bash
+python3.12 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -46,15 +57,23 @@ pip install -r requirements.txt
 ```bash
 python manage.py migrate
 ```
-7. Run Django Server
+7. (Optional) Fill the database with sample data
+```bash
+python manage.py populate_db
+```
+8. Run Django Server
 ```bash
 python manage.py runserver
 ```
-## HEROKU SETUP
+## Heroku Setup
+
+The production app is `boardgamers` (stack `heroku-26`, Heroku Postgres with PostGIS, Heroku Scheduler).
+The Heroku pipeline is connected to `master`: **every push to `master` is deployed to production**.
+Migrations run automatically in the release phase (`release: ./manage.py migrate` in the `Procfile`).
 
 ### PostGIS
 ```
-heroku pg:psql DATABASE_URL -a example-app
+heroku pg:psql DATABASE_URL -a <app-name>
 CREATE EXTENSION postgis;
 ```
 Heroku docs [HERE](https://devcenter.heroku.com/articles/heroku-postgres-extensions-postgis-full-text-search#postgis)
@@ -132,14 +151,11 @@ python manage.py compilemessages
 
 ### 1. Environment variables
 
-1. Copy the file `.env_template` and rename it to `.env`.
+1. Copy the file `.env_template` and rename it to `.env`, and add the right values (secret key, AWS, reCAPTCHA, ...).
 
-2. Open `.env` and update the database host:
-
-```env
-DB_HOST=db
-```
-This is required because Docker containers communicate using service names, not `.localhost`.
+2. The database settings and the GDAL/GEOS paths for the container come from `.env_docker`
+   (loaded by `docker-compose.yml`) and take precedence over `.env`: there `DB_HOST=db`, because
+   Docker containers reach each other by service name, not `localhost`.
 
 ### 2. Build and start Docker containers
 From the project root, run:
@@ -174,14 +190,12 @@ Inside the container, run the following command to populate the database:
 python manage.py populate_db
 ```
 
-### 4. PyCharm configuration (recommended)
+### 4. PyCharm configuration (optional)
 The following steps are recommended for proper debugging and execution using **PyCharm**.
 
 #### 4.1 Open the project folder in **PyCharm**.
 
-#### 4.2 Make a copy of `.env_template`, name it `.env`, and add the right values.
-
-#### 4.3 Configure Docker Compose interprete
+#### 4.2 Configure the Docker Compose interpreter
 Go to:
 ```bash
 Settings → Project → Python Interpreter → Add Interpreter
@@ -240,9 +254,12 @@ docker compose exec web bash
 ### Production Scheduled Jobs
 In production, the following commands are scheduled via Heroku Scheduler:
 - `update_table_status`: Runs **Hourly at :00**
-- `batch_notification`: Runs **Hourly at :30**
+- `send_comment_digests`: Runs **Hourly at :30**
 - `send_queued_notifications`: Runs **Every 10 minutes**
 - `cleanup_old_notifications`: Runs **Daily at 3:00 AM UTC**
+
+The database is also backed up daily at 03:00 UTC by the `Heroku PG Backup` GitHub Actions workflow
+(`.github/workflows/heroku-pg-backup.yml`).
 
 ### Utility Commands
 
@@ -255,6 +272,18 @@ Run with `python manage.py [command-name]`
 - `populate_db`
   - **Usage**: Run this **only locally** to generate test data in your local database.
 
+- `send_test_new_table_email <recipient>`
+  - Sends a test "new table" email through the SES template, to check subject/body after `setup_ses_template`.
+
 - `manage_notifications`
   - Used to manage and clean up notifications.
   - **Functionality**: Can set notifications as read, sent, or delete them.
+
+- `seed_faqs [--clear]`
+  - Populates FAQ categories and questions (Italian and English). `--clear` deletes the existing ones first.
+
+- `fill_missing_bgg_data [--dry-run]`
+  - Fills missing game info (players, playtime, weight, year) from BoardGameGeek for games with a `bgg_code`.
+
+- `setup_telegram_bot`
+  - Registers the bot's command list with Telegram. Run it when the bot commands change.
