@@ -199,7 +199,8 @@ class LocationDetailView(DetailView):
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)
         context['future_tables'] = future_tables
-        context['past_tables'] = past_tables
+        # Solo gli ultimi 12 (come in home): il resto è raggiungibile da "See all tables"
+        context['past_tables'] = past_tables[:12]
         context['past_tables_count'] = past_tables_count
         context['future_tables_count'] = future_tables_count
         context['tables_count'] = past_tables_count + future_tables_count
