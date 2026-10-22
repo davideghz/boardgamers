@@ -2,7 +2,7 @@ import logging
 import time
 import requests
 from xml.etree import ElementTree
-from django.core.files.base import ContentFile
+from webapp.services.images import COVER_MAX_SIDE, shrink_content_file
 
 logger = logging.getLogger(__name__)
 
@@ -221,7 +221,8 @@ def import_game_from_bgg(bgg_id):
             img_resp = requests.get(data['image_url'], timeout=10)
             img_resp.raise_for_status()
             ext = data['image_url'].rsplit('.', 1)[-1].split('?')[0][:4]
-            game.image.save(f"bgg_{bgg_id}.{ext}", ContentFile(img_resp.content), save=True)
+            name, content = shrink_content_file(img_resp.content, f"bgg_{bgg_id}.{ext}", COVER_MAX_SIDE)
+            game.image.save(name, content, save=True)
         except Exception as e:
             logger.warning(f'BGG image download failed for id={bgg_id}: {e}')
 
