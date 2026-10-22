@@ -231,7 +231,7 @@
               <div class="flex items-center gap-3 border border-divider rounded-xl p-3 bg-surface">
                 <span class="text-sm font-bold text-content-muted w-5 text-right flex-shrink-0">{{ forloop.counter }}</span>
                 {% if player.avatar %}
-                <img src="{{ player.avatar.url }}" alt="{{ player.nickname }}"
+                <img loading="lazy" decoding="async" src="{{ player.avatar.url }}" alt="{{ player.nickname }}"
                      class="w-9 h-9 rounded-full object-cover flex-shrink-0">
                 {% else %}
                 <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">

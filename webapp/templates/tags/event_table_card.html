@@ -6,7 +6,7 @@
   {# Cover image #}
   <div class="w-full h-[130px] overflow-hidden relative">
     {% if table.custom_cover or table.game and table.game.image %}
-      <img src="{{ table.cover_url }}" alt="{{ table.game }}"
+      <img loading="lazy" decoding="async" src="{{ table.cover_url }}" alt="{{ table.game }}"
            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     {% else %}
       <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-surface-input group-hover:bg-surface-input transition-colors">

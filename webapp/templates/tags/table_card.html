@@ -5,7 +5,7 @@
 
   {# Cover image #}
   <div class="w-full h-[150px] overflow-hidden relative">
-    <img src="{{ table.cover_url }}" alt="{{ table.game }}"
+    <img loading="lazy" decoding="async" src="{{ table.cover_url }}" alt="{{ table.game }}"
          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full
                  {% if table.status == 'open' %}bg-green-500 text-white

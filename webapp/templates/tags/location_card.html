@@ -1,9 +1,8 @@
 {% load i18n custom_tags %}
 <a href="{% url 'location-detail' location.slug %}" class="group block text-decoration-none">
   <div class="relative aspect-square rounded-xl overflow-hidden mb-2">
-    <img src="{{ location.cover_url }}" alt="{{ location.name }}"
-         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-         loading="lazy">
+    <img loading="lazy" decoding="async" src="{{ location.cover_url }}" alt="{{ location.name }}"
+         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
     {% if is_followed %}
       <span class="absolute top-1.5 right-1.5 bg-surface/80 backdrop-blur-sm rounded-full p-1 leading-none">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-red-500">

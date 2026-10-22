@@ -6,7 +6,7 @@
   {# Cover thumbnail: absolutely filled so the row height is driven by the text, image cropped via object-cover #}
   <div class="relative w-16 sm:w-20 flex-shrink-0 overflow-hidden bg-surface-input">
     {% if table.custom_cover or table.game and table.game.image %}
-      <img src="{{ table.cover_url }}" alt="{{ table.game }}"
+      <img loading="lazy" decoding="async" src="{{ table.cover_url }}" alt="{{ table.game }}"
            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     {% else %}
       <div class="absolute inset-0 flex items-center justify-center">
