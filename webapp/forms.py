@@ -214,15 +214,18 @@ class MemberPickerWidget(SearchPickerWidget):
 
 class TailwindForm(Form):
     def __init__(self, *args, **kwargs):
+        # Never touch self.errors here: on a bound form it would validate the
+        # form before subclasses finish tweaking their fields (required,
+        # querysets, ...), and those tweaks would be ignored. The error style
+        # is applied in full_clean() instead.
         super(Form, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
+        css = _TW_INPUT
+        for field in self.fields.values():
             w = field.widget
             if isinstance(w, HiddenInput):
                 continue
             if isinstance(w, SearchPickerWidget):  # styled by its own template
                 continue
-            has_err = bool(self.errors.get(field_name))
-            css = _TW_INPUT_ERR if has_err else _TW_INPUT
             if isinstance(w, TimeInput):
                 field.widget = TimeInput(format='%H:%M', attrs={'type': 'time', 'class': css})
             elif isinstance(w, DateInput):
@@ -235,6 +238,16 @@ class TailwindForm(Form):
                 field.widget.attrs['class'] = css
             elif isinstance(w, Select):
                 field.widget.attrs['class'] = css
+
+    def full_clean(self):
+        super().full_clean()
+        # Switch the fields with errors to the red style, leaving alone the
+        # widgets a subclass has restyled on its own.
+        for field_name in self.errors:
+            field = self.fields.get(field_name)
+            css = field.widget.attrs.get('class', '') if field else ''
+            if css.startswith(_TW_INPUT):
+                field.widget.attrs['class'] = _TW_INPUT_ERR + css[len(_TW_INPUT):]
 
 
 #: Maximum allowed size for a table's custom cover image.
@@ -937,8 +950,6 @@ class LocationGameForm(ModelForm, TailwindForm):
         fields = ['game', 'ownership', 'owner_member', 'physical_location', 'notes']
 
     def __init__(self, *args, location=None, **kwargs):
-        # Set before super().__init__: TailwindForm reads self.errors there,
-        # which triggers validation (and clean_game needs the location).
         self.location = location
         super().__init__(*args, **kwargs)
         membership_enabled = bool(location and location.enable_membership)
