@@ -43,7 +43,21 @@ AWS_SES_REGION_NAME = 'eu-west-1'
 AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
 
 # SENTRY
+def _sentry_before_send(event, hint):
+    # social_core logs every failed OAuth token exchange before turning it into
+    # AuthCanceled, which SocialAuthExceptionMiddleware already handles. A 400
+    # "invalid_grant" is the user reusing a stale code (reload/back on the
+    # callback): drop it. Other failures (e.g. invalid_client) still get through.
+    record = hint.get('log_record')
+    if record is not None and record.name == 'social':
+        message = record.getMessage()
+        if message.startswith('Request failed with 400') and 'invalid_grant' in message:
+            return None
+    return event
+
+
 sentry_sdk.init(
+    before_send=_sentry_before_send,
     dsn="https://33011e036835387caf005ea63685f8fe@o90644.ingest.us.sentry.io/4510884885102592",
     # Add data like request headers and IP for users,
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
