@@ -11,7 +11,7 @@ rows and the system comments that feed the table timeline).
 
 from collections import namedtuple
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils.translation import gettext_lazy as _
 
 from webapp.models import (
@@ -284,7 +284,14 @@ def join_table(profile, table):
     if not table.unlimited_seats and table.seats_available <= 0:
         raise TableActionError('table_full', _('The table is full.'))
 
-    player = Player.objects.create(user_profile=profile, table=table)
+    # The exists() check above is racy (double click, two tabs): let the unique
+    # constraint decide and report the loser as "already joined" instead of a 500.
+    try:
+        with transaction.atomic():
+            player = Player.objects.create(user_profile=profile, table=table)
+    except IntegrityError:
+        raise TableActionError(
+            'already_joined', _('You are already at this table.'), level='warning')
     Comment.objects.create(
         table=table,
         content=f"PLAYER_IN:{profile.nickname}",

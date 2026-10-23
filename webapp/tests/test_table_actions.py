@@ -1,4 +1,5 @@
 import datetime
+from unittest import mock
 
 from django.test import TestCase
 from django.utils import timezone
@@ -76,6 +77,20 @@ class JoinTableTest(TestCase):
         self.assertEqual(ctx.exception.code, 'already_joined')
         self.assertEqual(ctx.exception.level, 'warning')
         self.assertEqual(Player.objects.filter(table=self.table).count(), 1)
+
+    def test_concurrent_join_hitting_the_constraint_is_refused_as_a_warning(self):
+        # Simulate the race: the exists() check passes, then the row appears.
+        join_table(self.profile, self.table)
+        real_filter = Player.objects.filter
+        with mock.patch.object(
+            Player.objects, 'filter',
+            side_effect=lambda *a, **kw: real_filter(*a, **kw).none()):
+            with self.assertRaises(TableActionError) as ctx:
+                join_table(self.profile, self.table)
+
+        self.assertEqual(ctx.exception.code, 'already_joined')
+        self.assertEqual(Player.objects.filter(table=self.table).count(), 1)
+        self.assertEqual(system_comments(self.table).count(f"PLAYER_IN:{self.profile.nickname}"), 1)
 
     def test_full_table_is_refused(self):
         self.table.max_players = 2
