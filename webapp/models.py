@@ -444,8 +444,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     #    table_status and leaderboard_status are derived (see _PHASE_STATUS_MAP).
     PHASE_UPCOMING = 'upcoming'              # before the game start time
     PHASE_LIVE = 'live'                      # 0–12h after start
-    PHASE_RECENTLY_ENDED = 'recently_ended'  # 12h–2 days after start
-    PHASE_ARCHIVED = 'archived'              # more than 2 days after start
+    PHASE_RECENTLY_ENDED = 'recently_ended'  # 12h–7 days after start
+    PHASE_ARCHIVED = 'archived'              # more than 7 days after start
 
     # Each phase maps to (table_status, leaderboard_status). Keeping both in one
     # map is the common approach: change the lifecycle here and both stay in sync.
@@ -456,7 +456,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         PHASE_ARCHIVED:       (CLOSED,  LEADERBOARD_NOT_EDITABLE),
     }
     LIVE_WINDOW = datetime.timedelta(hours=12)
-    ARCHIVE_AFTER = datetime.timedelta(days=2)
+    ARCHIVE_AFTER = datetime.timedelta(days=7)
 
     slug_field_name = 'title'
     title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))

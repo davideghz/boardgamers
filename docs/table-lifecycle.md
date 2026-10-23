@@ -20,7 +20,7 @@ All times are relative to `game_datetime` (the combination of `Table.date` + `Ta
 game_datetime - ∞         →  OPEN
 game_datetime + 0h        →  ONGOING
 game_datetime + 12h       →  CLOSED  (leaderboard still editable)
-game_datetime + 2 days    →  CLOSED  (leaderboard locked)
+game_datetime + 7 days    →  CLOSED  (leaderboard locked)
 ```
 
 The 12-hour ONGOING window is intentionally generous to cover long sessions (e.g. heavy board games, RPG evenings) where the actual play time is hard to predict.
@@ -31,10 +31,10 @@ The leaderboard is a separate state field (`Table.leaderboard_status`) that cont
 
 | Leaderboard status | When |
 |---|---|
-| `not_editable` | Before `game_datetime`, or after `game_datetime + 2 days` |
-| `editable` | From `game_datetime` until `game_datetime + 2 days` |
+| `not_editable` | Before `game_datetime`, or after `game_datetime + 7 days` |
+| `editable` | From `game_datetime` until `game_datetime + 7 days` |
 
-The 2-day editing window lets players fill in results even if they forget to do it right after the game.
+The 7-day editing window lets players fill in results even if they forget to do it right after the game (e.g. a weekly game night can be recorded up to the next one).
 
 When `leaderboard_status` changes, all players at the table receive an in-app notification (handled in `webapp/signals.py`).
 
