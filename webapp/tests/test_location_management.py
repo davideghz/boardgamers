@@ -1,7 +1,10 @@
+import datetime
+
 from django.test import TestCase, Client
 from django.urls import reverse
-from webapp.models import Location, UserProfile
-from webapp.factories import UserProfileFactory, LocationFactory, UserFactory
+from django.utils import timezone
+from webapp.models import Location, Table, UserProfile
+from webapp.factories import GameFactory, UserProfileFactory, LocationFactory, UserFactory
 
 
 class LocationManagementTest(TestCase):
@@ -114,6 +117,7 @@ class LocationManagementTest(TestCase):
             'latitude': '45.0',
             'longitude': '9.0',
             'is_public': True,
+            'leaderboard_edit_days': 2,
             **overrides,
         }
 
@@ -127,6 +131,21 @@ class LocationManagementTest(TestCase):
         self.assertEqual(self.location.name, data['name'])
         # Verify creator hasn't changed
         self.assertEqual(self.location.creator, self.owner)
+
+    def test_lengthening_the_leaderboard_window_reopens_recent_tables(self):
+        table = Table.objects.create(
+            title='Serata', location=self.location, author=self.owner, game=GameFactory(),
+            date=timezone.localdate() - datetime.timedelta(days=5), time=datetime.time(20, 30))
+        self.assertEqual(table.leaderboard_status, Table.LEADERBOARD_NOT_EDITABLE)
+
+        self.client.force_login(self.manager.user)
+        self.client.post(reverse('location-manage-data', kwargs={'slug': self.location.slug}),
+                         self._location_data(leaderboard_edit_days=7))
+
+        self.location.refresh_from_db()
+        table.refresh_from_db()
+        self.assertEqual(self.location.leaderboard_edit_days, 7)
+        self.assertEqual(table.leaderboard_status, Table.LEADERBOARD_EDITABLE)
 
     def test_a_manager_cannot_take_over_the_location(self):
         """Ownership only moves through the owner-only transfer flow."""

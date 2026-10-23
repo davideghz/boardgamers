@@ -18,7 +18,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp.forms import (
-    EventTableForm, EventForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
+    EventTableForm, EventForm, EventManageDataForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
     EventTableCategoryForm,
 )
@@ -599,7 +599,7 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
 
 class EventManageDataView(EventManagerMixin, UpdateView):
     model = Event
-    form_class = EventForm
+    form_class = EventManageDataForm
     template_name = 'events/event_manage_data.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'

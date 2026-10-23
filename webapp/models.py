@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -170,6 +170,12 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
 
 
 class Location(DateTimeModel, ModelMeta, SlugModel):
+    # How long after a table's start its leaderboard stays editable (days).
+    # Event tables always use the default.
+    LEADERBOARD_EDIT_DAYS_DEFAULT = 2
+    LEADERBOARD_EDIT_DAYS_MIN = 2
+    LEADERBOARD_EDIT_DAYS_MAX = 30
+
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -195,6 +201,12 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         blank=True,
         verbose_name=_('Default table time'),
         help_text=_('Default start time used when creating new tables at this location.'),
+    )
+    leaderboard_edit_days = models.PositiveSmallIntegerField(
+        default=LEADERBOARD_EDIT_DAYS_DEFAULT,
+        validators=[MinValueValidator(LEADERBOARD_EDIT_DAYS_MIN), MaxValueValidator(LEADERBOARD_EDIT_DAYS_MAX)],
+        verbose_name=_('Leaderboard editable for (days)'),
+        help_text=_('How many days after the start of a table its leaderboard can still be filled in.'),
     )
 
     # Permission choices
@@ -444,8 +456,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     #    table_status and leaderboard_status are derived (see _PHASE_STATUS_MAP).
     PHASE_UPCOMING = 'upcoming'              # before the game start time
     PHASE_LIVE = 'live'                      # 0–12h after start
-    PHASE_RECENTLY_ENDED = 'recently_ended'  # 12h–7 days after start
-    PHASE_ARCHIVED = 'archived'              # more than 7 days after start
+    PHASE_RECENTLY_ENDED = 'recently_ended'  # 12h after start until the leaderboard window ends
+    PHASE_ARCHIVED = 'archived'              # after the leaderboard window (see leaderboard_edit_window)
 
     # Each phase maps to (table_status, leaderboard_status). Keeping both in one
     # map is the common approach: change the lifecycle here and both stay in sync.
@@ -456,7 +468,6 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         PHASE_ARCHIVED:       (CLOSED,  LEADERBOARD_NOT_EDITABLE),
     }
     LIVE_WINDOW = datetime.timedelta(hours=12)
-    ARCHIVE_AFTER = datetime.timedelta(days=7)
 
     slug_field_name = 'title'
     title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))
@@ -588,9 +599,15 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             return self.PHASE_UPCOMING
         if current < game_datetime + self.LIVE_WINDOW:
             return self.PHASE_LIVE
-        if current < game_datetime + self.ARCHIVE_AFTER:
+        if current < game_datetime + self.leaderboard_edit_window:
             return self.PHASE_RECENTLY_ENDED
         return self.PHASE_ARCHIVED
+
+    @property
+    def leaderboard_edit_window(self):
+        """How long after the start the leaderboard stays editable: the location's setting, default for events."""
+        days = self.location.leaderboard_edit_days if self.location_id else Location.LEADERBOARD_EDIT_DAYS_DEFAULT
+        return datetime.timedelta(days=days)
 
     def computed_table_status(self, at=None):
         """The table_status this table should have, based on time."""
@@ -1372,6 +1389,9 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     allowed_table_creators = models.ManyToManyField(
         'UserProfile', related_name='event_table_creation_allowed', blank=True,
         verbose_name=_('Additional table creators'))
+    leaderboard_enabled = models.BooleanField(
+        default=True, verbose_name=_('Leaderboard'),
+        help_text=_('When off, the tables of this event have no leaderboard.'))
 
     _metadata = {
         'title': 'get_meta_title',

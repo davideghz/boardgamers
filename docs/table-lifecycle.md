@@ -20,7 +20,7 @@ All times are relative to `game_datetime` (the combination of `Table.date` + `Ta
 game_datetime - ∞         →  OPEN
 game_datetime + 0h        →  ONGOING
 game_datetime + 12h       →  CLOSED  (leaderboard still editable)
-game_datetime + 7 days    →  CLOSED  (leaderboard locked)
+game_datetime + N days    →  CLOSED  (leaderboard locked, N = edit window below)
 ```
 
 The 12-hour ONGOING window is intentionally generous to cover long sessions (e.g. heavy board games, RPG evenings) where the actual play time is hard to predict.
@@ -31,10 +31,14 @@ The leaderboard is a separate state field (`Table.leaderboard_status`) that cont
 
 | Leaderboard status | When |
 |---|---|
-| `not_editable` | Before `game_datetime`, or after `game_datetime + 7 days` |
-| `editable` | From `game_datetime` until `game_datetime + 7 days` |
+| `not_editable` | Before `game_datetime`, or after `game_datetime + N days` |
+| `editable` | From `game_datetime` until `game_datetime + N days` |
 
-The 7-day editing window lets players fill in results even if they forget to do it right after the game (e.g. a weekly game night can be recorded up to the next one).
+The edit window lets players fill in results even if they forget to do it right after the game. N is `Location.leaderboard_edit_days` (default 2, from 2 to 30), editable by the location staff in *Manage → General info*; event tables always use the default of 2 days (`Table.leaderboard_edit_window`).
+
+When a location lengthens its window, the tables that fall back inside it are reopened immediately and silently (`reopen_location_leaderboards`, queryset update: no notifications). When it shortens it, the cron locks the tables on its next run, with the usual "leaderboard locked" notification.
+
+An event can switch the leaderboard off for all its tables (`Event.leaderboard_enabled`, default on, in *Manage → General info*): the section disappears from the table page, nobody can fill it in (superusers included) and no leaderboard notifications are sent. Results already saved come back if it is switched on again.
 
 When `leaderboard_status` changes, all players at the table receive an in-app notification (handled in `webapp/signals.py`).
 

@@ -84,6 +84,28 @@
       {% if form.email.errors %}<p class="mt-1 text-xs text-red-500">{{ form.email.errors|join:", " }}</p>{% endif %}
     </div>
 
+    {# ── Leaderboard toggle ──────────────────────────────────────────── #}
+    <label for="{{ form.leaderboard_enabled.id_for_label }}"
+           class="flex items-start justify-between gap-4 p-4 rounded-xl border border-divider bg-surface cursor-pointer hover:bg-surface-alt transition-colors">
+      <div>
+        <p class="text-sm font-semibold text-content">{% trans "Leaderboard in the event tables" %}</p>
+        <p class="text-xs text-content-muted mt-0.5">{% trans "When off, the tables of this event don't show the leaderboard and nobody can fill it in." %}</p>
+      </div>
+      <div class="relative flex-shrink-0 mt-0.5">
+        <input type="checkbox"
+               id="{{ form.leaderboard_enabled.id_for_label }}"
+               name="leaderboard_enabled"
+               class="sr-only peer"
+               {% if form.leaderboard_enabled.value %}checked{% endif %}>
+        <div class="w-11 h-6 rounded-full bg-surface-input
+                    peer-checked:bg-blue-500
+                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                    after:bg-surface after:rounded-full after:h-5 after:w-5
+                    after:transition-all after:shadow-sm
+                    peer-checked:after:translate-x-5"></div>
+      </div>
+    </label>
+
     {# ── Submit / Cancel ─────────────────────────────────────────────── #}
     <div class="flex gap-3 pt-2">
       <a href="{% url 'event-manage' event.slug %}"

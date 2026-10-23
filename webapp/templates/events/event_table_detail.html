@@ -152,7 +152,9 @@
       {% include "tables/_table_participants.html" %}
 
       {# ── Leaderboard ───────────────────────────────────────────── #}
-      {% include "tables/_table_leaderboard.html" %}
+      {% if not leaderboard_hidden %}
+        {% include "tables/_table_leaderboard.html" %}
+      {% endif %}
 
       {# ── Comments ──────────────────────────────────────────────── #}
       {% include "tables/_table_comments.html" %}

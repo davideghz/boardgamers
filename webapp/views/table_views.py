@@ -27,7 +27,7 @@ from webapp.models import Table, Comment, Player, UserProfile, Game, Location, C
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
     TableActionError, add_guest, can_edit_leaderboard, can_manage_roster, join_table,
-    can_change_result_mode, leave_table, remove_guest, save_table_result,
+    can_change_result_mode, leaderboard_turned_off, leave_table, remove_guest, save_table_result,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
 
@@ -260,6 +260,9 @@ class BaseTableDetailView(generic.DetailView):
         leaderboard_visible = leaderboard['compiled']
         # Every table with a game has a leaderboard section ("none" ones say so); results always show.
         leaderboard_enabled = leaderboard_visible or bool(table.game_id)
+        leaderboard_hidden = leaderboard_turned_off(table)  # the event switched it off: no section at all
+        if leaderboard_hidden:
+            leaderboard_enabled = leaderboard_visible = False
 
         # The guest picker items (see search_picker.js), None when the user can't bring guests
         user_available_guests = None
@@ -285,6 +288,7 @@ class BaseTableDetailView(generic.DetailView):
             'players': players,
             'leaderboard_enabled': leaderboard_enabled,
             'leaderboard_visible': leaderboard_visible,
+            'leaderboard_hidden': leaderboard_hidden,
             'leaderboard': leaderboard,
             'user_can_edit_leaderboard': user_can_edit_leaderboard,
             'user_available_guests': user_available_guests,

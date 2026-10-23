@@ -592,6 +592,19 @@ class LocationForm(ModelForm, TailwindForm):
         self.fields['opening_hours'].widget = HiddenInput()
 
 
+class LocationManageDataForm(LocationForm):
+    """LocationForm plus the settings that only the management page shows."""
+
+    class Meta(LocationForm.Meta):
+        fields = LocationForm.Meta.fields + ['leaderboard_edit_days']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['leaderboard_edit_days'].widget.attrs.update({
+            'min': Location.LEADERBOARD_EDIT_DAYS_MIN, 'max': Location.LEADERBOARD_EDIT_DAYS_MAX,
+        })
+
+
 class ContactForm(TailwindForm):
     name = CharField(
         label='Nome',
@@ -637,6 +650,13 @@ class EventForm(ModelForm, TailwindForm):
         self.fields['cover'].required = False
         self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
         _enhance_phone_widget(self.fields['phone'])
+
+
+class EventManageDataForm(EventForm):
+    """EventForm plus the settings that only the management page shows."""
+
+    class Meta(EventForm.Meta):
+        fields = EventForm.Meta.fields + ['leaderboard_enabled']
 
 
 class EventDateForm(TailwindForm):

@@ -9,13 +9,16 @@ renders the outcome; this module owns the rules and the side effects (Player
 rows and the system comments that feed the table timeline).
 """
 
+import datetime
 from collections import namedtuple
 
 from django.db import IntegrityError, transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from webapp.models import (
-    Comment, CommentType, GameOutcome, Membership, Notification, NotificationType, Player, ResultMode, Table,
+    Comment, CommentType, GameOutcome, Location, Membership, Notification, NotificationType, Player, ResultMode,
+    Table,
 )
 
 
@@ -72,6 +75,11 @@ def can_manage_roster(profile, table):
     return False
 
 
+def leaderboard_turned_off(table):
+    """An event table whose event has switched the leaderboard off: no section, no editing, no notifications."""
+    return bool(table.event_id) and not table.event.leaderboard_enabled
+
+
 def leaderboard_available(table):
     """Whether a table has a leaderboard to fill in: a game and an effective mode other than "none".
 
@@ -79,7 +87,27 @@ def leaderboard_available(table):
     (with "enable the leaderboard" for whoever may change the mode), and tables
     that already have results always show them (see the table detail view).
     """
-    return bool(table.game_id) and table.effective_result_mode != ResultMode.NONE
+    return (bool(table.game_id) and table.effective_result_mode != ResultMode.NONE
+            and not leaderboard_turned_off(table))
+
+
+def reopen_location_leaderboards(location):
+    """After a location lengthened its leaderboard window: reopen the tables back inside it.
+
+    Queryset update, so no notifications fire. Shortening the window is left to
+    the update_table_status cron, which locks the tables with the usual notice.
+    """
+    since = timezone.localdate() - datetime.timedelta(days=Location.LEADERBOARD_EDIT_DAYS_MAX + 1)
+    tables = Table.objects.filter(
+        location=location, status=Table.CLOSED,
+        leaderboard_status=Table.LEADERBOARD_NOT_EDITABLE, date__gte=since,
+    )
+    reopen = []
+    for table in tables:
+        table.location = location
+        if table.computed_leaderboard_status() == Table.LEADERBOARD_EDITABLE:
+            reopen.append(table.pk)
+    return Table.objects.filter(pk__in=reopen).update(leaderboard_status=Table.LEADERBOARD_EDITABLE)
 
 
 def sync_legacy_result(table):
@@ -220,13 +248,14 @@ def save_table_result(profile, table, data):
 def can_edit_leaderboard(profile, table):
     """Who may fill in a table's leaderboard.
 
-    Superusers always. Everyone else only for tables with a game, while the
+    Nobody on an event table whose event turned the leaderboard off. Otherwise
+    superusers always, and everyone else only for tables with a game, while the
     leaderboard is editable: the players at the table, plus whoever can manage
     its roster (author, location or event staff). On a "none" table only the
     latter can actually enable it: save_table_result() refuses mode changes
     from the others.
     """
-    if profile is None:
+    if profile is None or leaderboard_turned_off(table):
         return False
     if profile.user.is_superuser:
         return True

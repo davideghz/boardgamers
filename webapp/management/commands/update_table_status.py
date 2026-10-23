@@ -16,7 +16,7 @@ class Command(BaseCommand):
             Q(status=Table.OPEN) |
             Q(status=Table.ONGOING) |
             Q(status=Table.CLOSED, leaderboard_status=Table.LEADERBOARD_EDITABLE)
-        )
+        ).select_related('location', 'event')  # leaderboard window and event switch
 
         updated = 0
         for table in tables:

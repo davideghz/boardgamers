@@ -19,11 +19,12 @@ from django.views.generic import DetailView, CreateView
 
 from meta.views import Meta
 
-from webapp.forms import LocationForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
+from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event
+from webapp.services.tables import reopen_location_leaderboards
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -338,12 +339,9 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
 class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
     """View to edit location data (accessible to owners and managers)"""
     model = Location
-    form_class = LocationForm
+    form_class = LocationManageDataForm
     template_name = 'locations/location_manage_data.html'
     success_message = "Location was updated successfully"
-
-    def get_form_class(self):
-        return LocationForm
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -354,7 +352,14 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
             raise PermissionDenied("You don't have permission to edit this location.")
         return super().dispatch(request, *args, **kwargs)
 
-    # No form_valid override: see LocationUpdateView.
+    # The owner is preserved as in LocationUpdateView (no `creator` field).
+    def form_valid(self, form):
+        lengthened = ('leaderboard_edit_days' in form.changed_data
+                      and form.cleaned_data['leaderboard_edit_days'] > form.initial['leaderboard_edit_days'])
+        response = super().form_valid(form)
+        if lengthened:
+            reopen_location_leaderboards(self.object)
+        return response
 
     def get_success_url(self):
         return reverse("location-manage", kwargs={'slug': self.object.slug})

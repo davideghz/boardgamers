@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 16:07+0200\n"
+"POT-Creation-Date: 2026-10-23 15:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -306,6 +306,16 @@ msgid "Default start time used when creating new tables at this location."
 msgstr ""
 "Orario di inizio predefinito usato quando si creano nuovi tavoli in questa "
 "location."
+
+msgid "Leaderboard editable for (days)"
+msgstr "Classifica modificabile per (giorni)"
+
+msgid ""
+"How many days after the start of a table its leaderboard can still be filled "
+"in."
+msgstr ""
+"Per quanti giorni dopo l'inizio di un tavolo si può ancora compilare la sua "
+"classifica."
 
 msgid "Anyone"
 msgstr "Chiunque"
@@ -693,6 +703,12 @@ msgstr "Sponsor"
 
 msgid "Additional table creators"
 msgstr "Additional table creators"
+
+msgid "Leaderboard"
+msgstr "Classifica"
+
+msgid "When off, the tables of this event have no leaderboard."
+msgstr "Se disattivata, i tavoli di questo evento non hanno la classifica."
 
 #, python-format
 msgid "%(name)s — gaming event"
@@ -1727,6 +1743,16 @@ msgstr "Aggiungi categoria"
 msgid "General info"
 msgstr "Info generali"
 
+msgid "Leaderboard in the event tables"
+msgstr "Classifica nei tavoli dell'evento"
+
+msgid ""
+"When off, the tables of this event don't show the leaderboard and nobody can "
+"fill it in."
+msgstr ""
+"Se disattivata, i tavoli di questo evento non mostrano la classifica e "
+"nessuno può compilarla."
+
 msgid "Event dates"
 msgstr "Date evento"
 
@@ -2268,6 +2294,13 @@ msgid ""
 msgstr ""
 "Usato come orario di inizio predefinito quando crei un nuovo tavolo qui.Puoi "
 "comunque scegliere un orario diverso per ogni tavolo."
+
+msgid ""
+"How many days after the start of a table its players can still fill in the "
+"leaderboard (from 2 to 30)."
+msgstr ""
+"Per quanti giorni dopo l'inizio di un tavolo i giocatori possono ancora "
+"compilare la classifica (da 2 a 30)."
 
 msgid "Show tables in homepage"
 msgstr "Mostra tavoli in homepage"
@@ -3209,9 +3242,6 @@ msgstr "Conferma eliminazione"
 
 msgid "Are you sure you want to delete the comment?"
 msgstr "Sei sicuro di voler eliminare il commento?"
-
-msgid "Leaderboard"
-msgstr "Classifica"
 
 msgid "Not enabled for this game."
 msgstr "Non abilitata per questo gioco."
