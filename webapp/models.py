@@ -493,8 +493,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     unlimited_seats = models.BooleanField(
         default=False, null=False, blank=True, verbose_name=_('Unlimited seats'),
         help_text=_('No seat limit: anyone can join and no empty seats are shown.'))
-    date = models.DateField(default=datetime.date.today, null=False, blank=True, verbose_name=_('Date'))
-    time = models.TimeField(default=datetime.time(20, 30), null=False, blank=True, verbose_name=_('Hour'))
+    date = models.DateField(default=datetime.date.today, null=False, verbose_name=_('Date'))
+    time = models.TimeField(default=datetime.time(20, 30), null=False, verbose_name=_('Hour'))
     duration = models.PositiveIntegerField(
         default=120, null=False, blank=True, verbose_name=_('Duration (minutes)'),
         help_text=_('Expected duration in minutes'))
