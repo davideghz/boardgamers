@@ -1,0 +1,84 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-content-muted mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
+    <p class="text-sm text-content-muted mt-1">
+      {% blocktrans count counter=location_games|length %}{{ counter }} game in the library{% plural %}{{ counter }} games in the library{% endblocktrans %}
+    </p>
+  </div>
+
+  {% if location_games %}
+    {# Search bar #}
+    <div class="mb-3">
+      <div class="relative">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <input id="game-search" type="search" autocomplete="off"
+               placeholder="{% trans 'Search by game name…' %}"
+               class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
+      </div>
+      <p id="game-no-results" class="hidden text-sm text-content-muted mt-4 text-center">{% trans "No games found." %}</p>
+    </div>
+  {% endif %}
+
+  {# Game list #}
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="game-list">
+    {% for lg in location_games %}
+      {% with game=lg.game %}
+      <a href="{% url 'game-detail' game.slug %}" data-search="{{ game.name|lower }}"
+         class="flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt transition-colors text-decoration-none">
+        <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-content truncate">{{ game.name }}</p>
+          <p class="text-[11px] text-content-muted truncate mt-0.5">
+            {% if game.min_players %}
+              {% if game.max_players and game.max_players != game.min_players %}{{ game.min_players }}–{{ game.max_players }}{% else %}{{ game.min_players }}{% endif %}
+              {% trans "players" %}
+            {% endif %}
+            {% if game.min_playtime %}
+              {% if game.min_players %}·{% endif %}
+              {% if game.max_playtime and game.max_playtime != game.min_playtime %}{{ game.min_playtime }}–{{ game.max_playtime }}{% else %}{{ game.min_playtime }}{% endif %} min
+            {% endif %}
+          </p>
+        </div>
+        {% if lg.physical_location == 'home' %}
+          <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "At home" %}</span>
+        {% endif %}
+      </a>
+      {% endwith %}
+    {% empty %}
+      <p class="text-sm text-content-muted italic sm:col-span-2">{% trans "No games in the library yet." %}</p>
+    {% endfor %}
+  </div>
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+    const searchInput = document.getElementById('game-search');
+    if (searchInput) {
+      const gameCards = document.querySelectorAll('#game-list [data-search]');
+      const noResults = document.getElementById('game-no-results');
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+        gameCards.forEach(card => {
+          const match = !q || card.dataset.search.includes(q);
+          card.classList.toggle('hidden', !match);
+          if (match) visible++;
+        });
+        noResults.classList.toggle('hidden', visible > 0);
+      });
+    }
+  </script>
+{% endblock %}

@@ -193,6 +193,8 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     show_tables_in_homepage = models.BooleanField(default=True)
     enable_membership = models.BooleanField(default=False)
     enable_calendar = models.BooleanField(default=False)
+    # Lets visitors browse the game library (LocationGame) from the location page.
+    enable_public_games = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
     opening_hours = models.JSONField(null=True, blank=True)
     default_table_time = models.TimeField(

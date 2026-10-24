@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-23 15:06+0200\n"
+"POT-Creation-Date: 2026-10-24 10:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2173,6 +2173,9 @@ msgstr "Giochi più giocati"
 msgid "No games played at this location."
 msgstr "Nessun gioco giocato in questa location."
 
+msgid "See all games"
+msgstr "Vedi tutti i giochi"
+
 msgid "Stats"
 msgstr "Statistiche"
 
@@ -2241,6 +2244,24 @@ msgstr "Sabato"
 
 msgid "Sunday"
 msgstr "Domenica"
+
+#, python-format
+msgid "%(counter)s game in the library"
+msgid_plural "%(counter)s games in the library"
+msgstr[0] "%(counter)s gioco in ludoteca"
+msgstr[1] "%(counter)s giochi in ludoteca"
+
+msgid "Search by game name…"
+msgstr "Cerca per nome…"
+
+msgid "No games found."
+msgstr "Nessun gioco trovato."
+
+msgid "At home"
+msgstr "A casa"
+
+msgid "No games in the library yet."
+msgstr "Nessun gioco in ludoteca."
 
 msgid ""
 "Discover all board game locations near you. Find the perfect place for your "
@@ -2340,14 +2361,33 @@ msgstr "Rimuovi dalla libreria"
 msgid "Remove «%(name)s» from the library?"
 msgstr "Rimuovere «%(name)s» dalla libreria?"
 
-msgid "Search by game name…"
-msgstr "Cerca per nome…"
+msgid "Public game library"
+msgstr "Ludoteca pubblica"
 
-msgid "No games found."
-msgstr "Nessun gioco trovato."
+msgctxt "game library"
+msgid "Visible"
+msgstr "Visibile"
 
-msgid "At home"
-msgstr "A casa"
+msgctxt "game library"
+msgid "Hidden"
+msgstr "Nascosta"
+
+msgid ""
+"Visitors can browse your games from the location page. Owners, members and "
+"notes stay private."
+msgstr ""
+"I visitatori possono consultare i vostri giochi dalla pagina della location. "
+"Proprietari, soci e note restano privati."
+
+msgid "View public page"
+msgstr "Vedi pagina pubblica"
+
+msgid ""
+"Turn this on to show the list of your games on the location page. Owners, "
+"members and notes stay private."
+msgstr ""
+"Attivala per mostrare l'elenco dei vostri giochi nella pagina della "
+"location. Proprietari, soci e note restano privati."
 
 msgid "No games yet"
 msgstr "Ancora nessun gioco"
@@ -3849,6 +3889,16 @@ msgstr ""
 #, python-format
 msgid "Games – %(name)s"
 msgstr "Giochi - %(name)s"
+
+msgid "The game library is now visible on the location page."
+msgstr "La ludoteca ora è visibile nella pagina della location."
+
+msgid "The game library is now hidden from the location page."
+msgstr "La ludoteca ora è nascosta dalla pagina della location."
+
+#, python-format
+msgid "Board games available at %(name)s."
+msgstr "Giochi da tavolo disponibili presso %(name)s."
 
 #, python-format
 msgid "Add Game – %(name)s"

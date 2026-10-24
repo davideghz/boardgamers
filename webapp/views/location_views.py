@@ -1031,6 +1031,39 @@ class LocationManageGamesView(LoginRequiredMixin, View):
         })
 
 
+class TogglePublicGamesView(LoginRequiredMixin, View):
+    """Show or hide the game library on the public location page."""
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        location.enable_public_games = request.POST.get('enabled') == 'on'
+        location.save(update_fields=['enable_public_games'])
+        if location.enable_public_games:
+            messages.success(request, _("The game library is now visible on the location page."))
+        else:
+            messages.success(request, _("The game library is now hidden from the location page."))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGamesView(View):
+    """Public list of the games in a location's library, when the managers publish it."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        if not location.enable_public_games:
+            raise Http404
+        location_games = location.location_games.select_related('game').all()
+        return render(request, 'locations/location_games.html', {
+            'location': location,
+            'location_games': location_games,
+            'meta': Meta(
+                title=_("Games – %(name)s") % {'name': location.name},
+                description=_("Board games available at %(name)s.") % {'name': location.name},
+            ),
+        })
+
+
 class AddLocationGameView(LoginRequiredMixin, View):
     """Add a game to a location's library."""
 

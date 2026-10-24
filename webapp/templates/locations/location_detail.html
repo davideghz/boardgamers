@@ -193,6 +193,13 @@
         {% else %}
           <p class="text-sm text-content-muted italic">{% trans "No games played at this location." %}</p>
         {% endif %}
+        {% if location.enable_public_games %}
+          <div class="mt-3">
+            <a href="{% url 'location-games' location.slug %}" class="text-sm text-blue-600 font-semibold hover:underline">
+              {% trans "See all games" %} →
+            </a>
+          </div>
+        {% endif %}
       </section>
 
       {# ── Statistiche ─────────────────────────────────── #}
