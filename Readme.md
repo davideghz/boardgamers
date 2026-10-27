@@ -7,6 +7,8 @@
 - [Translations](#translations)
 - [Setup With Docker (Windows)](#setup-with-docker-windows)
 - [Management Commands](#management-commands)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Project Requirements
 - Python 3.12
@@ -287,3 +289,12 @@ Run with `python manage.py [command-name]`
 
 - `setup_telegram_bot`
   - Registers the bot's command list with Telegram. Run it when the bot commands change.
+
+## Contributing
+
+Pull requests are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) before opening one.
+To report a security issue, see [SECURITY.md](SECURITY.md).
+
+## License
+
+Board Gamers is free software, released under the [GNU Affero General Public License v3.0](LICENSE).
