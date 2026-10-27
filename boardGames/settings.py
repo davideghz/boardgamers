@@ -171,6 +171,10 @@ SOCIAL_AUTH_PIPELINE = (
     # could hit a provider API.
     'social_core.pipeline.social_auth.social_details',
 
+    # Fills full/first/last name from each other (social-auth-core 6 moved this
+    # out of the backends: custom pipelines must list it right after social_details).
+    'social_core.pipeline.social_auth.social_names',
+
     # Get the social uid from whichever service we're authing thru. The uid is
     # the unique identifier of the given user in the provider.
     'social_core.pipeline.social_auth.social_uid',
