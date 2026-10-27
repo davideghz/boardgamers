@@ -2,6 +2,8 @@ import datetime
 from io import BytesIO
 from unittest import mock
 
+from django import forms
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -45,6 +47,25 @@ class ShrinkImageBytesTest(TestCase):
 
     def test_non_image_is_left_alone(self):
         self.assertIsNone(shrink_image_bytes(b'not an image', COVER_MAX_SIDE))
+
+
+class RestrictedOpenFormatsTest(TestCase):
+    def image_bytes(self, fmt):
+        out = BytesIO()
+        Image.new('RGB', (40, 30), (10, 20, 30)).save(out, fmt)
+        return out.getvalue()
+
+    def test_unused_formats_are_rejected_on_upload(self):
+        upload = SimpleUploadedFile('cover.tif', self.image_bytes('TIFF'), 'image/tiff')
+        field = forms.ImageField()
+        with self.assertRaises(ValidationError):
+            field.clean(upload)
+
+    def test_allowed_formats_still_open(self):
+        for fmt in ('JPEG', 'PNG', 'WEBP', 'GIF'):
+            with self.subTest(fmt=fmt):
+                upload = SimpleUploadedFile(f'cover.{fmt.lower()}', self.image_bytes(fmt))
+                self.assertEqual(forms.ImageField().clean(upload).image.format, fmt)
 
 
 class ShrinkOnUploadTest(TestCase):

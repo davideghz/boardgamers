@@ -7,3 +7,5 @@ class WebappConfig(AppConfig):
 
     def ready(self):
         import webapp.signals
+        from webapp.services.images import restrict_open_formats
+        restrict_open_formats()
