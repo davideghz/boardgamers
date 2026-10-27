@@ -20,6 +20,26 @@ JPEG_QUALITY = 82
 SMALL_ENOUGH_BYTES = 200 * 1024
 # Riscriviamo il file solo se il risultato pesa al massimo il 70% dell'originale
 MIN_SAVING_RATIO = 0.7
+# Formati che Pillow può aprire: gli unici che servono per copertine e avatar.
+# MPO (i JPEG multi-immagine di molti telefoni) li apre il decoder JPEG: è in
+# lista solo nel caso una versione futura di Pillow lo registri a parte.
+ALLOWED_OPEN_FORMATS = ('JPEG', 'MPO', 'PNG', 'WEBP', 'GIF')
+
+
+def restrict_open_formats():
+    """Toglie dal registro di Pillow tutti i decoder tranne ALLOWED_OPEN_FORMATS.
+
+    Quasi tutte le vulnerabilità di Pillow stanno in decoder di formati che non
+    usiamo (TIFF, PDF, EPS, FPX, ...), raggiungibili da qualunque Image.open(),
+    compresa la validazione di ImageField. Pillow carica i plugin in modo pigro,
+    anche in base all'estensione del file: li carichiamo tutti subito con init()
+    e poi li togliamo, così un import successivo non li registra di nuovo.
+    """
+    Image.init()
+    Image.ID[:] = [f for f in Image.ID if f in ALLOWED_OPEN_FORMATS]
+    for fmt in list(Image.OPEN):
+        if fmt not in ALLOWED_OPEN_FORMATS:
+            del Image.OPEN[fmt]
 
 
 def shrink_image_bytes(data, max_side):
