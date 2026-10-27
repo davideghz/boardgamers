@@ -115,13 +115,14 @@ def copy_email_from_google_if_missing(backend, user, response, *args, **kwargs):
         user.save(update_fields=['email'])
 
 
-def save_language_from_state(backend, user, response, *args, **kwargs):
+def save_language_from_state(strategy, backend, user, response, *args, **kwargs):
     """
     Salva la lingua preferita dell'utente dalla sessione.
     La lingua viene salvata nella sessione dalla view auth_with_language
     prima di avviare il flusso OAuth.
     """
-    request = kwargs.get('request')
+    # Da social-auth-core 6 i passi della pipeline non ricevono più `request`
+    request = strategy.request
     if request:
         language = request.session.pop('social_auth_language', None)
 

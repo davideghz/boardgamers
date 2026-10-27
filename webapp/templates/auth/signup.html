@@ -16,9 +16,11 @@
         <p class="text-sm text-content-muted mt-1">{% trans "Join the community and find game tables near you." %}</p>
       </div>
 
-      {# Google Sign-up #}
-      <a href="{% social_auth_url 'google-oauth2' %}"
-         class="flex items-center justify-center gap-3 w-full border border-divider rounded-full px-4 py-3 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none mb-3">
+      {# Google Sign-up (social-auth only starts a login from a POST) #}
+      <form method="post" action="{% social_auth_url 'google-oauth2' %}" class="mb-3">
+      {% csrf_token %}
+      <button type="submit"
+         class="flex items-center justify-center gap-3 w-full border border-divider rounded-full px-4 py-3 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
         <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
           <g fill="none" fill-rule="evenodd">
             <path d="M17.6 9.2l-.1-1.8H9v3.4h4.8c-.2 1-.8 1.8-1.8 2.8v2.2h3a8.8 8.8 0 0 0 2.6-6.6z" fill="#4285F4" fill-rule="nonzero"/>
@@ -28,7 +30,8 @@
           </g>
         </svg>
         {% trans "Signup with Google" %}
-      </a>
+      </button>
+      </form>
 
 
       <div class="flex items-center gap-3 mb-6">
