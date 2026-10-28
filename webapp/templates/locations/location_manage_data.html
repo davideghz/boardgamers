@@ -90,28 +90,6 @@
       {% if form.leaderboard_edit_days.errors %}<p class="mt-1 text-xs text-red-500">{{ form.leaderboard_edit_days.errors|join:", " }}</p>{% endif %}
     </div>
 
-    {# ── Is public toggle ────────────────────────────────────────────── #}
-    <label for="{{ form.is_public.id_for_label }}"
-           class="flex items-start justify-between gap-4 p-4 rounded-xl border border-divider bg-surface cursor-pointer hover:bg-surface-alt transition-colors">
-      <div>
-        <p class="text-sm font-semibold text-content">{% trans "Public location" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Public locations (bar, café, game shop…) can be used by other gamers to organize tables." %}</p>
-      </div>
-      <div class="relative flex-shrink-0 mt-0.5">
-        <input type="checkbox"
-               id="{{ form.is_public.id_for_label }}"
-               name="is_public"
-               class="sr-only peer"
-               {% if form.is_public.value %}checked{% endif %}>
-        <div class="w-11 h-6 rounded-full bg-surface-input
-                    peer-checked:bg-blue-500
-                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
-                    after:bg-surface after:rounded-full after:h-5 after:w-5
-                    after:transition-all after:shadow-sm
-                    peer-checked:after:translate-x-5"></div>
-      </div>
-    </label>
-
     {# ── Show tables in homepage toggle ──────────────────────────────── #}
     <label for="{{ form.show_tables_in_homepage.id_for_label }}"
            class="flex items-start justify-between gap-4 p-4 rounded-xl border border-divider bg-surface cursor-pointer hover:bg-surface-alt transition-colors">

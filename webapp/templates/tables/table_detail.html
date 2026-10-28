@@ -137,7 +137,7 @@
             <div class="min-w-0">
               <p class="text-xs text-blue-200">{% trans "Location" %}</p>
               <p class="text-sm font-semibold text-white truncate">
-                {% if table.location.is_public %}{{ table.location }}{% else %}{% trans "Private location" %}{% endif %}
+                {{ table.location }}
               </p>
             </div>
           </div>

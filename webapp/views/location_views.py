@@ -47,9 +47,9 @@ def index_view(request, template_name="locations/location_index.html"):
     if user_location:
         if user_created_locations is not None:
             user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
-        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True).order_by('distance')
+        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).order_by('distance')
     else:
-        nearby_locations = Location.objects.annotate(random_order=Count('id')).filter(is_public=True).order_by('?')
+        nearby_locations = Location.objects.annotate(random_order=Count('id')).order_by('?')
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
     context = {

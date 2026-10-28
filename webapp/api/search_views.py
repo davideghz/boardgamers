@@ -105,12 +105,12 @@ def location_result(location):
 
 
 def location_search_view(request):
-    """Public locations by name or city. With `tables=1` only the ones whose
+    """Locations by name or city. With `tables=1` only the ones whose
     tables are listed on the public tables page (the tables location filter)."""
     query = request.GET.get('q', '').strip()
     if len(query) < LOCATION_SEARCH_MIN_LENGTH:
         return JsonResponse({'results': []})
-    locations = Location.objects.filter(is_public=True)
+    locations = Location.objects.all()
     if request.GET.get('tables'):
         locations = locations.filter(show_tables_in_homepage=True)
     locations = (locations

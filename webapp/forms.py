@@ -179,7 +179,7 @@ class UserPickerWidget(SearchPickerWidget):
 
 
 class LocationPickerWidget(SearchPickerWidget):
-    """Picks a public Location by name or city."""
+    """Picks a Location by name or city."""
     search_url_name = 'location-search'
     button_label = _('Select a location')
     placeholder = _('Search by name or city…')
@@ -519,18 +519,6 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
         )
         user_profile.save()
 
-        # location = Location(
-        #     name="Default Location",
-        #     creator=user_profile,
-        #     description=f"#{self.cleaned_data['nickname']} Default Location",
-        #     address=self.cleaned_data['address'],
-        #     city=self.cleaned_data['city'],
-        #     latitude=self.cleaned_data['latitude'],
-        #     longitude=self.cleaned_data['longitude'],
-        #     is_public=False,
-        # )
-        # location.save()
-
         return user, user_profile
 
 
@@ -582,7 +570,7 @@ class LocationForm(ModelForm, TailwindForm):
         # and changed only through the owner-only transfer flow. As an editable
         # (even hidden) field, anyone allowed to edit a location could take it
         # over or blank it by tampering with the posted value.
-        fields = ['name', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'is_public', 'show_tables_in_homepage', 'opening_hours', 'default_table_time']
+        fields = ['name', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'show_tables_in_homepage', 'opening_hours', 'default_table_time']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -737,7 +725,7 @@ class AddTableCreatorForm(TailwindForm):
 
 class AddSponsorLocationForm(TailwindForm):
     location = ModelChoiceField(
-        queryset=Location.objects.filter(is_public=True),
+        queryset=Location.objects.all(),
         label=_('Location'),
         widget=LocationPickerWidget(),
     )

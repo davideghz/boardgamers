@@ -189,7 +189,6 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True)
     longitude = models.CharField(max_length=25, null=True, blank=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    is_public = models.BooleanField(default=True)
     show_tables_in_homepage = models.BooleanField(default=True)
     enable_membership = models.BooleanField(default=False)
     enable_calendar = models.BooleanField(default=False)
@@ -511,7 +510,6 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     duration = models.PositiveIntegerField(
         default=120, null=False, blank=True, verbose_name=_('Duration (minutes)'),
         help_text=_('Expected duration in minutes'))
-    is_public_location = models.BooleanField(default=False, null=False, blank=True)
 
     author = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, related_name='created_tables', null=True)
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)

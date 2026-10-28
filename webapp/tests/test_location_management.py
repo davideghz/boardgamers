@@ -116,7 +116,6 @@ class LocationManagementTest(TestCase):
             'city': 'New City',
             'latitude': '45.0',
             'longitude': '9.0',
-            'is_public': True,
             'leaderboard_edit_days': 2,
             **overrides,
         }
