@@ -1,0 +1,11 @@
+{% load i18n %}
+{# Dashed "+" card closing a location_card grid #}
+<a href="{% url 'location-create' %}" class="group block text-decoration-none">
+  <div class="aspect-square rounded-xl border-2 border-dashed border-divider group-hover:border-blue-500 bg-surface flex flex-col items-center justify-center gap-2 mb-2 transition-colors">
+    <span class="w-10 h-10 rounded-full bg-surface-input group-hover:bg-blue-600 text-content-muted group-hover:text-white flex items-center justify-center transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+    </span>
+  </div>
+  <p class="text-sm font-semibold text-content group-hover:text-blue-600 truncate">{% trans "Add location" %}</p>
+  <p class="text-xs text-content-muted mt-0.5 truncate">{% trans "Is your club missing?" %}</p>
+</a>

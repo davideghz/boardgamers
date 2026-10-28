@@ -1,0 +1,34 @@
+{% load i18n %}
+{# Highlighted "add your location" banner, shared by home and location index #}
+<div class="rounded-2xl text-white overflow-hidden"
+     style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+  <div class="flex flex-col md:flex-row md:items-center gap-5 p-5 md:p-6">
+    <div class="flex-1">
+      <p class="text-lg font-extrabold mb-1">{% trans "Have a location to add?" %}</p>
+      <p class="text-sm text-blue-100 mb-3">{% trans "Clubs, associations, game shops are welcome." %}</p>
+      <ul class="flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-1.5 text-xs text-blue-100 list-none">
+        <li class="flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          {% trans "Tables and events in one place" %}
+        </li>
+        <li class="flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          {% trans "Member registry" %}
+        </li>
+        <li class="flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          {% trans "Widget for your website" %}
+        </li>
+        <li class="flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          {% trans "Free and non-profit" %}
+        </li>
+      </ul>
+    </div>
+    <a href="{% url 'location-create' %}"
+       class="flex-shrink-0 flex items-center justify-center gap-1.5 bg-white text-slate-900 text-sm font-bold px-5 py-3 rounded-full hover:bg-blue-50 transition-colors text-decoration-none">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+      {% trans "Add location" %}
+    </a>
+  </div>
+</div>
