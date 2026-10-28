@@ -2857,8 +2857,8 @@ msgstr "Gestione soci"
 msgid "Widget for your website"
 msgstr "Widget per il tuo sito"
 
-msgid "Free and non-profit"
-msgstr "Gratuito e senza scopo di lucro"
+msgid "Free and open source"
+msgstr "Gratuito e Open source"
 
 msgid "Personal data"
 msgstr "Dati anagrafici"
