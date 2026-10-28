@@ -66,8 +66,8 @@ class IsNotClosedMixin(UserPassesTestMixin):
 
 
 def _filterable_locations():
-    """Public locations whose tables are listed on the public tables page."""
-    return Location.objects.filter(is_public=True, show_tables_in_homepage=True)
+    """Locations whose tables are listed on the public tables page."""
+    return Location.objects.filter(show_tables_in_homepage=True)
 
 
 def _location_picker_sections(request):

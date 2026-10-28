@@ -54,7 +54,7 @@ class GameDetailView(DetailView):
         context['meta'] = self.get_object().as_meta(self.request)
         context['locations'] = (
             Location.objects
-            .filter(tables__game=game, is_public=True)
+            .filter(tables__game=game)
             .annotate(game_table_count=Count('tables', distinct=True))
             .order_by('-game_table_count')
         )

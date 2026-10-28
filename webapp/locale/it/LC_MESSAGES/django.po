@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-28 17:24+0100\n"
+"POT-Creation-Date: 2026-10-28 18:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2107,16 +2107,6 @@ msgstr "Modifica luogo"
 msgid "New location"
 msgstr "Nuova location"
 
-msgid "Public location"
-msgstr "Location pubblica"
-
-msgid ""
-"Public locations (bar, café, game shop…) can be used by other gamers to "
-"organize tables."
-msgstr ""
-"Le location pubbliche (bar, caffè, negozi di giochi…) possono essere usate "
-"da altri gamers per organizzare tavoli."
-
 msgid "Create location"
 msgstr "Crea location"
 
@@ -3523,9 +3513,6 @@ msgstr "Creato"
 msgid "ago"
 msgstr "fa"
 
-msgid "Private location"
-msgstr "Luogo privato"
-
 msgid "Table reserved for members"
 msgstr "Tavolo riservato ai soci"
 
@@ -4166,6 +4153,19 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Public location"
+#~ msgstr "Location pubblica"
+
+#~ msgid ""
+#~ "Public locations (bar, café, game shop…) can be used by other gamers to "
+#~ "organize tables."
+#~ msgstr ""
+#~ "Le location pubbliche (bar, caffè, negozi di giochi…) possono essere "
+#~ "usate da altri gamers per organizzare tavoli."
+
+#~ msgid "Private location"
+#~ msgstr "Luogo privato"
 
 #~ msgid "Search location..."
 #~ msgstr "Cerca location..."

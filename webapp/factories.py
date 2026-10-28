@@ -63,7 +63,6 @@ class LocationFactory(DjangoModelFactory):
     city = factory.LazyFunction(faker.city)
     longitude = factory.LazyFunction(random_longitude)
     latitude = factory.LazyFunction(random_latitude)
-    is_public = True
 
 
 class GameFactory(DjangoModelFactory):

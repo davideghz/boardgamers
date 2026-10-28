@@ -40,7 +40,7 @@ class LocationSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Location.objects.filter(is_public=True).order_by('-updated_at')
+        return Location.objects.order_by('-updated_at')
 
     def lastmod(self, obj):
         return obj.updated_at

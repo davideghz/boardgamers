@@ -67,14 +67,13 @@ def homepage_view(request):
         future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date')
         if user_created_locations is not None:
             user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
-        nearby_locations = (Location.objects.annotate(distance=DbDistance('point', user_location)).filter(is_public=True)
+        nearby_locations = (Location.objects.annotate(distance=DbDistance('point', user_location))
                             .exclude(id__in=user_created_locations_ids)
                             .order_by('distance'))
         location_message = None  # Nessun messaggio se la posizione è presente
     else:
         # Se la posizione non è disponibile, mostra 10 locations randomiche
         nearby_locations = (Location.objects.annotate(random_order=Count('id'))
-                            .filter(is_public=True)
                             .exclude(id__in=user_created_locations_ids)
                             .order_by('?'))
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
@@ -195,7 +194,7 @@ def contacts(request):
 def about(request):
     faqs = FAQ.objects.filter(is_active=True).select_related('category').order_by('category__order', 'order')
     about_stats = {
-        'locations': Location.objects.filter(is_public=True).count(),
+        'locations': Location.objects.count(),
         'tables': Table.objects.count(),
         'players': UserProfile.objects.count(),
     }
