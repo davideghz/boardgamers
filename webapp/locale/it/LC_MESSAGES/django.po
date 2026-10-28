@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-24 10:40+0200\n"
+"POT-Creation-Date: 2026-10-28 17:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1457,6 +1457,9 @@ msgstr "Modalità chiara"
 msgid "Language"
 msgstr "Lingua"
 
+msgid "Add your location"
+msgstr "Aggiungi la tua location"
+
 msgid "Privacy"
 msgstr "Privacy"
 
@@ -2270,6 +2273,12 @@ msgstr ""
 "Scopri tutte le locations di gioco da tavolo vicino a te. Trova il posto "
 "perfetto per la tua prossima partita!"
 
+msgid "Pick the location where you want to create the table."
+msgstr "Scegli la location in cui vuoi creare il tavolo."
+
+msgid "Can't find it? Add it"
+msgstr "Non la trovi? Aggiungila"
+
 msgid "Your locations"
 msgstr "Le tue location"
 
@@ -2297,11 +2306,11 @@ msgstr "Inserisci un indirizzo"
 msgid "No locations available yet."
 msgstr "Nessuna location disponibile al momento."
 
-msgid "Have a location to add?"
-msgstr "Hai una location da aggiungere?"
-
-msgid "Clubs, associations, game shops are welcome."
-msgstr "Club, associazioni e negozi di giochi sono i benvenuti."
+msgid ""
+"Is there a club, association or game shop near you? Be the first to add it."
+msgstr ""
+"C'è un club, un'associazione o un negozio di giochi vicino a te? Aggiungilo "
+"per primo."
 
 msgid "View page"
 msgstr "Vedi pagina"
@@ -2829,6 +2838,27 @@ msgstr "Invia richiesta"
 
 msgid "Back to location"
 msgstr "Torna alla location"
+
+msgid "Is your club missing?"
+msgstr "Manca il tuo club?"
+
+msgid "Have a location to add?"
+msgstr "Hai una location da aggiungere?"
+
+msgid "Clubs, associations, game shops are welcome."
+msgstr "Club, associazioni e negozi di giochi sono i benvenuti."
+
+msgid "Tables and events in one place"
+msgstr "Tavoli ed eventi in un unico posto"
+
+msgid "Member registry"
+msgstr "Gestione soci"
+
+msgid "Widget for your website"
+msgstr "Widget per il tuo sito"
+
+msgid "Free and open source"
+msgstr "Gratuito e Open source"
 
 msgid "Personal data"
 msgstr "Dati anagrafici"

@@ -87,7 +87,7 @@
 
           {# CTA #}
           <div class="mb-1">
-            <a id="sidebar-cta" href="{% url 'locations-index' %}"
+            <a id="sidebar-cta" href="{% url 'locations-index' %}?new_table=1"
                class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
               <span class="sidebar-text">{% trans "New table" %}</span>
@@ -136,6 +136,15 @@
                           {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                   <span class="sidebar-text">{% trans "Locations" %}</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'location-create' %}"
+                   data-label="{% trans "Add location" %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'location-create' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  <span class="sidebar-text">{% trans "Add location" %}</span>
                 </a>
               </li>
               <li>
@@ -312,7 +321,7 @@
           <div class="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-4">
 
             {# CTA #}
-            <a href="{% url 'locations-index' %}"
+            <a href="{% url 'locations-index' %}?new_table=1"
                class="w-full flex items-center justify-center gap-2 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
               {% trans "New table" %}
@@ -342,6 +351,10 @@
                 <a href="{% url 'locations-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                   {% trans "Locations" %}
+                </a>
+                <a href="{% url 'location-create' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'location-create' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  {% trans "Add location" %}
                 </a>
                 <a href="{% url 'event-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
@@ -433,7 +446,8 @@
             <div class="flex items-center gap-2 text-content-muted text-sm">
               <span>© {% now "Y" %} Board Gamers</span>
             </div>
-            <div class="flex items-center gap-6 text-xs text-content-muted">
+            <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-content-muted">
+              <a href="{% url 'location-create' %}" class="hover:text-content transition-colors">{% trans "Add your location" %}</a>
               <a href="{% url 'about' %}" class="hover:text-content transition-colors">{% trans "About" %}</a>
               <a href="{% url 'privacy' %}" class="hover:text-content transition-colors">{% trans "Privacy" %}</a>
               <a href="{% url 'terms' %}" class="hover:text-content transition-colors">{% trans "Terms" %}</a>
