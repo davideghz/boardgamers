@@ -1631,6 +1631,12 @@ class PushSubscription(DateTimeModel):
     class Meta:
         verbose_name = _('Push Subscription')
         verbose_name_plural = _('Push Subscriptions')
+        # Every page load re-sends the browser's subscription, so concurrent requests
+        # (two tabs) could otherwise both insert the same endpoint.
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user_profile', 'endpoint'], name='unique_push_subscription_per_user'),
+        ]
 
     def __str__(self):
         return f"{self.user_profile.nickname} — {self.endpoint[:60]}"
