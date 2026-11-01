@@ -52,3 +52,27 @@ class PublicGamesToggleTest(TestCase):
         self.client.force_login(self.owner.user)
         response = self.client.get(reverse('location-manage-games', kwargs={'slug': self.location.slug}))
         self.assertContains(response, self.toggle_url)
+
+
+class PublicGamesPaginationTest(TestCase):
+    def setUp(self):
+        self.location = LocationFactory(enable_public_games=True)
+        for i in range(20):
+            LocationGame.objects.create(location=self.location, game=GameFactory(name=f"Game {i:02d}"))
+        LocationGame.objects.create(location=self.location, game=GameFactory(name="Wingspan"))
+        self.games_url = reverse('location-games', kwargs={'slug': self.location.slug})
+
+    def test_sixteen_games_per_page(self):
+        response = self.client.get(self.games_url)
+        self.assertEqual(len(response.context['location_games']), 16)
+        self.assertEqual(response.context['total_count'], 21)
+        self.assertTrue(response.context['is_paginated'])
+        response = self.client.get(self.games_url, {'page': 2})
+        self.assertEqual(len(response.context['location_games']), 5)
+        self.assertContains(response, "Wingspan")
+
+    def test_search_covers_all_pages(self):
+        response = self.client.get(self.games_url, {'q': 'wing'})
+        self.assertEqual([lg.game.name for lg in response.context['location_games']], ["Wingspan"])
+        self.assertEqual(response.context['total_count'], 21)
+        self.assertFalse(response.context['is_paginated'])

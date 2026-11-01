@@ -8,6 +8,7 @@ from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -1053,10 +1054,22 @@ class LocationGamesView(View):
         location = get_object_or_404(Location, slug=slug)
         if not location.enable_public_games:
             raise Http404
-        location_games = location.location_games.select_related('game').all()
+        q = request.GET.get('q', '').strip()
+        location_games = location.location_games.select_related('game')
+        total_count = location_games.count()
+        if q:
+            location_games = location_games.filter(game__name__icontains=q)
+        # pk as tie-breaker keeps pages stable across games with the same name
+        paginator = Paginator(location_games.order_by('game__name', 'pk'), 16)
+        page_obj = paginator.get_page(request.GET.get('page'))
         return render(request, 'locations/location_games.html', {
             'location': location,
-            'location_games': location_games,
+            'location_games': page_obj.object_list,
+            'total_count': total_count,
+            'q': q,
+            'paginator': paginator,
+            'page_obj': page_obj,
+            'is_paginated': page_obj.has_other_pages(),
             'meta': Meta(
                 title=_("Games – %(name)s") % {'name': location.name},
                 description=_("Board games available at %(name)s.") % {'name': location.name},
