@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-28 18:32+0100\n"
+"POT-Creation-Date: 2026-11-01 22:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2247,11 +2247,11 @@ msgstr[1] "%(counter)s giochi in ludoteca"
 msgid "Search by game name…"
 msgstr "Cerca per nome…"
 
-msgid "No games found."
-msgstr "Nessun gioco trovato."
-
 msgid "At home"
 msgstr "A casa"
+
+msgid "No games found."
+msgstr "Nessun gioco trovato."
 
 msgid "No games in the library yet."
 msgstr "Nessun gioco in ludoteca."
