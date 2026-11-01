@@ -208,6 +208,7 @@ class LocationDetailView(DetailView):
         context['tables_count'] = past_tables_count + future_tables_count
         context['total_gamers_count'] = total_gamers_count
         context['popular_games'] = popular_games
+        context['has_library_games'] = location.location_games.exists()
         context['player_stats'] = player_stats
         context['is_following'] = is_following
         context['is_manager'] = is_manager
