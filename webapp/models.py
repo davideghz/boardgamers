@@ -76,7 +76,8 @@ class SlugModel(models.Model):
         return getattr(self, self.slug_field_name)
 
     def create_unique_slug(self):
-        base_slug = slugify(self.get_slug_source_value())
+        # Titles made only of emoji or non-latin characters slugify to '', which breaks reverse()
+        base_slug = slugify(self.get_slug_source_value()) or self._meta.model_name
         qs = self.__class__.objects.filter(slug=base_slug)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
@@ -92,7 +93,7 @@ class SlugModel(models.Model):
             original = type(self).objects.get(pk=self.pk)
             original_slug = slugify(getattr(original, self.slug_field_name))
             current_slug = slugify(self.get_slug_source_value())
-            if original_slug != current_slug:
+            if original_slug != current_slug or not self.slug:
                 self.slug = self.create_unique_slug()
         else:
             self.slug = self.create_unique_slug()
