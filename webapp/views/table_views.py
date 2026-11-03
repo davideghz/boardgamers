@@ -624,6 +624,7 @@ def table_duplicate_view(request, slug):
         form = TableDuplicateForm(instance=draft)
         link_formset = _duplicate_link_formset(source)
 
+    source_players = list(source.player_set.select_related('user_profile', 'guest_profile'))
     context = {
         "form": form,
         "link_formset": link_formset,
@@ -631,7 +632,8 @@ def table_duplicate_view(request, slug):
         "location": source.location,
         "table": source,
         "duplicate_source": source,
-        "source_players": source.player_set.select_related('user_profile', 'guest_profile'),
+        "source_players": source_players,
+        "source_has_players": bool(source_players or source.external_players),
         "repeat_start": request.POST.get("repeat_start") or _next_weekly_date(source).isoformat(),
         "repeat_freq": request.POST.get("repeat_freq", "once"),
         "repeat_count": request.POST.get("repeat_count", "4"),

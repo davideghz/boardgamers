@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 13:44+0100\n"
+"POT-Creation-Date: 2026-11-03 13:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3370,6 +3370,19 @@ msgstr "Crea {count} tavoli"
 msgid "Create 1 table"
 msgstr "Crea 1 tavolo"
 
+msgid "Game not decided yet"
+msgstr "Gioco non ancora deciso"
+
+#, python-format
+msgid "%(counter)s player"
+msgid_plural "%(counter)s players"
+msgstr[0] "%(counter)s giocatore"
+msgstr[1] "%(counter)s giocatori"
+
+#, python-format
+msgid "%(min)s–%(max)s players"
+msgstr "%(min)s–%(max)s giocatori"
+
 msgid "Filter by location"
 msgstr "Filtra per location"
 
@@ -3627,11 +3640,11 @@ msgstr[1] "%(counter)s giocatori esterni"
 msgid "They will get a single notification for all the new sessions."
 msgstr "Riceveranno una sola notifica per tutte le nuove sessioni."
 
+msgid "This table has no participants to copy."
+msgstr "Questo tavolo non ha partecipanti da copiare."
+
 msgid "Table details"
 msgstr "Dettagli del tavolo"
-
-msgid "Same as the original table."
-msgstr "Uguali al tavolo originale."
 
 msgid "Edit details"
 msgstr "Modifica dettagli"

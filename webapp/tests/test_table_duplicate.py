@@ -162,6 +162,16 @@ class DuplicateTableViewTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'https://example.com/rules')
 
+    def test_page_shows_summary_and_copy_option_even_without_players(self):
+        self.client.force_login(self.author.user)
+
+        response = self.client.get(self.url)
+
+        self.assertContains(response, 'id="details-summary"')
+        self.assertContains(response, 'id="details-fieldset" class="space-y-5 min-w-0 border-0 p-0 m-0" style="display:none"')
+        # No participants: the option is shown but cannot be ticked
+        self.assertContains(response, 'name="copy_players" id="copy_players" disabled')
+
     def test_stranger_is_refused(self):
         self.client.force_login(UserProfileFactory().user)
 

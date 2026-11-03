@@ -60,25 +60,26 @@
 
     {% if duplicate_source %}
       {# ── Copy participants ───────────────────────────────────────────── #}
-      {% if source_players or duplicate_source.external_players %}
-      <div class="flex items-start gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
-        <input type="checkbox" name="copy_players" id="copy_players"{% if form.copy_players.value %} checked{% endif %}
+      <div class="flex items-start gap-3 p-3 rounded-xl border border-divider bg-surface-alt{% if not source_has_players %} opacity-60{% endif %}">
+        <input type="checkbox" name="copy_players" id="copy_players"{% if form.copy_players.value and source_has_players %} checked{% endif %}{% if not source_has_players %} disabled{% endif %}
                class="w-4 h-4 mt-0.5 rounded border-divider text-blue-600 cursor-pointer">
         <label for="copy_players" class="cursor-pointer select-none min-w-0">
           <span class="block text-sm font-semibold text-content">{% trans "Copy the participants too" %}</span>
-          <span class="block text-xs text-content-muted">
-            {% for p in source_players %}{% if p.user_profile %}{{ p.user_profile.nickname }}{% else %}{{ p.guest_profile.name }} ({% trans "guest" %}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if duplicate_source.external_players %}{% if source_players %} · {% endif %}{% blocktrans count counter=duplicate_source.external_players %}{{ counter }} external player{% plural %}{{ counter }} external players{% endblocktrans %}{% endif %}
-          </span>
-          <span class="block text-[11px] text-content-muted mt-1">{% trans "They will get a single notification for all the new sessions." %}</span>
+          {% if source_has_players %}
+            <span class="block text-xs text-content-muted">
+              {% for p in source_players %}{% if p.user_profile %}{{ p.user_profile.nickname }}{% else %}{{ p.guest_profile.name }} ({% trans "guest" %}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if duplicate_source.external_players %}{% if source_players %} · {% endif %}{% blocktrans count counter=duplicate_source.external_players %}{{ counter }} external player{% plural %}{{ counter }} external players{% endblocktrans %}{% endif %}
+            </span>
+            <span class="block text-[11px] text-content-muted mt-1">{% trans "They will get a single notification for all the new sessions." %}</span>
+          {% else %}
+            <span class="block text-xs text-content-muted">{% trans "This table has no participants to copy." %}</span>
+          {% endif %}
         </label>
       </div>
-      {% endif %}
 
-      {# ── Details copied from the source: locked until "Edit details" ── #}
+      {# ── Details copied from the source: a summary until "Edit details" ── #}
       <div class="flex items-center justify-between gap-3 pt-4 border-t border-divider-soft">
         <div class="min-w-0">
           <p class="text-xs font-semibold text-content-muted uppercase tracking-wide">{% trans "Table details" %}</p>
-          <p id="details-locked-hint" class="text-[11px] text-content-muted mt-0.5"{% if details_unlocked %} style="display:none"{% endif %}>{% trans "Same as the original table." %}</p>
         </div>
         <button type="button" id="edit-details"{% if details_unlocked %} style="display:none"{% endif %}
                 class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full border border-divider px-3 py-1.5 text-xs font-semibold text-content hover:bg-surface-alt transition-colors bg-transparent cursor-pointer">
@@ -87,7 +88,10 @@
         </button>
       </div>
       <input type="hidden" name="edit_details" id="edit-details-flag" value="{% if details_unlocked %}1{% endif %}">
-      <fieldset id="details-fieldset" class="space-y-5 min-w-0 border-0 p-0 m-0 disabled:opacity-60"{% if not details_unlocked %} disabled{% endif %}>
+      {% if not details_unlocked %}
+        {% include "tables/_duplicate_summary.html" with draft=form.instance %}
+      {% endif %}
+      <fieldset id="details-fieldset" class="space-y-5 min-w-0 border-0 p-0 m-0"{% if not details_unlocked %} style="display:none"{% endif %}>
     {% endif %}
 
     {# ── Title ───────────────────────────────────────────────────────── #}
@@ -277,15 +281,15 @@
         document.addEventListener('DOMContentLoaded', function () {
           var fieldset = document.getElementById('details-fieldset');
           var button = document.getElementById('edit-details');
+          // The hidden fields are still posted: untouched, the copies keep the original values.
           button.addEventListener('click', function () {
-            fieldset.disabled = false;
+            var summary = document.getElementById('details-summary');
+            if (summary) summary.style.display = 'none';
+            fieldset.style.display = '';
             document.getElementById('edit-details-flag').value = '1';
-            document.getElementById('details-locked-hint').style.display = 'none';
             button.style.display = 'none';
             document.getElementById('{{ form.title.id_for_label }}').focus();
           });
-          // Disabled fields are not submitted: re-enable them so the copies keep the original values.
-          fieldset.form.addEventListener('submit', function () { fieldset.disabled = false; });
         });
       </script>
     {% endif %}

@@ -1,0 +1,41 @@
+{% load i18n custom_tags %}
+{% comment %}
+Read-only view of what the copies inherit from the source table, shown on the
+duplicate page until "Edit details" swaps it for the form.
+{% endcomment %}
+<div id="details-summary" class="rounded-xl border border-divider bg-surface-alt p-4 space-y-3">
+  <div class="flex items-start gap-3">
+    <img src="{{ draft.cover_url }}" alt="" class="w-14 h-14 rounded-lg object-cover border border-divider flex-shrink-0">
+    <div class="min-w-0">
+      <p class="text-sm font-bold text-content">{{ draft.title }}</p>
+      <p class="text-xs text-content-muted mt-0.5">
+        {% if draft.game %}{{ draft.game.name }}{% else %}{% trans "Game not decided yet" %}{% endif %}
+        ·
+        {% if draft.unlimited_seats %}
+          {% trans "Unlimited seats" %}
+        {% elif draft.min_players == draft.max_players %}
+          {% blocktrans count counter=draft.max_players %}{{ counter }} player{% plural %}{{ counter }} players{% endblocktrans %}
+        {% else %}
+          {% blocktrans with min=draft.min_players max=draft.max_players %}{{ min }}–{{ max }} players{% endblocktrans %}
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  {% if draft.description %}
+    <div class="prose-sm text-content-soft line-clamp-4">{{ draft.description|render_markdown }}</div>
+  {% endif %}
+
+  {% with links=duplicate_source.links.all %}
+    {% if links %}
+      <ul class="flex flex-wrap gap-2">
+        {% for link in links %}
+          <li class="inline-flex items-center gap-1 rounded-full border border-divider bg-surface px-2.5 py-1 text-xs text-content-soft">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
+            {{ link.display_label }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</div>
