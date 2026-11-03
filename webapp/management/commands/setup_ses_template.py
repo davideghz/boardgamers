@@ -6,7 +6,7 @@ import boto3
 
 
 class Command(BaseCommand):
-    help = 'Crea o aggiorna il template email su AWS SES (API v2)'
+    help = 'Crea o aggiorna i template email su AWS SES (API v2)'
 
     def handle(self, *args, **kwargs):
         client = boto3.client(
@@ -16,33 +16,46 @@ class Command(BaseCommand):
             aws_secret_access_key=settings.AWS_SES_SECRET_ACCESS_KEY
         )
 
-        template_name = "NewTableNotification"
-
         # Mock objects to inject SES/Handlebars placeholders
         class MockProfile:
             nickname = "{{name}}"
 
-        context = {
-            'user_profile': MockProfile(),
-            'title': "{{title}}",
-            'game': "{{game}}",
-            'creator_name': "{{creator_name}}",
-            'date': "{{date}}",
-            'time': "{{time}}",
-            'location_name': "{{location_name}}",
-            'button_href': "{{button_href}}",
-        }
+        # Un template SES per tipo di notifica in coda (vedi send_queued_notifications)
+        templates = [
+            {
+                'name': "NewTableNotification",
+                # Il gioco compare nell'oggetto solo se presente: "Nuovo tavolo: Root"
+                'subject': "Nuovo tavolo{{#if game}}: {{game}}{{/if}}",
+                'html': 'emails/email_notification_new_table_html.html',
+                'text': 'emails/email_notification_new_table.html',
+                'placeholders': ['title', 'game', 'creator_name', 'date', 'time', 'location_name', 'button_href'],
+            },
+            {
+                'name': "TablesAddedNotification",
+                'subject': "Sei stato aggiunto a {{sessions}}: {{title}}",
+                'html': 'emails/email_notification_tables_added_html.html',
+                'text': 'emails/email_notification_tables_added.html',
+                'placeholders': ['title', 'game', 'organizer_name', 'sessions', 'dates', 'time', 'location_name',
+                                 'button_href'],
+            },
+        ]
+        for spec in templates:
+            self._recreate_template(client, spec, MockProfile())
+
+    def _recreate_template(self, client, spec, user_profile):
+        template_name = spec['name']
+        context = {'user_profile': user_profile}
+        context.update({key: "{{%s}}" % key for key in spec['placeholders']})
 
         # Renderizza i template locali (in italiano) con i placeholder SES.
         # I condizionali {{#if ...}} restano letterali (via {% verbatim %}) e
         # vengono valutati da SES v2 al momento dell'invio.
         with translation.override(settings.LANGUAGE_CODE):
-            html_part = render_to_string('emails/email_notification_new_table_html.html', context)
-            text_part = render_to_string('emails/email_notification_new_table.html', context)
+            html_part = render_to_string(spec['html'], context)
+            text_part = render_to_string(spec['text'], context)
 
         template_content = {
-            # Il gioco compare nell'oggetto solo se presente: "Nuovo tavolo: Root"
-            'Subject': "Nuovo tavolo{{#if game}}: {{game}}{{/if}}",
+            'Subject': spec['subject'],
             'Html': html_part,
             'Text': text_part,
         }

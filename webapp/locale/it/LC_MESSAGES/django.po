@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-01 22:31+0100\n"
+"POT-Creation-Date: 2026-11-03 13:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -101,6 +101,19 @@ msgstr "Il numero massimo di giocatori non può essere inferiore al minimo."
 
 msgid "e.g. Rulebook, Score sheet…"
 msgstr "es. Regolamento, Foglio punteggi…"
+
+msgid "Invalid date."
+msgstr "Data non valida."
+
+msgid "Pick at least one date."
+msgstr "Scegli almeno una data."
+
+#, python-format
+msgid "You can create at most %(max)d tables at once."
+msgstr "Puoi creare al massimo %(max)d tavoli alla volta."
+
+msgid "Dates cannot be in the past."
+msgstr "Le date non possono essere nel passato."
 
 msgid "Select a date"
 msgstr "Seleziona una data"
@@ -222,6 +235,21 @@ msgstr "Nuovo sfidante"
 #, python-format
 msgid "A new player joined \"%(title)s\""
 msgstr "Nuovo giocatore al tavolo \"%(title)s\""
+
+msgid "Added to new sessions"
+msgstr "Aggiunto a nuove sessioni"
+
+#, python-format
+msgid "You were added to %(count)d session of \"%(title)s\""
+msgid_plural "You were added to %(count)d sessions of \"%(title)s\""
+msgstr[0] "Sei stato aggiunto a %(count)d sessione di \"%(title)s\""
+msgstr[1] "Sei stato aggiunto a %(count)d sessioni di \"%(title)s\""
+
+#, python-format
+msgid "%(count)d session"
+msgid_plural "%(count)d sessions"
+msgstr[0] "%(count)d sessione"
+msgstr[1] "%(count)d sessioni"
 
 msgid "Email verification"
 msgstr "Verifica email"
@@ -432,6 +460,9 @@ msgstr "Punteggio di gruppo"
 
 msgid "Season"
 msgstr "Season"
+
+msgid "Duplicated from"
+msgstr "Duplicato da"
 
 #, python-format
 msgid "%(game)s - %(date)s - Board-Gamers.com"
@@ -1554,6 +1585,33 @@ msgid ""
 msgstr ""
 "Un nuovo tavolo è stato creato da <strong>%(creator_name)s</strong> presso "
 "<strong>%(location_name)s</strong>."
+
+#, python-format
+msgid ""
+"%(organizer_name)s added you to %(sessions)s of \"%(title)s\" at "
+"%(location_name)s."
+msgstr "%(organizer_name)s ti ha aggiunto a %(sessions)s di \"%(title)s\" presso %(location_name)s."
+
+msgid "Dates:"
+msgstr "Date:"
+
+msgid "Time:"
+msgstr "Orario:"
+
+msgid "If you can't make it to a session, you can leave it from its page."
+msgstr "Se non puoi partecipare a una sessione, puoi abbandonarla dalla sua pagina."
+
+msgid "New sessions"
+msgstr "Nuove sessioni"
+
+#, python-format
+msgid ""
+"<strong>%(organizer_name)s</strong> added you to <strong>%(sessions)s</"
+"strong> of <strong>%(title)s</strong> at <strong>%(location_name)s</strong>."
+msgstr "<strong>%(organizer_name)s</strong> ti ha aggiunto a <strong>%(sessions)s</strong> di <strong>%(title)s</strong> presso <strong>%(location_name)s</strong>."
+
+msgid "See the first session"
+msgstr "Vedi la prima sessione"
 
 msgid ""
 "Please click the link to confirm your email address and finish setting up "
@@ -3253,6 +3311,59 @@ msgstr "Più info"
 msgid "Select language"
 msgstr "Seleziona lingua"
 
+msgid "First date"
+msgstr "Prima data"
+
+msgid "Repeat"
+msgstr "Ripeti"
+
+msgid "Does not repeat"
+msgstr "Non si ripete"
+
+msgid "Every week"
+msgstr "Ogni settimana"
+
+msgid "Every 2 weeks"
+msgstr "Ogni 2 settimane"
+
+msgid "Every month"
+msgstr "Ogni mese"
+
+msgid "Occurrences"
+msgstr "Occorrenze"
+
+msgid "Uncheck the dates to skip, or add more by hand."
+msgstr "Togli la spunta alle date da saltare, o aggiungine altre a mano."
+
+msgid "Add a date"
+msgstr "Aggiungi una data"
+
+#, python-brace-format
+msgid "Every month on the {nth} {weekday}"
+msgstr "Ogni mese: {nth} {weekday}"
+
+#, python-brace-format
+msgid "Every month on day {day}"
+msgstr "Ogni mese il giorno {day}"
+
+#, python-brace-format
+msgid "You can create at most {max} tables at once."
+msgstr "Puoi creare al massimo {max} tavoli alla volta."
+
+msgid "1 table will be created"
+msgstr "Verrà creato 1 tavolo"
+
+#, python-brace-format
+msgid "{count} tables will be created"
+msgstr "Verranno creati {count} tavoli"
+
+#, python-brace-format
+msgid "Create {count} tables"
+msgstr "Crea {count} tavoli"
+
+msgid "Create 1 table"
+msgstr "Crea 1 tavolo"
+
 msgid "Filter by location"
 msgstr "Filtra per location"
 
@@ -3492,11 +3603,32 @@ msgstr "gamers anonimi"
 msgid "Open seat"
 msgstr "Posto disponibile"
 
+msgid "Duplicate table"
+msgstr "Duplica tavolo"
+
 msgid ""
 "If you can't find the game, you can leave this field empty. We'll fill it "
 "for you!"
 msgstr ""
 "Se non trovi il gioco, puoi lasciare questo campo vuoto. Lo aggiungeremo noi!"
+
+msgid "Copy the participants too"
+msgstr "Copia anche i partecipanti"
+
+msgid "guest"
+msgstr "ospite"
+
+#, python-format
+msgid "%(counter)s external player"
+msgid_plural "%(counter)s external players"
+msgstr[0] "%(counter)s giocatore esterno"
+msgstr[1] "%(counter)s giocatori esterni"
+
+msgid "They will get a single notification for all the new sessions."
+msgstr "Riceveranno una sola notifica per tutte le nuove sessioni."
+
+msgid "Create tables"
+msgstr "Crea tavoli"
 
 msgid "if you still want to delete it."
 msgstr "se vuoi comunque eliminarlo."
@@ -4084,6 +4216,15 @@ msgstr "Selezione non valida."
 
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
+
+msgid "You don't have permission to duplicate this table."
+msgstr "Non hai il permesso di duplicare questo tavolo."
+
+#, python-format
+msgid "%(count)d table was created"
+msgid_plural "%(count)d tables were created"
+msgstr[0] "%(count)d tavolo creato"
+msgstr[1] "%(count)d tavoli creati"
 
 msgid "Loading tables…"
 msgstr "Carico i tavoli…"

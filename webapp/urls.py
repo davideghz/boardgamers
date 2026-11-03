@@ -29,6 +29,7 @@ urlpatterns = [
     path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
     path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
     path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
+    path("tables/<slug:slug>/duplicate/", table_views.table_duplicate_view, name="table-duplicate"),
     path('tables/<slug:slug>/join/', table_views.JoinTableView.as_view(), name='join_table'),
     path('tables/<slug:slug>/leave/', table_views.LeaveTableView.as_view(), name='leave_table'),
     path('tables/<slug:slug>/result/', table_views.SaveTableResultView.as_view(), name='table-save-result'),

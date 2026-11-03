@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.contrib import messages
@@ -12,21 +13,23 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Prefetch, Q
+from django.forms import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from urllib.parse import urlencode
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, TableLinkFormSet, CustomLoginForm, CommentForm, AddTablePlayerForm
+from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
+from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
-    TableActionError, add_guest, can_edit_leaderboard, can_manage_roster, join_table,
+    MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
+    duplicate_draft, duplicate_table, join_table,
     can_change_result_mode, leaderboard_turned_off, leave_table, remove_guest, save_table_result,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
@@ -466,16 +469,12 @@ def _links_formset_open(link_formset):
     return bool(link_formset.initial_forms) or any(f.errors for f in link_formset.forms)
 
 
-@login_required
-def table_create_view(request, location_slug):
-    location = get_object_or_404(Location, slug=location_slug)
-    initial = {"location": location}
-    if location.default_table_time:
-        initial["time"] = location.default_table_time
-
+def _table_creation_refusal(request, location):
+    """A redirect when the user may not create tables at `location`, else None.
+    Shared by the create and the duplicate views."""
     if not (request.user.user_profile.is_email_verified or request.user.is_superuser):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
-        return redirect("location-detail", location_slug)
+        return redirect("location-detail", location.slug)
 
     user_profile = request.user.user_profile
     is_manager = location.creator == user_profile or user_profile in location.managers.all()
@@ -483,7 +482,7 @@ def table_create_view(request, location_slug):
         perm = location.table_creation_permission
         if perm == location.PERM_MANAGERS_ONLY:
             messages.error(request, _("Only owners and managers can create tables here."), extra_tags="danger")
-            return redirect("location-detail", location_slug)
+            return redirect("location-detail", location.slug)
         elif perm == location.PERM_MEMBERS_ONLY:
             from webapp.models import Membership
             is_member = Membership.objects.filter(
@@ -493,7 +492,19 @@ def table_create_view(request, location_slug):
             ).exists()
             if not is_member:
                 messages.error(request, _("Only members can create tables here."), extra_tags="danger")
-                return redirect("location-detail", location_slug)
+                return redirect("location-detail", location.slug)
+    return None
+
+
+@login_required
+def table_create_view(request, location_slug):
+    location = get_object_or_404(Location, slug=location_slug)
+    initial = {"location": location}
+    if location.default_table_time:
+        initial["time"] = location.default_table_time
+
+    if refusal := _table_creation_refusal(request, location):
+        return refusal
 
     if request.method == "POST":
         form = TableForm(request.POST, request.FILES)
@@ -563,6 +574,70 @@ def table_update_view(request, location_slug, table_slug):
         "links_formset_open": _links_formset_open(link_formset),
         "location": location,
         "table": table,
+    }
+    return render(request, "tables/table_add_or_edit.html", context)
+
+
+def _duplicate_link_formset(source, data=None):
+    """Links formset of the duplicate page, prefilled with the source's links."""
+    initial = [{'label': link.label, 'url': link.url} for link in source.links.all()]
+    formset_class = inlineformset_factory(
+        Table, TableLink, form=DuplicateTableLinkForm, extra=max(len(initial), 1), can_delete=True)
+    return formset_class(data, instance=Table(), initial=initial)
+
+
+def _next_weekly_date(table):
+    """The table's weekday, one week on, and never in the past: the default start."""
+    today = timezone.localdate()
+    date = table.date + datetime.timedelta(days=7)
+    if date < today:
+        date += datetime.timedelta(days=7 * -(-(today - date).days // 7))
+    return date
+
+
+@login_required
+def table_duplicate_view(request, slug):
+    source = get_object_or_404(Table.objects.select_related('location', 'game', 'author'), slug=slug)
+    profile = request.user.user_profile
+    if not can_duplicate_table(profile, source):
+        messages.error(request, _("You don't have permission to duplicate this table."), extra_tags="danger")
+        return redirect("table-detail", slug=slug)
+    if refusal := _table_creation_refusal(request, source.location):
+        return refusal
+
+    draft = duplicate_draft(source)
+    if request.method == "POST":
+        form = TableDuplicateForm(request.POST, request.FILES, instance=draft)
+        link_formset = _duplicate_link_formset(source, request.POST)
+        if form.is_valid() and link_formset.is_valid():
+            links = [(f.cleaned_data['label'], f.cleaned_data['url']) for f in link_formset.forms
+                     if f.cleaned_data and not f.cleaned_data.get('DELETE')]
+            copies = duplicate_table(
+                source, form.instance, form.cleaned_data['dates'], links,
+                copy_players=form.cleaned_data['copy_players'], by=profile,
+            )
+            messages.success(request, ngettext(
+                "%(count)d table was created", "%(count)d tables were created", len(copies),
+            ) % {'count': len(copies)})
+            return redirect("table-detail", slug=copies[0].slug)
+    else:
+        form = TableDuplicateForm(instance=draft)
+        link_formset = _duplicate_link_formset(source)
+
+    context = {
+        "form": form,
+        "link_formset": link_formset,
+        "links_formset_open": bool(link_formset.initial) or any(f.errors for f in link_formset.forms),
+        "location": source.location,
+        "table": source,
+        "duplicate_source": source,
+        "source_players": source.player_set.select_related('user_profile', 'guest_profile'),
+        "repeat_start": request.POST.get("repeat_start") or _next_weekly_date(source).isoformat(),
+        "repeat_freq": request.POST.get("repeat_freq", "once"),
+        "repeat_count": request.POST.get("repeat_count", "4"),
+        "posted_dates": request.POST.getlist("dates"),
+        "max_duplicates": MAX_TABLE_DUPLICATES,
+        "today": timezone.localdate(),
     }
     return render(request, "tables/table_add_or_edit.html", context)
 

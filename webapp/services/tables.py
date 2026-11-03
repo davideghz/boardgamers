@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 from webapp.models import (
     Comment, CommentType, GameOutcome, Location, Membership, Notification, NotificationType, Player, ResultMode,
-    Table,
+    Table, TableLink,
 )
 
 
@@ -408,3 +408,75 @@ def remove_guest(profile, table, player):
         comment_type=CommentType.SYSTEM,
     )
     return name
+
+
+# ── Duplication ───────────────────────────────────────────────────────────────
+
+#: Most copies created in one go from the duplicate page.
+MAX_TABLE_DUPLICATES = 15
+
+#: Fields a copy takes from its source; date, statuses, results and season
+#: start fresh. custom_cover is handled apart (the copies share the S3 file).
+DUPLICATED_FIELDS = (
+    'title', 'description', 'location_id', 'game_id', 'min_players', 'max_players',
+    'unlimited_seats', 'time', 'duration',
+)
+
+
+def can_duplicate_table(profile, table):
+    """Same people who manage the roster. Event tables are left out: their dates
+    and stations belong to the event schedule."""
+    return not table.event_id and can_manage_roster(profile, table)
+
+
+def duplicate_draft(source):
+    """An unsaved Table holding what a copy of `source` inherits, for the
+    duplicate form to start from and edit."""
+    draft = Table(**{field: getattr(source, field) for field in DUPLICATED_FIELDS})
+    draft.custom_cover = source.custom_cover.name
+    return draft
+
+
+def duplicate_table(source, draft, dates, links, copy_players, by):
+    """Create one copy of `draft` per date and return them, earliest first.
+
+    `links` is a list of (label, url) pairs. With `copy_players` the copies get
+    the source's players, guests and external players, and every registered
+    player (except `by`) gets a single TABLES_ADDED notification for the whole
+    series. Nothing else notifies: the copies skip the "new table" notification
+    to the location followers, and Player rows are bulk-created so the per-join
+    signals never fire.
+    """
+    values = {field: getattr(draft, field) for field in DUPLICATED_FIELDS}
+    values['external_players'] = source.external_players if copy_players else 0
+    players = list(source.player_set.only('user_profile_id', 'guest_profile_id')) if copy_players else []
+
+    copies = []
+    with transaction.atomic():
+        for date in sorted(dates):
+            table = Table(
+                **values, date=date, author=source.author or by, duplicated_from=source,
+                # A fresh upload is stored once, by the first copy; the others reuse its file.
+                custom_cover=copies[0].custom_cover.name if copies else draft.custom_cover,
+            )
+            table._skip_follower_notification = True
+            table.save()
+            copies.append(table)
+
+        TableLink.objects.bulk_create(
+            TableLink(table=table, label=label, url=url) for table in copies for label, url in links)
+        Player.objects.bulk_create(
+            Player(table=table, user_profile_id=p.user_profile_id, guest_profile_id=p.guest_profile_id)
+            for table in copies for p in players)
+
+        recipients = {p.user_profile_id for p in players if p.user_profile_id} - {by.id}
+        # The dates are the message: language-neutral, so the in-app list, the
+        # push and the email can all show them as they are.
+        message = ', '.join(table.date.strftime('%d/%m/%Y') for table in copies)
+        Notification.objects.bulk_create(
+            Notification(
+                recipient_id=recipient_id, table=copies[0], location_id=values['location_id'],
+                notification_type=NotificationType.TABLES_ADDED, message=message,
+            )
+            for recipient_id in recipients)
+    return copies

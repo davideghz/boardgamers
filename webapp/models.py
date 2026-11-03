@@ -561,6 +561,10 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     coop_score = models.IntegerField(null=True, blank=True, verbose_name=_('Group score'))
     season = models.ForeignKey(
         'Season', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Season'))
+    # The table this one was copied from (see services.tables.duplicate_table)
+    duplicated_from = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, related_name='duplicates', null=True, blank=True,
+        verbose_name=_('Duplicated from'))
 
     @cached_property
     def cover_url(self):
@@ -1000,6 +1004,7 @@ class NotificationType(models.TextChoices):
     TABLE_CLOSED = 'table_closed', _('Table closed')
     TABLE_DELETED = 'table_deleted', _('Table deleted')
     NEW_COMMENT = 'new_comment', _('New comment')
+    TABLES_ADDED = 'tables_added', _('Added to new sessions')
 
 
 class Notification(DateTimeModel):
