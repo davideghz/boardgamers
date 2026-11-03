@@ -58,6 +58,38 @@
     </div>
     {% endif %}
 
+    {% if duplicate_source %}
+      {# ── Copy participants ───────────────────────────────────────────── #}
+      {% if source_players or duplicate_source.external_players %}
+      <div class="flex items-start gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
+        <input type="checkbox" name="copy_players" id="copy_players"{% if form.copy_players.value %} checked{% endif %}
+               class="w-4 h-4 mt-0.5 rounded border-divider text-blue-600 cursor-pointer">
+        <label for="copy_players" class="cursor-pointer select-none min-w-0">
+          <span class="block text-sm font-semibold text-content">{% trans "Copy the participants too" %}</span>
+          <span class="block text-xs text-content-muted">
+            {% for p in source_players %}{% if p.user_profile %}{{ p.user_profile.nickname }}{% else %}{{ p.guest_profile.name }} ({% trans "guest" %}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if duplicate_source.external_players %}{% if source_players %} · {% endif %}{% blocktrans count counter=duplicate_source.external_players %}{{ counter }} external player{% plural %}{{ counter }} external players{% endblocktrans %}{% endif %}
+          </span>
+          <span class="block text-[11px] text-content-muted mt-1">{% trans "They will get a single notification for all the new sessions." %}</span>
+        </label>
+      </div>
+      {% endif %}
+
+      {# ── Details copied from the source: locked until "Edit details" ── #}
+      <div class="flex items-center justify-between gap-3 pt-4 border-t border-divider-soft">
+        <div class="min-w-0">
+          <p class="text-xs font-semibold text-content-muted uppercase tracking-wide">{% trans "Table details" %}</p>
+          <p id="details-locked-hint" class="text-[11px] text-content-muted mt-0.5"{% if details_unlocked %} style="display:none"{% endif %}>{% trans "Same as the original table." %}</p>
+        </div>
+        <button type="button" id="edit-details"{% if details_unlocked %} style="display:none"{% endif %}
+                class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full border border-divider px-3 py-1.5 text-xs font-semibold text-content hover:bg-surface-alt transition-colors bg-transparent cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+          {% trans "Edit details" %}
+        </button>
+      </div>
+      <input type="hidden" name="edit_details" id="edit-details-flag" value="{% if details_unlocked %}1{% endif %}">
+      <fieldset id="details-fieldset" class="space-y-5 min-w-0 border-0 p-0 m-0 disabled:opacity-60"{% if not details_unlocked %} disabled{% endif %}>
+    {% endif %}
+
     {# ── Title ───────────────────────────────────────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
@@ -191,22 +223,8 @@
       </div>
     </div>
 
-    {# ── Copy participants (duplicate) / join table (create) ─────────── #}
-    {% if duplicate_source %}
-      {% if source_players or duplicate_source.external_players %}
-      <div class="flex items-start gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
-        <input type="checkbox" name="copy_players" id="copy_players"{% if form.copy_players.value %} checked{% endif %}
-               class="w-4 h-4 mt-0.5 rounded border-divider text-blue-600 cursor-pointer">
-        <label for="copy_players" class="cursor-pointer select-none min-w-0">
-          <span class="block text-sm font-semibold text-content">{% trans "Copy the participants too" %}</span>
-          <span class="block text-xs text-content-muted">
-            {% for p in source_players %}{% if p.user_profile %}{{ p.user_profile.nickname }}{% else %}{{ p.guest_profile.name }} ({% trans "guest" %}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if duplicate_source.external_players %}{% if source_players %} · {% endif %}{% blocktrans count counter=duplicate_source.external_players %}{{ counter }} external player{% plural %}{{ counter }} external players{% endblocktrans %}{% endif %}
-          </span>
-          <span class="block text-[11px] text-content-muted mt-1">{% trans "They will get a single notification for all the new sessions." %}</span>
-        </label>
-      </div>
-      {% endif %}
-    {% elif not form.instance.pk %}
+    {# ── Join table checkbox (only on create) ───────────────────────── #}
+    {% if not form.instance.pk and not duplicate_source %}
     <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
       <input type="checkbox" name="join_table" id="join_table" checked
              class="w-4 h-4 rounded border-divider text-blue-600 cursor-pointer">
@@ -252,6 +270,25 @@
         </template>
       </div>
     </div>
+
+    {% if duplicate_source %}
+      </fieldset>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          var fieldset = document.getElementById('details-fieldset');
+          var button = document.getElementById('edit-details');
+          button.addEventListener('click', function () {
+            fieldset.disabled = false;
+            document.getElementById('edit-details-flag').value = '1';
+            document.getElementById('details-locked-hint').style.display = 'none';
+            button.style.display = 'none';
+            document.getElementById('{{ form.title.id_for_label }}').focus();
+          });
+          // Disabled fields are not submitted: re-enable them so the copies keep the original values.
+          fieldset.form.addEventListener('submit', function () { fieldset.disabled = false; });
+        });
+      </script>
+    {% endif %}
 
     {# ── Submit / Cancel ─────────────────────────────────────────────── #}
     <div class="flex gap-3 pt-2">

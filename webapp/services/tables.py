@@ -451,11 +451,13 @@ def duplicate_table(source, draft, dates, links, copy_players, by):
     values['external_players'] = source.external_players if copy_players else 0
     players = list(source.player_set.only('user_profile_id', 'guest_profile_id')) if copy_players else []
 
+    # Copies of a copy join the original series instead of starting a new one
+    series_root_id = source.series_root_id or source.id
     copies = []
     with transaction.atomic():
         for date in sorted(dates):
             table = Table(
-                **values, date=date, author=source.author or by, duplicated_from=source,
+                **values, date=date, author=source.author or by, series_root_id=series_root_id,
                 # A fresh upload is stored once, by the first copy; the others reuse its file.
                 custom_cover=copies[0].custom_cover.name if copies else draft.custom_cover,
             )

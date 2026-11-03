@@ -67,11 +67,19 @@ class DuplicateTableServiceTest(TestCase):
             self.assertEqual((copy.min_players, copy.max_players, copy.duration), (3, 4, 180))
             self.assertEqual(copy.time, self.source.time)
             self.assertEqual(copy.author, self.author)
-            self.assertEqual(copy.duplicated_from, self.source)
+            self.assertEqual(copy.series_root, self.source)
             self.assertEqual(copy.custom_cover.name, 'table-covers/cover.jpg')
             self.assertEqual(copy.status, Table.OPEN)
             self.assertEqual(list(copy.links.values_list('label', 'url')),
                              [('Regole', 'https://example.com/rules')])
+
+    def test_copies_of_a_copy_point_to_the_series_root(self):
+        first = self.duplicate([future(7)])[0]
+
+        second = duplicate_table(first, duplicate_draft(first), [future(14)], [], False, by=self.author)[0]
+
+        self.assertEqual(second.series_root, self.source)
+        self.assertEqual(set(self.source.series_copies.all()), {first, second})
 
     def test_without_players_nothing_is_copied_or_notified(self):
         copies = self.duplicate([future(7)])
@@ -169,14 +177,14 @@ class DuplicateTableViewTest(TestCase):
         response = self.client.get(reverse('table-duplicate', kwargs={'slug': table.slug}))
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(Table.objects.filter(duplicated_from=table).count(), 0)
+        self.assertEqual(Table.objects.filter(series_root=table).count(), 0)
 
     def test_post_creates_one_table_per_date_and_keeps_untouched_links(self):
         self.client.force_login(self.author.user)
 
         response = self.client.post(self.url, self.post_data([future(7), future(14)]))
 
-        copies = Table.objects.filter(duplicated_from=self.source).order_by('date')
+        copies = Table.objects.filter(series_root=self.source).order_by('date')
         self.assertEqual([c.date for c in copies], [future(7), future(14)])
         self.assertRedirects(response, reverse('table-detail', kwargs={'slug': copies[0].slug}))
         for copy in copies:
@@ -187,7 +195,7 @@ class DuplicateTableViewTest(TestCase):
 
         self.client.post(self.url, self.post_data([future(7)], **{'links-0-label': '', 'links-0-url': ''}))
 
-        self.assertFalse(TableLink.objects.filter(table__duplicated_from=self.source).exists())
+        self.assertFalse(TableLink.objects.filter(table__series_root=self.source).exists())
 
     def test_invalid_dates_are_refused(self):
         self.client.force_login(self.author.user)
@@ -200,7 +208,7 @@ class DuplicateTableViewTest(TestCase):
             response = self.client.post(self.url, self.post_data(dates))
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.context['form'].errors.get('dates'))
-        self.assertFalse(Table.objects.filter(duplicated_from=self.source).exists())
+        self.assertFalse(Table.objects.filter(series_root=self.source).exists())
 
     def test_detail_page_shows_the_button_only_to_who_may_duplicate(self):
         detail = reverse('table-detail', kwargs={'slug': self.source.slug})

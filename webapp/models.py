@@ -561,10 +561,11 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     coop_score = models.IntegerField(null=True, blank=True, verbose_name=_('Group score'))
     season = models.ForeignKey(
         'Season', on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Season'))
-    # The table this one was copied from (see services.tables.duplicate_table)
-    duplicated_from = models.ForeignKey(
-        'self', on_delete=models.SET_NULL, related_name='duplicates', null=True, blank=True,
-        verbose_name=_('Duplicated from'))
+    # First table of the series this one was duplicated from: copies of a copy
+    # point to the same root (see services.tables.duplicate_table)
+    series_root = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, related_name='series_copies', null=True, blank=True,
+        verbose_name=_('Series root'))
 
     @cached_property
     def cover_url(self):

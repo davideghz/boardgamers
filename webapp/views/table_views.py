@@ -636,6 +636,12 @@ def table_duplicate_view(request, slug):
         "repeat_freq": request.POST.get("repeat_freq", "once"),
         "repeat_count": request.POST.get("repeat_count", "4"),
         "posted_dates": request.POST.getlist("dates"),
+        # Copied details stay locked unless the user unlocked them or must fix one of them
+        "details_unlocked": (
+            request.POST.get("edit_details") == "1"
+            or bool(set(form.errors) - {"dates", "time"})
+            or any(f.errors for f in link_formset.forms)
+        ),
         "max_duplicates": MAX_TABLE_DUPLICATES,
         "today": timezone.localdate(),
     }

@@ -267,7 +267,7 @@ def validate_custom_cover_size(cover):
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category', 'duplicated_from']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category', 'series_root']
         widgets = {
             'location': HiddenInput(),
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
@@ -395,7 +395,7 @@ class AreaTaggedSelect(Select):
 class EventTableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location', 'duplicated_from']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location', 'series_root']
         widgets = {
             'event': HiddenInput(),
             'physical_table': AreaTaggedSelect(),
