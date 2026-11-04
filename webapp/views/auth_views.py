@@ -43,7 +43,8 @@ class SignupView(generic.CreateView, RedirectURLMixin):
         return context
 
     def form_valid(self, form):
-        user = form.save()
+        form.save()
+        messages.success(self.request, _("Account created. You can now log in with your email and password."))
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
