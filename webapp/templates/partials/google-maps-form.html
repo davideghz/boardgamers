@@ -66,6 +66,13 @@
             types: ['address'],
         });
 
+        // Enter picks a suggestion: it must not submit the surrounding form too.
+        getFormInputElement('location').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        });
+
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
             console.log(place);

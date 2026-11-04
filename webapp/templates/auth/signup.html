@@ -40,12 +40,11 @@
         <div class="flex-1 h-px bg-surface-input"></div>
       </div>
 
-      {{ form.city }}
-      {{ form.latitude }}
-      {{ form.longitude }}
-
       <form method="post" class="space-y-5">
         {% csrf_token %}
+        {{ form.city }}
+        {{ form.latitude }}
+        {{ form.longitude }}
 
         {# ── Credentials section ─────────────────────────────────────────── #}
         <div class="rounded-xl border border-divider bg-surface p-5 space-y-4">
@@ -60,6 +59,7 @@
                    value="{{ form.email.value|default:'' }}"
                    placeholder="nome@email.com"
                    autocomplete="email"
+                   required
                    class="w-full rounded-xl border {% if form.email.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
             {% if form.email.errors %}<p class="mt-1 text-xs text-red-500">{{ form.email.errors|join:", " }}</p>{% endif %}
           </div>
@@ -71,6 +71,7 @@
                    id="{{ form.password1.id_for_label }}"
                    name="password1"
                    autocomplete="new-password"
+                   required
                    class="w-full rounded-xl border {% if form.password1.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
             {% if form.password1.errors %}<p class="mt-1 text-xs text-red-500">{{ form.password1.errors|join:", " }}</p>{% endif %}
           </div>
@@ -82,6 +83,7 @@
                    id="{{ form.password2.id_for_label }}"
                    name="password2"
                    autocomplete="new-password"
+                   required
                    class="w-full rounded-xl border {% if form.password2.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
             {% if form.password2.errors %}<p class="mt-1 text-xs text-red-500">{{ form.password2.errors|join:", " }}</p>{% endif %}
           </div>
@@ -99,6 +101,7 @@
                    name="nickname"
                    value="{{ form.nickname.value|default:'' }}"
                    autocomplete="nickname"
+                   required
                    class="w-full rounded-xl border {% if form.nickname.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
             <p class="mt-1 text-[11px] text-content-muted">{% trans "Other gamers will call you this way." %}</p>
             {% if form.nickname.errors %}<p class="mt-1 text-xs text-red-500">{{ form.nickname.errors|join:", " }}</p>{% endif %}
@@ -112,6 +115,7 @@
                    name="address"
                    value="{{ form.address.value|default:'' }}"
                    autocomplete="street-address"
+                   required
                    class="w-full rounded-xl border {% if form.address.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
             <p class="mt-1 text-[11px] text-content-muted">{% trans "We'll use this to show game tables near you." %}</p>
             {% if form.address.errors %}<p class="mt-1 text-xs text-red-500">{{ form.address.errors|join:", " }}</p>{% endif %}

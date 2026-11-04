@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
@@ -505,8 +506,8 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        base_attrs = {'required': 'required', 'type': "text", 'class': "form-control"}
-        self.fields['email'].widget.attrs.update({**base_attrs, 'placeholder': 'nome@email.com'})
+        # User.email is blank=True, but here it is the login credential.
+        self.fields['email'].required = True
 
         # Controlla se il form è stato inviato e se ci sono errori, per aggiungere la classe 'is-invalid'
         if self.is_bound:
@@ -543,18 +544,18 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
         user = super(UserRegistrationForm, self).save(commit=False)
         user.username = self.cleaned_data['email']
 
-        if commit:
+        with transaction.atomic():
             user.save()
 
-        user_profile = UserProfile(
-            user=user,
-            nickname=self.cleaned_data['nickname'],
-            address=self.cleaned_data['address'],
-            city=self.cleaned_data['city'],
-            latitude=self.cleaned_data['latitude'],
-            longitude=self.cleaned_data['longitude'],
-        )
-        user_profile.save()
+            user_profile = UserProfile(
+                user=user,
+                nickname=self.cleaned_data['nickname'],
+                address=self.cleaned_data['address'],
+                city=self.cleaned_data['city'],
+                latitude=self.cleaned_data['latitude'],
+                longitude=self.cleaned_data['longitude'],
+            )
+            user_profile.save()
 
         return user, user_profile
 
