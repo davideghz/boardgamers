@@ -449,7 +449,7 @@ def duplicate_table(source, draft, dates, links, copy_players, by):
     """
     values = {field: getattr(draft, field) for field in DUPLICATED_FIELDS}
     values['external_players'] = source.external_players if copy_players else 0
-    players = list(source.player_set.only('user_profile_id', 'guest_profile_id')) if copy_players else []
+    players = list(source.player_set.values_list('user_profile_id', 'guest_profile_id')) if copy_players else []
 
     # Copies of a copy join the original series instead of starting a new one
     series_root_id = source.series_root_id or source.id
@@ -468,10 +468,10 @@ def duplicate_table(source, draft, dates, links, copy_players, by):
         TableLink.objects.bulk_create(
             TableLink(table=table, label=label, url=url) for table in copies for label, url in links)
         Player.objects.bulk_create(
-            Player(table=table, user_profile_id=p.user_profile_id, guest_profile_id=p.guest_profile_id)
-            for table in copies for p in players)
+            Player(table=table, user_profile_id=user_profile_id, guest_profile_id=guest_profile_id)
+            for table in copies for user_profile_id, guest_profile_id in players)
 
-        recipients = {p.user_profile_id for p in players if p.user_profile_id} - {by.id}
+        recipients = {user_profile_id for user_profile_id, _guest in players if user_profile_id} - {by.id}
         # The dates are the message: language-neutral, so the in-app list, the
         # push and the email can all show them as they are.
         message = ', '.join(table.date.strftime('%d/%m/%Y') for table in copies)

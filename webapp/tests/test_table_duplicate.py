@@ -6,14 +6,20 @@ copied player. Each copied player gets one TABLES_ADDED notification instead.
 """
 
 import datetime
+import io
+from unittest import mock
 
-from django.test import TestCase
+from django.core.management import call_command
+from django.db import connection
+from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
 from webapp.factories import GameFactory, LocationFactory, UserProfileFactory
 from webapp.models import (
-    Event, GuestProfile, LocationFollower, Notification, NotificationType, Player, Table, TableLink,
+    Event, GuestProfile, LocationFollower, Notification, NotificationType, Player, PushSubscription, Table,
+    TableLink,
 )
 from webapp.services.tables import duplicate_draft, duplicate_table
 
@@ -126,6 +132,81 @@ class DuplicateTableServiceTest(TestCase):
         make_table(location=self.location, author=self.author, days_ahead=7)
 
         self.assertTrue(Notification.objects.filter(notification_type=NotificationType.NEW_TABLE).exists())
+
+
+    def test_players_and_location_are_not_queried_once_per_row(self):
+        with CaptureQueriesContext(connection) as queries:
+            self.duplicate([future(7), future(14), future(21)], copy_players=True)
+
+        selects = [q['sql'] for q in queries if q['sql'].startswith('SELECT')]
+        self.assertEqual(len([sql for sql in selects if 'FROM "webapp_player"' in sql]), 1)
+        self.assertFalse([sql for sql in selects if 'FROM "webapp_location"' in sql])
+
+
+@override_settings(AWS_SES_REGION_NAME='eu', AWS_SES_ACCESS_KEY_ID='key', AWS_SES_SECRET_ACCESS_KEY='secret')
+class TablesAddedEmailPreferenceTest(TestCase):
+    def setUp(self):
+        self.table = make_table(location=LocationFactory(creator=UserProfileFactory()), author=UserProfileFactory())
+        self.recipient = UserProfileFactory()
+        self.notification = Notification.objects.create(
+            recipient=self.recipient, table=self.table, location=self.table.location,
+            notification_type=NotificationType.TABLES_ADDED, message='07/11/2026, 14/11/2026',
+        )
+
+    def send(self):
+        client = mock.Mock()
+        client.send_bulk_email.return_value = {'BulkEmailEntryResults': []}
+        with mock.patch('webapp.management.commands.send_queued_notifications.boto3.client', return_value=client):
+            call_command('send_queued_notifications', stdout=io.StringIO())
+        self.notification.refresh_from_db()
+        return client
+
+    def test_email_is_sent_when_new_table_emails_are_on(self):
+        client = self.send()
+
+        client.send_bulk_email.assert_called_once()
+        self.assertEqual(
+            client.send_bulk_email.call_args.kwargs['DefaultContent']['Template']['TemplateName'],
+            'TablesAddedNotification')
+        self.assertTrue(self.notification.sent)
+
+    def test_email_is_skipped_when_new_table_emails_are_off(self):
+        self.recipient.notification_new_table = False
+        self.recipient.save(update_fields=['notification_new_table'])
+
+        client = self.send()
+
+        client.send_bulk_email.assert_not_called()
+        self.assertTrue(self.notification.sent)
+
+
+@override_settings(VAPID_PRIVATE_KEY='private', VAPID_PUBLIC_KEY='public', VAPID_CLAIM_EMAIL='test@example.com')
+class TablesAddedPushPreferenceTest(TestCase):
+    def setUp(self):
+        self.table = make_table(location=LocationFactory(creator=UserProfileFactory()), author=UserProfileFactory())
+        self.recipient = UserProfileFactory()
+        PushSubscription.objects.create(
+            user_profile=self.recipient, endpoint='https://push.example.com/1', p256dh='key', auth='auth')
+        self.notification = Notification.objects.create(
+            recipient=self.recipient, table=self.table, location=self.table.location,
+            notification_type=NotificationType.TABLES_ADDED, message='07/11/2026, 14/11/2026',
+        )
+
+    def send(self):
+        with mock.patch('webapp.management.commands.send_push_notifications.webpush') as webpush:
+            call_command('send_push_notifications', stdout=io.StringIO())
+        self.notification.refresh_from_db()
+        return webpush
+
+    def test_push_is_sent_when_new_table_pushes_are_on(self):
+        self.send().assert_called_once()
+
+    def test_push_is_skipped_when_new_table_pushes_are_off(self):
+        self.recipient.push_notification_new_table = False
+        self.recipient.save(update_fields=['push_notification_new_table'])
+
+        self.send().assert_not_called()
+        self.assertTrue(self.notification.push_sent)
 
 
 class DuplicateTableViewTest(TestCase):

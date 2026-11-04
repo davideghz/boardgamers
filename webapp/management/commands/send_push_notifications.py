@@ -112,7 +112,7 @@ class Command(BaseCommand):
             profile = notification.recipient
 
             # Rispetta le preferenze dell'utente
-            if notification.notification_type == NotificationType.NEW_TABLE:
+            if notification.notification_type in (NotificationType.NEW_TABLE, NotificationType.TABLES_ADDED):
                 if not profile.push_notification_new_table:
                     notification.push_sent = True
                     notification.push_sent_at = timezone.now()

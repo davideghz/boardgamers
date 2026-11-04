@@ -93,8 +93,7 @@ class Command(BaseCommand):
 
     def _send_tables_added(self, client):
         # Notifiche TABLES_ADDED (duplicazione di un tavolo con i partecipanti):
-        # una sola per persona per tutta la serie, senza preferenza dedicata come
-        # per i tavoli cancellati.
+        # una sola per persona per tutta la serie. Vale la preferenza "nuovo tavolo".
         notifications = Notification.objects.filter(
             sent=False,
             is_read=False,
@@ -109,6 +108,11 @@ class Command(BaseCommand):
         bulk_entries = []
         with translation.override(settings.LANGUAGE_CODE):  # il template SES è in italiano
             for n in notifications:
+                if not n.recipient.notification_new_table:
+                    n.sent = True
+                    n.sent_at = timezone.now()
+                    n.save(update_fields=['sent', 'sent_at'])
+                    continue
                 if not n.recipient.user.email:
                     continue
                 table = n.table
