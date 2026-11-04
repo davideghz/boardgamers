@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.html import escape
 from django.urls import reverse
+from django.utils.translation import ngettext
 import boto3
 import json
 import logging
@@ -38,6 +39,10 @@ class Command(BaseCommand):
             aws_secret_access_key=settings.AWS_SES_SECRET_ACCESS_KEY
         )
 
+        total_sent = self._send_new_table(client) + self._send_tables_added(client)
+        self.stdout.write(self.style.SUCCESS(f"Operazione completata. Inviate {total_sent} email."))
+
+    def _send_new_table(self, client):
         # 1. Recupera notifiche NEW_TABLE non inviate e non ancora lette sul sito
         notifications = Notification.objects.filter(
             sent=False,
@@ -47,10 +52,6 @@ class Command(BaseCommand):
             'recipient', 'recipient__user',
             'table', 'table__game', 'table__location', 'table__author',
         )
-
-        if not notifications.exists():
-            self.stdout.write("Nessuna notifica da inviare.")
-            return
 
         # Costruisce le entry del batch, saltando gli utenti senza email o che
         # hanno disattivato le notifiche email per i nuovi tavoli.
@@ -67,10 +68,7 @@ class Command(BaseCommand):
                 continue
 
             if n.recipient.user.email:
-                user = n.recipient.user
                 table = n.table
-                table_url = settings.DOMAIN_URL + reverse('table-detail', kwargs={'slug': table.slug})
-
                 game_name = table.game.name if table.game else ""
                 description = (table.description or "").strip()
 
@@ -86,17 +84,57 @@ class Command(BaseCommand):
                     # SES non fa escaping dell'HTML: la descrizione va messa in sicurezza qui.
                     'description': escape(description).replace("\n", "<br>") if description else "",
                     'description_text': description,
-                    'button_href': table_url,
+                    'button_href': _table_url(table),
                 }
-
                 valid_notifications.append(n)
-                bulk_entries.append({
-                    'Destination': {'ToAddresses': [user.email]},
-                    'ReplacementEmailContent': {
-                        'ReplacementTemplate': {'ReplacementTemplateData': json.dumps(template_data)}
-                    }
-                })
+                bulk_entries.append(_bulk_entry(n.recipient.user.email, template_data))
 
+        return self._send_bulk(client, 'NewTableNotification', valid_notifications, bulk_entries)
+
+    def _send_tables_added(self, client):
+        # Notifiche TABLES_ADDED (duplicazione di un tavolo con i partecipanti):
+        # una sola per persona per tutta la serie. Vale la preferenza "nuovo tavolo".
+        notifications = Notification.objects.filter(
+            sent=False,
+            is_read=False,
+            notification_type=NotificationType.TABLES_ADDED,
+            table__isnull=False,
+        ).select_related(
+            'recipient', 'recipient__user',
+            'table', 'table__game', 'table__location', 'table__author',
+        )
+
+        valid_notifications = []
+        bulk_entries = []
+        with translation.override(settings.LANGUAGE_CODE):  # il template SES è in italiano
+            for n in notifications:
+                if not n.recipient.notification_new_table:
+                    n.sent = True
+                    n.sent_at = timezone.now()
+                    n.save(update_fields=['sent', 'sent_at'])
+                    continue
+                if not n.recipient.user.email:
+                    continue
+                table = n.table
+                dates = [d for d in (n.message or '').split(', ') if d] or [table.date.strftime('%d/%m/%Y')]
+                template_data = {
+                    'name': n.recipient.nickname,
+                    'title': table.title,
+                    'game': table.game.name if table.game else "",
+                    'organizer_name': table.author.nickname if table.author else "un utente",
+                    'location_name': table.location.name if table.location else "Location non disponibile",
+                    'sessions': ngettext('%(count)d session', '%(count)d sessions', len(dates)) % {
+                        'count': len(dates)},
+                    'dates': ', '.join(dates),
+                    'time': table.time.strftime('%H:%M'),
+                    'button_href': _table_url(table),
+                }
+                valid_notifications.append(n)
+                bulk_entries.append(_bulk_entry(n.recipient.user.email, template_data))
+
+        return self._send_bulk(client, 'TablesAddedNotification', valid_notifications, bulk_entries)
+
+    def _send_bulk(self, client, template_name, valid_notifications, bulk_entries):
         # Processa in chunk di 50 (limite AWS SES per send_bulk_email)
         chunk_size = 50
         total_sent = 0
@@ -106,12 +144,13 @@ class Command(BaseCommand):
             chunk_notifications = valid_notifications[i:i + chunk_size]
 
             try:
-                self.stdout.write(f"Inviando batch {i // chunk_size + 1} di {len(chunk_entries)} email...")
+                self.stdout.write(
+                    f"{template_name}: inviando batch {i // chunk_size + 1} di {len(chunk_entries)} email...")
                 response = client.send_bulk_email(
                     FromEmailAddress=settings.DEFAULT_FROM_EMAIL,
                     DefaultContent={
                         'Template': {
-                            'TemplateName': 'NewTableNotification',
+                            'TemplateName': template_name,
                             'TemplateData': json.dumps({'name': 'Giocatore'})  # Fallback
                         }
                     },
@@ -122,8 +161,8 @@ class Command(BaseCommand):
                 for result in response.get('BulkEmailEntryResults', []):
                     if result.get('Status') != 'SUCCESS':
                         logger.warning(
-                            "Invio notifica nuovo tavolo non riuscito: %s - %s",
-                            result.get('Status'), result.get('Error')
+                            "Invio notifica %s non riuscito: %s - %s",
+                            template_name, result.get('Status'), result.get('Error')
                         )
 
                 # Aggiorna DB
@@ -136,4 +175,17 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"Errore durante l'invio del batch: {str(e)}"))
                 # Qui potremmo implementare un retry o loggare l'errore specifico
 
-        self.stdout.write(self.style.SUCCESS(f"Operazione completata. Inviate {total_sent} email."))
+        return total_sent
+
+
+def _table_url(table):
+    return settings.DOMAIN_URL + reverse('table-detail', kwargs={'slug': table.slug})
+
+
+def _bulk_entry(email, template_data):
+    return {
+        'Destination': {'ToAddresses': [email]},
+        'ReplacementEmailContent': {
+            'ReplacementTemplate': {'ReplacementTemplateData': json.dumps(template_data)}
+        }
+    }

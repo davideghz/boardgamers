@@ -6,13 +6,14 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory, DateField, TimeField, Widget
+    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory
 
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -266,7 +267,7 @@ def validate_custom_cover_size(cover):
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category', 'series_root']
         widgets = {
             'location': HiddenInput(),
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
@@ -274,7 +275,8 @@ class TableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['date'].input_formats = ['%Y-%m-%d']
+        if 'date' in self.fields:  # not on TableDuplicateForm
+            self.fields['date'].input_formats = ['%Y-%m-%d']
         self.fields['unlimited_seats'].widget.attrs.update({
             'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
 
@@ -307,7 +309,7 @@ class TableForm(ModelForm, TailwindForm):
         min_players = cleaned_data.get('min_players')
         max_players = cleaned_data.get('max_players')
         if min_players and max_players and max_players < min_players:
-            raise ValidationError(_("Maximum players cannot be less than minimum players."))
+            self.add_error('max_players', _("Maximum players cannot be less than minimum players."))
         return cleaned_data
 
     def save(self, commit=True):
@@ -341,6 +343,41 @@ TableLinkFormSet = inlineformset_factory(
 )
 
 
+class TableDuplicateForm(TableForm):
+    """The table form of the duplicate page: one date becomes a list of dates
+    (filled by the recurrence picker) and the copies may take the participants."""
+    dates = Field(required=False, widget=MultipleHiddenInput)
+    copy_players = BooleanField(required=False)
+
+    class Meta(TableForm.Meta):
+        fields = ['title', 'description', 'game', 'custom_cover', 'min_players', 'max_players',
+                  'unlimited_seats', 'time']
+
+    def clean_dates(self):
+        from webapp.services.tables import MAX_TABLE_DUPLICATES  # local import: avoid import cycles
+        try:
+            dates = {datetime.date.fromisoformat(value) for value in self.cleaned_data['dates'] or []}
+        except (TypeError, ValueError):
+            raise ValidationError(_("Invalid date."))
+        if not dates:
+            raise ValidationError(_("Pick at least one date."))
+        if len(dates) > MAX_TABLE_DUPLICATES:
+            raise ValidationError(_("You can create at most %(max)d tables at once.") % {
+                'max': MAX_TABLE_DUPLICATES})
+        if min(dates) < timezone.localdate():
+            raise ValidationError(_("Dates cannot be in the past."))
+        return sorted(dates)
+
+
+class DuplicateTableLinkForm(TableLinkForm):
+    """Link row of the duplicate page. Rows start prefilled from the source
+    table, so an untouched row must count as filled in (Django would skip it as
+    unchanged), while a row the user emptied is skipped."""
+
+    def has_changed(self):
+        return any(self.data.get(self.add_prefix(name)) for name in ('label', 'url'))
+
+
 class AreaTaggedSelect(Select):
     """Select that tags each <option> with a data-area attribute, so the station
     dropdown can be filtered client-side by the selected play area."""
@@ -358,7 +395,7 @@ class AreaTaggedSelect(Select):
 class EventTableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location', 'series_root']
         widgets = {
             'event': HiddenInput(),
             'physical_table': AreaTaggedSelect(),

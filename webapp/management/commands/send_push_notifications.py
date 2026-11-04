@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _, activate
+from django.utils.translation import gettext as _, ngettext, activate
 
 from pywebpush import webpush, WebPushException
 
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 SUPPORTED_TYPES = {
     NotificationType.NEW_TABLE,
     NotificationType.NEW_PLAYER,
+    NotificationType.TABLES_ADDED,
 }
 
 
@@ -42,6 +43,14 @@ def _build_payload(notification):
     elif ntype == NotificationType.NEW_PLAYER:
         title = _('New player')
         body = _('A new player joined "%(title)s"') % {'title': table.title}
+
+    elif ntype == NotificationType.TABLES_ADDED:
+        count = len([d for d in (notification.message or '').split(', ') if d]) or 1
+        title = _('Added to new sessions')
+        body = ngettext(
+            'You were added to %(count)d session of "%(title)s"',
+            'You were added to %(count)d sessions of "%(title)s"', count,
+        ) % {'count': count, 'title': table.title}
 
     else:
         # Fallback: use subject/message if available
@@ -103,7 +112,7 @@ class Command(BaseCommand):
             profile = notification.recipient
 
             # Rispetta le preferenze dell'utente
-            if notification.notification_type == NotificationType.NEW_TABLE:
+            if notification.notification_type in (NotificationType.NEW_TABLE, NotificationType.TABLES_ADDED):
                 if not profile.push_notification_new_table:
                     notification.push_sent = True
                     notification.push_sent_at = timezone.now()

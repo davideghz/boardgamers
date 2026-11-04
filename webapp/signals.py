@@ -46,7 +46,9 @@ def on_user_profile_saved(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Table)
 def notify_followers_on_new_table(sender, instance, created, **kwargs):
-    if created and instance.location:
+    # Copies made by duplicate_table set the flag: a series of N tables would
+    # otherwise notify every follower N times.
+    if created and not getattr(instance, '_skip_follower_notification', False) and instance.location:
         followers = instance.location.followers.all()
         for follower in followers:
             Notification.objects.create(

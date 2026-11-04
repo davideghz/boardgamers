@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{% trans "Hey" %} {{ user_profile.nickname }},
+{% blocktrans %}{{ organizer_name }} added you to {{ sessions }} of "{{ title }}" at {{ location_name }}.{% endblocktrans %}
+
+{% trans "Game:" %} {% verbatim %}{{#if game}}{{game}}{{else}}{% endverbatim %}{% trans "Not decided yet" %}{% verbatim %}{{/if}}{% endverbatim %}
+{% trans "Dates:" %} {{ dates }}
+{% trans "Time:" %} {{ time }}
+
+{% trans "If you can't make it to a session, you can leave it from its page." %}
+
+{{ button_href }}
+Board-Gamers.com
