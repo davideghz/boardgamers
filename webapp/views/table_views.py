@@ -628,7 +628,7 @@ def table_duplicate_view(request, slug):
     context = {
         "form": form,
         "link_formset": link_formset,
-        "links_formset_open": bool(link_formset.initial) or any(f.errors for f in link_formset.forms),
+        "links_formset_open": bool(link_formset.initial_extra) or any(f.errors for f in link_formset.forms),
         "location": source.location,
         "table": source,
         "duplicate_source": source,

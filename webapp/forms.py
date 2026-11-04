@@ -309,7 +309,7 @@ class TableForm(ModelForm, TailwindForm):
         min_players = cleaned_data.get('min_players')
         max_players = cleaned_data.get('max_players')
         if min_players and max_players and max_players < min_players:
-            raise ValidationError(_("Maximum players cannot be less than minimum players."))
+            self.add_error('max_players', _("Maximum players cannot be less than minimum players."))
         return cleaned_data
 
     def save(self, commit=True):

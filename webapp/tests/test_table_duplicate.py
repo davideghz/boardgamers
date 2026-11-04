@@ -242,6 +242,7 @@ class DuplicateTableViewTest(TestCase):
             response = self.client.get(self.url)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'https://example.com/rules')
+            self.assertTrue(response.context['links_formset_open'])
 
     def test_page_shows_summary_and_copy_option_even_without_players(self):
         self.client.force_login(self.author.user)
@@ -287,6 +288,28 @@ class DuplicateTableViewTest(TestCase):
         self.client.post(self.url, self.post_data([future(7)], **{'links-0-label': '', 'links-0-url': ''}))
 
         self.assertFalse(TableLink.objects.filter(table__series_root=self.source).exists())
+
+    def test_max_below_min_shows_the_error_with_the_details_open(self):
+        self.client.force_login(self.author.user)
+
+        response = self.client.post(self.url, self.post_data([future(7)], min_players=5, max_players=2))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['details_unlocked'])
+        self.assertContains(response, response.context['form'].errors['max_players'][0])
+        self.assertFalse(Table.objects.filter(series_root=self.source).exists())
+
+    def test_create_page_shows_the_max_below_min_error(self):
+        self.client.force_login(self.owner.user)
+
+        response = self.client.post(
+            reverse('location-table-create', kwargs={'location_slug': self.location.slug}),
+            {'title': 'Nuovo tavolo', 'description': 'Descrizione', 'date': future(7).isoformat(), 'time': '21:00',
+             'min_players': 5, 'max_players': 2, 'links-TOTAL_FORMS': 0, 'links-INITIAL_FORMS': 0},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, response.context['form'].errors['max_players'][0])
 
     def test_invalid_dates_are_refused(self):
         self.client.force_login(self.author.user)
