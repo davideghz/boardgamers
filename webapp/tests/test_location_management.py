@@ -131,6 +131,14 @@ class LocationManagementTest(TestCase):
         # Verify creator hasn't changed
         self.assertEqual(self.location.creator, self.owner)
 
+    def test_update_redirects_to_the_location_page(self):
+        self.client.force_login(self.manager.user)
+        response = self.client.post(
+            reverse('location-manage-data', kwargs={'slug': self.location.slug}), self._location_data())
+
+        self.location.refresh_from_db()
+        self.assertRedirects(response, reverse('location-detail', kwargs={'slug': self.location.slug}))
+
     def test_lengthening_the_leaderboard_window_reopens_recent_tables(self):
         table = Table.objects.create(
             title='Serata', location=self.location, author=self.owner, game=GameFactory(),

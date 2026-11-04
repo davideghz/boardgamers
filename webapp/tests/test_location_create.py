@@ -1,0 +1,87 @@
+from django.test import TestCase
+from django.urls import reverse
+from django.utils import translation
+
+from webapp.factories import LocationFactory, UserProfileFactory
+from webapp.forms import LocationForm, LocationManageDataForm
+from webapp.models import Location
+
+
+class LocationCreateViewTest(TestCase):
+    def setUp(self):
+        self.profile = UserProfileFactory()
+        self.client.force_login(self.profile.user)
+
+    def _post(self, **overrides):
+        data = {
+            'name': 'Circolo Ludico',
+            'description': 'Serate di gioco',
+            'address': 'Via Roma 1, Milano',
+            'city': 'Milano',
+            'latitude': '45.4642',
+            'longitude': '9.1900',
+            'default_table_time': '20:30',
+            **overrides,
+        }
+        return self.client.post(reverse('location-create'), data)
+
+    def test_redirects_to_the_new_location_page(self):
+        response = self._post()
+
+        location = Location.objects.get(name='Circolo Ludico')
+        self.assertEqual(location.creator, self.profile)
+        self.assertRedirects(response, reverse('location-detail', kwargs={'slug': location.slug}))
+
+    def test_website_without_scheme_gets_https(self):
+        self._post(website='www.circololudico.it')
+
+        location = Location.objects.get(name='Circolo Ludico')
+        self.assertEqual(location.website, 'https://www.circololudico.it')
+
+    def test_website_stays_optional(self):
+        self._post(website='')
+
+        self.assertFalse(Location.objects.get(name='Circolo Ludico').website)
+
+
+class LocationFormTranslationTest(TestCase):
+    def test_labels_and_address_placeholder_follow_the_language(self):
+        with translation.override('it'):
+            form = LocationForm()
+            labels = [str(form.fields[name].label) for name in ['name', 'description', 'address', 'website']]
+            placeholder = str(form.fields['address'].widget.attrs['placeholder'])
+
+        self.assertEqual(labels, ['Nome', 'Descrizione', 'Indirizzo', 'Sito web'])
+        self.assertEqual(placeholder, 'Inserisci un indirizzo')
+
+
+class LocationFormWebsiteTest(TestCase):
+    def _clean_website(self, value):
+        form = LocationForm(data={'website': value})
+        form.is_valid()
+        return form.cleaned_data.get('website'), form.errors.get('website')
+
+    def test_accepted_values(self):
+        cases = {
+            'circololudico.it': 'https://circololudico.it',
+            '  www.circololudico.it/soci  ': 'https://www.circololudico.it/soci',
+            'https://circololudico.it': 'https://circololudico.it',
+            'http://circololudico.it': 'http://circololudico.it',
+        }
+        for value, expected in cases.items():
+            with self.subTest(value=value):
+                website, errors = self._clean_website(value)
+                self.assertIsNone(errors)
+                self.assertEqual(website, expected)
+
+    def test_rejected_values(self):
+        for value in ['non un sito', 'javascript:alert(1)']:
+            with self.subTest(value=value):
+                _, errors = self._clean_website(value)
+                self.assertTrue(errors)
+
+    def test_browser_url_validation_is_off_on_both_forms(self):
+        location = LocationFactory(creator=UserProfileFactory())
+        for form in [LocationForm(), LocationManageDataForm(instance=location)]:
+            with self.subTest(form=type(form).__name__):
+                self.assertEqual(form['website'].field.widget.input_type, 'text')
