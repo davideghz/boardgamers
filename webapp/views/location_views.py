@@ -234,7 +234,7 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Location
     form_class = LocationForm
     template_name = 'locations/location_add_or_edit.html'
-    success_message = "Location was created successfully"
+    success_message = _("Location was created successfully")
 
     def get_form_class(self):
         return LocationForm
@@ -247,14 +247,14 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return response
 
     def get_success_url(self):
-        return reverse("account-locations")
+        return reverse("location-detail", kwargs={'slug': self.object.slug})
 
 
 class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
     model = Location
     form_class = LocationForm
     template_name = 'locations/location_add_or_edit.html'
-    success_message = "Location was updated successfully"
+    success_message = _("Location was updated successfully")
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -343,7 +343,7 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
     model = Location
     form_class = LocationManageDataForm
     template_name = 'locations/location_manage_data.html'
-    success_message = "Location was updated successfully"
+    success_message = _("Location was updated successfully")
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -364,7 +364,7 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
         return response
 
     def get_success_url(self):
-        return reverse("location-manage", kwargs={'slug': self.object.slug})
+        return reverse("location-detail", kwargs={'slug': self.object.slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

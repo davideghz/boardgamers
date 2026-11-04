@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 13:50+0100\n"
+"POT-Creation-Date: 2026-11-04 12:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -142,6 +142,21 @@ msgstr "Nome"
 msgid "Last name"
 msgstr "Cognome"
 
+msgid "Enter an address"
+msgstr "Inserisci un indirizzo"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Description"
+msgstr "Descrizione"
+
+msgid "Address"
+msgstr "Indirizzo"
+
+msgid "Website"
+msgstr "Sito web"
+
 msgid "Opening time"
 msgstr "Orario di apertura"
 
@@ -223,9 +238,6 @@ msgstr "Questo gioco è già in ludoteca."
 msgid "Guest name"
 msgstr "Nome ospite"
 
-msgid "Name"
-msgstr "Nome"
-
 msgid "New table"
 msgstr "Nuovo tavolo"
 
@@ -273,7 +285,7 @@ msgid "Please verify your email before proceeding"
 msgstr "Verifica la tua email prima di procedere."
 
 msgid "Insert your address to find near locations."
-msgstr "Inserisci il tuo indirizzo per trovare luoghi nelle vicinanze."
+msgstr "Inserisci il tuo indirizzo per trovare locations nelle vicinanze."
 
 msgid "Message sent successfully!"
 msgstr "Messaggio inviato con successo!"
@@ -404,9 +416,6 @@ msgstr "Modificabile"
 
 msgid "Title"
 msgstr "Titolo"
-
-msgid "Description"
-msgstr "Descrizione"
 
 msgid "Event"
 msgstr "Evento"
@@ -587,9 +596,6 @@ msgstr "Luogo di nascita"
 
 msgid "Nationality"
 msgstr "Nazionalità"
-
-msgid "Address"
-msgstr "Indirizzo"
 
 msgid "ZIP Code"
 msgstr "CAP"
@@ -1060,10 +1066,10 @@ msgid "Edit your personal and account information"
 msgstr "Modifica le informazioni personali e dell'account"
 
 msgid "Manage locations"
-msgstr "Gestisci luoghi"
+msgstr "Gestisci locations"
 
 msgid "Edit the information of your locations and create new ones"
-msgstr "Modifica le informazioni dei tuoi luoghi e creane di nuovi"
+msgstr "Modifica le informazioni delle tue locations e creane di nuove"
 
 msgid "Manage tables"
 msgstr "Gestisci tavoli"
@@ -2166,7 +2172,7 @@ msgid "No games available yet."
 msgstr "Nessun gioco disponibile al momento."
 
 msgid "Edit location"
-msgstr "Modifica luogo"
+msgstr "Modifica location"
 
 msgid "New location"
 msgstr "Nuova location"
@@ -2205,9 +2211,6 @@ msgstr "Segui"
 
 msgid "See new tables from this location on your homepage."
 msgstr "Vedi i tavoli di questa location nella homepage."
-
-msgid "Website"
-msgstr "Sito web"
 
 msgid "Tables at this location"
 msgstr "Tavoli in questa location"
@@ -2267,7 +2270,7 @@ msgid "Only members can create tables here."
 msgstr "Solo i soci possono creare un tavolo."
 
 msgid "Only owners and managers can create tables here."
-msgstr "Solo i managers possono creare un tavolo."
+msgstr "Solo owner e managers possono creare un tavolo qui."
 
 msgid "Manage location"
 msgstr "Gestisci location"
@@ -2468,7 +2471,7 @@ msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
 
 msgid "Add, remove managers and transfer ownership"
-msgstr "Aggiungi, rimuovi manager e trasferisci la proprietà"
+msgstr "Aggiungi, rimuovi manager e trasferisci l'ownership"
 
 msgid "Manage the location's game library"
 msgstr "Gestisci la libreria dei giochi dell'associazione"
@@ -2498,20 +2501,20 @@ msgid "Publish open tables to a Telegram group"
 msgstr "Pubblica i tavoli aperti in un gruppo Telegram"
 
 msgid "Transfer ownership"
-msgstr "Trasferisci proprietà"
+msgstr "Trasferisci ownership"
 
 msgid "You will no longer be the owner of this location."
-msgstr "Non sarai più il proprietario di questa location."
+msgstr "Non sarai più l'owner di questa location."
 
 msgid "Transfer ownership?"
-msgstr "Trasferisci proprietà?"
+msgstr "Trasferisci ownership?"
 
 msgid ""
 "You will no longer be the owner of this location. This action cannot be "
 "undone."
 msgstr ""
-"Non sarai più il proprietario di questa location. Questa azione non può "
-"essere annullata."
+"Non sarai più l'owner di questa location. Questa azione non può essere "
+"annullata."
 
 msgid "Transfer"
 msgstr "Trasferisci"
@@ -2957,6 +2960,9 @@ msgstr "CLICCA QUI"
 
 msgid "to receive a new verification email."
 msgstr "per ricevere una nuova email di verifica."
+
+msgid "Please select an address from the autocomplete."
+msgstr "Seleziona un indirizzo tra i suggerimenti."
 
 msgid "tables played"
 msgstr "tavoli giocati"
@@ -3940,6 +3946,12 @@ msgstr ""
 
 msgid "Game Locations - Board-Gamers.com"
 msgstr "Locations di Gioco - Board-Gamers.com"
+
+msgid "Location was created successfully"
+msgstr "Location creata con successo"
+
+msgid "Location was updated successfully"
+msgstr "Location aggiornata con successo"
 
 #, python-format
 msgid "Management %(name)s - Boardgamers.com"

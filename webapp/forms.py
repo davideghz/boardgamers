@@ -608,6 +608,21 @@ class LocationForm(ModelForm, TailwindForm):
         # (even hidden) field, anyone allowed to edit a location could take it
         # over or blank it by tampering with the posted value.
         fields = ['name', 'cover', 'description', 'address', 'city', 'latitude', 'longitude', 'website', 'show_tables_in_homepage', 'opening_hours', 'default_table_time']
+        # A plain text input: the browser's type="url" check would refuse
+        # "www.example.com" before the URLField can add the missing https://.
+        widgets = {
+            'address': TextInput(attrs={'placeholder': _('Enter an address')}),
+            'website': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'www.example.com',
+            }),
+        }
+        labels = {
+            'name': _('Name'),
+            'description': _('Description'),
+            'address': _('Address'),
+            'website': _('Website'),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

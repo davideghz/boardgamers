@@ -29,8 +29,8 @@ CATEGORIES = [
                 'question_it': 'Devo registrarmi per usare la piattaforma?',
                 'question_en': 'Do I need an account to use the platform?',
                 'answer_it': (
-                    'Hai bisogno di un account per creare luoghi, partecipare a sessioni di gioco o gestire i soci. '
-                    'Sfogliare i luoghi pubblici e i tavoli in programma è aperto a tutti senza registrazione.'
+                    'Hai bisogno di un account per creare locations, partecipare a sessioni di gioco o gestire i soci. '
+                    'Sfogliare le locations pubbliche e i tavoli in programma è aperto a tutti senza registrazione.'
                 ),
                 'answer_en': (
                     'You need an account to create locations, join game sessions, or manage members. '
@@ -53,7 +53,7 @@ CATEGORIES = [
         ],
     },
     {
-        'name_it': 'Luoghi e circoli',
+        'name_it': 'Locations e circoli',
         'name_en': 'Locations & clubs',
         'order': 2,
         'faqs': [
@@ -76,7 +76,7 @@ CATEGORIES = [
                 'question_it': 'Chi può creare una location?',
                 'question_en': 'Who can create a location?',
                 'answer_it': (
-                    'Qualsiasi utente registrato può creare una location. Il creatore diventa il proprietario '
+                    'Qualsiasi utente registrato può creare una location. Il creatore diventa l\'owner '
                     'e può nominare altri gestori per aiutarlo ad amministrarlo.'
                 ),
                 'answer_en': (
@@ -89,9 +89,9 @@ CATEGORIES = [
                 'question_it': 'Posso avere più gestori per la mia location?',
                 'question_en': 'Can I have multiple managers for my location?',
                 'answer_it': (
-                    'Sì. Il proprietario della location può aggiungere quanti gestori desidera. '
-                    'I gestori hanno lo stesso accesso amministrativo del proprietario, '
-                    'tranne che non possono trasferire la proprietà.'
+                    'Sì. L\'owner della location può aggiungere quanti gestori desidera. '
+                    'I gestori hanno lo stesso accesso amministrativo dell\'owner, '
+                    'tranne che non possono trasferire l\'ownership.'
                 ),
                 'answer_en': (
                     'Yes. The location owner can add as many managers as needed. '
@@ -111,7 +111,7 @@ CATEGORIES = [
                 'question_it': 'Cos\'è un tavolo?',
                 'question_en': 'What is a table?',
                 'answer_it': (
-                    'Un tavolo è una sessione di gioco creata in un luogo. '
+                    'Un tavolo è una sessione di gioco creata in una location. '
                     'Puoi impostare il gioco, la data, l\'orario e il numero di giocatori. '
                     'I soci possono unirsi con un solo tap.'
                 ),
@@ -190,8 +190,8 @@ CATEGORIES = [
                 'question_it': 'Un socio può richiedere il tesseramento autonomamente?',
                 'question_en': 'Can a member request membership themselves?',
                 'answer_it': (
-                    'Sì. Se abiliti le richieste di tesseramento per il tuo luogo, '
-                    'i soci possono inviare una richiesta dalla pagina pubblica del luogo. '
+                    'Sì. Se abiliti le richieste di tesseramento per la tua location, '
+                    'i soci possono inviare una richiesta dalla pagina pubblica della location. '
                     'I gestori potranno quindi approvarla o rifiutarla.'
                 ),
                 'answer_en': (
@@ -224,7 +224,7 @@ CATEGORIES = [
                 'question_it': 'Le classifiche sono per location o globali?',
                 'question_en': 'Are rankings per-location or global?',
                 'answer_it': (
-                    'Le classifiche sono calcolate per gioco in ogni luogo. '
+                    'Le classifiche sono calcolate per gioco in ogni location. '
                     'Non esiste una classifica globale unica — ogni circolo gestisce la propria.'
                 ),
                 'answer_en': (

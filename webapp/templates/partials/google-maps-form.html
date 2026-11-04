@@ -1,3 +1,4 @@
+{% load i18n %}
 <script>
     "use strict";
 
@@ -71,7 +72,7 @@
             if (!place.geometry) {
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
-                window.alert(`Please select an address from the autocomplete.`);
+                window.alert('{% trans "Please select an address from the autocomplete."|escapejs %}');
                 return;
             }
             renderAddress(place, map, marker);
