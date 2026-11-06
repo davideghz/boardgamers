@@ -48,14 +48,14 @@ class EventManagerMixin(LoginRequiredMixin):
     """Ensures the logged-in user is a manager of the event (resolved via slug kwarg)."""
 
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-        if not request.user.is_authenticated:
-            return response
-        event = self._get_event()
-        user_profile = request.user.user_profile
-        if not (request.user.is_superuser or event.is_manager(user_profile)):
-            raise PermissionDenied
-        return response
+        # Check before running the view: anonymous users fall through to
+        # LoginRequiredMixin, which redirects them to the login page.
+        if request.user.is_authenticated:
+            event = self._get_event()
+            user_profile = request.user.user_profile
+            if not (request.user.is_superuser or event.is_manager(user_profile)):
+                raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
 
     def _get_event(self):
         if not hasattr(self, '_event_cache'):
