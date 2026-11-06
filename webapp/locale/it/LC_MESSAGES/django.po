@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 22:58+0100\n"
+"POT-Creation-Date: 2026-11-06 18:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,10 +30,12 @@ msgstr "Giochi non trovati."
 #, python-format
 msgid ""
 "Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library "
-"entries moved, %(merged)d library entries merged."
+"entries moved, %(merged)d library entries merged, %(event_moved)d event "
+"library entries moved, %(event_merged)d event library entries merged."
 msgstr ""
-"%(dup)s unito in %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di "
-"ludoteca spostate, %(merged)d voci di ludoteca unite."
+"%(dup)s unito a %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di "
+"ludoteca spostate, %(merged)d voci di ludoteca unite, %(event_moved)d voci "
+"di libreria evento spostate, %(event_merged)d voci di libreria evento unite."
 
 msgid "Merge games"
 msgstr "Unisci giochi"
@@ -234,6 +236,9 @@ msgstr "Gioco"
 
 msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
+
+msgid "A tag with this name already exists."
+msgstr "Esiste già un tag con questo nome."
 
 msgid "Guest name"
 msgstr "Nome ospite"
@@ -747,6 +752,9 @@ msgstr "Classifica"
 msgid "When off, the tables of this event have no leaderboard."
 msgstr "Se disattivata, i tavoli di questo evento non hanno la classifica."
 
+msgid "Public game library"
+msgstr "Ludoteca pubblica"
+
 #, python-format
 msgid "%(name)s — gaming event"
 msgstr "%(name)s – evento boardgames"
@@ -768,6 +776,24 @@ msgstr "Categoria tavolo evento"
 
 msgid "Event Table Categories"
 msgstr "Categorie tavolo evento"
+
+msgid "Show on the event page"
+msgstr "Mostra nella pagina evento"
+
+msgid "Event Game Tag"
+msgstr "Tag Gioco Evento"
+
+msgid "Event Game Tags"
+msgstr "Tag Giochi Evento"
+
+msgid "Tags"
+msgstr "Tag"
+
+msgid "Event Game"
+msgstr "Gioco Evento"
+
+msgid "Event Games"
+msgstr "Giochi Evento"
 
 msgid "On-site label, e.g. \"Table 1\""
 msgstr "Etichetta sul posto, es. \"Tavolo 1\""
@@ -1320,6 +1346,12 @@ msgid_plural "%(n)s library entries"
 msgstr[0] "%(n)s voce di ludoteca"
 msgstr[1] "%(n)s voci di ludoteca"
 
+#, python-format
+msgid "%(n)s event library entry"
+msgid_plural "%(n)s event library entries"
+msgstr[0] "%(n)s voce di libreria evento"
+msgstr[1] "%(n)s voci di libreria evento"
+
 msgid ""
 "These locations have both games in their library: the kept game's entry "
 "stays and the duplicate's notes are appended to it."
@@ -1691,6 +1723,12 @@ msgstr[1] "%(n)s tavoli in programma"
 msgid "Browse the schedule by time, area and game"
 msgstr "Sfoglia il programma per orario, area e gioco"
 
+msgid "See the game library"
+msgstr "Vedi la libreria dei giochi"
+
+msgid "All the games available at the event"
+msgstr "Tutti i giochi disponibili all'evento"
+
 msgid "Your tables"
 msgstr "I tuoi tavoli"
 
@@ -1717,6 +1755,12 @@ msgstr "Accedi per tenere traccia dei tavoli a cui partecipi a questo evento."
 
 msgid "Log in"
 msgstr "Accedi"
+
+msgid "Featured games"
+msgstr "Giochi in evidenza"
+
+msgid "See all"
+msgstr "Vedi tutti"
 
 msgid "Add your phone number"
 msgstr "Aggiungi il tuo numero di telefono"
@@ -1753,6 +1797,36 @@ msgstr "Come arrivare"
 
 msgid "Map not available"
 msgstr "Mappa non disponibile"
+
+#, python-format
+msgid "%(counter)s game in the library"
+msgid_plural "%(counter)s games in the library"
+msgstr[0] "%(counter)s gioco in ludoteca"
+msgstr[1] "%(counter)s giochi in ludoteca"
+
+msgid "Search by game name…"
+msgstr "Cerca per nome…"
+
+msgid "Tag"
+msgstr "Tag"
+
+msgid "All tags"
+msgstr "Tutti i tag"
+
+msgid "Sponsor location"
+msgstr "Location sponsor"
+
+#, python-format
+msgid "%(counter)s game found"
+msgid_plural "%(counter)s games found"
+msgstr[0] "%(counter)s gioco trovato"
+msgstr[1] "%(counter)s giochi trovati"
+
+msgid "No games found."
+msgstr "Nessun gioco trovato."
+
+msgid "No games in the library yet."
+msgstr "Nessun gioco in ludoteca."
 
 msgid "Conventions, tournaments and game days near you."
 msgstr "Fiere, tornei e giornate di gioco vicino a te."
@@ -1838,6 +1912,88 @@ msgstr "Nessuna data aggiunta ancora."
 msgid "Add date"
 msgstr "Aggiungi data"
 
+msgid "Game library"
+msgstr "Libreria dei giochi"
+
+msgid "Add game"
+msgstr "Aggiungi Gioco"
+
+msgid "Select a game"
+msgstr "Seleziona un gioco"
+
+msgid "Change"
+msgstr "Cambia"
+
+msgid "No tags yet."
+msgstr "Ancora nessun tag."
+
+msgid "Create them on the library page."
+msgstr "Creali dalla pagina della libreria."
+
+msgid "Sponsor locations that have this game"
+msgstr "Location sponsor che hanno questo gioco"
+
+msgid "This event has no sponsor locations yet."
+msgstr "Questo evento non ha ancora location sponsor."
+
+msgid "Add them."
+msgstr "Aggiungile."
+
+msgid "Save and add another"
+msgstr "Salva e aggiungi un altro"
+
+msgid "Danger zone"
+msgstr "Zona Pericolosa"
+
+msgid "Remove from library"
+msgstr "Rimuovi dalla libreria"
+
+msgid "Remove game"
+msgstr "Rimuovi gioco"
+
+#, python-format
+msgid "Remove «%(name)s» from the library?"
+msgstr "Rimuovere «%(name)s» dalla libreria?"
+
+msgid "Remove"
+msgstr "Rimuovi"
+
+msgctxt "game library"
+msgid "Visible"
+msgstr "Visibile"
+
+msgctxt "game library"
+msgid "Hidden"
+msgstr "Nascosta"
+
+msgid ""
+"Visitors can browse the library from the event page, which also shows the "
+"games with a tag flagged for it."
+msgstr "I visitatori possono sfogliare la libreria dalla pagina evento, che mostra anche i giochi con un tag da mettere in evidenza."
+
+msgid "View public page"
+msgstr "Vedi pagina pubblica"
+
+msgid ""
+"Turn this on to show the library on the event page. Until then only managers "
+"can see it."
+msgstr "Attivala per mostrare la libreria nella pagina evento. Fino ad allora può vederla solo chi gestisce l'evento."
+
+msgid "Preview"
+msgstr "Anteprima"
+
+msgid "No games yet"
+msgstr "Ancora nessun gioco"
+
+msgid "Add the first game to the library."
+msgstr "Aggiungi il primo gioco alla libreria."
+
+msgid "Remove this tag from all the games?"
+msgstr "Rimuovere questo tag da tutti i giochi?"
+
+msgid "Add tag"
+msgstr "Aggiungi tag"
+
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
 
@@ -1864,6 +2020,12 @@ msgid "%(n)s category configured"
 msgid_plural "%(n)s categories configured"
 msgstr[0] "%(n)s categoria configurata"
 msgstr[1] "%(n)s categorie configurate"
+
+#, python-format
+msgid "%(n)s game in the library"
+msgid_plural "%(n)s games in the library"
+msgstr[0] "%(n)s gioco in libreria"
+msgstr[1] "%(n)s giochi in libreria"
 
 #, python-format
 msgid "%(n)s station configured"
@@ -1900,9 +2062,6 @@ msgstr "Rimuovi location?"
 
 msgid "Are you sure you want to remove"
 msgstr "Sei sicuro di voler rimuovere"
-
-msgid "Remove"
-msgstr "Rimuovi"
 
 msgid "No managers assigned yet."
 msgstr "Ancora nessun manager assegnato."
@@ -1999,12 +2158,6 @@ msgstr "Data e ora"
 
 msgid "Select a game (optional)"
 msgstr "Seleziona un gioco (opzionale)"
-
-msgid "Change"
-msgstr "Cambia"
-
-msgid "Remove game"
-msgstr "Rimuovi gioco"
 
 msgid "Upload an image to show instead of the game cover."
 msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
@@ -2156,12 +2309,6 @@ msgstr ""
 msgid "Search in title and description…"
 msgstr "Cerca nel titolo e nella descrizione…"
 
-#, python-format
-msgid "%(counter)s game found"
-msgid_plural "%(counter)s games found"
-msgstr[0] "%(counter)s gioco trovato"
-msgstr[1] "%(counter)s giochi trovati"
-
 msgid "gamers"
 msgstr "gamers"
 
@@ -2308,23 +2455,8 @@ msgstr "Sabato"
 msgid "Sunday"
 msgstr "Domenica"
 
-#, python-format
-msgid "%(counter)s game in the library"
-msgid_plural "%(counter)s games in the library"
-msgstr[0] "%(counter)s gioco in ludoteca"
-msgstr[1] "%(counter)s giochi in ludoteca"
-
-msgid "Search by game name…"
-msgstr "Cerca per nome…"
-
 msgid "At home"
 msgstr "A casa"
-
-msgid "No games found."
-msgstr "Nessun gioco trovato."
-
-msgid "No games in the library yet."
-msgstr "Nessun gioco in ludoteca."
 
 msgid ""
 "Discover all board game locations near you. Find the perfect place for your "
@@ -2404,12 +2536,6 @@ msgstr ""
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
 
-msgid "Add game"
-msgstr "Aggiungi Gioco"
-
-msgid "Select a game"
-msgstr "Seleziona un gioco"
-
 msgid ""
 "To specify a member as the game owner, activate membership requests for your "
 "location."
@@ -2420,27 +2546,6 @@ msgstr ""
 msgid "Go to the Members page"
 msgstr "Vai alla pagina Soci"
 
-msgid "Danger zone"
-msgstr "Zona Pericolosa"
-
-msgid "Remove from library"
-msgstr "Rimuovi dalla libreria"
-
-#, python-format
-msgid "Remove «%(name)s» from the library?"
-msgstr "Rimuovere «%(name)s» dalla libreria?"
-
-msgid "Public game library"
-msgstr "Ludoteca pubblica"
-
-msgctxt "game library"
-msgid "Visible"
-msgstr "Visibile"
-
-msgctxt "game library"
-msgid "Hidden"
-msgstr "Nascosta"
-
 msgid ""
 "Visitors can browse your games from the location page. Owners, members and "
 "notes stay private."
@@ -2448,21 +2553,12 @@ msgstr ""
 "I visitatori possono consultare i vostri giochi dalla pagina della location. "
 "Proprietari, soci e note restano privati."
 
-msgid "View public page"
-msgstr "Vedi pagina pubblica"
-
 msgid ""
 "Turn this on to show the list of your games on the location page. Owners, "
 "members and notes stay private."
 msgstr ""
 "Attivala per mostrare l'elenco dei vostri giochi nella pagina della "
 "location. Proprietari, soci e note restano privati."
-
-msgid "No games yet"
-msgstr "Ancora nessun gioco"
-
-msgid "Add the first game to the library."
-msgstr "Aggiungi il primo gioco alla libreria."
 
 msgid "Download CSV"
 msgstr "Scarica CSV"
@@ -2920,6 +3016,15 @@ msgstr "Widget per il tuo sito"
 msgid "Free and open source"
 msgstr "Gratuito e Open source"
 
+msgid "From:"
+msgstr "Da:"
+
+msgid "See the tables"
+msgstr "Vedi i tavoli"
+
+msgid "Reservation not needed"
+msgstr "Prenotazione non necessaria"
+
 msgid "Personal data"
 msgstr "Dati anagrafici"
 
@@ -3098,9 +3203,6 @@ msgstr ""
 "Mantieni la community coinvolta con classifiche dei giocatori basate "
 "sull'attività. Un po' di sana competizione rende le serate di gioco ancora "
 "più divertenti."
-
-msgid "Game library"
-msgstr "Libreria dei giochi"
 
 msgid ""
 "Catalog every game your club owns — or that members bring along. Track who "
@@ -3849,6 +3951,14 @@ msgid "Event created! It will be published once approved by an admin."
 msgstr ""
 "Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
 
+#, python-format
+msgid "Games – %(name)s"
+msgstr "Giochi - %(name)s"
+
+#, python-format
+msgid "Board games available at %(name)s."
+msgstr "Giochi da tavolo disponibili presso %(name)s."
+
 msgid ""
 "Warning: this station is already booked by another table at an overlapping "
 "time."
@@ -3915,6 +4025,32 @@ msgstr "Categoria aggiunta."
 
 msgid "Category removed."
 msgstr "Categoria rimossa."
+
+msgid "The game library is now visible on the event page."
+msgstr "La libreria dei giochi ora è visibile nella pagina evento."
+
+msgid "The game library is now hidden from the event page."
+msgstr "La libreria dei giochi ora è nascosta dalla pagina evento."
+
+#, python-format
+msgid "Game «%(name)s» added to the library."
+msgstr "Gioco %(name)s aggiunto alla libreria"
+
+msgid "Game updated."
+msgstr "Gioco aggiornato."
+
+#, python-format
+msgid "Game «%(name)s» removed from the library."
+msgstr "Gioco %(name)s rimosso dalla libreria"
+
+msgid "Tag added."
+msgstr "Tag aggiunto."
+
+msgid "Tag updated."
+msgstr "Tag aggiornato."
+
+msgid "Tag removed."
+msgstr "Tag rimosso."
 
 msgid "Station added."
 msgstr "Postazione aggiunta."
@@ -4081,10 +4217,6 @@ msgstr ""
 "Ricordati di stampare e firmare i documenti di adesione: li trovi in \"Le "
 "mie iscrizioni\"."
 
-#, python-format
-msgid "Games – %(name)s"
-msgstr "Giochi - %(name)s"
-
 msgid "The game library is now visible on the location page."
 msgstr "La ludoteca ora è visibile nella pagina della location."
 
@@ -4092,16 +4224,8 @@ msgid "The game library is now hidden from the location page."
 msgstr "La ludoteca ora è nascosta dalla pagina della location."
 
 #, python-format
-msgid "Board games available at %(name)s."
-msgstr "Giochi da tavolo disponibili presso %(name)s."
-
-#, python-format
 msgid "Add Game – %(name)s"
 msgstr "Aggiungi Gioco - %(name)s"
-
-#, python-format
-msgid "Game «%(name)s» added to the library."
-msgstr "Gioco %(name)s aggiunto alla libreria"
 
 #, python-format
 msgid "%(game)s – %(name)s"
@@ -4109,10 +4233,6 @@ msgstr "%(game)s – %(name)s"
 
 msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
-
-#, python-format
-msgid "Game «%(name)s» removed from the library."
-msgstr "Gioco %(name)s rimosso dalla libreria"
 
 #, python-format
 msgid "Widget – %(name)s"
@@ -4341,6 +4461,13 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid ""
+#~ "The library is public. Games with a tag flagged for the event page are "
+#~ "also shown there."
+#~ msgstr ""
+#~ "La libreria è pubblica. I giochi con un tag da mostrare nella pagina "
+#~ "evento compaiono anche lì."
+
 #~ msgid "Public location"
 #~ msgstr "Location pubblica"
 
@@ -4362,9 +4489,6 @@ msgstr "Collega account"
 
 #~ msgid "Search by username..."
 #~ msgstr "Cerca per username..."
-
-#~ msgid "No tables yet"
-#~ msgstr "Ancora nessun tavolo."
 
 #~ msgid "Past tables"
 #~ msgstr "Tavoli passati"

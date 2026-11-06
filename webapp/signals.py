@@ -2,7 +2,7 @@ from time import sleep
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.gis.geos import Point
-from django.db.models.signals import post_save, pre_delete, pre_save
+from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event
+    EventParticipant, Game, Location, Event, EventGame
 from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
 
 
@@ -59,6 +59,25 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
             )
             # if follower.user_profile.notification_new_table:
             #     send_notification_new_table(follower.user_profile, instance)
+
+
+@receiver(post_save, sender=Table)
+def add_table_game_to_event_library(sender, instance, created, **kwargs):
+    """A game played at an event belongs to its library. Only on creation or when
+    the game changes: a game the managers removed must not come back on any save."""
+    if instance.event_id and instance.game_id and (created or instance.tracker.has_changed('game')):
+        EventGame.objects.get_or_create(event_id=instance.event_id, game_id=instance.game_id)
+
+
+@receiver(m2m_changed, sender=Event.sponsor_locations.through)
+def drop_removed_sponsors_from_event_games(sender, instance, action, reverse, **kwargs):
+    """A location that no longer sponsors the event can't bring games to it."""
+    if reverse or action not in ('post_remove', 'post_clear'):
+        return
+    (EventGame.sponsor_locations.through.objects
+     .filter(eventgame__event=instance)
+     .exclude(location__in=instance.sponsor_locations.all())
+     .delete())
 
 
 @receiver(pre_delete, sender=Table)

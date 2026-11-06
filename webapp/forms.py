@@ -7,11 +7,11 @@ from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput
+    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag
 
 from django.urls import reverse
 from django.utils import timezone
@@ -1048,6 +1048,64 @@ class LocationGameForm(ModelForm, TailwindForm):
         if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
             cleaned['owner_member'] = None
         return cleaned
+
+
+_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
+
+
+class EventGameForm(ModelForm, TailwindForm):
+    """Form to add/edit a game in an event's library."""
+    game = ModelChoiceField(
+        queryset=Game.objects.all(),
+        label=_('Game'),
+        widget=HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
+    )
+
+    class Meta:
+        model = EventGame
+        fields = ['game', 'tags', 'sponsor_locations']
+        widgets = {
+            'tags': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
+            'sponsor_locations': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
+        }
+
+    def __init__(self, *args, event, **kwargs):
+        self.event = event
+        super().__init__(*args, **kwargs)
+        self.fields['tags'].queryset = event.game_tags.all()
+        self.fields['sponsor_locations'].queryset = event.sponsor_locations.only('id', 'name').order_by('name')
+
+    def clean_game(self):
+        # `event` is not a form field, so ModelForm skips the (event, game)
+        # unique_together check: do it here.
+        game = self.cleaned_data.get('game')
+        if game:
+            duplicates = EventGame.objects.filter(event=self.event, game=game)
+            if self.instance.pk:
+                duplicates = duplicates.exclude(pk=self.instance.pk)
+            if duplicates.exists():
+                raise ValidationError(_("This game is already in the library."))
+        return game
+
+
+class EventGameTagForm(ModelForm, TailwindForm):
+    class Meta:
+        model = EventGameTag
+        fields = ['name', 'show_on_event_page']
+
+    def __init__(self, *args, event, **kwargs):
+        self.event = event
+        super().__init__(*args, **kwargs)
+
+    def clean_name(self):
+        # `event` is not a form field: same reason as EventGameForm.clean_game.
+        name = self.cleaned_data['name'].strip()
+        duplicates = self.event.game_tags.filter(name__iexact=name)
+        if self.instance.pk:
+            duplicates = duplicates.exclude(pk=self.instance.pk)
+        if duplicates.exists():
+            raise ValidationError(_("A tag with this name already exists."))
+        return name
 
 
 class GuestProfileForm(ModelForm):

@@ -1,0 +1,179 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-content-muted mb-1">
+      <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
+      <a href="{% url 'event-manage' event.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
+      <a href="{% url 'event-manage-games' event.slug %}" class="text-blue-600 hover:underline">{% trans "Game library" %}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-content">
+      {% if is_new %}{% trans "Add game" %}{% else %}{{ entry.game.name }}{% endif %}
+    </h1>
+  </div>
+
+  <form method="post"
+        action="{% if is_new %}{% url 'event-manage-game-add' event.slug %}{% else %}{% url 'event-manage-game-detail' event.slug entry.uuid %}{% endif %}"
+        class="max-w-xl space-y-5">
+    {% csrf_token %}
+
+    {# ── Game picker (BGG modal) ──────────────────────────────────────── #}
+    <div>
+      <label class="block text-xs font-semibold text-content-soft mb-1">{% trans "Game" %}</label>
+
+      <input type="hidden" name="game" id="game-input"
+             value="{% if not is_new %}{{ entry.game.id }}{% endif %}">
+
+      {# Empty state #}
+      <div id="game-empty-state"{% if not is_new %} style="display:none"{% endif %}>
+        <button type="button" onclick="openBggModal()"
+                class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-divider px-4 py-3 text-sm font-semibold text-content-muted hover:border-blue-400 hover:text-blue-600 transition-colors bg-transparent cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          {% trans "Select a game" %}
+        </button>
+      </div>
+
+      {# Selected state #}
+      <div id="game-selected-state"{% if is_new %} style="display:none"{% endif %}>
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface-alt">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-muted flex-shrink-0">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+          </svg>
+          <p id="game-selected-name" class="text-sm font-semibold text-content flex-1 min-w-0 truncate">
+            {% if not is_new %}{{ entry.game.name }}{% endif %}
+          </p>
+          <button type="button" onclick="openBggModal()"
+                  class="text-xs font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer flex-shrink-0">
+            {% trans "Change" %}
+          </button>
+        </div>
+      </div>
+      {% if form.game.errors %}
+        <p class="mt-1 text-xs text-red-500">{{ form.game.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    {# ── Tags ─────────────────────────────────────────────────────────── #}
+    <div>
+      <p class="block text-xs font-semibold text-content-soft mb-1">{% trans "Tags" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
+      {% if form.tags.field.queryset.exists %}
+        <div class="flex flex-wrap gap-2">
+          {% for option in form.tags %}
+            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-divider bg-surface text-sm text-content cursor-pointer has-[:checked]:border-blue-500">
+              {{ option.tag }} {{ option.choice_label }}
+            </label>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-xs text-content-muted">
+          {% trans "No tags yet." %}
+          <a href="{% url 'event-manage-games' event.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "Create them on the library page." %}</a>
+        </p>
+      {% endif %}
+      {% if form.tags.errors %}<p class="mt-1 text-xs text-red-500">{{ form.tags.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    {# ── Sponsor locations ────────────────────────────────────────────── #}
+    <div>
+      <p class="block text-xs font-semibold text-content-soft mb-1">{% trans "Sponsor locations that have this game" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
+      {% if form.sponsor_locations.field.queryset.exists %}
+        <div class="flex flex-wrap gap-2">
+          {% for option in form.sponsor_locations %}
+            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-divider bg-surface text-sm text-content cursor-pointer has-[:checked]:border-blue-500">
+              {{ option.tag }} {{ option.choice_label }}
+            </label>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-xs text-content-muted">
+          {% trans "This event has no sponsor locations yet." %}
+          <a href="{% url 'event-manage-locations' event.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "Add them." %}</a>
+        </p>
+      {% endif %}
+      {% if form.sponsor_locations.errors %}<p class="mt-1 text-xs text-red-500">{{ form.sponsor_locations.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    <div class="flex gap-3 pt-2">
+      <a href="{% url 'event-manage-games' event.slug %}"
+         class="flex items-center justify-center gap-2 rounded-full border border-divider px-4 py-3 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+        {% trans "Cancel" %}
+      </a>
+      <button type="submit"
+              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+        {% if is_new %}{% trans "Add game" %}{% else %}{% trans "Save changes" %}{% endif %}
+      </button>
+    </div>
+    {% if is_new %}
+      <button type="submit" name="add_another" value="1"
+              class="w-full rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
+        {% trans "Save and add another" %}
+      </button>
+    {% endif %}
+
+  </form>
+
+  {% if not is_new and entry %}
+    <div class="max-w-xl mt-8 pt-6 border-t border-divider-soft">
+      <p class="text-xs text-content-muted mb-3">{% trans "Danger zone" %}</p>
+      <button type="button" id="delete-btn"
+              class="flex items-center gap-1.5 border border-red-200 text-red-500 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-red-50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+        {% trans "Remove from library" %}
+      </button>
+    </div>
+
+    {# Delete confirmation dialog #}
+    <div id="delete-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="delete-backdrop"></div>
+      <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <p class="text-base font-bold text-content mb-1">{% trans "Remove game" %}</p>
+        <p class="text-sm text-content-muted mb-5">
+          {% blocktrans with name=entry.game.name %}Remove «{{ name }}» from the library?{% endblocktrans %}
+        </p>
+        <form method="post" action="{% url 'event-manage-game-delete' event.slug entry.uuid %}">
+          {% csrf_token %}
+          <div class="flex gap-3">
+            <button type="button" id="delete-cancel"
+                    class="flex-1 rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt transition-colors">
+              {% trans "Cancel" %}
+            </button>
+            <button type="submit"
+                    class="flex-1 rounded-full bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-colors">
+              {% trans "Remove" %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  {# ── BGG Import Modal ─────────────────────────────────────────────── #}
+  {% include "_bgg_game_modal.html" %}
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+    window.bggSelectCallback = function (gameId, gameName) {
+      document.getElementById('game-input').value = gameId;
+      document.getElementById('game-selected-name').textContent = gameName;
+      document.getElementById('game-empty-state').style.display = 'none';
+      document.getElementById('game-selected-state').style.display = '';
+    };
+  </script>
+  {% if not is_new and entry %}
+  <script>
+    const deleteDialog = document.getElementById('delete-dialog');
+    const deleteCancel = document.getElementById('delete-cancel');
+    const deleteBackdrop = document.getElementById('delete-backdrop');
+    document.getElementById('delete-btn').addEventListener('click', () => deleteDialog.classList.remove('hidden'));
+    [deleteCancel, deleteBackdrop].forEach(el => el.addEventListener('click', () => deleteDialog.classList.add('hidden')));
+  </script>
+  {% endif %}
+{% endblock %}

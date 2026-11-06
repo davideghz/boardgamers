@@ -200,6 +200,27 @@
         </a>
       </section>
 
+      {# ── Game library CTA ─────────────────────────────── #}
+      {% if has_library %}
+        <section>
+          <a href="{% url 'event-games' event.slug %}"
+             class="group flex items-center gap-4 p-5 rounded-2xl border border-divider bg-gradient-to-br from-surface-alt to-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
+            <div class="w-12 h-12 rounded-xl bg-elevated flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-base font-bold text-content">{% trans "See the game library" %}</p>
+              <p class="text-sm text-content-muted mt-0.5">{% trans "All the games available at the event" %}</p>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-muted group-hover:text-content-muted group-hover:translate-x-0.5 transition-all flex-shrink-0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </a>
+        </section>
+      {% endif %}
+
       {# ── Your tables (agenda) ─────────────────────────── #}
       <section>
         <h2 class="text-lg font-bold text-content mb-3">{% trans "Your tables" %}</h2>
@@ -278,6 +299,21 @@
           </div>
         {% endif %}
       </section>
+
+      {# ── Featured games ───────────────────────────────── #}
+      {% if featured_games %}
+        <section>
+          <div class="flex items-center justify-between gap-3 mb-3">
+            <h2 class="text-lg font-bold text-content">{% trans "Featured games" %}</h2>
+            <a href="{% url 'event-games' event.slug %}" class="text-sm font-semibold text-blue-600 hover:underline text-decoration-none whitespace-nowrap">{% trans "See all" %} →</a>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {% for entry in featured_games %}
+              {% include "partials/_event_game_card.html" %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
 
       {# ── Phone request banner (participant without a phone number) ─── #}
       {% if needs_phone %}

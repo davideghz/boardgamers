@@ -1,0 +1,72 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-content-muted mb-1">
+      <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
+    <p class="text-sm text-content-muted mt-1">
+      {% blocktrans count counter=total_count %}{{ counter }} game in the library{% plural %}{{ counter }} games in the library{% endblocktrans %}
+    </p>
+  </div>
+
+  {% if total_count %}
+    {# ── Filters (GET form; page resets on every submit) ─────────────── #}
+    <form method="get" class="space-y-2 mb-3"
+          onsubmit="this.querySelectorAll('[name]').forEach(function (el) { if (!el.value.trim()) el.disabled = true; })">
+      <div class="flex gap-2">
+        {% trans "Search by game name…" as search_placeholder %}
+        {% include "partials/_search_input.html" with placeholder=search_placeholder %}
+        <button type="submit"
+                class="bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors">
+          {% trans "Search" %}
+        </button>
+      </div>
+      {% if tags or sponsors %}
+        <div class="flex flex-col sm:flex-row gap-2">
+          {% if tags %}
+            <select name="tag" aria-label="{% trans 'Tag' %}" onchange="this.form.requestSubmit()"
+                    class="flex-1 min-w-0 px-3 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <option value="">{% trans "All tags" %}</option>
+              {% for tag in tags %}
+                <option value="{{ tag.pk }}"{% if selected_tag.pk == tag.pk %} selected{% endif %}>{{ tag.name }}</option>
+              {% endfor %}
+            </select>
+          {% endif %}
+          {% if sponsors %}
+            <select name="sponsor" aria-label="{% trans 'Sponsor location' %}" onchange="this.form.requestSubmit()"
+                    class="flex-1 min-w-0 px-3 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <option value="">{% trans "All locations" %}</option>
+              {% for sponsor in sponsors %}
+                <option value="{{ sponsor.pk }}"{% if selected_sponsor.pk == sponsor.pk %} selected{% endif %}>{{ sponsor.name }}</option>
+              {% endfor %}
+            </select>
+          {% endif %}
+        </div>
+      {% endif %}
+    </form>
+  {% endif %}
+
+  {% if has_filters %}
+    <div class="flex items-center justify-between gap-3 mb-3 text-xs text-content-muted">
+      <span>
+        {% blocktrans count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktrans %}
+      </span>
+      <a href="{% querystring q=None tag=None sponsor=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+    </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    {% for entry in entries %}
+      {% include "partials/_event_game_card.html" %}
+    {% empty %}
+      <p class="text-sm text-content-muted italic sm:col-span-2">{% if has_filters %}{% trans "No games found." %}{% else %}{% trans "No games in the library yet." %}{% endif %}</p>
+    {% endfor %}
+  </div>
+
+  {% include "partials/_pagination.html" %}
+
+{% endblock content %}

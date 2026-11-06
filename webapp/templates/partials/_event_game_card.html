@@ -1,0 +1,46 @@
+{% load i18n %}
+{# A game of an event's library. Requires `entry` (with first_table_date, see services/event_games.py), `event` and `is_concluded`. #}
+{% with game=entry.game %}
+<div class="flex gap-3 p-2.5 rounded-xl border border-divider bg-surface">
+  <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0 overflow-hidden">
+    <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">
+  </div>
+  <div class="flex-1 min-w-0">
+    <a href="{% url 'game-detail' game.slug %}" class="block text-sm font-bold text-content truncate hover:underline text-decoration-none">{{ game.name }}</a>
+    {% if game.min_players or game.min_playtime %}
+      <p class="text-[11px] text-content-muted truncate mt-0.5">
+        {% if game.min_players %}
+          {% if game.max_players and game.max_players != game.min_players %}{{ game.min_players }}–{{ game.max_players }}{% else %}{{ game.min_players }}{% endif %}
+          {% trans "players" %}
+        {% endif %}
+        {% if game.min_playtime %}
+          {% if game.min_players %}·{% endif %}
+          {% if game.max_playtime and game.max_playtime != game.min_playtime %}{{ game.min_playtime }}–{{ game.max_playtime }}{% else %}{{ game.min_playtime }}{% endif %} min
+        {% endif %}
+      </p>
+    {% endif %}
+    {% if entry.tags.all %}
+      <div class="flex flex-wrap gap-1 mt-1.5">
+        {% for tag in entry.tags.all %}
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-soft">{{ tag.name }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if entry.sponsor_locations.all %}
+      <p class="text-[11px] text-content-muted mt-1.5">
+        {% trans "From:" %} {% for location in entry.sponsor_locations.all %}{{ location.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+      </p>
+    {% endif %}
+    {% if not is_concluded %}
+      <div class="mt-1.5 text-xs">
+        {% if entry.first_table_date %}
+          <a href="{% url 'event-program' event.slug %}?game={{ entry.game_id }}&amp;date={{ entry.first_table_date|date:'Y-m-d' }}"
+             class="font-semibold text-blue-600 hover:underline text-decoration-none">{% trans "See the tables" %} →</a>
+        {% else %}
+          <span class="text-content-muted">{% trans "Reservation not needed" %}</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endwith %}
