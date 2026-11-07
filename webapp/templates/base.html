@@ -32,6 +32,7 @@
 
   <!-- FAVICON -->
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/logo/board-gamers-mark.svg' %}">
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
 
@@ -215,6 +216,25 @@
     html.dark .border-orange-200 { border-color: rgba(249,115,22,.30); }
     html.dark .border-violet-200, html.dark .border-violet-300 { border-color: rgba(139,92,246,.30); }
     html.dark .border-purple-200 { border-color: rgba(168,85,247,.30); }
+
+    /* Desktop sidebar: expanded, or collapsed to a rail of 40px icon buttons */
+    :root { --sidebar-width: 16rem; }
+    html.sidebar-collapsed { --sidebar-width: calc(3.5rem + 1px); }  /* +1px: the right border */
+    .sidebar-icon-collapsed { display: none; }
+    html.sidebar-collapsed .sidebar-icon-expanded { display: none; }
+    html.sidebar-collapsed .sidebar-icon-collapsed { display: inline; }
+    html.sidebar-collapsed #sidebar-fixed .sidebar-text,
+    html.sidebar-collapsed #sidebar-logo { display: none !important; }
+    html.sidebar-collapsed #sidebar-header { justify-content: center; padding-left: .5rem; padding-right: .5rem; }
+    html.sidebar-collapsed #sidebar-content,
+    html.sidebar-collapsed #sidebar-footer { padding-left: .5rem; padding-right: .5rem; }
+    html.sidebar-collapsed #sidebar-fixed .sidebar-nav-link,
+    html.sidebar-collapsed #sidebar-cta,
+    html.sidebar-collapsed #sidebar-fixed .sidebar-notifications {
+      width: 2.5rem; height: 2.5rem; padding: 0; margin: 0; gap: 0;
+      display: flex; align-items: center; justify-content: center; flex: none;
+    }
+    html.sidebar-collapsed #sidebar-account { flex-direction: column; }
   </style>
 
   {% block style %}{% endblock style %}
