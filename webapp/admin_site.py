@@ -38,6 +38,8 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'Game'),
             ('webapp', 'Event'),
             ('webapp', 'EventParticipant'),
+            ('webapp', 'EventGame'),
+            ('webapp', 'EventGameTag'),
             ('webapp', 'FAQ'),
             ('webapp', 'FAQCategory'),
         ]),

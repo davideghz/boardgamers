@@ -11,7 +11,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
 
-from webapp.models import Game, LocationGame, Table
+from webapp.models import EventGame, Game, LocationGame, Table
 
 # Fields offered for a side-by-side choice in the merge confirmation page.
 MERGEABLE_FIELDS = (
@@ -21,7 +21,7 @@ MERGEABLE_FIELDS = (
 # Flags kept if true on either game.
 OR_FLAGS = ('verified', 'bgg_imported', 'leaderboard_enabled')
 
-MergeResult = namedtuple('MergeResult', 'tables_moved library_moved library_merged')
+MergeResult = namedtuple('MergeResult', 'tables_moved library_moved library_merged event_library_moved event_library_merged')
 
 
 def is_empty(value):
@@ -65,6 +65,22 @@ def library_conflicts(keeper, duplicate):
     )
 
 
+def merge_event_library(keeper, duplicate):
+    """Move the duplicate's entries in event libraries to the keeper. An event
+    holding both games keeps the keeper's entry, with the tags and sponsors of both."""
+    merged = 0
+    conflicts = EventGame.objects.filter(game=duplicate, event__games__game=keeper).prefetch_related(
+        'tags', 'sponsor_locations')
+    for entry in conflicts:
+        kept = EventGame.objects.get(event_id=entry.event_id, game=keeper)
+        kept.tags.add(*entry.tags.all())
+        kept.sponsor_locations.add(*entry.sponsor_locations.all())
+        entry.delete()
+        merged += 1
+    moved = EventGame.objects.filter(game=duplicate).update(game=keeper)
+    return moved, merged
+
+
 def merge_games(keeper, duplicate, choices):
     """Merge `duplicate` into `keeper` and delete it.
 
@@ -101,8 +117,9 @@ def merge_games(keeper, duplicate, choices):
             entry.delete()
             library_merged += 1
         library_moved = LocationGame.objects.filter(game=duplicate).update(game=keeper)
+        event_library_moved, event_library_merged = merge_event_library(keeper, duplicate)
 
         Game.objects.filter(pk=keeper.pk).update(**values)
         duplicate.delete()
 
-    return MergeResult(tables_moved, library_moved, library_merged)
+    return MergeResult(tables_moved, library_moved, library_merged, event_library_moved, event_library_merged)

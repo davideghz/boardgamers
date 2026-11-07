@@ -9,7 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Max, Min, Prefetch, Q
-from django.http import Http404
+from django.core.paginator import Paginator
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -20,12 +21,14 @@ from django.views.generic import CreateView, DetailView, UpdateView
 from webapp.forms import (
     EventTableForm, EventForm, EventManageDataForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
-    EventTableCategoryForm,
+    EventTableCategoryForm, EventGameForm, EventGameTagForm,
 )
 from webapp.views.table_views import _links_formset_open
+from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory
+from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
+from webapp.services.event_games import attach_booking_dates, featured_games, library_queryset
 from webapp.views.table_views import BaseTableDetailView
 
 
@@ -78,7 +81,7 @@ class EventPublicAccessMixin:
 
 class EventDetailView(EventPublicAccessMixin, DetailView):
     """Slim event landing page: intro, sponsors, contacts + CTA to the program."""
-    model = Event
+    queryset = Event.objects.select_related('creator')  # read by the JSON-LD organizer
     template_name = 'events/event_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -89,14 +92,20 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
         is_participant = bool(user_profile and event.participants.filter(
             user_profile=user_profile).exists())
+        today = timezone.localdate()
+        is_concluded = event.is_concluded(today)
+        games = featured_games(event) if event.enable_public_games else []
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
             'needs_phone': is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
-            'event_dates': event.dates.all(),
+            'event_dates': event.sorted_dates,
             'table_count': Table.objects.filter(event=event).count(),
-            'today': timezone.localdate(),
+            'today': today,
+            'is_concluded': is_concluded,
+            'featured_games': games,
+            'has_library': event.enable_public_games and (bool(games) or event.games.exists()),
         })
         if user_profile:
             my_agenda, my_tables_overlap = self._my_tables_agenda(event, user_profile)
@@ -141,6 +150,70 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             )
         ]
         return agenda, has_overlap
+
+
+class EventGamesView(EventPublicAccessMixin, DetailView):
+    """Public list of the games in the event's library."""
+    model = Event
+    template_name = 'events/event_games.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    paginate_by = 16
+
+    def get_object(self, queryset=None):
+        # Until the managers publish it, only they can see it, as a preview.
+        event = super().get_object(queryset)
+        if not event.enable_public_games:
+            user = self.request.user
+            if not (user.is_authenticated and (user.is_superuser or event.is_manager(user.user_profile))):
+                raise Http404
+        return event
+
+    @staticmethod
+    def _selected(options, raw_id):
+        """The option whose id is `raw_id`, or None if it's missing or not valid."""
+        return next((option for option in options if str(option.pk) == raw_id), None)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.object
+        tags = list(event.game_tags.all())
+        sponsors = list(event.sponsor_locations.only('id', 'name').order_by('name'))
+        selected_tag = self._selected(tags, self.request.GET.get('tag'))
+        selected_sponsor = self._selected(sponsors, self.request.GET.get('sponsor'))
+        q = self.request.GET.get('q', '').strip()
+
+        entries = library_queryset(event)
+        total_count = event.games.count()
+        if q:
+            entries = entries.filter(game__name__icontains=q)
+        if selected_tag:
+            entries = entries.filter(tags=selected_tag)
+        if selected_sponsor:
+            entries = entries.filter(sponsor_locations=selected_sponsor)
+
+        paginator = Paginator(entries, self.paginate_by)
+        page_obj = paginator.get_page(self.request.GET.get('page'))
+        is_concluded = event.is_concluded()
+        context.update({
+            'entries': attach_booking_dates(event, page_obj.object_list),
+            'total_count': total_count,
+            'tags': tags,
+            'sponsors': sponsors,
+            'selected_tag': selected_tag,
+            'selected_sponsor': selected_sponsor,
+            'has_filters': bool(q or selected_tag or selected_sponsor),
+            'q': q,
+            'paginator': paginator,
+            'page_obj': page_obj,
+            'is_paginated': page_obj.has_other_pages(),
+            'is_concluded': is_concluded,
+            'meta': Meta(
+                title=_("Games – %(name)s") % {'name': event.name},
+                description=_("Board games available at %(name)s.") % {'name': event.name},
+            ),
+        })
+        return context
 
 
 def upcoming_events_queryset(limit=None):
@@ -764,6 +837,140 @@ class EventManageCategoriesReorderView(EventManagerMixin, View):
             data = json.loads(request.body)
             for item in data.get('categories', []):
                 EventTableCategory.objects.filter(pk=item['id'], event=event).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=400)
+
+
+class EventManageGamesView(EventManagerMixin, View):
+    """The event's library and its tags, managed on the same page."""
+
+    def get(self, request, slug):
+        event = self._get_event()
+        return render(request, 'events/event_manage_games.html', {
+            'event': event,
+            'entries': library_queryset(event),
+            'tags': event.game_tags.all(),
+            'tag_form': EventGameTagForm(event=event),
+        })
+
+
+class EventManageGamesToggleView(EventManagerMixin, View):
+    """Show or hide the game library on the public event page."""
+
+    def post(self, request, slug):
+        event = self._get_event()
+        event.enable_public_games = request.POST.get('enabled') == 'on'
+        event.save(update_fields=['enable_public_games'])
+        if event.enable_public_games:
+            messages.success(request, _("The game library is now visible on the event page."))
+        else:
+            messages.success(request, _("The game library is now hidden from the event page."))
+        return redirect('event-manage-games', slug=slug)
+
+
+class EventManageGameAddView(EventManagerMixin, View):
+    template_name = 'events/event_manage_game_detail.html'
+
+    def get(self, request, slug):
+        event = self._get_event()
+        return render(request, self.template_name, {
+            'event': event, 'entry': None, 'form': EventGameForm(event=event), 'is_new': True,
+        })
+
+    def post(self, request, slug):
+        event = self._get_event()
+        form = EventGameForm(request.POST, event=event)
+        if form.is_valid():
+            entry = form.save(commit=False)
+            entry.event = event
+            entry.save()
+            form.save_m2m()
+            messages.success(request, _("Game «%(name)s» added to the library.") % {'name': entry.game.name})
+            if 'add_another' in request.POST:
+                return redirect('event-manage-game-add', slug=slug)
+            return redirect('event-manage-games', slug=slug)
+        return render(request, self.template_name, {
+            'event': event, 'entry': None, 'form': form, 'is_new': True,
+        })
+
+
+class EventManageGameDetailView(EventManagerMixin, View):
+    template_name = 'events/event_manage_game_detail.html'
+
+    def get(self, request, slug, game_uuid):
+        event = self._get_event()
+        entry = get_object_or_404(EventGame.objects.select_related('game'), uuid=game_uuid, event=event)
+        return render(request, self.template_name, {
+            'event': event, 'entry': entry, 'form': EventGameForm(instance=entry, event=event), 'is_new': False,
+        })
+
+    def post(self, request, slug, game_uuid):
+        event = self._get_event()
+        entry = get_object_or_404(EventGame.objects.select_related('game'), uuid=game_uuid, event=event)
+        form = EventGameForm(request.POST, instance=entry, event=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Game updated."))
+            return redirect('event-manage-games', slug=slug)
+        return render(request, self.template_name, {
+            'event': event, 'entry': entry, 'form': form, 'is_new': False,
+        })
+
+
+class EventManageGameDeleteView(EventManagerMixin, View):
+    def post(self, request, slug, game_uuid):
+        event = self._get_event()
+        entry = get_object_or_404(EventGame.objects.select_related('game'), uuid=game_uuid, event=event)
+        game_name = entry.game.name
+        entry.delete()
+        messages.success(request, _("Game «%(name)s» removed from the library.") % {'name': game_name})
+        return redirect('event-manage-games', slug=slug)
+
+
+class EventManageGameTagAddView(EventManagerMixin, View):
+    def post(self, request, slug):
+        event = self._get_event()
+        form = EventGameTagForm(request.POST, event=event)
+        if form.is_valid():
+            tag = form.save(commit=False)
+            tag.event = event
+            tag.order = (event.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
+            tag.save()
+            messages.success(request, _("Tag added."))
+        else:
+            messages.error(request, ' '.join(form.errors.get('name', [])))
+        return redirect('event-manage-games', slug=slug)
+
+
+class EventManageGameTagUpdateView(EventManagerMixin, View):
+    def post(self, request, slug, pk):
+        event = self._get_event()
+        tag = get_object_or_404(EventGameTag, pk=pk, event=event)
+        form = EventGameTagForm(request.POST, instance=tag, event=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Tag updated."))
+        else:
+            messages.error(request, ' '.join(form.errors.get('name', [])))
+        return redirect('event-manage-games', slug=slug)
+
+
+class EventManageGameTagDeleteView(EventManagerMixin, View):
+    def post(self, request, slug, pk):
+        event = self._get_event()
+        EventGameTag.objects.filter(pk=pk, event=event).delete()
+        messages.success(request, _("Tag removed."))
+        return redirect('event-manage-games', slug=slug)
+
+
+class EventManageGameTagsReorderView(EventManagerMixin, View):
+    def post(self, request, slug):
+        event = self._get_event()
+        try:
+            data = json.loads(request.body)
+            for item in data.get('tags', []):
+                EventGameTag.objects.filter(pk=item['id'], event=event).update(order=item['order'])
             return JsonResponse({'success': True})
         except Exception:
             return JsonResponse({'success': False}, status=400)

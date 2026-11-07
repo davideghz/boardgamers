@@ -475,7 +475,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    tracker = FieldTracker(fields=['status', 'leaderboard_status'])
+    tracker = FieldTracker(fields=['status', 'leaderboard_status', 'game'])
 
     def get_slug_source_value(self):
         if self.title:
@@ -1399,6 +1399,10 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     leaderboard_enabled = models.BooleanField(
         default=True, verbose_name=_('Leaderboard'),
         help_text=_('When off, the tables of this event have no leaderboard.'))
+    # Lets visitors browse the game library (EventGame) from the event page.
+    enable_public_games = models.BooleanField(
+        # DB-level default too, so code that predates this column can still insert events
+        default=False, db_default=False, verbose_name=_('Public game library'))
 
     _metadata = {
         'title': 'get_meta_title',
@@ -1578,6 +1582,47 @@ class EventTableCategory(DateTimeModel):
         verbose_name_plural = _('Event Table Categories')
         ordering = ['order', 'name']
         unique_together = [('event', 'name')]
+
+
+class EventGameTag(DateTimeModel):
+    """A label for the games of an event's library, defined by its managers.
+    Games with a tag flagged `show_on_event_page` are featured on the event page."""
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='game_tags', verbose_name=_('Event'))
+    name = models.CharField(max_length=64, verbose_name=_('Name'))
+    show_on_event_page = models.BooleanField(default=False, verbose_name=_('Show on the event page'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Event Game Tag')
+        verbose_name_plural = _('Event Game Tags')
+        ordering = ['order', 'name']
+        unique_together = [('event', 'name')]
+
+
+class EventGame(DateTimeModel):
+    """A game in an event's library, optionally brought by its sponsor locations."""
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='games', verbose_name=_('Event'))
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name='event_games', verbose_name=_('Game'))
+    tags = models.ManyToManyField(
+        EventGameTag, related_name='games', blank=True, verbose_name=_('Tags'))
+    sponsor_locations = models.ManyToManyField(
+        Location, related_name='event_games', blank=True, verbose_name=_('Sponsor locations'))
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
+
+    def __str__(self):
+        return f"{self.game.name} @ {self.event.name}"
+
+    class Meta:
+        verbose_name = _('Event Game')
+        verbose_name_plural = _('Event Games')
+        unique_together = [('event', 'game')]
+        ordering = ['game__name']
 
 
 class PhysicalTable(DateTimeModel):

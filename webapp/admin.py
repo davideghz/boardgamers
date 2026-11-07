@@ -12,7 +12,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant
+    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag
 from webapp.services import games as game_services
 from webapp.services.tables import sync_legacy_result
 
@@ -164,9 +164,11 @@ class GameAdmin(admin.ModelAdmin):
             result = game_services.merge_games(keeper, duplicate, choices)
             keeper.refresh_from_db()
             summary = _("Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library entries "
-                        "moved, %(merged)d library entries merged.") % {
+                        "moved, %(merged)d library entries merged, %(event_moved)d event library entries moved, "
+                        "%(event_merged)d event library entries merged.") % {
                 'dup': duplicate_repr, 'keeper': keeper, 'tables': result.tables_moved,
-                'moved': result.library_moved, 'merged': result.library_merged}
+                'moved': result.library_moved, 'merged': result.library_merged,
+                'event_moved': result.event_library_moved, 'event_merged': result.event_library_merged}
             self.log_change(request, keeper, summary)
             self.message_user(request, summary, level=messages.SUCCESS)
             return redirect('admin:webapp_game_change', keeper.pk)
@@ -195,6 +197,7 @@ class GameAdmin(admin.ModelAdmin):
             'rows': rows,
             'tables_to_move': Table.objects.filter(game=duplicate).count(),
             'library_to_move': LocationGame.objects.filter(game=duplicate).count(),
+            'event_library_to_move': EventGame.objects.filter(game=duplicate).count(),
             'library_conflicts': game_services.library_conflicts(keeper, duplicate),
             'different_bgg': bool(keeper.bgg_code and duplicate.bgg_code and keeper.bgg_code != duplicate.bgg_code),
             'or_flags': [(f, getattr(keeper, f) or getattr(duplicate, f)) for f in game_services.OR_FLAGS],
@@ -338,6 +341,23 @@ class EventAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
             _participant_count=models.Count('participants', distinct=True))
+
+
+@admin.register(EventGameTag)
+class EventGameTagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'event', 'show_on_event_page', 'order')
+    list_filter = ('show_on_event_page',)
+    search_fields = ('name', 'event__name')
+    autocomplete_fields = ('event',)
+
+
+@admin.register(EventGame)
+class EventGameAdmin(admin.ModelAdmin):
+    list_display = ('game', 'event', 'created_at')
+    search_fields = ('game__name', 'event__name')
+    autocomplete_fields = ('event', 'game')
+    filter_horizontal = ('tags', 'sponsor_locations')
+    readonly_fields = ('uuid', 'created_at', 'updated_at')
 
 
 @admin.register(PhysicalTable)
