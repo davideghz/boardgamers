@@ -44,7 +44,15 @@
   </script>
 
   {# ── ROOT WRAPPER ────────────────────────────────────────────────── #}
-  <div style="--sidebar-width:16rem; --sidebar-width-icon:3rem">
+  <script>
+    // Before the sidebar is painted, so that it doesn't open and close on every page.
+    try {
+      if (localStorage.getItem('bgSidebarCollapsed') === 'true') {
+        document.documentElement.classList.add('sidebar-collapsed');
+      }
+    } catch (e) {}
+  </script>
+  <div>
     <div class="min-h-screen flex w-full bg-background">
 
       {# ── DESKTOP SIDEBAR (fixed) ────────────────────────────────── #}
@@ -62,32 +70,25 @@
             <img src="{% static 'images/logo/board-gamers-mark.svg' %}" alt="" width="24" height="24" class="w-6 h-6 flex-shrink-0">
             <span class="sidebar-text">Board Gamers</span>
           </a>
-          <button id="sidebar-toggle"
+          <button id="sidebar-toggle" type="button" aria-label="{% trans "Toggle sidebar" %}"
                   class="p-1.5 rounded-md text-content-muted hover:text-content hover:bg-surface-input transition-colors flex-shrink-0">
             {# chevron-left = expanded state (click to collapse) #}
-            <span id="sidebar-icon-expanded">
+            <span class="sidebar-icon-expanded">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
             </span>
             {# chevron-right = collapsed state (click to expand) #}
-            <span id="sidebar-icon-collapsed" style="display:none">
+            <span class="sidebar-icon-collapsed">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
             </span>
           </button>
         </div>
 
         {# Content #}
-        <div class="flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden px-3 pb-3">
-
-          {# Logo icon shown only when collapsed #}
-          <div id="sidebar-collapsed-logo" class="flex justify-center py-1" style="display:none">
-            <a href="{% url 'home' %}" class="text-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-            </a>
-          </div>
+        <div id="sidebar-content" class="flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden px-3 pb-3">
 
           {# CTA #}
           <div class="mb-1">
-            <a id="sidebar-cta" href="{% url 'locations-index' %}?new_table=1"
+            <a id="sidebar-cta" href="{% url 'locations-index' %}?new_table=1" data-label="{% trans "New table" %}"
                class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
               <span class="sidebar-text">{% trans "New table" %}</span>
@@ -195,14 +196,14 @@
         </div>
 
         {# Footer: account + logout + language #}
-        <div class="border-t border-divider p-3 flex-shrink-0">
+        <div id="sidebar-footer" class="border-t border-divider p-3 flex-shrink-0">
           <ul class="flex flex-col gap-0.5 list-none">
             {% if user.is_authenticated %}
               <li>
-                <div class="flex items-center rounded-lg {% if request.resolver_match.url_name == 'account-index' %}bg-surface-input{% endif %}">
+                <div id="sidebar-account" class="flex items-center rounded-lg {% if request.resolver_match.url_name == 'account-index' %}bg-surface-input{% endif %}">
                   <a href="{% url 'account-index' %}"
                      data-label="{{ user.user_profile.nickname }}"
-                     class="sidebar-nav-link flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors
+                     class="sidebar-nav-link flex-1 min-w-0 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
                             {% if request.resolver_match.url_name == 'account-index' %}text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                     {% if user.user_profile.avatar %}
                       <img src="{{ user.user_profile.avatar.url }}" alt="{{ user.user_profile.nickname }}"
@@ -216,7 +217,7 @@
                   </a>
                   <a href="{% url 'account-notifications' %}"
                      title="{% trans "Notifications" %}"
-                     class="sidebar-text relative flex-shrink-0 p-2 mr-1 rounded-md transition-colors
+                     class="sidebar-notifications relative flex-shrink-0 p-2 mr-1 rounded-md transition-colors
                             {% if request.resolver_match.url_name == 'account-notifications' %}text-content bg-surface-input{% else %}text-content-muted hover:text-content hover:bg-surface-input{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
                     {% if unread_notifications_count > 0 %}
@@ -486,49 +487,22 @@
     })();
 
     // ── Desktop sidebar collapse ───────────────────────────────────────
-    const sidebarFixed         = document.getElementById('sidebar-fixed');
-    const sidebarSpacer        = document.getElementById('sidebar-spacer');
-    const sidebarLogo          = document.getElementById('sidebar-logo');
-    const sidebarHeader        = document.getElementById('sidebar-header');
-    const sidebarCollapsedLogo = document.getElementById('sidebar-collapsed-logo');
-    const sidebarCta           = document.getElementById('sidebar-cta');
-    const toggleBtn            = document.getElementById('sidebar-toggle');
-    const sidebarIconExpanded  = document.getElementById('sidebar-icon-expanded');
-    const sidebarIconCollapsed = document.getElementById('sidebar-icon-collapsed');
-    const STORAGE_KEY          = 'bgSidebarCollapsed';
+    const toggleBtn   = document.getElementById('sidebar-toggle');
+    const STORAGE_KEY = 'bgSidebarCollapsed';
 
     function setSidebar(collapsed) {
-      const w = collapsed ? '3rem' : '16rem';
-      sidebarFixed.style.width  = w;
-      sidebarSpacer.style.width = w;
-
-      document.querySelectorAll('.sidebar-text').forEach(el => {
-        el.style.display = collapsed ? 'none' : '';
+      document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+      // Tooltips: with the labels hidden, they are the only text left.
+      document.querySelectorAll('#sidebar-fixed .sidebar-nav-link, #sidebar-cta').forEach(el => {
+        el.title = collapsed ? (el.dataset.label || '') : '';
       });
-
-      if (sidebarLogo)   sidebarLogo.style.display = collapsed ? 'none' : '';
-      if (sidebarHeader) sidebarHeader.style.justifyContent = collapsed ? 'center' : '';
-      if (sidebarCollapsedLogo) sidebarCollapsedLogo.style.display = collapsed ? 'flex' : 'none';
-
-      document.querySelectorAll('.sidebar-nav-link').forEach(el => {
-        el.style.justifyContent = collapsed ? 'center' : '';
-        el.style.gap            = collapsed ? '0' : '';
-        el.title                = collapsed ? (el.dataset.label || '') : '';
-      });
-
-      if (sidebarCta) sidebarCta.style.gap = collapsed ? '0' : '';
-
-      if (sidebarIconExpanded)  sidebarIconExpanded.style.display  = collapsed ? 'none' : '';
-      if (sidebarIconCollapsed) sidebarIconCollapsed.style.display = collapsed ? '' : 'none';
-
-      localStorage.setItem(STORAGE_KEY, collapsed);
+      try { localStorage.setItem(STORAGE_KEY, collapsed); } catch (e) {}
     }
 
     if (toggleBtn) {
-      const saved = localStorage.getItem(STORAGE_KEY) === 'true';
-      setSidebar(saved);
+      setSidebar(document.documentElement.classList.contains('sidebar-collapsed'));
       toggleBtn.addEventListener('click', () =>
-        setSidebar(!(sidebarFixed.style.width === '3rem'))
+        setSidebar(!document.documentElement.classList.contains('sidebar-collapsed'))
       );
     }
 
