@@ -59,7 +59,7 @@
         <div id="sidebar-header" class="flex items-center justify-between p-3 flex-shrink-0">
           <a id="sidebar-logo" href="{% url 'home' %}"
              class="flex items-center gap-2 text-content font-extrabold text-lg px-1 overflow-hidden whitespace-nowrap">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            <img src="{% static 'images/logo/board-gamers-mark.svg' %}" alt="" width="24" height="24" class="w-6 h-6 flex-shrink-0">
             <span class="sidebar-text">Board Gamers</span>
           </a>
           <button id="sidebar-toggle"
@@ -285,7 +285,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
           </button>
           <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-content text-base">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            <img src="{% static 'images/logo/board-gamers-mark.svg' %}" alt="" width="24" height="24" class="w-6 h-6 flex-shrink-0">
             Board Gamers
           </a>
           {% if user.is_authenticated %}
@@ -311,7 +311,7 @@
              style="transform:translateX(-100%); transition:transform .2s ease">
           <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
             <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-content text-base">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+              <img src="{% static 'images/logo/board-gamers-mark.svg' %}" alt="" width="24" height="24" class="w-6 h-6 flex-shrink-0">
               Board Gamers
             </a>
             <button onclick="closeMobileSidebar()" class="p-2 rounded-md text-content-muted hover:bg-surface-input">

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="245 245 1440 1440" role="img" aria-label="Board Gamers">
+  <title>Board Gamers</title>
+  <!-- Simplified die for small sizes: favicon and header logo. Full version: board-gamers-dice.svg -->
+  <path fill="#171F3A" d="M880 295Q965 245 1050 295L1500 552Q1586 602 1586 705L1586 1225Q1586 1325 1500 1375L1050 1633Q965 1683 880 1633L430 1375Q345 1325 345 1225L345 705Q345 602 430 552Z"/>
+  <g stroke-width="40" stroke-linejoin="round">
+    <path fill="#EAF2F1" stroke="#EAF2F1" d="M965 354L1440 630L965 902L490 630Z"/>
+    <path fill="#D3E2E3" stroke="#D3E2E3" d="M435 724L910 996L910 1544L435 1268Z"/>
+    <path fill="#AEBCBC" stroke="#AEBCBC" d="M1495 724L1020 996L1020 1544L1495 1268Z"/>
+  </g>
+  <g fill="#171F3A">
+    <ellipse cx="965" cy="628" rx="125" ry="75"/>
+    <ellipse cx="560" cy="935" rx="75" ry="120" transform="rotate(-30 560 935)"/>
+    <ellipse cx="790" cy="1305" rx="75" ry="120" transform="rotate(-30 790 1305)"/>
+    <ellipse cx="1385" cy="925" rx="62" ry="100" transform="rotate(30 1385 925)"/>
+    <ellipse cx="1257" cy="1132" rx="62" ry="100" transform="rotate(30 1257 1132)"/>
+    <ellipse cx="1130" cy="1340" rx="62" ry="100" transform="rotate(30 1130 1340)"/>
+  </g>
+</svg>
