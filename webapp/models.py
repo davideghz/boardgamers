@@ -78,13 +78,18 @@ class SlugModel(models.Model):
     def create_unique_slug(self):
         # Titles made only of emoji or non-latin characters slugify to '', which breaks reverse()
         base_slug = slugify(self.get_slug_source_value()) or self._meta.model_name
+        # Names can be longer than the slug column: truncate, leaving room for
+        # the random suffix when one is needed, or Postgres raises DataError.
+        max_length = self._meta.get_field('slug').max_length
+        base_slug = base_slug[:max_length].rstrip('-')
         qs = self.__class__.objects.filter(slug=base_slug)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
         if not qs.exists():
             return base_slug
+        prefix = base_slug[:max_length - self.random_string_length - 1].rstrip('-')
         while True:
-            candidate = f"{base_slug}-{self.generate_random_string()}"
+            candidate = f"{prefix}-{self.generate_random_string()}"
             if not self.__class__.objects.filter(slug=candidate).exclude(pk=self.pk or 0).exists():
                 return candidate
 
