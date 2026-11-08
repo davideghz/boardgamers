@@ -306,6 +306,8 @@ DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 # EMAILS
 ENABLE_EMAIL_SIGNALS = True
 DEFAULT_FROM_EMAIL = "Board-Gamers <info@board-gamers.com>"
+# Receives the admin notifications (new events to approve). Empty = none sent.
+ADMIN_PERSONAL_EMAIL = env('ADMIN_PERSONAL_EMAIL', default='')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
