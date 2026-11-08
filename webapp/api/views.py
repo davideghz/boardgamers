@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from django.db.models import Case, When
 from django.utils.timezone import now
 from webapp.models import Table, Location, Game
 from webapp.api.serializers import TableSerializer
@@ -57,7 +58,7 @@ def tables_by_location_view(request, location_slugs):
 
 @api_view(['GET'])
 def bgg_search_view(request):
-    """Search games in local DB only. Fast path — excludes known expansions."""
+    """Search games in the local DB only. The modal calls BGG (below) only on demand."""
     if not request.user.is_authenticated:
         return Response({'error': 'Authentication required'}, status=401)
 
@@ -65,7 +66,12 @@ def bgg_search_view(request):
     if len(query) < 2:
         return Response({'local': []})
 
-    local_qs = Game.objects.filter(name__icontains=query).order_by('name')[:8]
+    # Names starting with the query first, then the other matches
+    local_qs = (
+        Game.objects.filter(name__icontains=query)
+        .annotate(prefix_match=Case(When(name__istartswith=query, then=0), default=1))
+        .order_by('prefix_match', 'name')[:15]
+    )
     local_data = [
         {'id': g.id, 'name': g.name, 'year_published': g.year_published,
          'min_players': g.min_players, 'max_players': g.max_players}
@@ -76,7 +82,7 @@ def bgg_search_view(request):
 
 @api_view(['GET'])
 def bgg_search_external_view(request):
-    """Search BGG, classify via batch /thing, save stubs for non-expansions, return filtered results."""
+    """Search BGG on demand, classify via batch /thing and drop expansions."""
     if not request.user.is_authenticated:
         return Response({'error': 'Authentication required'}, status=401)
 
@@ -88,28 +94,31 @@ def bgg_search_external_view(request):
         bgg_results = search_bgg(query)
     except Exception as e:
         logger.warning(f'BGG search failed for query="{query}": {e}')
-        return Response({'bgg': []})
+        return Response({'bgg': [], 'error': 'unavailable'})
 
     bgg_results = bgg_results[:20]
 
-    # Split into known (already in DB) vs unknown (need /thing)
+    # Games already in the DB are returned with their id, so they can be picked
+    # directly: BGG also matches alternate names (e.g. Italian titles) that the
+    # local search misses. Only the unknown ones need the /thing classification.
     search_bgg_ids = [r['bgg_id'] for r in bgg_results]
-    existing_codes = set(
-        Game.objects.filter(bgg_code__in=search_bgg_ids).values_list('bgg_code', flat=True)
-    )
-    unknown_ids = [bid for bid in search_bgg_ids if bid not in existing_codes]
+    existing = {g.bgg_code: g for g in Game.objects.filter(bgg_code__in=search_bgg_ids)}
+    unknown_ids = [bid for bid in search_bgg_ids if bid not in existing]
 
     # Batch classify unknowns
     classifications = fetch_bgg_classifications(unknown_ids) if unknown_ids else {}
 
-    # Return only non-expansions not already shown in local results
+    # Drop expansions
     bgg_data = []
     for r in bgg_results:
-        if r['bgg_id'] in existing_codes:
-            continue
-        info = classifications.get(r['bgg_id'])
-        if info is not None and info['is_expansion']:
-            continue
+        game = existing.get(r['bgg_id'])
+        if game:
+            r.update({'id': game.id, 'name': game.name, 'year_published': game.year_published,
+                      'min_players': game.min_players, 'max_players': game.max_players})
+        else:
+            info = classifications.get(r['bgg_id'])
+            if info is not None and info['is_expansion']:
+                continue
         bgg_data.append(r)
 
     return Response({'bgg': bgg_data[:15]})

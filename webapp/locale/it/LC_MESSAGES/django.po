@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 22:10+0100\n"
+"POT-Creation-Date: 2026-11-08 22:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -937,14 +937,26 @@ msgstr "Inserisci almeno 2 caratteri"
 msgid "Searching..."
 msgstr "Ricerca in corso..."
 
-msgid "Import from BGG"
-msgstr "Importa da BGG"
+msgid "Not finding it?"
+msgstr "Non lo trovi?"
+
+msgid "Search on BoardGameGeek"
+msgstr "Cerca su BoardGameGeek"
+
+msgid "No games found on board-gamers"
+msgstr "Nessun gioco trovato su board-gamers"
+
+msgid "Already on board-gamers"
+msgstr "Già su board-gamers"
 
 msgid "Searching BoardGameGeek..."
 msgstr "Cercando su BoardGameGeek..."
 
-msgid "Already on board-gamers"
-msgstr "Già su board-gamers"
+msgid "BoardGameGeek is not responding. Please try again later."
+msgstr "BoardGameGeek non risponde. Riprova più tardi."
+
+msgid "No other games found on BoardGameGeek"
+msgstr "Nessun altro gioco trovato su BoardGameGeek"
 
 msgid "Import failed. Please try again."
 msgstr "Importazione fallita. Riprova."
@@ -4470,6 +4482,7 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
 
 #~ msgid ""
 #~ "The library is public. Games with a tag flagged for the event page are "
