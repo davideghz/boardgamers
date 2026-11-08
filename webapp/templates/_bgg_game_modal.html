@@ -134,56 +134,75 @@
       + '</button>';
   }
 
-  function bggLoadingSection() {
-    return '<div id="bgg-external-loading" class="mt-4">'
-      + sectionTitle('{% trans "Import from BGG" %}')
-      + '<div class="flex items-center gap-2 py-4 text-slate-400">'
-      + '<svg class="animate-spin w-4 h-4 text-blue-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>'
-      + '<span class="text-xs">{% trans "Searching BoardGameGeek..." %}</span>'
-      + '</div></div>';
+  var spinnerSvg = '<svg class="animate-spin w-4 h-4 text-blue-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+
+  function localRow(g) {
+    localGamesById[g.id] = {min_players: g.min_players, max_players: g.max_players};
+    return makeRow(g.name, g.year_published, 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
   }
 
-  function renderLocalResults(localData, hasMore) {
+  // BGG is searched only on demand: a discreet link under the local results,
+  // a prominent button when the local DB has nothing.
+  function bggSearchSection(hasLocal) {
+    var html = '<div id="bgg-external" class="mt-4">';
+    if (hasLocal) {
+      html += '<p class="text-center text-xs text-content-muted py-2">{% trans "Not finding it?" %} '
+        + '<button type="button" onclick="bggSearchExternal()" class="font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">{% trans "Search on BoardGameGeek" %}</button></p>';
+    } else {
+      html += '<div class="flex flex-col items-center gap-3 py-8">'
+        + '<p class="text-sm text-content-muted">{% trans "No games found on board-gamers" %}</p>'
+        + '<button type="button" onclick="bggSearchExternal()" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 border-0 cursor-pointer transition-colors">{% trans "Search on BoardGameGeek" %}</button>'
+        + '</div>';
+    }
+    return html + '</div>';
+  }
+
+  function renderLocalResults(localData) {
     var html = '';
     localGamesById = {};
     if (localData && localData.length) {
       html += sectionTitle('{% trans "Already on board-gamers" %}');
-      localData.forEach(function (g) {
-        localGamesById[g.id] = {min_players: g.min_players, max_players: g.max_players};
-        html += makeRow(g.name, g.year_published, 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
-      });
+      localData.forEach(function (g) { html += localRow(g); });
     }
-    if (hasMore) {
-      html += bggLoadingSection();
-    }
-    if (!html) {
-      html = '<div id="bgg-no-local"></div>' + bggLoadingSection();
-    }
+    html += bggSearchSection(!!html);
     resultsList.innerHTML = html;
     showResults();
   }
 
-  function renderBggResults(bggData, token) {
+  window.bggSearchExternal = function () {
+    var externalEl = document.getElementById('bgg-external');
+    var q = input.value.trim();
+    if (!externalEl || q.length < 2) return;
+    var token = searchToken;  // a new keystroke makes this response stale
+    externalEl.innerHTML = sectionTitle('BoardGameGeek')
+      + '<div class="flex items-center gap-2 py-4 text-content-muted">' + spinnerSvg
+      + '<span class="text-xs">{% trans "Searching BoardGameGeek..." %}</span></div>';
+    fetch('/api/bgg/search/external/?q=' + encodeURIComponent(q))
+      .then(function (r) { return r.json(); })
+      .then(function (data) { renderBggResults(data, token); })
+      .catch(function () { renderBggResults({bgg: [], error: 'unavailable'}, token); });
+  };
+
+  function renderBggResults(data, token) {
     if (token !== searchToken) return;  // stale response, discard
-    var externalEl = document.getElementById('bgg-external-loading');
+    var externalEl = document.getElementById('bgg-external');
     if (!externalEl) return;
 
-    if (!bggData || !bggData.length) {
-      // If also no local results, show empty state
-      var noLocal = document.getElementById('bgg-no-local');
-      if (noLocal && !noLocal.previousElementSibling) {
-        externalEl.remove();
-        if (!resultsList.querySelector('button')) showEmpty();
-      } else {
-        externalEl.remove();
-      }
+    // Skip the games already listed among the local results
+    var games = (data.bgg || []).filter(function (g) { return !(g.id && localGamesById[g.id]); });
+    var html = sectionTitle('BoardGameGeek');
+    if (!games.length) {
+      html += '<p class="text-center text-sm text-content-muted py-6">'
+        + (data.error ? '{% trans "BoardGameGeek is not responding. Please try again later." %}' : '{% trans "No other games found on BoardGameGeek" %}')
+        + '</p>';
+      externalEl.innerHTML = html;
       return;
     }
-
-    var html = sectionTitle('{% trans "Import from BGG" %}');
     html += '<div class="space-y-2">';
-    bggData.forEach(function (g) {
-      html += makeRow(g.name, g.year_published, 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
+    games.forEach(function (g) {
+      // Games already imported (matched by an alternate name) are picked directly
+      html += g.id ? localRow(g)
+        : makeRow(g.name, g.year_published, 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
     });
     html += '</div>';
     externalEl.innerHTML = html;
@@ -216,26 +235,18 @@
   input.addEventListener('input', function () {
     clearTimeout(debounceTimer);
     var q = input.value.trim();
+    searchToken++;  // discard any response still in flight for the previous text
     if (q.length < 2) { showEmpty(); return; }
     showLoading();
     debounceTimer = setTimeout(function () {
       var token = ++searchToken;
-      var encoded = encodeURIComponent(q);
-
-      // Fast: local DB results
-      fetch('/api/bgg/search/?q=' + encoded)
+      fetch('/api/bgg/search/?q=' + encodeURIComponent(q))
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (token !== searchToken) return;
-          renderLocalResults(data.local, true);
+          renderLocalResults(data.local);
         })
         .catch(function () { if (token === searchToken) showEmpty(); });
-
-      // Slow: external BGG results
-      fetch('/api/bgg/search/external/?q=' + encoded)
-        .then(function (r) { return r.json(); })
-        .then(function (data) { renderBggResults(data.bgg, token); })
-        .catch(function () { renderBggResults([], token); });
     }, 350);
   });
 })();
