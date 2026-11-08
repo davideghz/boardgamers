@@ -51,6 +51,35 @@ def send_admin_contact_message(cleaned_data):
     )
 
 
+def send_admin_notification_new_event(event):
+    """
+    Sends an email to the admin about a newly created event, which waits for approval.
+
+    :param event: The new Event instance.
+    """
+    if not settings.ADMIN_PERSONAL_EMAIL:
+        return
+    context = {
+        'name': event.name,
+        'city': event.city,
+        'creator': event.creator.nickname if event.creator else '',
+        'event_href': settings.DOMAIN_URL + reverse('event_detail', kwargs={'slug': event.slug}),
+        'button_href': settings.DOMAIN_URL + reverse('admin:webapp_event_change', args=[event.pk]),
+    }
+    # The admin reads it in the site's default language, whatever the creator's.
+    with translation.override(settings.LANGUAGE_CODE):
+        subject = f"{messages.EMAIL_SUBJECT_NEW_EVENT}: {event.name}"
+        text_content = render_to_string('emails/email_admin_new_event.html', context=context)
+        html_content = render_to_string('emails/email_admin_new_event_html.html', context=context)
+    send_mail(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.ADMIN_PERSONAL_EMAIL],
+        html_message=html_content,
+    )
+
+
 def send_notification_new_table(user_profile, new_table):
     if not user_profile.user.email:
         return

@@ -1,0 +1,12 @@
+{% load i18n %}
+
+{% trans "A new event is waiting for approval" %}:
+
+{{ name }}{% if city %} ({{ city }}){% endif %}
+{% trans "Created by" %}: {{ creator }}
+
+{{ event_href }}
+
+{% trans "Approve it from the admin" %}: {{ button_href }}
+
+Board-Gamers.com

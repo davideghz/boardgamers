@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 from collections import defaultdict
 from itertools import groupby
 
@@ -18,6 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
 
+from webapp import emails
 from webapp.forms import (
     EventTableForm, EventForm, EventManageDataForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
@@ -31,6 +33,8 @@ from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Locat
 from webapp.services.event_games import attach_booking_dates, featured_games, library_queryset
 from webapp.views.table_views import BaseTableDetailView
 
+logger = logging.getLogger(__name__)
+
 
 class EventCreateView(LoginRequiredMixin, CreateView):
     model = Event
@@ -40,6 +44,11 @@ class EventCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.creator = self.request.user.user_profile
         response = super().form_valid(form)
+        # The event is already saved: a mail error must not turn it into a 500.
+        try:
+            emails.send_admin_notification_new_event(self.object)
+        except Exception:
+            logger.exception("Could not notify the admin about event %s", self.object.pk)
         messages.success(self.request, _("Event created! It will be published once approved by an admin."))
         return response
 

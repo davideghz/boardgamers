@@ -1,0 +1,23 @@
+{% extends "emails/base/base_email_html.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% trans "A new event is waiting for approval" %}
+{% endblock title %}
+
+{% block main_content %}
+    <strong>{% trans "Event" %}</strong><br>
+    <a href="{{ event_href }}">{{ name }}</a>{% if city %} ({{ city }}){% endif %}<br><br>
+
+    <strong>{% trans "Created by" %}</strong><br>
+    {{ creator }}
+{% endblock main_content %}
+
+{% block cta_label %}
+  {% trans "Open in the admin" %}
+{% endblock cta_label %}
+
+{% block cta_href %}
+  {{ button_href }}
+{% endblock cta_href %}
