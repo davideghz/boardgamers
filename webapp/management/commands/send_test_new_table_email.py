@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.utils.html import escape
 import boto3
 
+from webapp.management.commands.send_queued_notifications import _html_and_text
+
 
 class Command(BaseCommand):
     help = (
@@ -95,18 +97,20 @@ class Command(BaseCommand):
         description = '' if opts['no_description'] else opts['description']
         now = timezone.localtime()
 
-        template_data = {
-            'name': opts['name'],
-            'title': opts['title'],
-            'game': game,
-            'creator_name': opts['creator'],
-            'location_name': opts['location'],
+        template_data = _html_and_text(
+            name=opts['name'],
+            title=opts['title'],
+            game=game,
+            creator_name=opts['creator'],
+            location_name=opts['location'],
+        )
+        template_data.update({
             'date': now.strftime('%d/%m/%Y'),
             'time': now.strftime('%H:%M'),
             'description': escape(description).replace('\n', '<br>') if description else '',
             'description_text': description,
             'button_href': settings.DOMAIN_URL + '/tables/serata-giochi',
-        }
+        })
 
         # 3) Diagnostica: chiedi a SES di renderizzare il template. Se il rendering
         #    fallisce (es. condizionali non supportati) qui vediamo l'errore esatto,
