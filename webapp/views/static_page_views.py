@@ -228,6 +228,58 @@ def about(request):
     })
 
 
+# Logo files offered for download on the press page, all in static/images/logo/.
+PRESS_LOGOS = [
+    {'title': _("Horizontal logo"), 'note': _("The main logo, for headers, articles and websites."),
+     'preview': 'board-gamers-logo.svg', 'dark': False,
+     'files': [('SVG', 'board-gamers-logo.svg')]},
+    {'title': _("Horizontal logo, dark backgrounds"), 'note': _("Same size as the light version: the two are interchangeable."),
+     'preview': 'board-gamers-logo-dark.svg', 'dark': True,
+     'files': [('SVG', 'board-gamers-logo-dark.svg')]},
+    {'title': _("Square logo"), 'note': _("For posters, flyers and partner pages."),
+     'preview': 'board-gamers-logo-square.svg', 'dark': False,
+     'files': [('SVG', 'board-gamers-logo-square.svg')]},
+    {'title': _("Square logo, dark backgrounds"), 'note': _("Same size as the light version: the two are interchangeable."),
+     'preview': 'board-gamers-logo-square-dark.svg', 'dark': True,
+     'files': [('SVG', 'board-gamers-logo-square-dark.svg')]},
+    {'title': _("Avatar"), 'note': _("For profile pictures: it stays whole when cropped to a circle."),
+     'preview': 'board-gamers-avatar.svg', 'dark': False,
+     'files': [('SVG', 'board-gamers-avatar.svg'), ('PNG', 'board-gamers-avatar-512.png')]},
+    {'title': _("Avatar, dark background"), 'note': _("For profile pictures: it stays whole when cropped to a circle."),
+     'preview': 'board-gamers-avatar-dark.svg', 'dark': True,
+     'files': [('SVG', 'board-gamers-avatar-dark.svg'), ('PNG', 'board-gamers-avatar-dark-512.png')]},
+    {'title': _("Symbol"), 'note': _("The die alone, for when the name is already next to it."),
+     'preview': 'board-gamers-dice.svg', 'dark': False,
+     'files': [('SVG', 'board-gamers-dice.svg')]},
+    {'title': _("Symbol, small sizes"), 'note': _("Simplified die, for sizes under 40 pixels."),
+     'preview': 'board-gamers-mark.svg', 'dark': False,
+     'files': [('SVG', 'board-gamers-mark.svg')]},
+]
+
+PRESS_COLORS = [
+    (_("Navy"), '#171F3A', _("Text and outline of the logo")),
+    (_("Die"), '#E6EFEE', _("Faces of the die")),
+    (_("Blue"), '#2563EB', _("Links and buttons on the website")),
+    (_("Night"), '#0B1120', _("Background of the dark theme")),
+]
+
+
+def press(request):
+    return render(request, 'staticpages/press.html', {
+        'logos': PRESS_LOGOS,
+        'colors': PRESS_COLORS,
+        'stats': {
+            'locations': Location.objects.count(),
+            'tables': Table.objects.count(),
+            'players': UserProfile.objects.count(),
+        },
+        'meta': Meta(
+            title=_("Press kit - Board-Gamers.com"),
+            description=_("Logos, colors and information for writing about Board-Gamers.com."),
+        ),
+    })
+
+
 def select_language(request):
     next_param = request.GET.get("next")  # es. "/tables/..." oppure None
 

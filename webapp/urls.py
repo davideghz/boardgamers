@@ -23,6 +23,7 @@ urlpatterns = [
     path("terms", static_page_views.terms, name="terms"),
     path("contacts", static_page_views.contacts, name="contacts"),
     path("about", static_page_views.about, name="about"),
+    path("press", static_page_views.press, name="press"),
     path("select-language", static_page_views.select_language, name="select-language"),
 
     # TABLE

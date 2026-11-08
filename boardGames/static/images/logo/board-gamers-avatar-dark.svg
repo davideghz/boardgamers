@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.2 -0.3 1930.6 1930.6" role="img" aria-label="Board Gamers">
+  <title>Board Gamers</title>
+  <!-- Avatar: the die fits inside the inscribed circle, for round crops. -->
+  <rect x="0.2" y="-0.3" width="1930.6" height="1930.6" fill="#171F3A"/>
+  <g transform="translate(965.5 965) scale(0.9568) translate(-965.5 -965)">
+  <defs>
+    <path id="face-top" d="M900 333Q965 300 1030 333L1472 590Q1505 618 1472 646L1030 903Q965 936 900 903L458 646Q425 618 458 590Z"/>
+    <path id="face-left" d="M452 694L922 968Q942 982 942 1005L942 1550Q935 1600 883 1585L458 1338Q391 1298 391 1225L391 730Q400 680 452 694Z"/>
+    <path id="face-right" d="M1478 694L1008 968Q988 982 988 1005L988 1550Q995 1600 1047 1585L1472 1338Q1539 1298 1539 1225L1539 730Q1530 680 1478 694Z"/>
+    <clipPath id="clip-top"><use href="#face-top"/></clipPath>
+    <clipPath id="clip-left"><use href="#face-left"/></clipPath>
+    <clipPath id="clip-right"><use href="#face-right"/></clipPath>
+  </defs>
+
+  <!-- Outline -->
+  <path fill="none" stroke="#E6EFEE" stroke-width="56" stroke-linejoin="round" d="M880 295Q965 245 1050 295L1500 552Q1586 602 1586 705L1586 1225Q1586 1325 1500 1375L1050 1633Q965 1683 880 1633L430 1375Q345 1325 345 1225L345 705Q345 602 430 552Z"/>
+  <path fill="#171F3A" d="M880 295Q965 245 1050 295L1500 552Q1586 602 1586 705L1586 1225Q1586 1325 1500 1375L1050 1633Q965 1683 880 1633L430 1375Q345 1325 345 1225L345 705Q345 602 430 552Z"/>
+
+  <!-- Faces -->
+  <use href="#face-top" fill="#E6EFEE"/>
+  <use href="#face-left" fill="#D3E2E3"/>
+  <use href="#face-right" fill="#B5C2C2"/>
+
+  <!-- Shading -->
+  <path clip-path="url(#clip-top)" fill="#D3E2E3" d="M1270 475Q1380 570 1435 672L1530 640L1400 500Z"/>
+  <path clip-path="url(#clip-left)" fill="#BFCCCC" d="M745 1510Q850 1548 942 1550L942 1620L780 1620Z"/>
+  <path clip-path="url(#clip-right)" fill="#9CA8A8" d="M1442 680L1442 1110Q1442 1250 1340 1330Q1100 1530 988 1548L988 1620L1560 1620L1560 680Z"/>
+
+  <!-- Highlights -->
+  <g fill="#FFFFFF">
+    <path d="M930 365Q970 345 1010 365L1095 408Q1112 425 1095 433Q900 450 705 519Q685 515 697 497Z"/>
+    <ellipse cx="650" cy="534" rx="17" ry="15" transform="rotate(-25 650 534)"/>
+    <path d="M405 738Q410 705 448 716L533 767Q543 782 530 788Q450 805 430 985Q418 1000 408 985Z"/>
+    <circle cx="420" cy="1045" r="15"/>
+  </g>
+
+  <!-- Pips -->
+  <g fill="#171F3A">
+    <ellipse cx="965" cy="620" rx="88" ry="52"/>
+    <g id="pips-left">
+      <ellipse cx="532" cy="917" rx="49" ry="85" transform="rotate(-30 532 917)"/>
+      <ellipse cx="790" cy="1067" rx="49" ry="85" transform="rotate(-30 790 1067)"/>
+      <ellipse cx="660" cy="1135" rx="49" ry="85" transform="rotate(-30 660 1135)"/>
+      <ellipse cx="531" cy="1214" rx="49" ry="85" transform="rotate(-30 531 1214)"/>
+      <ellipse cx="789" cy="1363" rx="49" ry="85" transform="rotate(-30 789 1363)"/>
+    </g>
+    <ellipse cx="1399" cy="917" rx="49" ry="85" transform="rotate(30 1399 917)"/>
+    <ellipse cx="1270" cy="1135" rx="49" ry="85" transform="rotate(30 1270 1135)"/>
+    <ellipse cx="1141" cy="1363" rx="49" ry="85" transform="rotate(30 1141 1363)"/>
+  </g>
+</g>
+</svg>

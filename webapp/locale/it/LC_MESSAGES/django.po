@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 22:50+0100\n"
+"POT-Creation-Date: 2026-11-08 23:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1544,9 +1544,6 @@ msgstr "Modalità chiara"
 msgid "Language"
 msgstr "Lingua"
 
-msgid "Add your location"
-msgstr "Aggiungi la tua location"
-
 msgid "Privacy"
 msgstr "Privacy"
 
@@ -1555,6 +1552,9 @@ msgstr "Termini"
 
 msgid "Contacts"
 msgstr "Contatti"
+
+msgid "Press"
+msgstr "Press"
 
 msgid "You can manage your email notification preferences in your profile"
 msgstr "Puoi gestire le tue preferenze di notifica email nel tuo profilo"
@@ -2951,7 +2951,7 @@ msgid "Post a button that opens the booking app."
 msgstr "Pubblica un bottone che apre l’app di prenotazione."
 
 msgid "Copied"
-msgstr "Copiato!"
+msgstr "Copiato"
 
 msgid "Generating…"
 msgstr "Generazione in corso…"
@@ -3443,6 +3443,74 @@ msgstr "Iscriviti gratis"
 
 msgid "Discover more"
 msgstr "Più info"
+
+msgid "Press kit"
+msgstr "Kit per la stampa"
+
+msgid ""
+"Logos, colors and information for writing about Board-Gamers.com. Everything "
+"here is free to use to talk about the platform."
+msgstr "Loghi, colori e informazioni per scrivere di Board-Gamers.com. Puoi usare liberamente tutto il materiale per parlare della piattaforma."
+
+msgid "In a few words"
+msgstr "In poche parole"
+
+msgid ""
+"Board-Gamers.com is a free, open source platform for board game clubs, game "
+"libraries and shops. It helps them organize game tables, events and members, "
+"and it helps players find a table near them. It is built by volunteers who "
+"love board games."
+msgstr "Board-Gamers.com è una piattaforma gratuita e open source per associazioni, ludoteche e negozi di giochi da tavolo. Li aiuta a organizzare tavoli, eventi e soci, e aiuta i giocatori a trovare un tavolo vicino a loro. È sviluppata da volontari appassionati di giochi da tavolo."
+
+msgid "Copy text"
+msgstr "Copia il testo"
+
+msgid "Logos"
+msgstr "Loghi"
+
+msgid ""
+"Vector files (SVG) scale to any size; the avatars are also available as PNG "
+"for social networks."
+msgstr "I file vettoriali (SVG) si adattano a qualsiasi dimensione; gli avatar sono disponibili anche in PNG per i social."
+
+msgid "Colors and font"
+msgstr "Colori e font"
+
+msgid ""
+"The website and the logo use Inter, a free font. The logo is set in Inter "
+"ExtraBold."
+msgstr "Il sito e il logo usano Inter, un font gratuito. Il logo è composto in Inter ExtraBold."
+
+msgid "Using the logo"
+msgstr "Come usare il logo"
+
+msgid ""
+"Use the dark versions on dark backgrounds and the light ones everywhere else."
+msgstr "Usa le versioni scure sui fondi scuri e quelle chiare in tutti gli altri casi."
+
+msgid ""
+"Don't change colors or proportions, and don't add effects such as shadows or "
+"outlines."
+msgstr "Non cambiare colori o proporzioni e non aggiungere effetti come ombre o contorni."
+
+msgid ""
+"Leave some empty space around the logo, at least as much as the height of a "
+"letter."
+msgstr "Lascia dello spazio vuoto attorno al logo, almeno quanto l'altezza di una lettera."
+
+msgid "Under 40 pixels, use the symbol for small sizes."
+msgstr "Sotto i 40 pixel usa il simbolo per piccole dimensioni."
+
+msgid "Writing about us?"
+msgstr "Stai scrivendo di noi?"
+
+msgid ""
+"For interviews, information or other materials, write to us: we usually "
+"reply within a couple of days."
+msgstr "Per interviste, informazioni o altro materiale scrivici: di solito rispondiamo entro un paio di giorni."
+
+msgid "Contact form"
+msgstr "Modulo di contatto"
 
 msgid "Select language"
 msgstr "Seleziona lingua"
@@ -4381,6 +4449,78 @@ msgid ""
 "forever, open source, member management, tables, rankings and more."
 msgstr ""
 
+msgid "Horizontal logo"
+msgstr "Logo orizzontale"
+
+msgid "The main logo, for headers, articles and websites."
+msgstr "Il logo principale, per intestazioni, articoli e siti web."
+
+msgid "Horizontal logo, dark backgrounds"
+msgstr "Logo orizzontale, fondi scuri"
+
+msgid "Same size as the light version: the two are interchangeable."
+msgstr "Stesso ingombro della versione chiara: i due sono intercambiabili."
+
+msgid "Square logo"
+msgstr "Logo quadrato"
+
+msgid "For posters, flyers and partner pages."
+msgstr "Per locandine, volantini e pagine dei partner."
+
+msgid "Square logo, dark backgrounds"
+msgstr "Logo quadrato, fondi scuri"
+
+msgid "Avatar"
+msgstr "Avatar"
+
+msgid "For profile pictures: it stays whole when cropped to a circle."
+msgstr "Per le immagini del profilo: resta intero anche ritagliato a cerchio."
+
+msgid "Avatar, dark background"
+msgstr "Avatar, fondo scuro"
+
+msgid "Symbol"
+msgstr "Simbolo"
+
+msgid "The die alone, for when the name is already next to it."
+msgstr "Il solo dado, quando il nome è già scritto accanto."
+
+msgid "Symbol, small sizes"
+msgstr "Simbolo, piccole dimensioni"
+
+msgid "Simplified die, for sizes under 40 pixels."
+msgstr "Dado semplificato, per dimensioni sotto i 40 pixel."
+
+msgid "Navy"
+msgstr "Blu notte"
+
+msgid "Text and outline of the logo"
+msgstr "Testo e contorno del logo"
+
+msgid "Die"
+msgstr "Dado"
+
+msgid "Faces of the die"
+msgstr "Facce del dado"
+
+msgid "Blue"
+msgstr "Blu"
+
+msgid "Links and buttons on the website"
+msgstr "Link e pulsanti del sito"
+
+msgid "Night"
+msgstr "Notte"
+
+msgid "Background of the dark theme"
+msgstr "Sfondo del tema scuro"
+
+msgid "Press kit - Board-Gamers.com"
+msgstr "Kit per la stampa - Board-Gamers.com"
+
+msgid "Logos, colors and information for writing about Board-Gamers.com."
+msgstr "Loghi, colori e informazioni per scrivere di Board-Gamers.com."
+
 msgid "Followed locations"
 msgstr "Location seguite"
 
@@ -4483,6 +4623,8 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "Add your location"
+#~ msgstr "Aggiungi la tua location"
 
 #~ msgid ""
 #~ "The library is public. Games with a tag flagged for the event page are "
