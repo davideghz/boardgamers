@@ -13,6 +13,16 @@ from webapp.models import Notification, NotificationType
 logger = logging.getLogger(__name__)
 
 
+def _html_and_text(**values):
+    """SES non fa escaping dell'HTML: per ogni valore restituisce `chiave`, escapata
+    per la parte HTML, e `chiave_text`, invariata per l'oggetto e la parte testuale."""
+    data = {}
+    for key, value in values.items():
+        data[key] = escape(value)
+        data[f'{key}_text'] = value
+    return data
+
+
 class Command(BaseCommand):
     help = 'Invia le notifiche in coda via AWS SES v2 Batch'
 
@@ -72,20 +82,21 @@ class Command(BaseCommand):
                 game_name = table.game.name if table.game else ""
                 description = (table.description or "").strip()
 
-                template_data = {
-                    'name': profile.nickname,
-                    'title': table.title,
+                template_data = _html_and_text(
+                    name=profile.nickname,
+                    title=table.title,
                     # game vuoto => nascosto nell'oggetto e "Non ancora deciso" nel corpo (via Handlebars)
-                    'game': game_name,
-                    'creator_name': table.author.nickname if table.author else "un utente",
-                    'location_name': table.location.name if table.location else "Location non disponibile",
+                    game=game_name,
+                    creator_name=table.author.nickname if table.author else "un utente",
+                    location_name=table.location.name if table.location else "Location non disponibile",
+                )
+                template_data.update({
                     'date': table.date.strftime('%d/%m/%Y'),
                     'time': table.time.strftime('%H:%M'),
-                    # SES non fa escaping dell'HTML: la descrizione va messa in sicurezza qui.
                     'description': escape(description).replace("\n", "<br>") if description else "",
                     'description_text': description,
                     'button_href': _table_url(table),
-                }
+                })
                 valid_notifications.append(n)
                 bulk_entries.append(_bulk_entry(n.recipient.user.email, template_data))
 
@@ -117,18 +128,20 @@ class Command(BaseCommand):
                     continue
                 table = n.table
                 dates = [d for d in (n.message or '').split(', ') if d] or [table.date.strftime('%d/%m/%Y')]
-                template_data = {
-                    'name': n.recipient.nickname,
-                    'title': table.title,
-                    'game': table.game.name if table.game else "",
-                    'organizer_name': table.author.nickname if table.author else "un utente",
-                    'location_name': table.location.name if table.location else "Location non disponibile",
+                template_data = _html_and_text(
+                    name=n.recipient.nickname,
+                    title=table.title,
+                    game=table.game.name if table.game else "",
+                    organizer_name=table.author.nickname if table.author else "un utente",
+                    location_name=table.location.name if table.location else "Location non disponibile",
+                )
+                template_data.update({
                     'sessions': ngettext('%(count)d session', '%(count)d sessions', len(dates)) % {
                         'count': len(dates)},
                     'dates': ', '.join(dates),
                     'time': table.time.strftime('%H:%M'),
                     'button_href': _table_url(table),
-                }
+                })
                 valid_notifications.append(n)
                 bulk_entries.append(_bulk_entry(n.recipient.user.email, template_data))
 
