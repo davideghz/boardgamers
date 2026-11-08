@@ -36,7 +36,7 @@ maxminddb==2.6.3
 mistune==3.3.3
 multidict==6.9.1
 nh3==0.3.3
-oauthlib==4.0.0
+oauthlib==4.0.1
 packaging==24.2
 phonenumbers==9.0.34
 pillow==13.0.0
