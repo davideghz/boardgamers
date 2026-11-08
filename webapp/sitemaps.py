@@ -6,7 +6,7 @@ from .models import Location, Game, Table
 
 class StaticViewSitemap(Sitemap):
     def items(self):
-        return ['home', 'locations-index', 'privacy', 'terms', 'contacts']
+        return ['home', 'locations-index', 'privacy', 'terms', 'contacts', 'press']
 
     def changefreq(self, item):
         if item == 'home':
