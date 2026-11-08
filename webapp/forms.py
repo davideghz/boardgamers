@@ -265,6 +265,25 @@ def validate_custom_cover_size(cover):
     return cover
 
 
+def clean_table_seats(form, cleaned_data):
+    """Validate min/max players, shared by TableForm and EventTableForm.
+    The columns are NOT NULL but the fields are optional (blank=True), so a
+    blank value must never reach Table.save() as None (IntegrityError)."""
+    if cleaned_data.get('unlimited_seats'):
+        # min/max are irrelevant for unlimited tables: fall back to the model defaults.
+        for name in ('min_players', 'max_players'):
+            if cleaned_data.get(name) is None:
+                cleaned_data[name] = Table._meta.get_field(name).default
+        return
+    for name in ('min_players', 'max_players'):
+        if name not in form.errors and cleaned_data.get(name) is None:
+            form.add_error(name, _("This field is required."))
+    min_players = cleaned_data.get('min_players')
+    max_players = cleaned_data.get('max_players')
+    if min_players and max_players and max_players < min_players:
+        form.add_error('max_players', _("Maximum players cannot be less than minimum players."))
+
+
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
@@ -298,19 +317,7 @@ class TableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get('unlimited_seats'):
-            # min/max are irrelevant for unlimited tables, but the columns are
-            # NOT NULL: when the form leaves them blank, fall back to the model
-            # defaults instead of writing None (which raises IntegrityError).
-            if cleaned_data.get('min_players') is None:
-                cleaned_data['min_players'] = Table._meta.get_field('min_players').default
-            if cleaned_data.get('max_players') is None:
-                cleaned_data['max_players'] = Table._meta.get_field('max_players').default
-            return cleaned_data
-        min_players = cleaned_data.get('min_players')
-        max_players = cleaned_data.get('max_players')
-        if min_players and max_players and max_players < min_players:
-            self.add_error('max_players', _("Maximum players cannot be less than minimum players."))
+        clean_table_seats(self, cleaned_data)
         return cleaned_data
 
     def save(self, commit=True):
@@ -448,20 +455,7 @@ class EventTableForm(ModelForm, TailwindForm):
         if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
             self.add_error('physical_table', _("The selected station does not belong to the selected area."))
 
-        if cleaned_data.get('unlimited_seats'):
-            # min/max are irrelevant for unlimited tables, but the columns are
-            # NOT NULL: when the form leaves them blank, fall back to the model
-            # defaults instead of writing None (which raises IntegrityError).
-            if cleaned_data.get('min_players') is None:
-                cleaned_data['min_players'] = Table._meta.get_field('min_players').default
-            if cleaned_data.get('max_players') is None:
-                cleaned_data['max_players'] = Table._meta.get_field('max_players').default
-            return cleaned_data
-
-        min_players = cleaned_data.get('min_players')
-        max_players = cleaned_data.get('max_players')
-        if min_players and max_players and max_players < min_players:
-            self.add_error('max_players', _("Maximum players cannot be less than minimum players."))
+        clean_table_seats(self, cleaned_data)
         return cleaned_data
 
 
