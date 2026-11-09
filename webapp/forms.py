@@ -284,21 +284,55 @@ def clean_table_seats(form, cleaned_data):
         form.add_error('max_players', _("Maximum players cannot be less than minimum players."))
 
 
+class AreaTaggedSelect(Select):
+    """Select that tags each <option> with a data-area attribute, so the station
+    dropdown can be filtered client-side by the selected play area."""
+    station_area_map = {}
+
+    def create_option(self, name, value, *args, **kwargs):
+        option = super().create_option(name, value, *args, **kwargs)
+        pk = getattr(value, 'value', value)
+        area_id = self.station_area_map.get(pk)
+        if area_id is not None:
+            option['attrs']['data-area'] = str(area_id)
+        return option
+
+
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
         exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category', 'series_root']
         widgets = {
             'location': HiddenInput(),
+            'physical_table': AreaTaggedSelect(),
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, location=None, **kwargs):
         super().__init__(*args, **kwargs)
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
         self.fields['unlimited_seats'].widget.attrs.update({
             'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
+        # Only the location's own play areas and stations can be picked
+        # (TableDuplicateForm has neither field: copies keep the source's).
+        if 'play_area' not in self.fields:
+            return
+        if location is not None:
+            self.fields['play_area'].queryset = PlayArea.objects.filter(location=location)
+            stations = PhysicalTable.objects.filter(location=location).select_related('play_area')
+            self.fields['physical_table'].queryset = stations
+            self.fields['physical_table'].widget.station_area_map = {
+                s.pk: s.play_area_id for s in stations
+            }
+            self.fields['physical_table'].label_from_instance = (
+                lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
+            )
+        else:
+            self.fields['play_area'].queryset = PlayArea.objects.none()
+            self.fields['physical_table'].queryset = PhysicalTable.objects.none()
+        self.fields['play_area'].required = False
+        self.fields['physical_table'].required = False
 
     def clean_title(self):
         title = self.cleaned_data['title']
@@ -317,6 +351,11 @@ class TableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        # The selected station must belong to the selected play area.
+        physical_table = cleaned_data.get('physical_table')
+        play_area = cleaned_data.get('play_area')
+        if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
+            self.add_error('physical_table', _("The selected station does not belong to the selected area."))
         clean_table_seats(self, cleaned_data)
         return cleaned_data
 
@@ -384,20 +423,6 @@ class DuplicateTableLinkForm(TableLinkForm):
 
     def has_changed(self):
         return any(self.data.get(self.add_prefix(name)) for name in ('label', 'url'))
-
-
-class AreaTaggedSelect(Select):
-    """Select that tags each <option> with a data-area attribute, so the station
-    dropdown can be filtered client-side by the selected play area."""
-    station_area_map = {}
-
-    def create_option(self, name, value, *args, **kwargs):
-        option = super().create_option(name, value, *args, **kwargs)
-        pk = getattr(value, 'value', value)
-        area_id = self.station_area_map.get(pk)
-        if area_id is not None:
-            option['attrs']['data-area'] = str(area_id)
-        return option
 
 
 class EventTableForm(ModelForm, TailwindForm):
@@ -714,6 +739,26 @@ class PlayAreaForm(ModelForm, TailwindForm):
         model = PlayArea
         fields = ['name']
 
+    def __init__(self, *args, event=None, location=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event
+        self.location = location
+
+    def clean_name(self):
+        # (event, name) and (location, name) are unique: check here, otherwise a
+        # duplicate name blows up as an IntegrityError on save.
+        name = self.cleaned_data.get('name')
+        if name and (self.event is not None or self.location is not None):
+            if self.event is not None:
+                qs = PlayArea.objects.filter(event=self.event, name=name)
+            else:
+                qs = PlayArea.objects.filter(location=self.location, name=name)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise ValidationError(_('An area with this name already exists.'))
+        return name
+
 
 class EventTableCategoryForm(ModelForm, TailwindForm):
     class Meta:
@@ -726,15 +771,19 @@ class PhysicalTableForm(ModelForm, TailwindForm):
         model = PhysicalTable
         fields = ['name', 'play_area']
 
-    def __init__(self, *args, event=None, **kwargs):
+    def __init__(self, *args, event=None, location=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event
+        self.location = location
         if event is not None:
             # Set event on the instance so ModelForm.validate_unique() can check
             # the (event, name) unique_together constraint at validation time,
             # instead of letting a duplicate name blow up as an IntegrityError.
             self.instance.event = event
             self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
+        elif location is not None:
+            self.instance.location = location
+            self.fields['play_area'].queryset = PlayArea.objects.filter(location=location)
         else:
             self.fields['play_area'].queryset = PlayArea.objects.none()
         self.fields['play_area'].required = False
@@ -747,6 +796,12 @@ class PhysicalTableForm(ModelForm, TailwindForm):
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
                 raise ValidationError(_('A station with this name already exists for this event.'))
+        elif name and self.location is not None:
+            qs = PhysicalTable.objects.filter(location=self.location, name=name)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise ValidationError(_('A station with this name already exists for this location.'))
         return name
 
 

@@ -419,7 +419,7 @@ MAX_TABLE_DUPLICATES = 15
 #: start fresh. custom_cover is handled apart (the copies share the S3 file).
 DUPLICATED_FIELDS = (
     'title', 'description', 'location_id', 'game_id', 'min_players', 'max_players',
-    'unlimited_seats', 'time', 'duration',
+    'unlimited_seats', 'time', 'duration', 'play_area_id', 'physical_table_id',
 )
 
 

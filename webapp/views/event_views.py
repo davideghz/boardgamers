@@ -757,12 +757,12 @@ class EventManageAreasView(EventManagerMixin, View):
         return render(request, self.template_name, {
             'event': event,
             'areas': event.play_areas.all(),
-            'form': PlayAreaForm(),
+            'form': PlayAreaForm(event=event),
         })
 
     def post(self, request, slug):
         event = self._get_event()
-        form = PlayAreaForm(request.POST)
+        form = PlayAreaForm(request.POST, event=event)
         if form.is_valid():
             area = form.save(commit=False)
             area.event = event
