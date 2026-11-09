@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 23:35+0100\n"
+"POT-Creation-Date: 2026-11-09 11:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,6 +140,9 @@ msgstr "Inserisci un nickname"
 
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
+
+msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
+msgstr ""
 
 msgid "First name"
 msgstr "Nome"
@@ -2417,6 +2420,9 @@ msgstr "Giochi più giocati"
 msgid "No games played at this location."
 msgstr "Nessun gioco giocato in questa location."
 
+msgid "Leaderboards by game"
+msgstr "Classifiche per gioco"
+
 msgid "See all games"
 msgstr "Vedi tutti i giochi"
 
@@ -2491,6 +2497,25 @@ msgstr "Sabato"
 
 msgid "Sunday"
 msgstr "Domenica"
+
+msgid "Games played"
+msgstr "Giochi giocati"
+
+#, python-format
+msgid "%(counter)s table at this location"
+msgid_plural "%(counter)s tables at this location"
+msgstr[0] "%(counter)s tavolo in questa location"
+msgstr[1] "%(counter)s tavoli in questa location"
+
+msgid "Game details"
+msgstr "Scheda del gioco"
+
+#, python-format
+msgid "guest of %(owner)s"
+msgstr "ospite di %(owner)s"
+
+msgid "No results recorded for this game yet."
+msgstr "Nessun risultato registrato per questo gioco."
 
 msgid "At home"
 msgstr "A casa"
@@ -3011,6 +3036,15 @@ msgid "You can place the snippet anywhere inside the body of your page."
 msgstr ""
 "Puoi inserire lo snippet ovunque all'interno del tag body della tua pagina."
 
+msgid "Pick a game to see its leaderboard at this location."
+msgstr "Scegli un gioco per vederne la classifica in questa location."
+
+#, python-format
+msgid "%(counter)s table"
+msgid_plural "%(counter)s tables"
+msgstr[0] "%(counter)s tavolo"
+msgstr[1] "%(counter)s tavoli"
+
 msgid "Request Membership"
 msgstr "Richiedi Membership"
 
@@ -3114,9 +3148,6 @@ msgstr "Nei tuoi preferiti"
 
 msgid "Add to favorites"
 msgstr "Aggiungi ai preferiti"
-
-msgid "Games played"
-msgstr "Giochi giocati"
 
 msgid "victories"
 msgstr "vittorie"
@@ -4347,6 +4378,22 @@ msgid "The game library is now hidden from the location page."
 msgstr "La ludoteca ora è nascosta dalla pagina della location."
 
 #, python-format
+msgid "Games played – %(name)s"
+msgstr "Giochi giocati – %(name)s"
+
+#, python-format
+msgid "Board games played at %(name)s and their leaderboards."
+msgstr "Giochi da tavolo giocati presso %(name)s e le loro classifiche."
+
+#, python-format
+msgid "%(game)s leaderboard – %(name)s"
+msgstr "Classifica di %(game)s – %(name)s"
+
+#, python-format
+msgid "Who wins most at %(game)s at %(name)s."
+msgstr "Chi vince di più a %(game)s presso %(name)s."
+
+#, python-format
 msgid "Add Game – %(name)s"
 msgstr "Aggiungi Gioco - %(name)s"
 
@@ -4569,11 +4616,26 @@ msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
+#, fuzzy, python-brace-format
+#| msgid "This guest is already at the table."
+msgid "{user_profile.nickname} is already at the table."
+msgstr "Questo ospite è già al tavolo."
+
+#, fuzzy, python-brace-format
+#| msgid "%(nickname)s added to the table"
+msgid "{user_profile.nickname} added to the table."
+msgstr "%(nickname)s aggiunto al tavolo"
+
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
+
+#, fuzzy, python-brace-format
+#| msgid "%(nickname)s removed from the table"
+msgid "{nickname} has been removed from the table."
+msgstr "%(nickname)s rimosso dal tavolo"
 
 msgid "You don't have permission to duplicate this table."
 msgstr "Non hai il permesso di duplicare questo tavolo."

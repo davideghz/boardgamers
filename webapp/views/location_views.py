@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
+from django.db.models import Prefetch, Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -24,7 +24,7 @@ from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManage
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
-    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event
+    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event, GuestProfile, ResultMode
 from webapp.services.tables import reopen_location_leaderboards
 
 
@@ -133,14 +133,6 @@ class LocationDetailView(DetailView):
             Q(joined_tables__location=location) | Q(created_tables__location=location)
         ).distinct().count()
 
-        # Sottoquery per contare le partite giocate per ogni gioco nella location
-        played_count = Table.objects.filter(
-            game=OuterRef('pk'),
-            location=location
-        ).values('game').annotate(
-            count=Count('id', distinct=True)
-        ).values('count')
-
         # # Sottoquery per trovare il giocatore con più vittorie per ogni gioco
         # top_player = UserProfile.objects.filter(
         #     joined_tables__game=OuterRef('pk'),
@@ -156,9 +148,8 @@ class LocationDetailView(DetailView):
         #     top_winner=Subquery(top_player)
         # ).filter(play_count__gt=0).order_by('-play_count')[:10]
 
-        popular_games = Game.objects.annotate(
-            play_count=Subquery(played_count)
-        ).filter(play_count__gt=0).order_by('-play_count')[:10]
+        # Same games (and counts) as the "Games played" page, so every link has a leaderboard
+        popular_games = _played_games(location, today)[:10]
 
         # Calcolo dei top winner con ex aequo
         winners = UserProfile.objects.filter(
@@ -1074,6 +1065,84 @@ class LocationGamesView(View):
             'meta': Meta(
                 title=_("Games – %(name)s") % {'name': location.name},
                 description=_("Board games available at %(name)s.") % {'name': location.name},
+            ),
+        })
+
+
+def _played_games(location, today):
+    """Games played at a location (past non-event tables), most played first."""
+    return Game.objects.filter(
+        created_tables__location=location,
+        created_tables__event__isnull=True,
+        created_tables__date__lte=today,
+    ).exclude(Game.role_playing_q()).annotate(
+        play_count=Count('created_tables', distinct=True)
+    ).order_by('-play_count', 'name')
+
+
+def _game_leaderboard(location, game, today):
+    """Medal leaderboard of one game at a location: gold, silver, bronze, then most tables played.
+
+    Users and guests are ranked separately by identity; tables without a leaderboard are skipped.
+    """
+    players = Player.objects.filter(
+        table__location=location,
+        table__event__isnull=True,
+        table__game=game,
+        table__date__lte=today,
+    ).exclude(table__result_mode=ResultMode.NONE)
+    if game.default_result_mode == ResultMode.NONE:
+        players = players.exclude(table__result_mode__isnull=True)
+    rows = list(players.values('user_profile', 'guest_profile').annotate(
+        play_count=Count('table', distinct=True),
+        first_place=Count('table', filter=Q(position=1), distinct=True),
+        second_place=Count('table', filter=Q(position=2), distinct=True),
+        third_place=Count('table', filter=Q(position=3), distinct=True),
+    ).order_by('-first_place', '-second_place', '-third_place', '-play_count'))
+
+    users = UserProfile.objects.in_bulk([r['user_profile'] for r in rows if r['user_profile']])
+    guests = GuestProfile.objects.select_related('owner').in_bulk(
+        [r['guest_profile'] for r in rows if r['guest_profile']])
+    for row in rows:
+        row['user'] = users.get(row['user_profile'])
+        row['guest'] = guests.get(row['guest_profile'])
+    return [r for r in rows if r['user'] or r['guest']]
+
+
+class LocationPlayedGamesView(View):
+    """Public list of the games played at a location, each linking to its leaderboard."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        played_games = _played_games(location, timezone.localdate())
+        return render(request, 'locations/location_played_games.html', {
+            'location': location,
+            'played_games': played_games,
+            'meta': Meta(
+                title=_("Games played – %(name)s") % {'name': location.name},
+                description=_("Board games played at %(name)s and their leaderboards.") % {'name': location.name},
+            ),
+        })
+
+
+class LocationGameLeaderboardView(View):
+    """Public leaderboard of one game at a location."""
+
+    def get(self, request, slug, game_slug):
+        location = get_object_or_404(Location, slug=slug)
+        today = timezone.localdate()
+        played_games = list(_played_games(location, today))
+        game = next((g for g in played_games if g.slug == game_slug), None)
+        if game is None:
+            raise Http404
+        return render(request, 'locations/location_game_leaderboard.html', {
+            'location': location,
+            'game': game,
+            'played_games': played_games,
+            'leaderboard': _game_leaderboard(location, game, today),
+            'meta': Meta(
+                title=_("%(game)s leaderboard – %(name)s") % {'game': game.name, 'name': location.name},
+                description=_("Who wins most at %(game)s at %(name)s.") % {'game': game.name, 'name': location.name},
             ),
         })
 
