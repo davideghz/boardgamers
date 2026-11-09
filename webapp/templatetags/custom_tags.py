@@ -41,10 +41,11 @@ def location_card(context, location):
     }
 
 
-@register.inclusion_tag("tags/table_card.html")
-def table_card(table):
+@register.inclusion_tag("tags/table_card.html", takes_context=True)
+def table_card(context, table):
     return {
         'table': table,
+        'user': context.get('user'),
     }
 
 
@@ -131,3 +132,8 @@ def social_auth_url(context, backend):
     params = {'lang': current_lang}
     
     return f"{base_url}?{urlencode(params)}"
+
+
+@register.filter
+def visible_station(station, user):
+    return station if station and station.is_visible_to(user) else None

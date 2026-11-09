@@ -250,6 +250,10 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         'image': 'cover_url',
     }
 
+    def is_manager(self, user_profile):
+        return bool(user_profile and (
+            self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
+
     def get_meta_title(self):
         return _("%(name)s - Board-Gamers.com") % {'name': self.name}
 
@@ -1684,7 +1688,14 @@ class PhysicalTable(DateTimeModel):
         null=True, blank=True, verbose_name=_('Play Area'))
     name = models.CharField(max_length=144, verbose_name=_('Name'),
                             help_text=_('On-site label, e.g. "Table 1"'))
+    is_visible = models.BooleanField(default=True, verbose_name=_('Visible to all users'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def is_visible_to(self, user):
+        if self.is_visible or self.location_id is None:
+            return True
+        return bool(user and user.is_authenticated and (
+            user.is_superuser or self.location.is_manager(user.user_profile)))
 
     def __str__(self):
         owner = self.event or self.location

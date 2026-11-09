@@ -336,7 +336,7 @@ class TableForm(ModelForm, TailwindForm):
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
 
-    def __init__(self, *args, location=None, **kwargs):
+    def __init__(self, *args, location=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
@@ -347,8 +347,18 @@ class TableForm(ModelForm, TailwindForm):
         if 'play_area' not in self.fields:
             return
         if location is not None:
-            setup_table_station_fields(self, PlayArea.objects.filter(location=location),
-                                       PhysicalTable.objects.filter(location=location))
+            stations = PhysicalTable.objects.filter(location=location)
+            can_manage = bool(user and user.is_authenticated and (
+                user.is_superuser or location.is_manager(user.user_profile)))
+            if not can_manage:
+                stations = stations.filter(is_visible=True)
+            setup_table_station_fields(self, PlayArea.objects.filter(location=location), stations)
+            # Keep a staff-assigned hidden station when its author edits the game.
+            if (not can_manage and self.instance.physical_table_id
+                    and not self.instance.physical_table.is_visible):
+                self.fields.pop('physical_table')
+                self.fields.pop('play_area')
+                return
         else:
             self.fields['play_area'].queryset = PlayArea.objects.none()
             self.fields['physical_table'].queryset = PhysicalTable.objects.none()
@@ -773,12 +783,14 @@ class EventTableCategoryForm(ModelForm, TailwindForm):
 class PhysicalTableForm(ModelForm, TailwindForm):
     class Meta:
         model = PhysicalTable
-        fields = ['name', 'play_area']
+        fields = ['name', 'play_area', 'is_visible']
 
     def __init__(self, *args, event=None, location=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event
         self.location = location
+        if location is None:
+            self.fields.pop('is_visible')
         if event is not None:
             # Set event on the instance so ModelForm.validate_unique() can check
             # the (event, name) unique_together constraint at validation time,

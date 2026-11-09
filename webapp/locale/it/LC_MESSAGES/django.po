@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 16:32+0100\n"
+"POT-Creation-Date: 2026-11-09 20:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -818,6 +818,9 @@ msgstr "Giochi Evento"
 
 msgid "On-site label, e.g. \"Table 1\""
 msgstr "Etichetta sul posto, es. \"Tavolo 1\""
+
+msgid "Visible to all users"
+msgstr "Visibile a tutti gli utenti"
 
 msgid "Stations"
 msgstr "Postazioni"
@@ -1759,9 +1762,6 @@ msgstr "Espandi"
 msgid "Show less"
 msgstr "Nascondi"
 
-msgid "Sponsored by"
-msgstr "Sostenuto da"
-
 #, python-format
 msgid "%(n)s table scheduled"
 msgid_plural "%(n)s tables scheduled"
@@ -1809,6 +1809,9 @@ msgstr "Giochi in evidenza"
 
 msgid "See all"
 msgstr "Vedi tutti"
+
+msgid "Sponsored by"
+msgstr "Sostenuto da"
 
 msgid "Add your phone number"
 msgstr "Aggiungi il tuo numero di telefono"
@@ -3011,6 +3014,9 @@ msgstr "Nessuna partita in programma in questa location."
 
 msgid "Edit station"
 msgstr "Modifica postazione"
+
+msgid "Hidden stations are only visible to location managers."
+msgstr "Le postazioni nascoste sono visibili solo ai gestori della location."
 
 msgid "Assign the upcoming games to the stations"
 msgstr "Assegna le prossime partite alle postazioni"
