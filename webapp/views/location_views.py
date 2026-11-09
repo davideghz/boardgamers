@@ -1419,7 +1419,7 @@ class DisconnectTelegramGroupView(LoginRequiredMixin, View):
         return redirect('location-manage-telegram', slug=slug)
 
 
-class LocationManageTableStatsView(LoginRequiredMixin, View):
+class LocationManageTableSummaryView(LoginRequiredMixin, View):
     """Generate a copy-pasteable status message for tables in a date range."""
 
     def get(self, request, slug):
@@ -1463,7 +1463,7 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
         location_url = request.build_absolute_uri(reverse('location-detail', args=[location.slug]))
         message_text = self._build_message(list(tables), date_from, date_to, show_full, show_closed, show_names, location_url)
 
-        return render(request, 'locations/location_manage_table_stats.html', {
+        return render(request, 'locations/location_manage_table_summary.html', {
             'location': location,
             'date_from': date_from.isoformat(),
             'date_to': date_to.isoformat(),
@@ -1471,7 +1471,7 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
             'show_closed': show_closed,
             'show_names': show_names,
             'message_text': message_text,
-            'meta': Meta(title=_("Table stats – %(name)s") % {'name': location.name}),
+            'meta': Meta(title=_("Table summary – %(name)s") % {'name': location.name}),
         })
 
     def _build_message(self, tables, date_from, date_to, show_full, show_closed, show_names, location_url):
