@@ -1111,6 +1111,37 @@ class LocationGameForm(ModelForm, TailwindForm):
         return cleaned
 
 
+class BGGCollectionImportForm(TailwindForm):
+    """Options applied to every game imported from a BGG collection."""
+    tag_name = CharField(
+        max_length=64, required=False, label=_('Tag for the imported games'),
+        widget=TextInput(attrs={'list': 'location-game-tags', 'autocomplete': 'off'}))
+    ownership = ChoiceField(choices=LocationGame.OWNERSHIP_CHOICES, initial=LocationGame.OWNED_BY_LOCATION,
+                            label=_('Ownership'))
+    owner_member = ModelChoiceField(queryset=Member.objects.none(), required=False, label=_('Owner Member'))
+    physical_location = ChoiceField(choices=LocationGame.PHYSICAL_LOCATION_CHOICES,
+                                    initial=LocationGame.AT_ASSOCIATION, label=_('Physical Location'))
+
+    def __init__(self, *args, location, **kwargs):
+        self.location = location
+        super().__init__(*args, **kwargs)
+        self.fields['owner_member'].queryset = Member.objects.filter(location=location)
+        self.fields['owner_member'].widget = MemberPickerWidget(location)
+        if not location.enable_membership:
+            self.fields['owner_member'].disabled = True
+        for fn in ('ownership', 'physical_location'):
+            self.fields[fn].widget.attrs['class'] = _TW_SELECT
+
+    def clean_tag_name(self):
+        return self.cleaned_data['tag_name'].strip()
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
+            cleaned['owner_member'] = None
+        return cleaned
+
+
 class EventGameForm(ModelForm, TailwindForm):
     """Form to add/edit a game in an event's library."""
     game = ModelChoiceField(
