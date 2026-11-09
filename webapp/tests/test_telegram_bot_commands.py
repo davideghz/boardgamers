@@ -1,3 +1,4 @@
+import datetime
 import json
 from unittest.mock import patch
 
@@ -112,6 +113,50 @@ class BotCommandTest(TestCase):
 
         labels = [b['text'] for b in self.buttons(send)]
         self.assertIn('➕ Crea un tavolo', labels)
+
+    def test_tables_shows_only_booking_and_create_buttons(self):
+        make_table(location=self.location, author=UserProfileFactory())
+
+        send = self.send('/tables')
+
+        labels = [b['text'] for b in self.buttons(send)]
+        self.assertEqual(labels, ['📅 Prenota un tavolo', '➕ Crea un tavolo'])
+        self.assertEqual(self.buttons(send)[1]['url'].rstrip('/').rsplit('/', 1)[-1],
+                         self.location.slug)
+
+    def test_tables_shows_infinite_seats_for_unlimited_tables(self):
+        make_table(location=self.location, author=UserProfileFactory(),
+                   max_players=4, unlimited_seats=True)
+
+        text = self.send('/tables').call_args.args[1]
+
+        self.assertIn('0/∞', text)
+        self.assertNotIn('0/4', text)
+
+    def test_tables_shows_seats_taken_over_max_players(self):
+        make_table(location=self.location, author=UserProfileFactory(), max_players=4)
+
+        text = self.send('/tables').call_args.args[1]
+
+        self.assertIn('0/4', text)
+
+    def test_tables_groups_tables_under_one_header_per_day(self):
+        author = UserProfileFactory()
+        make_table(location=self.location, author=author, title='Primo')
+        make_table(location=self.location, author=author, title='Secondo',
+                   time=datetime.time(21, 30))
+
+        text = self.send('/tables').call_args.args[1]
+
+        self.assertEqual(text.count('<b>'), 1)
+        self.assertLess(text.index('Primo'), text.index('Secondo'))
+
+    def test_tables_escapes_html_in_names(self):
+        make_table(location=self.location, author=UserProfileFactory(), title='Tom & Jerry')
+
+        text = self.send('/tables').call_args.args[1]
+
+        self.assertIn('Tom &amp; Jerry', text)
 
     def test_inactive_config_is_ignored(self):
         self.config.active = False

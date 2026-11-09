@@ -2,12 +2,14 @@ import json
 import logging
 import secrets
 from datetime import timedelta
+from html import escape
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from django.utils import formats, timezone, translation
+from django.utils.text import capfirst
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -185,7 +187,7 @@ def _handle_join(chat_id, message_thread_id=None):
 
     send_message(
         chat_id,
-        f"🎲 <b>{location.name}</b>\n\n"
+        f"🎲 <b>{escape(location.name)}</b>\n\n"
         f"Apri la lista dei tavoli e prenota il tuo posto.",
         reply_markup={"inline_keyboard": [[button]]},
         message_thread_id=message_thread_id,
@@ -208,49 +210,50 @@ def _handle_tables(chat_id, message_thread_id=None):
     )
 
     location = config.location
-    base_url = f"{settings.SITE_PROTOCOL}://{settings.SITE_DOMAIN}"
-
     miniapp_button = _miniapp_button(location)
+    rows = [[miniapp_button]] if miniapp_button else []
+    rows.append([_create_table_button(location)])
 
     if not tables:
         # Still offer the app: it is where a table gets created or watched for,
         # and an empty listing is exactly when people go looking.
-        rows = [[miniapp_button]] if miniapp_button else []
-        rows.append([_create_table_button(location)])
         send_message(
             chat_id,
-            f"🎲 <b>{location.name}</b>\n\nNessun tavolo aperto al momento.",
+            "Nessun tavolo aperto al momento.",
             reply_markup={"inline_keyboard": rows},
             message_thread_id=message_thread_id,
         )
         return
 
-    lines = [f"🎲 <b>Tavoli aperti — {location.name}</b>\n"]
-    buttons = []
-    for t in tables:
-        game_name = t.game.name if t.game else "Gioco libero"
-        players = f"{t.total_players}/{t.max_players}"
-        date_str = t.date.strftime("%-d %b")
-        time_str = t.time.strftime("%H:%M") if t.time else ""
-        lines.append(f"• {game_name} | {date_str} {time_str} | 👥 {players}")
-        buttons.append([{
-            "text": f"{t.title} — {date_str}",
-            "url": f"{base_url}/tables/{t.slug}/",
-        }])
-
-    location_url = f"{base_url}/locations/{location.slug}/"
-    buttons.append([{"text": "📍 Tutti i tavoli →", "url": location_url}])
-    buttons.append([_create_table_button(location)])
-
-    if miniapp_button:
-        buttons.insert(0, [miniapp_button])
-
     send_message(
         chat_id,
-        "\n".join(lines),
-        reply_markup={"inline_keyboard": buttons},
+        _tables_text(tables),
+        reply_markup={"inline_keyboard": rows},
         message_thread_id=message_thread_id,
     )
+
+
+def _seats_label(table):
+    if table.unlimited_seats:
+        return f"{table.total_players}/∞"
+    label = f"{table.total_players}/{table.max_players}"
+    return f"{label} · completo" if table.seats_available <= 0 else label
+
+
+def _tables_text(tables):
+    """Tables grouped by day: a day header, then one compact line per table."""
+    lines = []
+    current_day = None
+    with translation.override('it'):
+        for t in tables:
+            if t.date != current_day:
+                current_day = t.date
+                if lines:
+                    lines.append("")
+                lines.append(f"<b>{capfirst(formats.date_format(t.date, 'l j E').lower())}</b>")
+            name = t.game.name if t.game else t.title
+            lines.append(f"{t.time.strftime('%H:%M')} · {escape(name)} · {_seats_label(t)}")
+    return "\n".join(lines)
 
 
 # ── Generate setup token ──────────────────────────────────────────────────────
