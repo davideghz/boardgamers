@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 15:57+0100\n"
+"POT-Creation-Date: 2026-11-09 16:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -245,6 +245,18 @@ msgstr "Gioco"
 
 msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
+
+msgid "Tag for the imported games"
+msgstr "Tag per i giochi importati"
+
+msgid "Ownership"
+msgstr "Proprietà"
+
+msgid "Owner Member"
+msgstr "Socio Proprietario"
+
+msgid "Physical Location"
+msgstr "Ubicazione"
 
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
@@ -679,15 +691,6 @@ msgstr "In associazione"
 
 msgid "At member's home"
 msgstr "A casa di un socio"
-
-msgid "Ownership"
-msgstr "Proprietà"
-
-msgid "Owner Member"
-msgstr "Socio Proprietario"
-
-msgid "Physical Location"
-msgstr "Ubicazione"
 
 msgid "Tags"
 msgstr "Tag"
@@ -2361,6 +2364,22 @@ msgstr "Nessun gioco corrisponde alla ricerca."
 msgid "No games available yet."
 msgstr "Nessun gioco disponibile al momento."
 
+msgid "Filter…"
+msgstr "Filtra…"
+
+msgid "Filter"
+msgstr "Filtra"
+
+msgid "Already in the library"
+msgstr "Già in ludoteca"
+
+msgid "On Board Gamers"
+msgstr "Già su Board Gamers"
+
+msgctxt "game imported from BGG"
+msgid "New"
+msgstr "Nuovo"
+
 msgid "Edit location"
 msgstr "Modifica location"
 
@@ -2614,8 +2633,83 @@ msgstr "Cerca per gioco, socio o tag…"
 msgid "Download CSV"
 msgstr "Scarica CSV"
 
+msgid "Import from BoardGameGeek"
+msgstr "Importa da BoardGameGeek"
+
+msgid "Or import a collection from BoardGameGeek."
+msgstr "Oppure importa una collezione da BoardGameGeek."
+
 msgid "Only managers see them: they don't appear on the public library."
 msgstr "Li vedono solo i gestori: non compaiono nella libreria pubblica."
+
+msgid ""
+"Add to the library the games a BoardGameGeek user marks as owned. The "
+"collection must be public."
+msgstr ""
+"Aggiungi alla ludoteca i giochi che un utente di BoardGameGeek segna come "
+"posseduti. La collezione deve essere pubblica."
+
+msgid "BoardGameGeek username"
+msgstr "Username BoardGameGeek"
+
+msgid "Loading…"
+msgstr "Caricamento…"
+
+msgid "Load collection"
+msgstr "Carica collezione"
+
+#, python-format
+msgid "There is no BoardGameGeek user called «%(username)s»."
+msgstr "Non esiste un utente BoardGameGeek chiamato «%(username)s»."
+
+msgid ""
+"BoardGameGeek is still preparing this collection. Try again in a few seconds."
+msgstr ""
+"BoardGameGeek sta ancora preparando questa collezione. Riprova tra qualche "
+"secondo."
+
+msgid "Try again"
+msgstr "Riprova"
+
+#, python-format
+msgid "«%(username)s» has no owned games, or the collection is private."
+msgstr ""
+"«%(username)s» non ha giochi posseduti, oppure la collezione è privata."
+
+msgid "Expansions"
+msgstr "Espansioni"
+
+msgid ""
+"A new name creates the tag. Games already in the library are not touched."
+msgstr ""
+"Un nome nuovo crea il tag. I giochi già in ludoteca non vengono modificati."
+
+msgid "Import"
+msgstr "Importa"
+
+msgid "Go to the library"
+msgstr "Vai alla ludoteca"
+
+#, python-format
+msgid "Imported %%(done)s of %%(total)s…"
+msgstr "Importati %%(done)s di %%(total)s…"
+
+#, python-format
+msgid ""
+"Done: %%(added)s added, %%(skipped)s already in the library, %%(failed)s "
+"failed."
+msgstr ""
+"Fatto: %%(added)s aggiunti, %%(skipped)s già in ludoteca, %%(failed)s non "
+"riusciti."
+
+msgid "Imported"
+msgstr "Importato"
+
+msgid "Failed"
+msgstr "Non riuscito"
+
+msgid "The import is still running. Leave anyway?"
+msgstr "L'importazione è ancora in corso. Uscire comunque?"
 
 msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -4426,6 +4520,10 @@ msgstr "%(game)s – %(name)s"
 
 msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
+
+#, python-format
+msgid "Import from BGG – %(name)s"
+msgstr "Importa da BGG – %(name)s"
 
 #, python-format
 msgid "Play areas – %(name)s"

@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import defaultdict
 from datetime import date, timedelta
 
@@ -22,12 +23,15 @@ from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
-    PhysicalTableForm, LocationGameTagForm
+    PhysicalTableForm, LocationGameTagForm, BGGCollectionImportForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable
+from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services.tables import reopen_location_leaderboards
+
+logger = logging.getLogger(__name__)
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -1149,6 +1153,106 @@ class LocationGameDetailView(LoginRequiredMixin, View):
             'is_new': False,
             'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
         })
+
+
+BGG_IMPORT_BATCH_SIZE = 10  # games per request: keeps BGG calls and cover downloads under the Heroku timeout
+
+
+class LocationGamesBGGImportView(LoginRequiredMixin, View):
+    """Preview the games a BGG user owns and pick the ones to add to the library.
+    The import itself runs in batches through LocationGamesBGGImportBatchView."""
+    template_name = 'locations/location_manage_games_bgg_import.html'
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        username = request.GET.get('username', '').strip()[:64]
+        items, error = None, None
+        if username:
+            try:
+                items = fetch_bgg_collection(username)
+            except BGGCollectionError as e:
+                error = e.code
+        if items:
+            library = location.location_games.select_related('game')
+            library_codes = {lg.game.bgg_code for lg in library if lg.game.bgg_code}
+            library_names = {lg.game.name.lower() for lg in library}
+            known_codes = set(Game.objects.filter(bgg_code__in=[i['bgg_id'] for i in items])
+                              .values_list('bgg_code', flat=True))
+            for item in items:
+                if item['bgg_id'] in library_codes or item['name'].lower() in library_names:
+                    item['status'] = 'in_library'
+                elif item['bgg_id'] in known_codes:
+                    item['status'] = 'known'
+                else:
+                    item['status'] = 'new'
+        games = [i for i in items or [] if not i['is_expansion']]
+        expansions = [i for i in items or [] if i['is_expansion']]
+        return render(request, self.template_name, {
+            'location': location,
+            'username': username,
+            'error': error,
+            'loaded': items is not None,
+            'games': games,
+            'expansions': expansions,
+            'importable_count': sum(1 for i in games if i['status'] != 'in_library'),
+            'form': BGGCollectionImportForm(location=location),
+            'tags': location.game_tags.all(),
+            'batch_size': BGG_IMPORT_BATCH_SIZE,
+            'meta': Meta(title=_("Import from BGG – %(name)s") % {'name': location.name}),
+        })
+
+
+class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
+    """Add a batch of BGG games to the library. POST: the BGGCollectionImportForm
+    fields plus `items`, a JSON list of {bgg_id, name}. Games already in the
+    library are left untouched."""
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = BGGCollectionImportForm(request.POST, location=location)
+        try:
+            items = json.loads(request.POST.get('items', ''))
+            items = [{'bgg_id': str(int(i['bgg_id'])), 'name': str(i.get('name', ''))[:255]} for i in items]
+        except (ValueError, TypeError, KeyError):
+            items = None
+        if not form.is_valid() or not items or len(items) > BGG_IMPORT_BATCH_SIZE:
+            return JsonResponse({'error': 'invalid'}, status=400)
+
+        try:
+            games = import_games_from_bgg(items)
+        except Exception as e:
+            logger.warning(f'BGG collection import failed for {location.slug}: {e}')
+            return JsonResponse({'error': 'bgg'}, status=502)
+
+        data = form.cleaned_data
+        tag = None
+        if data['tag_name']:
+            tag = location.game_tags.filter(name__iexact=data['tag_name']).first()
+            if tag is None:
+                order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
+                tag = LocationGameTag.objects.create(location=location, name=data['tag_name'], order=order)
+
+        added, skipped, failed = [], [], []
+        for item in items:
+            game = games.get(item['bgg_id'])
+            if game is None:
+                failed.append(item['bgg_id'])
+                continue
+            entry, created = LocationGame.objects.get_or_create(
+                location=location, game=game, defaults={
+                    'ownership': data['ownership'],
+                    'owner_member': data['owner_member'],
+                    'physical_location': data['physical_location'],
+                })
+            if created:
+                if tag:
+                    entry.tags.add(tag)
+                added.append(item['bgg_id'])
+            else:
+                skipped.append(item['bgg_id'])
+        return JsonResponse({'added': added, 'skipped': skipped, 'failed': failed})
 
 
 class LocationGameTagAddView(LoginRequiredMixin, View):

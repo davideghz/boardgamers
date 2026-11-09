@@ -77,6 +77,11 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           CSV
         </a>
+        <a href="{% url 'location-games-bgg-import' location.slug %}" title="{% trans 'Import from BoardGameGeek' %}"
+           class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-3 py-2.5 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>
+          BGG
+        </a>
       </div>
       <p id="game-no-results" class="hidden text-sm text-content-muted my-4 text-center">{% trans "No games found." %}</p>
 
@@ -138,7 +143,10 @@
               </svg>
             </div>
             <p class="text-sm font-semibold text-content">{% trans "No games yet" %}</p>
-            <p class="text-xs text-content-muted mt-1 mb-4">{% trans "Add the first game to the library." %}</p>
+            <p class="text-xs text-content-muted mt-1 mb-4">
+              {% trans "Add the first game to the library." %}
+              <a href="{% url 'location-games-bgg-import' location.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "Or import a collection from BoardGameGeek." %}</a>
+            </p>
             <a href="{% url 'location-add-game' location.slug %}"
                class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
