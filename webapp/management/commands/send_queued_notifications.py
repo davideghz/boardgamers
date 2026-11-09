@@ -8,6 +8,7 @@ import boto3
 import json
 import logging
 
+from webapp.emails import station_assignment_href
 from webapp.models import Notification, NotificationType
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,9 @@ class Command(BaseCommand):
                     'description': escape(description).replace("\n", "<br>") if description else "",
                     'description_text': description,
                     'button_href': _table_url(table),
+                    # Al proprietario/manager della location: suggerisce di assegnare una postazione
+                    # (send_location_managers_notification_new_table non gli manda una seconda email)
+                    'assign_station_href': station_assignment_href(table, profile),
                 })
                 valid_notifications.append(n)
                 bulk_entries.append(_bulk_entry(n.recipient.user.email, template_data))

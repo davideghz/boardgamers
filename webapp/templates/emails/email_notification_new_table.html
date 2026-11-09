@@ -8,4 +8,8 @@
 {% endverbatim %}{% trans "Description:" %} {% verbatim %}{{description_text}}{{/if}}{% endverbatim %}
 
 {{ button_href }}
+{% verbatim %}{{#if assign_station_href}}
+{% endverbatim %}{% trans "No station is assigned to this table yet. If you manage the stations of your location, you can assign one by editing the table (optional):" %}
+{{ assign_station_href }}{% verbatim %}
+{{/if}}{% endverbatim %}
 Board-Gamers.com

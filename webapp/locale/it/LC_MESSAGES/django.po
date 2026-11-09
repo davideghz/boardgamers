@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 11:20+0100\n"
+"POT-Creation-Date: 2026-11-09 11:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,7 +178,7 @@ msgid "A station with this name already exists for this event."
 msgstr "Esiste già una postazione con questo nome per questo evento."
 
 msgid "A station with this name already exists for this location."
-msgstr "Esiste già una postazione con questo nome per questo luogo."
+msgstr "Esiste già una postazione con questo nome in questa location."
 
 msgid "Manager"
 msgstr "Manager"
@@ -297,6 +297,9 @@ msgstr "Nuovo giocatore al tavolo"
 
 msgid "New event to approve"
 msgstr "Nuovo evento da approvare"
+
+msgid "New table at your location"
+msgstr "Nuovo tavolo nella tua location"
 
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
@@ -1619,6 +1622,38 @@ msgstr "messaggio"
 msgid "Hey"
 msgstr "Ciao"
 
+#, python-format
+msgid "%(author)s created the table \"%(title)s\" at %(location_name)s."
+msgstr "%(author)s ha creato il tavolo \"%(title)s\" presso %(location_name)s."
+
+msgid "Game:"
+msgstr "Gioco:"
+
+msgid "Not decided yet"
+msgstr "Non ancora deciso"
+
+msgid "Date and time:"
+msgstr "Data e ora:"
+
+msgid "Play area"
+msgstr "Area di gioco"
+
+msgid "No station is assigned to this table yet. If you manage the stations of your location, you can assign one by editing the table (optional):"
+msgstr "Al tavolo non è ancora assegnata una postazione. Se gestisci le postazioni della tua location, puoi assegnarne una modificando il tavolo (facoltativo):"
+
+#, python-format
+msgid "<strong>%(author)s</strong> created the table <a href=\"%(table_href)s\">%(title)s</a> at <strong>%(location_name)s</strong>."
+msgstr "<strong>%(author)s</strong> ha creato il tavolo <a href=\"%(table_href)s\">%(title)s</a> presso <strong>%(location_name)s</strong>."
+
+msgid "No station is assigned to this table yet. If you manage the stations of your location, you can assign one by editing the table (optional)."
+msgstr "Al tavolo non è ancora assegnata una postazione. Se gestisci le postazioni della tua location, puoi assegnarne una modificando il tavolo (facoltativo)."
+
+msgid "Assign a station"
+msgstr "Assegna una postazione"
+
+msgid "See table"
+msgstr "Vai al tavolo"
+
 msgid ""
 "We are sorry to inform you that a table you were participating in has been "
 "deleted."
@@ -1626,26 +1661,14 @@ msgstr ""
 "Siamo spiacenti di informarti che un tavolo a cui stavi partecipando è stato "
 "eliminato."
 
-msgid "Game:"
-msgstr "Gioco:"
-
 msgid "Location:"
 msgstr "Location:"
-
-msgid "Date and time:"
-msgstr "Data e ora:"
 
 msgid "Title:"
 msgstr "Titolo:"
 
-msgid "Not decided yet"
-msgstr "Non ancora deciso"
-
 msgid "Check other tables"
 msgstr "Trova altri tavoli"
-
-msgid "See table"
-msgstr "Vai al tavolo"
 
 #, python-format
 msgid "A new table has been created by %(creator_name)s at %(location_name)s."
@@ -2279,9 +2302,6 @@ msgstr "Posti"
 msgid "free"
 msgstr "liberi"
 
-msgid "Play area"
-msgstr "Area di gioco"
-
 msgid "max"
 msgstr "max"
 
@@ -2554,7 +2574,7 @@ msgid "View page"
 msgstr "Vedi pagina"
 
 msgid "Drag to reorder. Areas can be assigned to the tables of this location."
-msgstr "Trascina per riordinare. Le aree si possono assegnare ai tavoli di questo luogo."
+msgstr "Trascina per riordinare. Le aree si possono assegnare ai tavoli di questa location."
 
 msgid "Location info"
 msgstr "Info location"

@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -23,6 +24,7 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from django.views import generic, View
 from meta.views import Meta
 
+from webapp import emails
 from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
@@ -33,6 +35,8 @@ from webapp.services.tables import (
     can_change_result_mode, leaderboard_turned_off, leave_table, remove_guest, save_table_result,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
+
+logger = logging.getLogger(__name__)
 
 
 class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
@@ -522,6 +526,13 @@ def table_create_view(request, location_slug):
             if request.POST.get("join_table"):
                 with transaction.atomic():
                     table.players.add(request.user.user_profile)
+
+            # The table is already saved: a mail error must not turn it into a 500.
+            try:
+                emails.send_location_managers_notification_new_table(table)
+            except Exception:
+                logger.exception("Could not notify the managers of location %s about table %s",
+                                 location.pk, table.pk)
 
             messages.success(request, _("Table was created successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))

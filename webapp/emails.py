@@ -80,6 +80,64 @@ def send_admin_notification_new_event(event):
     )
 
 
+def station_assignment_href(table, user_profile):
+    """URL to edit `table` when `user_profile` runs its location and the table could
+    get a station (the location has some, the table none), else "". Assigning a
+    station is optional: it is only suggested to the locations that use them."""
+    location = table.location
+    if not location or table.physical_table_id is not None:
+        return ''
+    is_staff = location.creator_id == user_profile.id or location.managers.filter(id=user_profile.id).exists()
+    if not is_staff or not location.physical_tables.exists():
+        return ''
+    return settings.DOMAIN_URL + reverse(
+        'location-table-update', kwargs={'location_slug': location.slug, 'table_slug': table.slug})
+
+
+def send_location_managers_notification_new_table(table):
+    """
+    Tells the location owner and managers that a table was created at their location.
+    When the location has stations and the table has none, the mail suggests
+    assigning one (see station_assignment_href).
+
+    Staff who follow the location with new-table emails on already get the
+    follower mail (send_queued_notifications), which carries the same
+    suggestion: they are skipped here, so nobody gets two mails.
+
+    :param table: The new Table instance, with a location.
+    """
+    location = table.location
+    followers_mailed = set(location.followers.filter(
+        user_profile__notification_new_table=True).values_list('user_profile_id', flat=True))
+    recipients = {location.creator, *location.managers.select_related('user')} - {None, table.author}
+    table_href = settings.DOMAIN_URL + reverse('table-detail', kwargs={'slug': table.slug})
+
+    for user_profile in recipients:
+        if not user_profile.user.email or user_profile.id in followers_mailed:
+            continue
+        assign_href = station_assignment_href(table, user_profile)
+        context = {
+            'user_profile': user_profile,
+            'table': table,
+            'location_name': location.name,
+            'author': table.author.nickname if table.author else '',
+            'needs_station': bool(assign_href),
+            'table_href': table_href,
+            'button_href': assign_href or table_href,
+        }
+        with translation.override(user_profile.preferred_language or settings.LANGUAGE_CODE):
+            subject = f"{messages.EMAIL_SUBJECT_LOCATION_NEW_TABLE}: {table.title}"
+            text_content = render_to_string('emails/email_location_new_table.html', context=context)
+            html_content = render_to_string('emails/email_location_new_table_html.html', context=context)
+        send_mail(
+            subject,
+            text_content,
+            settings.DEFAULT_FROM_EMAIL,
+            [user_profile.user.email],
+            html_message=html_content,
+        )
+
+
 def send_notification_new_table(user_profile, new_table):
     if not user_profile.user.email:
         return

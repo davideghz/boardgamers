@@ -1,0 +1,16 @@
+{% load i18n %}
+
+{% trans "Hey" %} {{ user_profile.nickname }},
+{% blocktrans with title=table.title %}{{ author }} created the table "{{ title }}" at {{ location_name }}.{% endblocktrans %}
+
+{% trans "Game:" %} {% if table.game %}{{ table.game }}{% else %}{% trans "Not decided yet" %}{% endif %}
+{% trans "Date and time:" %} {{ table.date|date:"d/m/Y" }}, {{ table.time|time:"H:i" }}
+{% if table.play_area %}{% trans "Play area" %}: {{ table.play_area.name }}
+{% endif %}{% if table.physical_table %}{% trans "Station" %}: {{ table.physical_table.name }}
+{% endif %}
+{{ table_href }}
+{% if needs_station %}
+{% trans "No station is assigned to this table yet. If you manage the stations of your location, you can assign one by editing the table (optional):" %}
+{{ button_href }}
+{% endif %}
+Board-Gamers.com
