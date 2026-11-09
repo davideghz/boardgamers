@@ -221,6 +221,12 @@ class LocationTableStationTest(TestCase):
 
         self.assertIn('physical_table', form.errors)
 
+    def test_station_without_area_takes_the_station_area(self):
+        form = TableForm(data=self._data(physical_table=self.station.pk), location=self.location)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['play_area'], self.area)
+
     def test_station_of_another_location_is_rejected(self):
         foreign = PhysicalTable.objects.create(location=LocationFactory(name='Other', slug='other'), name='T')
 

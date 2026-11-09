@@ -393,7 +393,16 @@
         stationSelect.value = keepCurrent ? current : '';
       }
 
+      // Picking a station selects its area, so the pair is always consistent
+      function syncArea() {
+        var opt = stationSelect.options[stationSelect.selectedIndex];
+        if (!opt || opt.value === '') return;
+        areaSelect.value = opt.getAttribute('data-area') || '';
+        syncStations();
+      }
+
       areaSelect.addEventListener('change', syncStations);
+      stationSelect.addEventListener('change', syncArea);
       syncStations();
     });
 

@@ -351,9 +351,12 @@ class TableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        # The selected station must belong to the selected play area.
+        # The selected station must belong to the selected play area. With no
+        # area picked, the station's own area is taken (the JS does the same).
         physical_table = cleaned_data.get('physical_table')
         play_area = cleaned_data.get('play_area')
+        if physical_table and play_area is None and 'play_area' not in self.errors:
+            play_area = cleaned_data['play_area'] = physical_table.play_area
         if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
             self.add_error('physical_table', _("The selected station does not belong to the selected area."))
         clean_table_seats(self, cleaned_data)
