@@ -284,6 +284,34 @@ def clean_table_seats(form, cleaned_data):
         form.add_error('max_players', _("Maximum players cannot be less than minimum players."))
 
 
+def setup_table_station_fields(form, play_areas, stations):
+    """Limit the play area and station dropdowns to the given querysets, shared
+    by TableForm and EventTableForm. Areas show their bare name (their __str__
+    repeats the event or location), stations are prefixed by their area."""
+    stations = stations.select_related('play_area')
+    form.fields['play_area'].queryset = play_areas
+    form.fields['play_area'].label_from_instance = lambda a: a.name
+    form.fields['physical_table'].queryset = stations
+    form.fields['physical_table'].widget.station_area_map = {s.pk: s.play_area_id for s in stations}
+    form.fields['physical_table'].label_from_instance = (
+        lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
+    )
+
+
+def clean_table_station(form, cleaned_data):
+    """The selected station must belong to the selected play area, shared by
+    TableForm and EventTableForm. With no area picked, the station's own area is
+    taken (the form's JS does the same when a station is picked)."""
+    physical_table = cleaned_data.get('physical_table')
+    if not physical_table:
+        return
+    play_area = cleaned_data.get('play_area')
+    if play_area is None and 'play_area' not in form.errors:
+        play_area = cleaned_data['play_area'] = physical_table.play_area
+    if physical_table.play_area_id != (play_area.id if play_area else None):
+        form.add_error('physical_table', _("The selected station does not belong to the selected area."))
+
+
 class AreaTaggedSelect(Select):
     """Select that tags each <option> with a data-area attribute, so the station
     dropdown can be filtered client-side by the selected play area."""
@@ -319,15 +347,8 @@ class TableForm(ModelForm, TailwindForm):
         if 'play_area' not in self.fields:
             return
         if location is not None:
-            self.fields['play_area'].queryset = PlayArea.objects.filter(location=location)
-            stations = PhysicalTable.objects.filter(location=location).select_related('play_area')
-            self.fields['physical_table'].queryset = stations
-            self.fields['physical_table'].widget.station_area_map = {
-                s.pk: s.play_area_id for s in stations
-            }
-            self.fields['physical_table'].label_from_instance = (
-                lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
-            )
+            setup_table_station_fields(self, PlayArea.objects.filter(location=location),
+                                       PhysicalTable.objects.filter(location=location))
         else:
             self.fields['play_area'].queryset = PlayArea.objects.none()
             self.fields['physical_table'].queryset = PhysicalTable.objects.none()
@@ -351,14 +372,7 @@ class TableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        # The selected station must belong to the selected play area. With no
-        # area picked, the station's own area is taken (the JS does the same).
-        physical_table = cleaned_data.get('physical_table')
-        play_area = cleaned_data.get('play_area')
-        if physical_table and play_area is None and 'play_area' not in self.errors:
-            play_area = cleaned_data['play_area'] = physical_table.play_area
-        if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
-            self.add_error('physical_table', _("The selected station does not belong to the selected area."))
+        clean_table_station(self, cleaned_data)
         clean_table_seats(self, cleaned_data)
         return cleaned_data
 
@@ -449,15 +463,8 @@ class EventTableForm(ModelForm, TailwindForm):
                 attrs={'class': _TW_INPUT}
             )
             self.fields['date'].input_formats = ['%Y-%m-%d']
-            self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
-            stations = PhysicalTable.objects.filter(event=event).select_related('play_area')
-            self.fields['physical_table'].queryset = stations
-            self.fields['physical_table'].widget.station_area_map = {
-                s.pk: s.play_area_id for s in stations
-            }
-            self.fields['physical_table'].label_from_instance = (
-                lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
-            )
+            setup_table_station_fields(self, PlayArea.objects.filter(event=event),
+                                       PhysicalTable.objects.filter(event=event))
             self.fields['category'].queryset = EventTableCategory.objects.filter(event=event)
         else:
             self.fields['date'].input_formats = ['%Y-%m-%d']
@@ -476,13 +483,7 @@ class EventTableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
-        # The selected station must belong to the selected play area.
-        physical_table = cleaned_data.get('physical_table')
-        play_area = cleaned_data.get('play_area')
-        if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
-            self.add_error('physical_table', _("The selected station does not belong to the selected area."))
-
+        clean_table_station(self, cleaned_data)
         clean_table_seats(self, cleaned_data)
         return cleaned_data
 
@@ -789,6 +790,7 @@ class PhysicalTableForm(ModelForm, TailwindForm):
             self.fields['play_area'].queryset = PlayArea.objects.filter(location=location)
         else:
             self.fields['play_area'].queryset = PlayArea.objects.none()
+        self.fields['play_area'].label_from_instance = lambda a: a.name
         self.fields['play_area'].required = False
 
     def clean_name(self):
