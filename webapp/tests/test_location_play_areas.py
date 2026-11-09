@@ -9,6 +9,9 @@ from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.forms import PhysicalTableForm, PlayAreaForm, TableForm
 from webapp.models import Event, PhysicalTable, PlayArea, Table
 
+# Management form of the (empty) extra-links formset posted with the table form.
+LINKS_MANAGEMENT = {'links-TOTAL_FORMS': 0, 'links-INITIAL_FORMS': 0}
+
 
 class LocationPlayAreaManagementTest(TestCase):
     def setUp(self):
@@ -94,6 +97,7 @@ class LocationTablePlayAreaTest(TestCase):
         return {
             'title': 'Serata', 'description': 'Una serata', 'date': '2030-01-10', 'time': '21:00',
             'min_players': 2, 'max_players': 4, 'location': self.location.pk, 'play_area': area.pk,
+            **LINKS_MANAGEMENT,
         }
 
     def test_form_offers_only_the_location_areas(self):
@@ -206,6 +210,7 @@ class LocationTableStationTest(TestCase):
         data = {
             'title': 'Serata', 'description': 'Una serata', 'date': '2030-01-10', 'time': '21:00',
             'min_players': 2, 'max_players': 4, 'location': self.location.pk,
+            **LINKS_MANAGEMENT,
         }
         data.update(extra)
         return data
