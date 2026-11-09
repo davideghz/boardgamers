@@ -507,7 +507,7 @@ def table_create_view(request, location_slug):
         return refusal
 
     if request.method == "POST":
-        form = TableForm(request.POST, request.FILES)
+        form = TableForm(request.POST, request.FILES, location=location)
         link_formset = TableLinkFormSet(request.POST)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
@@ -528,7 +528,7 @@ def table_create_view(request, location_slug):
     else:
         if date_param := request.GET.get('date'):
             initial['date'] = date_param
-        form = TableForm(initial=initial)
+        form = TableForm(initial=initial, location=location)
         link_formset = TableLinkFormSet()
 
     context = {
@@ -554,7 +554,7 @@ def table_update_view(request, location_slug, table_slug):
     location = table.location  # Ora la location è sempre valida
 
     if request.method == "POST":
-        form = TableForm(request.POST, request.FILES, instance=table)
+        form = TableForm(request.POST, request.FILES, instance=table, location=location)
         link_formset = TableLinkFormSet(request.POST, instance=table)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
@@ -565,7 +565,7 @@ def table_update_view(request, location_slug, table_slug):
             messages.success(request, _("Table was updated successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        form = TableForm(instance=table)
+        form = TableForm(instance=table, location=location)
         link_formset = TableLinkFormSet(instance=table)
 
     context = {

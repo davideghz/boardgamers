@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 23:35+0100\n"
+"POT-Creation-Date: 2026-11-09 11:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,6 +104,9 @@ msgstr "Questo campo è obbligatorio."
 msgid "Maximum players cannot be less than minimum players."
 msgstr "Il numero massimo di giocatori non può essere inferiore al minimo."
 
+msgid "The selected station does not belong to the selected area."
+msgstr "La postazione selezionata non appartiene all’area selezionata."
+
 msgid "e.g. Rulebook, Score sheet…"
 msgstr "es. Regolamento, Foglio punteggi…"
 
@@ -126,9 +129,6 @@ msgstr "Seleziona una data"
 msgid "No category"
 msgstr "Nessuna categoria"
 
-msgid "The selected station does not belong to the selected area."
-msgstr "La postazione selezionata non appartiene all’area selezionata."
-
 msgid "Your comment..."
 msgstr "Il tuo commento..."
 
@@ -140,6 +140,9 @@ msgstr "Inserisci un nickname"
 
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
+
+msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
+msgstr ""
 
 msgid "First name"
 msgstr "Nome"
@@ -168,8 +171,14 @@ msgstr "Orario di apertura"
 msgid "Closing time"
 msgstr "Orario di chiusura"
 
+msgid "An area with this name already exists."
+msgstr "Esiste già un’area con questo nome."
+
 msgid "A station with this name already exists for this event."
 msgstr "Esiste già una postazione con questo nome per questo evento."
+
+msgid "A station with this name already exists for this location."
+msgstr "Esiste già una postazione con questo nome per questo luogo."
 
 msgid "Manager"
 msgstr "Manager"
@@ -2544,6 +2553,9 @@ msgstr ""
 msgid "View page"
 msgstr "Vedi pagina"
 
+msgid "Drag to reorder. Areas can be assigned to the tables of this location."
+msgstr "Trascina per riordinare. Le aree si possono assegnare ai tavoli di questo luogo."
+
 msgid "Location info"
 msgstr "Info location"
 
@@ -2853,6 +2865,9 @@ msgstr "Chi può unirsi ai tavoli?"
 
 msgid "Save permissions"
 msgstr "Salva permessi"
+
+msgid "Edit station"
+msgstr "Modifica postazione"
 
 msgid "Generate a message to share table status on WhatsApp or other chats."
 msgstr ""
@@ -4358,6 +4373,17 @@ msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
 
 #, python-format
+msgid "Play areas – %(name)s"
+msgstr "Aree di gioco – %(name)s"
+
+#, python-format
+msgid "Stations – %(name)s"
+msgstr "Postazioni – %(name)s"
+
+msgid "Station updated."
+msgstr "Postazione aggiornata."
+
+#, python-format
 msgid "Widget – %(name)s"
 msgstr "Widget - %(name)s"
 
@@ -4569,11 +4595,23 @@ msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
+#, python-brace-format
+msgid "{user_profile.nickname} is already at the table."
+msgstr ""
+
+#, python-brace-format
+msgid "{user_profile.nickname} added to the table."
+msgstr ""
+
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
+
+#, python-brace-format
+msgid "{nickname} has been removed from the table."
+msgstr ""
 
 msgid "You don't have permission to duplicate this table."
 msgstr "Non hai il permesso di duplicare questo tavolo."

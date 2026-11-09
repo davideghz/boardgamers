@@ -1539,19 +1539,35 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
 
 class PlayArea(DateTimeModel):
+    """A room or zone where tables are played. Belongs to either an event or a
+    location: the two sets are independent (events don't inherit location areas)."""
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='play_areas', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='play_areas',
+        null=True, blank=True, verbose_name=_('Event'))
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='play_areas',
+        null=True, blank=True, verbose_name=_('Location'))
     name = models.CharField(max_length=144, verbose_name=_('Name'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     def __str__(self):
-        return f"{self.event.name} — {self.name}"
+        owner = self.event or self.location
+        return f"{owner.name} — {self.name}"
 
     class Meta:
         verbose_name = _('Play Area')
         verbose_name_plural = _('Play Areas')
         ordering = ['order', 'name']
-        unique_together = [('event', 'name')]
+        unique_together = [('event', 'name'), ('location', 'name')]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(event__isnull=False, location__isnull=True)
+                    | models.Q(event__isnull=True, location__isnull=False)
+                ),
+                name='playarea_event_xor_location',
+            ),
+        ]
 
 
 class EventDate(DateTimeModel):
@@ -1631,13 +1647,18 @@ class EventGame(DateTimeModel):
 
 
 class PhysicalTable(DateTimeModel):
-    """A physical playing station ("postazione") at an event — e.g. Table 1, 2, 3.
+    """A physical playing station ("postazione") at an event or a location — e.g.
+    Table 1, 2, 3. Belongs to exactly one of the two, like PlayArea.
 
     Game sessions (Table) can be assigned to a station for a time slot. A station
     can exist without any session (free / game-lending stations).
     """
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='physical_tables', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='physical_tables',
+        null=True, blank=True, verbose_name=_('Event'))
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='physical_tables',
+        null=True, blank=True, verbose_name=_('Location'))
     play_area = models.ForeignKey(
         PlayArea, on_delete=models.SET_NULL, related_name='physical_tables',
         null=True, blank=True, verbose_name=_('Play Area'))
@@ -1646,13 +1667,23 @@ class PhysicalTable(DateTimeModel):
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     def __str__(self):
-        return f"{self.event.name} — {self.name}"
+        owner = self.event or self.location
+        return f"{owner.name} — {self.name}"
 
     class Meta:
         verbose_name = _('Station')
         verbose_name_plural = _('Stations')
         ordering = ['order', 'name']
-        unique_together = [('event', 'name')]
+        unique_together = [('event', 'name'), ('location', 'name')]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(event__isnull=False, location__isnull=True)
+                    | models.Q(event__isnull=True, location__isnull=False)
+                ),
+                name='physicaltable_event_xor_location',
+            ),
+        ]
 
 
 class EventParticipant(DateTimeModel):

@@ -94,6 +94,28 @@
       <fieldset id="details-fieldset" class="space-y-5 min-w-0 border-0 p-0 m-0"{% if not details_unlocked %} style="display:none"{% endif %}>
     {% endif %}
 
+    {# ── Play Area ───────────────────────────────────────────────────── #}
+    {% if form.play_area.field.queryset.exists %}
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.play_area.id_for_label }}">
+          {{ form.play_area.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+        </label>
+        {{ form.play_area }}
+        {% if form.play_area.errors %}<p class="mt-1 text-xs text-red-500">{{ form.play_area.errors|join:", " }}</p>{% endif %}
+      </div>
+    {% endif %}
+
+    {# ── Station (postazione) ────────────────────────────────────────── #}
+    {% if form.physical_table.field.queryset.exists %}
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.physical_table.id_for_label }}">
+          {{ form.physical_table.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+        </label>
+        {{ form.physical_table }}
+        {% if form.physical_table.errors %}<p class="mt-1 text-xs text-red-500">{{ form.physical_table.errors|join:", " }}</p>{% endif %}
+      </div>
+    {% endif %}
+
     {# ── Title ───────────────────────────────────────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
@@ -344,6 +366,46 @@
 
 {% block extrabodyjs %}
   <script>
+    // Filter the station dropdown by the selected play area
+    document.addEventListener('DOMContentLoaded', function () {
+      var areaSelect = document.getElementById('id_play_area');
+      var stationSelect = document.getElementById('id_physical_table');
+      if (!areaSelect || !stationSelect) return;
+
+      // Snapshot all original options so we can rebuild on every change
+      var allOptions = Array.prototype.slice.call(stationSelect.options);
+
+      function syncStations() {
+        var area = areaSelect.value;
+        var current = stationSelect.value;
+        stationSelect.innerHTML = '';
+        var keepCurrent = false;
+        allOptions.forEach(function (opt) {
+          var optArea = opt.getAttribute('data-area');
+          // Always keep the empty placeholder; otherwise keep only stations of
+          // the selected area (or all stations when no area is selected).
+          var show = (opt.value === '') || (!area) || (optArea === area);
+          if (show) {
+            stationSelect.appendChild(opt);
+            if (opt.value === current) keepCurrent = true;
+          }
+        });
+        stationSelect.value = keepCurrent ? current : '';
+      }
+
+      // Picking a station selects its area, so the pair is always consistent
+      function syncArea() {
+        var opt = stationSelect.options[stationSelect.selectedIndex];
+        if (!opt || opt.value === '') return;
+        areaSelect.value = opt.getAttribute('data-area') || '';
+        syncStations();
+      }
+
+      areaSelect.addEventListener('change', syncStations);
+      stationSelect.addEventListener('change', syncArea);
+      syncStations();
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('input[type="time"]').forEach(function (input) {
         input.addEventListener('blur', function () {

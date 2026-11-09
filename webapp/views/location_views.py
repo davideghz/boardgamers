@@ -9,8 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Prefetch, Q, Count, Subquery, OuterRef
-from django.http import Http404, HttpResponse
+from django.db.models import Prefetch, Q, Count, Subquery, OuterRef, Max
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -21,10 +21,12 @@ from django.views.generic import DetailView, CreateView
 from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
-    MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm
+    MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
+    PhysicalTableForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
-    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event
+    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event, PlayArea, \
+    PhysicalTable
 from webapp.services.tables import reopen_location_leaderboards
 
 
@@ -111,7 +113,7 @@ class LocationDetailView(DetailView):
             location=location,
             date__gte=today,
             event__isnull=True
-        ).select_related('author', 'author__user', 'location').prefetch_related(
+        ).select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('date')
 
@@ -120,7 +122,7 @@ class LocationDetailView(DetailView):
             location=location,
             date__lt=today,
             event__isnull=True
-        ).select_related('author', 'author__user', 'location').prefetch_related(
+        ).select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('-date')
 
@@ -1157,6 +1159,150 @@ class DeleteLocationGameView(LoginRequiredMixin, View):
         location_game.delete()
         messages.success(request, _("Game «%(name)s» removed from the library.") % {'name': game_name})
         return redirect('location-manage-games', slug=location.slug)
+
+
+# ---- Play Area Management Views ----
+
+class LocationManageAreasView(LoginRequiredMixin, View):
+    """List, add and reorder the location's play areas (rooms, zones)."""
+    template_name = 'locations/location_manage_areas.html'
+
+    def _render(self, request, location, form):
+        return render(request, self.template_name, {
+            'location': location,
+            'areas': location.play_areas.all(),
+            'form': form,
+            'meta': Meta(title=_("Play areas – %(name)s") % {'name': location.name}),
+        })
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        return self._render(request, location, PlayAreaForm(location=location))
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = PlayAreaForm(request.POST, location=location)
+        if form.is_valid():
+            area = form.save(commit=False)
+            area.location = location
+            max_order = location.play_areas.aggregate(m=Max('order'))['m'] or 0
+            area.order = max_order + 1
+            area.save()
+            messages.success(request, _("Play area added."))
+            return redirect('location-manage-areas', slug=location.slug)
+        return self._render(request, location, form)
+
+
+class LocationManageAreaDeleteView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        PlayArea.objects.filter(pk=pk, location=location).delete()
+        messages.success(request, _("Play area removed."))
+        return redirect('location-manage-areas', slug=location.slug)
+
+
+class LocationManageAreasReorderView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        try:
+            data = json.loads(request.body)
+            for item in data.get('areas', []):
+                PlayArea.objects.filter(pk=item['id'], location=location).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except (ValueError, KeyError, TypeError):
+            return JsonResponse({'success': False}, status=400)
+
+
+# ---- Station Management Views ----
+
+class LocationManageStationsView(LoginRequiredMixin, View):
+    """List, add and reorder the location's physical stations (Table 1, 2, ...)."""
+    template_name = 'locations/location_manage_stations.html'
+
+    def _render(self, request, location, form):
+        return render(request, self.template_name, {
+            'location': location,
+            'stations': location.physical_tables.select_related('play_area'),
+            'form': form,
+            'meta': Meta(title=_("Stations – %(name)s") % {'name': location.name}),
+        })
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        return self._render(request, location, PhysicalTableForm(location=location))
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = PhysicalTableForm(request.POST, location=location)
+        if form.is_valid():
+            station = form.save(commit=False)
+            station.location = location
+            max_order = location.physical_tables.aggregate(m=Max('order'))['m'] or 0
+            station.order = max_order + 1
+            station.save()
+            messages.success(request, _("Station added."))
+            return redirect('location-manage-stations', slug=location.slug)
+        return self._render(request, location, form)
+
+
+class LocationManageStationEditView(LoginRequiredMixin, View):
+    """Rename a station or move it to another play area."""
+    template_name = 'locations/location_manage_station_edit.html'
+
+    def _render(self, request, location, station, form):
+        return render(request, self.template_name, {
+            'location': location,
+            'station': station,
+            'form': form,
+            'meta': Meta(title=_("Stations – %(name)s") % {'name': location.name}),
+        })
+
+    def get(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        station = get_object_or_404(PhysicalTable, pk=pk, location=location)
+        return self._render(request, location, station, PhysicalTableForm(instance=station, location=location))
+
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        station = get_object_or_404(PhysicalTable, pk=pk, location=location)
+        form = PhysicalTableForm(request.POST, instance=station, location=location)
+        if form.is_valid():
+            station = form.save()
+            # A table keeps its station only while they share the same area.
+            station.tables.exclude(play_area_id=station.play_area_id).update(play_area=station.play_area)
+            messages.success(request, _("Station updated."))
+            return redirect('location-manage-stations', slug=location.slug)
+        return self._render(request, location, station, form)
+
+
+class LocationManageStationDeleteView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        PhysicalTable.objects.filter(pk=pk, location=location).delete()
+        messages.success(request, _("Station removed."))
+        return redirect('location-manage-stations', slug=location.slug)
+
+
+class LocationManageStationsReorderView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        try:
+            data = json.loads(request.body)
+            for item in data.get('stations', []):
+                PhysicalTable.objects.filter(pk=item['id'], location=location).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except (ValueError, KeyError, TypeError):
+            return JsonResponse({'success': False}, status=400)
 
 
 class LocationManageWidgetView(LoginRequiredMixin, View):
