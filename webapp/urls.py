@@ -121,6 +121,8 @@ urlpatterns = [
          name="location-manage-station-edit"),
     path("locations/<slug:slug>/manage/stations/<int:pk>/delete/",
          location_views.LocationManageStationDeleteView.as_view(), name="location-manage-station-delete"),
+    path("locations/<slug:slug>/manage/stations/assign/",
+         location_views.LocationManageStationAssignmentView.as_view(), name="location-manage-station-assignment"),
     path("locations/<slug:slug>/manage/widget/", location_views.LocationManageWidgetView.as_view(),
          name="location-manage-widget"),
     path("locations/<slug:slug>/manage/games/", location_views.LocationManageGamesView.as_view(),

@@ -10,6 +10,11 @@
     </p>
     <h1 class="text-2xl font-extrabold text-content">{% trans "Stations" %}</h1>
     <p class="text-sm text-content-muted mt-1">{% trans "Physical playing stations (e.g. Table 1, 2, 3). Drag to reorder." %}</p>
+    {% if stations %}
+      <a href="{% url 'location-manage-station-assignment' location.slug %}" class="inline-block mt-2 text-sm text-blue-600 hover:underline">
+        {% trans "Assign the upcoming games to the stations" %} ›
+      </a>
+    {% endif %}
   </div>
 
   <div class="max-w-xl space-y-6">

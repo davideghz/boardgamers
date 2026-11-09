@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 11:20+0100\n"
+"POT-Creation-Date: 2026-11-09 11:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2554,7 +2554,9 @@ msgid "View page"
 msgstr "Vedi pagina"
 
 msgid "Drag to reorder. Areas can be assigned to the tables of this location."
-msgstr "Trascina per riordinare. Le aree si possono assegnare ai tavoli di questo luogo."
+msgstr ""
+"Trascina per riordinare. Le aree si possono assegnare ai tavoli di questo "
+"luogo."
 
 msgid "Location info"
 msgstr "Info location"
@@ -2620,6 +2622,12 @@ msgstr "Aggiungi, rimuovi manager e trasferisci l'ownership"
 
 msgid "Manage the location's game library"
 msgstr "Gestisci la libreria dei giochi dell'associazione"
+
+msgid "Assign stations"
+msgstr "Assegna postazioni"
+
+msgid "Assign the upcoming games to your stations"
+msgstr "Assegna le prossime partite alle tue postazioni"
 
 msgid "Manage members and memberships"
 msgstr "Gestisci associati e membership"
@@ -2866,8 +2874,41 @@ msgstr "Chi può unirsi ai tavoli?"
 msgid "Save permissions"
 msgstr "Salva permessi"
 
+msgid "Assign the upcoming games to your stations. It is optional: the station is shown on the game page."
+msgstr "Assegna le prossime partite alle tue postazioni. È facoltativo: la postazione viene mostrata nella pagina della partita."
+
+msgid "This location has no stations yet. Create them first (e.g. Table 1, Table 2), then come back to assign the games."
+msgstr "Questa location non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo 2), poi torna qui per assegnare le partite."
+
+msgid "Create stations"
+msgstr "Crea postazioni"
+
+msgid "All"
+msgstr "Tutte"
+
+msgid "Without station"
+msgstr "Senza postazione"
+
+msgid "Manage stations"
+msgstr "Gestisci postazioni"
+
+msgid "Station booked by another game at an overlapping time"
+msgstr "Postazione occupata da un’altra partita in un orario sovrapposto"
+
+msgid "No station"
+msgstr "Senza postazione"
+
+msgid "All upcoming games have a station."
+msgstr "Tutte le prossime partite hanno una postazione."
+
+msgid "No upcoming games at this location."
+msgstr "Nessuna partita in programma in questa location."
+
 msgid "Edit station"
 msgstr "Modifica postazione"
+
+msgid "Assign the upcoming games to the stations"
+msgstr "Assegna le prossime partite alle postazioni"
 
 msgid "Generate a message to share table status on WhatsApp or other chats."
 msgstr ""
@@ -4104,9 +4145,6 @@ msgstr ""
 "Attenzione: questa postazione è già occupata da un altro tavolo in un orario "
 "sovrapposto."
 
-msgid "No station"
-msgstr "Senza postazione"
-
 msgid "General"
 msgstr "Generale"
 
@@ -4382,6 +4420,14 @@ msgstr "Postazioni – %(name)s"
 
 msgid "Station updated."
 msgstr "Postazione aggiornata."
+
+#, python-format
+msgid "Assign stations – %(name)s"
+msgstr "Assegna postazioni – %(name)s"
+
+#, python-format
+msgid "Station of «%(title)s» updated."
+msgstr "Postazione di «%(title)s» aggiornata."
 
 #, python-format
 msgid "Widget – %(name)s"
