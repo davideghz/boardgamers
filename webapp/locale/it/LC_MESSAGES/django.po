@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 11:37+0100\n"
+"POT-Creation-Date: 2026-11-09 14:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,9 +140,6 @@ msgstr "Inserisci un nickname"
 
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
-
-msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
-msgstr ""
 
 msgid "First name"
 msgstr "Nome"
@@ -2638,8 +2635,8 @@ msgstr "Permessi"
 msgid "Control who can create and join tables"
 msgstr "Decidi chi può creare e unirsi ai tavoli"
 
-msgid "Table statistics"
-msgstr "Statistiche tavoli"
+msgid "Table summary"
+msgstr "Riepilogo tavoli"
 
 msgid "Generate a message with table status to share on chat"
 msgstr "Genera un messaggio con lo stato dei tavoli da condividere in chat"
@@ -2874,11 +2871,19 @@ msgstr "Chi può unirsi ai tavoli?"
 msgid "Save permissions"
 msgstr "Salva permessi"
 
-msgid "Assign the upcoming games to your stations. It is optional: the station is shown on the game page."
-msgstr "Assegna le prossime partite alle tue postazioni. È facoltativo: la postazione viene mostrata nella pagina della partita."
+msgid ""
+"Assign the upcoming games to your stations. It is optional: the station is "
+"shown on the game page."
+msgstr ""
+"Assegna le prossime partite alle tue postazioni. È facoltativo: la "
+"postazione viene mostrata nella pagina della partita."
 
-msgid "This location has no stations yet. Create them first (e.g. Table 1, Table 2), then come back to assign the games."
-msgstr "Questa location non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo 2), poi torna qui per assegnare le partite."
+msgid ""
+"This location has no stations yet. Create them first (e.g. Table 1, Table "
+"2), then come back to assign the games."
+msgstr ""
+"Questa location non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo "
+"2), poi torna qui per assegnare le partite."
 
 msgid "Create stations"
 msgstr "Crea postazioni"
@@ -4438,8 +4443,8 @@ msgid "Telegram – %(name)s"
 msgstr "Telegram - %(name)s"
 
 #, python-format
-msgid "Table stats – %(name)s"
-msgstr "Stats tavoli - %(name)s"
+msgid "Table summary – %(name)s"
+msgstr "Riepilogo tavoli – %(name)s"
 
 #, python-format
 msgid "Tables of %(date)s"
@@ -4641,23 +4646,11 @@ msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-#, python-brace-format
-msgid "{user_profile.nickname} is already at the table."
-msgstr ""
-
-#, python-brace-format
-msgid "{user_profile.nickname} added to the table."
-msgstr ""
-
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
-
-#, python-brace-format
-msgid "{nickname} has been removed from the table."
-msgstr ""
 
 msgid "You don't have permission to duplicate this table."
 msgstr "Non hai il permesso di duplicare questo tavolo."
