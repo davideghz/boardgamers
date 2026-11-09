@@ -1305,6 +1305,80 @@ class LocationManageStationsReorderView(LoginRequiredMixin, View):
             return JsonResponse({'success': False}, status=400)
 
 
+class LocationManageStationAssignmentView(LoginRequiredMixin, View):
+    """Upcoming tables of the location, each with a station picker: the location
+    staff can assign the games to their stations. Optional: tables without a
+    station are fine. Overlapping bookings of a station are flagged, not blocked."""
+    template_name = 'locations/location_manage_station_assignment.html'
+
+    def _tables(self, location):
+        return (
+            Table.objects.filter(location=location, event__isnull=True, date__gte=timezone.localdate())
+            .exclude(status=Table.CLOSED)
+            .select_related('game', 'author', 'play_area', 'physical_table', 'physical_table__play_area')
+            .order_by('date', 'time')
+        )
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        tables = list(self._tables(location))
+        conflict_ids = _station_conflict_ids(tables)
+        unassigned_only = request.GET.get('unassigned') == '1'
+        shown = [t for t in tables if not t.physical_table_id] if unassigned_only else tables
+        days = defaultdict(list)
+        for table in shown:
+            days[table.date].append(table)
+        return render(request, self.template_name, {
+            'location': location,
+            'stations': location.physical_tables.select_related('play_area'),
+            'days': sorted(days.items()),
+            'conflict_ids': conflict_ids,
+            'unassigned_only': unassigned_only,
+            'unassigned_count': sum(1 for t in tables if not t.physical_table_id),
+            'meta': Meta(title=_("Assign stations – %(name)s") % {'name': location.name}),
+        })
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        table = get_object_or_404(self._tables(location), pk=request.POST.get('table'))
+        station_id = request.POST.get('physical_table')
+        if station_id:
+            station = get_object_or_404(PhysicalTable, pk=station_id, location=location)
+            # The table follows the station's area, so the two never disagree.
+            table.physical_table, table.play_area = station, station.play_area
+        else:
+            table.physical_table = None
+        table.save(update_fields=['physical_table', 'play_area', 'updated_at'])
+
+        if table.physical_table_id and table.id in _station_conflict_ids(list(self._tables(location))):
+            messages.warning(request, _(
+                "Warning: this station is already booked by another table at an overlapping time."))
+        else:
+            messages.success(request, _("Station of «%(title)s» updated.") % {'title': table.title})
+        url = reverse('location-manage-station-assignment', kwargs={'slug': location.slug})
+        if request.POST.get('unassigned') == '1':
+            url += '?unassigned=1'
+        return redirect(f"{url}#table-{table.pk}")
+
+
+def _station_conflict_ids(tables):
+    """Ids of the tables that share a station with another table at an
+    overlapping time on the same date."""
+    by_slot = defaultdict(list)
+    for table in tables:
+        if table.physical_table_id:
+            by_slot[(table.date, table.physical_table_id)].append(table)
+    conflict_ids = set()
+    for same_station in by_slot.values():
+        for i, a in enumerate(same_station):
+            for b in same_station[i + 1:]:
+                if a.overlaps_with(b):
+                    conflict_ids.update((a.id, b.id))
+    return conflict_ids
+
+
 class LocationManageWidgetView(LoginRequiredMixin, View):
     """Show embeddable widget snippet for a location."""
 
