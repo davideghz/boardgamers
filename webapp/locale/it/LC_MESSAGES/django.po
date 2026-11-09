@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 14:15+0100\n"
+"POT-Creation-Date: 2026-11-09 15:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -659,6 +659,15 @@ msgstr "Documento di adesione"
 msgid "Membership Documents"
 msgstr "Documenti di adesione"
 
+msgid "Order"
+msgstr "Ordine"
+
+msgid "Location Game Tag"
+msgstr "Tag Gioco Location"
+
+msgid "Location Game Tags"
+msgstr "Tag Giochi Location"
+
 msgid "Owned by Location"
 msgstr "Dell'associazione"
 
@@ -679,6 +688,9 @@ msgstr "Socio Proprietario"
 
 msgid "Physical Location"
 msgstr "Ubicazione"
+
+msgid "Tags"
+msgstr "Tag"
 
 msgid "Location Game"
 msgstr "Gioco nella Location"
@@ -718,9 +730,6 @@ msgstr "Telegram Setup Token"
 
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
-
-msgid "Order"
-msgstr "Ordine"
 
 msgid "FAQ Category"
 msgstr "FAQ Category"
@@ -797,9 +806,6 @@ msgstr "Tag Gioco Evento"
 
 msgid "Event Game Tags"
 msgstr "Tag Giochi Evento"
-
-msgid "Tags"
-msgstr "Tag"
 
 msgid "Event Game"
 msgstr "Gioco Evento"
@@ -2031,12 +2037,6 @@ msgstr "Ancora nessun gioco"
 msgid "Add the first game to the library."
 msgstr "Aggiungi il primo gioco alla libreria."
 
-msgid "Remove this tag from all the games?"
-msgstr "Rimuovere questo tag da tutti i giochi?"
-
-msgid "Add tag"
-msgstr "Aggiungi tag"
-
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
 
@@ -2608,8 +2608,14 @@ msgstr ""
 "Attivala per mostrare l'elenco dei vostri giochi nella pagina della "
 "location. Proprietari, soci e note restano privati."
 
+msgid "Search by game, member or tag…"
+msgstr "Cerca per gioco, socio o tag…"
+
 msgid "Download CSV"
 msgstr "Scarica CSV"
+
+msgid "Only managers see them: they don't appear on the public library."
+msgstr "Li vedono solo i gestori: non compaiono nella libreria pubblica."
 
 msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -3122,6 +3128,12 @@ msgstr "Vedi i tavoli"
 
 msgid "Reservation not needed"
 msgstr "Prenotazione non necessaria"
+
+msgid "Remove this tag from all the games?"
+msgstr "Rimuovere questo tag da tutti i giochi?"
+
+msgid "Add tag"
+msgstr "Aggiungi tag"
 
 msgid "Personal data"
 msgstr "Dati anagrafici"

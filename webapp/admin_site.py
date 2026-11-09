@@ -24,6 +24,7 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'Location'),
             ('webapp', 'LocationFollower'),
             ('webapp', 'LocationGame'),
+            ('webapp', 'LocationGameTag'),
             ('webapp', 'Member'),
             ('webapp', 'Membership'),
             ('webapp', 'TelegramGroupConfig'),

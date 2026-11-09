@@ -139,6 +139,14 @@ urlpatterns = [
          name="location-game-detail"),
     path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/delete/", location_views.DeleteLocationGameView.as_view(),
          name="location-delete-game"),
+    path("locations/<slug:slug>/manage/games/tags/add/", location_views.LocationGameTagAddView.as_view(),
+         name="location-game-tag-add"),
+    path("locations/<slug:slug>/manage/games/tags/reorder/", location_views.LocationGameTagsReorderView.as_view(),
+         name="location-game-tags-reorder"),
+    path("locations/<slug:slug>/manage/games/tags/<int:pk>/update/", location_views.LocationGameTagUpdateView.as_view(),
+         name="location-game-tag-update"),
+    path("locations/<slug:slug>/manage/games/tags/<int:pk>/delete/", location_views.LocationGameTagDeleteView.as_view(),
+         name="location-game-tag-delete"),
 
     # LOCATION TABLES
     path("locations/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),

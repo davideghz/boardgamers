@@ -52,44 +52,39 @@
     </noscript>
   </form>
 
-  <div class="flex gap-8 items-start">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-    {# ── Main content ────────────────────────────────────────────────── #}
-    <div class="flex-1 min-w-0">
+    {# ── Games ───────────────────────────────────────────────────────── #}
+    <div class="lg:col-span-2 min-w-0">
 
-      {# Mobile actions (hidden on lg+) #}
-      <div class="flex gap-2 mb-4 lg:hidden">
-        <a href="{% url 'location-add-game' location.slug %}"
-           class="flex items-center gap-1.5 bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-          {% trans "Add" %}
-        </a>
-        <a href="{% url 'location-games-csv' location.slug %}"
-           class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-          CSV
-        </a>
-      </div>
-
-      {# Search bar #}
-      <div class="mb-3">
-        <div class="relative">
+      <div class="flex gap-2 mb-3">
+        <div class="relative flex-1">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
           <input id="game-search" type="search" autocomplete="off"
-                 placeholder="{% trans 'Search by game name…' %}"
+                 placeholder="{% trans 'Search by game, member or tag…' %}"
                  class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
         </div>
-        <p id="game-no-results" class="hidden text-sm text-content-muted mt-4 text-center">{% trans "No games found." %}</p>
+        <a href="{% url 'location-add-game' location.slug %}"
+           class="flex items-center gap-1.5 bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          <span class="hidden sm:inline">{% trans "Add game" %}</span><span class="sm:hidden">{% trans "Add" %}</span>
+        </a>
+        <a href="{% url 'location-games-csv' location.slug %}" title="{% trans 'Download CSV' %}"
+           class="flex items-center gap-1.5 border border-divider text-content-soft text-sm font-semibold px-3 py-2.5 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+          CSV
+        </a>
       </div>
+      <p id="game-no-results" class="hidden text-sm text-content-muted my-4 text-center">{% trans "No games found." %}</p>
 
       {# Game list #}
       <div class="space-y-2" id="game-list">
         {% for lg in location_games %}
           <div class="relative flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:border-divider hover:bg-surface-alt transition-colors"
-               data-search="{{ lg.game.name|lower }} {% if lg.owner_member %}{{ lg.owner_member.first_name|lower }} {{ lg.owner_member.last_name|lower }}{% endif %}">
+               data-search="{{ lg.game.name|lower }} {% if lg.owner_member %}{{ lg.owner_member.first_name|lower }} {{ lg.owner_member.last_name|lower }}{% endif %} {% for tag in lg.tags.all %}{{ tag.name|lower }} {% endfor %}">
             {# Full-card link #}
             <a href="{% url 'location-game-detail' location.slug lg.uuid %}" class="absolute inset-0 rounded-xl" aria-label="{{ lg.game.name }}"></a>
 
@@ -120,6 +115,13 @@
               {% if lg.owner_member %}
                 <p class="text-[11px] text-content-muted truncate mt-0.5">{{ lg.owner_member.full_name }}</p>
               {% endif %}
+              {% if lg.tags.all %}
+                <div class="flex flex-wrap gap-1 mt-1">
+                  {% for tag in lg.tags.all %}
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-soft">{{ tag.name }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
             </div>
 
             {# Chevron #}
@@ -148,19 +150,8 @@
 
     </div>
 
-    {# ── Sidebar ─────────────────────────────────────────────────────── #}
-    <aside class="hidden lg:flex flex-col gap-2 w-44 flex-shrink-0 sticky top-6 self-start">
-      <a href="{% url 'location-add-game' location.slug %}"
-         class="flex items-center gap-2 bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-decoration-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-        {% trans "Add game" %}
-      </a>
-      <a href="{% url 'location-games-csv' location.slug %}"
-         class="flex items-center gap-2 border border-divider text-content-soft text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-surface-alt transition-colors text-decoration-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-        {% trans "Download CSV" %}
-      </a>
-    </aside>
+    {# ── Tags: internal, never shown on the public library ───────────── #}
+    {% include "partials/_game_tags_panel.html" with slug=location.slug help_text=_("Only managers see them: they don't appear on the public library.") add_url_name="location-game-tag-add" update_url_name="location-game-tag-update" delete_url_name="location-game-tag-delete" reorder_url_name="location-game-tags-reorder" %}
 
   </div>
 
@@ -180,7 +171,7 @@
         card.classList.toggle('hidden', !match);
         if (match) visible++;
       });
-      noResults.classList.toggle('hidden', visible > 0);
+      noResults.classList.toggle('hidden', visible > 0 || gameCards.length === 0);
     });
   </script>
 {% endblock %}
