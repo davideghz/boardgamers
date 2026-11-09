@@ -1,0 +1,71 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    <p class="text-sm text-content-muted mb-1">
+      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
+    </p>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Games played" %}</h1>
+    <p class="text-sm text-content-muted mt-1">{% trans "Pick a game to see its leaderboard at this location." %}</p>
+  </div>
+
+  {% if played_games %}
+    {# Search bar #}
+    <div class="mb-3">
+      <div class="relative">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted pointer-events-none">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <input id="game-search" type="search" autocomplete="off"
+               placeholder="{% trans 'Search by game name…' %}"
+               class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
+      </div>
+      <p id="game-no-results" class="hidden text-sm text-content-muted mt-4 text-center">{% trans "No games found." %}</p>
+    </div>
+  {% endif %}
+
+  {# Game list #}
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="game-list">
+    {% for game in played_games %}
+      <a href="{% url 'location-game-leaderboard' location.slug game.slug %}" data-search="{{ game.name|lower }}"
+         class="flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt transition-colors text-decoration-none">
+        <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-content truncate">{{ game.name }}</p>
+          <p class="text-[11px] text-content-muted truncate mt-0.5">
+            {% blocktrans count counter=game.play_count %}{{ counter }} table{% plural %}{{ counter }} tables{% endblocktrans %}
+          </p>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+      </a>
+    {% empty %}
+      <p class="text-sm text-content-muted italic sm:col-span-2">{% trans "No games played at this location." %}</p>
+    {% endfor %}
+  </div>
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  <script>
+    const searchInput = document.getElementById('game-search');
+    if (searchInput) {
+      const gameCards = document.querySelectorAll('#game-list [data-search]');
+      const noResults = document.getElementById('game-no-results');
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+        gameCards.forEach(card => {
+          const match = !q || card.dataset.search.includes(q);
+          card.classList.toggle('hidden', !match);
+          if (match) visible++;
+        });
+        noResults.classList.toggle('hidden', visible > 0);
+      });
+    }
+  </script>
+{% endblock extrabodyjs %}
