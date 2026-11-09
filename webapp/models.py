@@ -127,6 +127,10 @@ class PlayerOutcome(models.TextChoices):
 
 
 class Game(DateTimeModel, ModelMeta, SlugModel):
+    # Generic "role-playing game" entries (games have no type field): tables with
+    # one of these games are hidden from the location page.
+    ROLE_PLAYING_NAMES = ('Gioco di ruolo', 'Giochi di ruolo', 'GDR', 'Role games', 'Role game')
+
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
@@ -167,6 +171,14 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
             return self.image.url
         else:
             return settings.DOMAIN_URL + settings.STATIC_URL + settings.DEFAULT_GAME_COVER_URL
+
+    @classmethod
+    def role_playing_q(cls, prefix=''):
+        """Q matching role-playing games by name (case-insensitive)."""
+        q = models.Q()
+        for name in cls.ROLE_PLAYING_NAMES:
+            q |= models.Q(**{f'{prefix}name__iexact': name})
+        return q
 
     def __str__(self):
         return self.name

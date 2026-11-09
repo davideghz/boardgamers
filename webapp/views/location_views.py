@@ -111,7 +111,7 @@ class LocationDetailView(DetailView):
             location=location,
             date__gte=today,
             event__isnull=True
-        ).select_related('author', 'author__user', 'location').prefetch_related(
+        ).exclude(Game.role_playing_q('game__')).select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('date')
 
@@ -120,7 +120,7 @@ class LocationDetailView(DetailView):
             location=location,
             date__lt=today,
             event__isnull=True
-        ).select_related('author', 'author__user', 'location').prefetch_related(
+        ).exclude(Game.role_playing_q('game__')).select_related('author', 'author__user', 'location').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('-date')
 
