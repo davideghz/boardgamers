@@ -11,7 +11,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag
 
 from django.urls import reverse
 from django.utils import timezone
@@ -1052,6 +1052,9 @@ _TW_SELECT = (
 )
 
 
+_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
+
+
 class LocationGameForm(ModelForm, TailwindForm):
     """Form to add/edit a game in a location's library."""
     game = ModelChoiceField(
@@ -1062,7 +1065,10 @@ class LocationGameForm(ModelForm, TailwindForm):
 
     class Meta:
         model = LocationGame
-        fields = ['game', 'ownership', 'owner_member', 'physical_location', 'notes']
+        fields = ['game', 'tags', 'ownership', 'owner_member', 'physical_location', 'notes']
+        widgets = {
+            'tags': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
+        }
 
     def __init__(self, *args, location=None, **kwargs):
         self.location = location
@@ -1073,6 +1079,7 @@ class LocationGameForm(ModelForm, TailwindForm):
         self.fields['owner_member'].required = False
 
         if location:
+            self.fields['tags'].queryset = location.game_tags.all()
             # Built here: the member search URL depends on the location.
             self.fields['owner_member'].queryset = Member.objects.filter(location=location)
             self.fields['owner_member'].widget = MemberPickerWidget(location)
@@ -1102,9 +1109,6 @@ class LocationGameForm(ModelForm, TailwindForm):
         if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
             cleaned['owner_member'] = None
         return cleaned
-
-
-_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
 
 
 class EventGameForm(ModelForm, TailwindForm):
@@ -1142,7 +1146,24 @@ class EventGameForm(ModelForm, TailwindForm):
         return game
 
 
-class EventGameTagForm(ModelForm, TailwindForm):
+class _GameTagNameMixin:
+    """Tag names are unique per library, ignoring case. The owner (event or
+    location) is not a form field, so ModelForm skips unique_together: check here."""
+
+    def sibling_tags(self):
+        raise NotImplementedError
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        duplicates = self.sibling_tags().filter(name__iexact=name)
+        if self.instance.pk:
+            duplicates = duplicates.exclude(pk=self.instance.pk)
+        if duplicates.exists():
+            raise ValidationError(_("A tag with this name already exists."))
+        return name
+
+
+class EventGameTagForm(_GameTagNameMixin, ModelForm, TailwindForm):
     class Meta:
         model = EventGameTag
         fields = ['name', 'show_on_event_page']
@@ -1151,15 +1172,21 @@ class EventGameTagForm(ModelForm, TailwindForm):
         self.event = event
         super().__init__(*args, **kwargs)
 
-    def clean_name(self):
-        # `event` is not a form field: same reason as EventGameForm.clean_game.
-        name = self.cleaned_data['name'].strip()
-        duplicates = self.event.game_tags.filter(name__iexact=name)
-        if self.instance.pk:
-            duplicates = duplicates.exclude(pk=self.instance.pk)
-        if duplicates.exists():
-            raise ValidationError(_("A tag with this name already exists."))
-        return name
+    def sibling_tags(self):
+        return self.event.game_tags.all()
+
+
+class LocationGameTagForm(_GameTagNameMixin, ModelForm, TailwindForm):
+    class Meta:
+        model = LocationGameTag
+        fields = ['name']
+
+    def __init__(self, *args, location, **kwargs):
+        self.location = location
+        super().__init__(*args, **kwargs)
+
+    def sibling_tags(self):
+        return self.location.game_tags.all()
 
 
 class GuestProfileForm(ModelForm):

@@ -12,7 +12,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag
+    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag
 from webapp.services import games as game_services
 from webapp.services.tables import sync_legacy_result
 
@@ -265,6 +265,14 @@ class LocationGameAdmin(admin.ModelAdmin):
     list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location')
     list_filter = ('location', 'ownership', 'physical_location')
     search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')
+    filter_horizontal = ('tags',)
+
+
+@admin.register(LocationGameTag)
+class LocationGameTagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'order')
+    search_fields = ('name', 'location__name')
+    autocomplete_fields = ('location',)
 
 
 class FAQInline(admin.TabularInline):

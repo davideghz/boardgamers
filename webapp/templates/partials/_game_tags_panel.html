@@ -1,0 +1,90 @@
+{% load i18n %}
+{% comment %}
+  Tag manager for a game library (event or location): rename, delete, reorder, add.
+  Context: tags, tag_form, slug (of the event or location) and the URL names
+  add_url_name, update_url_name, delete_url_name, reorder_url_name.
+  show_on_event_page: render the event-only "Show on the event page" flag.
+{% endcomment %}
+<aside class="order-first lg:order-last rounded-xl border border-divider bg-surface overflow-hidden">
+  <div class="px-4 py-3 border-b border-divider-soft">
+    <p class="text-xs font-bold uppercase tracking-widest text-content-muted">{% trans "Tags" %}</p>
+    {% if help_text %}<p class="text-xs text-content-muted mt-1">{{ help_text }}</p>{% endif %}
+  </div>
+  <ul id="tags-list" class="divide-y divide-divider-soft">
+    {% for tag in tags %}
+      <li class="px-3 py-3 space-y-2" data-tag-id="{{ tag.pk }}">
+        <form id="tag-update-{{ tag.pk }}" method="post" action="{% url update_url_name slug tag.pk %}">{% csrf_token %}</form>
+        <div class="flex items-center gap-1.5">
+          <span class="handle cursor-move text-content-muted flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+            </svg>
+          </span>
+          <input type="text" name="name" value="{{ tag.name }}" maxlength="64" required form="tag-update-{{ tag.pk }}"
+                 aria-label="{% trans 'Name' %}"
+                 class="flex-1 min-w-0 px-2 py-1.5 text-sm font-semibold text-content bg-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+          <button type="submit" form="tag-update-{{ tag.pk }}" aria-label="{% trans 'Save' %}" title="{% trans 'Save' %}"
+                  class="p-1.5 rounded-lg text-content-muted hover:text-blue-600 hover:bg-surface-alt transition-colors flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          </button>
+          <form method="post" action="{% url delete_url_name slug tag.pk %}" class="flex-shrink-0">
+            {% csrf_token %}
+            <button type="submit" aria-label="{% trans 'Remove' %}" title="{% trans 'Remove' %}"
+                    class="p-1.5 rounded-lg text-content-muted hover:text-red-500 hover:bg-surface-alt transition-colors"
+                    onclick="return confirm('{% trans "Remove this tag from all the games?"|escapejs %}')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+            </button>
+          </form>
+        </div>
+        {% if show_on_event_page %}
+          <label class="flex items-center gap-2 text-xs text-content-soft cursor-pointer pl-6">
+            <input type="checkbox" name="show_on_event_page" form="tag-update-{{ tag.pk }}"
+                   class="w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500"
+                   onchange="this.form.requestSubmit()"{% if tag.show_on_event_page %} checked{% endif %}>
+            {% trans "Show on the event page" %}
+          </label>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="px-4 py-5 text-sm text-content-muted text-center">{% trans "No tags yet." %}</li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{% url add_url_name slug %}" class="p-3 space-y-2 border-t border-divider-soft">
+    {% csrf_token %}
+    <label class="block text-xs font-semibold text-content-soft" for="{{ tag_form.name.id_for_label }}">{% trans "Add tag" %}</label>
+    {{ tag_form.name }}
+    {% if show_on_event_page %}
+      <label class="flex items-center gap-2 text-xs text-content-soft cursor-pointer">
+        {{ tag_form.show_on_event_page }}
+        {% trans "Show on the event page" %}
+      </label>
+    {% endif %}
+    <button type="submit"
+            class="w-full rounded-full bg-elevated px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+      {% trans "Add tag" %}
+    </button>
+  </form>
+</aside>
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const list = document.getElementById('tags-list');
+    new Sortable(list, {
+      animation: 150,
+      handle: '.handle',
+      ghostClass: 'opacity-50',
+      onEnd: function () {
+        const tags = Array.from(list.querySelectorAll('[data-tag-id]')).map((el, i) => ({
+          id: parseInt(el.getAttribute('data-tag-id')),
+          order: i + 1
+        }));
+        fetch('{% url reorder_url_name slug %}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+          body: JSON.stringify({ tags })
+        });
+      }
+    });
+  });
+</script>

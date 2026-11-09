@@ -1236,6 +1236,24 @@ class MembershipDocument(DateTimeModel):
         return name.rsplit('.', 1)[-1].upper() if '.' in name else ''
 
 
+class LocationGameTag(DateTimeModel):
+    """A label for the games of a location's library, defined by its managers.
+    Internal only: tags are not shown on the public library."""
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='game_tags', verbose_name=_('Location'))
+    name = models.CharField(max_length=64, verbose_name=_('Name'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Location Game Tag')
+        verbose_name_plural = _('Location Game Tags')
+        ordering = ['order', 'name']
+        unique_together = [('location', 'name')]
+
+
 class LocationGame(DateTimeModel):
     """
     Represents a game in a location's library.
@@ -1277,6 +1295,8 @@ class LocationGame(DateTimeModel):
         verbose_name=_('Physical Location')
     )
     notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    tags = models.ManyToManyField(
+        LocationGameTag, related_name='games', blank=True, verbose_name=_('Tags'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:

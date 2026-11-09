@@ -87,7 +87,8 @@ def merge_games(keeper, duplicate, choices):
     `choices`: {field: 'keeper' | 'duplicate'} for MERGEABLE_FIELDS (missing = keeper).
     The keeper's slug never changes (fields are written with update(), so a new
     name does not regenerate it). Library entries of a location holding both
-    games are folded into the keeper's entry, appending the duplicate's notes.
+    games are folded into the keeper's entry, appending the duplicate's notes
+    and adding its tags.
     """
     if keeper.pk == duplicate.pk:
         raise ValueError('Cannot merge a game into itself.')
@@ -111,6 +112,7 @@ def merge_games(keeper, duplicate, choices):
         library_merged = 0
         for entry in library_conflicts(keeper, duplicate):
             kept = LocationGame.objects.get(location=entry.location, game=keeper)
+            kept.tags.add(*entry.tags.all())
             if entry.notes.strip():
                 kept.notes = f'{kept.notes}\n{entry.notes}'.strip() if kept.notes.strip() else entry.notes
                 kept.save(update_fields=['notes', 'updated_at'])

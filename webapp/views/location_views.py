@@ -22,10 +22,10 @@ from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
-    PhysicalTableForm
+    PhysicalTableForm, LocationGameTagForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
-    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event, PlayArea, \
+    MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable
 from webapp.services.tables import reopen_location_leaderboards
 
@@ -1027,10 +1027,12 @@ class LocationManageGamesView(LoginRequiredMixin, View):
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        location_games = location.location_games.select_related('game', 'owner_member').all()
+        location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
         return render(request, 'locations/location_manage_games.html', {
             'location': location,
             'location_games': location_games,
+            'tags': location.game_tags.all(),
+            'tag_form': LocationGameTagForm(location=location),
             'meta': Meta(title=_("Games – %(name)s") % {'name': location.name}),
         })
 
@@ -1103,6 +1105,7 @@ class AddLocationGameView(LoginRequiredMixin, View):
             location_game = form.save(commit=False)
             location_game.location = location
             location_game.save()
+            form.save_m2m()
             messages.success(request, _("Game «%(name)s» added to the library.") % {'name': location_game.game.name})
             return redirect('location-manage-games', slug=location.slug)
         return render(request, 'locations/location_manage_game_detail.html', {
@@ -1146,6 +1149,58 @@ class LocationGameDetailView(LoginRequiredMixin, View):
             'is_new': False,
             'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
         })
+
+
+class LocationGameTagAddView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = LocationGameTagForm(request.POST, location=location)
+        if form.is_valid():
+            tag = form.save(commit=False)
+            tag.location = location
+            tag.order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
+            tag.save()
+            messages.success(request, _("Tag added."))
+        else:
+            messages.error(request, ' '.join(form.errors.get('name', [])))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGameTagUpdateView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        tag = get_object_or_404(LocationGameTag, pk=pk, location=location)
+        form = LocationGameTagForm(request.POST, instance=tag, location=location)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Tag updated."))
+        else:
+            messages.error(request, ' '.join(form.errors.get('name', [])))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGameTagDeleteView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        LocationGameTag.objects.filter(pk=pk, location=location).delete()
+        messages.success(request, _("Tag removed."))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGameTagsReorderView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        try:
+            data = json.loads(request.body)
+            for item in data.get('tags', []):
+                LocationGameTag.objects.filter(pk=item['id'], location=location).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=400)
 
 
 class DeleteLocationGameView(LoginRequiredMixin, View):
@@ -1554,13 +1609,14 @@ class DownloadGamesCSVView(LoginRequiredMixin, View):
 
         writer = csv.writer(response)
         writer.writerow([
-            _('Game'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
+            _('Game'), _('Tags'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
         ])
 
-        location_games = location.location_games.select_related('game', 'owner_member').all()
+        location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
         for lg in location_games:
             writer.writerow([
                 lg.game.name,
+                ', '.join(tag.name for tag in lg.tags.all()),
                 lg.get_ownership_display(),
                 str(lg.owner_member) if lg.owner_member else '',
                 lg.get_physical_location_display(),
