@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 16:41+0100\n"
+"POT-Creation-Date: 2026-11-10 17:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1311,7 +1311,7 @@ msgid "Search by title, game or description…"
 msgstr "Cerca per titolo, gioco o descrizione…"
 
 msgid "Remove filter"
-msgstr "Rimuovi filtri"
+msgstr "Rimuovi filtro"
 
 msgid "All locations"
 msgstr "Tutte le locations"
@@ -2180,6 +2180,12 @@ msgstr "Agenda"
 msgid "Grid"
 msgstr "Griglia"
 
+msgid "Filters"
+msgstr "Filtri"
+
+msgid "Clear all"
+msgstr "Rimuovi tutti"
+
 msgid ""
 "Some tables share a station at overlapping times. Conflicting tables are "
 "marked below."
@@ -2189,6 +2195,12 @@ msgstr ""
 
 msgid "All games"
 msgstr "Tutti i giochi"
+
+msgid "Close"
+msgstr "Chiudi"
+
+msgid "Area"
+msgstr "Area"
 
 msgid "Edit table"
 msgstr "Modifica tavolo"
