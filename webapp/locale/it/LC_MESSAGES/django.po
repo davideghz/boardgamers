@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 18:29+0100\n"
+"POT-Creation-Date: 2026-11-10 18:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1006,6 +1006,9 @@ msgstr "Attendere."
 msgid "An error occurred. Please try again."
 msgstr "Si è verificato un errore. Riprova."
 
+msgid "Account"
+msgstr "Account"
+
 msgid "Edit profile"
 msgstr "Modifica profilo"
 
@@ -1075,9 +1078,6 @@ msgstr "Imposta prima una password e un'email, o collega un altro account"
 
 msgid "Connect"
 msgstr "Collega"
-
-msgid "Account"
-msgstr "Account"
 
 msgid "Create event"
 msgstr "Crea evento"
@@ -3236,6 +3236,10 @@ msgstr "Widget per il tuo sito"
 msgid "Free and open source"
 msgstr "Gratuito e Open source"
 
+#, python-format
+msgid "Back to %(label)s"
+msgstr "Torna a %(label)s"
+
 msgid "From:"
 msgstr "Da:"
 
@@ -4096,9 +4100,6 @@ msgstr "Sei sicuro di voler eliminare"
 
 msgid "This action cannot be undone."
 msgstr "Questa azione non può essere annullata."
-
-msgid "Back to tables"
-msgstr "Torna ai tavoli"
 
 msgid "Created"
 msgstr "Creato"
