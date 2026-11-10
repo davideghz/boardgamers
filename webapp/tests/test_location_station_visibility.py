@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.template import Context, Template
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from webapp.factories import GameFactory, LocationFactory, UserProfileFactory
 from webapp.forms import PhysicalTableForm, TableForm
@@ -84,3 +85,23 @@ class LocationStationVisibilityTest(TestCase):
         self.assertNotContains(self.client.get(url), self.station.name)
         self.client.force_login(self.owner.user)
         self.assertContains(self.client.get(url), self.station.name)
+
+    def test_new_station_is_public_unless_unchecked(self):
+        self.client.force_login(self.owner.user)
+        url = reverse('location-manage-stations', kwargs={'slug': self.location.slug})
+        page = self.client.get(url).content.decode()
+        self.assertEqual(page.count('name="is_visible"'), 1)
+        self.client.post(url, {'name': 'Public station', 'is_visible': 'on'})
+        self.client.post(url, {'name': 'Staff station'})
+        self.assertTrue(PhysicalTable.objects.get(name='Public station').is_visible)
+        self.assertFalse(PhysicalTable.objects.get(name='Staff station').is_visible)
+
+    def test_author_sees_a_read_only_note_for_a_hidden_station(self):
+        url = reverse('location-table-update',
+                      kwargs={'location_slug': self.location.slug, 'table_slug': self.table.slug})
+        self.client.force_login(self.player.user)
+        response = self.client.get(url)
+        self.assertContains(response, _('Station assigned by the staff'))
+        self.assertNotContains(response, self.station.name)
+        self.client.force_login(self.owner.user)
+        self.assertNotContains(self.client.get(url), _('Station assigned by the staff'))

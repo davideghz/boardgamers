@@ -338,6 +338,7 @@ class TableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, location=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.staff_assigned_station = False
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
         self.fields['unlimited_seats'].widget.attrs.update({
@@ -356,6 +357,7 @@ class TableForm(ModelForm, TailwindForm):
             # Keep a staff-assigned hidden station when its author edits the game.
             if (not can_manage and self.instance.physical_table_id
                     and not self.instance.physical_table.is_visible):
+                self.staff_assigned_station = True
                 self.fields.pop('physical_table')
                 self.fields.pop('play_area')
                 return
