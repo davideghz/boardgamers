@@ -72,6 +72,19 @@ python manage.py compilemessages
 - Use the semantic color tokens (`bg-background`, `bg-surface`, `text-content`,
   `text-content-muted`, `border-divider`, …) instead of raw grays, so dark mode keeps working.
   Global overrides live only in the `<style>` block of `base.html`.
+- Corner radius follows the size of the element (Tailwind defaults, not redefined):
+
+  | Class          | Use                                                                 |
+  |----------------|---------------------------------------------------------------------|
+  | `rounded-full` | buttons, badges, avatars, chips                                     |
+  | `rounded-2xl`  | page-level blocks: heroes, modals, CTA banners                      |
+  | `rounded-xl`   | the default: cards, panels, list rows, form fields                  |
+  | `rounded-lg`   | elements inside a card: thumbnails, icon boxes, sidebar items       |
+  | `rounded-md`   | buttons inside a segmented toggle, small icon buttons in the header |
+  | `rounded`      | checkboxes, tiny badges on cards                                    |
+
+  A nested element gets a smaller radius than its container (e.g. a `rounded-lg` toggle with
+  `rounded-md` buttons inside), so the edges stay parallel.
 - Icons are inline SVG (Heroicons style). No icon fonts.
 - Interactions are vanilla JS inline in the template. No Alpine.js, no frontend framework.
 - Templates extend `base_webapp.html`. Card partials live in `webapp/templates/tags/`.
