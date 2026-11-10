@@ -24,6 +24,12 @@
           {{ form.play_area }}
           {% if form.play_area.errors %}<p class="mt-1 text-xs text-red-500">{{ form.play_area.errors|join:", " }}</p>{% endif %}
         </div>
+        <div>
+          <label class="flex items-center gap-2 text-sm text-content" for="{{ form.is_visible.id_for_label }}">
+            {{ form.is_visible }} {{ form.is_visible.label }}
+          </label>
+          <p class="mt-1 text-xs text-content-muted">{% trans "Hidden stations can only be picked by location managers when creating or editing a game; they stay visible on the game." %}</p>
+        </div>
         <div class="flex gap-2">
           <a href="{% url 'location-manage-stations' location.slug %}"
              class="flex-1 flex items-center justify-center rounded-full border border-divider px-4 py-2.5 text-sm font-bold text-content hover:bg-surface-input transition-colors">
