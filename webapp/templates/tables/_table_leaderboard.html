@@ -43,7 +43,7 @@
         {% endif %}
 
       {% elif leaderboard.mode == 'coop' %}
-        <div class="p-4 rounded-2xl mb-3 text-white {% if leaderboard.game_outcome == 'won' %}bg-green-600{% else %}bg-red-600{% endif %}">
+        <div class="p-4 rounded-xl mb-3 text-white {% if leaderboard.game_outcome == 'won' %}bg-green-600{% else %}bg-red-600{% endif %}">
           <div class="text-lg font-extrabold">{% if leaderboard.game_outcome == 'won' %}{% trans "Cooperative victory" %}{% else %}{% trans "The game won" %}{% endif %}</div>
           {% if leaderboard.coop_score is not None %}<div class="text-sm opacity-90">{% trans "Group score" %}: {{ leaderboard.coop_score }}</div>{% endif %}
         </div>
@@ -57,7 +57,7 @@
         </div>
 
       {% elif leaderboard.mode == 'ffa' and leaderboard.game_outcome == 'lost' %}
-        <div class="p-4 rounded-2xl mb-3 bg-red-600 text-white">
+        <div class="p-4 rounded-xl mb-3 bg-red-600 text-white">
           <div class="text-lg font-extrabold">{% trans "The game won" %}</div>
           <div class="text-sm opacity-90">{% trans "All players lost." %}</div>
         </div>
