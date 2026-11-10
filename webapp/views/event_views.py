@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Max, Min, Prefetch, Q
+from django.db.models import Count, F, Max, Min, Prefetch, Q
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -225,22 +225,32 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
         return context
 
 
-def upcoming_events_queryset(limit=None):
+def upcoming_events_queryset(limit=None, managed_event_ids=()):
     """Approved events with at least one date today or later, ordered by their
-    next upcoming date. Prefetches `dates` so Event.start_date/end_date are cheap."""
+    next upcoming date. Prefetches `dates` so Event.start_date/end_date are cheap.
+
+    Pending events among `managed_event_ids` are included too, so their managers
+    can find them before approval; those still without dates come last."""
     today = timezone.localdate()
+    visible = Q(status=Event.APPROVED)
+    if managed_event_ids:
+        visible |= Q(status=Event.PENDING, pk__in=managed_event_ids)
     qs = (
-        Event.objects.filter(status=Event.APPROVED, dates__date__gte=today)
-        .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)))
+        Event.objects.filter(visible)
+        .annotate(
+            next_date=Min('dates__date', filter=Q(dates__date__gte=today)),
+            date_count=Count('dates'),
+        )
+        .filter(Q(next_date__isnull=False) | Q(status=Event.PENDING, date_count=0))
         .prefetch_related('dates')
-        .order_by('next_date')
-        .distinct()
+        .order_by(F('next_date').asc(nulls_last=True), 'name')
     )
     return qs[:limit] if limit else qs
 
 
 class EventListView(View):
-    """Public index of upcoming (and, optionally, past) approved events."""
+    """Public index of upcoming (and, optionally, past) approved events, plus the
+    pending ones the user manages."""
     template_name = 'events/event_list.html'
 
     def get(self, request, *args, **kwargs):
@@ -255,9 +265,10 @@ class EventListView(View):
             .order_by('-last_date')
             .distinct()
         )
+        managed_event_ids = self._managed_event_ids(request)
         context = {
-            'managed_event_ids': self._managed_event_ids(request),
-            'upcoming_events': upcoming_events_queryset(),
+            'managed_event_ids': managed_event_ids,
+            'upcoming_events': upcoming_events_queryset(managed_event_ids=managed_event_ids),
             'past_events': past_events if show_past else past_events[:6],
             'has_past_events': past_events.exists(),
             'show_past': show_past,
