@@ -10,7 +10,8 @@ from webapp.models import Event, EventDate
 
 class EventListManageGearTest(TestCase):
     """On the events page, cards of events the user created or manages carry a
-    gear linking to the management page; unpublished events stay off the page."""
+    gear linking to the management page; their pending events are listed among
+    the upcoming ones, for them only."""
 
     def setUp(self):
         self.user_profile = UserProfileFactory()
@@ -37,7 +38,29 @@ class EventListManageGearTest(TestCase):
         self.assertContains(response, self._manage_url(self.managed))
         self.assertNotContains(response, self._manage_url(self.foreign))
 
-    def test_pending_events_are_not_listed(self):
+    def test_managed_pending_events_are_listed_with_their_status(self):
+        undated = Event.objects.create(name="Undated con", slug="undated-con", creator=self.user_profile)
+        self.client.force_login(self.user_profile.user)
+        response = self.client.get(reverse('event-index'))
+        upcoming = list(response.context['upcoming_events'])
+        self.assertIn(self.pending, upcoming)
+        self.assertEqual(upcoming[-1], undated)
+        self.assertContains(response, self._manage_url(self.pending))
+        self.assertContains(response, "In attesa")
+
+    def test_pending_events_stay_hidden_from_others(self):
+        foreign_pending = Event.objects.create(name="Foreign pending", slug="foreign-pending", creator=self.other)
+        EventDate.objects.create(event=foreign_pending, date=timezone.localdate())
+        self.client.force_login(self.user_profile.user)
+        response = self.client.get(reverse('event-index'))
+        self.assertNotContains(response, "Foreign pending")
+        self.client.logout()
+        response = self.client.get(reverse('event-index'))
+        self.assertNotContains(response, "Pending con")
+
+    def test_rejected_events_are_not_listed(self):
+        self.pending.status = Event.REJECTED
+        self.pending.save()
         self.client.force_login(self.user_profile.user)
         response = self.client.get(reverse('event-index'))
         self.assertNotContains(response, "Pending con")
