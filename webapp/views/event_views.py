@@ -256,6 +256,7 @@ class EventListView(View):
             .distinct()
         )
         context = {
+            'managed_event_ids': self._managed_event_ids(request),
             'upcoming_events': upcoming_events_queryset(),
             'past_events': past_events if show_past else past_events[:6],
             'has_past_events': past_events.exists(),
@@ -263,6 +264,15 @@ class EventListView(View):
             'today': today,
         }
         return render(request, self.template_name, context)
+
+    @staticmethod
+    def _managed_event_ids(request):
+        if not request.user.is_authenticated:
+            return set()
+        user_profile = request.user.user_profile
+        return set(
+            Event.objects.filter(Q(creator=user_profile) | Q(managers=user_profile))
+            .values_list('pk', flat=True))
 
 
 def _station_conflict_ids(event, date):
