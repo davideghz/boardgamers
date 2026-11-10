@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 17:37+0100\n"
+"POT-Creation-Date: 2026-11-10 18:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4081,9 +4081,6 @@ msgstr "Sei sicuro di voler eliminare"
 msgid "This action cannot be undone."
 msgstr "Questa azione non può essere annullata."
 
-msgid "Back to tables"
-msgstr "Torna ai tavoli"
-
 msgid "Created"
 msgstr "Creato"
 
@@ -4862,6 +4859,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Back to tables"
+#~ msgstr "Torna ai tavoli"
 
 #~ msgid "Add your location"
 #~ msgstr "Aggiungi la tua location"
