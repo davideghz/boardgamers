@@ -1688,14 +1688,8 @@ class PhysicalTable(DateTimeModel):
         null=True, blank=True, verbose_name=_('Play Area'))
     name = models.CharField(max_length=144, verbose_name=_('Name'),
                             help_text=_('On-site label, e.g. "Table 1"'))
-    is_visible = models.BooleanField(default=True, verbose_name=_('Visible to all users'))
+    is_visible = models.BooleanField(default=True, verbose_name=_('Selectable by all users'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
-
-    def is_visible_to(self, user):
-        if self.is_visible or self.location_id is None:
-            return True
-        return bool(user and user.is_authenticated and (
-            user.is_superuser or self.location.is_manager(user.user_profile)))
 
     def __str__(self):
         owner = self.event or self.location

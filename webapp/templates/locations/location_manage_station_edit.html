@@ -28,7 +28,7 @@
           <label class="flex items-center gap-2 text-sm text-content" for="{{ form.is_visible.id_for_label }}">
             {{ form.is_visible }} {{ form.is_visible.label }}
           </label>
-          <p class="mt-1 text-xs text-content-muted">{% trans "Hidden stations are only visible to location managers." %}</p>
+          <p class="mt-1 text-xs text-content-muted">{% trans "Hidden stations can only be picked by location managers when creating or editing a game; they stay visible on the game." %}</p>
         </div>
         <div class="flex gap-2">
           <a href="{% url 'location-manage-stations' location.slug %}"

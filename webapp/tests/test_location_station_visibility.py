@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 from django.template import Context, Template
 from django.test import TestCase
@@ -28,14 +27,6 @@ class LocationStationVisibilityTest(TestCase):
     def test_existing_stations_are_public_by_default(self):
         station = PhysicalTable.objects.create(location=self.location, name='Public station')
         self.assertTrue(station.is_visible)
-        self.assertTrue(station.is_visible_to(AnonymousUser()))
-
-    def test_only_staff_can_see_a_hidden_station(self):
-        self.assertFalse(self.station.is_visible_to(AnonymousUser()))
-        self.assertFalse(self.station.is_visible_to(self.player.user))
-        self.assertTrue(self.station.is_visible_to(self.owner.user))
-        self.location.managers.add(self.player)
-        self.assertTrue(self.station.is_visible_to(self.player.user))
 
     def test_manager_can_change_visibility_and_regular_user_cannot(self):
         self.client.force_login(self.player.user)
@@ -75,15 +66,12 @@ class LocationStationVisibilityTest(TestCase):
         self.table.refresh_from_db()
         self.assertEqual(self.table.physical_table_id, self.station.pk)
 
-    def test_card_and_detail_hide_station_from_visitors(self):
+    def test_card_and_detail_show_a_hidden_station_to_everyone(self):
         card = Template('{% load custom_tags %}{% table_card table %}')
-        for user in (AnonymousUser(), self.player.user):
-            self.assertNotIn(self.station.name, card.render(Context({'table': self.table, 'user': user})))
-        self.assertIn(self.station.name, card.render(Context({'table': self.table, 'user': self.owner.user})))
-        self.client.logout()
+        self.assertIn(self.station.name, card.render(Context({'table': self.table})))
         url = reverse('table-detail', kwargs={'slug': self.table.slug})
-        self.assertNotContains(self.client.get(url), self.station.name)
-        self.client.force_login(self.owner.user)
+        self.assertContains(self.client.get(url), self.station.name)
+        self.client.force_login(self.player.user)
         self.assertContains(self.client.get(url), self.station.name)
 
     def test_new_station_is_public_unless_unchecked(self):
@@ -102,6 +90,7 @@ class LocationStationVisibilityTest(TestCase):
         self.client.force_login(self.player.user)
         response = self.client.get(url)
         self.assertContains(response, _('Station assigned by the staff'))
-        self.assertNotContains(response, self.station.name)
+        self.assertContains(response, self.station.name)
+        self.assertNotContains(response, 'name="physical_table"')
         self.client.force_login(self.owner.user)
         self.assertNotContains(self.client.get(url), _('Station assigned by the staff'))

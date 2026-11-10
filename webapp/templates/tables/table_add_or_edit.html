@@ -121,7 +121,8 @@
         <div class="min-w-0">
           <p class="text-sm font-semibold text-content">{% trans "Station assigned by the staff" %}</p>
           <p class="text-xs text-content-muted mt-0.5">
-            {% if form.instance.play_area %}{{ form.instance.play_area.name }} · {% endif %}{% trans "The area and station of this game can only be changed by the location managers." %}
+            <span class="font-semibold text-content-soft">{% if form.instance.play_area %}{{ form.instance.play_area.name }} · {% endif %}{{ form.instance.physical_table.name }}</span>
+            — {% trans "The area and station of this game can only be changed by the location managers." %}
           </p>
         </div>
       </div>

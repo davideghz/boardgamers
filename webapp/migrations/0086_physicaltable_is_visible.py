@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='physicaltable',
             name='is_visible',
-            field=models.BooleanField(default=True, verbose_name='Visible to all users'),
+            field=models.BooleanField(default=True, verbose_name='Selectable by all users'),
         ),
     ]
