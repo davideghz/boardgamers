@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 16:32+0100\n"
+"POT-Creation-Date: 2026-11-10 15:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1759,9 +1759,6 @@ msgstr "Espandi"
 msgid "Show less"
 msgstr "Nascondi"
 
-msgid "Sponsored by"
-msgstr "Sostenuto da"
-
 #, python-format
 msgid "%(n)s table scheduled"
 msgid_plural "%(n)s tables scheduled"
@@ -1809,6 +1806,9 @@ msgstr "Giochi in evidenza"
 
 msgid "See all"
 msgstr "Vedi tutti"
+
+msgid "Sponsored by"
+msgstr "Sostenuto da"
 
 msgid "Add your phone number"
 msgstr "Aggiungi il tuo numero di telefono"
