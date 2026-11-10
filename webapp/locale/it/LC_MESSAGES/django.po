@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 20:23+0100\n"
+"POT-Creation-Date: 2026-11-10 18:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1314,7 +1314,7 @@ msgid "Search by title, game or description…"
 msgstr "Cerca per titolo, gioco o descrizione…"
 
 msgid "Remove filter"
-msgstr "Rimuovi filtri"
+msgstr "Rimuovi filtro"
 
 msgid "All locations"
 msgstr "Tutte le locations"
@@ -2183,6 +2183,12 @@ msgstr "Agenda"
 msgid "Grid"
 msgstr "Griglia"
 
+msgid "Filters"
+msgstr "Filtri"
+
+msgid "Clear all"
+msgstr "Rimuovi tutti"
+
 msgid ""
 "Some tables share a station at overlapping times. Conflicting tables are "
 "marked below."
@@ -2192,6 +2198,12 @@ msgstr ""
 
 msgid "All games"
 msgstr "Tutti i giochi"
+
+msgid "Close"
+msgstr "Chiudi"
+
+msgid "Area"
+msgstr "Area"
 
 msgid "Edit table"
 msgstr "Modifica tavolo"
@@ -3020,6 +3032,10 @@ msgstr "Le postazioni nascoste sono visibili solo ai gestori della location."
 
 msgid "Assign the upcoming games to the stations"
 msgstr "Assegna le prossime partite alle postazioni"
+
+msgctxt "station"
+msgid "Hidden"
+msgstr "Nascosta"
 
 msgid "Generate a message to share table status on WhatsApp or other chats."
 msgstr ""
@@ -4053,6 +4069,16 @@ msgstr "Dettagli del tavolo"
 msgid "Edit details"
 msgstr "Modifica dettagli"
 
+msgid "Station assigned by the staff"
+msgstr "Postazione assegnata dallo staff"
+
+msgid ""
+"The area and station of this game can only be changed by the location "
+"managers."
+msgstr ""
+"Area e postazione di questa partita possono essere modificate solo dai "
+"gestori della location."
+
 msgid ""
 "If you can't find the game, you can leave this field empty. We'll fill it "
 "for you!"
@@ -4115,6 +4141,10 @@ msgstr "Rimuovi giocatore?"
 
 msgid "Conflict"
 msgstr "Conflitto"
+
+msgctxt "event"
+msgid "Ended"
+msgstr "Concluso"
 
 msgid "Created by you"
 msgstr "Creati da te"

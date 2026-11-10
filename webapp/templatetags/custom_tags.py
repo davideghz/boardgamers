@@ -49,9 +49,14 @@ def table_card(context, table):
     }
 
 
-@register.inclusion_tag("tags/event_card.html")
-def event_card(event, today=None):
-    return {'event': event, 'today': today}
+@register.inclusion_tag("tags/event_card.html", takes_context=True)
+def event_card(context, event, today=None):
+    # Pages that pass `managed_event_ids` get a gear linking to the event's management
+    return {
+        'event': event,
+        'today': today,
+        'can_manage': event.pk in context.get('managed_event_ids', ()),
+    }
 
 
 @register.inclusion_tag("tags/event_table_card.html")

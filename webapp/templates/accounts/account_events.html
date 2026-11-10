@@ -43,7 +43,7 @@
               </svg>
               <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
             </div>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           {% if event.status == 'approved' %}
             <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Approved" %}</span>
@@ -68,7 +68,7 @@
           {% endif %}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
         </a>
@@ -93,7 +93,7 @@
           {% endif %}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Attending" %}</span>
         </a>
