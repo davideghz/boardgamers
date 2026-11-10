@@ -500,6 +500,8 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'categories': categories,
             'selected_category_id': selected_category_id,
             'selected_category': selected_category,
+            # Shown on the mobile "Filters" button; the day is navigation, not a filter
+            'active_filter_count': sum(bool(f) for f in (selected_area, selected_category, selected_game)),
             'view_mode': view_mode,
             'view_qs': '&view=grid' if view_mode == 'grid' else '',
             'agenda': agenda,

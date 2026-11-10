@@ -34,19 +34,21 @@
   </div>
 
   {# ── Filters ──────────────────────────────────────────────────────── #}
-  {# Date pills #}
+  {# Date pills: a day is always selected, so they stay visible. Below lg they #}
+  {# scroll sideways on a single line, edge to edge. #}
   {% if visible_dates or has_past_dates %}
-    <div class="flex flex-wrap gap-2 mb-3">
+    <div id="program-days" class="flex gap-2 mb-3 overflow-x-auto scrollbar-hide -mx-5 px-5 lg:flex-wrap lg:overflow-visible lg:mx-0 lg:px-0">
       {% for event_date in visible_dates %}
         <a href="?{% query_transform date=event_date.date|date:'Y-m-d' %}"
-           class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+           {% if selected_date == event_date.date %}data-selected{% endif %}
+           class="flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
                   {% if selected_date == event_date.date %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
           {{ event_date.date|date:"j M" }}
         </a>
       {% endfor %}
       {% if has_past_dates %}
         <a href="?{% if show_past %}{% query_transform show_past='' %}{% else %}{% query_transform show_past='1' %}{% endif %}"
-           class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors border-dashed
+           class="flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors border-dashed
                   {% if show_past %}bg-surface-input text-content border-slate-400{% else %}bg-surface text-content-muted border-divider hover:border-slate-400{% endif %}">
           {% if show_past %}{% trans "Hide past days" %}{% else %}{% trans "Show past days" %}{% endif %}
         </a>
@@ -54,6 +56,9 @@
     </div>
   {% endif %}
 
+  {# Area and category pills + game filter: from lg up. Below lg they live in #}
+  {# the filters panel at the bottom of the page. #}
+  <div class="hidden lg:block">
   {# Area pills + game filter #}
   <div class="flex flex-wrap items-center gap-2 mb-6">
     {% if play_areas %}
@@ -115,7 +120,9 @@
     </div>
   {% endif %}
 
-  {# ── View toggle (list / grid) ────────────────────────────────────── #}
+  </div>{# /lg filters #}
+
+  {# ── View toggle (list / grid) + mobile filters button ────────────── #}
   <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
     <div class="inline-flex rounded-full bg-surface-input p-0.5">
       <a href="?{% query_transform view='' %}"
@@ -135,7 +142,37 @@
         {% trans "Grid" %}
       </a>
     </div>
+    {% if play_areas or categories or games_in_event %}
+      <button type="button" onclick="toggleProgramFilters(true)"
+              class="lg:hidden flex items-center gap-1.5 border rounded-full px-3 py-1.5 text-xs font-bold transition-colors
+                     {% if active_filter_count %}border-slate-900 bg-elevated text-white{% else %}border-divider text-content-soft hover:bg-surface-alt{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+        </svg>
+        {% trans "Filters" %}{% if active_filter_count %} · {{ active_filter_count }}{% endif %}
+      </button>
+    {% endif %}
   </div>
+
+  {# Active filters as removable chips (below lg) #}
+  {% if active_filter_count %}
+    <div class="lg:hidden flex flex-wrap items-center gap-2 mb-4">
+      {% if selected_area %}
+        {% include "events/_program_filter_chip.html" with label=selected_area.name remove_qs="area" %}
+      {% endif %}
+      {% if selected_category %}
+        {% include "events/_program_filter_chip.html" with label=selected_category.name remove_qs="category" %}
+      {% endif %}
+      {% if selected_game %}
+        {% include "events/_program_filter_chip.html" with label=selected_game.name remove_qs="game" %}
+      {% endif %}
+      {% if active_filter_count > 1 %}
+        <a href="?{% query_transform area='' category='' game='' %}" class="text-xs font-semibold text-blue-600 hover:underline">
+          {% trans "Clear all" %}
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
 
   {# ── Scheduling conflict warning (managers) ───────────────────────── #}
   {% if has_conflicts and is_manager %}
@@ -248,5 +285,115 @@
       </div>
     </div>
   </div>
+
+  {# ── Filters panel (below lg): slides up from the bottom ─────────── #}
+  {% if play_areas or categories or games_in_event %}
+    <div id="program-filters" class="lg:hidden fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="program-filters-title">
+      <div class="absolute inset-0 bg-black/40" onclick="toggleProgramFilters(false)"></div>
+      <div id="program-filters-panel"
+           class="absolute inset-x-0 bottom-0 max-h-[85vh] flex flex-col bg-surface rounded-t-2xl shadow-xl translate-y-full transition-transform duration-200">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-divider-soft">
+          <h3 id="program-filters-title" class="text-base font-bold text-content">{% trans "Filters" %}</h3>
+          <button type="button" onclick="toggleProgramFilters(false)" class="text-content-muted hover:text-content transition-colors" aria-label="{% trans "Close" %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="overflow-y-auto px-5 py-4 space-y-6">
+          {% if play_areas %}
+            <section>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-content-muted mb-2">{% trans "Area" %}</h4>
+              <div class="flex flex-wrap gap-2">
+                <a href="?{% query_transform area='' %}"
+                   class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                          {% if not selected_area %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
+                  {% trans "All areas" %}
+                </a>
+                {% for area in play_areas %}
+                  <a href="?{% query_transform area=area.id %}"
+                     class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                            {% if selected_area.id == area.id %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
+                    {{ area.name }}
+                  </a>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+          {% if categories %}
+            <section>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-content-muted mb-2">{% trans "Category" %}</h4>
+              <div class="flex flex-wrap gap-2">
+                <a href="?{% query_transform category='' %}"
+                   class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                          {% if not selected_category %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
+                  {% trans "All categories" %}
+                </a>
+                {% for category in categories %}
+                  <a href="?{% query_transform category=category.id %}"
+                     class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                            {% if selected_category.id == category.id %}bg-blue-600 text-white border-blue-600{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
+                    {{ category.name }}
+                  </a>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+          {% if games_in_event %}
+            <section>
+              <h4 class="text-xs font-bold uppercase tracking-widest text-content-muted mb-2">{% trans "Game" %}</h4>
+              <div class="-mx-3">
+                <a href="?{% query_transform game='' %}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
+                          {% if not selected_game_id %}bg-surface-input text-content{% else %}text-content-soft hover:bg-surface-alt{% endif %}">
+                  {% trans "All games" %}
+                </a>
+                {% for game in games_in_event %}
+                  <a href="?{% query_transform game=game.id %}"
+                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors
+                            {% if selected_game_id == game.id %}bg-surface-input font-semibold text-content{% else %}text-content-soft hover:bg-surface-alt{% endif %}">
+                    {% if game.image %}
+                      <img loading="lazy" src="{{ game.image.url }}" alt="" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+                    {% else %}
+                      <div class="w-8 h-8 rounded-lg bg-surface-input flex-shrink-0"></div>
+                    {% endif %}
+                    {{ game.name }}
+                  </a>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <script>
+    function toggleProgramFilters(open) {
+      const sheet = document.getElementById('program-filters');
+      const panel = document.getElementById('program-filters-panel');
+      if (open) {
+        sheet.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => panel.classList.remove('translate-y-full'));
+      } else {
+        panel.classList.add('translate-y-full');
+        document.body.style.overflow = '';
+        setTimeout(() => sheet.classList.add('hidden'), 200);
+      }
+    }
+    document.addEventListener('keydown', (e) => {
+      const sheet = document.getElementById('program-filters');
+      if (e.key === 'Escape' && sheet && !sheet.classList.contains('hidden')) toggleProgramFilters(false);
+    });
+    // Keep the selected day in view on the scrolling day row
+    (function () {
+      const row = document.getElementById('program-days');
+      const selected = row && row.querySelector('[data-selected]');
+      if (selected && row.scrollWidth > row.clientWidth) {
+        row.scrollLeft = selected.offsetLeft - row.offsetLeft - 20;
+      }
+    })();
+  </script>
 
 {% endblock %}
