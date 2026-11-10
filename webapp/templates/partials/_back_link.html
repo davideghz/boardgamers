@@ -1,0 +1,7 @@
+{% load i18n %}
+<a href="{{ url }}"
+   class="inline-flex items-center gap-1 -ml-1.5 mb-1 py-1.5 pl-1 pr-2 rounded-lg text-sm font-medium text-content-muted hover:text-content hover:bg-surface-input transition-colors max-w-full"
+   aria-label="{% blocktrans with label=label %}Back to {{ label }}{% endblocktrans %}">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+  <span class="truncate">{{ label }}</span>
+</a>
