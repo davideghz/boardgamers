@@ -79,3 +79,12 @@ class AccountEventsFirstDateTest(TestCase):
         self.client.force_login(user_profile.user)
         response = self.client.get(reverse('account-events'))
         self.assertContains(response, "Vailate · 13 ")
+
+
+class EventCardEndedBadgeTest(TestCase):
+    def test_past_event_card_says_ended(self):
+        event = Event.objects.create(name="Old con", slug="old-con", status=Event.APPROVED)
+        EventDate.objects.create(event=event, date=timezone.localdate() - datetime.timedelta(days=3))
+        response = self.client.get(reverse('event-index'))
+        self.assertContains(response, "Concluso")
+        self.assertNotContains(response, "Vecchi")
