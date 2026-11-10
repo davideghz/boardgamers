@@ -13,7 +13,7 @@
   </a>
 
   {# ── COVER IMAGE (mobile only) ─────────────────────────────────────── #}
-  <div class="md:hidden w-full h-48 rounded-2xl overflow-hidden mb-6 relative">
+  <div class="lg:hidden w-full h-48 rounded-2xl overflow-hidden mb-6 relative">
     {% if table.custom_cover or table.game and table.game.image %}
       <img src="{{ table.cover_url }}" alt="{{ table.game }}" class="w-full h-full object-cover">
     {% else %}
@@ -40,7 +40,7 @@
         {{ table.category.name }}
       </span>
     {% endif %}
-    <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-1">{{ table.title }}</h1>
+    <h1 class="text-2xl lg:text-3xl font-extrabold text-content mb-1">{{ table.title }}</h1>
     {% if table.game %}
       <a href="{% url 'game-detail' table.game.slug %}" target="_blank"
          class="text-primary font-bold text-base hover:underline text-decoration-none">{{ table.game }}</a>
@@ -48,10 +48,10 @@
   </div>
 
   {# ── 3-COLUMN GRID ─────────────────────────────────────────────────── #}
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {# ── MAIN COLUMN (2/3) ────────────────────────────────────────────── #}
-    <div class="md:col-span-2 space-y-6">
+    <div class="lg:col-span-2 space-y-6">
 
       {# Description #}
       {% if table.description %}
@@ -162,11 +162,11 @@
     </div>{# /main col #}
 
     {# ── SIDEBAR (1/3) ─────────────────────────────────────────────────── #}
-    <div class="md:col-span-1">
+    <div class="lg:col-span-1">
       <div class="sticky top-6 space-y-4">
 
         {# Cover image — desktop only #}
-        <div class="hidden md:block rounded-xl overflow-hidden relative">
+        <div class="hidden lg:block rounded-xl overflow-hidden relative">
           {% if table.custom_cover or table.game and table.game.image %}
             <img src="{{ table.cover_url }}" alt="{{ table.game }}" class="w-full h-40 object-cover">
           {% else %}
@@ -299,7 +299,7 @@
   </div>{# /grid #}
 
   {# ── Mobile sticky CTA ────────────────────────────────────────────── #}
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-divider px-4 py-3">
+  <div class="lg:hidden fixed bottom-0 left-0 md:left-[var(--sidebar-width)] right-0 z-30 bg-surface border-t border-divider px-4 py-3">
     {% if table.is_session_active %}
       {% if user.is_authenticated %}
         {% if user.user_profile in table.players.all %}
