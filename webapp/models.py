@@ -1436,6 +1436,13 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     enable_public_games = models.BooleanField(
         # DB-level default too, so code that predates this column can still insert events
         default=False, db_default=False, verbose_name=_('Public game library'))
+    # When off, the program page is reserved to managers and the event page links
+    # to `external_program_url` instead (or shows no program link at all).
+    table_booking_enabled = models.BooleanField(
+        default=True, db_default=True, verbose_name=_('Table booking'))
+    external_program_url = models.URLField(
+        max_length=500, blank=True, default='', db_default='',
+        verbose_name=_('External program link'))
 
     _metadata = {
         'title': 'get_meta_title',
@@ -1523,6 +1530,13 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
     def can_create_table(self, user_profile):
         return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
+
+    def can_view_program(self, user):
+        """The program is public while table booking is on; otherwise only the
+        event managers and superusers can open it."""
+        if self.table_booking_enabled:
+            return True
+        return user.is_authenticated and (user.is_superuser or self.is_manager(user.user_profile))
 
     @cached_property
     def sorted_dates(self):
