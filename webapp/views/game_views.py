@@ -12,7 +12,7 @@ class GameListView(ListView):
     model = Game
     template_name = 'games/game_list.html'
     context_object_name = 'games'
-    paginate_by = 14
+    paginate_by = 24  # fills whole rows of the 2/3/4-column grid
 
     def get_queryset(self):
         self.q = self.request.GET.get('q', '').strip()

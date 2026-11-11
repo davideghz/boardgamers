@@ -29,46 +29,37 @@
     </div>
   {% endif %}
 
-  {# ── Game list ─────────────────────────────────────────────────────── #}
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  {# ── Game list: square cover tiles, same look as the event game library ── #}
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
     {% for game in games %}
-      <a href="{% url 'game-detail' game.slug %}"
-         class="group flex items-stretch rounded-xl border border-divider bg-surface overflow-hidden hover:shadow-md hover:border-divider transition-all text-decoration-none">
-
-        {# Cover image — fixed width, aspect-video keeps ~16:9 #}
-        <div class="flex-shrink-0 aspect-video w-40 sm:w-44 bg-surface-input"
-             style="background-image: url('{{ game.cover_url }}'); background-size: cover; background-position: center;"></div>
-
-        {# Body #}
-        <div class="flex flex-1 items-center gap-3 px-4 py-3 min-w-0">
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-bold text-content truncate group-hover:text-blue-600 transition-colors">{{ game.name }}</p>
-            {% if game.is_expansion %}
-              <span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{% trans "Expansion" %}</span>
-            {% endif %}
-            <div class="flex items-center gap-4 mt-0.5">
-              <span class="flex items-center gap-1 text-xs text-content-muted">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
-                </svg>
-                {{ game.table_count }} {% trans "tables" %}
-              </span>
-              <span class="flex items-center gap-1 text-xs text-content-muted">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                </svg>
-                {{ game.player_count }} {% trans "gamers" %}
-              </span>
-            </div>
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-          </svg>
+      <a href="{% url 'game-detail' game.slug %}" class="group flex flex-col min-w-0 text-decoration-none">
+        <div class="relative aspect-square rounded-xl overflow-hidden bg-surface-input border border-divider">
+          <img src="{{ game.cover_url }}" alt="{{ game.name }}" loading="lazy" decoding="async"
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          {% if game.is_expansion %}
+            <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-600 text-white">{% trans "Expansion" %}</span>
+          {% endif %}
         </div>
-
+        <div class="pt-2 px-0.5 flex flex-col gap-1 min-w-0">
+          <p class="text-sm font-bold text-content leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">{{ game.name }}</p>
+          <div class="flex items-center gap-3 text-xs text-content-muted">
+            <span class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+              </svg>
+              {{ game.table_count }} {% trans "tables" %}
+            </span>
+            <span class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+              </svg>
+              {{ game.player_count }} {% trans "gamers" %}
+            </span>
+          </div>
+        </div>
       </a>
     {% empty %}
-      <div class="col-span-2 rounded-xl border border-divider bg-surface px-6 py-12 text-center">
+      <div class="col-span-full rounded-xl border border-divider bg-surface px-6 py-12 text-center">
         <p class="text-sm text-content-muted">{% if q %}{% trans "No games match your search." %}{% else %}{% trans "No games available yet." %}{% endif %}</p>
       </div>
     {% endfor %}
