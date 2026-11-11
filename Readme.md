@@ -287,6 +287,9 @@ Run with `python manage.py [command-name]`
 - `fill_missing_bgg_data [--dry-run]`
   - Fills missing game info (players, playtime, weight, year) from BoardGameGeek for games with a `bgg_code`.
 
+- `flag_bgg_expansions [--dry-run]`
+  - Sets `Game.is_expansion` from BoardGameGeek for games with a `bgg_code`. New imports set it on their own.
+
 - `setup_telegram_bot`
   - Registers the bot's command list with Telegram. Run it when the bot commands change.
 

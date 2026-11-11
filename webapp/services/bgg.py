@@ -35,6 +35,9 @@ def _headers():
 # resolves them to unrelated items (e.g. a videogame) instead of the RPG.
 ALLOWED_TYPES = {'boardgame', 'rpgitem'}
 BGG_TYPES = ','.join(sorted(ALLOWED_TYPES))
+# /search with type=boardgame already returns expansions, typed as boardgame;
+# /thing types them as boardgameexpansion, so they must be allowed explicitly.
+THING_TYPES = ','.join(sorted(ALLOWED_TYPES | {'boardgameexpansion'}))
 
 
 def search_bgg(query):
@@ -145,6 +148,7 @@ def _parse_thing(item):
     return {
         'name': name,
         'bgg_type': item.get('type'),
+        'is_expansion': item.get('type') == 'boardgameexpansion',
         'mechanics': mechanics,
         'description': description,
         'bgg_code': str(item.get('id')),
@@ -160,7 +164,7 @@ def _parse_thing(item):
 
 def fetch_bgg_thing(bgg_id):
     """Fetch full game data from BGG thing endpoint. Returns a dict with all importable fields."""
-    resp = _get(f'{BGG_API_BASE}/thing', {'id': bgg_id, 'type': BGG_TYPES, 'stats': 1}, timeout=10)
+    resp = _get(f'{BGG_API_BASE}/thing', {'id': bgg_id, 'type': THING_TYPES, 'stats': 1}, timeout=10)
     root = ElementTree.fromstring(resp.content)
     item = root.find('item')
     if item is None:
@@ -321,6 +325,7 @@ def _create_game(data):
         leaderboard_enabled=False,
         default_result_mode=suggest_result_mode(data['bgg_type'], data['mechanics']),
         bgg_imported=True,
+        is_expansion=data['is_expansion'],
     )
     game.slug = game.create_unique_slug()
     game.save()

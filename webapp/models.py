@@ -148,6 +148,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
         db_default=ResultMode.NONE, verbose_name=_('Suggested result mode'))
     bgg_imported = models.BooleanField(default=False, db_index=True)
     verified = models.BooleanField(default=False, db_index=True)
+    is_expansion = models.BooleanField(default=False, db_default=False, verbose_name=_('Expansion'))
 
     _metadata = {
         'title': 'get_meta_title',

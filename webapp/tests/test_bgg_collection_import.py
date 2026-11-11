@@ -81,7 +81,8 @@ class FetchCollectionTest(TestCase):
 
 def _thing(bgg_id, name):
     return {
-        'name': name, 'bgg_type': 'boardgame', 'mechanics': [], 'description': '', 'bgg_code': str(bgg_id),
+        'name': name, 'bgg_type': 'boardgame', 'is_expansion': False, 'mechanics': [], 'description': '',
+        'bgg_code': str(bgg_id),
         'year_published': 2000, 'min_players': 2, 'max_players': 4, 'min_playtime': 30, 'max_playtime': 60,
         'weight': None, 'image_url': None,
     }
@@ -112,6 +113,26 @@ class ImportGamesTest(TestCase):
         games = import_games_from_bgg([{'bgg_id': '822', 'name': "Carcassonne"}])
         self.assertEqual(games['822'].bgg_code, '822')
         self.assertEqual(Game.objects.filter(name="Carcassonne").count(), 2)
+
+
+EXPANSION_THING_XML = '''<?xml version="1.0" encoding="utf-8"?>
+<items>
+  <item type="boardgameexpansion" id="411435">
+    <name type="primary" sortindex="1" value="Coffee Rush: Piece of Cake" />
+    <description>Cakes!</description><yearpublished value="2024" />
+    <minplayers value="2" /><maxplayers value="4" />
+  </item>
+</items>'''
+
+
+@patch('webapp.services.bgg.requests.get')
+class ImportExpansionTest(TestCase):
+    def test_expansion_is_imported_and_flagged(self, get):
+        get.return_value = _response(200, EXPANSION_THING_XML)
+        game = bgg.import_game_from_bgg('411435')
+        self.assertEqual(game.name, "Coffee Rush: Piece of Cake")
+        self.assertTrue(game.is_expansion)
+        self.assertIn('boardgameexpansion', get.call_args.kwargs['params']['type'])
 
 
 class ImportViewsTest(TestCase):

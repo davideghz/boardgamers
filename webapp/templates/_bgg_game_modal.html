@@ -124,12 +124,13 @@
     return '<p class="text-[10px] font-bold uppercase tracking-widest text-content-muted px-1 mt-4 mb-2">' + label + '</p>';
   }
 
-  function makeRow(name, year, onclick, rowId, extraClass) {
+  function makeRow(name, year, onclick, rowId, extraClass, isExpansion) {
     var yearStr = year ? '<span class="text-xs text-content-muted">' + year + '</span>' : '';
+    var expansionBadge = isExpansion ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{% trans "Expansion" %}</span>' : '';
     var idAttr = rowId ? ' id="' + rowId + '"' : '';
     return '<button type="button"' + idAttr + ' onclick="' + onclick + '" class="w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border transition-colors text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ' + (extraClass || 'border-divider-soft bg-surface hover:bg-surface-alt') + '">'
       + '<div class="min-w-0"><p class="text-sm font-semibold text-content">' + escHtml(name) + '</p>'
-      + '<div class="flex items-center gap-2 mt-0.5">' + yearStr + '</div></div>'
+      + '<div class="flex items-center gap-2 mt-0.5">' + yearStr + expansionBadge + '</div></div>'
       + '<span class="flex-shrink-0 text-lg font-bold text-green-600 leading-none">+</span>'
       + '</button>';
   }
@@ -138,7 +139,7 @@
 
   function localRow(g) {
     localGamesById[g.id] = {min_players: g.min_players, max_players: g.max_players};
-    return makeRow(g.name, g.year_published, 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100');
+    return makeRow(g.name, g.year_published, 'bggSelect(' + g.id + ', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', '', 'border-green-200 bg-green-50 hover:bg-green-100', g.is_expansion);
   }
 
   // BGG is searched only on demand: a discreet link under the local results,
@@ -202,7 +203,7 @@
     games.forEach(function (g) {
       // Games already imported (matched by an alternate name) are picked directly
       html += g.id ? localRow(g)
-        : makeRow(g.name, g.year_published, 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id);
+        : makeRow(g.name, g.year_published, 'bggImport(\'' + g.bgg_id + '\', \'' + escHtml(g.name).replace(/'/g, "\\'") + '\')', 'bgg-btn-' + g.bgg_id, '', g.is_expansion);
     });
     html += '</div>';
     externalEl.innerHTML = html;
