@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 15:01+0100\n"
+"POT-Creation-Date: 2026-11-11 16:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1756,6 +1756,9 @@ msgstr "Evento in attesa di approvazione, non visibile al pubblico."
 msgid "You're attending"
 msgstr "Stai partecipando"
 
+msgid "Leave the event"
+msgstr "Non partecipare più"
+
 msgid "Attend this event"
 msgstr "Partecipa all’evento"
 
@@ -1849,6 +1852,9 @@ msgid_plural "%(n)s people attending"
 msgstr[0] "%(n)s persona partecipa"
 msgstr[1] "%(n)s persone partecipano"
 
+msgid "Share event"
+msgstr "Condividi evento"
+
 msgid "Manage event"
 msgstr "Gestisci evento"
 
@@ -1866,6 +1872,16 @@ msgstr "Come arrivare"
 
 msgid "Map not available"
 msgstr "Mappa non disponibile"
+
+msgid "You're in!"
+msgstr "Ci sei!"
+
+msgid "Games are better with friends: invite them to join you at the event!"
+msgstr ""
+"Si gioca meglio in compagnia: invita i tuoi amici a partecipare all'evento!"
+
+msgid "Close"
+msgstr "Chiudi"
 
 #, python-format
 msgid "%(counter)s game in the library"
@@ -2230,9 +2246,6 @@ msgstr ""
 
 msgid "All games"
 msgstr "Tutti i giochi"
-
-msgid "Close"
-msgstr "Chiudi"
 
 msgid "Area"
 msgstr "Area"
@@ -3340,6 +3353,12 @@ msgid_plural "Type at least %(count)s characters"
 msgstr[0] "Inserisci almeno %(count)s carattere"
 msgstr[1] "Inserisci almeno %(count)s caratteri"
 
+msgid "Link copied!"
+msgstr "Link Copiato!"
+
+msgid "Share"
+msgstr "Condividi"
+
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
 
@@ -4169,12 +4188,6 @@ msgstr "Tavolo riservato ai soci"
 msgid "Become a member"
 msgstr "Richiedi membership"
 
-msgid "Link copied!"
-msgstr "Link Copiato!"
-
-msgid "Share"
-msgstr "Condividi"
-
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
@@ -4355,11 +4368,15 @@ msgstr "Generale"
 msgid "This event has already ended, registration is closed."
 msgstr "Questo evento è già terminato, le iscrizioni sono chiuse."
 
-msgid "You're now registered for this event!"
-msgstr "Ora sei iscritto a questo evento!"
-
 msgid "You are already registered for this event."
 msgstr "Sei già iscritto a questo evento."
+
+msgid "This event has already ended, you can't leave it."
+msgstr ""
+"Questo evento è già terminato, non puoi più annullare la partecipazione."
+
+msgid "You are no longer attending this event."
+msgstr "Non partecipi più a questo evento."
 
 msgid "Phone number saved."
 msgstr "Numero di telefono salvato."

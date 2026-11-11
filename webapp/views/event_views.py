@@ -116,6 +116,8 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
+            'just_joined': is_participant and self.request.session.pop(
+                'event_just_joined', None) == event.pk,
             'needs_phone': is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
             'event_dates': event_dates,
@@ -554,9 +556,25 @@ class EventJoinView(LoginRequiredMixin, View):
         participant, created = EventParticipant.objects.get_or_create(
             event=event, user_profile=user_profile)
         if created:
-            messages.success(request, _("You're now registered for this event!"))
+            # Shown once by the detail page as a confirmation modal with the share CTA
+            request.session['event_just_joined'] = event.pk
         else:
             messages.info(request, _("You are already registered for this event."))
+        return redirect('event_detail', slug=slug)
+
+
+class EventLeaveView(LoginRequiredMixin, View):
+    """Unregister the logged-in user from the event (not allowed once it ended)."""
+
+    def post(self, request, slug):
+        event = get_object_or_404(Event, slug=slug)
+        if event.is_concluded():
+            messages.info(request, _("This event has already ended, you can't leave it."))
+            return redirect('event_detail', slug=slug)
+        deleted, _rows = EventParticipant.objects.filter(
+            event=event, user_profile=request.user.user_profile).delete()
+        if deleted:
+            messages.success(request, _("You are no longer attending this event."))
         return redirect('event_detail', slug=slug)
 
 
