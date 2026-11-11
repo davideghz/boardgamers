@@ -201,6 +201,9 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     enable_calendar = models.BooleanField(default=False)
     # Lets visitors browse the game library (LocationGame) from the location page.
     enable_public_games = models.BooleanField(default=True)
+    # Sections of the public location page the managers can hide.
+    show_most_played_games = models.BooleanField(default=True)
+    show_top_gamers = models.BooleanField(default=True)
     website = models.URLField(null=True, blank=True)
     opening_hours = models.JSONField(null=True, blank=True)
     default_table_time = models.TimeField(

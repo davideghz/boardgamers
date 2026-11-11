@@ -162,47 +162,51 @@ class LocationDetailView(DetailView):
         #     top_winner=Subquery(top_player)
         # ).filter(play_count__gt=0).order_by('-play_count')[:10]
 
-        popular_games = Game.objects.annotate(
-            play_count=Subquery(played_count)
-        ).filter(play_count__gt=0).order_by('-play_count')[:10]
+        popular_games = []
+        if location.show_most_played_games:
+            popular_games = Game.objects.annotate(
+                play_count=Subquery(played_count)
+            ).filter(play_count__gt=0).order_by('-play_count')[:10]
 
-        # Calcolo dei top winner con ex aequo
-        winners = UserProfile.objects.filter(
-            joined_tables__location=location,
-            player__position=1
-        ).values(
-            'joined_tables__game', 'nickname'
-        ).annotate(
-            win_count=Count('joined_tables', distinct=True)
-        )
+            # Calcolo dei top winner con ex aequo
+            winners = UserProfile.objects.filter(
+                joined_tables__location=location,
+                player__position=1
+            ).values(
+                'joined_tables__game', 'nickname'
+            ).annotate(
+                win_count=Count('joined_tables', distinct=True)
+            )
 
-        winners_by_game = defaultdict(lambda: {'max': 0, 'winners': []})
+            winners_by_game = defaultdict(lambda: {'max': 0, 'winners': []})
 
-        for entry in winners:
-            game_id = entry['joined_tables__game']
-            nickname = entry['nickname']
-            win_count = entry['win_count']
+            for entry in winners:
+                game_id = entry['joined_tables__game']
+                nickname = entry['nickname']
+                win_count = entry['win_count']
 
-            current_max = winners_by_game[game_id]['max']
-            if win_count > current_max:
-                winners_by_game[game_id]['max'] = win_count
-                winners_by_game[game_id]['winners'] = [nickname]
-            elif win_count == current_max:
-                winners_by_game[game_id]['winners'].append(nickname)
+                current_max = winners_by_game[game_id]['max']
+                if win_count > current_max:
+                    winners_by_game[game_id]['max'] = win_count
+                    winners_by_game[game_id]['winners'] = [nickname]
+                elif win_count == current_max:
+                    winners_by_game[game_id]['winners'].append(nickname)
 
-        for game in popular_games:
-            top = winners_by_game.get(game.id)
-            game.top_winners = top['winners'] if top else []
+            for game in popular_games:
+                top = winners_by_game.get(game.id)
+                game.top_winners = top['winners'] if top else []
 
         # Query per i giocatori con numero di partite e posizioni
-        player_stats = UserProfile.objects.filter(
-            Q(joined_tables__location=location)
-        ).annotate(
-            play_count=Count('joined_tables', distinct=True),
-            first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
-            second_place=Count('joined_tables', filter=Q(player__position=2), distinct=True),
-            third_place=Count('joined_tables', filter=Q(player__position=3), distinct=True)
-        ).order_by('-first_place', '-second_place', '-third_place', '-play_count')[:15]
+        player_stats = []
+        if location.show_top_gamers:
+            player_stats = UserProfile.objects.filter(
+                Q(joined_tables__location=location)
+            ).annotate(
+                play_count=Count('joined_tables', distinct=True),
+                first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
+                second_place=Count('joined_tables', filter=Q(player__position=2), distinct=True),
+                third_place=Count('joined_tables', filter=Q(player__position=3), distinct=True)
+            ).order_by('-first_place', '-second_place', '-third_place', '-play_count')[:15]
 
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)

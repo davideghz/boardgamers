@@ -672,7 +672,7 @@ class LocationManageDataForm(LocationForm):
     """LocationForm plus the settings that only the management page shows."""
 
     class Meta(LocationForm.Meta):
-        fields = LocationForm.Meta.fields + ['leaderboard_edit_days']
+        fields = LocationForm.Meta.fields + ['leaderboard_edit_days', 'show_most_played_games', 'show_top_gamers']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
