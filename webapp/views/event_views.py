@@ -75,6 +75,14 @@ class EventManagerMixin(LoginRequiredMixin):
         return self._event_cache
 
 
+def _dates_with_gaps(event):
+    """Sorted event dates, flagging the days that don't follow the previous one."""
+    event_dates = event.sorted_dates
+    for previous, current in zip(event_dates, event_dates[1:]):
+        current.after_gap = (current.date - previous.date).days > 1
+    return event_dates
+
+
 class EventPublicAccessMixin:
     """Resolve the event by slug, enforcing approval visibility (managers can
     preview their own pending events)."""
@@ -104,12 +112,13 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         today = timezone.localdate()
         is_concluded = event.is_concluded(today)
         games = featured_games(event) if event.enable_public_games else []
+        event_dates = _dates_with_gaps(event)
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
             'needs_phone': is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
-            'event_dates': event.sorted_dates,
+            'event_dates': event_dates,
             'table_count': Table.objects.filter(event=event).count(),
             'today': today,
             'is_concluded': is_concluded,
