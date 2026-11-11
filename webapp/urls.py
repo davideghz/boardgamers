@@ -164,6 +164,7 @@ urlpatterns = [
     path("events/<slug:slug>/program/", event_views.EventProgramView.as_view(), name="event-program"),
     path("events/<slug:slug>/games/", event_views.EventGamesView.as_view(), name="event-games"),
     path("events/<slug:slug>/join/", event_views.EventJoinView.as_view(), name="event-join"),
+    path("events/<slug:slug>/leave/", event_views.EventLeaveView.as_view(), name="event-leave"),
     path("events/<slug:slug>/save-phone/", event_views.EventSavePhoneView.as_view(), name="event-save-phone"),
     path("events/<slug:slug>/manage/", event_views.EventManageIndexView.as_view(), name="event-manage"),
     path("events/<slug:slug>/manage/participants/", event_views.EventManageParticipantsView.as_view(), name="event-manage-participants"),
