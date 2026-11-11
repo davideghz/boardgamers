@@ -2321,8 +2321,8 @@ msgstr "Accedi per unirti al tavolo"
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
 
-msgid "Add to Google Calendar"
-msgstr "Aggiungi a Google Calendar"
+msgid "Add to Calendar"
+msgstr "Aggiungi al Calendario"
 
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
