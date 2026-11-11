@@ -148,6 +148,8 @@ urlpatterns = [
          name="location-game-detail"),
     path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/delete/", location_views.DeleteLocationGameView.as_view(),
          name="location-delete-game"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/archive/", location_views.LocationGameArchiveView.as_view(),
+         name="location-game-archive"),
     path("locations/<slug:slug>/manage/games/import-bgg/", location_views.LocationGamesBGGImportView.as_view(),
          name="location-games-bgg-import"),
     path("locations/<slug:slug>/manage/games/import-bgg/batch/", location_views.LocationGamesBGGImportBatchView.as_view(),

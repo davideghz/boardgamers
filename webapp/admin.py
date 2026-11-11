@@ -6,7 +6,7 @@ from django.urls import path, reverse
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.deletion import ProtectedError
+from django.db.models.deletion import RestrictedError
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
@@ -164,7 +164,7 @@ class GameAdmin(admin.ModelAdmin):
             duplicate_repr = f'{duplicate} (#{duplicate.pk})'
             try:
                 result = game_services.merge_games(keeper, duplicate, choices)
-            except ProtectedError:
+            except RestrictedError:
                 self.message_user(request, _("The merge would remove a library entry with loan history."), level=messages.ERROR)
                 return redirect('admin:webapp_game_changelist')
             keeper.refresh_from_db()
@@ -236,8 +236,20 @@ class MembershipInline(admin.TabularInline):
     fields = ('status', 'start_date', 'end_date', 'approved_by', 'notes')
 
 
+class LoanRelatedAdminMixin:
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        # Django wraps these admin POSTs in a transaction. Lock the object
+        # before the form decides which fields can be edited.
+        if request.method == 'POST' and request.resolver_match:
+            prefix = f'{self.opts.app_label}_{self.opts.model_name}'
+            if request.resolver_match.url_name in (f'{prefix}_change', f'{prefix}_delete'):
+                queryset = queryset.select_for_update(of=('self',))
+        return queryset
+
+
 @admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
+class MemberAdmin(LoanRelatedAdminMixin, admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'fiscal_code', 'location', 'user_profile', 'email')
     list_filter = ('location',)
     search_fields = ('first_name', 'last_name', 'fiscal_code', 'email')
@@ -271,9 +283,9 @@ class GuestProfileAdmin(admin.ModelAdmin):
 
 
 @admin.register(LocationGame)
-class LocationGameAdmin(admin.ModelAdmin):
-    list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location')
-    list_filter = ('location', 'ownership', 'physical_location')
+class LocationGameAdmin(LoanRelatedAdminMixin, admin.ModelAdmin):
+    list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location', 'is_archived')
+    list_filter = ('location', 'ownership', 'physical_location', 'is_archived')
     search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')
     filter_horizontal = ('tags',)
 
@@ -282,7 +294,7 @@ class LocationGameAdmin(admin.ModelAdmin):
         if obj and obj.loans.exists():
             fields += ('location', 'game')
             if obj.loans.filter(returned_at__isnull=True).exists():
-                fields += ('ownership', 'owner_member', 'physical_location')
+                fields += ('ownership', 'owner_member', 'physical_location', 'is_archived')
         return fields
 
 

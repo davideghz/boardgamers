@@ -24,7 +24,9 @@
             <div class="min-w-0">
               <a href="{% url 'location-game-detail' location.slug loan.location_game.uuid %}"
                  class="break-words text-sm font-bold text-content hover:underline">{{ loan.location_game.game.name }}</a>
-              <p class="break-words text-sm text-content">{{ loan.member.full_name }}</p>
+              <p class="break-words text-sm text-content">
+                {% if loan.member.location_id == location.pk %}{{ loan.member.full_name }}{% else %}{% trans "Member unavailable" %}{% endif %}
+              </p>
               <p class="mt-1 text-xs text-content-muted">
                 {% blocktrans with loan_date=loan.loaned_at|date:"DATE_FORMAT" due_date=loan.due_date|date:"DATE_FORMAT" %}Loaned on {{ loan_date }} · Due {{ due_date }}{% endblocktrans %}
               </p>
@@ -76,7 +78,7 @@
             {% if field.errors %}<div class="mt-1 text-xs text-content" role="alert">{{ field.errors }}</div>{% endif %}
           </div>
         {% endfor %}
-        <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">{% trans "Save" %}</button>
+        <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:opacity-90">{% trans "Save" %}</button>
       </form>
     </section>
   </div>

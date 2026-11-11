@@ -29,7 +29,7 @@
       <p class="text-sm text-content-muted">{% trans "Confirm once you have picked up the game at the location." %}</p>
     {% endif %}
     <div class="flex flex-wrap items-center gap-3">
-      <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
+      <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
         {% if form %}{% trans "Record loan" %}{% else %}{% trans "Confirm pickup" %}{% endif %}
       </button>
       <a href="{% if form %}{% url 'location-game-detail' location.slug location_game.uuid %}{% else %}{% url 'location-games' location.slug %}{% endif %}"

@@ -11,7 +11,7 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 
 from webapp.forms import LocationGameLoanForm, LocationGameLoanSettingsForm
-from webapp.models import Location, LocationGameLoan
+from webapp.models import Location
 from webapp.services.game_loans import (
     GameLoanError, check_game_loan_availability, create_game_loan, default_loan_due_date,
     get_borrowing_member, return_game_loan,
@@ -31,7 +31,7 @@ class LocationGameLoanManageView(LoginRequiredMixin, View):
         if status not in statuses:
             status = 'open'
 
-        loans = LocationGameLoan.objects.filter(location_game__location=location).select_related(
+        loans = location.game_loans.select_related(
             'location_game__game', 'member', 'loaned_by', 'returned_by',
         )
         if status == 'overdue':
@@ -141,7 +141,7 @@ class LocationGameLoanReturnView(LoginRequiredMixin, View):
         profile = request.user.user_profile
         if not location.is_manager(profile):
             raise PermissionDenied
-        loan = get_object_or_404(LocationGameLoan, uuid=loan_uuid, location_game__location=location)
+        loan = get_object_or_404(location.game_loans, uuid=loan_uuid)
         if return_game_loan(location, loan, profile):
             messages.success(request, _('Game return recorded.'))
         else:

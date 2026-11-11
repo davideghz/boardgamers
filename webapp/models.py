@@ -1327,6 +1327,7 @@ class LocationGame(DateTimeModel):
         max_length=20, choices=PHYSICAL_LOCATION_CHOICES, default=AT_ASSOCIATION,
         verbose_name=_('Physical Location')
     )
+    is_archived = models.BooleanField(default=False, verbose_name=_('Archived'))
     notes = models.TextField(blank=True, verbose_name=_('Notes'))
     tags = models.ManyToManyField(
         LocationGameTag, related_name='games', blank=True, verbose_name=_('Tags'))
@@ -1340,18 +1341,35 @@ class LocationGame(DateTimeModel):
 
     @property
     def is_lendable(self):
-        return self.ownership == self.OWNED_BY_LOCATION and self.physical_location == self.AT_ASSOCIATION
+        return (not self.is_archived and self.ownership == self.OWNED_BY_LOCATION
+                and self.physical_location == self.AT_ASSOCIATION)
 
     def __str__(self):
         return f"{self.game.name} @ {self.location.name}"
 
 
+def delete_game_loan_member(collector, field, sub_objs, using):
+    """Keep the borrower for open loans and anonymize returned loans."""
+    models.RESTRICT(collector, field, sub_objs.filter(returned_at__isnull=True), using)
+    returned = sub_objs.filter(returned_at__isnull=False)
+    for actor in ('loaned_by', 'returned_by'):
+        # A self-service loan can also identify the borrower as its operator.
+        loan_ids = list(returned.filter(**{actor: models.F('member__user_profile')}).values_list('pk', flat=True))
+        if loan_ids:
+            collector.add_field_update(field.model._meta.get_field(actor), None, sub_objs.filter(pk__in=loan_ids))
+    models.SET_NULL(collector, field, returned, using)
+
+
 class LocationGameLoan(DateTimeModel):
+    # Collect the loans when deleting their location, including those that restrict
+    # deleting the game or member individually.
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='game_loans', verbose_name=_('Location'))
     location_game = models.ForeignKey(
-        LocationGame, on_delete=models.PROTECT, related_name='loans', verbose_name=_('Location Game'),
+        LocationGame, on_delete=models.RESTRICT, related_name='loans', verbose_name=_('Location Game'),
     )
     member = models.ForeignKey(
-        Member, on_delete=models.PROTECT, related_name='game_loans', verbose_name=_('Member'),
+        Member, on_delete=delete_game_loan_member, null=True, blank=True,
+        related_name='game_loans', verbose_name=_('Member'),
     )
     loaned_at = models.DateTimeField(default=timezone.now, verbose_name=_('Loaned at'))
     due_date = models.DateField(verbose_name=_('Due date'))
@@ -1379,6 +1397,10 @@ class LocationGameLoan(DateTimeModel):
                 condition=models.Q(returned_at__isnull=True) | models.Q(returned_at__gte=models.F('loaned_at')),
                 name='game_loan_return_after_checkout',
             ),
+            models.CheckConstraint(
+                condition=models.Q(returned_at__isnull=False) | models.Q(member__isnull=False),
+                name='open_game_loan_has_member',
+            ),
         ]
 
     @property
@@ -1386,7 +1408,7 @@ class LocationGameLoan(DateTimeModel):
         return self.returned_at is None and self.due_date < timezone.localdate()
 
     def __str__(self):
-        return f'{self.location_game} ({self.member})'
+        return f'{self.location_game} ({self.loaned_at:%Y-%m-%d})'
 
 
 class TelegramGroupConfig(DateTimeModel):

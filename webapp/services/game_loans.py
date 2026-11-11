@@ -32,12 +32,12 @@ def open_game_loans(**filters):
 
 def can_view_game_library(location, *, is_member):
     return location.enable_public_games or (
-        is_member and (location.enable_game_loans or open_game_loans(location_game__location=location).exists())
+        is_member and (location.enable_game_loans or open_game_loans(location=location).exists())
     )
 
 
 def with_game_loan_status(games, *, include_dates=False, include_borrower=False):
-    open_loan = open_game_loans(location_game_id=OuterRef('pk')).order_by()
+    open_loan = open_game_loans(location_game_id=OuterRef('pk'), location_id=OuterRef('location_id')).order_by()
     games = games.annotate(is_on_loan=Exists(open_loan))
     if include_dates:
         games = games.annotate(
@@ -45,7 +45,8 @@ def with_game_loan_status(games, *, include_dates=False, include_borrower=False)
             loan_due_date=Subquery(open_loan.values('due_date')[:1]),
         )
     if include_borrower:
-        games = games.annotate(borrower_nickname=Subquery(open_loan.values('member__user_profile__nickname')[:1]))
+        borrower = open_loan.filter(member__location_id=OuterRef('location_id'))
+        games = games.annotate(borrower_nickname=Subquery(borrower.values('member__user_profile__nickname')[:1]))
     return games
 
 
@@ -53,10 +54,13 @@ def default_loan_due_date(location, on_date=None):
     return (on_date or timezone.localdate()) + timedelta(days=location.game_loan_days)
 
 
-def get_borrowing_member(location, profile, on_date=None):
+def get_borrowing_member(location, profile, on_date=None, *, lock=False):
     if not profile or not location.enable_game_loans or not location.enable_member_game_loans:
         raise PermissionDenied
-    members = list(active_members(location, on_date).filter(user_profile=profile)[:2])
+    members = active_members(location, on_date).filter(user_profile=profile)
+    if lock:
+        members = members.select_for_update()
+    members = list(members.order_by('pk')[:2])
     if not members:
         raise PermissionDenied
     if len(members) > 1:
@@ -67,6 +71,8 @@ def get_borrowing_member(location, profile, on_date=None):
 def check_game_loan_availability(location, location_game):
     if not location.enable_game_loans:
         raise GameLoanError(_('Game loans are disabled for this location.'))
+    if location_game.is_archived:
+        raise GameLoanError(_('This game is archived.'))
     if not location_game.is_lendable:
         raise GameLoanError(_('Only games owned by the location and kept on site can be borrowed.'))
     if open_game_loans(location_game=location_game).exists():
@@ -80,11 +86,11 @@ def create_game_loan(location, location_game, actor, *, member=None, due_date=No
     loaned_at = timezone.now()
     today = timezone.localdate(loaned_at)
     if member is None:
-        member = get_borrowing_member(location, actor, today)
+        member = get_borrowing_member(location, actor, today, lock=True)
         due_date = None
     elif not location.is_manager(actor):
         raise PermissionDenied
-    elif not active_members(location, today).filter(pk=member.pk).exists():
+    elif not active_members(location, today).select_for_update().filter(pk=member.pk).exists():
         raise GameLoanError(_('Select a member with a valid membership for this location.'))
 
     try:
@@ -97,7 +103,8 @@ def create_game_loan(location, location_game, actor, *, member=None, due_date=No
     if due_date < today:
         raise GameLoanError(_('The due date cannot be before the loan date.'))
     return LocationGameLoan.objects.create(
-        location_game=location_game, member=member, loaned_at=loaned_at, due_date=due_date, loaned_by=actor,
+        location=location, location_game=location_game, member=member,
+        loaned_at=loaned_at, due_date=due_date, loaned_by=actor,
     )
 
 
@@ -105,9 +112,7 @@ def create_game_loan(location, location_game, actor, *, member=None, due_date=No
 def return_game_loan(location, loan, actor):
     if not location.is_manager(actor):
         raise PermissionDenied
-    loan = LocationGameLoan.objects.select_for_update(of=('self',)).get(
-        pk=loan.pk, location_game__location=location,
-    )
+    loan = LocationGameLoan.objects.select_for_update().get(pk=loan.pk, location=location)
     if loan.returned_at is not None:
         return False
     loan.returned_at = timezone.now()

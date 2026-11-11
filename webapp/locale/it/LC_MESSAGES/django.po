@@ -746,6 +746,9 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
+msgid "Archived"
+msgstr "Archiviato"
+
 msgid "Tags"
 msgstr "Tag"
 
@@ -938,6 +941,9 @@ msgstr "Chiedi a un gestore di registrare il prestito. Il tuo profilo è collega
 
 msgid "Game loans are disabled for this location."
 msgstr "I prestiti sono disattivati per questa sede."
+
+msgid "This game is archived."
+msgstr "Questo gioco è archiviato."
 
 msgid "Only games owned by the location and kept on site can be borrowed."
 msgstr "Si possono prendere in prestito solo i giochi di proprietà della sede e custoditi in sede."
@@ -2818,6 +2824,9 @@ msgstr "+ Aggiungi slot orario"
 msgid "Game loans"
 msgstr "Prestiti"
 
+msgid "Member unavailable"
+msgstr "Socio non disponibile"
+
 msgid "Overdue"
 msgstr "In ritardo"
 
@@ -2833,6 +2842,18 @@ msgstr ""
 
 msgid "Go to the Members page"
 msgstr "Vai alla pagina Soci"
+
+msgid "Game archive"
+msgstr "Archivio"
+
+msgid "Record the return before archiving this game."
+msgstr "Registra la restituzione prima di archiviare questo gioco."
+
+msgid "Restore to library"
+msgstr "Ripristina in ludoteca"
+
+msgid "Archive game"
+msgstr "Archivia gioco"
 
 msgid "Loan status"
 msgstr "Stato del prestito"
@@ -4828,6 +4849,12 @@ msgstr "Gioco aggiornato con successo."
 #, python-format
 msgid "Import from BGG – %(name)s"
 msgstr "Importa da BGG – %(name)s"
+
+msgid "Game archived."
+msgstr "Gioco archiviato."
+
+msgid "Game restored to the library."
+msgstr "Gioco ripristinato in ludoteca."
 
 msgid "This game cannot be removed because it has loan history."
 msgstr "Questo gioco non può essere rimosso perché ha uno storico dei prestiti."

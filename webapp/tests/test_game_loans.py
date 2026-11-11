@@ -1,16 +1,16 @@
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
-from threading import Barrier
+from threading import Barrier, Event
 
-from django.db import IntegrityError, connections, transaction
-from django.db.models.deletion import ProtectedError
+from django.db import IntegrityError, connection, connections, transaction
+from django.db.models.deletion import RestrictedError
 from django.test import Client, TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from webapp.factories import GameFactory, LocationFactory, UserProfileFactory
+from webapp.factories import GameFactory, LocationFactory, SuperUserProfileFactory, UserProfileFactory
 from webapp.models import LocationGame, LocationGameLoan, Member, Membership
-from webapp.services.game_loans import GameLoanError, create_game_loan
+from webapp.services.game_loans import GameLoanError, create_game_loan, return_game_loan
 from webapp.services.games import merge_games
 
 
@@ -211,7 +211,9 @@ class LocationGameLoanTest(TestCase):
         with self.assertRaises(GameLoanError):
             self.create_loan()
         with self.assertRaises(IntegrityError), transaction.atomic():
-            LocationGameLoan.objects.create(location_game=self.game, member=self.member, due_date=timezone.localdate())
+            LocationGameLoan.objects.create(
+                location=self.location, location_game=self.game, member=self.member, due_date=timezone.localdate(),
+            )
 
     def test_settings_require_manager_and_validate_duration(self):
         url = self.url('location-manage-game-loans')
@@ -241,12 +243,107 @@ class LocationGameLoanTest(TestCase):
                              self.game_url('location-game-detail'))
         keeper = GameFactory()
         LocationGame.objects.create(location=self.location, game=keeper)
-        with self.assertRaises(ProtectedError):
+        with self.assertRaises(RestrictedError):
             merge_games(keeper, self.game.game, {})
         self.assertTrue(LocationGameLoan.objects.filter(pk=loan.pk, location_game=self.game).exists())
 
+    def test_archive_requires_return_and_can_be_reversed(self):
+        self.enable_self_service()
+        loan = self.create_loan()
+        archive_url = self.game_url('location-game-archive')
+        self.client.force_login(self.borrower.user)
+        self.assertEqual(self.client.post(archive_url, {'action': 'archive'}).status_code, 403)
+        self.client.force_login(self.manager.user)
+        self.client.post(archive_url, {'action': 'archive'})
+        self.game.refresh_from_db()
+        self.assertFalse(self.game.is_archived)
+
+        return_game_loan(self.location, loan, self.manager)
+        detail_url = self.game_url('location-game-detail')
+        self.assertContains(self.client.get(detail_url), archive_url)
+        self.assertRedirects(self.client.post(archive_url, {'action': 'archive'}), detail_url)
+        self.assertNotContains(self.client.get(self.url('location-games')), self.game.game.name)
+        self.assertContains(self.client.get(self.url('location-manage-games')), self.game.game.name)
+        self.assertTrue(self.game.loans.filter(pk=loan.pk).exists())
+
+        self.client.force_login(self.borrower.user)
+        borrow_url = self.game_url('location-game-loan-borrow')
+        self.client.post(borrow_url)
+        self.assertEqual(self.game.loans.count(), 1)
+        self.client.force_login(self.manager.user)
+        self.assertRedirects(self.client.post(archive_url, {'action': 'restore'}), detail_url)
+        self.client.force_login(self.borrower.user)
+        self.assertContains(self.client.get(self.url('location-games')), borrow_url)
+
+    def test_deleting_member_after_return_anonymizes_their_history(self):
+        self.enable_self_service()
+        loan = create_game_loan(self.location, self.game, self.borrower)
+        with self.assertRaises(RestrictedError):
+            self.member.delete()
+        return_game_loan(self.location, loan, self.manager)
+        self.member.delete()
+
+        loan.refresh_from_db()
+        self.assertIsNone(loan.member_id)
+        self.assertIsNone(loan.loaned_by_id)
+        self.assertEqual(loan.returned_by, self.manager)
+        self.client.force_login(self.manager.user)
+        response = self.client.get(self.url('location-manage-game-loans'), {'status': 'returned'})
+        self.assertEqual(list(response.context['page_obj']), [loan])
+
+    def test_deleting_location_cascades_even_with_an_open_loan(self):
+        loan = self.create_loan()
+        self.location.delete()
+        self.assertFalse(LocationGameLoan.objects.filter(pk=loan.pk).exists())
+
+    def test_deleting_location_creator_cascades_returned_loans(self):
+        loan = self.create_loan()
+        return_game_loan(self.location, loan, self.manager)
+        self.manager.user.delete()
+        self.assertFalse(LocationGameLoan.objects.filter(pk=loan.pk).exists())
+
 
 class ConcurrentGameLoanTest(TransactionTestCase):
+    def test_admin_cannot_move_game_during_checkout(self):
+        manager = SuperUserProfileFactory()
+        location = LocationFactory(creator=manager, enable_game_loans=True)
+        destination = LocationFactory()
+        game = LocationGame.objects.create(location=location, game=GameFactory())
+        member = make_member(location)
+        client = Client()
+        client.force_login(manager.user)
+        url = reverse('admin:webapp_locationgame_change', args=[game.pk])
+        lock_requested = Event()
+
+        def observe_lock(execute, sql, params, many, context):
+            if 'FOR UPDATE OF "webapp_locationgame"' in sql:
+                lock_requested.set()
+            return execute(sql, params, many, context)
+
+        def move_game():
+            try:
+                with connection.execute_wrapper(observe_lock):
+                    return client.post(url, {
+                        'location': destination.pk,
+                        'game': game.game_id,
+                        'ownership': LocationGame.OWNED_BY_LOCATION,
+                        'physical_location': LocationGame.AT_ASSOCIATION,
+                        '_save': 'Save',
+                    })
+            finally:
+                connections.close_all()
+
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            with transaction.atomic():
+                loan = create_game_loan(location, game, manager, member=member)
+                result = executor.submit(move_game)
+                self.assertTrue(lock_requested.wait(timeout=10))
+            self.assertEqual(result.result(timeout=10).status_code, 302)
+
+        game.refresh_from_db()
+        self.assertEqual(game.location, location)
+        self.assertEqual(loan.location, location)
+
     def test_manager_and_member_cannot_both_check_out_same_game(self):
         manager = UserProfileFactory()
         borrower = UserProfileFactory()
