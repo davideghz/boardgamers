@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 12:54+0100\n"
+"POT-Creation-Date: 2026-11-11 13:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -781,6 +781,12 @@ msgstr "Se disattivata, i tavoli di questo evento non hanno la classifica."
 
 msgid "Public game library"
 msgstr "Ludoteca pubblica"
+
+msgid "Table booking"
+msgstr "Prenotazione dei tavoli"
+
+msgid "External program link"
+msgstr "Link al programma esterno"
 
 #, python-format
 msgid "%(name)s — gaming event"
@@ -1765,6 +1771,9 @@ msgstr "Espandi"
 msgid "Show less"
 msgstr "Nascondi"
 
+msgid "Opens the organizers' website"
+msgstr "Apre il sito degli organizzatori"
+
 #, python-format
 msgid "%(n)s table scheduled"
 msgid_plural "%(n)s tables scheduled"
@@ -1842,6 +1851,9 @@ msgstr[1] "%(n)s persone partecipano"
 
 msgid "Manage event"
 msgstr "Gestisci evento"
+
+msgid "Internal program (managers only)"
+msgstr "Programma interno (solo manager)"
 
 msgid "Dates"
 msgstr "Date"
@@ -1953,6 +1965,20 @@ msgid ""
 msgstr ""
 "Se disattivata, i tavoli di questo evento non mostrano la classifica e "
 "nessuno può compilarla."
+
+msgid ""
+"When off, the program is visible only to the event managers and the event "
+"page doesn't show your tables."
+msgstr ""
+"Se disattivata, il programma è visibile solo ai manager dell'evento e la "
+"pagina dell'evento non mostra la sezione con i tuoi tavoli."
+
+msgid ""
+"The “See the program” button on the event page opens this link. Without a "
+"link the button is hidden."
+msgstr ""
+"Il pulsante “Vedi il programma” nella pagina dell'evento apre questo link. "
+"Senza un link il pulsante viene nascosto."
 
 msgid "Event dates"
 msgstr "Date evento"

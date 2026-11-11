@@ -732,7 +732,12 @@ class EventManageDataForm(EventForm):
     """EventForm plus the settings that only the management page shows."""
 
     class Meta(EventForm.Meta):
-        fields = EventForm.Meta.fields + ['leaderboard_enabled']
+        fields = EventForm.Meta.fields + [
+            'leaderboard_enabled', 'table_booking_enabled', 'external_program_url']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['external_program_url'].widget.attrs['placeholder'] = 'https://'
 
 
 class EventDateForm(TailwindForm):

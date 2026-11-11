@@ -1,5 +1,5 @@
 {% load i18n %}
-{# A game of an event's library. Requires `entry` (with first_table_date, see services/event_games.py), `event` and `is_concluded`. #}
+{# A game of an event's library. Requires `entry` (with first_table_date, see services/event_games.py), `event`, `is_concluded` and `can_view_program`. #}
 {% with game=entry.game %}
 <div class="flex gap-3 p-2.5 rounded-xl border border-divider bg-surface">
   <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -31,7 +31,7 @@
         {% trans "From:" %} {% for location in entry.sponsor_locations.all %}{{ location.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
       </p>
     {% endif %}
-    {% if not is_concluded %}
+    {% if not is_concluded and can_view_program %}
       <div class="mt-1.5 text-xs">
         {% if entry.first_table_date %}
           <a href="{% url 'event-program' event.slug %}?game={{ entry.game_id }}&amp;date={{ entry.first_table_date|date:'Y-m-d' }}"
