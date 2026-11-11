@@ -6,6 +6,7 @@ from django.urls import path, reverse
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.deletion import ProtectedError
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
@@ -161,7 +162,11 @@ class GameAdmin(admin.ModelAdmin):
         if request.method == 'POST' and 'confirm' in request.POST:
             choices = {f: request.POST.get(f'choice_{f}', 'keeper') for f in game_services.MERGEABLE_FIELDS}
             duplicate_repr = f'{duplicate} (#{duplicate.pk})'
-            result = game_services.merge_games(keeper, duplicate, choices)
+            try:
+                result = game_services.merge_games(keeper, duplicate, choices)
+            except ProtectedError:
+                self.message_user(request, _("The merge would remove a library entry with loan history."), level=messages.ERROR)
+                return redirect('admin:webapp_game_changelist')
             keeper.refresh_from_db()
             summary = _("Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library entries "
                         "moved, %(merged)d library entries merged, %(event_moved)d event library entries moved, "
@@ -238,6 +243,11 @@ class MemberAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'fiscal_code', 'email')
     inlines = [MembershipInline]
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.game_loans.exists():
+            return (*super().get_readonly_fields(request, obj), 'location')
+        return super().get_readonly_fields(request, obj)
+
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
@@ -266,6 +276,14 @@ class LocationGameAdmin(admin.ModelAdmin):
     list_filter = ('location', 'ownership', 'physical_location')
     search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')
     filter_horizontal = ('tags',)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = tuple(super().get_readonly_fields(request, obj))
+        if obj and obj.loans.exists():
+            fields += ('location', 'game')
+            if obj.loans.filter(returned_at__isnull=True).exists():
+                fields += ('ownership', 'owner_member', 'physical_location')
+        return fields
 
 
 @admin.register(LocationGameTag)

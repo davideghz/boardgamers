@@ -181,6 +181,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     LEADERBOARD_EDIT_DAYS_DEFAULT = 2
     LEADERBOARD_EDIT_DAYS_MIN = 2
     LEADERBOARD_EDIT_DAYS_MAX = 30
+    GAME_LOAN_DAYS_DEFAULT = 7
 
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
@@ -203,6 +204,16 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     # Sections of the public location page the managers can hide.
     show_most_played_games = models.BooleanField(default=True)
     show_top_gamers = models.BooleanField(default=True)
+    enable_game_loans = models.BooleanField(default=False, verbose_name=_('Enable game loans'))
+    enable_member_game_loans = models.BooleanField(
+        default=False, verbose_name=_('Allow members to record their own loans'))
+    show_game_loan_borrower = models.BooleanField(
+        default=False, verbose_name=_('Show the borrower’s nickname to members'))
+    game_loan_days = models.PositiveSmallIntegerField(
+        default=GAME_LOAN_DAYS_DEFAULT,
+        validators=[MinValueValidator(1)],
+        verbose_name=_('Default loan duration (days)'),
+    )
     website = models.URLField(null=True, blank=True)
     facebook_url = models.URLField(
         _('Facebook profile'), blank=True, max_length=500,
@@ -1327,8 +1338,55 @@ class LocationGame(DateTimeModel):
         unique_together = ('location', 'game')
         ordering = ['game__name']
 
+    @property
+    def is_lendable(self):
+        return self.ownership == self.OWNED_BY_LOCATION and self.physical_location == self.AT_ASSOCIATION
+
     def __str__(self):
         return f"{self.game.name} @ {self.location.name}"
+
+
+class LocationGameLoan(DateTimeModel):
+    location_game = models.ForeignKey(
+        LocationGame, on_delete=models.PROTECT, related_name='loans', verbose_name=_('Location Game'),
+    )
+    member = models.ForeignKey(
+        Member, on_delete=models.PROTECT, related_name='game_loans', verbose_name=_('Member'),
+    )
+    loaned_at = models.DateTimeField(default=timezone.now, verbose_name=_('Loaned at'))
+    due_date = models.DateField(verbose_name=_('Due date'))
+    returned_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Returned at'))
+    loaned_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='recorded_game_loans', verbose_name=_('Loan recorded by'),
+    )
+    returned_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='recorded_game_returns', verbose_name=_('Return recorded by'),
+    )
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        verbose_name = _('Location Game Loan')
+        verbose_name_plural = _('Location Game Loans')
+        ordering = ['-loaned_at', '-pk']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['location_game'], condition=models.Q(returned_at__isnull=True),
+                name='unique_open_loan_per_location_game',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(returned_at__isnull=True) | models.Q(returned_at__gte=models.F('loaned_at')),
+                name='game_loan_return_after_checkout',
+            ),
+        ]
+
+    @property
+    def is_overdue(self):
+        return self.returned_at is None and self.due_date < timezone.localdate()
+
+    def __str__(self):
+        return f'{self.location_game} ({self.member})'
 
 
 class TelegramGroupConfig(DateTimeModel):

@@ -6,7 +6,13 @@
 
   <div class="mb-6">
     {% back_link 'location-manage' location.slug label=_("Manage") %}
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
+      <a href="{% url 'location-manage-game-loans' location.slug %}"
+         class="rounded-full border border-divider bg-surface px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">
+        {% trans "Game loans" %}
+      </a>
+    </div>
   </div>
 
   {# ── Public game library toggle ─────────────────────────────────────── #}
@@ -111,7 +117,9 @@
                 {% else %}
                   <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{% trans "Member" %}</span>
                 {% endif %}
-                {% if lg.physical_location == 'home' %}
+                {% if lg.is_on_loan %}
+                  <span class="rounded-full bg-surface-input px-2 py-0.5 text-xs font-semibold text-content">{% trans "On loan" %}</span>
+                {% elif lg.physical_location == 'home' %}
                   <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "At home" %}</span>
                 {% endif %}
               </div>

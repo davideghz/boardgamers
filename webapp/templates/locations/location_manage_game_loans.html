@@ -1,0 +1,83 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags i18n %}
+
+{% block content %}
+  <div class="mb-6">
+    {% back_link 'location-manage-games' location.slug label=_("Games") %}
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Game loans" %}</h1>
+  </div>
+
+  <div class="grid items-start gap-6 lg:grid-cols-3">
+    <section class="min-w-0 lg:col-span-2">
+      <nav aria-label="{% trans 'Loan status' %}" class="mb-3 flex flex-wrap gap-2">
+        {% for key, label in statuses.items %}
+          <a href="{% querystring status=key page=None %}" {% if key == status %}aria-current="page"{% endif %}
+             class="rounded-full border border-divider px-3 py-1.5 text-sm font-semibold text-content {% if key == status %}bg-surface-input{% else %}bg-surface hover:bg-surface-alt{% endif %}">
+            {{ label }}
+          </a>
+        {% endfor %}
+      </nav>
+
+      <ul class="space-y-2">
+        {% for loan in page_obj %}
+          <li class="flex flex-col items-start gap-3 rounded-xl border border-divider bg-surface p-4 sm:flex-row sm:justify-between">
+            <div class="min-w-0">
+              <a href="{% url 'location-game-detail' location.slug loan.location_game.uuid %}"
+                 class="break-words text-sm font-bold text-content hover:underline">{{ loan.location_game.game.name }}</a>
+              <p class="break-words text-sm text-content">{{ loan.member.full_name }}</p>
+              <p class="mt-1 text-xs text-content-muted">
+                {% blocktrans with loan_date=loan.loaned_at|date:"DATE_FORMAT" due_date=loan.due_date|date:"DATE_FORMAT" %}Loaned on {{ loan_date }} · Due {{ due_date }}{% endblocktrans %}
+              </p>
+              {% if loan.loaned_by %}
+                <p class="mt-1 break-words text-xs text-content-muted">{% blocktrans with nickname=loan.loaned_by.nickname %}Loan recorded by {{ nickname }}{% endblocktrans %}</p>
+              {% endif %}
+              {% if loan.returned_at %}
+                <p class="mt-1 text-xs text-content-muted">{% blocktrans with return_date=loan.returned_at|date:"DATE_FORMAT" %}Returned on {{ return_date }}{% endblocktrans %}</p>
+                {% if loan.returned_by %}
+                  <p class="mt-1 break-words text-xs text-content-muted">{% blocktrans with nickname=loan.returned_by.nickname %}Return recorded by {{ nickname }}{% endblocktrans %}</p>
+                {% endif %}
+              {% endif %}
+            </div>
+            <div class="flex flex-wrap items-center gap-2 sm:shrink-0">
+              {% if loan.is_overdue %}
+                <span class="rounded-full bg-surface-input px-2 py-0.5 text-xs font-bold text-content">{% trans "Overdue" %}</span>
+              {% endif %}
+              {% if not loan.returned_at %}
+                <form method="post" action="{% url 'location-game-loan-return' location.slug loan.uuid %}">
+                  {% csrf_token %}
+                  <button type="submit" class="rounded-full border border-divider px-3 py-1.5 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Record return" %}</button>
+                </form>
+              {% endif %}
+            </div>
+          </li>
+        {% empty %}
+          <li class="rounded-xl border border-divider bg-surface p-4 text-sm text-content-muted">{% trans "No loans match this filter." %}</li>
+        {% endfor %}
+      </ul>
+      {% include "partials/_pagination.html" %}
+    </section>
+
+    <section class="rounded-xl border border-divider bg-surface p-4">
+      <h2 class="mb-4 text-sm font-bold text-content">{% trans "Loan settings" %}</h2>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div role="alert" class="text-sm text-content">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div>
+            {% if field.field.widget.input_type == 'checkbox' %}
+              <label class="flex items-start gap-2 text-sm font-semibold text-content">
+                {{ field }} {{ field.label }}
+              </label>
+            {% else %}
+              <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-semibold text-content">{{ field.label }}</label>
+              {{ field }}
+            {% endif %}
+            {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="mt-1 text-xs text-content-muted">{{ field.help_text }}</p>{% endif %}
+            {% if field.errors %}<div class="mt-1 text-xs text-content" role="alert">{{ field.errors }}</div>{% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">{% trans "Save" %}</button>
+      </form>
+    </section>
+  </div>
+{% endblock content %}
