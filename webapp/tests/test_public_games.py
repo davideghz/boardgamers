@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.translation import gettext, override
 
 from webapp.factories import UserProfileFactory, LocationFactory, GameFactory
 from webapp.models import LocationGame
@@ -111,4 +112,7 @@ class PublicGamesPaginationTest(TestCase):
         back_url = reverse('location-games', args=[self.location.slug], query=query)
         detail = self.client.get(game_url)
         self.assertContains(detail, f'href="{escape(back_url)}"')
+        with override(detail.wsgi_request.LANGUAGE_CODE):
+            label = gettext('Games – %(name)s') % {'name': self.location.name}
+        self.assertContains(detail, f'<span class="truncate">{escape(label)}</span>')
         self.assertEqual(self.client.get(back_url).context['page_obj'].number, 2)

@@ -7,7 +7,8 @@
   {# ── BACK LINK ────────────────────────────────────────────────────── #}
   <div class="mb-4">
     {% if back_location %}
-      {% back_link 'location-games' back_location.slug label=back_location.name query=back_library_query %}
+      {% blocktranslate asvar back_library_label with name=back_location.name %}Games – {{ name }}{% endblocktranslate %}
+      {% back_link 'location-games' back_location.slug label=back_library_label query=back_library_query %}
     {% else %}
       {% back_link 'game-list' label=_("Games") %}
     {% endif %}
