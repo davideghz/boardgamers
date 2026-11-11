@@ -39,7 +39,8 @@
     {% for lg in location_games %}
       {% with game=lg.game %}
       <div class="relative flex items-start gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt transition-colors">
-        <a href="{% url 'game-detail' game.slug %}" class="absolute inset-0 rounded-xl" aria-label="{{ game.name }}"></a>
+        <a href="{% url 'game-detail' game.slug %}?from_location={{ location.slug }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}{% if page_obj.number > 1 %}&amp;page={{ page_obj.number }}{% endif %}"
+           class="absolute inset-0 rounded-xl" aria-label="{{ game.name }}"></a>
         <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async"
              class="w-12 h-12 rounded-lg bg-surface-input flex-shrink-0 object-cover">
         <div class="min-w-0 flex-1">

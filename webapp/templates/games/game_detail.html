@@ -5,7 +5,13 @@
 <div class="max-w-2xl">
 
   {# ── BACK LINK ────────────────────────────────────────────────────── #}
-  <div class="mb-4">{% back_link 'game-list' label=_("Games") %}</div>
+  <div class="mb-4">
+    {% if back_location %}
+      {% back_link 'location-games' back_location.slug label=back_location.name query=back_library_query %}
+    {% else %}
+      {% back_link 'game-list' label=_("Games") %}
+    {% endif %}
+  </div>
 
   {# ── Hero cover ────────────────────────────────────────────────────── #}
   <div class="relative w-full aspect-video rounded-xl overflow-hidden mb-6"

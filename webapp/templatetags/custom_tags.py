@@ -33,9 +33,9 @@ def render_markdown(value):
 
 
 @register.inclusion_tag("partials/_back_link.html")
-def back_link(url_name, *args, label=""):
+def back_link(url_name, *args, label="", query=None):
     """Link back to the page that logically contains the current one."""
-    return {"url": reverse(url_name, args=args), "label": label}
+    return {"url": reverse(url_name, args=args, query=query), "label": label}
 
 
 @register.inclusion_tag("tags/location_card.html", takes_context=True)
