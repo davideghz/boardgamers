@@ -2,6 +2,7 @@
 
 - [Project Requirements](#project-requirements)
 - [Setup Without Docker (Linux/MacOS)](#setup-without-docker-linuxmacos)
+- [Local media storage](#local-media-storage)
 - [Heroku Setup](#heroku-setup)
 - [Email in local development (Mailtrap)](#email-in-local-development-mailtrap)
 - [Translations](#translations)
@@ -67,6 +68,47 @@ python manage.py populate_db
 ```bash
 python manage.py runserver
 ```
+
+## Local media storage
+
+With `boardGames.local_settings`, uploads go to `media/` by default. Django serves them under
+`/media/` when `DEBUG=True`. Filesystem mode works without AWS credentials.
+
+To test uploads against `boardgamers-staging-public`, set `USE_S3=True` in `.env` and configure
+staging credentials with `AWS_S3_ACCESS_KEY_ID` and `AWS_S3_SECRET_ACCESS_KEY`. The selected
+backend also reads existing uploads. If a local database references files that exist only in S3,
+use staging S3 or copy the files you need into `media/`, preserving their paths relative to the
+bucket's `media/` prefix. Missing local files return 404.
+
+Use a dedicated IAM identity for development. This example permits listing the staging bucket
+and managing objects under `media/`. `ListBucket` lets S3 return a 404 when the storage backend
+checks a new filename, and `PutObjectAcl` permits uploads with `public-read` on buckets that allow
+ACLs. See [HeadObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html)
+and [PutObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html).
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::boardgamers-staging-public"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:DeleteObject", "s3:AbortMultipartUpload"],
+      "Resource": "arn:aws:s3:::boardgamers-staging-public/media/*"
+    },
+    {
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::boardgamers-prod-public", "arn:aws:s3:::boardgamers-prod-public/*"]
+    }
+  ]
+}
+```
+
 ## Heroku Setup
 
 The production app is `boardgamers` (stack `heroku-26`, Heroku Postgres with PostGIS, Heroku Scheduler).

@@ -7,7 +7,7 @@ from webapp.signals import SHRINKABLE_IMAGE_FIELDS
 
 class Command(BaseCommand):
     help = ("Shrink already-uploaded covers and avatars to JPEG with a max side "
-            "(same rules as new uploads). Originals stay on S3: storage never overwrites.")
+            "(same rules as new uploads). The configured storage retains the original files.")
 
     def add_arguments(self, parser):
         parser.add_argument('--dry-run', action='store_true', help='Show what would be shrunk without saving')

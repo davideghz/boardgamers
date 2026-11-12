@@ -1,6 +1,13 @@
-from django.test import TestCase
+from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import translation
+from PIL import Image
 
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.forms import LocationForm, LocationManageDataForm
@@ -31,6 +38,24 @@ class LocationCreateViewTest(TestCase):
         location = Location.objects.get(name='Circolo Ludico')
         self.assertEqual(location.creator, self.profile)
         self.assertRedirects(response, reverse('location-detail', kwargs={'slug': location.slug}))
+
+    @override_settings(MEDIA_URL='/media/', STORAGES={
+        **settings.STORAGES,
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    })
+    def test_saves_uploaded_cover_to_local_media(self):
+        image = BytesIO()
+        Image.new('RGB', (10, 10)).save(image, 'PNG')
+        cover = SimpleUploadedFile('cover.png', image.getvalue(), content_type='image/png')
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self._post(cover=cover)
+            location = Location.objects.get(name='Circolo Ludico')
+
+            self.assertRedirects(response, reverse('location-detail', kwargs={'slug': location.slug}))
+            self.assertTrue(location.is_manager(self.profile))
+            self.assertEqual(location.cover.url, '/media/location-covers/cover.png')
+            self.assertEqual((Path(media_root) / location.cover.name).read_bytes(), image.getvalue())
 
     def test_website_without_scheme_gets_https(self):
         self._post(website='www.circololudico.it')

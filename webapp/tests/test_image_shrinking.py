@@ -1,11 +1,13 @@
 import datetime
 from io import BytesIO
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
@@ -70,28 +72,31 @@ class RestrictedOpenFormatsTest(TestCase):
 
 class ShrinkOnUploadTest(TestCase):
     def setUp(self):
-        patcher = mock.patch('storages.backends.s3.S3Storage._save', side_effect=lambda name, content: name)
-        self.save_mock = patcher.start()
-        self.addCleanup(patcher.stop)
+        media_root = self.enterContext(TemporaryDirectory())
+        self.enterContext(override_settings(MEDIA_ROOT=media_root, STORAGES={
+            **settings.STORAGES,
+            'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        }))
         self.user_profile = UserProfileFactory()
 
     def test_new_upload_is_shrunk_before_storage(self):
         self.user_profile.avatar = SimpleUploadedFile('me.png', noisy_png_bytes((1000, 800)), 'image/png')
         self.user_profile.save()
 
-        name, content = self.save_mock.call_args.args
-        self.assertTrue(name.endswith('me.jpg'))
-        content.seek(0)
-        img = Image.open(content)
-        self.assertEqual(img.format, 'JPEG')
-        self.assertEqual(max(img.size), AVATAR_MAX_SIDE)
+        avatar = self.user_profile.avatar
+        self.assertEqual(avatar.name, 'avatars/me.jpg')
+        with avatar.open('rb') as content, Image.open(content) as img:
+            self.assertEqual(img.format, 'JPEG')
+            self.assertEqual(max(img.size), AVATAR_MAX_SIDE)
 
     def test_saving_without_new_upload_does_not_touch_storage(self):
-        self.user_profile.avatar = 'avatars/me.png'
-        self.user_profile.save()
-        self.user_profile.nickname = 'renamed'
-        self.user_profile.save()
-        self.save_mock.assert_not_called()
+        with mock.patch('webapp.signals.shrink_content_file') as shrink:
+            self.user_profile.avatar = 'avatars/me.png'
+            self.user_profile.save()
+            self.user_profile.nickname = 'renamed'
+            self.user_profile.save()
+        shrink.assert_not_called()
+        self.assertFalse(self.user_profile.avatar.storage.exists('avatars/me.png'))
 
 
 class LocationPastTablesLimitTest(TestCase):

@@ -5,6 +5,15 @@ from .settings import *
 
 print('dentro local_settings.py')
 
+USE_S3 = env.bool('USE_S3', default=False)
+if not USE_S3:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
+    STORAGES = {
+        **STORAGES,
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    }
+
 # Geospatial libraries
 GDAL_LIBRARY_PATH = os.getenv(
     "GDAL_LIBRARY_PATH",
