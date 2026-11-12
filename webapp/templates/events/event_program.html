@@ -8,7 +8,7 @@
   <div class="mb-6">
     {% back_link 'event_detail' event.slug label=event.name %}
     <div class="flex items-center justify-between gap-3 flex-wrap">
-      <h1 class="text-2xl font-extrabold text-content">{% trans "Program" %}</h1>
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Bookable tables" %}</h1>
       {% if can_create_table %}
         {% if event.dates.exists %}
           <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}{% endif %}"

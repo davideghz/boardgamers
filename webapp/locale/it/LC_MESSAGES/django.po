@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 18:46+0100\n"
+"POT-Creation-Date: 2026-11-13 00:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1813,9 +1813,6 @@ msgstr "Non ti sei ancora iscritto a nessun tavolo!"
 msgid "Browse the program and grab a seat at a table."
 msgstr "Sfoglia il programma e prendi posto a un tavolo."
 
-msgid "See the program"
-msgstr "Vedi il programma"
-
 msgid "Log in to see your tables"
 msgstr "Accedi per vedere i tuoi tavoli"
 
@@ -2210,9 +2207,6 @@ msgstr "Aggiungi admin tavoli"
 
 msgid "Remove table creator?"
 msgstr "Rimuovere l'admin tavoli?"
-
-msgid "Program"
-msgstr "Programma"
 
 msgid "Create table"
 msgstr "Crea un tavolo qui"
@@ -4962,6 +4956,12 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "See the program"
+#~ msgstr "Vedi il programma"
+
+#~ msgid "Program"
+#~ msgstr "Programma"
 
 #~ msgid "External program link"
 #~ msgstr "Link al programma esterno"
