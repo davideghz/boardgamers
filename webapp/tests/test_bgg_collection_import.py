@@ -32,8 +32,8 @@ GAMES_XML = '''<?xml version="1.0" encoding="utf-8"?>
 
 EXPANSIONS_XML = '''<?xml version="1.0" encoding="utf-8"?>
 <items totalitems="1">
-  <item objecttype="thing" objectid="325" subtype="boardgameexpansion">
-    <name sortindex="1">Catan: Seafarers</name><yearpublished>1997</yearpublished>
+  <item objecttype="thing" objectid="247030" subtype="boardgameexpansion">
+    <name sortindex="1">Terraforming Mars: Prelude</name><yearpublished>2018</yearpublished>
   </item>
 </items>'''
 
@@ -48,7 +48,7 @@ class FetchCollectionTest(TestCase):
         get.side_effect = [_response(200, GAMES_XML), _response(200, EXPANSIONS_XML)]
         items = fetch_bgg_collection('someone')
         self.assertEqual([(i['bgg_id'], i['is_expansion']) for i in items],
-                         [('822', False), ('13', False), ('325', True)])
+                         [('822', False), ('13', False), ('247030', True)])
         self.assertEqual(items[1]['thumbnail'], 'https://cf.geekdo-images.com/catan.jpg')
         self.assertEqual(items[1]['year_published'], 1995)
         params = get.call_args_list[0].kwargs['params']
@@ -177,8 +177,25 @@ class ImportViewsTest(TestCase):
         statuses = {i['bgg_id']: i['status'] for i in response.context['games'] + response.context['expansions']}
         self.assertEqual(statuses, {'13': 'in_library', '230802': 'in_library', '822': 'known',
                                     '9209': 'new', '325': 'new'})
-        self.assertEqual(response.context['importable_count'], 2)
+        self.assertEqual(response.context['importable_count'], 3)
         self.assertContains(response, "Expansions")
+
+    @patch('webapp.services.bgg.requests.get')
+    def test_expansion_is_selected_by_default_and_can_be_imported(self, get):
+        get.side_effect = [
+            _response(200, '<items totalitems="0"/>'),
+            _response(200, EXPANSIONS_XML),
+            _response(200, '''<items><item id="247030" type="boardgameexpansion">
+              <name type="primary" value="Terraforming Mars: Prelude"/>
+            </item></items>'''),
+        ]
+        preview = self.client.get(self.preview_url, {'username': 'someone'})
+        self.assertContains(preview, 'Terraforming Mars: Prelude')
+        self.assertRegex(preview.content.decode(), r'value="247030"[^>]*\schecked\s*>')
+
+        items = [{'bgg_id': '247030', 'name': 'Terraforming Mars: Prelude'}]
+        self.assertEqual(self.batch(items).json(), {'added': ['247030'], 'skipped': [], 'failed': []})
+        self.assertEqual(self.location.location_games.get().game.bgg_code, '247030')
 
     @patch('webapp.views.location_views.fetch_bgg_collection')
     def test_preview_errors(self, fetch):

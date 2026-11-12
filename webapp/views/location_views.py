@@ -1199,7 +1199,7 @@ class LocationGamesBGGImportView(LoginRequiredMixin, View):
             'loaded': items is not None,
             'games': games,
             'expansions': expansions,
-            'importable_count': sum(1 for i in games if i['status'] != 'in_library'),
+            'importable_count': sum(1 for i in items or [] if i['status'] != 'in_library'),
             'form': BGGCollectionImportForm(location=location),
             'tags': location.game_tags.all(),
             'batch_size': BGG_IMPORT_BATCH_SIZE,
