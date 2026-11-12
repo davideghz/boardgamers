@@ -48,11 +48,11 @@
 
     {# ── Collection ──────────────────────────────────────────────────── #}
     <div class="lg:col-span-2 min-w-0 space-y-6" id="bgg-collection">
-      {% with items=games title=_("Games") checked_by_default=True %}
+      {% with items=games title=_("Games") %}
         {% include "locations/_bgg_import_section.html" %}
       {% endwith %}
       {% if expansions %}
-        {% with items=expansions title=_("Expansions") checked_by_default=False %}
+        {% with items=expansions title=_("Expansions") %}
           {% include "locations/_bgg_import_section.html" %}
         {% endwith %}
       {% endif %}

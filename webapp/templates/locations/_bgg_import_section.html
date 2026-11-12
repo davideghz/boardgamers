@@ -1,7 +1,7 @@
 {% load i18n %}
 {% comment %}
   One section (games or expansions) of the BGG collection preview.
-  Context: items, title, checked_by_default.
+  Context: items, title.
 {% endcomment %}
 <section>
   <div class="flex items-center justify-between gap-3 mb-2">
@@ -22,7 +22,7 @@
              data-row="{{ title|slugify }}" data-search="{{ item.name|lower }}">
         <input type="checkbox" class="bgg-item w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500 flex-shrink-0"
                value="{{ item.bgg_id }}" data-name="{{ item.name }}" data-section="{{ title|slugify }}"
-               {% if item.status == 'in_library' %}disabled{% elif checked_by_default %}checked{% endif %}>
+               {% if item.status == 'in_library' %}disabled{% else %}checked{% endif %}>
         <div class="w-9 h-9 rounded-lg bg-surface-input flex-shrink-0 overflow-hidden">
           {% if item.thumbnail %}<img src="{{ item.thumbnail }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">{% endif %}
         </div>
