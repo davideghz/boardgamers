@@ -1,4 +1,4 @@
-"""Riduzione delle immagini caricate (copertine, avatar) prima del salvataggio su S3.
+"""Riduzione delle immagini caricate (copertine, avatar) prima del salvataggio nello storage.
 
 Le copertine BGG arrivano a piena risoluzione (PNG fino a diversi MB) ma sono
 mostrate al massimo come hero di pagina: le riduciamo a JPEG con lato lungo

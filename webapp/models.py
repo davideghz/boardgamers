@@ -25,7 +25,6 @@ from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
-from webapp.storage_backends import PublicMediaStorage
 
 
 def _plain_text(markdown_text):
@@ -131,7 +130,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
+    image = models.ImageField(upload_to='games', null=True, blank=True)
     description = models.TextField()
     bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
     min_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Minimum players'))
@@ -190,7 +189,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
     description = models.TextField()
-    cover = models.ImageField(upload_to='location-covers', null=True, blank=True, storage=PublicMediaStorage())
+    cover = models.ImageField(upload_to='location-covers', null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -361,7 +360,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
+    avatar = models.ImageField(upload_to='avatars', null=True, blank=True)
     phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
@@ -530,7 +529,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
     custom_cover = models.ImageField(
-        upload_to='table-covers', null=True, blank=True, storage=PublicMediaStorage(),
+        upload_to='table-covers', null=True, blank=True,
         verbose_name=_('Custom cover'),
         help_text=_('Optional image shown instead of the game cover.'))
 
@@ -1223,7 +1222,7 @@ class MembershipDocument(DateTimeModel):
     )
     name = models.CharField(max_length=200, verbose_name=_('Name'))
     file = models.FileField(
-        upload_to='membership-documents', storage=PublicMediaStorage(),
+        upload_to='membership-documents',
         verbose_name=_('File')
     )
     is_active = models.BooleanField(default=True, verbose_name=_('Active'))
@@ -1405,7 +1404,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))
     cover = models.ImageField(
-        upload_to='event-covers', null=True, blank=True, storage=PublicMediaStorage(),
+        upload_to='event-covers', null=True, blank=True,
         verbose_name=_('Cover'))
 
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))

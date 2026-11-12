@@ -15,6 +15,7 @@ venv/
 
 # dev db
 db.sqlite3
+/media/
 
 # Node artifact files
 node_modules/
