@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 16:08+0100\n"
+"POT-Creation-Date: 2026-11-12 18:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -161,6 +161,12 @@ msgstr "Indirizzo"
 
 msgid "Website"
 msgstr "Sito web"
+
+msgid "A button with a link needs a title."
+msgstr "Un pulsante con un link deve avere un titolo."
+
+msgid "A button with a title needs a link."
+msgstr "Un pulsante con un titolo deve avere un link."
 
 msgid "Opening time"
 msgstr "Orario di apertura"
@@ -785,8 +791,14 @@ msgstr "Ludoteca pubblica"
 msgid "Table booking"
 msgstr "Prenotazione dei tavoli"
 
-msgid "External program link"
-msgstr "Link al programma esterno"
+msgid "Button title"
+msgstr "Titolo del pulsante"
+
+msgid "Button subtitle"
+msgstr "Sottotitolo del pulsante"
+
+msgid "Button link"
+msgstr "Link del pulsante"
 
 #, python-format
 msgid "%(name)s — gaming event"
@@ -1765,8 +1777,8 @@ msgstr "Partecipa all’evento"
 msgid "Log in to attend"
 msgstr "Accedi per partecipare"
 
-msgid "See the program"
-msgstr "Vedi il programma"
+msgid "Bookable tables"
+msgstr "Tavoli prenotabili"
 
 msgid "Read more"
 msgstr "Espandi"
@@ -1774,17 +1786,8 @@ msgstr "Espandi"
 msgid "Show less"
 msgstr "Nascondi"
 
-msgid "Opens the organizers' website"
-msgstr "Apre il sito degli organizzatori"
-
-#, python-format
-msgid "%(n)s table scheduled"
-msgid_plural "%(n)s tables scheduled"
-msgstr[0] "%(n)s tavolo in programma"
-msgstr[1] "%(n)s tavoli in programma"
-
-msgid "Browse the schedule by time, area and game"
-msgstr "Sfoglia il programma per orario, area e gioco"
+msgid "Reserve your seat at the game you like best"
+msgstr "Riserva il tuo posto per il gioco che preferisci"
 
 msgid "See the game library"
 msgstr "Vedi la libreria dei giochi"
@@ -1809,6 +1812,9 @@ msgstr "Non ti sei ancora iscritto a nessun tavolo!"
 
 msgid "Browse the program and grab a seat at a table."
 msgstr "Sfoglia il programma e prendi posto a un tavolo."
+
+msgid "See the program"
+msgstr "Vedi il programma"
 
 msgid "Log in to see your tables"
 msgstr "Accedi per vedere i tuoi tavoli"
@@ -1992,12 +1998,16 @@ msgstr ""
 "Se disattivata, il programma è visibile solo ai manager dell'evento e la "
 "pagina dell'evento non mostra la sezione con i tuoi tavoli."
 
+msgid "Custom button"
+msgstr "Pulsante personalizzato"
+
 msgid ""
-"The “See the program” button on the event page opens this link. Without a "
-"link the button is hidden."
+"Shown first among the event page buttons, e.g. to link your own program or "
+"ticket shop. Without a title and a link the button is hidden."
 msgstr ""
-"Il pulsante “Vedi il programma” nella pagina dell'evento apre questo link. "
-"Senza un link il pulsante viene nascosto."
+"Compare per primo tra i pulsanti della pagina dell'evento, ad esempio per "
+"linkare il vostro programma o la biglietteria. Senza titolo e link il "
+"pulsante viene nascosto."
 
 msgid "Event dates"
 msgstr "Date evento"
@@ -4952,6 +4962,21 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "External program link"
+#~ msgstr "Link al programma esterno"
+
+#~ msgid "Opens the organizers' website"
+#~ msgstr "Apre il sito degli organizzatori"
+
+#, python-format
+#~ msgid "%(n)s table scheduled"
+#~ msgid_plural "%(n)s tables scheduled"
+#~ msgstr[0] "%(n)s tavolo in programma"
+#~ msgstr[1] "%(n)s tavoli in programma"
+
+#~ msgid "Browse the schedule by time, area and game"
+#~ msgstr "Sfoglia il programma per orario, area e gioco"
 
 #~ msgid "Add your location"
 #~ msgstr "Aggiungi la tua location"

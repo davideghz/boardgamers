@@ -733,11 +733,22 @@ class EventManageDataForm(EventForm):
 
     class Meta(EventForm.Meta):
         fields = EventForm.Meta.fields + [
-            'leaderboard_enabled', 'table_booking_enabled', 'external_program_url']
+            'leaderboard_enabled', 'table_booking_enabled',
+            'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['external_program_url'].widget.attrs['placeholder'] = 'https://'
+        self.fields['custom_button_url'].widget.attrs['placeholder'] = 'https://'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('custom_button_title')
+        url = cleaned_data.get('custom_button_url')
+        if url and not title:
+            self.add_error('custom_button_title', _('A button with a link needs a title.'))
+        if title and not url and 'custom_button_url' not in self.errors:
+            self.add_error('custom_button_url', _('A button with a title needs a link.'))
+        return cleaned_data
 
 
 class EventDateForm(TailwindForm):
