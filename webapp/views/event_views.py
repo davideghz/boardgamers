@@ -121,18 +121,16 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'needs_phone': is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
             'event_dates': event_dates,
-            'table_count': Table.objects.filter(event=event).count(),
             'today': today,
             'is_concluded': is_concluded,
             'featured_games': games,
             'has_library': event.enable_public_games and (bool(games) or event.games.exists()),
             'can_view_program': event.can_view_program(self.request.user),
-            # Public "See the program" target: our program while booking is on,
-            # else the organizers' external page, if any (None hides the CTAs).
+            # Public link to the program: only while table booking is on.
             'program_url': (
-                reverse('event-program', kwargs={'slug': event.slug}) if event.table_booking_enabled
-                else event.external_program_url or None),
-            'program_is_external': not event.table_booking_enabled,
+                reverse('event-program', kwargs={'slug': event.slug})
+                if event.table_booking_enabled else None),
+            'show_custom_button': bool(event.custom_button_title and event.custom_button_url),
         })
         if user_profile and event.table_booking_enabled:
             my_agenda, my_tables_overlap = self._my_tables_agenda(event, user_profile)

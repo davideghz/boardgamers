@@ -1436,13 +1436,18 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     enable_public_games = models.BooleanField(
         # DB-level default too, so code that predates this column can still insert events
         default=False, db_default=False, verbose_name=_('Public game library'))
-    # When off, the program page is reserved to managers and the event page links
-    # to `external_program_url` instead (or shows no program link at all).
+    # When off, the program page is reserved to managers and the event page shows
+    # no link to it.
     table_booking_enabled = models.BooleanField(
         default=True, db_default=True, verbose_name=_('Table booking'))
-    external_program_url = models.URLField(
-        max_length=500, blank=True, default='', db_default='',
-        verbose_name=_('External program link'))
+    # Optional button shown first among the event page cards (e.g. the organizers'
+    # own program or ticket shop). Hidden unless both title and URL are set.
+    custom_button_title = models.CharField(
+        max_length=80, blank=True, default='', db_default='', verbose_name=_('Button title'))
+    custom_button_subtitle = models.CharField(
+        max_length=160, blank=True, default='', db_default='', verbose_name=_('Button subtitle'))
+    custom_button_url = models.URLField(
+        max_length=500, blank=True, default='', db_default='', verbose_name=_('Button link'))
 
     _metadata = {
         'title': 'get_meta_title',
