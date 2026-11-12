@@ -12,7 +12,7 @@ def external_program_to_custom_button(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('webapp', '0089_event_table_booking'),
+        ('webapp', '0090_use_default_media_storage'),
     ]
 
     operations = [
