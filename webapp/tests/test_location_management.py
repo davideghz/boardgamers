@@ -76,6 +76,18 @@ class LocationManagementTest(TestCase):
         response = self.client.get(reverse('location-manage-data', kwargs={'slug': self.location.slug}))
         self.assertEqual(response.status_code, 403)
 
+    def test_manage_data_previews_the_saved_cover_in_a_square(self):
+        self.location.cover = 'location-covers/logo.png'
+        self.location.save(update_fields=['cover'])
+        self.client.force_login(self.manager.user)
+
+        response = self.client.get(reverse('location-manage-data', kwargs={'slug': self.location.slug}))
+
+        self.assertContains(response, f'src="{self.location.cover.url}"')
+        self.assertContains(response, 'class="aspect-square overflow-hidden rounded-xl"')
+        self.assertContains(response, 'class="w-full h-full object-cover"')
+        self.assertContains(response, 'id="location-cover-dialog"')
+
     def test_add_manager(self):
         new_manager = UserProfileFactory()
         self.client.force_login(self.manager.user)

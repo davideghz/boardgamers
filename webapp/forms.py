@@ -12,6 +12,7 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag
+from webapp.services.images import COVER_MAX_SIDE
 
 from django.urls import reverse
 from django.utils import timezone
@@ -663,7 +664,11 @@ class LocationForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['cover'].required = False
-        self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
+        self.fields['cover'].widget = FileInput(attrs={
+            'class': 'sr-only peer',
+            'aria-describedby': 'location-cover-help',
+            'data-crop-max-side': COVER_MAX_SIDE,
+        })
         self.fields['opening_hours'].required = False
         self.fields['opening_hours'].widget = HiddenInput()
 

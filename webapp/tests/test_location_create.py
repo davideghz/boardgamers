@@ -32,6 +32,17 @@ class LocationCreateViewTest(TestCase):
         }
         return self.client.post(reverse('location-create'), data)
 
+    def test_cover_preview_is_hidden_until_a_file_is_chosen(self):
+        with translation.override('it'):
+            response = self.client.get(reverse('location-create'))
+
+        self.assertContains(response, 'id="location-cover-preview" class="mb-3 w-full max-w-40 hidden"')
+        self.assertContains(response, "scegli un'immagine quadrata")
+        self.assertContains(response, 'id="location-cover-dialog"')
+        self.assertContains(response, 'aspect-ratio="1"')
+        self.assertContains(response, 'Applica ritaglio')
+        self.assertContains(response, "Inquadra tutta l'immagine")
+
     def test_redirects_to_the_new_location_page(self):
         response = self._post()
 
