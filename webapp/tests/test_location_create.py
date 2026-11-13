@@ -1,3 +1,4 @@
+import re
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -32,12 +33,19 @@ class LocationCreateViewTest(TestCase):
         }
         return self.client.post(reverse('location-create'), data)
 
-    def test_cover_preview_is_hidden_until_a_file_is_chosen(self):
+    def test_cover_preview_starts_without_an_image(self):
         with translation.override('it'):
             response = self.client.get(reverse('location-create'))
 
-        self.assertContains(response, 'id="location-cover-preview" class="mb-3 w-full max-w-40 hidden"')
-        self.assertContains(response, "scegli un'immagine quadrata")
+        self.assertEqual(response.status_code, 200)
+        preview = re.search(
+            r'<figure\b[^>]*\sid="location-cover-preview"[^>]*>(.*?)</figure>',
+            response.text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(preview)
+        self.assertRegex(preview[1], r'<img\b(?![^>]*\ssrc=)[^>]*>')
+        self.assertContains(response, "Se è un logo, lascia un po' di spazio attorno.")
         self.assertContains(response, 'id="location-cover-dialog"')
         self.assertContains(response, 'aspect-ratio="1"')
         self.assertContains(response, 'Applica ritaglio')

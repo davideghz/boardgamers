@@ -2463,10 +2463,10 @@ msgid "Adjust crop"
 msgstr "Regola ritaglio"
 
 msgid ""
-"For the list, choose a square image and leave some space around the logo."
+"For the list, choose a square image. If it's a logo, leave some space around it."
 msgstr ""
-"Per la lista, scegli un'immagine quadrata e lascia un po' di spazio attorno "
-"al logo."
+"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
+"spazio attorno."
 
 msgid "Crop image"
 msgstr "Ritaglia immagine"

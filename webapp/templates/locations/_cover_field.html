@@ -19,7 +19,7 @@
           class="mt-2 rounded-full border border-divider px-3 py-1.5 text-xs font-semibold text-content hover:bg-surface-alt">
     {% trans "Adjust crop" %}
   </button>
-  <p id="location-cover-help" class="mt-1 text-xs text-content-muted">{% trans "For the list, choose a square image and leave some space around the logo." %}</p>
+  <p id="location-cover-help" class="mt-1 text-xs text-content-muted">{% trans "For the list, choose a square image. If it's a logo, leave some space around it." %}</p>
   {% if form.cover.errors %}<p class="mt-1 text-xs text-red-500">{{ form.cover.errors|join:", " }}</p>{% endif %}
 </div>
 
@@ -95,7 +95,7 @@
     function showPreview(file) {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       previewUrl = file ? URL.createObjectURL(file) : null;
-      filename.textContent = file ? (chosen?.source || file).name : chooseImage;
+      filename.textContent = file ? (chosen ? chosen.source : file).name : chooseImage;
       const url = previewUrl || savedUrl;
       if (url === image.getAttribute('src')) return;
       preview.classList.add('hidden');
@@ -120,7 +120,7 @@
           script.integrity = 'sha384-q877KRoDGCc9TE0/aHg20sWS2aLAr60y01aKWeVzpJhbJh90PH+lt1GmABR1GOdz';
           script.crossOrigin = 'anonymous';
           script.onload = function () {
-            if (window.Cropper?.Cropper) resolve(window.Cropper.Cropper);
+            if (window.Cropper && window.Cropper.Cropper) resolve(window.Cropper.Cropper);
             else reject(new Error('Cropper.js unavailable'));
           };
           script.onerror = reject;
@@ -230,8 +230,8 @@
     function closeEditor() {
       const session = editor;
       editor = null;
-      session.resizeObserver?.disconnect();
-      session.cropper?.destroy();
+      if (session.resizeObserver) session.resizeObserver.disconnect();
+      if (session.cropper) session.cropper.destroy();
       URL.revokeObjectURL(session.url);
       dialog.close();
     }
@@ -250,7 +250,7 @@
         showPreview(file);
         return;
       }
-      setUpload(chosen?.file);
+      setUpload(chosen && chosen.file);
       if (file) openEditor(file);
     });
     edit.addEventListener('click', () => openEditor(chosen.source, chosen.crop));
@@ -270,7 +270,7 @@
     stage.addEventListener('keydown', function (event) {
       if (apply.disabled) return;
       const selection = editor.selection;
-      if (Object.hasOwn(arrowKeys, event.key)) {
+      if (Object.prototype.hasOwnProperty.call(arrowKeys, event.key)) {
         selection.$move(...arrowKeys[event.key]);
       } else if (event.key === '+' || event.key === '-' || event.key === '−') {
         selection.$zoom(event.key === '+' ? 0.1 : -0.1);
@@ -284,11 +284,6 @@
       const session = editor;
       const crop = cropInSource(session);
       const size = Math.max(1, Math.min(Number(input.dataset.cropMaxSide), Math.round(crop.side)));
-      const { naturalWidth, naturalHeight } = session.sourceImage;
-      const needsPadding = crop.x < -0.001 || crop.y < -0.001
-        || crop.x + crop.side > naturalWidth + 0.001 || crop.y + crop.side > naturalHeight + 0.001;
-      const type = session.source.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
-      const extension = type === 'image/jpeg' ? 'jpg' : 'png';
       apply.disabled = true;
       original.disabled = true;
       fit.disabled = true;
@@ -298,17 +293,15 @@
           width: size,
           height: size,
           beforeDraw(context) {
-            if (needsPadding) {
-              context.fillStyle = '#fff';
-              context.fillRect(0, 0, size, size);
-            }
+            context.fillStyle = '#fff';
+            context.fillRect(0, 0, size, size);
           },
         });
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, type, 0.92));
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
         if (editor !== session) return;
-        if (!blob) throw new Error('Could not encode image');
+        if (!blob || blob.type !== 'image/jpeg') throw new Error('Could not encode JPEG');
         const name = session.source.name.replace(/\.[^.]+$/, '');
-        useFile(new File([blob], `${name}.${extension}`, { type: blob.type }), crop);
+        useFile(new File([blob], `${name}.jpg`, { type: blob.type }), crop);
       } catch (error) {
         if (editor !== session) return;
         showStatus('{% trans "Could not apply the crop. Try again or use the original image."|escapejs %}');
