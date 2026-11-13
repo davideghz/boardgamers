@@ -139,6 +139,40 @@ class LocationManagementTest(TestCase):
         self.location.refresh_from_db()
         self.assertRedirects(response, reverse('location-detail', kwargs={'slug': self.location.slug}))
 
+    def test_manager_can_show_and_remove_social_profile_links(self):
+        manage_url = reverse('location-manage-data', kwargs={'slug': self.location.slug})
+        detail_url = reverse('location-detail', kwargs={'slug': self.location.slug})
+        facebook_url = 'https://www.facebook.com/profile.php?id=12345'
+        instagram_url = 'https://instagram.com/circolo.ludico/'
+        data = self._location_data(
+            name=self.location.name, facebook_url=facebook_url, instagram_url='instagram.com/circolo.ludico/',
+        )
+        self.client.force_login(self.manager.user)
+        self.assertRedirects(self.client.post(manage_url, data), detail_url)
+
+        self.client.logout()
+        response = self.client.get(detail_url)
+        self.assertContains(response, f'href="{facebook_url}"')
+        self.assertContains(response, f'href="{instagram_url}"')
+
+        self.client.force_login(self.manager.user)
+        self.assertRedirects(self.client.post(manage_url, {**data, 'facebook_url': ''}), detail_url)
+        response = self.client.get(detail_url)
+        self.assertNotContains(response, 'title="Facebook"')
+        self.assertContains(response, f'href="{instagram_url}"')
+
+    def test_manage_data_rejects_wrong_social_domains_and_instagram_post_links(self):
+        self.client.force_login(self.manager.user)
+        manage_url = reverse('location-manage-data', kwargs={'slug': self.location.slug})
+        response = self.client.post(manage_url, self._location_data(
+            facebook_url='https://facebook.com.example.org/circolo',
+            instagram_url='https://www.instagram.com/p/example/',
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('facebook_url', response.context['form'].errors)
+        self.assertIn('instagram_url', response.context['form'].errors)
+
     def test_lengthening_the_leaderboard_window_reopens_recent_tables(self):
         table = Table.objects.create(
             title='Serata', location=self.location, author=self.owner, game=GameFactory(),
