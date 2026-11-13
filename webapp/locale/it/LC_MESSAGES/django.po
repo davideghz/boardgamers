@@ -4210,6 +4210,14 @@ msgstr "Modifica tavolo"
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
+#, python-format
+msgid "No past tables for %(location_name)s."
+msgstr "Nessun tavolo passato per %(location_name)s."
+
+#, python-format
+msgid "No upcoming tables for %(location_name)s."
+msgstr "Nessun tavolo in programma per %(location_name)s."
+
 msgid "Manage players"
 msgstr "Gestisci giocatori"
 
