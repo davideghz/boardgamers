@@ -409,15 +409,23 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         event_dates = event.dates.all()
         show_past = self.request.GET.get('show_past') == '1'
 
+        # "All days" (date=all) lists every day one after the other; it's the
+        # default until the event starts. Single-day events don't need it.
+        has_many_dates = len(event_dates) > 1
         selected_date_str = self.request.GET.get('date')
         selected_date = None
-        if selected_date_str:
+        all_days = False
+        if selected_date_str == 'all':
+            all_days = has_many_dates
+        elif selected_date_str:
             try:
                 selected_date = datetime.date.fromisoformat(selected_date_str)
             except ValueError:
                 pass
+        elif has_many_dates and event_dates[0].date > today:
+            all_days = True
 
-        if not selected_date:
+        if not selected_date and not all_days:
             future_dates = event_dates.filter(date__gte=today)
             if future_dates.exists():
                 selected_date = future_dates.first().date
@@ -471,6 +479,8 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         )
         if selected_date:
             tables_qs = tables_qs.filter(date=selected_date)
+        elif all_days:
+            tables_qs = tables_qs.filter(date__in=[d.date for d in visible_dates])
         if selected_area:
             # Effective area: from the assigned station, or the table's own area.
             tables_qs = tables_qs.filter(
@@ -482,19 +492,30 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         if selected_category:
             tables_qs = tables_qs.filter(category=selected_category)
 
-        tables_qs = tables_qs.order_by('time')
+        tables_qs = tables_qs.order_by('date', 'time')
 
         # ── Flag scheduling conflicts (same station, overlapping time) ─────
-        conflict_ids = _station_conflict_ids(event, selected_date)
+        if all_days:
+            conflict_ids = set().union(
+                *(_station_conflict_ids(event, d.date) for d in visible_dates))
+        else:
+            conflict_ids = _station_conflict_ids(event, selected_date)
         tables_list = list(tables_qs)
         for t in tables_list:
             t.has_conflict = t.id in conflict_ids
 
         # ── View mode: vertical agenda (default) or station/area grid ──────
-        view_mode = 'grid' if self.request.GET.get('view') == 'grid' else 'list'
-        agenda = [
-            {'time': slot_time, 'tables': list(group)}
-            for slot_time, group in groupby(tables_list, key=lambda tb: tb.time)
+        # The grid is per day, so "all days" is always an agenda.
+        view_mode = 'grid' if self.request.GET.get('view') == 'grid' and not all_days else 'list'
+        agenda_days = [
+            {
+                'date': day,
+                'slots': [
+                    {'time': slot_time, 'tables': list(group)}
+                    for slot_time, group in groupby(day_tables, key=lambda tb: tb.time)
+                ],
+            }
+            for day, day_tables in groupby(tables_list, key=lambda tb: tb.date)
         ]
         grid = _build_program_grid(event, tables_list, selected_area) if view_mode == 'grid' else None
 
@@ -517,6 +538,8 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'show_past': show_past,
             'play_areas': play_areas,
             'selected_date': selected_date,
+            'all_days': all_days,
+            'has_many_dates': has_many_dates,
             'selected_area': selected_area,
             'selected_game_id': selected_game_id,
             'selected_game': selected_game,
@@ -527,7 +550,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'active_filter_count': sum(bool(f) for f in (selected_area, selected_category, selected_game)),
             'view_mode': view_mode,
             'view_qs': '&view=grid' if view_mode == 'grid' else '',
-            'agenda': agenda,
+            'agenda_days': agenda_days,
             'grid': grid,
             'has_tables': bool(tables_list),
             'has_conflicts': bool(conflict_ids),

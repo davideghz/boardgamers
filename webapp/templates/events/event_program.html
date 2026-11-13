@@ -36,6 +36,15 @@
   {# scroll sideways on a single line, edge to edge. #}
   {% if visible_dates or has_past_dates %}
     <div id="program-days" class="flex gap-2 mb-3 overflow-x-auto scrollbar-hide -mx-5 px-5 lg:flex-wrap lg:overflow-visible lg:mx-0 lg:px-0">
+      {% if has_many_dates %}
+        {# The grid is per day: "All days" drops it #}
+        <a href="?{% query_transform date='all' view='' %}"
+           {% if all_days %}data-selected{% endif %}
+           class="flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                  {% if all_days %}bg-elevated text-white border-slate-900{% else %}bg-surface text-content-soft border-divider hover:border-slate-400{% endif %}">
+          {% trans "All days" %}
+        </a>
+      {% endif %}
       {% for event_date in visible_dates %}
         <a href="?{% query_transform date=event_date.date|date:'Y-m-d' %}"
            {% if selected_date == event_date.date %}data-selected{% endif %}
@@ -122,6 +131,9 @@
 
   {# ── View toggle (list / grid) + mobile filters button ────────────── #}
   <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+    {% if all_days %}
+      <span></span>
+    {% else %}
     <div class="inline-flex rounded-full bg-surface-input p-0.5">
       <a href="?{% query_transform view='' %}"
          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors text-decoration-none
@@ -140,6 +152,7 @@
         {% trans "Grid" %}
       </a>
     </div>
+    {% endif %}
     {% if play_areas or categories or games_in_event %}
       <button type="button" onclick="toggleProgramFilters(true)"
               class="lg:hidden flex items-center gap-1.5 border rounded-full px-3 py-1.5 text-xs font-bold transition-colors
@@ -190,7 +203,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>
       </div>
-      <p class="text-sm font-semibold text-content">{% trans "No tables for the selected filters." %}</p>
+      <p class="text-sm font-semibold text-content">
+        {% if selected_date %}
+          {% trans "On the selected day there are no bookable tables for the selected filters." %}
+        {% else %}
+          {% trans "There are no bookable tables for the selected filters." %}
+        {% endif %}
+      </p>
     </div>
   {% elif view_mode == 'grid' %}
     {# ── Grid: stations/areas × time ──────────────────────────────── #}
@@ -226,9 +245,20 @@
       </table>
     </div>
   {% else %}
-    {# ── Agenda: vertical time list ───────────────────────────────── #}
-    <div class="space-y-6">
-      {% for slot in agenda %}
+    {# ── Agenda: vertical time list, one block per day ────────────── #}
+    <div class="space-y-8">
+      {% for day in agenda_days %}
+      <div>
+      {% if all_days %}
+        <h2 class="flex items-center gap-1.5 text-sm font-bold text-content mb-3 capitalize">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+          </svg>
+          {{ day.date|date:"l j F" }}
+        </h2>
+      {% endif %}
+      <div class="space-y-6">
+      {% for slot in day.slots %}
         <div class="flex flex-col sm:flex-row sm:gap-4">
           {# Time: above the cards on mobile, left column on desktop #}
           <div class="flex-shrink-0 sm:w-16 sm:text-right sm:pt-1 mb-1.5 sm:mb-0">
@@ -244,6 +274,9 @@
             {% for table in slot.tables %}{% event_agenda_card table %}{% endfor %}
           </div>
         </div>
+      {% endfor %}
+      </div>
+      </div>
       {% endfor %}
     </div>
   {% endif %}
