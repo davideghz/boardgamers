@@ -162,6 +162,18 @@ msgstr "Indirizzo"
 msgid "Website"
 msgstr "Sito web"
 
+msgid "Facebook profile"
+msgstr "Profilo Facebook"
+
+msgid "Instagram profile"
+msgstr "Profilo Instagram"
+
+msgid "Enter a Facebook profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Facebook."
+
+msgid "Enter an Instagram profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Instagram."
+
 msgid "A button with a link needs a title."
 msgstr "Un pulsante con un link deve avere un titolo."
 
