@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 01:12+0100\n"
+"POT-Creation-Date: 2026-11-14 11:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -161,18 +161,6 @@ msgstr "Indirizzo"
 
 msgid "Website"
 msgstr "Sito web"
-
-msgid "Facebook profile"
-msgstr "Profilo Facebook"
-
-msgid "Instagram profile"
-msgstr "Profilo Instagram"
-
-msgid "Enter a Facebook profile URL."
-msgstr "Inserisci l’indirizzo di un profilo Facebook."
-
-msgid "Enter an Instagram profile URL."
-msgstr "Inserisci l’indirizzo di un profilo Instagram."
 
 msgid "A button with a link needs a title."
 msgstr "Un pulsante con un link deve avere un titolo."
@@ -388,6 +376,18 @@ msgstr "Espansione"
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
+
+msgid "Facebook profile"
+msgstr "Profilo Facebook"
+
+msgid "Enter a Facebook profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Facebook."
+
+msgid "Instagram profile"
+msgstr "Profilo Instagram"
+
+msgid "Enter an Instagram profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Instagram."
 
 msgid "Default table time"
 msgstr "Orario default dei tavoli"
@@ -4221,6 +4221,14 @@ msgstr "Modifica tavolo"
 
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
+
+#, python-format
+msgid "No past tables for %(location_name)s."
+msgstr "Nessun tavolo passato per %(location_name)s."
+
+#, python-format
+msgid "No upcoming tables for %(location_name)s."
+msgstr "Nessun tavolo in programma per %(location_name)s."
 
 msgid "Manage players"
 msgstr "Gestisci giocatori"
