@@ -677,7 +677,8 @@ class LocationManageDataForm(LocationForm):
 
     class Meta(LocationForm.Meta):
         fields = LocationForm.Meta.fields + [
-            'facebook_url', 'instagram_url', 'leaderboard_edit_days', 'show_most_played_games', 'show_top_gamers',
+            'facebook_url', 'instagram_url', 'leaderboard_edit_days',
+            'show_most_played_games', 'show_stats', 'show_top_gamers',
         ]
         widgets = {
             **LocationForm.Meta.widgets,

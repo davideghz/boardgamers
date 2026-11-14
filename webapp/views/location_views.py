@@ -135,15 +135,6 @@ class LocationDetailView(DetailView):
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('-date')
 
-        # Conteggio dei tavoli passati e futuri
-        past_tables_count = past_tables.count()
-        future_tables_count = future_tables.count()
-
-        # Conta i giocatori unici che hanno partecipato a tavoli in questa location
-        total_gamers_count = UserProfile.objects.filter(
-            Q(joined_tables__location=location) | Q(created_tables__location=location)
-        ).distinct().count()
-
         # Sottoquery per contare le partite giocate per ogni gioco nella location
         played_count = Table.objects.filter(
             game=OuterRef('pk'),
@@ -218,10 +209,15 @@ class LocationDetailView(DetailView):
         context['future_tables'] = future_tables
         # Solo gli ultimi 12 (come in home): il resto è raggiungibile da "See all tables"
         context['past_tables'] = past_tables[:12]
-        context['past_tables_count'] = past_tables_count
-        context['future_tables_count'] = future_tables_count
-        context['tables_count'] = past_tables_count + future_tables_count
-        context['total_gamers_count'] = total_gamers_count
+        if location.show_stats:
+            past_tables_count = past_tables.count()
+            future_tables_count = future_tables.count()
+            context['past_tables_count'] = past_tables_count
+            context['future_tables_count'] = future_tables_count
+            context['tables_count'] = past_tables_count + future_tables_count
+            context['total_gamers_count'] = UserProfile.objects.filter(
+                Q(joined_tables__location=location) | Q(created_tables__location=location)
+            ).distinct().count()
         context['popular_games'] = popular_games
         context['has_library_games'] = location.location_games.filter(is_archived=False).exists()
         context['can_view_game_library'] = context['has_library_games'] and (
