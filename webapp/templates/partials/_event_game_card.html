@@ -1,41 +1,44 @@
 {% load i18n %}
-{# A game of an event's library. Requires `entry` (with first_table_date, see services/event_games.py), `event` and `is_concluded`. #}
+{# A game of an event's library: square cover tile with tags, details below. Requires `entry` (with first_table_date, see services/event_games.py), `event`, `is_concluded` and `can_view_program`. #}
 {% with game=entry.game %}
-<div class="flex gap-3 p-2.5 rounded-xl border border-divider bg-surface">
-  <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0 overflow-hidden">
-    <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">
-  </div>
-  <div class="flex-1 min-w-0">
-    <a href="{% url 'game-detail' game.slug %}" class="block text-sm font-bold text-content truncate hover:underline text-decoration-none">{{ game.name }}</a>
-    {% if game.min_players or game.min_playtime %}
-      <p class="text-[11px] text-content-muted truncate mt-0.5">
-        {% if game.min_players %}
-          {% if game.max_players and game.max_players != game.min_players %}{{ game.min_players }}–{{ game.max_players }}{% else %}{{ game.min_players }}{% endif %}
-          {% trans "players" %}
-        {% endif %}
-        {% if game.min_playtime %}
-          {% if game.min_players %}·{% endif %}
-          {% if game.max_playtime and game.max_playtime != game.min_playtime %}{{ game.min_playtime }}–{{ game.max_playtime }}{% else %}{{ game.min_playtime }}{% endif %} min
-        {% endif %}
-      </p>
-    {% endif %}
+<div class="flex flex-col min-w-0">
+  <div class="relative aspect-square rounded-xl overflow-hidden bg-surface-input border border-divider">
+    <img src="{{ game.cover_url }}" alt="{{ game.name }}" loading="lazy" decoding="async"
+         class="w-full h-full object-cover">
     {% if entry.tags.all %}
-      <div class="flex flex-wrap gap-1 mt-1.5">
+      <div class="absolute top-2 left-2 right-2 flex flex-wrap gap-1">
         {% for tag in entry.tags.all %}
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-soft">{{ tag.name }}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/75 backdrop-blur-sm text-white">{{ tag.name }}</span>
         {% endfor %}
       </div>
     {% endif %}
-    {% if entry.sponsor_locations.all %}
-      <p class="text-[11px] text-content-muted mt-1.5">
-        {% trans "From:" %} {% for location in entry.sponsor_locations.all %}{{ location.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-      </p>
+  </div>
+  <div class="pt-2 px-0.5 flex flex-col gap-1 min-w-0">
+    <p class="text-sm font-bold text-content leading-snug line-clamp-2">{{ game.name }}</p>
+    {% if game.min_players or game.min_playtime %}
+      <div class="flex items-center gap-3 text-xs text-content-muted">
+        {% if game.min_players %}
+          <span class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+            {% if game.max_players and game.max_players != game.min_players %}{{ game.min_players }}–{{ game.max_players }}{% else %}{{ game.min_players }}{% endif %}
+          </span>
+        {% endif %}
+        {% if game.min_playtime %}
+          <span class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            {% if game.max_playtime and game.max_playtime != game.min_playtime %}{{ game.min_playtime }}–{{ game.max_playtime }}{% else %}{{ game.min_playtime }}{% endif %} min
+          </span>
+        {% endif %}
+      </div>
     {% endif %}
-    {% if not is_concluded %}
-      <div class="mt-1.5 text-xs">
+    {% if entry.sponsor_locations.all %}
+      <p class="text-[11px] text-content-muted truncate">{% trans "From:" %} {% for location in entry.sponsor_locations.all %}{{ location.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% endif %}
+    {% if not is_concluded and can_view_program %}
+      <div class="text-xs">
         {% if entry.first_table_date %}
           <a href="{% url 'event-program' event.slug %}?game={{ entry.game_id }}&amp;date={{ entry.first_table_date|date:'Y-m-d' }}"
-             class="font-semibold text-blue-600 hover:underline text-decoration-none">{% trans "See the tables" %} →</a>
+             class="font-semibold text-blue-600 hover:underline text-decoration-none whitespace-nowrap">{% trans "See the tables" %} →</a>
         {% else %}
           <span class="text-content-muted">{% trans "Reservation not needed" %}</span>
         {% endif %}

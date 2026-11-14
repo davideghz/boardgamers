@@ -1,0 +1,12 @@
+{% load i18n custom_tags %}
+{# Active program filter with an X that removes it. `remove_qs` is the query param to drop. #}
+<span class="flex items-center gap-1 border border-blue-500 bg-blue-50 text-blue-700 rounded-full pl-3 pr-1 py-1 text-xs font-semibold max-w-full">
+  <span class="truncate">{{ label }}</span>
+  {% if remove_qs == "area" %}{% query_transform area='' as qs %}{% elif remove_qs == "category" %}{% query_transform category='' as qs %}{% else %}{% query_transform game='' as qs %}{% endif %}
+  <a href="?{{ qs }}" class="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full hover:bg-blue-200 transition-colors"
+     title="{% trans "Remove filter" %}" aria-label="{% trans "Remove filter" %}">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  </a>
+</span>

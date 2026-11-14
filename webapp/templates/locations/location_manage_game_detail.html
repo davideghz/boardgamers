@@ -1,14 +1,11 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-content-muted mb-1">
-      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
-      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
-      <a href="{% url 'location-manage-games' location.slug %}" class="text-blue-600 hover:underline">{% trans "Games" %}</a> ›
-    </p>
+    {% back_link 'location-manage-games' location.slug label=_("Games") %}
     <h1 class="text-2xl font-extrabold text-content">
       {% if is_new %}{% trans "Add game" %}{% else %}{{ location_game.game.name }}{% endif %}
     </h1>
@@ -57,9 +54,29 @@
       </div>
     </div>
 
+    {# ── Tags (internal) ──────────────────────────────────────────────── #}
+    <div>
+      <p class="block text-xs font-semibold text-content-soft mb-1">{% trans "Tags" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
+      {% if form.tags.field.queryset.exists %}
+        <div class="flex flex-wrap gap-2">
+          {% for option in form.tags %}
+            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-divider bg-surface text-sm text-content cursor-pointer has-[:checked]:border-blue-500">
+              {{ option.tag }} {{ option.choice_label }}
+            </label>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-xs text-content-muted">
+          {% trans "No tags yet." %}
+          <a href="{% url 'location-manage-games' location.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "Create them on the library page." %}</a>
+        </p>
+      {% endif %}
+      {% if form.tags.errors %}<p class="mt-1 text-xs text-red-500">{{ form.tags.errors|join:", " }}</p>{% endif %}
+    </div>
+
     {# ── Other fields ─────────────────────────────────────────────────── #}
     {% for field in form %}
-      {% if not field.is_hidden and field.html_name != 'game' %}
+      {% if not field.is_hidden and field.html_name != 'game' and field.html_name != 'tags' %}
         <div>
           <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">
             {{ field.label }}

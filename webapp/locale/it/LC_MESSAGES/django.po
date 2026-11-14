@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 11:29+0100\n"
+"POT-Creation-Date: 2026-11-14 11:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -141,9 +141,6 @@ msgstr "Inserisci un nickname"
 msgid "Profile with this Nickname already exists."
 msgstr "Esiste già un profilo con questo nickname."
 
-msgid "Nickname can have at most 25 characters (it has {len(nickname)})."
-msgstr ""
-
 msgid "First name"
 msgstr "Nome"
 
@@ -165,6 +162,12 @@ msgstr "Indirizzo"
 msgid "Website"
 msgstr "Sito web"
 
+msgid "A button with a link needs a title."
+msgstr "Un pulsante con un link deve avere un titolo."
+
+msgid "A button with a title needs a link."
+msgstr "Un pulsante con un titolo deve avere un link."
+
 msgid "Opening time"
 msgstr "Orario di apertura"
 
@@ -178,7 +181,7 @@ msgid "A station with this name already exists for this event."
 msgstr "Esiste già una postazione con questo nome per questo evento."
 
 msgid "A station with this name already exists for this location."
-msgstr "Esiste già una postazione con questo nome in questa location."
+msgstr "Esiste già una postazione con questo nome per questo luogo."
 
 msgid "Manager"
 msgstr "Manager"
@@ -249,6 +252,18 @@ msgstr "Gioco"
 msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
 
+msgid "Tag for the imported games"
+msgstr "Tag per i giochi importati"
+
+msgid "Ownership"
+msgstr "Proprietà"
+
+msgid "Owner Member"
+msgstr "Socio Proprietario"
+
+msgid "Physical Location"
+msgstr "Ubicazione"
+
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
 
@@ -297,9 +312,6 @@ msgstr "Nuovo giocatore al tavolo"
 
 msgid "New event to approve"
 msgstr "Nuovo evento da approvare"
-
-msgid "New table at your location"
-msgstr "Nuovo tavolo nella tua location"
 
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
@@ -358,9 +370,24 @@ msgstr "Anno pubblicazione"
 msgid "Suggested result mode"
 msgstr "Modalità suggerita"
 
+msgid "Expansion"
+msgstr "Espansione"
+
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
+
+msgid "Facebook profile"
+msgstr "Profilo Facebook"
+
+msgid "Enter a Facebook profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Facebook."
+
+msgid "Instagram profile"
+msgstr "Profilo Instagram"
+
+msgid "Enter an Instagram profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Instagram."
 
 msgid "Default table time"
 msgstr "Orario default dei tavoli"
@@ -665,6 +692,15 @@ msgstr "Documento di adesione"
 msgid "Membership Documents"
 msgstr "Documenti di adesione"
 
+msgid "Order"
+msgstr "Ordine"
+
+msgid "Location Game Tag"
+msgstr "Tag Gioco Location"
+
+msgid "Location Game Tags"
+msgstr "Tag Giochi Location"
+
 msgid "Owned by Location"
 msgstr "Dell'associazione"
 
@@ -677,14 +713,8 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-msgid "Ownership"
-msgstr "Proprietà"
-
-msgid "Owner Member"
-msgstr "Socio Proprietario"
-
-msgid "Physical Location"
-msgstr "Ubicazione"
+msgid "Tags"
+msgstr "Tag"
 
 msgid "Location Game"
 msgstr "Gioco nella Location"
@@ -724,9 +754,6 @@ msgstr "Telegram Setup Token"
 
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
-
-msgid "Order"
-msgstr "Ordine"
 
 msgid "FAQ Category"
 msgstr "FAQ Category"
@@ -773,6 +800,18 @@ msgstr "Se disattivata, i tavoli di questo evento non hanno la classifica."
 msgid "Public game library"
 msgstr "Ludoteca pubblica"
 
+msgid "Table booking"
+msgstr "Prenotazione dei tavoli"
+
+msgid "Button title"
+msgstr "Titolo del pulsante"
+
+msgid "Button subtitle"
+msgstr "Sottotitolo del pulsante"
+
+msgid "Button link"
+msgstr "Link del pulsante"
+
 #, python-format
 msgid "%(name)s — gaming event"
 msgstr "%(name)s – evento boardgames"
@@ -804,9 +843,6 @@ msgstr "Tag Gioco Evento"
 msgid "Event Game Tags"
 msgstr "Tag Giochi Evento"
 
-msgid "Tags"
-msgstr "Tag"
-
 msgid "Event Game"
 msgstr "Gioco Evento"
 
@@ -815,6 +851,9 @@ msgstr "Giochi Evento"
 
 msgid "On-site label, e.g. \"Table 1\""
 msgstr "Etichetta sul posto, es. \"Tavolo 1\""
+
+msgid "Selectable by all users"
+msgstr "Selezionabile da tutti gli utenti"
 
 msgid "Stations"
 msgstr "Postazioni"
@@ -1000,6 +1039,9 @@ msgstr "Attendere."
 msgid "An error occurred. Please try again."
 msgstr "Si è verificato un errore. Riprova."
 
+msgid "Account"
+msgstr "Account"
+
 msgid "Edit profile"
 msgstr "Modifica profilo"
 
@@ -1069,9 +1111,6 @@ msgstr "Imposta prima una password e un'email, o collega un altro account"
 
 msgid "Connect"
 msgstr "Collega"
-
-msgid "Account"
-msgstr "Account"
 
 msgid "Create event"
 msgstr "Crea evento"
@@ -1308,7 +1347,7 @@ msgid "Search by title, game or description…"
 msgstr "Cerca per titolo, gioco o descrizione…"
 
 msgid "Remove filter"
-msgstr "Rimuovi filtri"
+msgstr "Rimuovi filtro"
 
 msgid "All locations"
 msgstr "Tutte le locations"
@@ -1622,38 +1661,6 @@ msgstr "messaggio"
 msgid "Hey"
 msgstr "Ciao"
 
-#, python-format
-msgid "%(author)s created the table \"%(title)s\" at %(location_name)s."
-msgstr "%(author)s ha creato il tavolo \"%(title)s\" presso %(location_name)s."
-
-msgid "Game:"
-msgstr "Gioco:"
-
-msgid "Not decided yet"
-msgstr "Non ancora deciso"
-
-msgid "Date and time:"
-msgstr "Data e ora:"
-
-msgid "Play area"
-msgstr "Area di gioco"
-
-msgid "No station is assigned to this table yet. If you manage the stations of your location, you can assign one by editing the table (optional):"
-msgstr "Al tavolo non è ancora assegnata una postazione. Se gestisci le postazioni della tua location, puoi assegnarne una modificando il tavolo (facoltativo):"
-
-#, python-format
-msgid "<strong>%(author)s</strong> created the table <a href=\"%(table_href)s\">%(title)s</a> at <strong>%(location_name)s</strong>."
-msgstr "<strong>%(author)s</strong> ha creato il tavolo <a href=\"%(table_href)s\">%(title)s</a> presso <strong>%(location_name)s</strong>."
-
-msgid "No station is assigned to this table yet. If you manage the stations of your location, you can assign one by editing the table (optional)."
-msgstr "Al tavolo non è ancora assegnata una postazione. Se gestisci le postazioni della tua location, puoi assegnarne una modificando il tavolo (facoltativo)."
-
-msgid "Assign a station"
-msgstr "Assegna una postazione"
-
-msgid "See table"
-msgstr "Vai al tavolo"
-
 msgid ""
 "We are sorry to inform you that a table you were participating in has been "
 "deleted."
@@ -1661,14 +1668,26 @@ msgstr ""
 "Siamo spiacenti di informarti che un tavolo a cui stavi partecipando è stato "
 "eliminato."
 
+msgid "Game:"
+msgstr "Gioco:"
+
 msgid "Location:"
 msgstr "Location:"
+
+msgid "Date and time:"
+msgstr "Data e ora:"
 
 msgid "Title:"
 msgstr "Titolo:"
 
+msgid "Not decided yet"
+msgstr "Non ancora deciso"
+
 msgid "Check other tables"
 msgstr "Trova altri tavoli"
+
+msgid "See table"
+msgstr "Vai al tavolo"
 
 #, python-format
 msgid "A new table has been created by %(creator_name)s at %(location_name)s."
@@ -1761,14 +1780,17 @@ msgstr "Evento in attesa di approvazione, non visibile al pubblico."
 msgid "You're attending"
 msgstr "Stai partecipando"
 
+msgid "Leave the event"
+msgstr "Non partecipare più"
+
 msgid "Attend this event"
 msgstr "Partecipa all’evento"
 
 msgid "Log in to attend"
 msgstr "Accedi per partecipare"
 
-msgid "See the program"
-msgstr "Vedi il programma"
+msgid "Bookable tables"
+msgstr "Tavoli prenotabili"
 
 msgid "Read more"
 msgstr "Espandi"
@@ -1776,17 +1798,8 @@ msgstr "Espandi"
 msgid "Show less"
 msgstr "Nascondi"
 
-msgid "Sponsored by"
-msgstr "Sostenuto da"
-
-#, python-format
-msgid "%(n)s table scheduled"
-msgid_plural "%(n)s tables scheduled"
-msgstr[0] "%(n)s tavolo in programma"
-msgstr[1] "%(n)s tavoli in programma"
-
-msgid "Browse the schedule by time, area and game"
-msgstr "Sfoglia il programma per orario, area e gioco"
+msgid "Reserve your seat at the game you like best"
+msgstr "Riserva il tuo posto per il gioco che preferisci"
 
 msgid "See the game library"
 msgstr "Vedi la libreria dei giochi"
@@ -1827,6 +1840,9 @@ msgstr "Giochi in evidenza"
 msgid "See all"
 msgstr "Vedi tutti"
 
+msgid "Sponsored by"
+msgstr "Sostenuto da"
+
 msgid "Add your phone number"
 msgstr "Aggiungi il tuo numero di telefono"
 
@@ -1851,17 +1867,36 @@ msgid_plural "%(n)s people attending"
 msgstr[0] "%(n)s persona partecipa"
 msgstr[1] "%(n)s persone partecipano"
 
+msgid "Share event"
+msgstr "Condividi evento"
+
 msgid "Manage event"
 msgstr "Gestisci evento"
 
+msgid "Internal program (managers only)"
+msgstr "Programma interno (solo manager)"
+
 msgid "Dates"
 msgstr "Date"
+
+msgid "today"
+msgstr "oggi"
 
 msgid "How to get there"
 msgstr "Come arrivare"
 
 msgid "Map not available"
 msgstr "Mappa non disponibile"
+
+msgid "You're in!"
+msgstr "Ci sei!"
+
+msgid "Games are better with friends: invite them to join you at the event!"
+msgstr ""
+"Si gioca meglio in compagnia: invita i tuoi amici a partecipare all'evento!"
+
+msgid "Close"
+msgstr "Chiudi"
 
 #, python-format
 msgid "%(counter)s game in the library"
@@ -1965,6 +2000,24 @@ msgstr ""
 "Se disattivata, i tavoli di questo evento non mostrano la classifica e "
 "nessuno può compilarla."
 
+msgid ""
+"When off, the program is visible only to the event managers and the event "
+"page doesn't show your tables."
+msgstr ""
+"Se disattivata, il programma è visibile solo ai manager dell'evento e la "
+"pagina dell'evento non mostra la sezione con i tuoi tavoli."
+
+msgid "Custom button"
+msgstr "Pulsante personalizzato"
+
+msgid ""
+"Shown first among the event page buttons, e.g. to link your own program or "
+"ticket shop. Without a title and a link the button is hidden."
+msgstr ""
+"Compare per primo tra i pulsanti della pagina dell'evento, ad esempio per "
+"linkare il vostro programma o la biglietteria. Senza titolo e link il "
+"pulsante viene nascosto."
+
 msgid "Event dates"
 msgstr "Date evento"
 
@@ -2056,12 +2109,6 @@ msgstr "Ancora nessun gioco"
 
 msgid "Add the first game to the library."
 msgstr "Aggiungi il primo gioco alla libreria."
-
-msgid "Remove this tag from all the games?"
-msgstr "Rimuovere questo tag da tutti i giochi?"
-
-msgid "Add tag"
-msgstr "Aggiungi tag"
 
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -2173,14 +2220,14 @@ msgstr "Aggiungi admin tavoli"
 msgid "Remove table creator?"
 msgstr "Rimuovere l'admin tavoli?"
 
-msgid "Program"
-msgstr "Programma"
-
 msgid "Create table"
 msgstr "Crea un tavolo qui"
 
 msgid "Add dates first"
 msgstr "Prima aggiungi le date"
+
+msgid "All days"
+msgstr "Tutti i giorni"
 
 msgid "Hide past days"
 msgstr "Nascondi giorni passati"
@@ -2203,6 +2250,12 @@ msgstr "Agenda"
 msgid "Grid"
 msgstr "Griglia"
 
+msgid "Filters"
+msgstr "Filtri"
+
+msgid "Clear all"
+msgstr "Rimuovi tutti"
+
 msgid ""
 "Some tables share a station at overlapping times. Conflicting tables are "
 "marked below."
@@ -2210,8 +2263,20 @@ msgstr ""
 "Alcuni tavoli condividono una postazione in orari sovrapposti. I tavoli in "
 "conflitto sono segnalati qui sotto."
 
+msgid ""
+"On the selected day there are no bookable tables for the selected filters."
+msgstr ""
+"Nel giorno selezionato non ci sono tavoli prenotabili per i filtri "
+"selezionati."
+
+msgid "There are no bookable tables for the selected filters."
+msgstr "Non ci sono tavoli prenotabili per i filtri selezionati."
+
 msgid "All games"
 msgstr "Tutti i giochi"
+
+msgid "Area"
+msgstr "Area"
 
 msgid "Edit table"
 msgstr "Modifica tavolo"
@@ -2302,6 +2367,9 @@ msgstr "Posti"
 msgid "free"
 msgstr "liberi"
 
+msgid "Play area"
+msgstr "Area di gioco"
+
 msgid "max"
 msgstr "max"
 
@@ -2323,8 +2391,8 @@ msgstr "Accedi per unirti al tavolo"
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
 
-msgid "Add to Google Calendar"
-msgstr "Aggiungi a Google Calendar"
+msgid "Add to Calendar"
+msgstr "Aggiungi al Calendario"
 
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
@@ -2383,6 +2451,22 @@ msgstr "Nessun gioco corrisponde alla ricerca."
 
 msgid "No games available yet."
 msgstr "Nessun gioco disponibile al momento."
+
+msgid "Filter…"
+msgstr "Filtra…"
+
+msgid "Filter"
+msgstr "Filtra"
+
+msgid "Already in the library"
+msgstr "Già in ludoteca"
+
+msgid "On Board Gamers"
+msgstr "Già su Board Gamers"
+
+msgctxt "game imported from BGG"
+msgid "New"
+msgstr "Nuovo"
 
 msgid "Edit location"
 msgstr "Modifica location"
@@ -2574,7 +2658,9 @@ msgid "View page"
 msgstr "Vedi pagina"
 
 msgid "Drag to reorder. Areas can be assigned to the tables of this location."
-msgstr "Trascina per riordinare. Le aree si possono assegnare ai tavoli di questa location."
+msgstr ""
+"Trascina per riordinare. Le aree si possono assegnare ai tavoli di questo "
+"luogo."
 
 msgid "Location info"
 msgstr "Info location"
@@ -2601,6 +2687,26 @@ msgid ""
 msgstr ""
 "Se attivato, i prossimi tavoli di questa sede appariranno nel feed della "
 "homepage."
+
+msgid "Show most played games"
+msgstr "Mostra i giochi più giocati"
+
+msgid ""
+"When enabled, the location page shows the most played games and their top "
+"winners."
+msgstr ""
+"Se attivato, la pagina della sede mostra i giochi più giocati e i relativi "
+"vincitori."
+
+msgid "Show top gamers"
+msgstr "Mostra la classifica dei giocatori"
+
+msgid ""
+"When enabled, the location page shows the ranking of the players with the "
+"most podiums."
+msgstr ""
+"Se attivato, la pagina della sede mostra la classifica dei giocatori con più "
+"podi."
 
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
@@ -2629,8 +2735,89 @@ msgstr ""
 "Attivala per mostrare l'elenco dei vostri giochi nella pagina della "
 "location. Proprietari, soci e note restano privati."
 
+msgid "Search by game, member or tag…"
+msgstr "Cerca per gioco, socio o tag…"
+
 msgid "Download CSV"
 msgstr "Scarica CSV"
+
+msgid "Import from BoardGameGeek"
+msgstr "Importa da BoardGameGeek"
+
+msgid "Or import a collection from BoardGameGeek."
+msgstr "Oppure importa una collezione da BoardGameGeek."
+
+msgid "Only managers see them: they don't appear on the public library."
+msgstr "Li vedono solo i gestori: non compaiono nella libreria pubblica."
+
+msgid ""
+"Add to the library the games a BoardGameGeek user marks as owned. The "
+"collection must be public."
+msgstr ""
+"Aggiungi alla ludoteca i giochi che un utente di BoardGameGeek segna come "
+"posseduti. La collezione deve essere pubblica."
+
+msgid "BoardGameGeek username"
+msgstr "Username BoardGameGeek"
+
+msgid "Loading…"
+msgstr "Caricamento…"
+
+msgid "Load collection"
+msgstr "Carica collezione"
+
+#, python-format
+msgid "There is no BoardGameGeek user called «%(username)s»."
+msgstr "Non esiste un utente BoardGameGeek chiamato «%(username)s»."
+
+msgid ""
+"BoardGameGeek is still preparing this collection. Try again in a few seconds."
+msgstr ""
+"BoardGameGeek sta ancora preparando questa collezione. Riprova tra qualche "
+"secondo."
+
+msgid "Try again"
+msgstr "Riprova"
+
+#, python-format
+msgid "«%(username)s» has no owned games, or the collection is private."
+msgstr ""
+"«%(username)s» non ha giochi posseduti, oppure la collezione è privata."
+
+msgid "Expansions"
+msgstr "Espansioni"
+
+msgid ""
+"A new name creates the tag. Games already in the library are not touched."
+msgstr ""
+"Un nome nuovo crea il tag. I giochi già in ludoteca non vengono modificati."
+
+msgid "Import"
+msgstr "Importa"
+
+msgid "Go to the library"
+msgstr "Vai alla ludoteca"
+
+#, python-format
+msgid "Imported %%(done)s of %%(total)s…"
+msgstr "Importati %%(done)s di %%(total)s…"
+
+#, python-format
+msgid ""
+"Done: %%(added)s added, %%(skipped)s already in the library, %%(failed)s "
+"failed."
+msgstr ""
+"Fatto: %%(added)s aggiunti, %%(skipped)s già in ludoteca, %%(failed)s non "
+"riusciti."
+
+msgid "Imported"
+msgstr "Importato"
+
+msgid "Failed"
+msgstr "Non riuscito"
+
+msgid "The import is still running. Leave anyway?"
+msgstr "L'importazione è ancora in corso. Uscire comunque?"
 
 msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -2641,6 +2828,12 @@ msgstr "Aggiungi, rimuovi manager e trasferisci l'ownership"
 msgid "Manage the location's game library"
 msgstr "Gestisci la libreria dei giochi dell'associazione"
 
+msgid "Assign stations"
+msgstr "Assegna postazioni"
+
+msgid "Assign the upcoming games to your stations"
+msgstr "Assegna le prossime partite alle tue postazioni"
+
 msgid "Manage members and memberships"
 msgstr "Gestisci associati e membership"
 
@@ -2650,8 +2843,8 @@ msgstr "Permessi"
 msgid "Control who can create and join tables"
 msgstr "Decidi chi può creare e unirsi ai tavoli"
 
-msgid "Table statistics"
-msgstr "Statistiche tavoli"
+msgid "Table summary"
+msgstr "Riepilogo tavoli"
 
 msgid "Generate a message with table status to share on chat"
 msgstr "Genera un messaggio con lo stato dei tavoli da condividere in chat"
@@ -2886,8 +3079,60 @@ msgstr "Chi può unirsi ai tavoli?"
 msgid "Save permissions"
 msgstr "Salva permessi"
 
+msgid ""
+"Assign the upcoming games to your stations. It is optional: the station is "
+"shown on the game page."
+msgstr ""
+"Assegna le prossime partite alle tue postazioni. È facoltativo: la "
+"postazione viene mostrata nella pagina della partita."
+
+msgid ""
+"This location has no stations yet. Create them first (e.g. Table 1, Table "
+"2), then come back to assign the games."
+msgstr ""
+"Questa location non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo "
+"2), poi torna qui per assegnare le partite."
+
+msgid "Create stations"
+msgstr "Crea postazioni"
+
+msgid "All"
+msgstr "Tutte"
+
+msgid "Without station"
+msgstr "Senza postazione"
+
+msgid "Manage stations"
+msgstr "Gestisci postazioni"
+
+msgid "Station booked by another game at an overlapping time"
+msgstr "Postazione occupata da un’altra partita in un orario sovrapposto"
+
+msgid "No station"
+msgstr "Senza postazione"
+
+msgid "All upcoming games have a station."
+msgstr "Tutte le prossime partite hanno una postazione."
+
+msgid "No upcoming games at this location."
+msgstr "Nessuna partita in programma in questa location."
+
 msgid "Edit station"
 msgstr "Modifica postazione"
+
+msgid ""
+"Hidden stations can only be picked by location managers when creating or "
+"editing a game; they stay visible on the game."
+msgstr ""
+"Le postazioni nascoste possono essere scelte solo dai gestori della location "
+"quando si crea o modifica una partita; restano visibili sulla partita."
+
+msgid "Assign the upcoming games to the stations"
+msgstr "Assegna le prossime partite alle postazioni"
+
+msgctxt "station"
+msgid "Hidden"
+msgstr "Nascosta"
 
 msgid "Generate a message to share table status on WhatsApp or other chats."
 msgstr ""
@@ -3088,6 +3333,10 @@ msgstr "Widget per il tuo sito"
 msgid "Free and open source"
 msgstr "Gratuito e Open source"
 
+#, python-format
+msgid "Back to %(label)s"
+msgstr "Torna a %(label)s"
+
 msgid "From:"
 msgstr "Da:"
 
@@ -3096,6 +3345,12 @@ msgstr "Vedi i tavoli"
 
 msgid "Reservation not needed"
 msgstr "Prenotazione non necessaria"
+
+msgid "Remove this tag from all the games?"
+msgstr "Rimuovere questo tag da tutti i giochi?"
+
+msgid "Add tag"
+msgstr "Aggiungi tag"
 
 msgid "Personal data"
 msgstr "Dati anagrafici"
@@ -3125,6 +3380,12 @@ msgid "Type at least %(count)s character"
 msgid_plural "Type at least %(count)s characters"
 msgstr[0] "Inserisci almeno %(count)s carattere"
 msgstr[1] "Inserisci almeno %(count)s caratteri"
+
+msgid "Link copied!"
+msgstr "Link Copiato!"
+
+msgid "Share"
+msgstr "Condividi"
 
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
@@ -3915,6 +4176,16 @@ msgstr "Dettagli del tavolo"
 msgid "Edit details"
 msgstr "Modifica dettagli"
 
+msgid "Station assigned by the staff"
+msgstr "Postazione assegnata dallo staff"
+
+msgid ""
+"The area and station of this game can only be changed by the location "
+"managers."
+msgstr ""
+"Area e postazione di questa partita possono essere modificate solo dai "
+"gestori della location."
+
 msgid ""
 "If you can't find the game, you can leave this field empty. We'll fill it "
 "for you!"
@@ -3933,9 +4204,6 @@ msgstr "Sei sicuro di voler eliminare"
 msgid "This action cannot be undone."
 msgstr "Questa azione non può essere annullata."
 
-msgid "Back to tables"
-msgstr "Torna ai tavoli"
-
 msgid "Created"
 msgstr "Creato"
 
@@ -3948,17 +4216,19 @@ msgstr "Tavolo riservato ai soci"
 msgid "Become a member"
 msgstr "Richiedi membership"
 
-msgid "Link copied!"
-msgstr "Link Copiato!"
-
-msgid "Share"
-msgstr "Condividi"
-
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
+
+#, python-format
+msgid "No past tables for %(location_name)s."
+msgstr "Nessun tavolo passato per %(location_name)s."
+
+#, python-format
+msgid "No upcoming tables for %(location_name)s."
+msgstr "Nessun tavolo in programma per %(location_name)s."
 
 msgid "Manage players"
 msgstr "Gestisci giocatori"
@@ -3977,6 +4247,10 @@ msgstr "Rimuovi giocatore?"
 
 msgid "Conflict"
 msgstr "Conflitto"
+
+msgctxt "event"
+msgid "Ended"
+msgstr "Concluso"
 
 msgid "Created by you"
 msgstr "Creati da te"
@@ -4124,20 +4398,21 @@ msgstr ""
 "Attenzione: questa postazione è già occupata da un altro tavolo in un orario "
 "sovrapposto."
 
-msgid "No station"
-msgstr "Senza postazione"
-
 msgid "General"
 msgstr "Generale"
 
 msgid "This event has already ended, registration is closed."
 msgstr "Questo evento è già terminato, le iscrizioni sono chiuse."
 
-msgid "You're now registered for this event!"
-msgstr "Ora sei iscritto a questo evento!"
-
 msgid "You are already registered for this event."
 msgstr "Sei già iscritto a questo evento."
+
+msgid "This event has already ended, you can't leave it."
+msgstr ""
+"Questo evento è già terminato, non puoi più annullare la partecipazione."
+
+msgid "You are no longer attending this event."
+msgstr "Non partecipi più a questo evento."
 
 msgid "Phone number saved."
 msgstr "Numero di telefono salvato."
@@ -4393,6 +4668,10 @@ msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
 
 #, python-format
+msgid "Import from BGG – %(name)s"
+msgstr "Importa da BGG – %(name)s"
+
+#, python-format
 msgid "Play areas – %(name)s"
 msgstr "Aree di gioco – %(name)s"
 
@@ -4404,6 +4683,14 @@ msgid "Station updated."
 msgstr "Postazione aggiornata."
 
 #, python-format
+msgid "Assign stations – %(name)s"
+msgstr "Assegna postazioni – %(name)s"
+
+#, python-format
+msgid "Station of «%(title)s» updated."
+msgstr "Postazione di «%(title)s» aggiornata."
+
+#, python-format
 msgid "Widget – %(name)s"
 msgstr "Widget - %(name)s"
 
@@ -4412,8 +4699,8 @@ msgid "Telegram – %(name)s"
 msgstr "Telegram - %(name)s"
 
 #, python-format
-msgid "Table stats – %(name)s"
-msgstr "Stats tavoli - %(name)s"
+msgid "Table summary – %(name)s"
+msgstr "Riepilogo tavoli – %(name)s"
 
 #, python-format
 msgid "Tables of %(date)s"
@@ -4615,23 +4902,11 @@ msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 msgid "You do not have permission to add players to this table."
 msgstr "Non hai il permesso di aggiungere giocatori aa questo tavolo."
 
-#, python-brace-format
-msgid "{user_profile.nickname} is already at the table."
-msgstr ""
-
-#, python-brace-format
-msgid "{user_profile.nickname} added to the table."
-msgstr ""
-
 msgid "Invalid selection."
 msgstr "Selezione non valida."
 
 msgid "You don’t have permission to remove players from this table."
 msgstr "Non hai il permesso di rimuovere giocatori da questo tavolo."
-
-#, python-brace-format
-msgid "{nickname} has been removed from the table."
-msgstr ""
 
 msgid "You don't have permission to duplicate this table."
 msgstr "Non hai il permesso di duplicare questo tavolo."
@@ -4713,6 +4988,27 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "See the program"
+#~ msgstr "Vedi il programma"
+
+#~ msgid "Program"
+#~ msgstr "Programma"
+
+#~ msgid "External program link"
+#~ msgstr "Link al programma esterno"
+
+#~ msgid "Opens the organizers' website"
+#~ msgstr "Apre il sito degli organizzatori"
+
+#, python-format
+#~ msgid "%(n)s table scheduled"
+#~ msgid_plural "%(n)s tables scheduled"
+#~ msgstr[0] "%(n)s tavolo in programma"
+#~ msgstr[1] "%(n)s tavoli in programma"
+
+#~ msgid "Browse the schedule by time, area and game"
+#~ msgstr "Sfoglia il programma per orario, area e gioco"
 
 #~ msgid "Add your location"
 #~ msgstr "Aggiungi la tua location"

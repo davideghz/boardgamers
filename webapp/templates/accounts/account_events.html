@@ -1,13 +1,12 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
 
   <div class="mb-6 flex items-center justify-between gap-3">
     <div>
-      <p class="text-sm text-content-muted mb-1">
-        <a href="{% url 'account-index' %}" class="text-blue-600 hover:underline">{% trans "Account" %}</a> ›
-      </p>
+      {% back_link 'account-index' label=_("Account") %}
       <h1 class="text-2xl font-extrabold text-content">{% trans "Events" %}</h1>
     </div>
     <a href="{% url 'event-create' %}"
@@ -43,7 +42,7 @@
               </svg>
               <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
             </div>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           {% if event.status == 'approved' %}
             <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Approved" %}</span>
@@ -68,7 +67,7 @@
           {% endif %}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
         </a>
@@ -93,7 +92,7 @@
           {% endif %}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Attending" %}</span>
         </a>

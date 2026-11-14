@@ -97,8 +97,8 @@ urlpatterns = [
     path("locations/<slug:slug>/request-membership/", location_views.RequestMembershipView.as_view(),
          name="location-request-membership"),
 
-    path("locations/<slug:slug>/manage/table-stats/", location_views.LocationManageTableStatsView.as_view(),
-         name="location-manage-table-stats"),
+    path("locations/<slug:slug>/manage/table-summary/", location_views.LocationManageTableSummaryView.as_view(),
+         name="location-manage-table-summary"),
 
     # LOCATION TELEGRAM
     path("locations/<slug:slug>/manage/telegram/", location_views.LocationManageTelegramView.as_view(),
@@ -121,6 +121,8 @@ urlpatterns = [
          name="location-manage-station-edit"),
     path("locations/<slug:slug>/manage/stations/<int:pk>/delete/",
          location_views.LocationManageStationDeleteView.as_view(), name="location-manage-station-delete"),
+    path("locations/<slug:slug>/manage/stations/assign/",
+         location_views.LocationManageStationAssignmentView.as_view(), name="location-manage-station-assignment"),
     path("locations/<slug:slug>/manage/widget/", location_views.LocationManageWidgetView.as_view(),
          name="location-manage-widget"),
     path("locations/<slug:slug>/manage/games/", location_views.LocationManageGamesView.as_view(),
@@ -137,6 +139,18 @@ urlpatterns = [
          name="location-game-detail"),
     path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/delete/", location_views.DeleteLocationGameView.as_view(),
          name="location-delete-game"),
+    path("locations/<slug:slug>/manage/games/import-bgg/", location_views.LocationGamesBGGImportView.as_view(),
+         name="location-games-bgg-import"),
+    path("locations/<slug:slug>/manage/games/import-bgg/batch/", location_views.LocationGamesBGGImportBatchView.as_view(),
+         name="location-games-bgg-import-batch"),
+    path("locations/<slug:slug>/manage/games/tags/add/", location_views.LocationGameTagAddView.as_view(),
+         name="location-game-tag-add"),
+    path("locations/<slug:slug>/manage/games/tags/reorder/", location_views.LocationGameTagsReorderView.as_view(),
+         name="location-game-tags-reorder"),
+    path("locations/<slug:slug>/manage/games/tags/<int:pk>/update/", location_views.LocationGameTagUpdateView.as_view(),
+         name="location-game-tag-update"),
+    path("locations/<slug:slug>/manage/games/tags/<int:pk>/delete/", location_views.LocationGameTagDeleteView.as_view(),
+         name="location-game-tag-delete"),
 
     # LOCATION TABLES
     path("locations/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
@@ -150,6 +164,7 @@ urlpatterns = [
     path("events/<slug:slug>/program/", event_views.EventProgramView.as_view(), name="event-program"),
     path("events/<slug:slug>/games/", event_views.EventGamesView.as_view(), name="event-games"),
     path("events/<slug:slug>/join/", event_views.EventJoinView.as_view(), name="event-join"),
+    path("events/<slug:slug>/leave/", event_views.EventLeaveView.as_view(), name="event-leave"),
     path("events/<slug:slug>/save-phone/", event_views.EventSavePhoneView.as_view(), name="event-save-phone"),
     path("events/<slug:slug>/manage/", event_views.EventManageIndexView.as_view(), name="event-manage"),
     path("events/<slug:slug>/manage/participants/", event_views.EventManageParticipantsView.as_view(), name="event-manage-participants"),

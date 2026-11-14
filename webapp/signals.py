@@ -212,7 +212,7 @@ SHRINKABLE_IMAGE_FIELDS = [
 
 
 def _shrink_uploaded_images(sender, instance, **kwargs):
-    """Riduce le immagini appena caricate (form, admin) prima che vadano su S3.
+    """Riduce le immagini appena caricate (form, admin) prima del salvataggio nello storage.
 
     Tocca solo i file non ancora salvati (`_committed=False`): un salvataggio
     del modello senza nuovo upload non riscarica né rielabora nulla.

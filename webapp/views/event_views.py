@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Max, Min, Prefetch, Q
+from django.db.models import Count, F, Max, Min, Prefetch, Q
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -75,6 +75,14 @@ class EventManagerMixin(LoginRequiredMixin):
         return self._event_cache
 
 
+def _dates_with_gaps(event):
+    """Sorted event dates, flagging the days that don't follow the previous one."""
+    event_dates = event.sorted_dates
+    for previous, current in zip(event_dates, event_dates[1:]):
+        current.after_gap = (current.date - previous.date).days > 1
+    return event_dates
+
+
 class EventPublicAccessMixin:
     """Resolve the event by slug, enforcing approval visibility (managers can
     preview their own pending events)."""
@@ -104,19 +112,27 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         today = timezone.localdate()
         is_concluded = event.is_concluded(today)
         games = featured_games(event) if event.enable_public_games else []
+        event_dates = _dates_with_gaps(event)
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
+            'just_joined': is_participant and self.request.session.pop(
+                'event_just_joined', None) == event.pk,
             'needs_phone': is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
-            'event_dates': event.sorted_dates,
-            'table_count': Table.objects.filter(event=event).count(),
+            'event_dates': event_dates,
             'today': today,
             'is_concluded': is_concluded,
             'featured_games': games,
             'has_library': event.enable_public_games and (bool(games) or event.games.exists()),
+            'can_view_program': event.can_view_program(self.request.user),
+            # Public link to the program: only while table booking is on.
+            'program_url': (
+                reverse('event-program', kwargs={'slug': event.slug})
+                if event.table_booking_enabled else None),
+            'show_custom_button': bool(event.custom_button_title and event.custom_button_url),
         })
-        if user_profile:
+        if user_profile and event.table_booking_enabled:
             my_agenda, my_tables_overlap = self._my_tables_agenda(event, user_profile)
             context['my_tables_agenda'] = my_agenda
             context['my_tables_overlap'] = my_tables_overlap
@@ -206,6 +222,7 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
         is_concluded = event.is_concluded()
         context.update({
             'entries': attach_booking_dates(event, page_obj.object_list),
+            'can_view_program': event.can_view_program(self.request.user),
             'total_count': total_count,
             'tags': tags,
             'sponsors': sponsors,
@@ -225,22 +242,32 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
         return context
 
 
-def upcoming_events_queryset(limit=None):
+def upcoming_events_queryset(limit=None, managed_event_ids=()):
     """Approved events with at least one date today or later, ordered by their
-    next upcoming date. Prefetches `dates` so Event.start_date/end_date are cheap."""
+    next upcoming date. Prefetches `dates` so Event.start_date/end_date are cheap.
+
+    Pending events among `managed_event_ids` are included too, so their managers
+    can find them before approval; those still without dates come last."""
     today = timezone.localdate()
+    visible = Q(status=Event.APPROVED)
+    if managed_event_ids:
+        visible |= Q(status=Event.PENDING, pk__in=managed_event_ids)
     qs = (
-        Event.objects.filter(status=Event.APPROVED, dates__date__gte=today)
-        .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)))
+        Event.objects.filter(visible)
+        .annotate(
+            next_date=Min('dates__date', filter=Q(dates__date__gte=today)),
+            date_count=Count('dates'),
+        )
+        .filter(Q(next_date__isnull=False) | Q(status=Event.PENDING, date_count=0))
         .prefetch_related('dates')
-        .order_by('next_date')
-        .distinct()
+        .order_by(F('next_date').asc(nulls_last=True), 'name')
     )
     return qs[:limit] if limit else qs
 
 
 class EventListView(View):
-    """Public index of upcoming (and, optionally, past) approved events."""
+    """Public index of upcoming (and, optionally, past) approved events, plus the
+    pending ones the user manages."""
     template_name = 'events/event_list.html'
 
     def get(self, request, *args, **kwargs):
@@ -255,14 +282,25 @@ class EventListView(View):
             .order_by('-last_date')
             .distinct()
         )
+        managed_event_ids = self._managed_event_ids(request)
         context = {
-            'upcoming_events': upcoming_events_queryset(),
+            'managed_event_ids': managed_event_ids,
+            'upcoming_events': upcoming_events_queryset(managed_event_ids=managed_event_ids),
             'past_events': past_events if show_past else past_events[:6],
             'has_past_events': past_events.exists(),
             'show_past': show_past,
             'today': today,
         }
         return render(request, self.template_name, context)
+
+    @staticmethod
+    def _managed_event_ids(request):
+        if not request.user.is_authenticated:
+            return set()
+        user_profile = request.user.user_profile
+        return set(
+            Event.objects.filter(Q(creator=user_profile) | Q(managers=user_profile))
+            .values_list('pk', flat=True))
 
 
 def _station_conflict_ids(event, date):
@@ -352,6 +390,12 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
+    def get_object(self, queryset=None):
+        event = super().get_object(queryset)
+        if not event.can_view_program(self.request.user):
+            raise Http404
+        return event
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
@@ -365,15 +409,23 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         event_dates = event.dates.all()
         show_past = self.request.GET.get('show_past') == '1'
 
+        # "All days" (date=all) lists every day one after the other; it's the
+        # default until the event starts. Single-day events don't need it.
+        has_many_dates = len(event_dates) > 1
         selected_date_str = self.request.GET.get('date')
         selected_date = None
-        if selected_date_str:
+        all_days = False
+        if selected_date_str == 'all':
+            all_days = has_many_dates
+        elif selected_date_str:
             try:
                 selected_date = datetime.date.fromisoformat(selected_date_str)
             except ValueError:
                 pass
+        elif has_many_dates and event_dates[0].date > today:
+            all_days = True
 
-        if not selected_date:
+        if not selected_date and not all_days:
             future_dates = event_dates.filter(date__gte=today)
             if future_dates.exists():
                 selected_date = future_dates.first().date
@@ -427,6 +479,8 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         )
         if selected_date:
             tables_qs = tables_qs.filter(date=selected_date)
+        elif all_days:
+            tables_qs = tables_qs.filter(date__in=[d.date for d in visible_dates])
         if selected_area:
             # Effective area: from the assigned station, or the table's own area.
             tables_qs = tables_qs.filter(
@@ -438,19 +492,30 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         if selected_category:
             tables_qs = tables_qs.filter(category=selected_category)
 
-        tables_qs = tables_qs.order_by('time')
+        tables_qs = tables_qs.order_by('date', 'time')
 
         # ── Flag scheduling conflicts (same station, overlapping time) ─────
-        conflict_ids = _station_conflict_ids(event, selected_date)
+        if all_days:
+            conflict_ids = set().union(
+                *(_station_conflict_ids(event, d.date) for d in visible_dates))
+        else:
+            conflict_ids = _station_conflict_ids(event, selected_date)
         tables_list = list(tables_qs)
         for t in tables_list:
             t.has_conflict = t.id in conflict_ids
 
         # ── View mode: vertical agenda (default) or station/area grid ──────
-        view_mode = 'grid' if self.request.GET.get('view') == 'grid' else 'list'
-        agenda = [
-            {'time': slot_time, 'tables': list(group)}
-            for slot_time, group in groupby(tables_list, key=lambda tb: tb.time)
+        # The grid is per day, so "all days" is always an agenda.
+        view_mode = 'grid' if self.request.GET.get('view') == 'grid' and not all_days else 'list'
+        agenda_days = [
+            {
+                'date': day,
+                'slots': [
+                    {'time': slot_time, 'tables': list(group)}
+                    for slot_time, group in groupby(day_tables, key=lambda tb: tb.time)
+                ],
+            }
+            for day, day_tables in groupby(tables_list, key=lambda tb: tb.date)
         ]
         grid = _build_program_grid(event, tables_list, selected_area) if view_mode == 'grid' else None
 
@@ -473,15 +538,19 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'show_past': show_past,
             'play_areas': play_areas,
             'selected_date': selected_date,
+            'all_days': all_days,
+            'has_many_dates': has_many_dates,
             'selected_area': selected_area,
             'selected_game_id': selected_game_id,
             'selected_game': selected_game,
             'categories': categories,
             'selected_category_id': selected_category_id,
             'selected_category': selected_category,
+            # Shown on the mobile "Filters" button; the day is navigation, not a filter
+            'active_filter_count': sum(bool(f) for f in (selected_area, selected_category, selected_game)),
             'view_mode': view_mode,
             'view_qs': '&view=grid' if view_mode == 'grid' else '',
-            'agenda': agenda,
+            'agenda_days': agenda_days,
             'grid': grid,
             'has_tables': bool(tables_list),
             'has_conflicts': bool(conflict_ids),
@@ -508,9 +577,25 @@ class EventJoinView(LoginRequiredMixin, View):
         participant, created = EventParticipant.objects.get_or_create(
             event=event, user_profile=user_profile)
         if created:
-            messages.success(request, _("You're now registered for this event!"))
+            # Shown once by the detail page as a confirmation modal with the share CTA
+            request.session['event_just_joined'] = event.pk
         else:
             messages.info(request, _("You are already registered for this event."))
+        return redirect('event_detail', slug=slug)
+
+
+class EventLeaveView(LoginRequiredMixin, View):
+    """Unregister the logged-in user from the event (not allowed once it ended)."""
+
+    def post(self, request, slug):
+        event = get_object_or_404(Event, slug=slug)
+        if event.is_concluded():
+            messages.info(request, _("This event has already ended, you can't leave it."))
+            return redirect('event_detail', slug=slug)
+        deleted, _rows = EventParticipant.objects.filter(
+            event=event, user_profile=request.user.user_profile).delete()
+        if deleted:
+            messages.success(request, _("You are no longer attending this event."))
         return redirect('event_detail', slug=slug)
 
 

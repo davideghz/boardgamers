@@ -25,7 +25,6 @@ from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
-from webapp.storage_backends import PublicMediaStorage
 
 
 def _plain_text(markdown_text):
@@ -131,7 +130,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
+    image = models.ImageField(upload_to='games', null=True, blank=True)
     description = models.TextField()
     bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
     min_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Minimum players'))
@@ -148,6 +147,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
         db_default=ResultMode.NONE, verbose_name=_('Suggested result mode'))
     bgg_imported = models.BooleanField(default=False, db_index=True)
     verified = models.BooleanField(default=False, db_index=True)
+    is_expansion = models.BooleanField(default=False, db_default=False, verbose_name=_('Expansion'))
 
     _metadata = {
         'title': 'get_meta_title',
@@ -189,7 +189,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
     description = models.TextField()
-    cover = models.ImageField(upload_to='location-covers', null=True, blank=True, storage=PublicMediaStorage())
+    cover = models.ImageField(upload_to='location-covers', null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -200,7 +200,25 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     enable_calendar = models.BooleanField(default=False)
     # Lets visitors browse the game library (LocationGame) from the location page.
     enable_public_games = models.BooleanField(default=True)
+    # Sections of the public location page the managers can hide.
+    show_most_played_games = models.BooleanField(default=True)
+    show_top_gamers = models.BooleanField(default=True)
     website = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(
+        _('Facebook profile'), blank=True, max_length=500,
+        validators=[RegexValidator(
+            r'\Ahttps?://(?:(?:www|m|web)\.)?(?:facebook\.com|fb\.com)/'
+            r'(?:[\w.-]+|(?:people|pages|p)/[^/?#]+(?:/\d+)?|share/[\w-]+)/?(?:[?#]|\Z)',
+            _('Enter a Facebook profile URL.'), flags=re.IGNORECASE,
+        )],
+    )
+    instagram_url = models.URLField(
+        _('Instagram profile'), blank=True, max_length=500,
+        validators=[RegexValidator(
+            r'\Ahttps?://(?:www\.)?instagram\.com/[\w.]+/?(?:[?#]|\Z)',
+            _('Enter an Instagram profile URL.'), flags=re.IGNORECASE,
+        )],
+    )
     opening_hours = models.JSONField(null=True, blank=True)
     default_table_time = models.TimeField(
         default=datetime.time(20, 30),
@@ -249,6 +267,10 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         'description': 'get_meta_description',
         'image': 'cover_url',
     }
+
+    def is_manager(self, user_profile):
+        return bool(user_profile and (
+            self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
 
     def get_meta_title(self):
         return _("%(name)s - Board-Gamers.com") % {'name': self.name}
@@ -353,7 +375,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
+    avatar = models.ImageField(upload_to='avatars', null=True, blank=True)
     phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
@@ -522,7 +544,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
     custom_cover = models.ImageField(
-        upload_to='table-covers', null=True, blank=True, storage=PublicMediaStorage(),
+        upload_to='table-covers', null=True, blank=True,
         verbose_name=_('Custom cover'),
         help_text=_('Optional image shown instead of the game cover.'))
 
@@ -1215,7 +1237,7 @@ class MembershipDocument(DateTimeModel):
     )
     name = models.CharField(max_length=200, verbose_name=_('Name'))
     file = models.FileField(
-        upload_to='membership-documents', storage=PublicMediaStorage(),
+        upload_to='membership-documents',
         verbose_name=_('File')
     )
     is_active = models.BooleanField(default=True, verbose_name=_('Active'))
@@ -1234,6 +1256,24 @@ class MembershipDocument(DateTimeModel):
         """Uppercase file extension, for the badge next to the download link."""
         name = self.file.name or ''
         return name.rsplit('.', 1)[-1].upper() if '.' in name else ''
+
+
+class LocationGameTag(DateTimeModel):
+    """A label for the games of a location's library, defined by its managers.
+    Internal only: tags are not shown on the public library."""
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='game_tags', verbose_name=_('Location'))
+    name = models.CharField(max_length=64, verbose_name=_('Name'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Location Game Tag')
+        verbose_name_plural = _('Location Game Tags')
+        ordering = ['order', 'name']
+        unique_together = [('location', 'name')]
 
 
 class LocationGame(DateTimeModel):
@@ -1277,6 +1317,8 @@ class LocationGame(DateTimeModel):
         verbose_name=_('Physical Location')
     )
     notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    tags = models.ManyToManyField(
+        LocationGameTag, related_name='games', blank=True, verbose_name=_('Tags'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
@@ -1377,7 +1419,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))
     cover = models.ImageField(
-        upload_to='event-covers', null=True, blank=True, storage=PublicMediaStorage(),
+        upload_to='event-covers', null=True, blank=True,
         verbose_name=_('Cover'))
 
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
@@ -1408,6 +1450,18 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     enable_public_games = models.BooleanField(
         # DB-level default too, so code that predates this column can still insert events
         default=False, db_default=False, verbose_name=_('Public game library'))
+    # When off, the program page is reserved to managers and the event page shows
+    # no link to it.
+    table_booking_enabled = models.BooleanField(
+        default=True, db_default=True, verbose_name=_('Table booking'))
+    # Optional button shown first among the event page cards (e.g. the organizers'
+    # own program or ticket shop). Hidden unless both title and URL are set.
+    custom_button_title = models.CharField(
+        max_length=80, blank=True, default='', db_default='', verbose_name=_('Button title'))
+    custom_button_subtitle = models.CharField(
+        max_length=160, blank=True, default='', db_default='', verbose_name=_('Button subtitle'))
+    custom_button_url = models.URLField(
+        max_length=500, blank=True, default='', db_default='', verbose_name=_('Button link'))
 
     _metadata = {
         'title': 'get_meta_title',
@@ -1495,6 +1549,13 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
     def can_create_table(self, user_profile):
         return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
+
+    def can_view_program(self, user):
+        """The program is public while table booking is on; otherwise only the
+        event managers and superusers can open it."""
+        if self.table_booking_enabled:
+            return True
+        return user.is_authenticated and (user.is_superuser or self.is_manager(user.user_profile))
 
     @cached_property
     def sorted_dates(self):
@@ -1664,6 +1725,7 @@ class PhysicalTable(DateTimeModel):
         null=True, blank=True, verbose_name=_('Play Area'))
     name = models.CharField(max_length=144, verbose_name=_('Name'),
                             help_text=_('On-site label, e.g. "Table 1"'))
+    is_visible = models.BooleanField(default=True, verbose_name=_('Selectable by all users'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     def __str__(self):

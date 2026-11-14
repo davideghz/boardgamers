@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from webapp.factories import LocationFactory, UserProfileFactory
-from webapp.forms import PhysicalTableForm, PlayAreaForm, TableForm
+from webapp.forms import EventTableForm, PhysicalTableForm, PlayAreaForm, TableForm
 from webapp.models import Event, PhysicalTable, PlayArea, Table
 
 # Management form of the (empty) extra-links formset posted with the table form.
@@ -220,6 +220,28 @@ class LocationTableStationTest(TestCase):
                          location=self.location)
 
         self.assertIn('physical_table', form.errors)
+
+    def test_station_without_area_takes_the_station_area(self):
+        form = TableForm(data=self._data(physical_table=self.station.pk), location=self.location)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['play_area'], self.area)
+
+    def test_event_station_without_area_takes_the_station_area(self):
+        event = Event.objects.create(name='Con')
+        area = PlayArea.objects.create(event=event, name='Sala A')
+        station = PhysicalTable.objects.create(event=event, name='Tavolo 1', play_area=area)
+
+        form = EventTableForm(data={'physical_table': station.pk}, event=event)
+        form.is_valid()
+
+        self.assertNotIn('physical_table', form.errors)
+        self.assertEqual(form.cleaned_data['play_area'], area)
+
+    def test_area_choices_show_the_bare_name(self):
+        choices = [label for _, label in TableForm(location=self.location).fields['play_area'].choices]
+
+        self.assertEqual(choices[1:], ['Sala A', 'Sala B'])
 
     def test_station_of_another_location_is_rejected(self):
         foreign = PhysicalTable.objects.create(location=LocationFactory(name='Other', slug='other'), name='T')

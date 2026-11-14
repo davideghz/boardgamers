@@ -1,12 +1,11 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-content-muted mb-1">
-      <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
-    </p>
+    {% back_link 'event_detail' event.slug label=event.name %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
     <p class="text-sm text-content-muted mt-1">
       {% blocktrans count counter=total_count %}{{ counter }} game in the library{% plural %}{{ counter }} games in the library{% endblocktrans %}
@@ -59,11 +58,11 @@
     </div>
   {% endif %}
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
     {% for entry in entries %}
       {% include "partials/_event_game_card.html" %}
     {% empty %}
-      <p class="text-sm text-content-muted italic sm:col-span-2">{% if has_filters %}{% trans "No games found." %}{% else %}{% trans "No games in the library yet." %}{% endif %}</p>
+      <p class="text-sm text-content-muted italic col-span-full">{% if has_filters %}{% trans "No games found." %}{% else %}{% trans "No games in the library yet." %}{% endif %}</p>
     {% endfor %}
   </div>
 

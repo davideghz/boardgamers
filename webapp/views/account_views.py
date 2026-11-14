@@ -30,14 +30,14 @@ def index(request, template_name='accounts/account_index.html'):
 @login_required
 def events(request, template_name='accounts/account_events.html'):
     user_profile = request.user.user_profile
-    owned_events = user_profile.created_events.all()
-    managed_events = user_profile.managed_events.all().exclude(
+    owned_events = user_profile.created_events.prefetch_related('dates')
+    managed_events = user_profile.managed_events.prefetch_related('dates').exclude(
         id__in=owned_events.values_list('id', flat=True)
     )
     participating_events = Event.objects.filter(
         participants__user_profile=user_profile,
         status=Event.APPROVED,
-    ).distinct()
+    ).prefetch_related('dates').distinct()
     return render(request, template_name, {
         'owned_events': owned_events,
         'managed_events': managed_events,

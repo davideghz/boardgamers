@@ -1,12 +1,11 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-content-muted mb-1">
-      <a href="{% url 'event_detail' event.slug %}" class="text-blue-600 hover:underline">{{ event.name }}</a> ›
-    </p>
+    {% back_link 'event_detail' event.slug label=event.name %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Manage event" %}</h1>
   </div>
 

@@ -21,27 +21,24 @@
   {% endif %}
 
   {# ── HERO ─────────────────────────────────────────────────────────── #}
+  {# With a cover: on mobile a card (whole cover, details below it); from lg up #}
+  {# the cover is aligned right, faded into the dark blue diagonally from the left #}
   <section class="mb-8">
     {% if event.cover %}
-    {# Cover aligned right, faded into the dark blue diagonally from the left #}
-    <div class="relative overflow-hidden rounded-2xl px-6 md:px-10 pt-16 md:pt-24 pb-7 md:pb-9"
-         style="background-color: #0f172a;">
+    <div class="overflow-hidden rounded-2xl border border-divider bg-surface lg:relative lg:border-0 lg:bg-[#0f172a] lg:px-10 lg:pt-24 lg:pb-9">
       <img src="{{ event.cover_url }}" alt=""
-           class="absolute inset-y-0 right-0 h-full w-full md:w-3/4 object-cover pointer-events-none"
-           style="-webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%); mask-image: linear-gradient(to right, transparent 0%, #000 35%);">
-      <div class="absolute inset-0 pointer-events-none"
+           class="event-hero-cover block w-full h-auto lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-3/4 lg:object-cover pointer-events-none">
+      <div class="hidden lg:block absolute inset-0 pointer-events-none"
            style="background: linear-gradient(135deg, #0f172a 0%, #0f172a 25%, rgba(15, 23, 42, 0.92) 30%, rgba(30, 58, 95, 0.8) 50%, rgba(30, 64, 175, 0) 85%);"></div>
-      {# On narrow screens the text spans the whole cover: darken it a bit more #}
-      <div class="absolute inset-0 md:hidden pointer-events-none" style="background-color: rgba(15, 23, 42, 0.45);"></div>
-      <div class="relative">
+      <div class="relative p-5 lg:p-0">
     {% else %}
-    <div class="rounded-2xl px-6 md:px-10 pt-16 md:pt-24 pb-7 md:pb-9"
+    <div class="rounded-2xl px-6 lg:px-10 pt-16 lg:pt-24 pb-7 lg:pb-9"
          style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
       <div>
     {% endif %}
 
       {% if event.city %}
-        <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-blue-300 mb-3">
+        <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest {% if event.cover %}text-blue-600 lg:text-blue-300{% else %}text-blue-300{% endif %} mb-2 lg:mb-3">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
@@ -50,10 +47,21 @@
         </p>
       {% endif %}
 
-      <h1 class="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-4">{{ event.name }}</h1>
+      <h1 class="text-2xl lg:text-4xl font-extrabold {% if event.cover %}text-content lg:text-white{% else %}text-white{% endif %} leading-tight mb-3 lg:mb-4">{{ event.name }}</h1>
 
       {% if event_dates %}
-        <div class="flex flex-wrap items-center gap-1.5 mb-7">
+        {# Mobile: a single date range, as on the event cards #}
+        <p class="lg:hidden flex items-center gap-1.5 text-sm font-semibold {% if event.cover %}text-content-muted{% else %}text-slate-200{% endif %} mb-5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0 {% if event.cover %}text-blue-500{% else %}text-blue-300{% endif %}">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+          </svg>
+          {% if event.start_date == event.end_date %}
+            {{ event.start_date|date:"j M Y" }}
+          {% else %}
+            {{ event.start_date|date:"j M" }} – {{ event.end_date|date:"j M Y" }}
+          {% endif %}
+        </p>
+        <div class="hidden lg:flex flex-wrap items-center gap-1.5 mb-7">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-blue-300 flex-shrink-0">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
           </svg>
@@ -67,15 +75,25 @@
 
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
 
-        {# CTA 1 — attend #}
-        {% if event.status == 'approved' %}
+        {# CTA 1 — attend (hidden once the event is over) #}
+        {% if event.status == 'approved' and not is_concluded %}
           {% if user.is_authenticated %}
             {% if is_participant %}
-              <span class="inline-flex items-center justify-center gap-2 bg-slate-900/70 backdrop-blur-sm border border-white/30 text-white font-bold px-6 py-3 rounded-full text-sm cursor-default">
+              <span class="inline-flex items-center justify-center gap-2 font-bold pl-6 pr-3 py-3 rounded-full text-sm cursor-default
+                           {% if event.cover %}border border-divider text-content lg:bg-slate-900/70 lg:backdrop-blur-sm lg:border-white/30 lg:text-white{% else %}bg-slate-900/70 backdrop-blur-sm border border-white/30 text-white{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-green-400">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
                 {% trans "You're attending" %}
+                <form method="post" action="{% url 'event-leave' event.slug %}" class="flex">
+                  {% csrf_token %}
+                  <button type="submit" title="{% trans "Leave the event" %}" aria-label="{% trans "Leave the event" %}"
+                          class="flex items-center justify-center w-5 h-5 rounded-full hover:bg-white/20 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-2.5 h-2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </form>
               </span>
             {% else %}
               <form method="post" action="{% url 'event-join' event.slug %}">
@@ -101,10 +119,17 @@
         {% endif %}
 
         {# CTA 2 — program #}
-        <a href="{% url 'event-program' event.slug %}"
-           class="inline-flex items-center justify-center gap-2 bg-slate-900/70 backdrop-blur-sm border border-white/30 text-slate-100 hover:text-white hover:bg-slate-900/85 hover:border-white/50 font-semibold px-6 py-3 rounded-full transition-colors text-decoration-none text-sm">
-          {% trans "See the program" %} →
+        {% if program_url %}
+        <a href="{{ program_url }}"
+           class="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-full transition-colors text-decoration-none text-sm
+                  {% if event.cover %}{# light card on mobile, dark hero from lg up #}
+                    bg-slate-600 hover:bg-slate-700 text-white lg:bg-slate-900/70 lg:backdrop-blur-sm lg:border lg:border-white/30 lg:text-slate-100 lg:hover:bg-slate-900/85 lg:hover:border-white/50
+                  {% else %}
+                    bg-slate-900/70 backdrop-blur-sm border border-white/30 text-slate-100 hover:text-white hover:bg-slate-900/85 hover:border-white/50
+                  {% endif %}">
+          {% trans "Bookable tables" %} →
         </a>
+        {% endif %}
 
       </div>
       </div>
@@ -112,10 +137,10 @@
   </section>
 
   {# ── 3-COLUMN GRID ────────────────────────────────────────────────── #}
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
     {# ── MAIN COLUMN (2/3) ──────────────────────────────── #}
-    <div class="md:col-span-2 space-y-8">
+    <div class="lg:col-span-2 space-y-8">
 
       {# ── Description ─────────────────────────────────── #}
       {% if event.description %}
@@ -144,70 +169,58 @@
         </section>
       {% endif %}
 
-      {# ── Sponsor locations ────────────────────────────── #}
-      {% with sponsors=event.sponsor_locations.all %}
-        {% if sponsors %}
-          <section>
-            <h2 class="text-lg font-bold text-content mb-3">{% trans "Sponsored by" %}</h2>
-            <div class="flex flex-wrap gap-3">
-              {% for loc in sponsors %}
-                <a href="{% url 'location-detail' loc.slug %}"
-                   class="flex items-center gap-2.5 border border-divider rounded-xl px-3 py-2 hover:bg-surface-alt transition-colors text-decoration-none">
-                  {% if loc.cover %}
-                    <img src="{{ loc.cover_url }}" alt="{{ loc.name }}"
-                         class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
-                  {% else %}
-                    <div class="w-8 h-8 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                      </svg>
-                    </div>
-                  {% endif %}
-                  <div>
-                    <p class="text-sm font-semibold text-content">{{ loc.name }}</p>
-                    {% if loc.city %}<p class="text-xs text-content-muted">{{ loc.city }}</p>{% endif %}
-                  </div>
-                </a>
-              {% endfor %}
-            </div>
-          </section>
-        {% endif %}
-      {% endwith %}
-
-      {# ── Program CTA ──────────────────────────────────── #}
+      {# ── Custom button (set by the managers) ──────────── #}
+      {% if show_custom_button %}
       <section>
-        <a href="{% url 'event-program' event.slug %}"
-           class="group flex items-center gap-4 p-5 rounded-2xl border border-divider bg-gradient-to-br from-surface-alt to-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
+        <a href="{{ event.custom_button_url }}" target="_blank" rel="noopener"
+           class="group flex items-center gap-4 p-5 rounded-xl border border-divider bg-gradient-to-br from-surface-alt to-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
+          <div class="w-12 h-12 rounded-xl bg-elevated flex items-center justify-center flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-base font-bold text-content">{{ event.custom_button_title }}</p>
+            {% if event.custom_button_subtitle %}
+              <p class="text-sm text-content-muted mt-0.5">{{ event.custom_button_subtitle }}</p>
+            {% endif %}
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-muted group-hover:text-content-muted group-hover:translate-x-0.5 transition-all flex-shrink-0">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+        </a>
+      </section>
+      {% endif %}
+
+      {# ── Program CTA (table booking on) ───────────────── #}
+      {% if program_url %}
+      <section>
+        <a href="{{ program_url }}"
+           class="group flex items-center gap-4 p-5 rounded-xl border border-divider bg-gradient-to-br from-surface-alt to-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
           <div class="w-12 h-12 rounded-xl bg-elevated flex items-center justify-center flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-base font-bold text-content">{% trans "See the program" %}</p>
-            <p class="text-sm text-content-muted mt-0.5">
-              {% if table_count %}
-                {% blocktrans count n=table_count %}{{ n }} table scheduled{% plural %}{{ n }} tables scheduled{% endblocktrans %}
-              {% else %}
-                {% trans "Browse the schedule by time, area and game" %}
-              {% endif %}
-            </p>
+            <p class="text-base font-bold text-content">{% trans "Bookable tables" %}</p>
+            <p class="text-sm text-content-muted mt-0.5">{% trans "Reserve your seat at the game you like best" %}</p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-muted group-hover:text-content-muted group-hover:translate-x-0.5 transition-all flex-shrink-0">
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
           </svg>
         </a>
       </section>
+      {% endif %}
 
       {# ── Game library CTA ─────────────────────────────── #}
       {% if has_library %}
         <section>
           <a href="{% url 'event-games' event.slug %}"
-             class="group flex items-center gap-4 p-5 rounded-2xl border border-divider bg-gradient-to-br from-surface-alt to-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
+             class="group flex items-center gap-4 p-5 rounded-xl border border-divider bg-gradient-to-br from-surface-alt to-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
             <div class="w-12 h-12 rounded-xl bg-elevated flex items-center justify-center flex-shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
               </svg>
             </div>
             <div class="flex-1 min-w-0">
@@ -222,6 +235,7 @@
       {% endif %}
 
       {# ── Your tables (agenda) ─────────────────────────── #}
+      {% if event.table_booking_enabled %}
       <section>
         <h2 class="text-lg font-bold text-content mb-3">{% trans "Your tables" %}</h2>
 
@@ -272,7 +286,7 @@
             </div>
           {% else %}
             {# Empty state #}
-            <div class="rounded-2xl border border-dashed border-divider bg-surface-alt px-6 py-8 text-center">
+            <div class="rounded-xl border border-dashed border-divider bg-surface-alt px-6 py-8 text-center">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-content-muted mx-auto mb-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
               </svg>
@@ -280,13 +294,13 @@
               <p class="text-xs text-content-muted mt-1">{% trans "Browse the program and grab a seat at a table." %}</p>
               <a href="{% url 'event-program' event.slug %}"
                  class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
-                {% trans "See the program" %} →
+                {% trans "Bookable tables" %} →
               </a>
             </div>
           {% endif %}
         {% else %}
           {# Anonymous: invite to log in to see joined tables #}
-          <div class="rounded-2xl border border-dashed border-divider bg-surface-alt px-6 py-8 text-center">
+          <div class="rounded-xl border border-dashed border-divider bg-surface-alt px-6 py-8 text-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-content-muted mx-auto mb-2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
             </svg>
@@ -299,6 +313,7 @@
           </div>
         {% endif %}
       </section>
+      {% endif %}
 
       {# ── Featured games ───────────────────────────────── #}
       {% if featured_games %}
@@ -307,13 +322,44 @@
             <h2 class="text-lg font-bold text-content">{% trans "Featured games" %}</h2>
             <a href="{% url 'event-games' event.slug %}" class="text-sm font-semibold text-blue-600 hover:underline text-decoration-none whitespace-nowrap">{% trans "See all" %} →</a>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-5">
             {% for entry in featured_games %}
               {% include "partials/_event_game_card.html" %}
             {% endfor %}
           </div>
         </section>
       {% endif %}
+
+      {# ── Sponsor locations ────────────────────────────── #}
+      {% with sponsors=event.sponsor_locations.all %}
+        {% if sponsors %}
+          <section>
+            <h2 class="text-lg font-bold text-content mb-3">{% trans "Sponsored by" %}</h2>
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {% for loc in sponsors %}
+                <a href="{% url 'location-detail' loc.slug %}"
+                   class="flex items-center gap-2.5 border border-divider rounded-xl px-3 py-2 hover:bg-surface-alt transition-colors text-decoration-none">
+                  {% if loc.cover %}
+                    <img src="{{ loc.cover_url }}" alt="{{ loc.name }}"
+                         class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+                  {% else %}
+                    <div class="w-8 h-8 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                      </svg>
+                    </div>
+                  {% endif %}
+                  <div>
+                    <p class="text-sm font-semibold text-content">{{ loc.name }}</p>
+                    {% if loc.city %}<p class="text-xs text-content-muted">{{ loc.city }}</p>{% endif %}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+      {% endwith %}
 
       {# ── Phone request banner (participant without a phone number) ─── #}
       {% if needs_phone %}
@@ -352,7 +398,7 @@
     </div>{# /main col #}
 
     {# ── SIDEBAR (1/3) ──────────────────────────────────── #}
-    <div class="md:col-span-1">
+    <div class="lg:col-span-1">
       <div class="sticky top-6 border border-divider rounded-xl bg-surface">
         <div class="p-5 space-y-5">
 
@@ -368,11 +414,20 @@
                 </div>
               {% elif user.is_authenticated %}
                 {% if is_participant %}
-                  <div class="flex items-center justify-center gap-2 w-full rounded-full bg-green-50 border border-green-200 px-3 py-2.5 text-sm font-semibold text-green-700">
+                  <div class="flex items-center justify-center gap-2 w-full whitespace-nowrap rounded-full bg-green-50 border border-green-200 px-3 py-2.5 text-sm font-semibold text-green-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                     </svg>
                     {% trans "You're attending" %}
+                    <form method="post" action="{% url 'event-leave' event.slug %}" class="flex">
+                      {% csrf_token %}
+                      <button type="submit" title="{% trans "Leave the event" %}" aria-label="{% trans "Leave the event" %}"
+                              class="flex items-center justify-center w-5 h-5 rounded-full hover:bg-green-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-2.5 h-2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                      </button>
+                    </form>
                   </div>
                 {% else %}
                   <form method="post" action="{% url 'event-join' event.slug %}">
@@ -400,6 +455,9 @@
                   {% blocktrans count n=participant_count %}{{ n }} person attending{% plural %}{{ n }} people attending{% endblocktrans %}
                 </p>
               {% endif %}
+              <div class="mt-3">
+                {% include "partials/_share_button.html" with share_title=event.name share_label=_("Share event") %}
+              </div>
             </div>
             <hr class="border-divider-soft">
           {% endif %}
@@ -414,35 +472,57 @@
               </svg>
               {% trans "Manage event" %}
             </a>
+            {% if not event.table_booking_enabled %}
+              <a href="{% url 'event-program' event.slug %}"
+                 class="block text-center text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+                {% trans "Internal program (managers only)" %} →
+              </a>
+            {% endif %}
             <hr class="border-divider-soft">
           {% endif %}
 
           {# Dates #}
           {% if event_dates %}
+            {% with first=event_dates|first last=event_dates|last %}
+            {% with first_month=first.date|date:"Ym" last_month=last.date|date:"Ym" %}
             <div>
               <h3 class="text-sm font-bold text-content mb-2 flex items-center gap-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
                 </svg>
                 {% trans "Dates" %}
+                {# Month and year once in the heading; the rows then only need weekday and day #}
+                {% if first_month == last_month %}
+                  <span class="font-normal text-content-muted">· {{ first.date|date:"F Y"|lower }}</span>
+                {% elif first.date.year == last.date.year %}
+                  <span class="font-normal text-content-muted">· {{ first.date|date:"Y" }}</span>
+                {% endif %}
               </h3>
               <div class="space-y-1">
                 {% for event_date in event_dates %}
-                  <div class="text-sm text-content-soft flex items-start gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[0.45rem]
-                                 {% if event_date.date >= today %}bg-green-400{% else %}bg-surface-input{% endif %}"></span>
-                    <div>
-                      <p>{{ event_date.date|date:"l, j F Y" }}</p>
-                      {% if event_date.opening_time or event_date.closing_time %}
-                        <p class="text-xs text-content-muted">
-                          {% if event_date.opening_time %}{{ event_date.opening_time|time:"H:i" }}{% else %}…{% endif %}–{% if event_date.closing_time %}{{ event_date.closing_time|time:"H:i" }}{% else %}…{% endif %}
-                        </p>
+                  <div class="flex items-baseline justify-between gap-3 text-sm
+                              {% if event_date.after_gap %}!mt-2 pt-2 border-t border-dashed border-divider-soft{% endif %}
+                              {% if event_date.date < today %}opacity-50{% endif %}">
+                    <span class="text-content-soft flex items-center gap-1.5">
+                      <span class="{% if event_date.date == today %}font-bold text-content{% else %}font-medium{% endif %}">
+                        {{ event_date.date|date:"D j" }}{% if first_month != last_month %} {{ event_date.date|date:"M" }}{% endif %}{% if first.date.year != last.date.year %} {{ event_date.date|date:"Y" }}{% endif %}
+                      </span>
+                      {% if event_date.date == today %}
+                        <span class="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-green-100 text-green-700">{% trans "today" %}</span>
                       {% endif %}
-                    </div>
+                    </span>
+                    {% if event_date.opening_time or event_date.closing_time %}
+                      {# A 00:00 closing means midnight: show it as 24:00 so it doesn't read as a start time #}
+                      <span class="text-xs text-content-muted tabular-nums whitespace-nowrap">
+                        {% if event_date.opening_time %}{{ event_date.opening_time|time:"H:i" }}{% else %}…{% endif %} – {% if event_date.closing_time %}{% if event_date.closing_time|time:"H:i" == "00:00" %}24:00{% else %}{{ event_date.closing_time|time:"H:i" }}{% endif %}{% else %}…{% endif %}
+                      </span>
+                    {% endif %}
                   </div>
                 {% endfor %}
               </div>
             </div>
+            {% endwith %}
+            {% endwith %}
             <hr class="border-divider-soft">
           {% endif %}
 
@@ -451,7 +531,7 @@
             <div>
               <h3 class="text-sm font-bold text-content mb-2 flex items-center gap-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
                 </svg>
                 {% trans "Contacts" %}
               </h3>
@@ -461,15 +541,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
                     </svg>
-                    {{ event.phone }}
+                    {{ event.phone.as_international }}
                   </a>
                 {% endif %}
                 {% if event.email %}
-                  <a href="mailto:{{ event.email }}" class="flex items-center gap-2 text-sm text-content-soft hover:text-content transition-colors text-decoration-none">
+                  <a href="mailto:{{ event.email }}" class="flex items-center gap-2 min-w-0 text-sm text-content-soft hover:text-content transition-colors text-decoration-none">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                     </svg>
-                    {{ event.email }}
+                    <span class="min-w-0 [overflow-wrap:anywhere]">{{ event.email }}</span>
                   </a>
                 {% endif %}
               </div>
@@ -521,10 +601,53 @@
 
   </div>{# /grid #}
 
+  {# ── JOINED CONFIRMATION MODAL ────────────────────────────────────── #}
+  {% if just_joined %}
+    <div id="joined-dialog" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         role="dialog" aria-modal="true" aria-labelledby="joined-dialog-title">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm js-close-joined"></div>
+      <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
+        <div class="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+        </div>
+        <p id="joined-dialog-title" class="text-lg font-bold text-content mb-1">{% trans "You're in!" %}</p>
+        <p class="text-sm text-content-muted mb-5">{% trans "Games are better with friends: invite them to join you at the event!" %}</p>
+        <div class="space-y-2">
+          {% include "partials/_share_button.html" with share_title=event.name share_label=_("Share event") share_class="inline-flex items-center justify-center gap-1.5 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-full transition-colors" %}
+          <button type="button"
+                  class="js-close-joined w-full rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors">
+            {% trans "Close" %}
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
 {% endblock %}
+
+{% block style %}
+  <style>
+    /* Desktop hero: fade the cover in from the left (see the HERO section) */
+    @media (min-width: 1024px) {
+      .event-hero-cover {
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%);
+        mask-image: linear-gradient(to right, transparent 0%, #000 35%);
+      }
+    }
+  </style>
+{% endblock style %}
 
 {% block extrabodyjs %}
   {% if needs_phone %}{% include "partials/intl_tel_input.html" %}{% endif %}
+  {% if just_joined %}
+    <script>
+      document.querySelectorAll('.js-close-joined').forEach(el => {
+        el.addEventListener('click', () => document.getElementById('joined-dialog').remove());
+      });
+    </script>
+  {% endif %}
 {% endblock %}
 
 {% block jsonld %}

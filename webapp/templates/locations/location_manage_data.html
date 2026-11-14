@@ -1,13 +1,11 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-content-muted mb-1">
-      <a href="{% url 'location-detail' location.slug %}" class="text-blue-600 hover:underline">{{ location.name }}</a> ›
-      <a href="{% url 'location-manage' location.slug %}" class="text-blue-600 hover:underline">{% trans "Manage" %}</a> ›
-    </p>
+    {% back_link 'location-manage' location.slug label=_("Manage") %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Location info" %}</h1>
   </div>
 
@@ -67,6 +65,23 @@
       {% if form.website.errors %}<p class="mt-1 text-xs text-red-500">{{ form.website.errors|join:", " }}</p>{% endif %}
     </div>
 
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.facebook_url.id_for_label }}">
+          {{ form.facebook_url.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+        </label>
+        {{ form.facebook_url }}
+        {% if form.facebook_url.errors %}<p id="{{ form.facebook_url.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ form.facebook_url.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.instagram_url.id_for_label }}">
+          {{ form.instagram_url.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+        </label>
+        {{ form.instagram_url }}
+        {% if form.instagram_url.errors %}<p id="{{ form.instagram_url.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ form.instagram_url.errors|join:", " }}</p>{% endif %}
+      </div>
+    </div>
+
     {# ── Opening hours ────────────────────────────────────────────────── #}
     {{ form.opening_hours }}
     <div>
@@ -103,6 +118,50 @@
                name="show_tables_in_homepage"
                class="sr-only peer"
                {% if form.show_tables_in_homepage.value %}checked{% endif %}>
+        <div class="w-11 h-6 rounded-full bg-surface-input
+                    peer-checked:bg-blue-500
+                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                    after:bg-surface after:rounded-full after:h-5 after:w-5
+                    after:transition-all after:shadow-sm
+                    peer-checked:after:translate-x-5"></div>
+      </div>
+    </label>
+
+    {# ── Show most played games toggle ──────────────────────────── #}
+    <label for="{{ form.show_most_played_games.id_for_label }}"
+           class="flex items-start justify-between gap-4 p-4 rounded-xl border border-divider bg-surface cursor-pointer hover:bg-surface-alt transition-colors">
+      <div>
+        <p class="text-sm font-semibold text-content">{% trans "Show most played games" %}</p>
+        <p class="text-xs text-content-muted mt-0.5">{% trans "When enabled, the location page shows the most played games and their top winners." %}</p>
+      </div>
+      <div class="relative flex-shrink-0 mt-0.5">
+        <input type="checkbox"
+               id="{{ form.show_most_played_games.id_for_label }}"
+               name="show_most_played_games"
+               class="sr-only peer"
+               {% if form.show_most_played_games.value %}checked{% endif %}>
+        <div class="w-11 h-6 rounded-full bg-surface-input
+                    peer-checked:bg-blue-500
+                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                    after:bg-surface after:rounded-full after:h-5 after:w-5
+                    after:transition-all after:shadow-sm
+                    peer-checked:after:translate-x-5"></div>
+      </div>
+    </label>
+
+    {# ── Show top gamers toggle ──────────────────────────── #}
+    <label for="{{ form.show_top_gamers.id_for_label }}"
+           class="flex items-start justify-between gap-4 p-4 rounded-xl border border-divider bg-surface cursor-pointer hover:bg-surface-alt transition-colors">
+      <div>
+        <p class="text-sm font-semibold text-content">{% trans "Show top gamers" %}</p>
+        <p class="text-xs text-content-muted mt-0.5">{% trans "When enabled, the location page shows the ranking of the players with the most podiums." %}</p>
+      </div>
+      <div class="relative flex-shrink-0 mt-0.5">
+        <input type="checkbox"
+               id="{{ form.show_top_gamers.id_for_label }}"
+               name="show_top_gamers"
+               class="sr-only peer"
+               {% if form.show_top_gamers.value %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
                     peer-checked:bg-blue-500
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5

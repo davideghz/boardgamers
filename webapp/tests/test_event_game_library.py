@@ -145,8 +145,9 @@ class BookingIndicatorTest(LibraryTestCase):
         EventDate.objects.create(event=self.event, date=self.today - datetime.timedelta(days=1))
         self.assertContains(self.client.get(self.detail_url), "Event concluded")
 
-    def test_game_name_links_to_its_page(self):
-        self.assertContains(
+    def test_game_does_not_link_to_its_site_page(self):
+        # Its "back" link leads to the site-wide library, not the event's one.
+        self.assertNotContains(
             self.client.get(self.detail_url), reverse('game-detail', kwargs={'slug': self.game.slug}))
 
 

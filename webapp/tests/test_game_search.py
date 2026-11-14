@@ -19,6 +19,14 @@ class LocalGameSearchTest(TestCase):
         names = [g['name'] for g in self.client.get(self.url, {'q': 'azul'}).json()['local']]
         self.assertEqual(names, ["Azul", "Azul: Summer Pavilion", "Bazul"])
 
+    def test_expansions_come_after_base_games(self):
+        GameFactory(name="Coffee Rush: Piece of Cake", is_expansion=True)
+        GameFactory(name="Coffee Rush")
+        GameFactory(name="The Coffee Rush Game")
+        results = self.client.get(self.url, {'q': 'coffee rush'}).json()['local']
+        self.assertEqual([(g['name'], g['is_expansion']) for g in results], [
+            ("Coffee Rush", False), ("The Coffee Rush Game", False), ("Coffee Rush: Piece of Cake", True)])
+
     def test_requires_login(self):
         self.client.logout()
         self.assertEqual(self.client.get(self.url, {'q': 'azul'}).status_code, 401)
@@ -32,11 +40,13 @@ class ExternalGameSearchTest(TestCase):
         self.client.force_login(UserProfileFactory().user)
         self.url = reverse('bgg-search-external')
 
-    def test_known_games_come_with_their_id_and_expansions_are_dropped(self, search_bgg, classify):
+    def test_known_games_come_with_their_id_and_expansions_go_last(self, search_bgg, classify):
         catan = GameFactory(name="Catan", bgg_code='13', min_players=3, max_players=4)
+        GameFactory(name="Catan: Cities & Knights", bgg_code='926', is_expansion=True)
         search_bgg.return_value = [
             {'bgg_id': '13', 'name': "I Coloni di Catan", 'year_published': 1995},
             {'bgg_id': '325', 'name': "Catan: Seafarers", 'year_published': 1997},
+            {'bgg_id': '926', 'name': "Catan: Cities & Knights", 'year_published': 1998},
             {'bgg_id': '27710', 'name': "Catan Dice Game", 'year_published': 2007},
         ]
         classify.return_value = {
@@ -46,7 +56,8 @@ class ExternalGameSearchTest(TestCase):
 
         results = self.client.get(self.url, {'q': 'coloni di catan'}).json()['bgg']
 
-        self.assertEqual([r['bgg_id'] for r in results], ['13', '27710'])
+        self.assertEqual([(r['bgg_id'], r['is_expansion']) for r in results],
+                         [('13', False), ('27710', False), ('325', True), ('926', True)])
         self.assertEqual(results[0]['id'], catan.id)
         self.assertEqual(results[0]['name'], "Catan")
         self.assertNotIn('id', results[1])

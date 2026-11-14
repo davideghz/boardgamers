@@ -4,22 +4,19 @@
 {% block content %}
 <div class="max-w-2xl">
 
-  {# ── Breadcrumb ────────────────────────────────────────────────────── #}
-  <nav class="flex items-center gap-1.5 text-xs text-content-muted mb-6">
-    <a href="{% url 'home' %}" class="hover:text-content-soft transition-colors">Home</a>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-    <a href="{% url 'game-list' %}" class="hover:text-content-soft transition-colors">{% trans "Games" %}</a>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-    <span class="text-content-soft font-medium truncate">{{ game.name }}</span>
-  </nav>
+  {# ── BACK LINK ────────────────────────────────────────────────────── #}
+  <div class="mb-4">{% back_link 'game-list' label=_("Games") %}</div>
 
   {# ── Hero cover ────────────────────────────────────────────────────── #}
   <div class="relative w-full aspect-video rounded-xl overflow-hidden mb-6"
        style="background-image: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0) 100%), url('{{ game.cover_url }}'); background-size: cover; background-position: center;">
     <div class="absolute bottom-0 left-0 p-5">
       <h1 class="text-2xl font-extrabold text-white drop-shadow">{{ game.name }}</h1>
-      {% if game.year_published %}
-        <p class="text-sm text-content-muted mt-0.5">{{ game.year_published }}</p>
+      {% if game.year_published or game.is_expansion %}
+        <div class="flex items-center gap-2 mt-0.5">
+          {% if game.year_published %}<p class="text-sm text-content-muted">{{ game.year_published }}</p>{% endif %}
+          {% if game.is_expansion %}<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-600 text-white">{% trans "Expansion" %}</span>{% endif %}
+        </div>
       {% endif %}
     </div>
   </div>
@@ -49,7 +46,7 @@
       </div>
     </div>
     {% if game.bgg_code %}
-      <a href="https://boardgamegeek.com/boardgame/{{ game.bgg_code }}" target="_blank" rel="noopener noreferrer"
+      <a href="https://boardgamegeek.com/{% if game.is_expansion %}boardgameexpansion{% else %}boardgame{% endif %}/{{ game.bgg_code }}" target="_blank" rel="noopener noreferrer"
          class="w-full justify-center md:w-auto md:ml-auto md:justify-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-divider bg-surface text-xs font-semibold text-content-soft hover:border-slate-400 hover:text-content hover:bg-surface-alt transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />

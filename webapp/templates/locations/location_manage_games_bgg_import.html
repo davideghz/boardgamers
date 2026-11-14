@@ -1,0 +1,232 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% load i18n %}
+
+{% block content %}
+
+  <div class="mb-6">
+    {% back_link 'location-manage-games' location.slug label=_("Games") %}
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Import from BoardGameGeek" %}</h1>
+    <p class="text-sm text-content-muted mt-1">
+      {% trans "Add to the library the games a BoardGameGeek user marks as owned. The collection must be public." %}
+    </p>
+  </div>
+
+  {# ── Step 1: BGG username ────────────────────────────────────────────── #}
+  <form method="get" class="flex gap-2 mb-4 max-w-xl">
+    <label for="bgg-username" class="sr-only">{% trans "BoardGameGeek username" %}</label>
+    <input id="bgg-username" type="text" name="username" value="{{ username }}" required maxlength="64"
+           autocomplete="off" placeholder="{% trans 'BoardGameGeek username' %}"
+           class="flex-1 min-w-0 px-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
+    <button type="submit" onclick="this.disabled=true;this.form.submit();this.textContent='{% trans "Loading…"|escapejs %}'"
+            class="bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors whitespace-nowrap">
+      {% trans "Load collection" %}
+    </button>
+  </form>
+
+  {% if error == 'not_found' %}
+    <p class="mb-6 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+      {% blocktrans %}There is no BoardGameGeek user called «{{ username }}».{% endblocktrans %}
+    </p>
+  {% elif error == 'pending' %}
+    <div class="mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+      {% trans "BoardGameGeek is still preparing this collection. Try again in a few seconds." %}
+      <a href="?username={{ username|urlencode }}" class="font-semibold underline">{% trans "Try again" %}</a>
+    </div>
+  {% elif error %}
+    <p class="mb-6 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+      {% trans "BoardGameGeek is not responding. Please try again later." %}
+    </p>
+  {% elif loaded and not games and not expansions %}
+    <p class="mb-6 text-sm text-content-muted bg-surface border border-divider rounded-xl px-4 py-3">
+      {% blocktrans %}«{{ username }}» has no owned games, or the collection is private.{% endblocktrans %}
+    </p>
+  {% endif %}
+
+  {% if games or expansions %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+    {# ── Collection ──────────────────────────────────────────────────── #}
+    <div class="lg:col-span-2 min-w-0 space-y-6" id="bgg-collection">
+      {% with items=games title=_("Games") %}
+        {% include "locations/_bgg_import_section.html" %}
+      {% endwith %}
+      {% if expansions %}
+        {% with items=expansions title=_("Expansions") %}
+          {% include "locations/_bgg_import_section.html" %}
+        {% endwith %}
+      {% endif %}
+    </div>
+
+    {# ── Options and progress ────────────────────────────────────────── #}
+    <aside class="order-first lg:order-last lg:sticky lg:top-6 rounded-xl border border-divider bg-surface p-4 space-y-4">
+      <form id="bgg-import-options" class="space-y-4" onsubmit="return false">
+        <div>
+          <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.tag_name.id_for_label }}">
+            {{ form.tag_name.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+          </label>
+          {{ form.tag_name }}
+          <datalist id="location-game-tags">
+            {% for tag in tags %}<option value="{{ tag.name }}">{% endfor %}
+          </datalist>
+          <p class="mt-1 text-xs text-content-muted">{% trans "A new name creates the tag. Games already in the library are not touched." %}</p>
+        </div>
+        {% for field in form %}
+          {% if field.html_name != 'tag_name' %}
+            <div>
+              <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+            </div>
+          {% endif %}
+        {% endfor %}
+        {% csrf_token %}
+      </form>
+
+      <button type="button" id="bgg-import-start"
+              class="w-full rounded-full bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        {% trans "Import" %} (<span id="bgg-selected-count">0</span>)
+      </button>
+
+      <div id="bgg-progress" class="hidden space-y-2">
+        <div class="h-2 rounded-full bg-surface-input overflow-hidden">
+          <div id="bgg-progress-bar" class="h-full bg-blue-500 transition-all" style="width: 0%"></div>
+        </div>
+        <p id="bgg-progress-text" class="text-xs text-content-soft"></p>
+      </div>
+
+      <div id="bgg-done" class="hidden space-y-2">
+        <p id="bgg-done-text" class="text-sm font-semibold text-content"></p>
+        <a href="{% url 'location-manage-games' location.slug %}"
+           class="block text-center rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none">
+          {% trans "Go to the library" %}
+        </a>
+      </div>
+    </aside>
+
+  </div>
+  {% endif %}
+
+{% endblock content %}
+
+{% block extrabodyjs %}
+  {{ form.media.js }}
+  {% if games or expansions %}
+  <script>
+    (function () {
+      const BATCH_SIZE = {{ batch_size }};
+      const BATCH_URL = '{% url "location-games-bgg-import-batch" location.slug %}';
+      const MSG = {
+        progress: '{% trans "Imported %(done)s of %(total)s…"|escapejs %}',
+        done: '{% trans "Done: %(added)s added, %(skipped)s already in the library, %(failed)s failed."|escapejs %}',
+        added: '{% trans "Imported"|escapejs %}',
+        skipped: '{% trans "Already in the library"|escapejs %}',
+        failed: '{% trans "Failed"|escapejs %}',
+        leave: '{% trans "The import is still running. Leave anyway?"|escapejs %}',
+      };
+      const fmt = (s, values) => s.replace(/%\((\w+)\)s/g, (_, k) => values[k]);
+
+      const startBtn = document.getElementById('bgg-import-start');
+      const countEl = document.getElementById('bgg-selected-count');
+      const boxes = () => Array.from(document.querySelectorAll('.bgg-item:not(:disabled)'));
+      const selected = () => boxes().filter(b => b.checked);
+
+      function refreshCount() {
+        const n = selected().length;
+        countEl.textContent = n;
+        startBtn.disabled = n === 0;
+        document.querySelectorAll('[data-section-toggle]').forEach(toggle => {
+          const items = Array.from(document.querySelectorAll(`.bgg-item[data-section="${toggle.dataset.sectionToggle}"]:not(:disabled)`));
+          toggle.checked = items.length > 0 && items.every(b => b.checked);
+          toggle.indeterminate = !toggle.checked && items.some(b => b.checked);
+        });
+      }
+
+      document.addEventListener('change', e => {
+        if (e.target.matches('[data-section-toggle]')) {
+          document.querySelectorAll(`.bgg-item[data-section="${e.target.dataset.sectionToggle}"]:not(:disabled)`)
+            .forEach(b => { b.checked = e.target.checked; });
+        }
+        if (e.target.matches('.bgg-item, [data-section-toggle]')) refreshCount();
+      });
+
+      document.querySelectorAll('[data-section-filter]').forEach(input => {
+        input.addEventListener('input', () => {
+          const q = input.value.toLowerCase().trim();
+          document.querySelectorAll(`[data-row="${input.dataset.sectionFilter}"]`).forEach(row => {
+            row.classList.toggle('hidden', q && !row.dataset.search.includes(q));
+          });
+        });
+      });
+
+      function markRow(bggId, state) {
+        const box = document.querySelector(`.bgg-item[value="${bggId}"]`);
+        if (!box) return;
+        box.checked = false;
+        box.disabled = true;
+        const badge = box.closest('label').querySelector('[data-status]');
+        const styles = {
+          added: 'bg-green-100 text-green-700',
+          skipped: 'bg-surface-input text-content-muted',
+          failed: 'bg-red-100 text-red-700',
+        };
+        badge.className = 'flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ' + styles[state];
+        badge.textContent = MSG[state];
+      }
+
+      async function postBatch(options, batch) {
+        const body = new FormData();
+        options.forEach(([k, v]) => body.append(k, v));
+        body.append('items', JSON.stringify(batch));
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const resp = await fetch(BATCH_URL, { method: 'POST', body });
+            if (resp.ok) return await resp.json();
+          } catch (e) { /* network error: retry once */ }
+        }
+        return { added: [], skipped: [], failed: batch.map(i => i.bgg_id) };
+      }
+
+      let running = false;
+      window.addEventListener('beforeunload', e => {
+        if (running) { e.preventDefault(); e.returnValue = MSG.leave; }
+      });
+
+      startBtn.addEventListener('click', async () => {
+        const items = selected().map(b => ({ bgg_id: b.value, name: b.dataset.name }));
+        if (!items.length) return;
+        running = true;
+        startBtn.disabled = true;
+        // Read before disabling the fields: disabled fields are left out of FormData.
+        const options = Array.from(new FormData(document.getElementById('bgg-import-options')).entries());
+        document.querySelectorAll('#bgg-import-options input, #bgg-import-options select, #bgg-import-options button, .bgg-item, [data-section-toggle]')
+          .forEach(el => { el.disabled = true; });
+        const progress = document.getElementById('bgg-progress');
+        const bar = document.getElementById('bgg-progress-bar');
+        const text = document.getElementById('bgg-progress-text');
+        progress.classList.remove('hidden');
+
+        const totals = { added: 0, skipped: 0, failed: 0 };
+        let done = 0;
+        text.textContent = fmt(MSG.progress, { done, total: items.length });
+        for (let i = 0; i < items.length; i += BATCH_SIZE) {
+          const batch = items.slice(i, i + BATCH_SIZE);
+          const result = await postBatch(options, batch);
+          for (const state of ['added', 'skipped', 'failed']) {
+            result[state].forEach(id => markRow(id, state));
+            totals[state] += result[state].length;
+          }
+          done += batch.length;
+          bar.style.width = `${Math.round(done / items.length * 100)}%`;
+          text.textContent = fmt(MSG.progress, { done, total: items.length });
+        }
+        running = false;
+        refreshCount();
+        document.getElementById('bgg-done-text').textContent = fmt(MSG.done, totals);
+        document.getElementById('bgg-done').classList.remove('hidden');
+      });
+
+      refreshCount();
+    })();
+  </script>
+  {% endif %}
+{% endblock %}

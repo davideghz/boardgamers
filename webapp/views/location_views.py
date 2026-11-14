@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import defaultdict
 from datetime import date, timedelta
 
@@ -22,12 +23,15 @@ from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
-    PhysicalTableForm
+    PhysicalTableForm, LocationGameTagForm, BGGCollectionImportForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
-    MembershipDocument, LocationGame, TelegramGroupConfig, Player, Event, PlayArea, \
+    MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable
+from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services.tables import reopen_location_leaderboards
+
+logger = logging.getLogger(__name__)
 
 
 def index_view(request, template_name="locations/location_index.html"):
@@ -158,47 +162,51 @@ class LocationDetailView(DetailView):
         #     top_winner=Subquery(top_player)
         # ).filter(play_count__gt=0).order_by('-play_count')[:10]
 
-        popular_games = Game.objects.annotate(
-            play_count=Subquery(played_count)
-        ).filter(play_count__gt=0).order_by('-play_count')[:10]
+        popular_games = []
+        if location.show_most_played_games:
+            popular_games = Game.objects.annotate(
+                play_count=Subquery(played_count)
+            ).filter(play_count__gt=0).order_by('-play_count')[:10]
 
-        # Calcolo dei top winner con ex aequo
-        winners = UserProfile.objects.filter(
-            joined_tables__location=location,
-            player__position=1
-        ).values(
-            'joined_tables__game', 'nickname'
-        ).annotate(
-            win_count=Count('joined_tables', distinct=True)
-        )
+            # Calcolo dei top winner con ex aequo
+            winners = UserProfile.objects.filter(
+                joined_tables__location=location,
+                player__position=1
+            ).values(
+                'joined_tables__game', 'nickname'
+            ).annotate(
+                win_count=Count('joined_tables', distinct=True)
+            )
 
-        winners_by_game = defaultdict(lambda: {'max': 0, 'winners': []})
+            winners_by_game = defaultdict(lambda: {'max': 0, 'winners': []})
 
-        for entry in winners:
-            game_id = entry['joined_tables__game']
-            nickname = entry['nickname']
-            win_count = entry['win_count']
+            for entry in winners:
+                game_id = entry['joined_tables__game']
+                nickname = entry['nickname']
+                win_count = entry['win_count']
 
-            current_max = winners_by_game[game_id]['max']
-            if win_count > current_max:
-                winners_by_game[game_id]['max'] = win_count
-                winners_by_game[game_id]['winners'] = [nickname]
-            elif win_count == current_max:
-                winners_by_game[game_id]['winners'].append(nickname)
+                current_max = winners_by_game[game_id]['max']
+                if win_count > current_max:
+                    winners_by_game[game_id]['max'] = win_count
+                    winners_by_game[game_id]['winners'] = [nickname]
+                elif win_count == current_max:
+                    winners_by_game[game_id]['winners'].append(nickname)
 
-        for game in popular_games:
-            top = winners_by_game.get(game.id)
-            game.top_winners = top['winners'] if top else []
+            for game in popular_games:
+                top = winners_by_game.get(game.id)
+                game.top_winners = top['winners'] if top else []
 
         # Query per i giocatori con numero di partite e posizioni
-        player_stats = UserProfile.objects.filter(
-            Q(joined_tables__location=location)
-        ).annotate(
-            play_count=Count('joined_tables', distinct=True),
-            first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
-            second_place=Count('joined_tables', filter=Q(player__position=2), distinct=True),
-            third_place=Count('joined_tables', filter=Q(player__position=3), distinct=True)
-        ).order_by('-first_place', '-second_place', '-third_place', '-play_count')[:15]
+        player_stats = []
+        if location.show_top_gamers:
+            player_stats = UserProfile.objects.filter(
+                Q(joined_tables__location=location)
+            ).annotate(
+                play_count=Count('joined_tables', distinct=True),
+                first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
+                second_place=Count('joined_tables', filter=Q(player__position=2), distinct=True),
+                third_place=Count('joined_tables', filter=Q(player__position=3), distinct=True)
+            ).order_by('-first_place', '-second_place', '-third_place', '-play_count')[:15]
 
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)
@@ -1027,10 +1035,12 @@ class LocationManageGamesView(LoginRequiredMixin, View):
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        location_games = location.location_games.select_related('game', 'owner_member').all()
+        location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
         return render(request, 'locations/location_manage_games.html', {
             'location': location,
             'location_games': location_games,
+            'tags': location.game_tags.all(),
+            'tag_form': LocationGameTagForm(location=location),
             'meta': Meta(title=_("Games – %(name)s") % {'name': location.name}),
         })
 
@@ -1103,6 +1113,7 @@ class AddLocationGameView(LoginRequiredMixin, View):
             location_game = form.save(commit=False)
             location_game.location = location
             location_game.save()
+            form.save_m2m()
             messages.success(request, _("Game «%(name)s» added to the library.") % {'name': location_game.game.name})
             return redirect('location-manage-games', slug=location.slug)
         return render(request, 'locations/location_manage_game_detail.html', {
@@ -1146,6 +1157,158 @@ class LocationGameDetailView(LoginRequiredMixin, View):
             'is_new': False,
             'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
         })
+
+
+BGG_IMPORT_BATCH_SIZE = 10  # games per request: keeps BGG calls and cover downloads under the Heroku timeout
+
+
+class LocationGamesBGGImportView(LoginRequiredMixin, View):
+    """Preview the games a BGG user owns and pick the ones to add to the library.
+    The import itself runs in batches through LocationGamesBGGImportBatchView."""
+    template_name = 'locations/location_manage_games_bgg_import.html'
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        username = request.GET.get('username', '').strip()[:64]
+        items, error = None, None
+        if username:
+            try:
+                items = fetch_bgg_collection(username)
+            except BGGCollectionError as e:
+                error = e.code
+        if items:
+            library = location.location_games.select_related('game')
+            library_codes = {lg.game.bgg_code for lg in library if lg.game.bgg_code}
+            library_names = {lg.game.name.lower() for lg in library}
+            known_codes = set(Game.objects.filter(bgg_code__in=[i['bgg_id'] for i in items])
+                              .values_list('bgg_code', flat=True))
+            for item in items:
+                if item['bgg_id'] in library_codes or item['name'].lower() in library_names:
+                    item['status'] = 'in_library'
+                elif item['bgg_id'] in known_codes:
+                    item['status'] = 'known'
+                else:
+                    item['status'] = 'new'
+        games = [i for i in items or [] if not i['is_expansion']]
+        expansions = [i for i in items or [] if i['is_expansion']]
+        return render(request, self.template_name, {
+            'location': location,
+            'username': username,
+            'error': error,
+            'loaded': items is not None,
+            'games': games,
+            'expansions': expansions,
+            'importable_count': sum(1 for i in items or [] if i['status'] != 'in_library'),
+            'form': BGGCollectionImportForm(location=location),
+            'tags': location.game_tags.all(),
+            'batch_size': BGG_IMPORT_BATCH_SIZE,
+            'meta': Meta(title=_("Import from BGG – %(name)s") % {'name': location.name}),
+        })
+
+
+class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
+    """Add a batch of BGG games to the library. POST: the BGGCollectionImportForm
+    fields plus `items`, a JSON list of {bgg_id, name}. Games already in the
+    library are left untouched."""
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = BGGCollectionImportForm(request.POST, location=location)
+        try:
+            items = json.loads(request.POST.get('items', ''))
+            items = [{'bgg_id': str(int(i['bgg_id'])), 'name': str(i.get('name', ''))[:255]} for i in items]
+        except (ValueError, TypeError, KeyError):
+            items = None
+        if not form.is_valid() or not items or len(items) > BGG_IMPORT_BATCH_SIZE:
+            return JsonResponse({'error': 'invalid'}, status=400)
+
+        try:
+            games = import_games_from_bgg(items)
+        except Exception as e:
+            logger.warning(f'BGG collection import failed for {location.slug}: {e}')
+            return JsonResponse({'error': 'bgg'}, status=502)
+
+        data = form.cleaned_data
+        tag = None
+        if data['tag_name']:
+            tag = location.game_tags.filter(name__iexact=data['tag_name']).first()
+            if tag is None:
+                order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
+                tag = LocationGameTag.objects.create(location=location, name=data['tag_name'], order=order)
+
+        added, skipped, failed = [], [], []
+        for item in items:
+            game = games.get(item['bgg_id'])
+            if game is None:
+                failed.append(item['bgg_id'])
+                continue
+            entry, created = LocationGame.objects.get_or_create(
+                location=location, game=game, defaults={
+                    'ownership': data['ownership'],
+                    'owner_member': data['owner_member'],
+                    'physical_location': data['physical_location'],
+                })
+            if created:
+                if tag:
+                    entry.tags.add(tag)
+                added.append(item['bgg_id'])
+            else:
+                skipped.append(item['bgg_id'])
+        return JsonResponse({'added': added, 'skipped': skipped, 'failed': failed})
+
+
+class LocationGameTagAddView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = LocationGameTagForm(request.POST, location=location)
+        if form.is_valid():
+            tag = form.save(commit=False)
+            tag.location = location
+            tag.order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
+            tag.save()
+            messages.success(request, _("Tag added."))
+        else:
+            messages.error(request, ' '.join(form.errors.get('name', [])))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGameTagUpdateView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        tag = get_object_or_404(LocationGameTag, pk=pk, location=location)
+        form = LocationGameTagForm(request.POST, instance=tag, location=location)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Tag updated."))
+        else:
+            messages.error(request, ' '.join(form.errors.get('name', [])))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGameTagDeleteView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        LocationGameTag.objects.filter(pk=pk, location=location).delete()
+        messages.success(request, _("Tag removed."))
+        return redirect('location-manage-games', slug=location.slug)
+
+
+class LocationGameTagsReorderView(LoginRequiredMixin, View):
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        try:
+            data = json.loads(request.body)
+            for item in data.get('tags', []):
+                LocationGameTag.objects.filter(pk=item['id'], location=location).update(order=item['order'])
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=400)
 
 
 class DeleteLocationGameView(LoginRequiredMixin, View):
@@ -1305,6 +1468,80 @@ class LocationManageStationsReorderView(LoginRequiredMixin, View):
             return JsonResponse({'success': False}, status=400)
 
 
+class LocationManageStationAssignmentView(LoginRequiredMixin, View):
+    """Upcoming tables of the location, each with a station picker: the location
+    staff can assign the games to their stations. Optional: tables without a
+    station are fine. Overlapping bookings of a station are flagged, not blocked."""
+    template_name = 'locations/location_manage_station_assignment.html'
+
+    def _tables(self, location):
+        return (
+            Table.objects.filter(location=location, event__isnull=True, date__gte=timezone.localdate())
+            .exclude(status=Table.CLOSED)
+            .select_related('game', 'author', 'play_area', 'physical_table', 'physical_table__play_area')
+            .order_by('date', 'time')
+        )
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        tables = list(self._tables(location))
+        conflict_ids = _station_conflict_ids(tables)
+        unassigned_only = request.GET.get('unassigned') == '1'
+        shown = [t for t in tables if not t.physical_table_id] if unassigned_only else tables
+        days = defaultdict(list)
+        for table in shown:
+            days[table.date].append(table)
+        return render(request, self.template_name, {
+            'location': location,
+            'stations': location.physical_tables.select_related('play_area'),
+            'days': sorted(days.items()),
+            'conflict_ids': conflict_ids,
+            'unassigned_only': unassigned_only,
+            'unassigned_count': sum(1 for t in tables if not t.physical_table_id),
+            'meta': Meta(title=_("Assign stations – %(name)s") % {'name': location.name}),
+        })
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        table = get_object_or_404(self._tables(location), pk=request.POST.get('table'))
+        station_id = request.POST.get('physical_table')
+        if station_id:
+            station = get_object_or_404(PhysicalTable, pk=station_id, location=location)
+            # The table follows the station's area, so the two never disagree.
+            table.physical_table, table.play_area = station, station.play_area
+        else:
+            table.physical_table = None
+        table.save(update_fields=['physical_table', 'play_area', 'updated_at'])
+
+        if table.physical_table_id and table.id in _station_conflict_ids(list(self._tables(location))):
+            messages.warning(request, _(
+                "Warning: this station is already booked by another table at an overlapping time."))
+        else:
+            messages.success(request, _("Station of «%(title)s» updated.") % {'title': table.title})
+        url = reverse('location-manage-station-assignment', kwargs={'slug': location.slug})
+        if request.POST.get('unassigned') == '1':
+            url += '?unassigned=1'
+        return redirect(f"{url}#table-{table.pk}")
+
+
+def _station_conflict_ids(tables):
+    """Ids of the tables that share a station with another table at an
+    overlapping time on the same date."""
+    by_slot = defaultdict(list)
+    for table in tables:
+        if table.physical_table_id:
+            by_slot[(table.date, table.physical_table_id)].append(table)
+    conflict_ids = set()
+    for same_station in by_slot.values():
+        for i, a in enumerate(same_station):
+            for b in same_station[i + 1:]:
+                if a.overlaps_with(b):
+                    conflict_ids.update((a.id, b.id))
+    return conflict_ids
+
+
 class LocationManageWidgetView(LoginRequiredMixin, View):
     """Show embeddable widget snippet for a location."""
 
@@ -1345,7 +1582,7 @@ class DisconnectTelegramGroupView(LoginRequiredMixin, View):
         return redirect('location-manage-telegram', slug=slug)
 
 
-class LocationManageTableStatsView(LoginRequiredMixin, View):
+class LocationManageTableSummaryView(LoginRequiredMixin, View):
     """Generate a copy-pasteable status message for tables in a date range."""
 
     def get(self, request, slug):
@@ -1389,7 +1626,7 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
         location_url = request.build_absolute_uri(reverse('location-detail', args=[location.slug]))
         message_text = self._build_message(list(tables), date_from, date_to, show_full, show_closed, show_names, location_url)
 
-        return render(request, 'locations/location_manage_table_stats.html', {
+        return render(request, 'locations/location_manage_table_summary.html', {
             'location': location,
             'date_from': date_from.isoformat(),
             'date_to': date_to.isoformat(),
@@ -1397,7 +1634,7 @@ class LocationManageTableStatsView(LoginRequiredMixin, View):
             'show_closed': show_closed,
             'show_names': show_names,
             'message_text': message_text,
-            'meta': Meta(title=_("Table stats – %(name)s") % {'name': location.name}),
+            'meta': Meta(title=_("Table summary – %(name)s") % {'name': location.name}),
         })
 
     def _build_message(self, tables, date_from, date_to, show_full, show_closed, show_names, location_url):
@@ -1480,13 +1717,14 @@ class DownloadGamesCSVView(LoginRequiredMixin, View):
 
         writer = csv.writer(response)
         writer.writerow([
-            _('Game'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
+            _('Game'), _('Tags'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
         ])
 
-        location_games = location.location_games.select_related('game', 'owner_member').all()
+        location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
         for lg in location_games:
             writer.writerow([
                 lg.game.name,
+                ', '.join(tag.name for tag in lg.tags.all()),
                 lg.get_ownership_display(),
                 str(lg.owner_member) if lg.owner_member else '',
                 lg.get_physical_location_display(),
