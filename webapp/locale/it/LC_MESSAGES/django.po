@@ -2573,6 +2573,50 @@ msgctxt "game imported from BGG"
 msgid "New"
 msgstr "Nuovo"
 
+msgid "Preview in the location list"
+msgstr "Anteprima nella lista delle location"
+
+msgid "Adjust crop"
+msgstr "Regola ritaglio"
+
+msgid ""
+"For the list, choose a square image. If it's a logo, leave some space around it."
+msgstr ""
+"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
+"spazio attorno."
+
+msgid "Crop image"
+msgstr "Ritaglia immagine"
+
+msgid ""
+"Move or resize the square, even beyond the image edges. Extra space is saved "
+"in white. Use the arrow keys and + or − to adjust it with the keyboard."
+msgstr ""
+"Sposta o ridimensiona il quadrato anche oltre i bordi dell'immagine. Lo "
+"spazio aggiunto sarà bianco. Da tastiera, usa le frecce e i tasti + o −."
+
+msgid "Fit whole image"
+msgstr "Inquadra tutta l'immagine"
+
+msgid "Use original"
+msgstr "Usa originale"
+
+msgid "Apply crop"
+msgstr "Applica ritaglio"
+
+msgid "Loading…"
+msgstr "Caricamento…"
+
+msgid ""
+"Could not open the crop editor. Use the original image or choose another "
+"file."
+msgstr ""
+"Impossibile aprire lo strumento di ritaglio. Usa l'immagine originale o "
+"scegli un altro file."
+
+msgid "Could not apply the crop. Try again or use the original image."
+msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
+
 msgid "Edit location"
 msgstr "Modifica location"
 
@@ -2945,9 +2989,6 @@ msgstr ""
 
 msgid "BoardGameGeek username"
 msgstr "Username BoardGameGeek"
-
-msgid "Loading…"
-msgstr "Caricamento…"
 
 msgid "Load collection"
 msgstr "Carica collezione"

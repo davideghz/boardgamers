@@ -1,8 +1,10 @@
 import datetime
+import re
 
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
 from webapp.models import Location, Table, UserProfile
 from webapp.factories import GameFactory, UserProfileFactory, LocationFactory, UserFactory
 
@@ -75,6 +77,24 @@ class LocationManagementTest(TestCase):
         self.client.force_login(self.regular_user.user)
         response = self.client.get(reverse('location-manage-data', kwargs={'slug': self.location.slug}))
         self.assertEqual(response.status_code, 403)
+
+    def test_manage_data_previews_the_saved_cover(self):
+        self.location.cover = 'location-covers/logo.png'
+        self.location.save(update_fields=['cover'])
+        self.client.force_login(self.manager.user)
+
+        response = self.client.get(reverse('location-manage-data', kwargs={'slug': self.location.slug}))
+
+        self.assertEqual(response.status_code, 200)
+        preview = re.search(
+            r'<figure\b[^>]*\sid="location-cover-preview"[^>]*>(.*?)</figure>',
+            response.text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(preview)
+        cover_url = re.escape(escape(self.location.cover.url))
+        self.assertRegex(preview[1], rf'<img\b[^>]*\ssrc="{cover_url}"')
+        self.assertContains(response, 'id="location-cover-dialog"')
 
     def test_add_manager(self):
         new_manager = UserProfileFactory()
