@@ -51,6 +51,23 @@
       {% if form.website.errors %}<p class="mt-1 text-xs text-red-500">{{ form.website.errors|join:", " }}</p>{% endif %}
     </div>
 
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.facebook_url.id_for_label }}">
+          {{ form.facebook_url.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+        </label>
+        {{ form.facebook_url }}
+        {% if form.facebook_url.errors %}<p id="{{ form.facebook_url.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ form.facebook_url.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.instagram_url.id_for_label }}">
+          {{ form.instagram_url.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
+        </label>
+        {{ form.instagram_url }}
+        {% if form.instagram_url.errors %}<p id="{{ form.instagram_url.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ form.instagram_url.errors|join:", " }}</p>{% endif %}
+      </div>
+    </div>
+
     {# ── Opening hours ────────────────────────────────────────────────── #}
     {{ form.opening_hours }}
     <div>
@@ -111,6 +128,28 @@
                {% if form.show_most_played_games.value %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
                     peer-checked:bg-blue-500
+                    after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                    after:bg-surface after:rounded-full after:h-5 after:w-5
+                    after:transition-all after:shadow-sm
+                    peer-checked:after:translate-x-5"></div>
+      </div>
+    </label>
+
+    {# ── Show stats toggle ───────────────────────────────── #}
+    <label for="{{ form.show_stats.id_for_label }}"
+           class="flex items-start justify-between gap-4 p-4 rounded-xl border border-divider bg-surface cursor-pointer hover:bg-surface-alt transition-colors">
+      <div>
+        <p class="text-sm font-semibold text-content">{% trans "Show stats" %}</p>
+        <p class="text-xs text-content-muted mt-0.5">{% trans "Show the total number of gamers and tables on the location page." %}</p>
+      </div>
+      <div class="relative flex-shrink-0 mt-0.5">
+        <input type="checkbox"
+               id="{{ form.show_stats.id_for_label }}"
+               name="{{ form.show_stats.html_name }}"
+               class="sr-only peer"
+               {% if form.show_stats.value %}checked{% endif %}>
+        <div class="w-11 h-6 rounded-full bg-surface-input
+                    peer-checked:bg-blue-500 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
                     after:bg-surface after:rounded-full after:h-5 after:w-5
                     after:transition-all after:shadow-sm

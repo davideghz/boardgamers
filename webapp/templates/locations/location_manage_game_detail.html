@@ -11,10 +11,55 @@
     </h1>
   </div>
 
+  {% if loan or location.enable_game_loans and location_game.is_lendable %}
+    <section class="mb-6 max-w-xl rounded-xl border border-divider bg-surface p-4">
+      <h2 class="text-sm font-bold text-content">{% trans "Game loans" %}</h2>
+      {% if loan %}
+        <p class="mt-2 text-sm text-content">
+          {% trans "On loan" %} · {% if loan.member.location_id == location.pk %}{{ loan.member.full_name }}{% else %}{% trans "Member unavailable" %}{% endif %}
+        </p>
+        <p class="mt-1 text-xs text-content-muted">
+          {% blocktrans with loan_date=loan.loaned_at|date:"DATE_FORMAT" due_date=loan.due_date|date:"DATE_FORMAT" %}Loaned on {{ loan_date }} · Due {{ due_date }}{% endblocktrans %}
+          {% if loan.is_overdue %} · {% trans "Overdue" %}{% endif %}
+        </p>
+        <form method="post" action="{% url 'location-game-loan-return' location.slug loan.uuid %}" class="mt-3">
+          {% csrf_token %}
+          <button type="submit" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Record return" %}</button>
+        </form>
+      {% else %}
+        <a href="{% url 'location-game-loan-create' location.slug location_game.uuid %}"
+           class="mt-3 inline-flex rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:opacity-90">{% trans "Record loan" %}</a>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {% if location_game.is_archived or has_loan_history %}
+    <section class="mb-6 max-w-xl rounded-xl border border-divider bg-surface p-4">
+      <h2 class="text-sm font-bold text-content">{% trans "Game archive" %}</h2>
+      {% if loan %}
+        <p class="mt-2 text-sm text-content-muted">{% trans "Record the return before archiving this game." %}</p>
+      {% else %}
+        {% if location_game.is_archived %}
+          <p class="mt-2 text-sm text-content-muted">{% trans "This game is archived." %}</p>
+        {% endif %}
+        <form method="post" action="{% url 'location-game-archive' location.slug location_game.uuid %}" class="mt-3">
+          {% csrf_token %}
+          <button type="submit" name="action" value="{% if location_game.is_archived %}restore{% else %}archive{% endif %}"
+                  class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">
+            {% if location_game.is_archived %}{% trans "Restore to library" %}{% else %}{% trans "Archive game" %}{% endif %}
+          </button>
+        </form>
+      {% endif %}
+    </section>
+  {% endif %}
+
   <form method="post"
         action="{% if is_new %}{% url 'location-add-game' location.slug %}{% else %}{% url 'location-game-detail' location.slug location_game.uuid %}{% endif %}"
         class="max-w-xl space-y-5">
     {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div role="alert" class="rounded-xl border border-divider bg-surface p-3 text-sm text-content">{{ form.non_field_errors }}</div>
+    {% endif %}
 
     {# ── Game picker (BGG modal) ──────────────────────────────────────── #}
     <div>
@@ -109,7 +154,7 @@
 
   </form>
 
-  {% if not is_new and location_game %}
+  {% if not is_new and location_game and not location_game.is_archived and not has_loan_history %}
     <div class="max-w-xl mt-8 pt-6 border-t border-divider-soft">
       <p class="text-xs text-content-muted mb-3">{% trans "Danger zone" %}</p>
       <button type="button" id="delete-btn"
@@ -180,7 +225,7 @@
   </script>
   {% endif %}
 
-  {% if not is_new and location_game %}
+  {% if not is_new and location_game and not location_game.is_archived and not has_loan_history %}
   <script>
     const deleteDialog = document.getElementById('delete-dialog');
     const deleteCancel = document.getElementById('delete-cancel');

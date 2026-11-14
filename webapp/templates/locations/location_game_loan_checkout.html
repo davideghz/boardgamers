@@ -1,0 +1,43 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags i18n %}
+
+{% block content %}
+  <div class="mb-6">
+    {% if form %}
+      {% back_link 'location-game-detail' location.slug location_game.uuid label=location_game.game.name %}
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Record loan" %}</h1>
+    {% else %}
+      {% back_link 'location-games' location.slug label=_("Games") %}
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Borrow game" %}</h1>
+    {% endif %}
+  </div>
+
+  <form method="post" class="max-w-xl space-y-4 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+    {% csrf_token %}
+    <h2 class="break-words text-lg font-bold text-content">{{ location_game.game.name }}</h2>
+    {% if form %}
+      {% if form.non_field_errors %}<div role="alert" class="text-sm text-content">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-semibold text-content">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div role="alert" class="mt-1 text-sm text-content">{{ field.errors }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-sm text-content">{% blocktrans with date=due_date|date:"DATE_FORMAT" %}Return by {{ date }}.{% endblocktrans %}</p>
+      <p class="text-sm text-content-muted">{% trans "Confirm once you have picked up the game at the location." %}</p>
+    {% endif %}
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+        {% if form %}{% trans "Record loan" %}{% else %}{% trans "Confirm pickup" %}{% endif %}
+      </button>
+      <a href="{% if form %}{% url 'location-game-detail' location.slug location_game.uuid %}{% else %}{% url 'location-games' location.slug %}{% endif %}"
+         class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block extrabodyjs %}
+  {{ form.media.js }}
+{% endblock extrabodyjs %}

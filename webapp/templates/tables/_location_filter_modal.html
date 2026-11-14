@@ -139,7 +139,7 @@
     show(loading);
     debounceTimer = setTimeout(function () {
       var token = ++searchToken;
-      fetch('{% url "location-search" %}?tables=1&q=' + encodeURIComponent(q))
+      fetch('{% url "location-search" %}?q=' + encodeURIComponent(q))
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (token !== searchToken) return;

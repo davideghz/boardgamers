@@ -656,7 +656,7 @@ class EventTableDetailView(BaseTableDetailView):
         )
         context.update({
             'event': event,
-            'is_event_manager': bool(user_profile and event.is_manager(user_profile)),
+            'is_event_manager': self.is_table_host,  # an event table: its host is the event
             'can_view_player_phones': can_view_player_phones,
         })
         return context

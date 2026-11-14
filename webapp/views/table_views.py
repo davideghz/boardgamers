@@ -28,8 +28,8 @@ from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
-    MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
-    duplicate_draft, duplicate_table, join_table,
+    MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_comment, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
+    comment_badges, duplicate_draft, duplicate_table, is_table_host, join_table,
     can_change_result_mode, leaderboard_turned_off, leave_table, remove_guest, save_table_result,
 )
 from webapp.views.decorators import only_author_or_admin_can_edit, only_admin_can_edit_closed_table, author_or_admin_required
@@ -68,20 +68,15 @@ class IsNotClosedMixin(UserPassesTestMixin):
         return super().handle_no_permission()
 
 
-def _filterable_locations():
-    """Locations whose tables are listed on the public tables page."""
-    return Location.objects.filter(show_tables_in_homepage=True)
-
-
 def _location_picker_sections(request):
     """Default cards for the location filter modal: the user's own and followed
     locations, falling back to the busiest ones (anonymous visitors included)."""
     if request.user.is_authenticated:
         profile = request.user.user_profile
-        own = list(_filterable_locations()
+        own = list(Location.objects
                    .filter(Q(creator=profile) | Q(managers=profile))
                    .distinct().order_by('name'))
-        followed = list(_filterable_locations()
+        followed = list(Location.objects
                         .filter(followers__user_profile=profile)
                         .exclude(id__in=[location.id for location in own])
                         .distinct().order_by('name'))
@@ -89,7 +84,7 @@ def _location_picker_sections(request):
                     [(_("Your locations"), own), (_("Followed locations"), followed)] if locations]
         if sections:
             return sections
-    popular = list(_filterable_locations()
+    popular = list(Location.objects
                    .annotate(tables_count=Count('tables'))
                    .filter(tables_count__gt=0)
                    .order_by('-tables_count', 'name')[:6])
@@ -123,6 +118,7 @@ class TableIndexView(generic.ListView):
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
         qs = (Table.objects
+              .filter(event__isnull=True)
               .select_related('author', 'author__user', 'location')
               .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
               .annotate(distance=DbDistance('location__point', user_point)))
@@ -132,11 +128,7 @@ class TableIndexView(generic.ListView):
         self.q = self.request.GET.get('q', '').strip()
 
         if self.location_slug:
-            # An explicit location filter shows the same tables as the location's own page,
-            # even when the location keeps them out of the public listing.
             qs = qs.filter(location__slug=self.location_slug)
-        else:
-            qs = qs.filter(location__show_tables_in_homepage=True)
         if self.q:
             qs = qs.filter(Q(title__icontains=self.q) | Q(description__icontains=self.q))
 
@@ -258,6 +250,12 @@ class BaseTableDetailView(generic.DetailView):
         current_players = players.count() + external_players
 
         profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        # Reused by the subclasses for their own manager checks
+        self.is_table_host = is_table_host(profile, table)
+        comments = list(table.comments.all())
+        badges = comment_badges(table, comments)
+        for comment in comments:
+            comment.badge = badges.get(comment.author_id)
         user_can_edit_leaderboard = can_edit_leaderboard(profile, table)
         leaderboard = _leaderboard_context(table, list(players), profile, user_can_edit_leaderboard)
         leaderboard_visible = leaderboard['compiled']
@@ -283,6 +281,8 @@ class BaseTableDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
+            'can_comment': can_comment(profile, table, is_host=self.is_table_host),
+            'comments': comments,
             'available_seats': max_players - current_players,
             'available_seats_range': range(max(0, max_players - current_players)),
             'current_players': current_players,
@@ -305,11 +305,14 @@ class BaseTableDetailView(generic.DetailView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if 'comment_form' in request.POST:
+            profile = request.user.user_profile if request.user.is_authenticated else None
+            if not can_comment(profile, self.object):
+                raise PermissionDenied
             form = CommentForm(request.POST)
             if form.is_valid():
                 comment = form.save(commit=False)
                 comment.table = self.object
-                comment.author = request.user.user_profile
+                comment.author = profile
                 comment.save()
                 return self.get_comment_redirect()
         context = self.get_context_data(object=self.object)
@@ -334,11 +337,10 @@ class TableDetailView(BaseTableDetailView):
 
         is_active_member = False
         has_pending_membership = False
-        is_location_manager = False
+        is_location_manager = self.is_table_host  # a location table: its host is the location
         if self.request.user.is_authenticated and table.location:
             up = self.request.user.user_profile
             loc = table.location
-            is_location_manager = loc.creator == up or up in loc.managers.all()
             if not is_location_manager:
                 has_pending_membership = Membership.objects.filter(
                     member__location=loc,

@@ -4,6 +4,7 @@ from django.urls import path, include
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
+from .views import game_loan_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.location_views import FollowLocationView
 
@@ -131,6 +132,14 @@ urlpatterns = [
          name="location-toggle-public-games"),
     path("locations/<slug:slug>/games/", location_views.LocationGamesView.as_view(),
          name="location-games"),
+    path("locations/<slug:slug>/games/<uuid:game_uuid>/borrow/", game_loan_views.LocationGameLoanBorrowView.as_view(),
+         name="location-game-loan-borrow"),
+    path("locations/<slug:slug>/manage/games/loans/", game_loan_views.LocationGameLoanManageView.as_view(),
+         name="location-manage-game-loans"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/loans/add/", game_loan_views.LocationGameLoanCreateView.as_view(),
+         name="location-game-loan-create"),
+    path("locations/<slug:slug>/manage/games/loans/<uuid:loan_uuid>/return/", game_loan_views.LocationGameLoanReturnView.as_view(),
+         name="location-game-loan-return"),
     path("locations/<slug:slug>/manage/games/csv/", location_views.DownloadGamesCSVView.as_view(),
          name="location-games-csv"),
     path("locations/<slug:slug>/manage/games/add/", location_views.AddLocationGameView.as_view(),
@@ -139,6 +148,8 @@ urlpatterns = [
          name="location-game-detail"),
     path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/delete/", location_views.DeleteLocationGameView.as_view(),
          name="location-delete-game"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/archive/", location_views.LocationGameArchiveView.as_view(),
+         name="location-game-archive"),
     path("locations/<slug:slug>/manage/games/import-bgg/", location_views.LocationGamesBGGImportView.as_view(),
          name="location-games-bgg-import"),
     path("locations/<slug:slug>/manage/games/import-bgg/batch/", location_views.LocationGamesBGGImportBatchView.as_view(),

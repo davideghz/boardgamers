@@ -12,6 +12,7 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag
+from webapp.services.game_loans import active_members, default_loan_due_date
 from webapp.services.images import COVER_MAX_SIDE
 
 from django.urls import reverse
@@ -202,16 +203,19 @@ class MemberPickerWidget(SearchPickerWidget):
     placeholder = _('Name or nickname…')
     no_results_text = _('No members found.')
 
-    def __init__(self, location, attrs=None, button_label=None):
+    def __init__(self, location, attrs=None, button_label=None, *, active_only=False):
         super().__init__(attrs, button_label)
         self.location = location
+        self.active_only = active_only
 
     def get_search_url(self):
-        return reverse('member-search', kwargs={'slug': self.location.slug})
+        url = reverse('member-search', kwargs={'slug': self.location.slug})
+        return url + '?active=1' if self.active_only else url
 
     def get_item(self, value):
         from webapp.api.search_views import member_result
-        member = self.location.members.select_related('user_profile').filter(pk=value).first()
+        members = active_members(self.location) if self.active_only else self.location.members.all()
+        member = members.select_related('user_profile').filter(pk=value).first()
         return member and member_result(member)
 
 
@@ -677,7 +681,21 @@ class LocationManageDataForm(LocationForm):
     """LocationForm plus the settings that only the management page shows."""
 
     class Meta(LocationForm.Meta):
-        fields = LocationForm.Meta.fields + ['leaderboard_edit_days', 'show_most_played_games', 'show_top_gamers']
+        fields = LocationForm.Meta.fields + [
+            'facebook_url', 'instagram_url', 'leaderboard_edit_days',
+            'show_most_played_games', 'show_stats', 'show_top_gamers',
+        ]
+        widgets = {
+            **LocationForm.Meta.widgets,
+            'facebook_url': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'facebook.com/…',
+            }),
+            'instagram_url': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'instagram.com/…',
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1143,7 +1161,35 @@ class LocationGameForm(ModelForm, TailwindForm):
         # When the game belongs to the location, no member owner makes sense
         if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
             cleaned['owner_member'] = None
+        if self.instance.pk:
+            if 'game' in self.changed_data and self.instance.loans.exists():
+                raise ValidationError(_('A game with loan history cannot be replaced.'))
+            if {'ownership', 'physical_location'} & set(self.changed_data):
+                if self.instance.loans.filter(returned_at__isnull=True).exists():
+                    raise ValidationError(_('Record the return before changing the ownership or physical location.'))
         return cleaned
+
+
+class LocationGameLoanForm(TailwindForm):
+    member = ModelChoiceField(queryset=Member.objects.none(), label=_('Member'))
+    due_date = DateField(label=_('Due date'), widget=CustomDateInputWidget())
+
+    def __init__(self, *args, location, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['member'].queryset = active_members(location)
+        self.fields['member'].widget = MemberPickerWidget(location, active_only=True)
+        self.initial.setdefault('due_date', default_loan_due_date(location))
+
+
+class LocationGameLoanSettingsForm(ModelForm, TailwindForm):
+    class Meta:
+        model = Location
+        fields = ['enable_game_loans', 'game_loan_days', 'enable_member_game_loans', 'show_game_loan_borrower']
+        help_texts = {
+            'enable_game_loans': _('When disabled, managers can still record returns and view loan history.'),
+            'enable_member_game_loans': _('Members with a valid membership can confirm pickup themselves.'),
+            'show_game_loan_borrower': _('Only members with a valid membership at this location see the nickname.'),
+        }
 
 
 class BGGCollectionImportForm(TailwindForm):
