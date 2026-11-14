@@ -5,10 +5,11 @@ from django.utils.html import escape
 from django.urls import reverse
 from django.utils.translation import ngettext
 import boto3
+from collections import defaultdict
 import json
 import logging
 
-from webapp.models import Notification, NotificationType
+from webapp.models import Location, Notification, NotificationType, PhysicalTable
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,8 @@ class Command(BaseCommand):
             'recipient', 'recipient__user',
             'table', 'table__game', 'table__location', 'table__author',
         )
+        notifications = list(notifications)
+        station_href = _station_assignment_hrefs(notifications)
 
         # Costruisce le entry del batch, saltando gli utenti senza email o che
         # hanno disattivato le notifiche email per i nuovi tavoli.
@@ -96,6 +99,8 @@ class Command(BaseCommand):
                     'description': escape(description).replace("\n", "<br>") if description else "",
                     'description_text': description,
                     'button_href': _table_url(table),
+                    # Al proprietario/manager della location: suggerisce di assegnare una postazione
+                    'assign_station_href': station_href(table, profile),
                 })
                 valid_notifications.append(n)
                 bulk_entries.append(_bulk_entry(n.recipient.user.email, template_data))
@@ -189,6 +194,28 @@ class Command(BaseCommand):
                 # Qui potremmo implementare un retry o loggare l'errore specifico
 
         return total_sent
+
+
+def _station_assignment_hrefs(notifications):
+    """Restituisce una funzione (table, profile) -> URL di modifica del tavolo quando
+    `profile` è proprietario/manager della location e il tavolo può avere una
+    postazione (la location ne ha, il tavolo no), altrimenti "". Lo staff e le
+    location con postazioni si leggono una volta sola per tutto il lotto (2 query)."""
+    location_ids = {n.table.location_id for n in notifications if n.table.location_id and not n.table.event_id}
+    staff = defaultdict(set)
+    for location_id, creator_id, manager_id in Location.objects.filter(
+            id__in=location_ids).values_list('id', 'creator_id', 'managers'):
+        staff[location_id].update(i for i in (creator_id, manager_id) if i)
+    with_stations = set(PhysicalTable.objects.filter(
+        location_id__in=location_ids).values_list('location_id', flat=True).distinct())
+
+    def href(table, profile):
+        if (table.location_id in with_stations and table.physical_table_id is None and not table.event_id
+                and profile.id in staff[table.location_id]):
+            return settings.DOMAIN_URL + reverse(
+                'location-table-update', kwargs={'location_slug': table.location.slug, 'table_slug': table.slug})
+        return ''
+    return href
 
 
 def _table_url(table):

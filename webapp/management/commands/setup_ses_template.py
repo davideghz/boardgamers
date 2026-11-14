@@ -25,7 +25,8 @@ class Command(BaseCommand):
                 'subject': "Nuovo tavolo{{#if game_text}}: {{game_text}}{{/if}}",
                 'html': 'emails/email_notification_new_table_html.html',
                 'text': 'emails/email_notification_new_table.html',
-                'placeholders': ['title', 'game', 'creator_name', 'date', 'time', 'location_name', 'button_href'],
+                'placeholders': ['title', 'game', 'creator_name', 'date', 'time', 'location_name', 'button_href',
+                                 'assign_station_href'],
                 'escaped': ['name', 'title', 'game', 'creator_name', 'location_name'],
             },
             {
