@@ -7,7 +7,8 @@ For the local setup (PostgreSQL + PostGIS, GDAL/GEOS, `.env`), see the [Readme](
 
 - **`master` is production.** The Heroku pipeline deploys every commit on `master`, and
   migrations run automatically in the release phase. `master` is protected: nobody pushes to it
-  directly, every change goes through a pull request, and only the maintainer merges.
+  directly, every change goes through a pull request, and only the maintainer merges, after
+  trying the change locally as an anonymous visitor, a regular user and a location manager.
 - Fork the repo (or create a branch if you have access) and open a PR against `master`.
 - Keep PRs small and focused on one thing: one feature or one fix per PR.
 - Before opening the PR, rebase on the latest `master`.
@@ -37,6 +38,7 @@ python manage.py test webapp.tests
   that GDAL/GEOS are found.
 - New behaviour should come with tests in `webapp/tests/` (see the existing `test_*.py` files).
   `webapp/factories.py` has factories for the main models.
+- Test the permissions too, not only the normal case: a user who isn't allowed gets a 403 or 404.
 
 ## Database migrations
 
@@ -47,7 +49,9 @@ Migrations are numbered, and two PRs that both add `00NN_…` will conflict.
 - If `master` gained a new migration while your PR was open: rebase, **delete your migration and
   regenerate it** so that it depends on the latest one. Don't commit merge migrations.
 - Data migrations must be reversible, or at least safe to run on production data: they run
-  automatically on deploy.
+  automatically on deploy. Running one twice must do no harm.
+- New fields need a sensible default, so existing rows stay valid. Avoid operations that lock a
+  big table for a long time.
 
 ## Translations (i18n)
 
@@ -99,6 +103,40 @@ python manage.py compilemessages
 - Follow the style of the surrounding code (naming, comment density, idioms).
 - Don't commit secrets, `.env`, production data dumps, or IDE folders.
 
+## Security
+
+- Every view that changes data checks permissions (see [Code](#code)) and only accepts POST.
+- Objects taken from the URL belong to the location or user they claim to: changing an id in the
+  URL must not give access to someone else's data.
+- User content is rendered through `render_markdown` or Django's auto-escaping. No new `|safe`
+  on user input. Email templates sent through AWS SES are not escaped by SES, so values must be
+  escaped before they are passed in.
+- Uploads have a size and type limit, and images are resized like the existing ones.
+- New personal data (contacts, member data) is visible only to who needs it.
+- Don't open public issues for vulnerabilities: see [SECURITY.md](SECURITY.md).
+
+## Performance
+
+- No extra queries on high-traffic pages (home, location, event and table pages) unless needed.
+  Watch for N+1 queries in templates: use `select_related` / `prefetch_related`, and consider an
+  `assertNumQueries` test for hot pages.
+- New filters or orderings on large tables come with an index.
+- Lists that can grow are paginated or capped.
+- No slow work inside the request: Heroku cuts requests at 30 seconds and there are few workers.
+  Sending many emails, calling external services in a loop or processing big files goes in
+  smaller chunks or in a management command.
+- New external dependencies (Python packages, CDN scripts, third-party APIs) need a good reason.
+
+## UX
+
+- New features are opt-in where possible: off or hidden until a user or manager turns them on,
+  like the member registry (`enable_membership`).
+- Existing flows don't get harder: no new required fields or extra steps for users who don't use
+  the new feature.
+- Notifications respect the user's settings and don't flood: one notification for a batch of
+  changes, not one per change.
+- New public pages have a title and meta/Open Graph tags, like the existing ones.
+
 ## Pull request checklist
 
 The PR template repeats this list:
@@ -108,10 +146,6 @@ The PR template repeats this list:
 - [ ] Migrations regenerated after rebase (if any)
 - [ ] `.po` updated and `.mo` recompiled (if strings changed)
 - [ ] Checked in light and dark mode and on mobile (if UI changed)
-
-## Security
-
-Don't open public issues for vulnerabilities: see [SECURITY.md](SECURITY.md).
 
 ## License
 
