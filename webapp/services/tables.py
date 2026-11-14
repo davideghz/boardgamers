@@ -53,6 +53,57 @@ def is_active_member(profile, location):
     ).exists()
 
 
+def is_table_host(profile, table):
+    """The managers of the table's location, or of its event."""
+    if profile is None:
+        return False
+    if table.location_id:
+        return table.location.is_manager(profile)
+    if table.event_id:
+        return table.event.is_manager(profile)
+    return False
+
+
+def can_comment(profile, table, is_host=None):
+    """Players, the table's author and the location or event managers may comment.
+
+    `is_host` is an `is_table_host` result the caller already has, to skip its query.
+    """
+    if profile is None:
+        return False
+    if table.author_id == profile.id:
+        return True
+    if is_host is None:
+        is_host = is_table_host(profile, table)
+    return is_host or table.players.filter(pk=profile.pk).exists()
+
+
+COMMENT_BADGE_ORGANIZER = 'organizer'
+COMMENT_BADGE_MANAGER = 'manager'
+
+
+def comment_badges(table, comments):
+    """Badge of each comment author who organizes the table or manages its location or event.
+
+    Returns {author id: badge}. One query at most, only when some author may be a manager.
+    """
+    author_ids = {c.author_id for c in comments if c.comment_type == CommentType.USER and c.author_id}
+    host = table.location if table.location_id else table.event if table.event_id else None
+    host_ids = set()
+    if host is not None:
+        host_ids.add(host.creator_id)
+        others = author_ids - {table.author_id, host.creator_id}
+        if others:
+            host_ids.update(host.managers.filter(id__in=others).values_list('id', flat=True))
+    badges = {}
+    for author_id in author_ids:
+        if author_id == table.author_id:
+            badges[author_id] = COMMENT_BADGE_ORGANIZER
+        elif author_id in host_ids:
+            badges[author_id] = COMMENT_BADGE_MANAGER
+    return badges
+
+
 def can_manage_roster(profile, table):
     """Who may add or remove *other people* at a table.
 
