@@ -672,7 +672,20 @@ class LocationManageDataForm(LocationForm):
     """LocationForm plus the settings that only the management page shows."""
 
     class Meta(LocationForm.Meta):
-        fields = LocationForm.Meta.fields + ['leaderboard_edit_days', 'show_most_played_games', 'show_top_gamers']
+        fields = LocationForm.Meta.fields + [
+            'facebook_url', 'instagram_url', 'leaderboard_edit_days', 'show_most_played_games', 'show_top_gamers',
+        ]
+        widgets = {
+            **LocationForm.Meta.widgets,
+            'facebook_url': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'facebook.com/…',
+            }),
+            'instagram_url': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'instagram.com/…',
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

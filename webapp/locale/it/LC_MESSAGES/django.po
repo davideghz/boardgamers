@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 01:12+0100\n"
+"POT-Creation-Date: 2026-11-14 11:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -376,6 +376,18 @@ msgstr "Espansione"
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
+
+msgid "Facebook profile"
+msgstr "Profilo Facebook"
+
+msgid "Enter a Facebook profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Facebook."
+
+msgid "Instagram profile"
+msgstr "Profilo Instagram"
+
+msgid "Enter an Instagram profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Instagram."
 
 msgid "Default table time"
 msgstr "Orario default dei tavoli"

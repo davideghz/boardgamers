@@ -204,6 +204,21 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     show_most_played_games = models.BooleanField(default=True)
     show_top_gamers = models.BooleanField(default=True)
     website = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(
+        _('Facebook profile'), blank=True, max_length=500,
+        validators=[RegexValidator(
+            r'\Ahttps?://(?:(?:www|m|web)\.)?(?:facebook\.com|fb\.com)/'
+            r'(?:[\w.-]+|(?:people|pages|p)/[^/?#]+(?:/\d+)?|share/[\w-]+)/?(?:[?#]|\Z)',
+            _('Enter a Facebook profile URL.'), flags=re.IGNORECASE,
+        )],
+    )
+    instagram_url = models.URLField(
+        _('Instagram profile'), blank=True, max_length=500,
+        validators=[RegexValidator(
+            r'\Ahttps?://(?:www\.)?instagram\.com/[\w.]+/?(?:[?#]|\Z)',
+            _('Enter an Instagram profile URL.'), flags=re.IGNORECASE,
+        )],
+    )
     opening_hours = models.JSONField(null=True, blank=True)
     default_table_time = models.TimeField(
         default=datetime.time(20, 30),
