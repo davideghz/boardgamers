@@ -2833,6 +2833,12 @@ msgstr ""
 "Se attivato, la pagina della sede mostra i giochi più giocati e i relativi "
 "vincitori."
 
+msgid "Show stats"
+msgstr "Mostra statistiche"
+
+msgid "Show the total number of gamers and tables on the location page."
+msgstr "Mostra il numero totale di giocatori e tavoli nella pagina della location."
+
 msgid "Show top gamers"
 msgstr "Mostra la classifica dei giocatori"
 

@@ -203,6 +203,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     enable_public_games = models.BooleanField(default=True)
     # Sections of the public location page the managers can hide.
     show_most_played_games = models.BooleanField(default=True)
+    show_stats = models.BooleanField(default=True)
     show_top_gamers = models.BooleanField(default=True)
     enable_game_loans = models.BooleanField(default=False, verbose_name=_('Enable game loans'))
     enable_member_game_loans = models.BooleanField(
