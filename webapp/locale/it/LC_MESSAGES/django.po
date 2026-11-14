@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-14 13:32+0100\n"
+"POT-Creation-Date: 2026-11-14 16:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4105,8 +4105,10 @@ msgstr "Scrivi un commento..."
 msgid "Send comment"
 msgstr "Invia commento"
 
-msgid "Only participants and location managers can comment on this page."
-msgstr "Solo i partecipanti e i gestori della location possono commentare in questa pagina."
+msgid "Only players, the organizer and the managers can comment on this page."
+msgstr ""
+"Solo i giocatori, l'organizzatore e i gestori possono commentare in questa "
+"pagina."
 
 #, python-format
 msgid "%(nickname)s joined the table"
@@ -4131,6 +4133,13 @@ msgstr "%(name)s (ospite) si è unito al tavolo"
 #, python-format
 msgid "%(name)s (guest) left the table"
 msgstr "%(name)s (ospite) ha lasciato il tavolo"
+
+msgid "Organizer"
+msgstr "Organizzatore"
+
+msgctxt "comment badge"
+msgid "Manager"
+msgstr "Gestore"
 
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
