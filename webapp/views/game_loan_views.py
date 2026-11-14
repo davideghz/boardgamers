@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 from django.views import View
 from django.views.decorators.cache import never_cache
+from meta.views import Meta
 
 from webapp.forms import LocationGameLoanForm, LocationGameLoanSettingsForm
 from webapp.models import Location
@@ -48,6 +49,7 @@ class LocationGameLoanManageView(LoginRequiredMixin, View):
             'paginator': paginator,
             'page_obj': page_obj,
             'is_paginated': page_obj.has_other_pages(),
+            'meta': Meta(title=_("Game loans – %(name)s") % {'name': location.name}),
         })
 
     def get(self, request, slug):
@@ -73,6 +75,8 @@ class LocationGameLoanCreateView(LoginRequiredMixin, View):
     def render_page(self, request, location_game, form):
         return render(request, 'locations/location_game_loan_checkout.html', {
             'location': location_game.location, 'location_game': location_game, 'form': form,
+            'meta': Meta(title=_("%(game)s – %(name)s") % {
+                'game': location_game.game.name, 'name': location_game.location.name}),
         })
 
     def dispatch(self, request, slug, game_uuid):
@@ -117,6 +121,7 @@ class LocationGameLoanBorrowView(LoginRequiredMixin, View):
             return redirect('location-games', slug=slug)
         return render(request, 'locations/location_game_loan_checkout.html', {
             'location': location, 'location_game': location_game, 'due_date': default_loan_due_date(location),
+            'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
         })
 
     def post(self, request, slug, game_uuid):
