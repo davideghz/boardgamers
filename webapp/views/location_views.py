@@ -10,13 +10,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef, Max
+from django.db.models.deletion import RestrictedError
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django.utils.translation import gettext, gettext_lazy as _
 from django.views import generic, View
+from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, CreateView
 
 from meta.views import Meta
@@ -29,6 +33,7 @@ from webapp.models import Location, Table, UserProfile, Comment, Game, LocationF
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
+from webapp.services import game_loans
 from webapp.services.tables import reopen_location_leaderboards
 
 logger = logging.getLogger(__name__)
@@ -218,7 +223,12 @@ class LocationDetailView(DetailView):
         context['tables_count'] = past_tables_count + future_tables_count
         context['total_gamers_count'] = total_gamers_count
         context['popular_games'] = popular_games
-        context['has_library_games'] = location.location_games.exists()
+        context['has_library_games'] = location.location_games.filter(is_archived=False).exists()
+        context['can_view_game_library'] = context['has_library_games'] and (
+            location.enable_public_games or game_loans.can_view_game_library(
+                location, is_member=game_loans.is_active_member(location, user_profile),
+            )
+        )
         context['player_stats'] = player_stats
         context['is_following'] = is_following
         context['is_manager'] = is_manager
@@ -1024,8 +1034,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
 
 def _check_location_manager(request, location):
     """Raise PermissionDenied if the current user is not owner or manager of the location."""
-    user_profile = request.user.user_profile
-    if location.creator != user_profile and user_profile not in location.managers.all():
+    if not location.is_manager(request.user.user_profile):
         raise PermissionDenied(_("You don't have permission to manage this location."))
 
 
@@ -1038,7 +1047,7 @@ class LocationManageGamesView(LoginRequiredMixin, View):
         location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
         return render(request, 'locations/location_manage_games.html', {
             'location': location,
-            'location_games': location_games,
+            'location_games': game_loans.with_game_loan_status(location_games),
             'tags': location.game_tags.all(),
             'tag_form': LocationGameTagForm(location=location),
             'meta': Meta(title=_("Games – %(name)s") % {'name': location.name}),
@@ -1060,24 +1069,32 @@ class TogglePublicGamesView(LoginRequiredMixin, View):
         return redirect('location-manage-games', slug=location.slug)
 
 
+@method_decorator(never_cache, name='dispatch')
 class LocationGamesView(View):
-    """Public list of the games in a location's library, when the managers publish it."""
+    """Browse the library, with loan details for the location's active members."""
 
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        if not location.enable_public_games:
+        profile = getattr(request.user, 'user_profile', None)
+        is_member = game_loans.is_active_member(location, profile)
+        if not game_loans.can_view_game_library(location, is_member=is_member):
             raise Http404
         q = request.GET.get('q', '').strip()
-        location_games = location.location_games.select_related('game')
+        location_games = location.location_games.filter(is_archived=False).select_related('game')
         total_count = location_games.count()
         if q:
             location_games = location_games.filter(game__name__icontains=q)
+        location_games = game_loans.with_game_loan_status(
+            location_games, include_dates=is_member,
+            include_borrower=is_member and location.show_game_loan_borrower,
+        )
         # pk as tie-breaker keeps pages stable across games with the same name
         paginator = Paginator(location_games.order_by('game__name', 'pk'), 16)
         page_obj = paginator.get_page(request.GET.get('page'))
         return render(request, 'locations/location_games.html', {
             'location': location,
             'location_games': page_obj.object_list,
+            'can_borrow': is_member and location.enable_game_loans and location.enable_member_game_loans,
             'total_count': total_count,
             'q': q,
             'paginator': paginator,
@@ -1125,38 +1142,40 @@ class AddLocationGameView(LoginRequiredMixin, View):
         })
 
 
+@method_decorator(never_cache, name='dispatch')
 class LocationGameDetailView(LoginRequiredMixin, View):
     """Edit details of a game in a location's library."""
+
+    def render_page(self, request, location, location_game, form):
+        loan = game_loans.open_game_loans(location=location, location_game=location_game).select_related('member').first()
+        return render(request, 'locations/location_manage_game_detail.html', {
+            'location': location,
+            'location_game': location_game,
+            'loan': loan,
+            'has_loan_history': loan is not None or location_game.loans.exists(),
+            'form': form,
+            'is_new': False,
+            'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
+        })
 
     def get(self, request, slug, game_uuid):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        location_game = get_object_or_404(LocationGame, uuid=game_uuid, location=location)
-        form = LocationGameForm(instance=location_game, location=location)
-        return render(request, 'locations/location_manage_game_detail.html', {
-            'location': location,
-            'location_game': location_game,
-            'form': form,
-            'is_new': False,
-            'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
-        })
+        location_game = get_object_or_404(location.location_games.select_related('game'), uuid=game_uuid)
+        return self.render_page(request, location, location_game, LocationGameForm(instance=location_game, location=location))
 
     def post(self, request, slug, game_uuid):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        location_game = get_object_or_404(LocationGame, uuid=game_uuid, location=location)
-        form = LocationGameForm(request.POST, instance=location_game, location=location)
-        if form.is_valid():
-            form.save()
-            messages.success(request, _("Game updated successfully."))
-            return redirect('location-manage-games', slug=location.slug)
-        return render(request, 'locations/location_manage_game_detail.html', {
-            'location': location,
-            'location_game': location_game,
-            'form': form,
-            'is_new': False,
-            'meta': Meta(title=_("%(game)s – %(name)s") % {'game': location_game.game.name, 'name': location.name}),
-        })
+        with transaction.atomic():
+            location_game = get_object_or_404(location.location_games.select_for_update(), uuid=game_uuid)
+            form = LocationGameForm(request.POST, instance=location_game, location=location)
+            if form.is_valid():
+                form.save()
+                messages.success(request, _("Game updated successfully."))
+                return redirect('location-manage-games', slug=location.slug)
+        location_game.refresh_from_db()
+        return self.render_page(request, location, location_game, form)
 
 
 BGG_IMPORT_BATCH_SIZE = 10  # games per request: keeps BGG calls and cover downloads under the Heroku timeout
@@ -1311,15 +1330,43 @@ class LocationGameTagsReorderView(LoginRequiredMixin, View):
             return JsonResponse({'success': False}, status=400)
 
 
+class LocationGameArchiveView(LoginRequiredMixin, View):
+    def post(self, request, slug, game_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        action = request.POST.get('action')
+        if action not in ('archive', 'restore'):
+            return HttpResponse(status=400)
+
+        with transaction.atomic():
+            location_game = get_object_or_404(location.location_games.select_for_update(), uuid=game_uuid)
+            is_archived = action == 'archive'
+            if is_archived and game_loans.open_game_loans(location_game=location_game).exists():
+                messages.error(request, _('Record the return before archiving this game.'))
+            else:
+                location_game.is_archived = is_archived
+                location_game.save(update_fields=['is_archived', 'updated_at'])
+                if is_archived:
+                    messages.success(request, _('Game archived.'))
+                else:
+                    messages.success(request, _('Game restored to the library.'))
+        return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
+
+
 class DeleteLocationGameView(LoginRequiredMixin, View):
     """Remove a game from a location's library."""
 
     def post(self, request, slug, game_uuid):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        location_game = get_object_or_404(LocationGame, uuid=game_uuid, location=location)
-        game_name = location_game.game.name
-        location_game.delete()
+        try:
+            with transaction.atomic():
+                location_game = get_object_or_404(location.location_games.select_for_update(), uuid=game_uuid)
+                game_name = location_game.game.name
+                location_game.delete()
+        except RestrictedError:
+            messages.error(request, _("This game cannot be removed because it has loan history."))
+            return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
         messages.success(request, _("Game «%(name)s» removed from the library.") % {'name': game_name})
         return redirect('location-manage-games', slug=location.slug)
 
@@ -1720,7 +1767,7 @@ class DownloadGamesCSVView(LoginRequiredMixin, View):
             _('Game'), _('Tags'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
         ])
 
-        location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
+        location_games = location.location_games.filter(is_archived=False).select_related('game', 'owner_member').prefetch_related('tags')
         for lg in location_games:
             writer.writerow([
                 lg.game.name,

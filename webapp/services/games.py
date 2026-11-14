@@ -59,7 +59,7 @@ def differing_fields(game_a, game_b):
 
 def library_conflicts(keeper, duplicate):
     """Locations that have both games in their library."""
-    return list(
+    return (
         LocationGame.objects.filter(game=duplicate, location__location_games__game=keeper)
         .select_related('location')
     )
@@ -110,7 +110,7 @@ def merge_games(keeper, duplicate, choices):
         tables_moved = Table.objects.filter(game=duplicate).update(game=keeper)
 
         library_merged = 0
-        for entry in library_conflicts(keeper, duplicate):
+        for entry in library_conflicts(keeper, duplicate).select_for_update(of=('self',)).order_by('pk'):
             kept = LocationGame.objects.get(location=entry.location, game=keeper)
             kept.tags.add(*entry.tags.all())
             if entry.notes.strip():

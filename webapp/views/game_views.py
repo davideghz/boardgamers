@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from meta.views import Meta
 
 from webapp.models import Game, Location
+from webapp.services.game_loans import can_view_game_library, is_active_member
 
 
 class GameListView(ListView):
@@ -48,14 +49,24 @@ class GameDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        game = self.get_object()
+        game = self.object
         context['table_count'] = game.table_count
         context['player_count'] = game.player_count
-        context['meta'] = self.get_object().as_meta(self.request)
+        context['meta'] = game.as_meta(self.request)
         context['locations'] = (
             Location.objects
             .filter(tables__game=game)
             .annotate(game_table_count=Count('tables', distinct=True))
             .order_by('-game_table_count')
         )
+        params = self.request.GET
+        from_location = params.get('from_location')
+        if from_location:
+            location = Location.objects.filter(
+                slug=from_location, location_games__game=game, location_games__is_archived=False,
+            ).first()
+            profile = getattr(self.request.user, 'user_profile', None)
+            if location and can_view_game_library(location, is_member=is_active_member(location, profile)):
+                context['back_location'] = location
+                context['back_library_query'] = {key: params[key] for key in ('q', 'page') if key in params}
         return context

@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from webapp.forms import USER_SEARCH_MIN_LENGTH
 from webapp.models import FavoriteUser, Location, UserProfile, Member
+from webapp.services.game_loans import active_members
 
 #: Maximum number of results returned by every search.
 SEARCH_LIMIT = 12
@@ -133,7 +134,7 @@ def member_search_view(request, slug):
     if not request.user.is_authenticated:
         return JsonResponse({'results': []}, status=403)
     profile = request.user.user_profile
-    if location.creator != profile and not location.managers.filter(pk=profile.pk).exists():
+    if not location.is_manager(profile):
         return JsonResponse({'results': []}, status=403)
     query = request.GET.get('q', '').strip()
     if not query:
@@ -142,7 +143,8 @@ def member_search_view(request, slug):
     for word in query.split():
         words &= (Q(first_name__icontains=word) | Q(last_name__icontains=word)
                   | Q(user_profile__nickname__icontains=word))
-    members = (location.members.filter(words)
+    queryset = active_members(location) if request.GET.get('active') == '1' else location.members.all()
+    members = (queryset.filter(words)
                .select_related('user_profile')
                .order_by(Lower('last_name'), Lower('first_name'))[:SEARCH_LIMIT])
     return JsonResponse({'results': [member_result(member) for member in members]})
