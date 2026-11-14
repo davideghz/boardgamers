@@ -28,7 +28,7 @@ from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
-    MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
+    MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_comment, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
     duplicate_draft, duplicate_table, join_table,
     can_change_result_mode, leaderboard_turned_off, leave_table, remove_guest, save_table_result,
 )
@@ -275,6 +275,7 @@ class BaseTableDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         context.update({
             'comment_form': CommentForm(),
+            'can_comment': can_comment(profile, table),
             'available_seats': max_players - current_players,
             'available_seats_range': range(max(0, max_players - current_players)),
             'current_players': current_players,
@@ -297,11 +298,14 @@ class BaseTableDetailView(generic.DetailView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if 'comment_form' in request.POST:
+            profile = request.user.user_profile if request.user.is_authenticated else None
+            if not can_comment(profile, self.object):
+                raise PermissionDenied
             form = CommentForm(request.POST)
             if form.is_valid():
                 comment = form.save(commit=False)
                 comment.table = self.object
-                comment.author = request.user.user_profile
+                comment.author = profile
                 comment.save()
                 return self.get_comment_redirect()
         context = self.get_context_data(object=self.object)

@@ -53,6 +53,15 @@ def is_active_member(profile, location):
     ).exists()
 
 
+def can_comment(profile, table):
+    """Participants and the hosting location's owner/managers may comment."""
+    if profile is None:
+        return False
+    if table.location_id and table.location.is_manager(profile):
+        return True
+    return table.players.filter(pk=profile.pk).exists()
+
+
 def can_manage_roster(profile, table):
     """Who may add or remove *other people* at a table.
 

@@ -4105,10 +4105,8 @@ msgstr "Scrivi un commento..."
 msgid "Send comment"
 msgstr "Invia commento"
 
-msgid "Only gamers that joined the table can comment on this page."
-msgstr ""
-"Solo i gamers che si sono uniti al tavolo possono commentare in questa "
-"pagina."
+msgid "Only participants and location managers can comment on this page."
+msgstr "Solo i partecipanti e i gestori della location possono commentare in questa pagina."
 
 #, python-format
 msgid "%(nickname)s joined the table"

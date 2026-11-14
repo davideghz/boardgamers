@@ -3,7 +3,7 @@
 <section>
   <h2 class="text-sm font-bold text-content mb-3">{% trans "Comments" %}</h2>
 
-  {% if user.user_profile in table.players.all %}
+  {% if can_comment %}
     <form class="mb-5" method="post">
       {% csrf_token %}
       <textarea name="content" rows="3"
@@ -18,7 +18,7 @@
   {% else %}
     <div class="flex items-center gap-2 text-xs text-content-muted bg-surface-alt rounded-xl px-4 py-3 mb-4">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
-      {% trans "Only gamers that joined the table can comment on this page." %}
+      {% trans "Only participants and location managers can comment on this page." %}
     </div>
   {% endif %}
 
