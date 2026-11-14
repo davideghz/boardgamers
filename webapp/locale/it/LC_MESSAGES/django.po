@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 01:12+0100\n"
+"POT-Creation-Date: 2026-11-14 13:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,8 @@ msgid "Games not found."
 msgstr "Giochi non trovati."
 
 msgid "The merge would remove a library entry with loan history."
-msgstr "L’unione eliminerebbe una voce della ludoteca con uno storico dei prestiti."
+msgstr ""
+"L’unione eliminerebbe una voce della ludoteca con uno storico dei prestiti."
 
 #, python-format
 msgid ""
@@ -165,18 +166,6 @@ msgstr "Indirizzo"
 msgid "Website"
 msgstr "Sito web"
 
-msgid "Facebook profile"
-msgstr "Profilo Facebook"
-
-msgid "Instagram profile"
-msgstr "Profilo Instagram"
-
-msgid "Enter a Facebook profile URL."
-msgstr "Inserisci l’indirizzo di un profilo Facebook."
-
-msgid "Enter an Instagram profile URL."
-msgstr "Inserisci l’indirizzo di un profilo Instagram."
-
 msgid "A button with a link needs a title."
 msgstr "Un pulsante con un link deve avere un titolo."
 
@@ -271,7 +260,9 @@ msgid "A game with loan history cannot be replaced."
 msgstr "Un gioco con uno storico dei prestiti non può essere sostituito."
 
 msgid "Record the return before changing the ownership or physical location."
-msgstr "Registra la restituzione prima di cambiare il proprietario o la collocazione del gioco."
+msgstr ""
+"Registra la restituzione prima di cambiare il proprietario o la collocazione "
+"del gioco."
 
 msgid "Member"
 msgstr "Associato/a"
@@ -280,7 +271,9 @@ msgid "Due date"
 msgstr "Data di rientro prevista"
 
 msgid "When disabled, managers can still record returns and view loan history."
-msgstr "Anche con i prestiti disattivati, i gestori possono registrare le restituzioni e consultare lo storico."
+msgstr ""
+"Anche con i prestiti disattivati, i gestori possono registrare le "
+"restituzioni e consultare lo storico."
 
 msgid "Members with a valid membership can confirm pickup themselves."
 msgstr "I soci con tessera valida possono registrare autonomamente il ritiro."
@@ -424,6 +417,18 @@ msgstr "Mostra ai soci il nickname di chi ha preso il gioco"
 
 msgid "Default loan duration (days)"
 msgstr "Durata predefinita del prestito (giorni)"
+
+msgid "Facebook profile"
+msgstr "Profilo Facebook"
+
+msgid "Enter a Facebook profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Facebook."
+
+msgid "Instagram profile"
+msgstr "Profilo Instagram"
+
+msgid "Enter an Instagram profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Instagram."
 
 msgid "Default table time"
 msgstr "Orario default dei tavoli"
@@ -937,7 +942,9 @@ msgstr "L'indirizzo email Google è già associato a un altro account."
 msgid ""
 "Ask a manager to record this loan. Your account is linked to more than one "
 "active member record."
-msgstr "Chiedi a un gestore di registrare il prestito. Il tuo profilo è collegato a più schede socio attive."
+msgstr ""
+"Chiedi a un gestore di registrare il prestito. Il tuo profilo è collegato a "
+"più schede socio attive."
 
 msgid "Game loans are disabled for this location."
 msgstr "I prestiti sono disattivati per questa sede."
@@ -946,7 +953,9 @@ msgid "This game is archived."
 msgstr "Questo gioco è archiviato."
 
 msgid "Only games owned by the location and kept on site can be borrowed."
-msgstr "Si possono prendere in prestito solo i giochi di proprietà della sede e custoditi in sede."
+msgstr ""
+"Si possono prendere in prestito solo i giochi di proprietà della sede e "
+"custoditi in sede."
 
 msgid "This game is already on loan."
 msgstr "Questo gioco è già in prestito."
@@ -958,7 +967,9 @@ msgid "This game is no longer in the library."
 msgstr "Questo gioco non è più in ludoteca."
 
 msgid "The due date cannot be before the loan date."
-msgstr "La data di rientro deve coincidere con la data di consegna o essere successiva."
+msgstr ""
+"La data di rientro deve coincidere con la data di consegna o essere "
+"successiva."
 
 msgid "Invalid value."
 msgstr "Valore non valido."
@@ -1777,6 +1788,13 @@ msgstr ""
 msgid "Description:"
 msgstr "Descrizione:"
 
+msgid ""
+"No station is assigned to this table yet: you can assign one by editing it "
+"(optional)."
+msgstr ""
+"Al tavolo non è ancora assegnata una postazione: puoi assegnarla modificando "
+"il tavolo (facoltativo)."
+
 msgid "New Table"
 msgstr "Nuovo Tavolo"
 
@@ -1787,6 +1805,9 @@ msgid ""
 msgstr ""
 "Un nuovo tavolo è stato creato da <strong>%(creator_name)s</strong> presso "
 "<strong>%(location_name)s</strong>."
+
+msgid "Assign a station"
+msgstr "Assegna una postazione"
 
 #, python-format
 msgid ""
@@ -2477,6 +2498,10 @@ msgstr "Aggiungi al Calendario"
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
 
+#, python-format
+msgid "Games – %(name)s"
+msgstr "Giochi - %(name)s"
+
 msgid "Played tables"
 msgstr "Tavoli giocati"
 
@@ -2833,16 +2858,6 @@ msgstr "In ritardo"
 msgid "Record return"
 msgstr "Registra restituzione"
 
-msgid ""
-"To specify a member as the game owner, activate membership requests for your "
-"location."
-msgstr ""
-"Per indicare un socio come proprietario del gioco, attiva le richieste di "
-"iscrizione per la tua location."
-
-msgid "Go to the Members page"
-msgstr "Vai alla pagina Soci"
-
 msgid "Game archive"
 msgstr "Archivio"
 
@@ -2854,6 +2869,16 @@ msgstr "Ripristina in ludoteca"
 
 msgid "Archive game"
 msgstr "Archivia gioco"
+
+msgid ""
+"To specify a member as the game owner, activate membership requests for your "
+"location."
+msgstr ""
+"Per indicare un socio come proprietario del gioco, attiva le richieste di "
+"iscrizione per la tua location."
+
+msgid "Go to the Members page"
+msgstr "Vai alla pagina Soci"
 
 msgid "Loan status"
 msgstr "Stato del prestito"
@@ -4377,6 +4402,14 @@ msgstr "Modifica tavolo"
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
 
+#, python-format
+msgid "No past tables for %(location_name)s."
+msgstr "Nessun tavolo passato per %(location_name)s."
+
+#, python-format
+msgid "No upcoming tables for %(location_name)s."
+msgstr "Nessun tavolo in programma per %(location_name)s."
+
 msgid "Manage players"
 msgstr "Gestisci giocatori"
 
@@ -4531,10 +4564,6 @@ msgstr ""
 "Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
 
 #, python-format
-msgid "Games – %(name)s"
-msgstr "Giochi - %(name)s"
-
-#, python-format
 msgid "Board games available at %(name)s."
 msgstr "Giochi da tavolo disponibili presso %(name)s."
 
@@ -4672,8 +4701,16 @@ msgctxt "game loan filter"
 msgid "All"
 msgstr "Tutti"
 
+#, python-format
+msgid "Game loans – %(name)s"
+msgstr "Prestiti – %(name)s"
+
 msgid "Game loan settings saved."
 msgstr "Impostazioni dei prestiti salvate."
+
+#, python-format
+msgid "%(game)s – %(name)s"
+msgstr "%(game)s – %(name)s"
 
 msgid "Game loan recorded."
 msgstr "Prestito registrato."
@@ -4839,10 +4876,6 @@ msgstr "La ludoteca ora è nascosta dalla pagina della location."
 msgid "Add Game – %(name)s"
 msgstr "Aggiungi Gioco - %(name)s"
 
-#, python-format
-msgid "%(game)s – %(name)s"
-msgstr "%(game)s – %(name)s"
-
 msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
 
@@ -4857,7 +4890,8 @@ msgid "Game restored to the library."
 msgstr "Gioco ripristinato in ludoteca."
 
 msgid "This game cannot be removed because it has loan history."
-msgstr "Questo gioco non può essere rimosso perché ha uno storico dei prestiti."
+msgstr ""
+"Questo gioco non può essere rimosso perché ha uno storico dei prestiti."
 
 #, python-format
 msgid "Play areas – %(name)s"

@@ -68,20 +68,15 @@ class IsNotClosedMixin(UserPassesTestMixin):
         return super().handle_no_permission()
 
 
-def _filterable_locations():
-    """Locations whose tables are listed on the public tables page."""
-    return Location.objects.filter(show_tables_in_homepage=True)
-
-
 def _location_picker_sections(request):
     """Default cards for the location filter modal: the user's own and followed
     locations, falling back to the busiest ones (anonymous visitors included)."""
     if request.user.is_authenticated:
         profile = request.user.user_profile
-        own = list(_filterable_locations()
+        own = list(Location.objects
                    .filter(Q(creator=profile) | Q(managers=profile))
                    .distinct().order_by('name'))
-        followed = list(_filterable_locations()
+        followed = list(Location.objects
                         .filter(followers__user_profile=profile)
                         .exclude(id__in=[location.id for location in own])
                         .distinct().order_by('name'))
@@ -89,7 +84,7 @@ def _location_picker_sections(request):
                     [(_("Your locations"), own), (_("Followed locations"), followed)] if locations]
         if sections:
             return sections
-    popular = list(_filterable_locations()
+    popular = list(Location.objects
                    .annotate(tables_count=Count('tables'))
                    .filter(tables_count__gt=0)
                    .order_by('-tables_count', 'name')[:6])
@@ -123,6 +118,7 @@ class TableIndexView(generic.ListView):
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
         qs = (Table.objects
+              .filter(event__isnull=True)
               .select_related('author', 'author__user', 'location')
               .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
               .annotate(distance=DbDistance('location__point', user_point)))
@@ -132,11 +128,7 @@ class TableIndexView(generic.ListView):
         self.q = self.request.GET.get('q', '').strip()
 
         if self.location_slug:
-            # An explicit location filter shows the same tables as the location's own page,
-            # even when the location keeps them out of the public listing.
             qs = qs.filter(location__slug=self.location_slug)
-        else:
-            qs = qs.filter(location__show_tables_in_homepage=True)
         if self.q:
             qs = qs.filter(Q(title__icontains=self.q) | Q(description__icontains=self.q))
 

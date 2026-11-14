@@ -49,16 +49,23 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
     # Copies made by duplicate_table set the flag: a series of N tables would
     # otherwise notify every follower N times.
     if created and not getattr(instance, '_skip_follower_notification', False) and instance.location:
-        followers = instance.location.followers.all()
-        for follower in followers:
-            Notification.objects.create(
-                recipient=follower.user_profile,
+        location = instance.location
+        recipient_ids = set(location.followers.values_list('user_profile_id', flat=True))
+        # The location staff is notified too when the table could get a station:
+        # send_queued_notifications adds the "assign a station" link to their mail.
+        # Locations without stations only notify their followers.
+        if instance.physical_table_id is None and not instance.event_id and location.physical_tables.exists():
+            staff_ids = {location.creator_id, *location.managers.values_list('id', flat=True)}
+            recipient_ids |= staff_ids - {None, instance.author_id}
+        Notification.objects.bulk_create([
+            Notification(
+                recipient_id=recipient_id,
                 notification_type=NotificationType.NEW_TABLE,
                 table=instance,
-                location=instance.location,
+                location=location,
             )
-            # if follower.user_profile.notification_new_table:
-            #     send_notification_new_table(follower.user_profile, instance)
+            for recipient_id in recipient_ids
+        ])
 
 
 @receiver(post_save, sender=Table)
