@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-14 11:46+0100\n"
+"POT-Creation-Date: 2026-11-14 12:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1697,6 +1697,13 @@ msgstr ""
 msgid "Description:"
 msgstr "Descrizione:"
 
+msgid ""
+"No station is assigned to this table yet: you can assign one by editing it "
+"(optional)."
+msgstr ""
+"Al tavolo non è ancora assegnata una postazione: puoi assegnarla modificando "
+"il tavolo (facoltativo)."
+
 msgid "New Table"
 msgstr "Nuovo Tavolo"
 
@@ -1707,6 +1714,9 @@ msgid ""
 msgstr ""
 "Un nuovo tavolo è stato creato da <strong>%(creator_name)s</strong> presso "
 "<strong>%(location_name)s</strong>."
+
+msgid "Assign a station"
+msgstr "Assegna una postazione"
 
 #, python-format
 msgid ""
