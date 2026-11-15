@@ -13,9 +13,9 @@
       {% endif %}
     </header>
 
-    {% if not affiliation and page_obj.object_list %}
+    {% if affiliations %}
       <ul class="space-y-2">
-        {% for item in page_obj %}
+        {% for item in affiliations %}
           <li class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-divider bg-surface p-4">
             <div class="min-w-0 break-words">
               <p class="font-semibold text-content">{{ item.display_name }}</p>
@@ -38,7 +38,6 @@
           </li>
         {% endfor %}
       </ul>
-      {% include "partials/_pagination.html" %}
     {% endif %}
 
     {% if affiliation or can_add %}
@@ -64,7 +63,7 @@
           {% if affiliation %}{% trans "Save changes" %}{% else %}{% trans "Add affiliation" %}{% endif %}
         </button>
       </form>
-    {% elif not page_obj.object_list %}
+    {% elif not affiliations %}
       <p class="text-sm text-content-muted">{% trans "There are no national networks available yet." %}</p>
     {% endif %}
 

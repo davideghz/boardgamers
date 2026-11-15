@@ -1,5 +1,6 @@
 from io import BytesIO
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from django.contrib.admin.widgets import AdminFileWidget
 from django.contrib.auth.models import Permission
@@ -12,6 +13,7 @@ from PIL import Image
 
 from webapp.factories import LocationFactory, SuperUserProfileFactory, UserProfileFactory
 from webapp.models import LocationNetwork, Network
+from webapp.views.location_views import _location_map_data
 
 
 def logo_upload(name, size=(640, 320), color=(13, 68, 148, 128)):
@@ -160,17 +162,36 @@ class LocationNetworksTest(TestCase):
         self.assertFalse(storage.exists(name))
 
     def test_owner_can_declare_two_networks_without_creating_duplicates(self):
+        self.client.force_login(self.manager.user)
+        stale_form = self.client.get(self.manage_url).context['form']
+        self.assertIn(self.network, stale_form.fields['network'].queryset)
+
         self.client.force_login(self.owner.user)
         for network in (self.network, self.federludo):
-            self.assertRedirects(self.client.post(self.manage_url, {'network': network.pk}), self.manage_url)
-        response = self.client.post(self.manage_url, {'network': self.network.pk})
-        self.assertIn('network', response.context['form'].errors)
+            self.assertRedirects(self.client.post(self.manage_url, {
+                'network': network.pk, 'local_name': 'Original name',
+            }), self.manage_url)
+
+        affiliation = self.location.network_affiliations.get(network=self.network)
+        self.client.force_login(self.manager.user)
+        response = self.client.post(self.manage_url, {
+            'network': self.network.pk, 'local_name': 'Conflicting name', 'custom_logo': logo_upload('ignored.png'),
+        }, follow=True)
+        edit_url = reverse('location-edit-network', args=[self.location.slug, affiliation.pk])
+        self.assertRedirects(response, edit_url)
+        self.assertContains(response, 'Affiliazione già presente.')
+        affiliation.refresh_from_db()
+        self.assertEqual(affiliation.local_name, 'Original name')
+        self.assertFalse(affiliation.custom_logo)
+        self.assertFalse(affiliation.custom_logo.storage.exists('location-network-logos/ignored.png'))
         self.assertCountEqual(self.location.networks.all(), [self.network, self.federludo])
 
     def test_permissions_apply_to_mutations_and_to_the_specific_location(self):
         affiliation = LocationNetwork.objects.create(location=self.location, network=self.network)
         edit_url = reverse('location-edit-network', args=[self.location.slug, affiliation.pk])
         remove_url = reverse('location-remove-network', args=[self.location.slug, affiliation.pk])
+        self.assertEqual(self.client.get(self.manage_url).status_code, 302)
+        self.assertEqual(self.client.get(edit_url).status_code, 302)
         self.assertEqual(self.client.post(self.manage_url, {'network': self.federludo.pk}).status_code, 302)
         self.assertFalse(self.location.networks.filter(pk=self.federludo.pk).exists())
 
@@ -185,6 +206,20 @@ class LocationNetworksTest(TestCase):
         self.assertEqual(self.client.post(other_remove_url).status_code, 404)
         affiliation.refresh_from_db()
         self.assertEqual(affiliation.local_name, '')
+
+    def test_manager_sees_the_full_affiliation_list(self):
+        networks = Network.objects.bulk_create([
+            Network(name=f'Network {i:02}', slug=f'network-{i:02}') for i in range(26)
+        ])
+        LocationNetwork.objects.bulk_create([
+            LocationNetwork(location=self.location, network=network) for network in networks
+        ])
+        self.client.force_login(self.manager.user)
+        response = self.client.get(self.manage_url, {'page': 2})
+        self.assertEqual(len(response.context['affiliations']), 26)
+        self.assertNotIn('page_obj', response.context)
+        self.assertContains(response, 'Network 00')
+        self.assertContains(response, 'Network 25')
 
     def test_public_filter_and_map_show_only_matching_locations_with_all_their_badges(self):
         LocationNetwork.objects.create(location=self.location, network=self.network, local_name='TdG Vicenza')
@@ -246,6 +281,20 @@ class LocationNetworksTest(TestCase):
         response = self.client.get(self.index_url, {'network': self.federludo.slug})
         self.assertNotContains(response, self.federludo.website)
         self.assertNotContains(response, self.federludo.logo.url)
+
+    def test_filter_excludes_locations_if_network_is_archived_during_the_request(self):
+        LocationNetwork.objects.create(location=self.location, network=self.network)
+
+        def archive_before_reading_locations(locations):
+            Network.objects.filter(pk=self.network.pk).update(is_active=False)
+            return _location_map_data(locations)
+
+        with patch('webapp.views.location_views._location_map_data', side_effect=archive_before_reading_locations):
+            response = self.client.get(self.index_url, {'network': self.network.slug})
+
+        self.assertEqual(response.context['selected_network'], self.network)
+        self.assertFalse(response.context['nearby_locations'])
+        self.assertEqual(response.context['map_locations'], [])
 
     def test_archived_networks_disappear_publicly_and_cannot_be_added(self):
         affiliation = LocationNetwork.objects.create(location=self.location, network=self.network,

@@ -72,6 +72,7 @@ def index_view(request, template_name="locations/location_index.html"):
     network_unavailable = bool(network_slug and not selected_network)
     nearby_locations = Location.objects.all()
     if selected_network:
+        # A network can be archived after the filter options have been loaded.
         nearby_locations = nearby_locations.filter(
             network_affiliations__network=selected_network, network_affiliations__network__is_active=True,
         )
@@ -1089,12 +1090,6 @@ def _check_location_manager(request, location):
 class LocationManageNetworksView(LoginRequiredMixin, View):
     template_name = 'locations/location_manage_networks.html'
 
-    def dispatch(self, request, slug, *args, **kwargs):
-        if request.user.is_authenticated:
-            self.location = get_object_or_404(Location, slug=slug)
-            _check_location_manager(request, self.location)
-        return super().dispatch(request, slug, *args, **kwargs)
-
     def _editable_affiliations(self):
         return _public_affiliations().filter(location=self.location)
 
@@ -1106,22 +1101,23 @@ class LocationManageNetworksView(LoginRequiredMixin, View):
             'meta': Meta(title=_('National affiliations – %(name)s') % {'name': self.location.name}),
         }
         if affiliation is None:
-            paginator = Paginator(self.location.network_affiliations.select_related('network'), 25)
             context.update({
-                'page_obj': paginator.get_page(request.GET.get('page')),
-                'paginator': paginator,
-                'is_paginated': paginator.num_pages > 1,
+                'affiliations': self.location.network_affiliations.select_related('network'),
                 'can_add': form.is_bound or form.fields['network'].queryset.exists(),
             })
         return render(request, self.template_name, context)
 
     def get(self, request, slug, pk=None):
+        self.location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, self.location)
         if pk is None:
             return self._render(request, AddLocationNetworkForm(location=self.location))
         affiliation = get_object_or_404(self._editable_affiliations(), pk=pk)
         return self._render(request, LocationNetworkForm(instance=affiliation), affiliation)
 
     def post(self, request, slug, pk=None):
+        self.location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, self.location)
         if pk is None:
             return self._add_affiliation(request)
 
@@ -1143,10 +1139,13 @@ class LocationManageNetworksView(LoginRequiredMixin, View):
                     pk=form.cleaned_data['network'].pk, is_active=True,
                 ).first()
                 if network:
-                    self.location.network_affiliations.get_or_create(network=network, defaults={
+                    affiliation, created = self.location.network_affiliations.get_or_create(network=network, defaults={
                         'local_name': form.cleaned_data['local_name'],
                         'custom_logo': form.cleaned_data['custom_logo'] or '',
                     })
+                    if not created:
+                        messages.warning(request, _('This affiliation already exists.'))
+                        return redirect('location-edit-network', slug=self.location.slug, pk=affiliation.pk)
                     messages.success(request, _('Affiliation added.'))
                     return redirect('location-manage-networks', slug=self.location.slug)
                 form.add_error('network', _('This national network is no longer available.'))

@@ -742,7 +742,9 @@ class AddLocationNetworkForm(LocationNetworkForm):
     def __init__(self, *args, location, **kwargs):
         super().__init__(*args, **kwargs)
         network_field = self.fields['network']
-        network_field.queryset = Network.objects.filter(is_active=True).exclude(locations=location)
+        networks = Network.objects.filter(is_active=True)
+        # A submitted choice may have been added by another manager since the form was opened.
+        network_field.queryset = networks if self.is_bound else networks.exclude(locations=location)
         network_field.empty_label = _('Choose a national network')
 
 
