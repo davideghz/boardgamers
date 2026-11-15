@@ -2,6 +2,7 @@ from io import BytesIO
 from tempfile import TemporaryDirectory
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import transaction
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -48,24 +49,93 @@ class LocationNetworksTest(TestCase):
         self.assertEqual(affiliation.local_name, 'TdG Vicenza')
 
         edit_url = reverse('location-edit-network', args=[self.location.slug, affiliation.pk])
-        response = self.client.post(edit_url, {'local_name': ' TdG VI ', 'custom_logo': logo_upload('local.png')})
+        response = self.client.post(edit_url, {'local_name': ' TdG VI ', 'custom_logo': logo_upload('local.img')})
         self.assertRedirects(response, self.manage_url)
         affiliation.refresh_from_db()
         self.assertEqual(affiliation.local_name, 'TdG VI')
+        self.assertTrue(affiliation.custom_logo.name.endswith('.png'))
         with Image.open(affiliation.custom_logo) as logo:
             self.assertEqual(logo.size, (512, 256))
             self.assertEqual(logo.getpixel((0, 0))[3], 128)
 
-        response = self.client.post(edit_url, {'local_name': '', 'custom_logo-clear': 'on'})
+        storage = affiliation.custom_logo.storage
+        original_name = affiliation.custom_logo.name
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(edit_url, {'local_name': 'TdG VI', 'custom_logo': logo_upload('local.png')})
+            self.assertTrue(storage.exists(original_name))
         self.assertRedirects(response, self.manage_url)
+        affiliation.refresh_from_db()
+        self.assertFalse(storage.exists(original_name))
+
+        replacement_name = affiliation.custom_logo.name
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(edit_url, {'local_name': '', 'custom_logo-clear': 'on'})
+            self.assertTrue(storage.exists(replacement_name))
+        self.assertRedirects(response, self.manage_url)
+        self.assertFalse(storage.exists(replacement_name))
         affiliation.refresh_from_db()
         self.assertEqual(affiliation.display_name, self.network.name)
         self.assertFalse(affiliation.custom_logo)
 
+        affiliation.custom_logo = logo_upload('local.png')
+        affiliation.save(update_fields=['custom_logo'])
+        removed_name = affiliation.custom_logo.name
         remove_url = reverse('location-remove-network', args=[self.location.slug, affiliation.pk])
         self.assertEqual(self.client.get(remove_url).status_code, 405)
-        self.assertRedirects(self.client.post(remove_url), self.manage_url)
+        with self.captureOnCommitCallbacks(execute=True):
+            self.assertRedirects(self.client.post(remove_url), self.manage_url)
+            self.assertTrue(storage.exists(removed_name))
+        self.assertFalse(storage.exists(removed_name))
         self.assertFalse(self.location.network_affiliations.exists())
+
+    def test_direct_logo_save_normalizes_the_upload(self):
+        self.network.logo.save('national.img', logo_upload('national.img'))
+        self.network.refresh_from_db()
+        self.assertTrue(self.network.logo.name.endswith('.png'))
+        with Image.open(self.network.logo) as logo:
+            self.assertEqual(logo.format, 'PNG')
+            self.assertEqual(logo.size, (512, 256))
+            self.assertEqual(logo.getpixel((0, 0))[3], 128)
+
+    def test_logo_clear_and_affiliation_deletion_keep_their_files_on_rollback(self):
+        self.network.logo.save('national.png', logo_upload('national.png'))
+        affiliation = LocationNetwork.objects.create(location=self.location, network=self.network,
+                                                      custom_logo=logo_upload('local.png'))
+        national_name, local_name = self.network.logo.name, affiliation.custom_logo.name
+        storage = affiliation.custom_logo.storage
+
+        with self.captureOnCommitCallbacks(execute=True) as callbacks:
+            with transaction.atomic():
+                self.network.logo.delete()
+                affiliation.delete()
+                self.assertTrue(storage.exists(national_name))
+                self.assertTrue(storage.exists(local_name))
+                transaction.set_rollback(True)
+
+        self.assertEqual(callbacks, [])
+        self.network.refresh_from_db()
+        self.assertEqual(self.network.logo.name, national_name)
+        self.assertEqual(self.location.network_affiliations.get().custom_logo.name, local_name)
+        self.assertTrue(storage.exists(national_name))
+        self.assertTrue(storage.exists(local_name))
+
+    def test_cascade_keeps_a_logo_until_the_last_reference_is_removed(self):
+        affiliation = LocationNetwork.objects.create(location=self.location, network=self.network,
+                                                      custom_logo=logo_upload('shared.png'))
+        name = affiliation.custom_logo.name
+        storage = affiliation.custom_logo.storage
+        self.network.logo = name
+        self.network.save(update_fields=['logo'])
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.location.delete()
+        self.assertFalse(LocationNetwork.objects.filter(pk=affiliation.pk).exists())
+        self.assertTrue(storage.exists(name))
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.network.delete()
+            self.assertTrue(storage.exists(name))
+        self.assertFalse(storage.exists(name))
 
     def test_owner_can_declare_two_networks_without_creating_duplicates(self):
         self.client.force_login(self.owner.user)
@@ -232,13 +302,19 @@ class LocationNetworksTest(TestCase):
         self.assertContains(self.client.get(network_change), affiliation_list)
         self.assertContains(self.client.get(affiliation_list), 'Local league')
 
-        response = self.client.post(network_change, {
-            'name': 'Renamed league', 'website': website, 'is_active': 'on', '_save': '1',
-        })
+        storage = network.logo.storage
+        original_name = network.logo.name
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(network_change, {
+                'name': 'Renamed league', 'website': website, 'logo': logo_upload('national.png'),
+                'is_active': 'on', '_save': '1',
+            })
+            self.assertTrue(storage.exists(original_name))
         self.assertRedirects(response, network_list)
         network.refresh_from_db()
         self.assertEqual(network.slug, 'national-league')
-        self.assertTrue(network.logo)
+        self.assertTrue(storage.exists(network.logo.name))
+        self.assertFalse(storage.exists(original_name))
         self.assertEqual(network.website, website)
 
         affiliation_change = reverse('admin:webapp_locationnetwork_change', args=[affiliation.pk])

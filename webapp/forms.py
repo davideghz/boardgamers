@@ -1,25 +1,20 @@
 import datetime
-from io import BytesIO
-from pathlib import Path
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
     inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
-    ClearableFileInput, FileField, ImageField
+    ClearableFileInput, FileField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from PIL import Image, ImageOps
-
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services.game_loans import active_members, default_loan_due_date
-from webapp.services.images import COVER_MAX_SIDE
+from webapp.services.images import COVER_MAX_SIDE, validate_network_logo
 
 from django.urls import reverse
 from django.utils import timezone
@@ -710,10 +705,7 @@ class LocationManageDataForm(LocationForm):
         })
 
 
-class NetworkLogoField(ImageField):
-    max_upload_size = 2 * 1024 * 1024
-    max_upload_side = 2048
-    max_logo_side = 512
+class NetworkLogoField(FileField):
     widget = ClearableFileInput(attrs={'accept': 'image/png,image/jpeg,image/webp'})
 
     def __init__(self, **kwargs):
@@ -721,24 +713,10 @@ class NetworkLogoField(ImageField):
         super().__init__(**kwargs)
 
     def to_python(self, data):
-        upload = FileField.to_python(self, data)
-        if upload is None:
-            return None
-        if upload.size > self.max_upload_size:
-            raise ValidationError(_('The logo must be 2 MB or smaller.'))
-
-        try:
-            with Image.open(upload, formats=('PNG', 'JPEG', 'WEBP')) as source:
-                if max(source.size) > self.max_upload_side:
-                    raise ValidationError(_('The logo must be 2048 pixels or smaller on each side.'))
-                logo = ImageOps.exif_transpose(source).convert('RGBA')
-                logo.thumbnail((self.max_logo_side, self.max_logo_side), Image.Resampling.LANCZOS)
-                output = BytesIO()
-                logo.save(output, format='PNG')
-        except (OSError, ValueError, Image.DecompressionBombError) as exc:
-            raise ValidationError(_('Upload a valid PNG, JPEG or WebP logo.')) from exc
-
-        return SimpleUploadedFile(f'{Path(upload.name).stem}.png', output.getvalue(), content_type='image/png')
+        upload = super().to_python(data)
+        if upload is not None:
+            validate_network_logo(upload)
+        return upload
 
 
 class NetworkForm(ModelForm):

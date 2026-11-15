@@ -29,7 +29,7 @@ Il testo nel dettaglio qualifica le affiliazioni come dichiarate dalla location.
 - **Dettaglio rete**. Il catalogo filtrato per una rete mostra il suo nome, il logo nazionale se presente e il link «Sito ufficiale» se l’admin ha impostato il sito web. [Catalogo location](../webapp/templates/locations/location_index.html)
 - **Dettaglio location**. «Affiliazioni nazionali» compare nella barra laterale, sotto «Come arrivare», quando c’è almeno un’affiliazione attiva. Ogni riga mostra lo stesso badge di elenco e mappa e i due loghi affiancati quando entrambi sono disponibili. Il badge apre il catalogo filtrato per la rete nazionale. Quando il nome locale differisce, il nome nazionale compare accanto al badge. Il logo nazionale arriva dall’anagrafica. Il logo personalizzato arriva dal singolo legame, così due affiliate alla Tana dei Goblin possono avere immagini diverse. [Dettaglio location](../webapp/templates/locations/location_detail.html)
 
-I due caricamenti accettano PNG, JPEG e WebP fino a 2 MB e 2048 pixel per lato e controllano il formato effettivo. I loghi vengono salvati in PNG, fino a 512 pixel per lato, conservando proporzioni e trasparenza nello storage delle immagini già in uso. [Validazione dei loghi](../webapp/forms.py)
+I due caricamenti accettano PNG, JPEG e WebP fino a 2 MB e 2048 pixel per lato e controllano il formato effettivo. Il campo immagine salva i loghi in PNG fino a 512 pixel per lato, conservando proporzioni e trasparenza. I file sostituiti o rimossi vengono cancellati dallo storage dopo il commit, quando nessuna rete o affiliazione li usa più. [Servizio immagini](../webapp/services/images.py)
 
 ## Verifiche di accettazione
 
