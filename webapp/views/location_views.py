@@ -66,7 +66,7 @@ def index_view(request, template_name="locations/location_index.html"):
     user_created_locations = None
     location_message = None
     followed_location_ids = set()
-    networks = list(Network.objects.filter(is_active=True).only('name', 'slug'))
+    networks = list(Network.objects.filter(is_active=True).only('name', 'slug', 'logo', 'website'))
     network_slug = request.GET.get('network', '')
     selected_network = next((network for network in networks if network.slug == network_slug), None)
     network_unavailable = bool(network_slug and not selected_network)
@@ -120,7 +120,8 @@ def index_view(request, template_name="locations/location_index.html"):
         'map_locations': _location_map_data(nearby_locations),
         'map_selected': map_selected,
         'meta': Meta(
-            title=_("Game Locations - Board-Gamers.com"),
+            title=(_("%(name)s - Board-Gamers.com") % {'name': selected_network.name}
+                   if selected_network else _("Game Locations - Board-Gamers.com")),
             description=_("Discover all board game locations near you. Find the perfect place for your next game!"),
         )
     }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-15 10:33+0100\n"
+"POT-Creation-Date: 2026-11-15 11:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2834,6 +2834,9 @@ msgstr "Consegnato il %(loan_date)s · Rientro previsto il %(due_date)s"
 #, python-format
 msgid "Borrowed by %(nickname)s"
 msgstr "In prestito a %(nickname)s"
+
+msgid "Official website"
+msgstr "Sito ufficiale"
 
 msgid ""
 "Discover all board game locations near you. Find the perfect place for your "

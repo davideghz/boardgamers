@@ -746,7 +746,7 @@ class NetworkForm(ModelForm):
 
     class Meta:
         model = Network
-        fields = ['name', 'logo', 'is_active']
+        fields = ['name', 'logo', 'website', 'is_active']
 
 
 class LocationNetworkForm(ModelForm, TailwindForm):

@@ -131,6 +131,29 @@ class LocationNetworksTest(TestCase):
         self.assertContains(response, self.network.logo.url)
         self.assertContains(response, affiliation.custom_logo.url)
         self.assertNotContains(response, other_affiliation.custom_logo.url)
+        sidebar = response.text.split('<aside class="lg:col-span-1">', 1)[1].split('</aside>', 1)[0]
+        self.assertLess(sidebar.index('id="location-directions"'), sidebar.index('id="location-affiliations"'))
+
+    def test_filtered_page_shows_the_selected_network_logo_and_website(self):
+        self.federludo.logo = 'network-logos/federludo.png'
+        self.federludo.website = 'https://federludo.example.org/'
+        self.federludo.save(update_fields=['logo', 'website'])
+
+        response = self.client.get(self.index_url, {'network': self.federludo.slug})
+        self.assertContains(response, '<h1 class="text-2xl font-extrabold text-content">FederLudo</h1>', html=True)
+        self.assertContains(response, f'src="{self.federludo.logo.url}"')
+        self.assertContains(response, f'href="{self.federludo.website}"')
+        self.assertFalse(response.context['nearby_locations'])
+
+        response = self.client.get(self.index_url)
+        self.assertNotContains(response, self.federludo.logo.url)
+        self.assertNotContains(response, self.federludo.website)
+
+        self.federludo.is_active = False
+        self.federludo.save(update_fields=['is_active'])
+        response = self.client.get(self.index_url, {'network': self.federludo.slug})
+        self.assertNotContains(response, self.federludo.website)
+        self.assertNotContains(response, self.federludo.logo.url)
 
     def test_archived_networks_disappear_publicly_and_cannot_be_added(self):
         affiliation = LocationNetwork.objects.create(location=self.location, network=self.network,
@@ -191,8 +214,10 @@ class LocationNetworksTest(TestCase):
         self.client.force_login(SuperUserProfileFactory().user)
         network_list = reverse('admin:webapp_network_changelist')
         self.assertContains(self.client.get(reverse('admin:index')), network_list)
+        website = 'https://league.example.org/'
         response = self.client.post(reverse('admin:webapp_network_add'), {
-            'name': 'National league', 'logo': logo_upload('national.png'), 'is_active': 'on', '_save': '1',
+            'name': 'National league', 'logo': logo_upload('national.png'), 'website': website,
+            'is_active': 'on', '_save': '1',
         })
         self.assertRedirects(response, network_list)
         network = Network.objects.get(name='National league')
@@ -207,11 +232,14 @@ class LocationNetworksTest(TestCase):
         self.assertContains(self.client.get(network_change), affiliation_list)
         self.assertContains(self.client.get(affiliation_list), 'Local league')
 
-        response = self.client.post(network_change, {'name': 'Renamed league', 'is_active': 'on', '_save': '1'})
+        response = self.client.post(network_change, {
+            'name': 'Renamed league', 'website': website, 'is_active': 'on', '_save': '1',
+        })
         self.assertRedirects(response, network_list)
         network.refresh_from_db()
         self.assertEqual(network.slug, 'national-league')
         self.assertTrue(network.logo)
+        self.assertEqual(network.website, website)
 
         affiliation_change = reverse('admin:webapp_locationnetwork_change', args=[affiliation.pk])
         response = self.client.post(affiliation_change, {'custom_logo-clear': 'on', '_save': '1'})
@@ -219,3 +247,11 @@ class LocationNetworksTest(TestCase):
         affiliation.refresh_from_db()
         self.assertFalse(affiliation.custom_logo)
         self.assertEqual(affiliation.local_name, 'Local league')
+
+    def test_admin_rejects_non_web_network_urls(self):
+        self.client.force_login(SuperUserProfileFactory().user)
+        response = self.client.post(reverse('admin:webapp_network_add'), {
+            'name': 'National league', 'website': 'ftp://league.example.org/', 'is_active': 'on', '_save': '1',
+        })
+        self.assertIn('website', response.context['adminform'].form.errors)
+        self.assertFalse(Network.objects.filter(name='National league').exists())

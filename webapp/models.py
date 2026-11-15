@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -386,6 +386,7 @@ class Network(DateTimeModel, SlugModel):
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(max_length=144, unique=True, blank=True)
     logo = models.ImageField(_('National logo'), upload_to='network-logos', blank=True)
+    website = models.URLField(_('Website'), blank=True, validators=[URLValidator(schemes=['http', 'https'])])
     is_active = models.BooleanField(_('Active'), default=True)
 
     class Meta:
