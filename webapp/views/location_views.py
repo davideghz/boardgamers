@@ -124,7 +124,7 @@ class LocationDetailView(DetailView):
             event__isnull=True
         ).select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
-        ).order_by('date')
+        ).order_by('date', 'time')
 
         # Query per i tavoli passati di questa location
         past_tables = Table.objects.filter(
@@ -133,7 +133,7 @@ class LocationDetailView(DetailView):
             event__isnull=True
         ).select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
-        ).order_by('-date')
+        ).order_by('-date', '-time')
 
         # Sottoquery per contare le partite giocate per ogni gioco nella location
         played_count = Table.objects.filter(

@@ -133,8 +133,10 @@ class TableIndexView(generic.ListView):
             qs = qs.filter(Q(title__icontains=self.q) | Q(description__icontains=self.q))
 
         if self.tab == 'past':
-            return qs.filter(date__lt=today).order_by('-date', 'distance')
-        return qs.filter(date__gte=today).order_by('date', 'distance')
+            secondary_order = '-time' if self.location_slug else 'distance'
+            return qs.filter(date__lt=today).order_by('-date', secondary_order)
+        secondary_order = 'time' if self.location_slug else 'distance'
+        return qs.filter(date__gte=today).order_by('date', secondary_order)
 
     def get_context_data(self, **kwargs):
         context = super(TableIndexView, self).get_context_data(**kwargs)

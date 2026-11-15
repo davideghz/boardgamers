@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import time, timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -18,9 +18,9 @@ class TableLocationVisibilityTest(TestCase):
             name='Club senza tavoli', creator=cls.profile, show_tables_in_homepage=False)
         today = timezone.localdate()
         cls.upcoming = TableFactory(
-            author=cls.profile, location=cls.location, date=today + timedelta(days=1))
+            author=cls.profile, location=cls.location, date=today + timedelta(days=1), time=time(21))
         cls.past = TableFactory(
-            author=cls.profile, location=cls.location, date=today - timedelta(days=1))
+            author=cls.profile, location=cls.location, date=today - timedelta(days=1), time=time(18))
 
     def test_location_tables_outside_feed_appear_in_both_tabs(self):
         url = reverse('table-index')
@@ -32,6 +32,24 @@ class TableLocationVisibilityTest(TestCase):
         home = self.client.get(reverse('home'))
         self.assertNotIn(self.upcoming, home.context['future_tables'])
         self.assertNotIn(self.past, home.context['past_tables'])
+
+    def test_location_tables_on_the_same_date_are_ordered_by_time(self):
+        earlier_upcoming = TableFactory(
+            author=self.profile, location=self.location, date=self.upcoming.date, time=time(18))
+        later_past = TableFactory(
+            author=self.profile, location=self.location, date=self.past.date, time=time(21))
+
+        detail = self.client.get(reverse('location-detail', kwargs={'slug': self.location.slug}))
+        for tab, context_key, expected in [
+            ('upcoming', 'future_tables', [earlier_upcoming, self.upcoming]),
+            ('past', 'past_tables', [later_past, self.past]),
+        ]:
+            with self.subTest(tab=tab, view='detail'):
+                self.assertEqual(list(detail.context[context_key]), expected)
+            with self.subTest(tab=tab, view='index'):
+                response = self.client.get(
+                    reverse('table-index'), {'location': self.location.slug, 'tab': tab})
+                self.assertEqual(list(response.context['tables']), expected)
 
     def test_event_tables_stay_outside_the_index(self):
         event = Event.objects.create(name='Event', creator=self.profile, status=Event.PENDING)
