@@ -349,6 +349,7 @@
 
 
 {% block extrabodyjs %}
+  {% include "partials/_location_map.html" %}
   <script>
     // ── Tables toggle ────────────────────────────────────────────────────
     function showTab(tab) {
@@ -371,7 +372,6 @@
         {"name": "{{ loc.name|escapejs }}", "lat": {{ loc.latitude }}, "lng": {{ loc.longitude }}, "url": "{% url 'location-detail' loc.slug %}"},
       {% endif %}{% endfor %}
     ];
-    const _viewPageLabel = "{% trans 'View page' %}";
 
     // ── Locations toggle ─────────────────────────────────────────────────
     const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
@@ -390,52 +390,13 @@
     let homeMapInitialized = false;
 
     function initHomeMap() {
-      // Maps API ready — no-op; map renders on demand when user clicks "Map"
+      const container = document.getElementById('locations-map-container');
+      if (container && container.style.display !== 'none') renderHomeMap();
     }
 
     function renderHomeMap() {
-      if (homeMapInitialized) return;
-      homeMapInitialized = true;
-
-      const map = new google.maps.Map(document.getElementById('locations-map'), {
-        zoom: 6,
-        center: { lat: 42.5, lng: 12.5 },
-        mapId: 'booohhh',
-        fullscreenControl: false,
-        mapTypeControl: false,
-        streetViewControl: false,
-        zoomControl: true,
-      });
-
-      const infoWindow = new google.maps.InfoWindow();
-      const bounds = new google.maps.LatLngBounds();
-      const allMarkers = [];
-
-      HOME_LOCATIONS.forEach(function(loc) {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-          position: { lat: loc.lat, lng: loc.lng },
-          title: loc.name,
-        });
-
-        marker.addListener('click', function() {
-          infoWindow.setContent(
-            '<div style="font-family:sans-serif;padding:8px 10px 10px;min-width:140px">' +
-            '<p style="font-weight:700;font-size:13px;color:#0f172a;margin:0 0 5px 0">' + loc.name + '</p>' +
-            '<a href="' + loc.url + '" style="font-size:12px;color:#2563eb;font-weight:600;text-decoration:none">' + _viewPageLabel + ' →</a>' +
-            '</div>'
-          );
-          infoWindow.open({ anchor: marker, map: map });
-        });
-
-        bounds.extend({ lat: loc.lat, lng: loc.lng });
-        allMarkers.push(marker);
-      });
-
-      new markerClusterer.MarkerClusterer({ markers: allMarkers, map: map });
-
-      if (HOME_LOCATIONS.length > 0) {
-        map.fitBounds(bounds);
-        if (HOME_LOCATIONS.length === 1) map.setZoom(14);
+      if (!homeMapInitialized) {
+        homeMapInitialized = createLocationMap(document.getElementById('locations-map'), HOME_LOCATIONS);
       }
     }
   </script>

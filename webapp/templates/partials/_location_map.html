@@ -1,0 +1,67 @@
+{% load i18n %}
+{% translate "View page" as location_map_link_label %}
+<script>
+  function locationMapPopup(location) {
+    const popup = document.createElement('div');
+    popup.className = 'location-map-popup';
+
+    const name = document.createElement('p');
+    name.textContent = location.name;
+    popup.append(name);
+
+    if (location.affiliations?.length) {
+      const badges = document.createElement('ul');
+      for (const affiliation of location.affiliations) {
+        const badge = document.createElement('li');
+        badge.textContent = affiliation;
+        badges.append(badge);
+      }
+      popup.append(badges);
+    }
+
+    const link = document.createElement('a');
+    link.href = location.url;
+    link.textContent = '{{ location_map_link_label|escapejs }} →';
+    popup.append(link);
+    return popup;
+  }
+
+  function createLocationMap(container, locations) {
+    if (!container || !window.google?.maps?.marker?.AdvancedMarkerElement) return false;
+
+    const map = new google.maps.Map(container, {
+      zoom: 6,
+      center: { lat: 42.5, lng: 12.5 },
+      mapId: 'booohhh',
+      fullscreenControl: false,
+      mapTypeControl: false,
+      streetViewControl: false,
+      zoomControl: true,
+    });
+    const infoWindow = new google.maps.InfoWindow();
+    const bounds = new google.maps.LatLngBounds();
+
+    const markers = locations.map(location => {
+      const position = { lat: location.lat, lng: location.lng };
+      const marker = new google.maps.marker.AdvancedMarkerElement({ position, title: location.name });
+      marker.addListener('click', () => {
+        infoWindow.setContent(locationMapPopup(location));
+        infoWindow.open({ anchor: marker, map });
+      });
+      bounds.extend(position);
+      return marker;
+    });
+
+    if (window.markerClusterer) {
+      new markerClusterer.MarkerClusterer({ markers, map });
+    } else {
+      markers.forEach(marker => { marker.map = map; });
+    }
+
+    if (markers.length) {
+      map.fitBounds(bounds);
+      if (markers.length === 1) map.setZoom(14);
+    }
+    return true;
+  }
+</script>

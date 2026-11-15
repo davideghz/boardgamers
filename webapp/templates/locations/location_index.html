@@ -164,10 +164,10 @@
 {% endblock content %}
 
 {% block extrabodyjs %}
+  {% include "partials/_location_map.html" %}
   {{ map_locations|json_script:"location-map-data" }}
   <script>
     const locationsMapData = JSON.parse(document.getElementById('location-map-data').textContent);
-    const viewPageLabel = "{{ _('View page')|escapejs }}";
 
     const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
     const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
@@ -201,69 +201,9 @@
     }
 
     function renderLocationsMap() {
-      const container = document.getElementById('locations-map');
-      if (locationsMapInitialized || !container || !window.google?.maps?.marker?.AdvancedMarkerElement) return;
-      locationsMapInitialized = true;
-
-      const map = new google.maps.Map(container, {
-        zoom: 6,
-        center: { lat: 42.5, lng: 12.5 },
-        mapId: 'booohhh',
-        fullscreenControl: false,
-        mapTypeControl: false,
-        streetViewControl: false,
-        zoomControl: true,
-      });
-
-      const infoWindow = new google.maps.InfoWindow();
-      const bounds = new google.maps.LatLngBounds();
-      const allMarkers = [];
-
-      locationsMapData.forEach(function(loc) {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-          position: { lat: loc.lat, lng: loc.lng },
-          title: loc.name,
-        });
-
-        marker.addListener('click', function() {
-          const popup = document.createElement('div');
-          popup.className = 'min-w-36 max-w-56 space-y-1.5 rounded-lg bg-surface p-2 text-content';
-          const name = document.createElement('p');
-          name.className = 'break-words text-sm font-bold';
-          name.textContent = loc.name;
-          popup.append(name);
-          if (loc.affiliations.length) {
-            const badges = document.createElement('ul');
-            badges.className = 'flex flex-wrap gap-1';
-            loc.affiliations.forEach(affiliation => {
-              const badge = document.createElement('li');
-              badge.className = 'max-w-full break-words rounded bg-surface-input px-1.5 py-0.5 text-xs font-medium text-content-soft';
-              badge.textContent = affiliation;
-              badges.append(badge);
-            });
-            popup.append(badges);
-          }
-          const link = document.createElement('a');
-          link.className = 'text-xs font-semibold text-content hover:underline';
-          link.href = loc.url;
-          link.textContent = `${viewPageLabel} →`;
-          popup.append(link);
-          infoWindow.setContent(popup);
-          infoWindow.open({ anchor: marker, map: map });
-        });
-
-        bounds.extend({ lat: loc.lat, lng: loc.lng });
-        allMarkers.push(marker);
-      });
-
-      if (window.markerClusterer) {
-        new markerClusterer.MarkerClusterer({ markers: allMarkers, map: map });
-      } else {
-        allMarkers.forEach(marker => { marker.map = map; });
+      if (!locationsMapInitialized) {
+        locationsMapInitialized = createLocationMap(document.getElementById('locations-map'), locationsMapData);
       }
-
-      map.fitBounds(bounds);
-      if (locationsMapData.length === 1) map.setZoom(14);
     }
   </script>
   {% if map_locations %}
