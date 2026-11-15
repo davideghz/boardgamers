@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -12,7 +13,8 @@ from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
-from webapp.forms import LocationNetworkForm, NetworkForm
+from webapp.fields import NetworkLogoImageField
+from webapp.forms import NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
@@ -110,13 +112,31 @@ class PlayerAdmin(admin.ModelAdmin):
         sync_legacy_result(obj.table)
 
 
+class LocationNetworkInline(admin.TabularInline):
+    model = LocationNetwork
+    verbose_name_plural = _('National affiliations')
+    extra = 0
+    fields = ('network', 'local_name', 'custom_logo')
+    readonly_fields = ('network', 'local_name')
+    formfield_overrides = {
+        NetworkLogoImageField: {'form_class': NetworkLogoField, 'widget': AdminFileWidget},
+    }
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('network')
+
+
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ("name", "city", "creator", "enable_membership", "enable_calendar", "created_at")
-    list_filter = ("city", "enable_membership", "enable_calendar", "created_at")
+    list_filter = ("city", "network_affiliations__network", "enable_membership", "enable_calendar", "created_at")
     list_editable = ("enable_membership", "enable_calendar")
     search_fields = ("name", "city", "creator__nickname")
     filter_horizontal = ("managers",)
+    inlines = [LocationNetworkInline]
     formfield_overrides = {
         models.JSONField: {'widget': JSONEditorWidget},
     }
@@ -131,29 +151,14 @@ class NetworkAdmin(admin.ModelAdmin):
     readonly_fields = ('slug',)
 
     def get_readonly_fields(self, request, obj=None):
-        if obj and (request.user.has_perm('webapp.view_locationnetwork') or
-                    request.user.has_perm('webapp.change_locationnetwork')):
+        if obj and self.admin_site.get_model_admin(Location).has_view_or_change_permission(request):
             return (*self.readonly_fields, 'affiliated_locations')
         return self.readonly_fields
 
     @admin.display(description=_('Affiliated locations'))
     def affiliated_locations(self, obj):
-        url = reverse('admin:webapp_locationnetwork_changelist', query={'network__id__exact': obj.pk})
+        url = reverse('admin:webapp_location_changelist', query={'network_affiliations__network__id__exact': obj.pk})
         return format_html('<a href="{}">{}</a>', url, _('View affiliated locations'))
-
-
-@admin.register(LocationNetwork)
-class LocationNetworkAdmin(admin.ModelAdmin):
-    form = LocationNetworkForm
-    list_display = ('location', 'network', 'local_name', 'updated_at')
-    list_filter = ('network',)
-    list_select_related = ('location', 'network')
-    search_fields = ('location__name', 'network__name', 'local_name')
-    fields = ('location', 'network', 'local_name', 'custom_logo')
-    readonly_fields = ('location', 'network', 'local_name')
-
-    def has_add_permission(self, request):
-        return False
 
 
 @admin.register(Game)

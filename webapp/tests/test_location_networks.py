@@ -1,6 +1,8 @@
 from io import BytesIO
 from tempfile import TemporaryDirectory
 
+from django.contrib.admin.widgets import AdminFileWidget
+from django.contrib.auth.models import Permission
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from django.db.models import ProtectedError
@@ -38,6 +40,26 @@ class LocationNetworksTest(TestCase):
         self.manage_url = reverse('location-manage-networks', args=[self.location.slug])
         self.detail_url = reverse('location-detail', args=[self.location.slug])
         self.index_url = reverse('locations-index')
+
+    def post_admin_affiliation(self, affiliation, inline_data):
+        location = self.location
+        return self.client.post(reverse('admin:webapp_location_change', args=[location.pk]), {
+            'name': location.name,
+            'slug': location.slug,
+            'creator': location.creator_id,
+            'description': location.description,
+            'point': location.point.ewkt,
+            'game_loan_days': location.game_loan_days,
+            'leaderboard_edit_days': location.leaderboard_edit_days,
+            'default_table_time': location.default_table_time.isoformat(),
+            'table_creation_permission': location.table_creation_permission,
+            'table_join_permission': location.table_join_permission,
+            'network_affiliations-TOTAL_FORMS': 1,
+            'network_affiliations-INITIAL_FORMS': 1,
+            'network_affiliations-0-id': affiliation.pk,
+            **{f'network_affiliations-0-{key}': value for key, value in inline_data.items()},
+            '_save': '1',
+        })
 
     def test_manager_adds_edits_and_removes_affiliation(self):
         self.client.force_login(self.manager.user)
@@ -280,7 +302,7 @@ class LocationNetworksTest(TestCase):
                 self.assertIn('custom_logo', response.context['form'].errors)
         self.assertFalse(self.location.network_affiliations.exists())
 
-    def test_admin_catalogue_logo_slug_and_affiliation_moderation(self):
+    def test_admin_catalogue_saves_website_and_replaces_logo_with_stable_slug(self):
         self.client.force_login(SuperUserProfileFactory().user)
         network_list = reverse('admin:webapp_network_changelist')
         self.assertContains(self.client.get(reverse('admin:index')), network_list)
@@ -295,13 +317,7 @@ class LocationNetworksTest(TestCase):
             self.assertEqual(logo.size, (512, 256))
             self.assertEqual(logo.getpixel((0, 0))[3], 128)
 
-        affiliation = LocationNetwork.objects.create(location=self.location, network=network, local_name='Local league',
-                                                      custom_logo='location-network-logos/local.png')
         network_change = reverse('admin:webapp_network_change', args=[network.pk])
-        affiliation_list = reverse('admin:webapp_locationnetwork_changelist', query={'network__id__exact': network.pk})
-        self.assertContains(self.client.get(network_change), affiliation_list)
-        self.assertContains(self.client.get(affiliation_list), 'Local league')
-
         storage = network.logo.storage
         original_name = network.logo.name
         with self.captureOnCommitCallbacks(execute=True):
@@ -317,12 +333,98 @@ class LocationNetworksTest(TestCase):
         self.assertFalse(storage.exists(original_name))
         self.assertEqual(network.website, website)
 
-        affiliation_change = reverse('admin:webapp_locationnetwork_change', args=[affiliation.pk])
-        response = self.client.post(affiliation_change, {'custom_logo-clear': 'on', '_save': '1'})
-        self.assertRedirects(response, reverse('admin:webapp_locationnetwork_changelist'))
+    def test_admin_network_links_to_filtered_location_list(self):
+        self.client.force_login(SuperUserProfileFactory().user)
+        self.network.is_active = False
+        self.network.save(update_fields=['is_active'])
+        LocationNetwork.objects.create(location=self.location, network=self.network)
+        LocationNetwork.objects.create(location=self.location, network=self.federludo)
+        LocationNetwork.objects.create(location=self.other_location, network=self.federludo)
+
+        filtered_url = reverse('admin:webapp_location_changelist', query={
+            'network_affiliations__network__id__exact': self.network.pk,
+        })
+        network_change = reverse('admin:webapp_network_change', args=[self.network.pk])
+        self.assertContains(self.client.get(network_change), f'href="{filtered_url}"')
+        response = self.client.get(filtered_url)
+        self.assertEqual(list(response.context['cl'].result_list), [self.location])
+        self.assertNotContains(self.client.get(reverse('admin:index')), '/admin/webapp/locationnetwork/')
+        self.assertEqual(self.client.get('/admin/webapp/locationnetwork/').status_code, 404)
+
+    def test_admin_affiliation_inline_can_replace_clear_and_remove_its_logo(self):
+        self.client.force_login(SuperUserProfileFactory().user)
+        affiliation = LocationNetwork.objects.create(location=self.location, network=self.network, local_name='Local league',
+                                                      custom_logo=logo_upload('local.png'))
+        change_url = reverse('admin:webapp_location_change', args=[self.location.pk])
+        response = self.client.get(change_url)
+        self.assertContains(response, 'Local league')
+        inline = response.context['inline_admin_formsets'][0]
+        self.assertFalse(inline.has_add_permission)
+        self.assertIsInstance(inline.formset.forms[0].fields['custom_logo'].widget, AdminFileWidget)
+        self.assertNotIn('network', inline.formset.forms[0].fields)
+        self.assertNotIn('local_name', inline.formset.forms[0].fields)
+
+        locations_list = reverse('admin:webapp_location_changelist')
+        invalid_response = self.post_admin_affiliation(affiliation, {
+            'custom_logo': SimpleUploadedFile('invalid.png', b'invalid', content_type='image/png'),
+        })
+        invalid_form = invalid_response.context['inline_admin_formsets'][0].formset.forms[0]
+        self.assertIn('custom_logo', invalid_form.errors)
+
+        storage, original_name = affiliation.custom_logo.storage, affiliation.custom_logo.name
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.post_admin_affiliation(affiliation, {
+                'custom_logo': logo_upload('local.png'), 'network': self.federludo.pk, 'local_name': 'Wrong name',
+            })
+            self.assertTrue(storage.exists(original_name))
+        self.assertRedirects(response, locations_list)
+        affiliation.refresh_from_db()
+        self.assertFalse(storage.exists(original_name))
+        self.assertEqual(affiliation.network_id, self.network.pk)
+        self.assertEqual(affiliation.local_name, 'Local league')
+
+        replacement_name = affiliation.custom_logo.name
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.post_admin_affiliation(affiliation, {'custom_logo-clear': 'on'})
+        self.assertRedirects(response, locations_list)
         affiliation.refresh_from_db()
         self.assertFalse(affiliation.custom_logo)
-        self.assertEqual(affiliation.local_name, 'Local league')
+        self.assertFalse(storage.exists(replacement_name))
+
+        affiliation.custom_logo = logo_upload('local.png')
+        affiliation.save(update_fields=['custom_logo'])
+        removed_name = affiliation.custom_logo.name
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.post_admin_affiliation(affiliation, {'DELETE': 'on'})
+        self.assertRedirects(response, locations_list)
+        self.assertFalse(self.location.network_affiliations.exists())
+        self.assertFalse(storage.exists(removed_name))
+
+    def test_view_only_affiliation_permission_does_not_allow_inline_changes(self):
+        affiliation = LocationNetwork.objects.create(location=self.location, network=self.network, local_name='Read only',
+                                                      custom_logo=logo_upload('local.png'))
+        staff = UserProfileFactory(user__is_staff=True).user
+        staff.user_permissions.set(Permission.objects.filter(content_type__app_label='webapp', codename__in=[
+            'view_network', 'view_locationnetwork',
+        ]))
+        self.client.force_login(staff)
+        filtered_url = reverse('admin:webapp_location_changelist', query={
+            'network_affiliations__network__id__exact': self.network.pk,
+        })
+        network_change = reverse('admin:webapp_network_change', args=[self.network.pk])
+        self.assertNotContains(self.client.get(network_change), f'href="{filtered_url}"')
+
+        staff.user_permissions.add(Permission.objects.get(content_type__app_label='webapp', codename='change_location'))
+        response = self.client.get(reverse('admin:webapp_location_change', args=[self.location.pk]))
+        self.assertContains(response, 'Read only')
+        self.assertNotContains(response, 'type="file" name="network_affiliations-0-custom_logo"')
+        response = self.post_admin_affiliation(affiliation, {
+            'custom_logo-clear': 'on', 'custom_logo': logo_upload('other.png'), 'DELETE': 'on',
+        })
+        self.assertRedirects(response, reverse('admin:webapp_location_changelist'))
+        current = LocationNetwork.objects.get(pk=affiliation.pk)
+        self.assertEqual(current.custom_logo.name, affiliation.custom_logo.name)
+        self.assertTrue(current.custom_logo.storage.exists(current.custom_logo.name))
 
     def test_admin_rejects_non_web_network_urls(self):
         self.client.force_login(SuperUserProfileFactory().user)
