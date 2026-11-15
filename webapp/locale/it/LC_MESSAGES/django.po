@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-14 16:17+0100\n"
+"POT-Creation-Date: 2026-11-15 10:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Affiliated locations"
+msgstr "Location affiliate"
+
+msgid "View affiliated locations"
+msgstr "Vedi le location affiliate"
 
 msgid "Merge the two selected games"
 msgstr "Unisci i due giochi selezionati"
@@ -165,6 +171,27 @@ msgstr "Indirizzo"
 
 msgid "Website"
 msgstr "Sito web"
+
+msgid "PNG, JPEG or WebP. Up to 2 MB and 2048 pixels per side."
+msgstr "PNG, JPEG o WebP. Massimo 2 MB e 2048 pixel per lato."
+
+msgid "The logo must be 2 MB or smaller."
+msgstr "Il logo può pesare al massimo 2 MB."
+
+msgid "The logo must be 2048 pixels or smaller on each side."
+msgstr "Il logo può misurare al massimo 2048 pixel per lato."
+
+msgid "Upload a valid PNG, JPEG or WebP logo."
+msgstr "Carica un logo PNG, JPEG o WebP valido."
+
+msgid "National logo"
+msgstr "Logo nazionale"
+
+msgid "Custom affiliation logo"
+msgstr "Logo personalizzato dell’affiliazione"
+
+msgid "Choose a national network"
+msgstr "Scegli un’associazione nazionale"
 
 msgid "A button with a link needs a title."
 msgstr "Un pulsante con un link deve avere un titolo."
@@ -466,6 +493,21 @@ msgstr "Chi può unirsi ai tavoli"
 #, python-format
 msgid "Game nights in %(address)s"
 msgstr "Serate di gioco a %(address)s"
+
+msgid "National network"
+msgstr "Associazione nazionale"
+
+msgid "National networks"
+msgstr "Associazioni nazionali"
+
+msgid "Local affiliation name"
+msgstr "Nome locale dell’affiliazione"
+
+msgid "Location affiliation"
+msgstr "Affiliazione della location"
+
+msgid "Location affiliations"
+msgstr "Affiliazioni delle location"
 
 msgid "Phone"
 msgstr "Telefono"
@@ -2658,6 +2700,12 @@ msgstr "Segui"
 msgid "See new tables from this location on your homepage."
 msgstr "Vedi i tavoli di questa location nella homepage."
 
+msgid "National affiliations"
+msgstr "Affiliazioni nazionali"
+
+msgid "Affiliations declared by this location."
+msgstr "Affiliazioni dichiarate da questa location."
+
 msgid "Tables at this location"
 msgstr "Tavoli in questa location"
 
@@ -2824,6 +2872,21 @@ msgstr "Modifica indirizzo"
 msgid "Set your address"
 msgstr "Inserisci un indirizzo"
 
+msgid "Affiliation unavailable"
+msgstr "Affiliazione non disponibile"
+
+msgid "Apply filter"
+msgstr "Applica filtro"
+
+msgid "Clear filter"
+msgstr "Azzera filtro"
+
+msgid "This national affiliation is unavailable."
+msgstr "Questa affiliazione nazionale non è disponibile."
+
+msgid "No locations match this affiliation."
+msgstr "Nessuna location corrisponde a questa affiliazione."
+
 msgid "No locations available yet."
 msgstr "Nessuna location disponibile al momento."
 
@@ -2832,6 +2895,9 @@ msgid ""
 msgstr ""
 "C'è un club, un'associazione o un negozio di giochi vicino a te? Aggiungilo "
 "per primo."
+
+msgid "No locations to show on the map."
+msgstr "Nessuna location da mostrare sulla mappa."
 
 msgid "View page"
 msgstr "Vedi pagina"
@@ -3048,6 +3114,9 @@ msgstr "L'importazione è ancora in corso. Uscire comunque?"
 
 msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
+
+msgid "Manage this location's affiliations with national networks"
+msgstr "Gestisci le affiliazioni nazionali di questa location"
 
 msgid "Add, remove managers and transfer ownership"
 msgstr "Aggiungi, rimuovi manager e trasferisci l'ownership"
@@ -3280,6 +3349,21 @@ msgstr "Carica"
 
 msgid "Delete document"
 msgstr "Elimina documento"
+
+msgid "Add an affiliation"
+msgstr "Aggiungi un’affiliazione"
+
+msgid "Add affiliation"
+msgstr "Aggiungi affiliazione"
+
+msgid "There are no national networks available yet."
+msgstr "Non ci sono ancora associazioni nazionali disponibili."
+
+msgid "Can't find your national network?"
+msgstr "Non trovi la tua associazione nazionale?"
+
+msgid "Write to us"
+msgstr "Scrivici"
 
 msgid "Control who can create and join tables at this location."
 msgstr "Decidi chi può creare e unirsi ai tavoli."
@@ -4919,6 +5003,22 @@ msgid ""
 msgstr ""
 "Ricordati di stampare e firmare i documenti di adesione: li trovi in \"Le "
 "mie iscrizioni\"."
+
+#, python-format
+msgid "National affiliations – %(name)s"
+msgstr "Affiliazioni nazionali – %(name)s"
+
+msgid "Affiliation updated."
+msgstr "Affiliazione aggiornata."
+
+msgid "Affiliation added."
+msgstr "Affiliazione aggiunta."
+
+msgid "This national network is no longer available."
+msgstr "Questa associazione nazionale non è più disponibile."
+
+msgid "Affiliation removed."
+msgstr "Affiliazione rimossa."
 
 msgid "The game library is now visible on the location page."
 msgstr "La ludoteca ora è visibile nella pagina della location."

@@ -1,17 +1,23 @@
 import datetime
+from io import BytesIO
+from pathlib import Path
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple
+    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
+    ClearableFileInput, FileField, ImageField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag
+from PIL import Image, ImageOps
+
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services.game_loans import active_members, default_loan_due_date
 from webapp.services.images import COVER_MAX_SIDE
 
@@ -702,6 +708,64 @@ class LocationManageDataForm(LocationForm):
         self.fields['leaderboard_edit_days'].widget.attrs.update({
             'min': Location.LEADERBOARD_EDIT_DAYS_MIN, 'max': Location.LEADERBOARD_EDIT_DAYS_MAX,
         })
+
+
+class NetworkLogoField(ImageField):
+    max_upload_size = 2 * 1024 * 1024
+    max_upload_side = 2048
+    max_logo_side = 512
+    widget = ClearableFileInput(attrs={'accept': 'image/png,image/jpeg,image/webp'})
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('help_text', _('PNG, JPEG or WebP. Up to 2 MB and 2048 pixels per side.'))
+        super().__init__(**kwargs)
+
+    def to_python(self, data):
+        upload = FileField.to_python(self, data)
+        if upload is None:
+            return None
+        if upload.size > self.max_upload_size:
+            raise ValidationError(_('The logo must be 2 MB or smaller.'))
+
+        try:
+            with Image.open(upload, formats=('PNG', 'JPEG', 'WEBP')) as source:
+                if max(source.size) > self.max_upload_side:
+                    raise ValidationError(_('The logo must be 2048 pixels or smaller on each side.'))
+                logo = ImageOps.exif_transpose(source).convert('RGBA')
+                logo.thumbnail((self.max_logo_side, self.max_logo_side), Image.Resampling.LANCZOS)
+                output = BytesIO()
+                logo.save(output, format='PNG')
+        except (OSError, ValueError, Image.DecompressionBombError) as exc:
+            raise ValidationError(_('Upload a valid PNG, JPEG or WebP logo.')) from exc
+
+        return SimpleUploadedFile(f'{Path(upload.name).stem}.png', output.getvalue(), content_type='image/png')
+
+
+class NetworkForm(ModelForm):
+    logo = NetworkLogoField(label=_('National logo'), required=False)
+
+    class Meta:
+        model = Network
+        fields = ['name', 'logo', 'is_active']
+
+
+class LocationNetworkForm(ModelForm, TailwindForm):
+    custom_logo = NetworkLogoField(label=_('Custom affiliation logo'), required=False)
+
+    class Meta:
+        model = LocationNetwork
+        fields = ['local_name', 'custom_logo']
+
+
+class AddLocationNetworkForm(LocationNetworkForm):
+    class Meta(LocationNetworkForm.Meta):
+        fields = ['network', *LocationNetworkForm.Meta.fields]
+
+    def __init__(self, *args, location, **kwargs):
+        super().__init__(*args, **kwargs)
+        network_field = self.fields['network']
+        network_field.queryset = Network.objects.filter(is_active=True).exclude(locations=location)
+        network_field.empty_label = _('Choose a national network')
 
 
 class ContactForm(TailwindForm):

@@ -1,0 +1,78 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags %}
+
+{% block content %}
+  <div class="max-w-2xl space-y-6">
+    <header>
+      {% if affiliation %}
+        {% back_link 'location-manage-networks' location.slug label=_("National affiliations") %}
+        <h1 class="text-2xl font-extrabold text-content">{{ affiliation.network.name }}</h1>
+      {% else %}
+        {% back_link 'location-manage' location.slug label=_("Manage location") %}
+        <h1 class="text-2xl font-extrabold text-content">{% trans "National affiliations" %}</h1>
+      {% endif %}
+    </header>
+
+    {% if not affiliation and page_obj.object_list %}
+      <ul class="space-y-2">
+        {% for item in page_obj %}
+          <li class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-divider bg-surface p-4">
+            <div class="min-w-0 break-words">
+              <p class="font-semibold text-content">{{ item.display_name }}</p>
+              {% if item.local_name and item.local_name != item.network.name %}
+                <p class="text-sm text-content-muted">{{ item.network.name }}</p>
+              {% endif %}
+              {% if not item.network.is_active %}
+                <p class="text-sm text-content-muted">{% trans "Archived" %}</p>
+              {% endif %}
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-sm font-semibold">
+              {% if item.network.is_active %}
+                <a class="text-content-soft hover:underline" href="{% url 'location-edit-network' location.slug item.pk %}">{% trans "Edit" %}</a>
+              {% endif %}
+              <form method="post" action="{% url 'location-remove-network' location.slug item.pk %}">
+                {% csrf_token %}
+                <button class="text-red-600 hover:underline dark:text-red-400" type="submit">{% trans "Remove" %}</button>
+              </form>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      {% include "partials/_pagination.html" %}
+    {% endif %}
+
+    {% if affiliation or can_add %}
+      <form method="post" enctype="multipart/form-data" class="space-y-4 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+        {% csrf_token %}
+        {% if not affiliation %}
+          <h2 class="text-base font-bold text-content">{% trans "Add an affiliation" %}</h2>
+        {% endif %}
+        <div class="space-y-4 text-sm text-content">
+          {% for field in form %}
+            <div>
+              <label for="{{ field.id_for_label }}" class="mb-1.5 block font-semibold">{{ field.label }}</label>
+              {% if field.help_text %}
+                <p class="mb-1.5 text-xs text-content-muted" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>
+              {% endif %}
+              <div class="break-words [&_input[type=file]]:max-w-full">{{ field }}</div>
+              {% if field.errors %}<div class="mt-1.5 text-sm text-red-600 dark:text-red-400">{{ field.errors }}</div>{% endif %}
+            </div>
+          {% endfor %}
+          {% if form.non_field_errors %}<div class="text-red-600 dark:text-red-400">{{ form.non_field_errors }}</div>{% endif %}
+        </div>
+        <button type="submit" class="rounded-full bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">
+          {% if affiliation %}{% trans "Save changes" %}{% else %}{% trans "Add affiliation" %}{% endif %}
+        </button>
+      </form>
+    {% elif not page_obj.object_list %}
+      <p class="text-sm text-content-muted">{% trans "There are no national networks available yet." %}</p>
+    {% endif %}
+
+    {% if not affiliation %}
+      <p class="text-sm text-content-muted">
+        {% trans "Can't find your national network?" %}
+        <a href="{% url 'contacts' %}" class="whitespace-nowrap font-semibold text-content hover:underline">{% trans "Write to us" %} →</a>
+      </p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -44,13 +44,15 @@
       <h2 class="text-base font-bold text-content">{% trans "Locations" %}</h2>
       <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5">
         <button id="btn-loc-list"
+                type="button" aria-controls="locations-list" aria-pressed="{% if map_selected %}false{% else %}true{% endif %}"
                 onclick="showLocTab('list')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all {% if map_selected %}bg-transparent text-content-muted hover:text-content{% else %}bg-surface text-content shadow-sm{% endif %}">
           {% trans "List" %}
         </button>
         <button id="btn-loc-map"
+                type="button" aria-controls="locations-map-container" aria-pressed="{% if map_selected %}true{% else %}false{% endif %}"
                 onclick="showLocTab('map')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all {% if map_selected %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-muted hover:text-content{% endif %}">
           {% trans "Map" %}
         </button>
       </div>
@@ -74,29 +76,64 @@
       </p>
     {% endif %}
 
+    {% if networks or network_unavailable %}
+      <form method="get" action="{% url 'locations-index' %}" class="mb-4 flex flex-wrap items-end gap-2">
+        {% if request.GET.new_table %}<input type="hidden" name="new_table" value="{{ request.GET.new_table }}">{% endif %}
+        <input type="hidden" name="view" id="network-filter-view" value="{% if map_selected %}map{% endif %}">
+        <div class="min-w-0 max-w-full">
+          <label for="network-filter" class="mb-1 block text-xs font-semibold text-content-soft">{% trans "National network" %}</label>
+          <select id="network-filter" name="network" class="max-w-full rounded-xl border border-divider bg-surface px-3 py-2 text-sm text-content">
+            <option value="">{% trans "All" %}</option>
+            {% if network_unavailable %}<option value="" disabled selected>{% trans "Affiliation unavailable" %}</option>{% endif %}
+            {% for network in networks %}
+              <option value="{{ network.slug }}"{% if network.pk == selected_network.pk %} selected{% endif %}>{{ network.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="rounded-full border border-divider bg-surface px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Apply filter" %}</button>
+        {% if selected_network or network_unavailable %}
+          <a href="{{ reset_network_url }}" data-reset-network class="px-2 py-2 text-sm font-semibold text-content-soft hover:underline">{% trans "Clear filter" %}</a>
+        {% endif %}
+      </form>
+    {% endif %}
+
     {# List view #}
-    <div id="locations-list">
+    <div id="locations-list"{% if map_selected %} hidden{% endif %}>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {% for location in nearby_locations %}
           {% location_card location %}
           {% if forloop.last %}{% include "partials/_add_location_card.html" %}{% endif %}
         {% empty %}
           <div class="col-span-full rounded-xl border border-divider bg-surface px-6 py-12 text-center">
-            <p class="text-sm font-semibold text-content">{% trans "No locations available yet." %}</p>
-            <p class="text-xs text-content-muted mt-1 mb-4">{% trans "Is there a club, association or game shop near you? Be the first to add it." %}</p>
-            <a href="{% url 'location-create' %}"
-               class="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-blue-700 transition-colors text-decoration-none">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            {% if network_unavailable %}
+              <p class="text-sm font-semibold text-content">{% trans "This national affiliation is unavailable." %}</p>
+            {% elif selected_network %}
+              <p class="text-sm font-semibold text-content">{% trans "No locations match this affiliation." %}</p>
+            {% else %}
+              <p class="text-sm font-semibold text-content">{% trans "No locations available yet." %}</p>
+              <p class="text-xs text-content-muted mt-1 mb-4">{% trans "Is there a club, association or game shop near you? Be the first to add it." %}</p>
+              <a href="{% url 'location-create' %}"
+                 class="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-blue-700 transition-colors text-decoration-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
               {% trans "Add location" %}
-            </a>
+              </a>
+            {% endif %}
           </div>
         {% endfor %}
       </div>
     </div>
 
     {# Map view #}
-    <div id="locations-map-container" style="display:none">
-      <div id="locations-map" style="width:100%;height:420px;border-radius:0.75rem;overflow:hidden"></div>
+    <div id="locations-map-container"{% if not map_selected %} hidden{% endif %}>
+      {% if map_locations %}
+        <div id="locations-map" class="h-[420px] w-full overflow-hidden rounded-xl"></div>
+      {% else %}
+        <p class="rounded-xl border border-divider bg-surface px-6 py-12 text-center text-sm font-semibold text-content">
+          {% if network_unavailable %}{% trans "This national affiliation is unavailable." %}
+          {% elif selected_network and not nearby_locations %}{% trans "No locations match this affiliation." %}
+          {% else %}{% trans "No locations to show on the map." %}{% endif %}
+        </p>
+      {% endif %}
     </div>
   </section>
 
@@ -108,35 +145,48 @@
 {% endblock content %}
 
 {% block extrabodyjs %}
+  {{ map_locations|json_script:"location-map-data" }}
   <script>
-    const HOME_LOCATIONS = [
-      {% for loc in nearby_locations %}{% if loc.latitude and loc.longitude %}
-        {"name": "{{ loc.name|escapejs }}", "lat": {{ loc.latitude }}, "lng": {{ loc.longitude }}, "url": "{% url 'location-detail' loc.slug %}"},
-      {% endif %}{% endfor %}
-    ];
-    const _viewPageLabel = "{% trans 'View page' %}";
+    const locationsMapData = JSON.parse(document.getElementById('location-map-data').textContent);
+    const viewPageLabel = "{{ _('View page')|escapejs }}";
 
     const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
     const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
 
     function showLocTab(tab) {
       const isList = tab === 'list';
-      document.getElementById('locations-list').style.display          = isList ? '' : 'none';
-      document.getElementById('locations-map-container').style.display = isList ? 'none' : '';
-      document.getElementById('btn-loc-list').className = isList ? LOC_ACTIVE : LOC_INACTIVE;
-      document.getElementById('btn-loc-map').className  = isList ? LOC_INACTIVE : LOC_ACTIVE;
-      if (!isList) renderHomeMap();
+      const listButton = document.getElementById('btn-loc-list');
+      const mapButton = document.getElementById('btn-loc-map');
+      document.getElementById('locations-list').hidden = !isList;
+      document.getElementById('locations-map-container').hidden = isList;
+      listButton.className = isList ? LOC_ACTIVE : LOC_INACTIVE;
+      mapButton.className = isList ? LOC_INACTIVE : LOC_ACTIVE;
+      listButton.setAttribute('aria-pressed', isList);
+      mapButton.setAttribute('aria-pressed', !isList);
+
+      const viewField = document.getElementById('network-filter-view');
+      if (viewField) viewField.value = isList ? '' : 'map';
+      document.querySelectorAll('[data-reset-network]').forEach(link => {
+        const url = new URL(link.href);
+        if (isList) url.searchParams.delete('view');
+        else url.searchParams.set('view', 'map');
+        link.href = url;
+      });
+      if (!isList) renderLocationsMap();
     }
 
-    let homeMapInitialized = false;
+    let locationsMapInitialized = false;
 
-    function initHomeMap() {}
+    function initLocationsMap() {
+      if (!document.getElementById('locations-map-container').hidden) renderLocationsMap();
+    }
 
-    function renderHomeMap() {
-      if (homeMapInitialized) return;
-      homeMapInitialized = true;
+    function renderLocationsMap() {
+      const container = document.getElementById('locations-map');
+      if (locationsMapInitialized || !container || !window.google?.maps?.marker?.AdvancedMarkerElement) return;
+      locationsMapInitialized = true;
 
-      const map = new google.maps.Map(document.getElementById('locations-map'), {
+      const map = new google.maps.Map(container, {
         zoom: 6,
         center: { lat: 42.5, lng: 12.5 },
         mapId: 'booohhh',
@@ -150,19 +200,36 @@
       const bounds = new google.maps.LatLngBounds();
       const allMarkers = [];
 
-      HOME_LOCATIONS.forEach(function(loc) {
+      locationsMapData.forEach(function(loc) {
         const marker = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: loc.lat, lng: loc.lng },
           title: loc.name,
         });
 
         marker.addListener('click', function() {
-          infoWindow.setContent(
-            '<div style="font-family:sans-serif;padding:8px 10px 10px;min-width:140px">' +
-            '<p style="font-weight:700;font-size:13px;color:#0f172a;margin:0 0 5px 0">' + loc.name + '</p>' +
-            '<a href="' + loc.url + '" style="font-size:12px;color:#2563eb;font-weight:600;text-decoration:none">' + _viewPageLabel + ' →</a>' +
-            '</div>'
-          );
+          const popup = document.createElement('div');
+          popup.className = 'min-w-36 max-w-56 space-y-1.5 rounded-lg bg-surface p-2 text-content';
+          const name = document.createElement('p');
+          name.className = 'break-words text-sm font-bold';
+          name.textContent = loc.name;
+          popup.append(name);
+          if (loc.affiliations.length) {
+            const badges = document.createElement('ul');
+            badges.className = 'flex flex-wrap gap-1';
+            loc.affiliations.forEach(affiliation => {
+              const badge = document.createElement('li');
+              badge.className = 'max-w-full break-words rounded bg-surface-input px-1.5 py-0.5 text-xs font-medium text-content-soft';
+              badge.textContent = affiliation;
+              badges.append(badge);
+            });
+            popup.append(badges);
+          }
+          const link = document.createElement('a');
+          link.className = 'text-xs font-semibold text-content hover:underline';
+          link.href = loc.url;
+          link.textContent = `${viewPageLabel} →`;
+          popup.append(link);
+          infoWindow.setContent(popup);
           infoWindow.open({ anchor: marker, map: map });
         });
 
@@ -170,14 +237,18 @@
         allMarkers.push(marker);
       });
 
-      new markerClusterer.MarkerClusterer({ markers: allMarkers, map: map });
-
-      if (HOME_LOCATIONS.length > 0) {
-        map.fitBounds(bounds);
-        if (HOME_LOCATIONS.length === 1) map.setZoom(14);
+      if (window.markerClusterer) {
+        new markerClusterer.MarkerClusterer({ markers: allMarkers, map: map });
+      } else {
+        allMarkers.forEach(marker => { marker.map = map; });
       }
+
+      map.fitBounds(bounds);
+      if (locationsMapData.length === 1) map.setZoom(14);
     }
   </script>
-  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js" defer></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&libraries=marker&callback=initHomeMap&loading=async" async defer></script>
+  {% if map_locations %}
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&libraries=marker&callback=initLocationsMap&loading=async" async></script>
+  {% endif %}
 {% endblock %}

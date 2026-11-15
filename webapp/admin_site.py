@@ -22,6 +22,8 @@ class CustomAdminSite(AdminSite):
         ]),
         ('location_group', 'Location', [
             ('webapp', 'Location'),
+            ('webapp', 'Network'),
+            ('webapp', 'LocationNetwork'),
             ('webapp', 'LocationFollower'),
             ('webapp', 'LocationGame'),
             ('webapp', 'LocationGameTag'),

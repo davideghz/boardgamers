@@ -7,13 +7,15 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.deletion import RestrictedError
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
+from webapp.forms import LocationNetworkForm, NetworkForm
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag
+    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services import games as game_services
 from webapp.services.tables import sync_legacy_result
 
@@ -118,6 +120,40 @@ class LocationAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.JSONField: {'widget': JSONEditorWidget},
     }
+
+
+@admin.register(Network)
+class NetworkAdmin(admin.ModelAdmin):
+    form = NetworkForm
+    list_display = ('name', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'slug')
+    readonly_fields = ('slug',)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and (request.user.has_perm('webapp.view_locationnetwork') or
+                    request.user.has_perm('webapp.change_locationnetwork')):
+            return (*self.readonly_fields, 'affiliated_locations')
+        return self.readonly_fields
+
+    @admin.display(description=_('Affiliated locations'))
+    def affiliated_locations(self, obj):
+        url = reverse('admin:webapp_locationnetwork_changelist', query={'network__id__exact': obj.pk})
+        return format_html('<a href="{}">{}</a>', url, _('View affiliated locations'))
+
+
+@admin.register(LocationNetwork)
+class LocationNetworkAdmin(admin.ModelAdmin):
+    form = LocationNetworkForm
+    list_display = ('location', 'network', 'local_name', 'updated_at')
+    list_filter = ('network',)
+    list_select_related = ('location', 'network')
+    search_fields = ('location__name', 'network__name', 'local_name')
+    fields = ('location', 'network', 'local_name', 'custom_logo')
+    readonly_fields = ('location', 'network', 'local_name')
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(Game)

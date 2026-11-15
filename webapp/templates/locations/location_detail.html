@@ -114,6 +114,40 @@
         {% endif %}
       </section>
 
+      {% if affiliations %}
+        <section>
+          <h2 class="text-lg font-bold text-content">{% trans "National affiliations" %}</h2>
+          <p class="mt-1 text-sm text-content-muted">{% trans "Affiliations declared by this location." %}</p>
+          <ul class="mt-3 space-y-2">
+            {% for affiliation in affiliations %}
+              <li class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-divider bg-surface p-3">
+                <div class="min-w-0 break-words">
+                  <a href="{% url 'locations-index' %}?network={{ affiliation.network.slug }}"
+                     class="inline-block max-w-full break-words rounded-full bg-surface-input px-3 py-1.5 text-sm font-semibold text-content hover:underline">
+                    {{ affiliation.display_name }}
+                  </a>
+                  {% if affiliation.local_name and affiliation.local_name != affiliation.network.name %}
+                    <p class="mt-1 px-1 text-sm text-content-muted">{{ affiliation.network.name }}</p>
+                  {% endif %}
+                </div>
+                {% if affiliation.network.logo or affiliation.custom_logo %}
+                  <div class="flex items-center gap-2">
+                    {% if affiliation.network.logo %}
+                      <img src="{{ affiliation.network.logo.url }}" alt="{% trans 'National logo' %}"
+                           width="56" height="56" loading="lazy" class="size-14 rounded-lg bg-surface-input object-contain p-1">
+                    {% endif %}
+                    {% if affiliation.custom_logo %}
+                      <img src="{{ affiliation.custom_logo.url }}" alt="{% trans 'Custom affiliation logo' %}"
+                           width="56" height="56" loading="lazy" class="size-14 rounded-lg bg-surface-input object-contain p-1">
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
       {# ── Tavoli ──────────────────────────────────────── #}
       <section>
         <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">

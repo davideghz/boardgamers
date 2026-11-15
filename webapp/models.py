@@ -60,6 +60,7 @@ class DateTimeModel(models.Model):
 class SlugModel(models.Model):
     slug_field_name = None
     random_string_length = 6
+    regenerate_slug_on_rename = True
 
     class Meta:
         abstract = True
@@ -93,7 +94,10 @@ class SlugModel(models.Model):
                 return candidate
 
     def save(self, *args, **kwargs):
-        if self.pk:
+        if not self.regenerate_slug_on_rename:
+            if not self.slug:
+                self.slug = self.create_unique_slug()
+        elif self.pk:
             original = type(self).objects.get(pk=self.pk)
             original_slug = slugify(getattr(original, self.slug_field_name))
             current_slug = slugify(self.get_slug_source_value())
@@ -189,6 +193,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
 
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
+    networks = models.ManyToManyField('Network', through='LocationNetwork', related_name='locations', blank=True)
     description = models.TextField()
     cover = models.ImageField(upload_to='location-covers', null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
@@ -372,6 +377,45 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
         super().save(*args, **kwargs)
+
+
+class Network(DateTimeModel, SlugModel):
+    slug_field_name = 'name'
+    regenerate_slug_on_rename = False
+
+    name = models.CharField(_('Name'), max_length=255)
+    slug = models.SlugField(max_length=144, unique=True, blank=True)
+    logo = models.ImageField(_('National logo'), upload_to='network-logos', blank=True)
+    is_active = models.BooleanField(_('Active'), default=True)
+
+    class Meta:
+        ordering = ['name', 'pk']
+        verbose_name = _('National network')
+        verbose_name_plural = _('National networks')
+
+    def __str__(self):
+        return self.name
+
+
+class LocationNetwork(DateTimeModel):
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='network_affiliations')
+    network = models.ForeignKey(Network, on_delete=models.PROTECT, related_name='affiliations',
+                                verbose_name=_('National network'))
+    local_name = models.CharField(_('Local affiliation name'), max_length=100, blank=True)
+    custom_logo = models.ImageField(_('Custom affiliation logo'), upload_to='location-network-logos', blank=True)
+
+    class Meta:
+        ordering = ['network__name', 'network_id', 'pk']
+        constraints = [models.UniqueConstraint(fields=['location', 'network'], name='unique_location_network')]
+        verbose_name = _('Location affiliation')
+        verbose_name_plural = _('Location affiliations')
+
+    @property
+    def display_name(self):
+        return self.local_name or self.network.name
+
+    def __str__(self):
+        return f'{self.location.name} – {self.network.name}'
 
 
 class UserProfile(DateTimeModel, ModelMeta, SlugModel):
