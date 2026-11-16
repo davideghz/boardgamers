@@ -14,7 +14,7 @@ class EventParticipationTest(TestCase):
     def setUp(self):
         self.user = UserProfileFactory()
         self.event = Event.objects.create(
-            name="Con", slug="con", creator=UserProfileFactory(), status=Event.APPROVED)
+            name="Con", slug="con", creator=UserProfileFactory(), status=Event.PUBLISHED)
         self.date = EventDate.objects.create(
             event=self.event, date=timezone.localdate() + timedelta(days=7))
         self.detail_url = reverse('event_detail', kwargs={'slug': self.event.slug})

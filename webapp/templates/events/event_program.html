@@ -4,6 +4,8 @@
 
 {% block content %}
 
+  {% include "events/_status_banner.html" %}
+
   {# ── Header ───────────────────────────────────────────────────────── #}
   <div class="mb-6">
     {% back_link 'event_detail' event.slug label=event.name %}

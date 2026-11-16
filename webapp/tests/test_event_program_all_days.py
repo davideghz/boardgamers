@@ -15,7 +15,7 @@ class EventProgramAllDaysTest(TestCase):
     def setUp(self):
         self.owner = UserProfileFactory()
         self.event = Event.objects.create(
-            name="Con", slug="con", creator=self.owner, status=Event.APPROVED)
+            name="Con", slug="con", creator=self.owner, status=Event.PUBLISHED)
         self.today = timezone.localdate()
         self.url = reverse('event-program', kwargs={'slug': self.event.slug})
 

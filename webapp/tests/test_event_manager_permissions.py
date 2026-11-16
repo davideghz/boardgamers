@@ -12,7 +12,7 @@ class EventManagerPermissionsTest(TestCase):
     def setUp(self):
         self.owner = UserProfileFactory()
         self.outsider = UserProfileFactory()
-        self.event = Event.objects.create(name="Con", slug="con", creator=self.owner, status=Event.APPROVED)
+        self.event = Event.objects.create(name="Con", slug="con", creator=self.owner, status=Event.PUBLISHED)
         self.client.force_login(self.outsider.user)
 
     def test_outsider_cannot_become_manager(self):

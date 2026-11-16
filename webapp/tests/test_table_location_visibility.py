@@ -52,7 +52,7 @@ class TableLocationVisibilityTest(TestCase):
                 self.assertEqual(list(response.context['tables']), expected)
 
     def test_event_tables_stay_outside_the_index(self):
-        event = Event.objects.create(name='Event', creator=self.profile, status=Event.PENDING)
+        event = Event.objects.create(name='Event', creator=self.profile, status=Event.DRAFT)
         TableFactory(author=self.profile, location=None, event=event, date=self.upcoming.date)
         response = self.client.get(reverse('table-index'))
         self.assertEqual(list(response.context['tables']), [self.upcoming])

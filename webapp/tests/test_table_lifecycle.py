@@ -111,7 +111,7 @@ class EventLeaderboardSwitchTest(TestCase):
         self.superuser = UserProfileFactory()
         self.superuser.user.is_superuser = True
         self.superuser.user.save()
-        self.event = Event.objects.create(name='Con', status=Event.APPROVED)
+        self.event = Event.objects.create(name='Con', status=Event.PUBLISHED)
         self.table = Table.objects.create(
             title='Torneo', event=self.event, author=UserProfileFactory(), game=GameFactory(),
             date=timezone.localdate(), time=datetime.time(0, 0),

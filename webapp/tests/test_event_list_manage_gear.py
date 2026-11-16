@@ -10,7 +10,7 @@ from webapp.models import Event, EventDate
 
 class EventListManageGearTest(TestCase):
     """On the events page, cards of events the user created or manages carry a
-    gear linking to the management page; their pending events are listed among
+    gear linking to the management page; their drafts are listed among
     the upcoming ones, for them only."""
 
     def setUp(self):
@@ -18,12 +18,12 @@ class EventListManageGearTest(TestCase):
         self.other = UserProfileFactory()
         future = timezone.localdate() + datetime.timedelta(days=3)
         self.owned = Event.objects.create(
-            name="Owned con", slug="owned-con", creator=self.user_profile, status=Event.APPROVED)
+            name="Owned con", slug="owned-con", creator=self.user_profile, status=Event.PUBLISHED)
         self.managed = Event.objects.create(
-            name="Managed con", slug="managed-con", creator=self.other, status=Event.APPROVED)
+            name="Managed con", slug="managed-con", creator=self.other, status=Event.PUBLISHED)
         self.managed.managers.add(self.user_profile)
         self.foreign = Event.objects.create(
-            name="Foreign con", slug="foreign-con", creator=self.other, status=Event.APPROVED)
+            name="Foreign con", slug="foreign-con", creator=self.other, status=Event.PUBLISHED)
         self.pending = Event.objects.create(name="Pending con", slug="pending-con", creator=self.user_profile)
         for event in (self.owned, self.managed, self.foreign, self.pending):
             EventDate.objects.create(event=event, date=future)
@@ -38,7 +38,7 @@ class EventListManageGearTest(TestCase):
         self.assertContains(response, self._manage_url(self.managed))
         self.assertNotContains(response, self._manage_url(self.foreign))
 
-    def test_managed_pending_events_are_listed_with_their_status(self):
+    def test_managed_drafts_are_listed_with_their_status(self):
         undated = Event.objects.create(name="Undated con", slug="undated-con", creator=self.user_profile)
         self.client.force_login(self.user_profile.user)
         response = self.client.get(reverse('event-index'))
@@ -46,9 +46,9 @@ class EventListManageGearTest(TestCase):
         self.assertIn(self.pending, upcoming)
         self.assertEqual(upcoming[-1], undated)
         self.assertContains(response, self._manage_url(self.pending))
-        self.assertContains(response, "In attesa")
+        self.assertContains(response, "Bozza")
 
-    def test_pending_events_stay_hidden_from_others(self):
+    def test_drafts_stay_hidden_from_others(self):
         foreign_pending = Event.objects.create(name="Foreign pending", slug="foreign-pending", creator=self.other)
         EventDate.objects.create(event=foreign_pending, date=timezone.localdate())
         self.client.force_login(self.user_profile.user)
@@ -58,8 +58,8 @@ class EventListManageGearTest(TestCase):
         response = self.client.get(reverse('event-index'))
         self.assertNotContains(response, "Pending con")
 
-    def test_rejected_events_are_not_listed(self):
-        self.pending.status = Event.REJECTED
+    def test_blocked_events_are_not_listed(self):
+        self.pending.status = Event.BLOCKED
         self.pending.save()
         self.client.force_login(self.user_profile.user)
         response = self.client.get(reverse('event-index'))
@@ -83,7 +83,7 @@ class AccountEventsFirstDateTest(TestCase):
 
 class EventCardEndedBadgeTest(TestCase):
     def test_past_event_card_says_ended(self):
-        event = Event.objects.create(name="Old con", slug="old-con", status=Event.APPROVED)
+        event = Event.objects.create(name="Old con", slug="old-con", status=Event.PUBLISHED)
         EventDate.objects.create(event=event, date=timezone.localdate() - datetime.timedelta(days=3))
         response = self.client.get(reverse('event-index'))
         self.assertContains(response, "Concluso")

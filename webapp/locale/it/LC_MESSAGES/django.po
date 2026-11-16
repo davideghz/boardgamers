@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-15 13:54+0100\n"
+"POT-Creation-Date: 2026-11-16 12:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "National affiliations"
+msgstr "Affiliazioni nazionali"
 
 msgid "Affiliated locations"
 msgstr "Location affiliate"
@@ -174,15 +177,6 @@ msgstr "Sito web"
 
 msgid "PNG, JPEG or WebP. Up to 2 MB and 2048 pixels per side."
 msgstr "PNG, JPEG o WebP. Massimo 2 MB e 2048 pixel per lato."
-
-msgid "The logo must be 2 MB or smaller."
-msgstr "Il logo può pesare al massimo 2 MB."
-
-msgid "The logo must be 2048 pixels or smaller on each side."
-msgstr "Il logo può misurare al massimo 2048 pixel per lato."
-
-msgid "Upload a valid PNG, JPEG or WebP logo."
-msgstr "Carica un logo PNG, JPEG o WebP valido."
 
 msgid "National logo"
 msgstr "Logo nazionale"
@@ -366,8 +360,8 @@ msgstr "Un tavolo è stato eliminato"
 msgid "A new player joined the table"
 msgstr "Nuovo giocatore al tavolo"
 
-msgid "New event to approve"
-msgstr "Nuovo evento da approvare"
+msgid "New event published"
+msgstr "Nuovo evento pubblicato"
 
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
@@ -493,6 +487,9 @@ msgstr "Chi può unirsi ai tavoli"
 #, python-format
 msgid "Game nights in %(address)s"
 msgstr "Serate di gioco a %(address)s"
+
+msgid "Active"
+msgstr "Attivo"
 
 msgid "National network"
 msgstr "Associazione nazionale"
@@ -745,9 +742,6 @@ msgstr "Soci"
 msgid "Pending"
 msgstr "In attesa"
 
-msgid "Active"
-msgstr "Attivo"
-
 msgid "Expired"
 msgstr "Scaduto"
 
@@ -871,11 +865,14 @@ msgstr "Risposta"
 msgid "FAQ"
 msgstr "FAQ"
 
-msgid "Pending approval"
-msgstr "In attesa"
+msgid "Draft"
+msgstr "Bozza"
 
-msgid "Approved"
-msgstr "Approvato"
+msgid "Published"
+msgstr "Pubblicato"
+
+msgid "Blocked"
+msgstr "Bloccato"
 
 msgid "Cover"
 msgstr "Immagine di copertina"
@@ -916,6 +913,12 @@ msgstr "Link del pulsante"
 #, python-format
 msgid "%(name)s — gaming event"
 msgstr "%(name)s – evento boardgames"
+
+msgid "Add at least one date"
+msgstr "Aggiungi almeno una data"
+
+msgid "Write a description"
+msgstr "Scrivi una descrizione"
 
 msgid "Events"
 msgstr "Eventi"
@@ -1012,6 +1015,15 @@ msgid "The due date cannot be before the loan date."
 msgstr ""
 "La data di rientro deve coincidere con la data di consegna o essere "
 "successiva."
+
+msgid "The logo must be 2 MB or smaller."
+msgstr "Il logo può pesare al massimo 2 MB."
+
+msgid "The logo must be 2048 pixels or smaller on each side."
+msgstr "Il logo può misurare al massimo 2048 pixel per lato."
+
+msgid "Upload a valid PNG, JPEG or WebP logo."
+msgstr "Carica un logo PNG, JPEG o WebP valido."
 
 msgid "Invalid value."
 msgstr "Valore non valido."
@@ -1749,14 +1761,20 @@ msgstr "Puoi gestire le tue preferenze di notifica email nel tuo profilo"
 msgid "at this link"
 msgstr "a questo link"
 
-msgid "A new event is waiting for approval"
-msgstr "Un nuovo evento è in attesa di approvazione"
+msgid "A new event has been published"
+msgstr "È stato pubblicato un nuovo evento"
 
 msgid "Created by"
 msgstr "Creato da"
 
-msgid "Approve it from the admin"
-msgstr "Approvalo dall'admin"
+msgid "Published by"
+msgstr "Pubblicato da"
+
+msgid "If it breaks the rules, block it from the admin"
+msgstr "Se viola le regole, bloccalo dall'admin"
+
+msgid "If it breaks the rules, block it from the admin."
+msgstr "Se viola le regole, bloccalo dall'admin."
 
 msgid "Open in the admin"
 msgstr "Apri nell'admin"
@@ -1901,11 +1919,24 @@ msgstr ""
 "Clicca sul pulsante qui sotto per confermare il tuo indirizzo email e "
 "completare la configurazione del tuo account."
 
+msgid ""
+"This event is not visible to the public yet. Publish it when it's ready."
+msgstr "Questo evento non è ancora visibile al pubblico. Pubblicalo quando è pronto."
+
+msgid "Go to publishing"
+msgstr "Vai alla pubblicazione"
+
+msgid ""
+"An admin blocked this event: it is not visible to the public. Contact us if "
+"you think it's a mistake."
+msgstr "Un admin ha bloccato questo evento: non è visibile al pubblico. Contattaci se pensi sia un errore."
+
 msgid "My Events"
 msgstr "I miei Eventi"
 
-msgid "The event will be published after approval by an admin."
-msgstr "L'evento sarà pubblicato dopo l'approvazione di un admin."
+msgid ""
+"The event starts as a draft: you can publish it yourself once it's ready."
+msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
 
 msgid "Cover image"
 msgstr "Immagine di copertina"
@@ -1915,10 +1946,6 @@ msgstr "Scegli un'immagine…"
 
 msgid "We'll use this to show the location on the map."
 msgstr "Lo useremo per mostrare la location sulla mappa."
-
-msgid ""
-"This event is awaiting admin approval and is not yet visible to the public."
-msgstr "Evento in attesa di approvazione, non visibile al pubblico."
 
 msgid "You're attending"
 msgstr "Stai partecipando"
@@ -2252,6 +2279,40 @@ msgstr "Ancora nessun gioco"
 
 msgid "Add the first game to the library."
 msgstr "Aggiungi il primo gioco alla libreria."
+
+msgid ""
+"Only the managers can see this event. Publish it to make it visible to "
+"everyone."
+msgstr "Solo i gestori vedono questo evento. Pubblicalo per renderlo visibile a tutti."
+
+msgid "Before publishing:"
+msgstr "Prima di pubblicare:"
+
+msgid "Publish event"
+msgstr "Pubblica evento"
+
+msgid "The event is visible to everyone."
+msgstr "L'evento è visibile a tutti."
+
+msgid ""
+"Back to draft? The event will disappear from the event list and its page "
+"will no longer be reachable."
+msgstr "Tornare in bozza? L'evento sparirà dalla lista eventi e la sua pagina non sarà più raggiungibile."
+
+#, python-format
+msgid "%(n)s registered participant will lose access."
+msgid_plural "%(n)s registered participants will lose access."
+msgstr[0] "%(n)s iscritto perderà l'accesso."
+msgstr[1] "%(n)s iscritti perderanno l'accesso."
+
+#, python-format
+msgid "%(n)s table is scheduled."
+msgid_plural "%(n)s tables are scheduled."
+msgstr[0] "%(n)s tavolo è in programma."
+msgstr[1] "%(n)s tavoli sono in programma."
+
+msgid "Back to draft"
+msgstr "Torna in bozza"
 
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -2622,7 +2683,8 @@ msgid "Adjust crop"
 msgstr "Regola ritaglio"
 
 msgid ""
-"For the list, choose a square image. If it's a logo, leave some space around it."
+"For the list, choose a square image. If it's a logo, leave some space around "
+"it."
 msgstr ""
 "Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
 "spazio attorno."
@@ -2699,12 +2761,6 @@ msgstr "Segui"
 
 msgid "See new tables from this location on your homepage."
 msgstr "Vedi i tavoli di questa location nella homepage."
-
-msgid "National affiliations"
-msgstr "Affiliazioni nazionali"
-
-msgid "Affiliations declared by this location."
-msgstr "Affiliazioni dichiarate da questa location."
 
 msgid "Tables at this location"
 msgstr "Tavoli in questa location"
@@ -2802,6 +2858,9 @@ msgstr "Sabato"
 msgid "Sunday"
 msgstr "Domenica"
 
+msgid "Affiliations declared by this location."
+msgstr "Affiliazioni dichiarate da questa location."
+
 msgid "Record loan"
 msgstr "Registra prestito"
 
@@ -2866,14 +2925,17 @@ msgstr "Login"
 msgid "to see near tables."
 msgstr "per vedere i tavoli vicini"
 
+msgid "Set your address"
+msgstr "Inserisci un indirizzo"
+
 msgid "Tables near to"
 msgstr "Tavoli vicini a"
 
 msgid "Edit address"
 msgstr "Modifica indirizzo"
 
-msgid "Set your address"
-msgstr "Inserisci un indirizzo"
+msgid "All"
+msgstr "Tutte"
 
 msgid "Affiliation unavailable"
 msgstr "Affiliazione non disponibile"
@@ -2901,9 +2963,6 @@ msgstr ""
 
 msgid "No locations to show on the map."
 msgstr "Nessuna location da mostrare sulla mappa."
-
-msgid "View page"
-msgstr "Vedi pagina"
 
 msgid "Drag to reorder. Areas can be assigned to the tables of this location."
 msgstr ""
@@ -2950,7 +3009,8 @@ msgid "Show stats"
 msgstr "Mostra statistiche"
 
 msgid "Show the total number of gamers and tables on the location page."
-msgstr "Mostra il numero totale di giocatori e tavoli nella pagina della location."
+msgstr ""
+"Mostra il numero totale di giocatori e tavoli nella pagina della location."
 
 msgid "Show top gamers"
 msgstr "Mostra la classifica dei giocatori"
@@ -3410,9 +3470,6 @@ msgstr ""
 msgid "Create stations"
 msgstr "Crea postazioni"
 
-msgid "All"
-msgstr "Tutte"
-
 msgid "Without station"
 msgstr "Senza postazione"
 
@@ -3665,6 +3722,9 @@ msgstr "Rimuovere questo tag da tutti i giochi?"
 
 msgid "Add tag"
 msgstr "Aggiungi tag"
+
+msgid "View page"
+msgstr "Vedi pagina"
 
 msgid "Personal data"
 msgstr "Dati anagrafici"
@@ -4700,9 +4760,8 @@ msgstr "Non è possibile modificare tavoli chiusi."
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
-msgid "Event created! It will be published once approved by an admin."
-msgstr ""
-"Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
+msgid "Event created as a draft. Publish it from this page when it's ready."
+msgstr "Evento creato come bozza. Pubblicalo da questa pagina quando è pronto."
 
 #, python-format
 msgid "Board games available at %(name)s."
@@ -4748,6 +4807,22 @@ msgstr "Tavolo creato con successo"
 
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
+
+msgid "This event was blocked by an admin and can't be published."
+msgstr "Questo evento è stato bloccato da un admin e non può essere pubblicato."
+
+msgid "This event is already published."
+msgstr "Questo evento è già pubblicato."
+
+#, python-format
+msgid "Before publishing: %(missing)s."
+msgstr "Prima di pubblicare: %(missing)s."
+
+msgid "Your event is published and visible to everyone."
+msgstr "Il tuo evento è pubblicato e visibile a tutti."
+
+msgid "The event is back to draft and no longer visible to the public."
+msgstr "L'evento è tornato in bozza e non è più visibile al pubblico."
 
 msgid "Event updated successfully"
 msgstr "Evento aggiornato con successo."
@@ -5371,6 +5446,28 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "New event to approve"
+#~ msgstr "Nuovo evento da approvare"
+
+#~ msgid "Pending approval"
+#~ msgstr "In attesa"
+
+#~ msgid "Approved"
+#~ msgstr "Approvato"
+
+#~ msgid "A new event is waiting for approval"
+#~ msgstr "Un nuovo evento è in attesa di approvazione"
+
+#~ msgid "Approve it from the admin"
+#~ msgstr "Approvalo dall'admin"
+
+#~ msgid "The event will be published after approval by an admin."
+#~ msgstr "L'evento sarà pubblicato dopo l'approvazione di un admin."
+
+#~ msgid "Event created! It will be published once approved by an admin."
+#~ msgstr ""
+#~ "Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
+
 #~ msgid "See the program"
 #~ msgstr "Vedi il programma"
 
@@ -5382,12 +5479,6 @@ msgstr "Collega account"
 
 #~ msgid "Opens the organizers' website"
 #~ msgstr "Apre il sito degli organizzatori"
-
-#, python-format
-#~ msgid "%(n)s table scheduled"
-#~ msgid_plural "%(n)s tables scheduled"
-#~ msgstr[0] "%(n)s tavolo in programma"
-#~ msgstr[1] "%(n)s tavoli in programma"
 
 #~ msgid "Browse the schedule by time, area and game"
 #~ msgstr "Sfoglia il programma per orario, area e gioco"

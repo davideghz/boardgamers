@@ -13,7 +13,7 @@ class EventProgramFiltersTest(TestCase):
 
     def setUp(self):
         self.event = Event.objects.create(
-            name="Con", slug="con", creator=UserProfileFactory(), status=Event.APPROVED)
+            name="Con", slug="con", creator=UserProfileFactory(), status=Event.PUBLISHED)
         EventDate.objects.create(event=self.event, date=datetime.date(2030, 9, 13))
         self.area = PlayArea.objects.create(event=self.event, name="Cortile")
         self.category = EventTableCategory.objects.create(event=self.event, name="Wargames")

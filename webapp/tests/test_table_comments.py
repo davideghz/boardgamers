@@ -56,7 +56,7 @@ class TableCommentsTest(TestCase):
 
     def test_event_author_and_managers_can_comment_without_joining(self):
         event_creator, event_manager = UserProfileFactory(), UserProfileFactory()
-        event = Event.objects.create(name='Convention', creator=event_creator, status=Event.APPROVED)
+        event = Event.objects.create(name='Convention', creator=event_creator, status=Event.PUBLISHED)
         event.managers.add(event_manager)
         table = TableFactory(location=None, event=event, author=self.author)
         url = reverse('event_table_detail', kwargs={'event_slug': event.slug, 'table_slug': table.slug})
