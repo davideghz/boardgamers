@@ -12,7 +12,7 @@ class EventTableBookingTest(TestCase):
     def setUp(self):
         self.owner = UserProfileFactory()
         self.event = Event.objects.create(
-            name="Con", slug="con", creator=self.owner, status=Event.APPROVED,
+            name="Con", slug="con", creator=self.owner, status=Event.PUBLISHED,
             table_booking_enabled=False)
         self.program_url = reverse('event-program', kwargs={'slug': self.event.slug})
         self.detail_url = reverse('event_detail', kwargs={'slug': self.event.slug})

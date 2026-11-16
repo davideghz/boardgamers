@@ -36,7 +36,7 @@ def events(request, template_name='accounts/account_events.html'):
     )
     participating_events = Event.objects.filter(
         participants__user_profile=user_profile,
-        status=Event.APPROVED,
+        status=Event.PUBLISHED,
     ).prefetch_related('dates').distinct()
     return render(request, template_name, {
         'owned_events': owned_events,

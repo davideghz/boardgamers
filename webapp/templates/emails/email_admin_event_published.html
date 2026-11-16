@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{% trans "A new event has been published" %}:
+
+{{ name }}{% if city %} ({{ city }}){% endif %}
+{% trans "Created by" %}: {{ creator }}
+{% trans "Published by" %}: {{ published_by }}
+
+{{ event_href }}
+
+{% trans "If it breaks the rules, block it from the admin" %}: {{ button_href }}
+
+Board-Gamers.com

@@ -5,20 +5,7 @@
 
 {% block content %}
 
-  {# ── PENDING BANNER ──────────────────────────────────────────────── #}
-  {% if event.status == 'pending' %}
-    <div class="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-           class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-      </svg>
-      <div>
-        <p class="text-sm font-semibold text-amber-800">{% trans "Pending approval" %}</p>
-        <p class="text-xs text-amber-700 mt-0.5">{% trans "This event is awaiting admin approval and is not yet visible to the public." %}</p>
-      </div>
-    </div>
-  {% endif %}
+  {% include "events/_status_banner.html" %}
 
   {# ── HERO ─────────────────────────────────────────────────────────── #}
   {# With a cover: on mobile a card (whole cover, details below it); from lg up #}
@@ -76,7 +63,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
 
         {# CTA 1 — attend (hidden once the event is over) #}
-        {% if event.status == 'approved' and not is_concluded %}
+        {% if event.is_published and not is_concluded %}
           {% if user.is_authenticated %}
             {% if is_participant %}
               <span class="inline-flex items-center justify-center gap-2 font-bold pl-6 pr-3 py-3 rounded-full text-sm cursor-default
@@ -403,7 +390,7 @@
         <div class="p-5 space-y-5">
 
           {# Participate CTA #}
-          {% if event.status == 'approved' %}
+          {% if event.is_published %}
             <div>
               {% if is_concluded %}
                 <div class="flex items-center justify-center gap-2 w-full rounded-full bg-surface-alt border border-divider px-3 py-2.5 text-sm font-semibold text-content-muted">

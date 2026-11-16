@@ -4,6 +4,8 @@
 
 {% block content %}
 
+  {% include "events/_status_banner.html" %}
+
   <div class="mb-6">
     {% back_link 'event_detail' event.slug label=event.name %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>

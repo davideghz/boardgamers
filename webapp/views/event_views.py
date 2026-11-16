@@ -44,12 +44,7 @@ class EventCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.creator = self.request.user.user_profile
         response = super().form_valid(form)
-        # The event is already saved: a mail error must not turn it into a 500.
-        try:
-            emails.send_admin_notification_new_event(self.object)
-        except Exception:
-            logger.exception("Could not notify the admin about event %s", self.object.pk)
-        messages.success(self.request, _("Event created! It will be published once approved by an admin."))
+        messages.success(self.request, _("Event created as a draft. Publish it from this page when it's ready."))
         return response
 
     def get_success_url(self):
@@ -84,13 +79,13 @@ def _dates_with_gaps(event):
 
 
 class EventPublicAccessMixin:
-    """Resolve the event by slug, enforcing approval visibility (managers can
-    preview their own pending events)."""
+    """Resolve the event by slug, enforcing visibility (managers can preview
+    their own unpublished events)."""
 
     def get_object(self, queryset=None):
         event = super().get_object(queryset)
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        if event.status != Event.APPROVED:
+        if not event.is_published:
             if not user_profile or not event.is_manager(user_profile):
                 raise Http404
         return event
@@ -243,22 +238,22 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
 
 
 def upcoming_events_queryset(limit=None, managed_event_ids=()):
-    """Approved events with at least one date today or later, ordered by their
+    """Published events with at least one date today or later, ordered by their
     next upcoming date. Prefetches `dates` so Event.start_date/end_date are cheap.
 
-    Pending events among `managed_event_ids` are included too, so their managers
-    can find them before approval; those still without dates come last."""
+    Drafts among `managed_event_ids` are included too, so their managers can
+    find them before publishing; those still without dates come last."""
     today = timezone.localdate()
-    visible = Q(status=Event.APPROVED)
+    visible = Q(status=Event.PUBLISHED)
     if managed_event_ids:
-        visible |= Q(status=Event.PENDING, pk__in=managed_event_ids)
+        visible |= Q(status=Event.DRAFT, pk__in=managed_event_ids)
     qs = (
         Event.objects.filter(visible)
         .annotate(
             next_date=Min('dates__date', filter=Q(dates__date__gte=today)),
             date_count=Count('dates'),
         )
-        .filter(Q(next_date__isnull=False) | Q(status=Event.PENDING, date_count=0))
+        .filter(Q(next_date__isnull=False) | Q(status=Event.DRAFT, date_count=0))
         .prefetch_related('dates')
         .order_by(F('next_date').asc(nulls_last=True), 'name')
     )
@@ -266,15 +261,15 @@ def upcoming_events_queryset(limit=None, managed_event_ids=()):
 
 
 class EventListView(View):
-    """Public index of upcoming (and, optionally, past) approved events, plus the
-    pending ones the user manages."""
+    """Public index of upcoming (and, optionally, past) published events, plus
+    the drafts the user manages."""
     template_name = 'events/event_list.html'
 
     def get(self, request, *args, **kwargs):
         today = timezone.localdate()
         show_past = request.GET.get('past') == '1'
         past_events = (
-            Event.objects.filter(status=Event.APPROVED)
+            Event.objects.filter(status=Event.PUBLISHED)
             .exclude(dates__date__gte=today)
             .filter(dates__isnull=False)
             .annotate(last_date=Max('dates__date'))
@@ -568,7 +563,7 @@ class EventJoinView(LoginRequiredMixin, View):
     def post(self, request, slug):
         event = get_object_or_404(Event, slug=slug)
         user_profile = request.user.user_profile
-        if event.status != Event.APPROVED and not (
+        if not event.is_published and not (
                 request.user.is_superuser or event.is_manager(user_profile)):
             raise Http404
         if event.is_concluded():
@@ -629,7 +624,7 @@ class EventTableDetailView(BaseTableDetailView):
 
     def dispatch(self, request, *args, **kwargs):
         event = get_object_or_404(Event, slug=kwargs['event_slug'])
-        if event.status != Event.APPROVED:
+        if not event.is_published:
             user_profile = request.user.user_profile if request.user.is_authenticated else None
             if not (request.user.is_superuser or (user_profile and event.is_manager(user_profile))):
                 raise Http404
@@ -760,6 +755,55 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
         if not (self.request.user.is_superuser or (user_profile and event.is_manager(user_profile))):
             raise Http404
         return event
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.object
+        if event.status == Event.DRAFT:
+            context['missing_publish_requirements'] = event.missing_publish_requirements()
+        elif event.is_published:
+            # Spelled out in the "back to draft" confirmation: these people lose the page.
+            context['participant_count'] = event.participants.count()
+            context['table_count'] = event.tables.count()
+        return context
+
+
+class EventPublishView(EventManagerMixin, View):
+    """Publish a draft event right away. Admins hear about it, so they can block
+    an abusive one after the fact."""
+
+    def post(self, request, slug):
+        event = self._get_event()
+        if event.status == Event.BLOCKED:
+            messages.error(request, _("This event was blocked by an admin and can't be published."),
+                           extra_tags="danger")
+        elif event.is_published:
+            messages.info(request, _("This event is already published."))
+        elif missing := event.missing_publish_requirements():
+            messages.error(request, _("Before publishing: %(missing)s.") % {
+                'missing': ', '.join(str(item).lower() for item in missing)}, extra_tags="danger")
+        else:
+            event.status = Event.PUBLISHED
+            event.save(update_fields=['status', 'updated_at'])
+            # The event is already published: a mail error must not turn it into a 500.
+            try:
+                emails.send_admin_notification_event_published(event, request.user.user_profile)
+            except Exception:
+                logger.exception("Could not notify the admin about event %s", event.pk)
+            messages.success(request, _("Your event is published and visible to everyone."))
+        return redirect('event-manage', slug=slug)
+
+
+class EventUnpublishView(EventManagerMixin, View):
+    """Bring a published event back to draft, hiding it from everyone but its managers."""
+
+    def post(self, request, slug):
+        event = self._get_event()
+        if event.is_published:
+            event.status = Event.DRAFT
+            event.save(update_fields=['status', 'updated_at'])
+            messages.success(request, _("The event is back to draft and no longer visible to the public."))
+        return redirect('event-manage', slug=slug)
 
 
 # ── Event management sub-views ────────────────────────────────────────────────

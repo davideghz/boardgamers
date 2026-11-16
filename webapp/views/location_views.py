@@ -286,7 +286,7 @@ class LocationDetailView(DetailView):
         context['is_active_member'] = is_active_member
         context['sponsored_events'] = (
             location.sponsored_events
-            .filter(status=Event.APPROVED, dates__date__gte=today)
+            .filter(status=Event.PUBLISHED, dates__date__gte=today)
             .prefetch_related('dates')
             .distinct()
             .order_by('name')

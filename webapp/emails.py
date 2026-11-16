@@ -51,11 +51,13 @@ def send_admin_contact_message(cleaned_data):
     )
 
 
-def send_admin_notification_new_event(event):
+def send_admin_notification_event_published(event, published_by):
     """
-    Sends an email to the admin about a newly created event, which waits for approval.
+    Sends an email to the admin about an event its managers just published, so an
+    abusive one can be blocked from the admin.
 
-    :param event: The new Event instance.
+    :param event: The published Event instance.
+    :param published_by: The UserProfile who published it.
     """
     if not settings.ADMIN_PERSONAL_EMAIL:
         return
@@ -63,14 +65,15 @@ def send_admin_notification_new_event(event):
         'name': event.name,
         'city': event.city,
         'creator': event.creator.nickname if event.creator else '',
+        'published_by': published_by.nickname,
         'event_href': settings.DOMAIN_URL + reverse('event_detail', kwargs={'slug': event.slug}),
         'button_href': settings.DOMAIN_URL + reverse('admin:webapp_event_change', args=[event.pk]),
     }
     # The admin reads it in the site's default language, whatever the creator's.
     with translation.override(settings.LANGUAGE_CODE):
-        subject = f"{messages.EMAIL_SUBJECT_NEW_EVENT}: {event.name}"
-        text_content = render_to_string('emails/email_admin_new_event.html', context=context)
-        html_content = render_to_string('emails/email_admin_new_event_html.html', context=context)
+        subject = f"{messages.EMAIL_SUBJECT_EVENT_PUBLISHED}: {event.name}"
+        text_content = render_to_string('emails/email_admin_event_published.html', context=context)
+        html_content = render_to_string('emails/email_admin_event_published_html.html', context=context)
     send_mail(
         subject,
         text_content,

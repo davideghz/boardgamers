@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block title %}
-  {% trans "A new event is waiting for approval" %}
+  {% trans "A new event has been published" %}
 {% endblock title %}
 
 {% block main_content %}
@@ -11,7 +11,12 @@
     <a href="{{ event_href }}">{{ name }}</a>{% if city %} ({{ city }}){% endif %}<br><br>
 
     <strong>{% trans "Created by" %}</strong><br>
-    {{ creator }}
+    {{ creator }}<br><br>
+
+    <strong>{% trans "Published by" %}</strong><br>
+    {{ published_by }}<br><br>
+
+    {% trans "If it breaks the rules, block it from the admin." %}
 {% endblock main_content %}
 
 {% block cta_label %}

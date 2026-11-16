@@ -1579,13 +1579,15 @@ class FAQ(DateTimeModel):
 
 
 class Event(DateTimeModel, ModelMeta, SlugModel):
-    PENDING = 'pending'
-    APPROVED = 'approved'
-    REJECTED = 'rejected'
+    # Managers publish their own events. Only an admin can block one, and a
+    # blocked event can't be published again from the management pages.
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
+    BLOCKED = 'blocked'
     STATUS_CHOICES = [
-        (PENDING, _('Pending approval')),
-        (APPROVED, _('Approved')),
-        (REJECTED, _('Rejected')),
+        (DRAFT, _('Draft')),
+        (PUBLISHED, _('Published')),
+        (BLOCKED, _('Blocked')),
     ]
 
     slug_field_name = 'name'
@@ -1605,7 +1607,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     email = models.EmailField(null=True, blank=True, verbose_name=_('Email'))
 
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default=PENDING, verbose_name=_('Status'))
+        max_length=20, choices=STATUS_CHOICES, default=DRAFT, verbose_name=_('Status'))
 
     creator = models.ForeignKey(
         'UserProfile', on_delete=models.SET_NULL, related_name='created_events',
@@ -1723,6 +1725,20 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
     def can_create_table(self, user_profile):
         return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
+
+    @property
+    def is_published(self):
+        return self.status == self.PUBLISHED
+
+    def missing_publish_requirements(self):
+        """What the event still lacks before it can be published: an undated event
+        wouldn't show up in the event list, and an empty page tells visitors nothing."""
+        missing = []
+        if not self.dates.exists():
+            missing.append(_('Add at least one date'))
+        if not self.description.strip():
+            missing.append(_('Write a description'))
+        return missing
 
     def can_view_program(self, user):
         """The program is public while table booking is on; otherwise only the

@@ -8,9 +8,13 @@
   <div class="w-full h-[150px] overflow-hidden relative">
     <img loading="lazy" decoding="async" src="{{ event.cover_url }}" alt="{{ event.name }}"
          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-    {% if event.status == 'pending' %}
+    {% if event.status == 'draft' %}
       <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
-        {% trans "Pending approval" %}
+        {% trans "Draft" %}
+      </span>
+    {% elif event.status == 'blocked' %}
+      <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white">
+        {% trans "Blocked" %}
       </span>
     {% elif today and event.start_date and event.start_date >= today %}
       <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">

@@ -20,7 +20,7 @@ class LibraryTestCase(TestCase):
         self.owner = UserProfileFactory(preferred_language='en')
         self.outsider = UserProfileFactory(preferred_language='en')
         self.event = Event.objects.create(
-            name="Con", slug="con", creator=self.owner, status=Event.APPROVED, enable_public_games=True)
+            name="Con", slug="con", creator=self.owner, status=Event.PUBLISHED, enable_public_games=True)
         EventDate.objects.create(event=self.event, date=self.today + datetime.timedelta(days=10))
         self.detail_url = reverse('event_detail', kwargs={'slug': self.event.slug})
         self.library_url = reverse('event-games', kwargs={'slug': self.event.slug})
@@ -186,8 +186,8 @@ class PublicLibraryTest(LibraryTestCase):
         self.assertEqual(len(self.names()), 16)
         self.assertEqual(self.names(page=2), ["Game 16"])
 
-    def test_pending_event_is_private(self):
-        self.event.status = Event.PENDING
+    def test_draft_event_is_private(self):
+        self.event.status = Event.DRAFT
         self.event.save()
         self.assertEqual(self.client.get(self.library_url).status_code, 404)
         self.client.force_login(self.owner.user)
