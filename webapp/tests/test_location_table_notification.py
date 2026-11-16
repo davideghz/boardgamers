@@ -61,6 +61,21 @@ class NewTableNotificationRecipientsTest(TestCase):
 
         self.assertEqual(self._recipients(table), sorted([self.owner.id, self.follower.id]))
 
+    def test_the_author_who_follows_is_not_notified(self):
+        LocationFollower.objects.create(location=self.location, user_profile=self.author)
+
+        table = self._create_table()
+
+        self.assertEqual(self._recipients(table), [self.follower.id])
+
+    def test_the_staff_author_who_follows_is_not_notified(self):
+        PhysicalTable.objects.create(location=self.location, name='Tavolo 1')
+        LocationFollower.objects.create(location=self.location, user_profile=self.owner)
+
+        table = self._create_table(author=self.owner)
+
+        self.assertEqual(self._recipients(table), sorted([self.manager.id, self.follower.id]))
+
     def test_a_manager_who_follows_gets_a_single_notification(self):
         PhysicalTable.objects.create(location=self.location, name='Tavolo 1')
         LocationFollower.objects.create(location=self.location, user_profile=self.manager)
