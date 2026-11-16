@@ -82,16 +82,16 @@
         <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
         {% trans "to see near tables." %}
       </p>
-    {% elif user.user_profile.city %}
-      <p class="text-xs text-content-muted mb-3">
-        {% trans "Tables near to" %} <strong>{{ user.user_profile.city }}</strong>
-        &nbsp;·&nbsp;
-        <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
-      </p>
-    {% else %}
+    {% elif location_message %}
       <p class="text-xs text-content-muted mb-3">
         <a href="{% url 'user-profile-edit' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Set your address" %}</a>
         {% trans "to see near tables." %}
+      </p>
+    {% else %}
+      <p class="text-xs text-content-muted mb-3">
+        {% trans "Tables near to" %} <strong>{{ user.user_profile.city|default:user.user_profile.address }}</strong>
+        &nbsp;·&nbsp;
+        <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
       </p>
     {% endif %}
 
