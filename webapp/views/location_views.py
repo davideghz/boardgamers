@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.urls import reverse
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext, ngettext, gettext_lazy as _
 from django.views import generic, View
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, CreateView
@@ -1780,6 +1780,7 @@ class LocationManageTableSummaryView(LoginRequiredMixin, View):
         show_full = request.GET.get('show_full') == 'on' if submitted else True
         show_closed = request.GET.get('show_closed') == 'on' if submitted else True
         show_names = request.GET.get('show_names') == 'on' if submitted else False
+        show_links = request.GET.get('show_links') == 'on' if submitted else False
 
         tables = (
             Table.objects
@@ -1795,7 +1796,10 @@ class LocationManageTableSummaryView(LoginRequiredMixin, View):
         )
 
         location_url = request.build_absolute_uri(reverse('location-detail', args=[location.slug]))
-        message_text = self._build_message(list(tables), date_from, date_to, show_full, show_closed, show_names, location_url)
+        message_text = self._build_message(
+            list(tables), date_from, date_to, show_full, show_closed, show_names, show_links, location_url,
+            request.build_absolute_uri,
+        )
 
         return render(request, 'locations/location_manage_table_summary.html', {
             'location': location,
@@ -1804,11 +1808,13 @@ class LocationManageTableSummaryView(LoginRequiredMixin, View):
             'show_full': show_full,
             'show_closed': show_closed,
             'show_names': show_names,
+            'show_links': show_links,
             'message_text': message_text,
             'meta': Meta(title=_("Table summary – %(name)s") % {'name': location.name}),
         })
 
-    def _build_message(self, tables, date_from, date_to, show_full, show_closed, show_names, location_url):
+    def _build_message(self, tables, date_from, date_to, show_full, show_closed, show_names, show_links,
+                       location_url, absolute_uri):
         lines = []
 
         if date_from == date_to:
@@ -1830,30 +1836,38 @@ class LocationManageTableSummaryView(LoginRequiredMixin, View):
             names = [p.display_name for p in t.player_set.all()]
             return ', '.join(names) if names else '—'
 
-        available_tables = [t for t in active_tables if t.total_players < t.max_players]
-        full_tables = [t for t in active_tables if t.total_players >= t.max_players]
+        def fmt_seats(t):
+            # Unlimited tables have no seat cap: show only who joined
+            if t.unlimited_seats:
+                return ngettext('%(counter)s player', '%(counter)s players', t.total_players) % {
+                    'counter': t.total_players}
+            return gettext('%(occupied)s/%(max)s seats') % {'occupied': t.total_players, 'max': t.max_players}
+
+        def append_table(t, line):
+            lines.append(line)
+            if show_links:
+                lines.append(absolute_uri(t.get_absolute_url()))
+
+        available_tables = [t for t in active_tables if t.unlimited_seats or t.total_players < t.max_players]
+        full_tables = [t for t in active_tables if not t.unlimited_seats and t.total_players >= t.max_players]
 
         if available_tables:
             lines.append('')
             lines.append(gettext('🟢 Available seats:'))
             for t in available_tables:
-                occupied = t.total_players
-                seats = gettext('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
-                line = f'• {table_label(t)}: {seats}'
+                line = f'• {table_label(t)}: {fmt_seats(t)}'
                 if show_names:
                     line += f' – {fmt_players(t)}'
-                lines.append(line)
+                append_table(t, line)
 
         if show_full and full_tables:
             lines.append('')
             lines.append(gettext('🟡 Full tables:'))
             for t in full_tables:
-                occupied = t.total_players
-                seats = gettext('%(occupied)s/%(max)s seats') % {'occupied': occupied, 'max': t.max_players}
-                line = f'• {table_label(t)}: {seats}'
+                line = f'• {table_label(t)}: {fmt_seats(t)}'
                 if show_names:
                     line += f' – {fmt_players(t)}'
-                lines.append(line)
+                append_table(t, line)
 
         if show_closed and closed_tables:
             lines.append('')
@@ -1862,7 +1876,7 @@ class LocationManageTableSummaryView(LoginRequiredMixin, View):
                 line = f'• {table_label(t)}'
                 if show_names:
                     line += f': {fmt_players(t)}'
-                lines.append(line)
+                append_table(t, line)
 
         if not active_tables and not closed_tables:
             lines.append('')
