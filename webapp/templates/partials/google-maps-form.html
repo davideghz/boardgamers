@@ -24,10 +24,12 @@
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
 
-        // Trova il componente della città tra i componenti dell'indirizzo
+        // Trova la città tra i componenti dell'indirizzo. Per frazioni e piccoli
+        // comuni Google può non restituire "locality": si ripiega sul comune.
         let city = '';
-        for (const component of place.address_components) {
-            if (component.types.includes('locality')) {
+        for (const type of ['locality', 'postal_town', 'administrative_area_level_3']) {
+            const component = place.address_components.find(c => c.types.includes(type));
+            if (component) {
                 city = component.long_name;
                 break;
             }
