@@ -48,6 +48,11 @@
                  class="rounded border-divider text-blue-600 focus:ring-blue-500">
           {% trans "Show player names" %}
         </label>
+        <label class="flex items-center gap-2 text-sm text-content cursor-pointer select-none">
+          <input type="checkbox" name="show_links" {% if show_links %}checked{% endif %}
+                 class="rounded border-divider text-blue-600 focus:ring-blue-500">
+          {% trans "Show table links" %}
+        </label>
       </div>
     </form>
 
