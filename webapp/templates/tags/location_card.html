@@ -18,4 +18,11 @@
       {{ location.city }}{% if location.distance %} ({{ location.distance|km }} km){% endif %}
     </p>
   {% endif %}
+  {% if affiliations %}
+    <ul class="mt-1.5 flex flex-wrap gap-1">
+      {% for affiliation in affiliations %}
+        <li class="max-w-full break-words rounded bg-surface-input px-1.5 py-0.5 text-xs font-medium text-content-soft">{{ affiliation.display_name }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 </a>

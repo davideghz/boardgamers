@@ -14,7 +14,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
+from django.db import router, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -25,6 +26,8 @@ from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
+
+from webapp.fields import NetworkLogoImageField
 
 
 def _plain_text(markdown_text):
@@ -60,6 +63,7 @@ class DateTimeModel(models.Model):
 class SlugModel(models.Model):
     slug_field_name = None
     random_string_length = 6
+    regenerate_slug_on_rename = True
 
     class Meta:
         abstract = True
@@ -93,7 +97,10 @@ class SlugModel(models.Model):
                 return candidate
 
     def save(self, *args, **kwargs):
-        if self.pk:
+        if not self.regenerate_slug_on_rename:
+            if not self.slug:
+                self.slug = self.create_unique_slug()
+        elif self.pk:
             original = type(self).objects.get(pk=self.pk)
             original_slug = slugify(getattr(original, self.slug_field_name))
             current_slug = slugify(self.get_slug_source_value())
@@ -189,6 +196,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
 
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
+    networks = models.ManyToManyField('Network', through='LocationNetwork', related_name='locations', blank=True)
     description = models.TextField()
     cover = models.ImageField(upload_to='location-covers', null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
@@ -372,6 +380,91 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
         super().save(*args, **kwargs)
+
+
+class NetworkLogoModel(models.Model):
+    logo_field_name = None
+
+    class Meta:
+        abstract = True
+
+    def _saved_logo_name(self, using):
+        return (type(self)._base_manager.using(using).select_for_update().filter(pk=self.pk)
+                .order_by().values_list(self.logo_field_name, flat=True).first())
+
+    def _delete_logo_after_commit(self, name, using):
+        if not name:
+            return
+        storage = self._meta.get_field(self.logo_field_name).storage
+
+        def delete_if_unreferenced():
+            if not (Network.objects.using(using).filter(logo=name).exists() or
+                    LocationNetwork.objects.using(using).filter(custom_logo=name).exists()):
+                storage.delete(name)
+
+        transaction.on_commit(delete_if_unreferenced, using=using, robust=True)
+
+    def save(self, *, using=None, update_fields=None, **kwargs):
+        using = using or router.db_for_write(type(self), instance=self)
+        if update_fields is not None:
+            update_fields = frozenset(update_fields)
+        logo_field = self.logo_field_name
+        if (self.pk is None or kwargs.get('force_insert') or
+                (update_fields is not None and logo_field not in update_fields) or
+                (update_fields is None and using == self._state.db and logo_field in self.get_deferred_fields())):
+            return super().save(using=using, update_fields=update_fields, **kwargs)
+
+        with transaction.atomic(using=using):
+            previous_name = self._saved_logo_name(using)
+            result = super().save(using=using, update_fields=update_fields, **kwargs)
+            if previous_name != getattr(self, logo_field).name:
+                self._delete_logo_after_commit(previous_name, using)
+            return result
+
+    save.alters_data = True
+
+
+class Network(NetworkLogoModel, DateTimeModel, SlugModel):
+    slug_field_name = 'name'
+    regenerate_slug_on_rename = False
+    logo_field_name = 'logo'
+
+    name = models.CharField(_('Name'), max_length=255)
+    slug = models.SlugField(max_length=144, unique=True, blank=True)
+    logo = NetworkLogoImageField(_('National logo'), upload_to='network-logos', blank=True)
+    website = models.URLField(_('Website'), blank=True, validators=[URLValidator(schemes=['http', 'https'])])
+    is_active = models.BooleanField(_('Active'), default=True)
+
+    class Meta:
+        ordering = ['name', 'pk']
+        verbose_name = _('National network')
+        verbose_name_plural = _('National networks')
+
+    def __str__(self):
+        return self.name
+
+
+class LocationNetwork(NetworkLogoModel, DateTimeModel):
+    logo_field_name = 'custom_logo'
+
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='network_affiliations')
+    network = models.ForeignKey(Network, on_delete=models.PROTECT, related_name='affiliations',
+                                verbose_name=_('National network'))
+    local_name = models.CharField(_('Local affiliation name'), max_length=100, blank=True)
+    custom_logo = NetworkLogoImageField(_('Custom affiliation logo'), upload_to='location-network-logos', blank=True)
+
+    class Meta:
+        ordering = ['network__name', 'network_id', 'pk']
+        constraints = [models.UniqueConstraint(fields=['location', 'network'], name='unique_location_network')]
+        verbose_name = _('Location affiliation')
+        verbose_name_plural = _('Location affiliations')
+
+    @property
+    def display_name(self):
+        return self.local_name or self.network.name
+
+    def __str__(self):
+        return f'{self.location.name} – {self.network.name}'
 
 
 class UserProfile(DateTimeModel, ModelMeta, SlugModel):

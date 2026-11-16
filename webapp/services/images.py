@@ -6,15 +6,22 @@ limitato. JPEG e non WebP perché le copertine finiscono anche in og:image.
 """
 import logging
 import os
+from contextlib import contextmanager
 from io import BytesIO
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.utils.translation import gettext_lazy as _
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 logger = logging.getLogger(__name__)
 
 COVER_MAX_SIDE = 1200
 AVATAR_MAX_SIDE = 256
+NETWORK_LOGO_MAX_BYTES = 2 * 1024 * 1024
+NETWORK_LOGO_MAX_INPUT_SIDE = 2048
+NETWORK_LOGO_MAX_SIDE = 512
+NETWORK_LOGO_FORMATS = ('PNG', 'JPEG', 'WEBP')
 JPEG_QUALITY = 82
 # Sotto questa soglia un'immagine già entro le dimensioni viene lasciata com'è
 SMALL_ENOUGH_BYTES = 200 * 1024
@@ -87,3 +94,33 @@ def shrink_content_file(data, name, max_side):
     if shrunk is None:
         return name, ContentFile(data)
     return jpeg_name(name), ContentFile(shrunk)
+
+
+@contextmanager
+def _open_network_logo(upload):
+    if upload.size > NETWORK_LOGO_MAX_BYTES:
+        raise ValidationError(_('The logo must be 2 MB or smaller.'))
+    upload.seek(0)
+    try:
+        with Image.open(upload, formats=NETWORK_LOGO_FORMATS) as image:
+            if max(image.size) > NETWORK_LOGO_MAX_INPUT_SIDE:
+                raise ValidationError(_('The logo must be 2048 pixels or smaller on each side.'))
+            yield image
+    except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+        raise ValidationError(_('Upload a valid PNG, JPEG or WebP logo.')) from exc
+    finally:
+        upload.seek(0)
+
+
+def validate_network_logo(upload):
+    with _open_network_logo(upload) as image:
+        image.load()
+
+
+def normalize_network_logo(upload, name):
+    with _open_network_logo(upload) as source:
+        logo = ImageOps.exif_transpose(source).convert('RGBA')
+        logo.thumbnail((NETWORK_LOGO_MAX_SIDE, NETWORK_LOGO_MAX_SIDE), Image.LANCZOS)
+        output = BytesIO()
+        logo.save(output, format='PNG')
+    return f'{os.path.splitext(name)[0]}.png', ContentFile(output.getvalue())

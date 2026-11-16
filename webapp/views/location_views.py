@@ -27,11 +27,11 @@ from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
-    PhysicalTableForm, LocationGameTagForm, BGGCollectionImportForm
+    PhysicalTableForm, LocationGameTagForm, BGGCollectionImportForm, AddLocationNetworkForm, LocationNetworkForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
-    PhysicalTable
+    PhysicalTable, LocationNetwork, Network
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services import game_loans
 from webapp.services.tables import reopen_location_leaderboards
@@ -39,15 +39,49 @@ from webapp.services.tables import reopen_location_leaderboards
 logger = logging.getLogger(__name__)
 
 
+def _public_affiliations():
+    return LocationNetwork.objects.filter(network__is_active=True).select_related('network')
+
+
+def _location_map_data(locations):
+    markers = []
+    for location in locations:
+        try:
+            lat, lng = float(location.latitude), float(location.longitude)
+        except (TypeError, ValueError):
+            continue
+        if -90 <= lat <= 90 and -180 <= lng <= 180:
+            markers.append({
+                'name': location.name,
+                'lat': lat,
+                'lng': lng,
+                'url': reverse('location-detail', args=[location.slug]),
+                'affiliations': [a.display_name for a in getattr(location, 'public_affiliations', ())],
+            })
+    return markers
+
+
 def index_view(request, template_name="locations/location_index.html"):
     user_location = None
     user_created_locations = None
     location_message = None
-    nearby_locations = None
     followed_location_ids = set()
+    networks = list(Network.objects.filter(is_active=True).only('name', 'slug', 'logo', 'website'))
+    network_slug = request.GET.get('network', '')
+    selected_network = next((network for network in networks if network.slug == network_slug), None)
+    network_unavailable = bool(network_slug and not selected_network)
+    nearby_locations = Location.objects.all()
+    if selected_network:
+        # A network can be archived after the filter options have been loaded.
+        nearby_locations = nearby_locations.filter(
+            network_affiliations__network=selected_network, network_affiliations__network__is_active=True,
+        )
+    elif network_unavailable:
+        nearby_locations = nearby_locations.none()
 
     if request.user.is_authenticated:
-        user_created_locations = request.user.user_profile.locations.all()
+        if not network_slug:
+            user_created_locations = request.user.user_profile.locations.all()
         followed_location_ids = set(request.user.user_profile.followed_locations.values_list('location_id', flat=True))
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
@@ -59,18 +93,36 @@ def index_view(request, template_name="locations/location_index.html"):
     if user_location:
         if user_created_locations is not None:
             user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
-        nearby_locations = Location.objects.annotate(distance=DbDistance('point', user_location)).order_by('distance')
+        nearby_locations = nearby_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
     else:
-        nearby_locations = Location.objects.annotate(random_order=Count('id')).order_by('?')
+        nearby_locations = nearby_locations.order_by('?')
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
+
+    if networks:
+        affiliations = Prefetch('network_affiliations', queryset=_public_affiliations(), to_attr='public_affiliations')
+        nearby_locations = nearby_locations.prefetch_related(affiliations)
+        if user_created_locations is not None:
+            user_created_locations = user_created_locations.prefetch_related(affiliations)
+
+    map_selected = request.GET.get('view') == 'map'
+    reset_query = {'view': 'map'} if map_selected else {}
+    if request.GET.get('new_table'):
+        reset_query['new_table'] = request.GET['new_table']
 
     context = {
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'user_created_locations': user_created_locations,
         'followed_location_ids': followed_location_ids,
+        'networks': networks,
+        'selected_network': selected_network,
+        'network_unavailable': network_unavailable,
+        'reset_network_url': reverse('locations-index', query=reset_query),
+        'map_locations': _location_map_data(nearby_locations),
+        'map_selected': map_selected,
         'meta': Meta(
-            title=_("Game Locations - Board-Gamers.com"),
+            title=(_("%(name)s - Board-Gamers.com") % {'name': selected_network.name}
+                   if selected_network else _("Game Locations - Board-Gamers.com")),
             description=_("Discover all board game locations near you. Find the perfect place for your next game!"),
         )
     }
@@ -86,7 +138,7 @@ class LocationDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         today = timezone.localdate()
-        location = self.get_object()
+        location = self.object
 
         # Check if user is following location
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
@@ -206,6 +258,7 @@ class LocationDetailView(DetailView):
 
         # Inserisco i dati nel contesto
         context = super().get_context_data(**kwargs)
+        context['affiliations'] = _public_affiliations().filter(location=location)
         context['future_tables'] = future_tables
         # Solo gli ultimi 12 (come in home): il resto è raggiungibile da "See all tables"
         context['past_tables'] = past_tables[:12]
@@ -239,7 +292,7 @@ class LocationDetailView(DetailView):
             .order_by('name')
         )
         context['today'] = today
-        context['meta'] = self.get_object().as_meta(self.request)
+        context['meta'] = location.as_meta(self.request)
         context['location_jsonld'] = json.dumps(
             location.structured_data(self.request), ensure_ascii=False)
 
@@ -1032,6 +1085,81 @@ def _check_location_manager(request, location):
     """Raise PermissionDenied if the current user is not owner or manager of the location."""
     if not location.is_manager(request.user.user_profile):
         raise PermissionDenied(_("You don't have permission to manage this location."))
+
+
+class LocationManageNetworksView(LoginRequiredMixin, View):
+    template_name = 'locations/location_manage_networks.html'
+
+    def _editable_affiliations(self):
+        return _public_affiliations().filter(location=self.location)
+
+    def _render(self, request, form, affiliation=None):
+        context = {
+            'location': self.location,
+            'form': form,
+            'affiliation': affiliation,
+            'meta': Meta(title=_('National affiliations – %(name)s') % {'name': self.location.name}),
+        }
+        if affiliation is None:
+            context.update({
+                'affiliations': self.location.network_affiliations.select_related('network'),
+                'can_add': form.is_bound or form.fields['network'].queryset.exists(),
+            })
+        return render(request, self.template_name, context)
+
+    def get(self, request, slug, pk=None):
+        self.location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, self.location)
+        if pk is None:
+            return self._render(request, AddLocationNetworkForm(location=self.location))
+        affiliation = get_object_or_404(self._editable_affiliations(), pk=pk)
+        return self._render(request, LocationNetworkForm(instance=affiliation), affiliation)
+
+    def post(self, request, slug, pk=None):
+        self.location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, self.location)
+        if pk is None:
+            return self._add_affiliation(request)
+
+        with transaction.atomic():
+            affiliation = get_object_or_404(self._editable_affiliations().select_for_update(), pk=pk)
+            form = LocationNetworkForm(request.POST, request.FILES, instance=affiliation)
+            if form.is_valid():
+                if form.has_changed():
+                    affiliation.save(update_fields=[*form.changed_data, 'updated_at'])
+                messages.success(request, _('Affiliation updated.'))
+                return redirect('location-manage-networks', slug=slug)
+        return self._render(request, form, affiliation)
+
+    def _add_affiliation(self, request):
+        form = AddLocationNetworkForm(request.POST, request.FILES, location=self.location)
+        if form.is_valid():
+            with transaction.atomic():
+                network = Network.objects.select_for_update().filter(
+                    pk=form.cleaned_data['network'].pk, is_active=True,
+                ).first()
+                if network:
+                    affiliation, created = self.location.network_affiliations.get_or_create(network=network, defaults={
+                        'local_name': form.cleaned_data['local_name'],
+                        'custom_logo': form.cleaned_data['custom_logo'] or '',
+                    })
+                    if not created:
+                        messages.warning(request, _('This affiliation already exists.'))
+                        return redirect('location-edit-network', slug=self.location.slug, pk=affiliation.pk)
+                    messages.success(request, _('Affiliation added.'))
+                    return redirect('location-manage-networks', slug=self.location.slug)
+                form.add_error('network', _('This national network is no longer available.'))
+        return self._render(request, form)
+
+
+class LocationRemoveNetworkView(LoginRequiredMixin, View):
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        affiliation = get_object_or_404(location.network_affiliations, pk=pk)
+        affiliation.delete()
+        messages.success(request, _('Affiliation removed.'))
+        return redirect('location-manage-networks', slug=slug)
 
 
 class LocationManageGamesView(LoginRequiredMixin, View):

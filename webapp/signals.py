@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event, EventGame
+    EventParticipant, Game, Location, Event, EventGame, Network, LocationNetwork
 from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
 
 
@@ -238,3 +238,9 @@ def _shrink_uploaded_images(sender, instance, **kwargs):
 
 for _model in {model for model, _f, _s in SHRINKABLE_IMAGE_FIELDS}:
     pre_save.connect(_shrink_uploaded_images, sender=_model, dispatch_uid=f'shrink_images_{_model.__name__}')
+
+
+@receiver(pre_delete, sender=LocationNetwork)
+@receiver(pre_delete, sender=Network)
+def delete_network_logo(sender, instance, using, **kwargs):
+    instance._delete_logo_after_commit(instance._saved_logo_name(using), using)

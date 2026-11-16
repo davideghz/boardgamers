@@ -7,13 +7,14 @@ from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple
+    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
+    ClearableFileInput, FileField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services.game_loans import active_members, default_loan_due_date
-from webapp.services.images import COVER_MAX_SIDE
+from webapp.services.images import COVER_MAX_SIDE, validate_network_logo
 
 from django.urls import reverse
 from django.utils import timezone
@@ -702,6 +703,49 @@ class LocationManageDataForm(LocationForm):
         self.fields['leaderboard_edit_days'].widget.attrs.update({
             'min': Location.LEADERBOARD_EDIT_DAYS_MIN, 'max': Location.LEADERBOARD_EDIT_DAYS_MAX,
         })
+
+
+class NetworkLogoField(FileField):
+    widget = ClearableFileInput(attrs={'accept': 'image/png,image/jpeg,image/webp'})
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('help_text', _('PNG, JPEG or WebP. Up to 2 MB and 2048 pixels per side.'))
+        super().__init__(**kwargs)
+
+    def to_python(self, data):
+        upload = super().to_python(data)
+        if upload is not None:
+            validate_network_logo(upload)
+        return upload
+
+
+class NetworkForm(ModelForm):
+    logo = NetworkLogoField(label=_('National logo'), required=False)
+
+    class Meta:
+        model = Network
+        fields = ['name', 'logo', 'website', 'is_active']
+
+
+class LocationNetworkForm(ModelForm, TailwindForm):
+    custom_logo = NetworkLogoField(label=_('Custom affiliation logo'), required=False)
+
+    class Meta:
+        model = LocationNetwork
+        fields = ['local_name', 'custom_logo']
+
+
+class AddLocationNetworkForm(LocationNetworkForm):
+    class Meta(LocationNetworkForm.Meta):
+        fields = ['network', *LocationNetworkForm.Meta.fields]
+
+    def __init__(self, *args, location, **kwargs):
+        super().__init__(*args, **kwargs)
+        network_field = self.fields['network']
+        networks = Network.objects.filter(is_active=True)
+        # A submitted choice may have been added by another manager since the form was opened.
+        network_field.queryset = networks if self.is_bound else networks.exclude(locations=location)
+        network_field.empty_label = _('Choose a national network')
 
 
 class ContactForm(TailwindForm):

@@ -44,6 +44,7 @@ def location_card(context, location):
     return {
         'location': location,
         'is_followed': location.id in followed_ids,
+        'affiliations': getattr(location, 'public_affiliations', ()),
     }
 
 
