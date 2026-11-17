@@ -1,0 +1,46 @@
+{% load i18n %}
+
+<section id="location-table-program" aria-labelledby="event-tables-heading" class="space-y-4 scroll-mt-4">
+  <h2 id="event-tables-heading" class="text-lg font-bold text-content">{% trans "Tables" %}</h2>
+
+  {% if program.areas or program.games %}
+    <form method="get" action="{{ event_url }}#location-table-program" class="flex flex-wrap items-end gap-3">
+      {% if program.areas %}
+        <label class="grid w-full min-w-0 gap-1 text-xs font-semibold text-content-muted sm:w-auto sm:max-w-[12rem]">
+          {% trans "Play area" %}
+          <select name="area" class="w-full rounded-lg border border-divider bg-surface px-3 py-2 text-sm text-content">
+            <option value="">{% trans "All areas" %}</option>
+            {% for area in program.areas %}
+              <option value="{{ area.pk }}"{% if area == program.selected_area %} selected{% endif %}>{{ area.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      {% if program.games %}
+        <label class="grid w-full min-w-0 gap-1 text-xs font-semibold text-content-muted sm:w-auto sm:max-w-[12rem]">
+          {% trans "Game" %}
+          <select name="game" class="w-full rounded-lg border border-divider bg-surface px-3 py-2 text-sm text-content">
+            <option value="">{% trans "All games" %}</option>
+            {% for game in program.games %}
+              <option value="{{ game.pk }}"{% if game == program.selected_game %} selected{% endif %}>{{ game.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      <button type="submit" class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white">
+        {% trans "Filter" %}
+      </button>
+      {% if program.selected_area or program.selected_game %}
+        <a href="{{ event_url }}#location-table-program" class="py-2 text-sm font-semibold text-blue-600 hover:underline">
+          {% trans "Clear filters" %}
+        </a>
+      {% endif %}
+    </form>
+  {% endif %}
+
+  {% if program.slots %}
+    {% include "events/_program_time_slots.html" with slots=program.slots only %}
+  {% else %}
+    <p class="text-sm text-content-muted">{% trans "No tables for the selected filters." %}</p>
+  {% endif %}
+</section>

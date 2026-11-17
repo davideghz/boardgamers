@@ -1,57 +1,66 @@
 {% load i18n %}
+{% with cover_id=cover_id|default:"location-cover" %}
 
 <div>
   <p class="text-xs font-semibold text-content-soft mb-2">{% trans "Cover image" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
-  <figure id="location-cover-preview" class="mb-3 w-full max-w-40{% if not form.instance.cover %} hidden{% endif %}">
-    <div class="aspect-square overflow-hidden rounded-xl">
+  <figure id="{{ cover_id }}-preview" class="mb-3 w-full {% if wide_cover %}max-w-64{% else %}max-w-40{% endif %}{% if not form.initial.cover %} hidden{% endif %}">
+    <div class="{% if wide_cover %}aspect-video{% else %}aspect-square{% endif %} overflow-hidden rounded-xl">
       <img class="w-full h-full object-cover" alt=""
-           {% if form.instance.cover %}src="{{ form.instance.cover.url }}"{% endif %}>
+           {% if form.initial.cover %}src="{{ form.initial.cover.url }}"{% endif %}>
     </div>
-    <figcaption class="mt-1 text-xs text-content-muted">{% trans "Preview in the location list" %}</figcaption>
+    <figcaption class="mt-1 text-xs text-content-muted">
+      {% if wide_cover %}{% trans "Preview" %}{% else %}{% trans "Preview in the location list" %}{% endif %}
+    </figcaption>
   </figure>
   {{ form.cover }}
   <label for="{{ form.cover.id_for_label }}"
          class="flex items-center gap-2 w-full cursor-pointer rounded-xl border border-dashed border-divider px-4 py-3 text-sm text-content-muted hover:border-slate-400 hover:bg-surface-alt peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 transition-colors">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
-    <span id="location-cover-filename" class="truncate">{% trans "Choose an image…" %}</span>
+    <span id="{{ cover_id }}-filename" class="truncate">{% trans "Choose an image…" %}</span>
   </label>
-  <button id="location-cover-edit" type="button" hidden
+  <button id="{{ cover_id }}-edit" type="button" hidden
           class="mt-2 rounded-full border border-divider px-3 py-1.5 text-xs font-semibold text-content hover:bg-surface-alt">
     {% trans "Adjust crop" %}
   </button>
-  <p id="location-cover-help" class="mt-1 text-xs text-content-muted">{% trans "For the list, choose a square image. If it's a logo, leave some space around it." %}</p>
+  <p id="{{ cover_id }}-help" class="mt-1 text-xs text-content-muted">
+    {% if wide_cover %}
+      {% trans "Choose a landscape image (up to 200 KB). Without a cover, the event uses the location image or the default image." %}
+    {% else %}
+      {% trans "For the list, choose a square image. If it's a logo, leave some space around it." %}
+    {% endif %}
+  </p>
   {% if form.cover.errors %}<p class="mt-1 text-xs text-red-500">{{ form.cover.errors|join:", " }}</p>{% endif %}
 </div>
 
-<dialog id="location-cover-dialog" aria-labelledby="location-cover-dialog-title"
+<dialog id="{{ cover_id }}-dialog" aria-labelledby="{{ cover_id }}-dialog-title"
         class="m-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl border border-divider bg-surface p-4 text-content shadow-xl backdrop:bg-black/60">
-  <h2 id="location-cover-dialog-title" class="text-lg font-bold">{% trans "Crop image" %}</h2>
-  <p id="location-cover-crop-help" class="mt-1 text-sm text-content-muted">
-    {% trans "Move or resize the square, even beyond the image edges. Extra space is saved in white. Use the arrow keys and + or − to adjust it with the keyboard." %}
+  <h2 id="{{ cover_id }}-dialog-title" class="text-lg font-bold">{% trans "Crop image" %}</h2>
+  <p id="{{ cover_id }}-crop-help" class="mt-1 text-sm text-content-muted">
+    {% trans "Move or resize the crop area, even beyond the image edges. Extra space is saved in white. Use the arrow keys and + or − to adjust it with the keyboard." %}
   </p>
-  <p id="location-cover-crop-status" role="status" hidden class="mt-3 text-sm text-content-muted"></p>
-  <div id="location-cover-crop-stage" tabindex="0" role="group" aria-labelledby="location-cover-dialog-title"
-       aria-describedby="location-cover-crop-help" hidden
+  <p id="{{ cover_id }}-crop-status" role="status" hidden class="mt-3 text-sm text-content-muted"></p>
+  <div id="{{ cover_id }}-crop-stage" tabindex="0" role="group" aria-labelledby="{{ cover_id }}-dialog-title"
+       aria-describedby="{{ cover_id }}-crop-help" hidden
        class="mt-3 h-[min(48dvh,24rem)] overflow-hidden rounded-lg bg-surface-input focus-visible:ring-2 focus-visible:ring-blue-500"></div>
-  <button id="location-cover-fit" type="button" hidden
+  <button id="{{ cover_id }}-fit" type="button" hidden
           class="mt-3 rounded-full border border-divider px-3 py-1.5 text-sm font-semibold text-content hover:bg-surface-alt disabled:opacity-50">
     {% trans "Fit whole image" %}
   </button>
   <div class="mt-4 flex flex-wrap justify-end gap-2">
-    <button id="location-cover-cancel" type="button" autofocus
+    <button id="{{ cover_id }}-cancel" type="button" autofocus
             class="rounded-full px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Cancel" %}</button>
-    <button id="location-cover-original" type="button"
+    <button id="{{ cover_id }}-original" type="button"
             class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Use original" %}</button>
-    <button id="location-cover-apply" type="button" disabled
+    <button id="{{ cover_id }}-apply" type="button" disabled
             class="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50">{% trans "Apply crop" %}</button>
   </div>
 </dialog>
 
-<template id="location-cover-crop-template">
+<template id="{{ cover_id }}-crop-template">
   <cropper-canvas class="h-full bg-white">
     <cropper-image translatable></cropper-image>
     <cropper-shade hidden></cropper-shade>
-    <cropper-selection aspect-ratio="1" movable resizable zoomable outlined precise>
+    <cropper-selection aspect-ratio="{% if wide_cover %}1.7777777777777777{% else %}1{% endif %}" movable resizable zoomable outlined precise>
       <cropper-grid covered bordered></cropper-grid>
       <cropper-crosshair centered></cropper-crosshair>
       <cropper-handle action="move" plain></cropper-handle>
@@ -65,19 +74,23 @@
 
 <script>
   (function () {
+    const coverElement = id => document.getElementById('{{ cover_id|escapejs }}-' + id);
+    const cropTemplate = coverElement('crop-template');
+    const aspectRatio = Number(cropTemplate.content.querySelector('cropper-selection').getAttribute('aspect-ratio'));
     const input = document.getElementById('{{ form.cover.id_for_label|escapejs }}');
-    const filename = document.getElementById('location-cover-filename');
-    const preview = document.getElementById('location-cover-preview');
+    const clear = input.form.elements.namedItem(input.name + '-clear');
+    const filename = coverElement('filename');
+    const preview = coverElement('preview');
     const image = preview.querySelector('img');
     const savedUrl = image.getAttribute('src');
     const chooseImage = filename.textContent;
-    const dialog = document.getElementById('location-cover-dialog');
-    const stage = document.getElementById('location-cover-crop-stage');
-    const status = document.getElementById('location-cover-crop-status');
-    const edit = document.getElementById('location-cover-edit');
-    const fit = document.getElementById('location-cover-fit');
-    const apply = document.getElementById('location-cover-apply');
-    const original = document.getElementById('location-cover-original');
+    const dialog = coverElement('dialog');
+    const stage = coverElement('crop-stage');
+    const status = coverElement('crop-status');
+    const edit = coverElement('edit');
+    const fit = coverElement('fit');
+    const apply = coverElement('apply');
+    const original = coverElement('original');
     const canCrop = typeof dialog.showModal === 'function' && typeof DataTransfer === 'function'
       && typeof ResizeObserver === 'function' && typeof image.decode === 'function';
     let previewUrl;
@@ -96,7 +109,7 @@
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       previewUrl = file ? URL.createObjectURL(file) : null;
       filename.textContent = file ? (chosen ? chosen.source : file).name : chooseImage;
-      const url = previewUrl || savedUrl;
+      const url = previewUrl || (clear?.checked ? null : savedUrl);
       if (url === image.getAttribute('src')) return;
       preview.classList.add('hidden');
       if (url) {
@@ -144,30 +157,30 @@
       return {
         x: (selection.x - bounds.left) / bounds.scale,
         y: (selection.y - bounds.top) / bounds.scale,
-        side: selection.width / bounds.scale,
+        width: selection.width / bounds.scale,
       };
     }
 
-    function centerCrop(sourceImage, side) {
+    function centerCrop(sourceImage, width) {
       return {
-        x: (sourceImage.naturalWidth - side) / 2,
-        y: (sourceImage.naturalHeight - side) / 2,
-        side,
+        x: (sourceImage.naturalWidth - width) / 2,
+        y: (sourceImage.naturalHeight - width / aspectRatio) / 2,
+        width,
       };
     }
 
     function positionCrop(session, crop) {
       const { left, top, scale } = session.bounds;
-      const side = crop.side * scale;
-      session.selection.$change(left + crop.x * scale, top + crop.y * scale, side, side);
+      const width = crop.width * scale;
+      session.selection.$change(left + crop.x * scale, top + crop.y * scale, width, width / aspectRatio);
     }
 
     function fitCropper(session) {
       const { width, height } = session.canvas.getBoundingClientRect();
       if (!width || !height || session.canvas.disabled) return;
       const { naturalWidth, naturalHeight } = session.sourceImage;
-      const shortSide = Math.min(naturalWidth, naturalHeight);
-      const crop = session.bounds ? cropInSource(session) : session.crop || centerCrop(session.sourceImage, shortSide);
+      const cropWidth = Math.min(naturalWidth, naturalHeight * aspectRatio);
+      const crop = session.bounds ? cropInSource(session) : session.crop || centerCrop(session.sourceImage, cropWidth);
       // Reserve room for padding around the longest edge and for the resize handles.
       const workspace = Math.min(width, height) - 16;
       const scale = workspace / (Math.max(naturalWidth, naturalHeight) * 1.25);
@@ -175,7 +188,7 @@
       const imageHeight = naturalHeight * scale;
       const left = (width - imageWidth) / 2;
       const top = (height - imageHeight) / 2;
-      session.bounds = { left, top, scale, imageWidth, imageHeight, minSide: Math.max(1, shortSide / 20) * scale };
+      session.bounds = { left, top, scale, imageWidth, imageHeight, minWidth: Math.max(1, cropWidth / 20) * scale };
       session.cropperImage.$setTransform(scale, 0, 0, scale, (width - naturalWidth) / 2, (height - naturalHeight) / 2);
       session.selection.minInset = `${(height - workspace) / 2}px ${(width - workspace) / 2}px`;
       positionCrop(session, crop);
@@ -200,7 +213,7 @@
         stage.hidden = false;
         session.cropper = new Cropper(sourceImage, {
           container: stage,
-          template: document.getElementById('location-cover-crop-template').innerHTML,
+          template: cropTemplate.innerHTML,
         });
         session.canvas = session.cropper.getCropperCanvas();
         session.selection = session.cropper.getCropperSelection();
@@ -210,8 +223,8 @@
 
         session.selection.addEventListener('change', function (event) {
           const { x, y, width, height } = event.detail;
-          const { left, top, imageWidth, imageHeight, minSide } = session.bounds;
-          if (width < minSide - 0.001 || x + width <= left || y + height <= top
+          const { left, top, imageWidth, imageHeight, minWidth } = session.bounds;
+          if (width < minWidth - 0.001 || x + width <= left || y + height <= top
               || x >= left + imageWidth || y >= top + imageHeight) event.preventDefault();
         });
         showStatus('');
@@ -238,6 +251,7 @@
 
     function useFile(file, crop) {
       chosen = { source: editor.source, file, crop };
+      if (clear) clear.checked = false;
       setUpload(file);
       showPreview(file);
       edit.hidden = false;
@@ -247,14 +261,26 @@
     input.addEventListener('change', function () {
       const file = input.files[0];
       if (!canCrop) {
+        if (file && clear) clear.checked = false;
         showPreview(file);
         return;
       }
       setUpload(chosen && chosen.file);
       if (file) openEditor(file);
     });
+    if (clear) {
+      clear.addEventListener('change', function () {
+        if (clear.checked) {
+          input.value = '';
+          chosen = null;
+          edit.hidden = true;
+        }
+        showPreview(input.files[0]);
+      });
+      if (clear.checked) showPreview(null);
+    }
     edit.addEventListener('click', () => openEditor(chosen.source, chosen.crop));
-    document.getElementById('location-cover-cancel').addEventListener('click', closeEditor);
+    coverElement('cancel').addEventListener('click', closeEditor);
     dialog.addEventListener('cancel', function (event) {
       event.preventDefault();
       closeEditor();
@@ -262,8 +288,8 @@
     original.addEventListener('click', () => useFile(editor.source));
     fit.addEventListener('click', function () {
       const { sourceImage } = editor;
-      const side = Math.max(sourceImage.naturalWidth, sourceImage.naturalHeight) * 1.1;
-      positionCrop(editor, centerCrop(sourceImage, side));
+      const width = Math.max(sourceImage.naturalWidth, sourceImage.naturalHeight * aspectRatio) * 1.1;
+      positionCrop(editor, centerCrop(sourceImage, width));
     });
 
     const arrowKeys = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
@@ -283,18 +309,19 @@
     apply.addEventListener('click', async function () {
       const session = editor;
       const crop = cropInSource(session);
-      const size = Math.max(1, Math.min(Number(input.dataset.cropMaxSide), Math.round(crop.side)));
+      const width = Math.max(1, Math.min(Number(input.dataset.cropMaxSide), Math.round(crop.width)));
+      const height = Math.max(1, Math.round(width / aspectRatio));
       apply.disabled = true;
       original.disabled = true;
       fit.disabled = true;
       session.canvas.disabled = true;
       try {
         const canvas = await session.selection.$toCanvas({
-          width: size,
-          height: size,
+          width,
+          height,
           beforeDraw(context) {
             context.fillStyle = '#fff';
-            context.fillRect(0, 0, size, size);
+            context.fillRect(0, 0, width, height);
           },
         });
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
@@ -314,3 +341,4 @@
     });
   })();
 </script>
+{% endwith %}

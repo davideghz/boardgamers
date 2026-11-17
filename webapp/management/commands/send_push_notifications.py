@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _, ngettext, activate
 
 from pywebpush import webpush, WebPushException
 
-from webapp.models import Notification, NotificationType, PushSubscription
+from webapp.models import Notification, NotificationType, PushSubscription, Table
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +96,7 @@ class Command(BaseCommand):
             return
 
         notifications = Notification.objects.filter(
+            Table.public_condition('table__'),
             push_sent=False,
             is_read=False,
             notification_type__in=SUPPORTED_TYPES,

@@ -64,10 +64,8 @@ def bootstrap(request):
         queryset=Player.objects.select_related(
             'user_profile', 'guest_profile', 'guest_profile__owner'),
     )
-    # Filtering by location already excludes event tables: the
-    # `table_location_xor_event` constraint means a table has one or the other.
     tables = (
-        Table.objects
+        Table.objects.public()
         .filter(
             location=location,
             date__gte=timezone.localdate(),
@@ -110,10 +108,8 @@ def bootstrap(request):
 # ── Actions ───────────────────────────────────────────────────────────────────
 
 def _resolve_table(slug):
-    """The Mini App only ever operates on a location's tables. Event tables have
-    their own sign-up flow on the website, and are not listed here — so a
-    crafted request must not be able to reach one through this API."""
-    return Table.objects.filter(slug=slug, location__isnull=False).first()
+    """The Mini App only operates on public tables hosted at a location."""
+    return Table.objects.public().filter(slug=slug, location__isnull=False).first()
 
 
 def _table_state(table, profile):

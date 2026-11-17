@@ -2,9 +2,10 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 
 from .forms import CustomLoginForm
+from .models import LocationEvent
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
-from .views import game_loan_views
+from .views import appointment_search, game_loan_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.location_views import FollowLocationView
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path("about", static_page_views.about, name="about"),
     path("press", static_page_views.press, name="press"),
     path("select-language", static_page_views.select_language, name="select-language"),
+    path("search/", appointment_search.AppointmentSearchView.as_view(), name="appointment-search"),
 
     # TABLE
     path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
@@ -170,25 +172,48 @@ urlpatterns = [
          name="location-game-tag-delete"),
 
     # LOCATION TABLES
+    path("locations/<slug:location_slug>/events/new/", event_views.LocationEventCreateView.as_view(),
+         name="location-event-create"),
     path("locations/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
     path("locations/<slug:location_slug>/tables/<slug:table_slug>/edit/", table_views.table_update_view,
          name="location-table-update"),
 
+    # LOCATION EVENTS
+    path("location-events/<slug:slug>/", event_views.LocationEventDetailView.as_view(), name="location-event-detail"),
+    path("location-events/<slug:slug>/join/", event_views.EventJoinView.as_view(event_model=LocationEvent), name="location-event-join"),
+    path("location-events/<slug:slug>/leave/", event_views.EventLeaveView.as_view(event_model=LocationEvent), name="location-event-leave"),
+    path("locations/<slug:location_slug>/manage/events/", event_views.LocationManageEventsView.as_view(),
+         name="location-manage-events"),
+    path("locations/<slug:location_slug>/manage/events/<slug:slug>/", event_views.LocationEventManageIndexView.as_view(), name="location-event-manage"),
+    path("locations/<slug:location_slug>/manage/events/<slug:slug>/approve/", event_views.LocationEventApproveView.as_view(), name="location-event-approve"),
+    path("locations/<slug:location_slug>/manage/events/<slug:slug>/participants/", event_views.EventManageParticipantsView.as_view(event_model=LocationEvent), name="location-event-manage-participants"),
+    path("locations/<slug:location_slug>/manage/events/<slug:slug>/data/", event_views.LocationEventManageDataView.as_view(), name="location-event-manage-data"),
+    path("locations/<slug:location_slug>/manage/events/<slug:slug>/dates/", event_views.LocationEventManageDatesView.as_view(), name="location-event-manage-dates"),
+    path("locations/<slug:location_slug>/manage/events/<slug:slug>/tables/new/", event_views.LocationEventTableCreateView.as_view(), name="location-event-table-create"),
+    path("location-events/<slug:slug>/manage/", event_views.redirect_unscoped_location_event, {"action": "manage"}),
+    path("location-events/<slug:slug>/manage/approve/", event_views.redirect_unscoped_location_event, {"action": "approve"}),
+    path("location-events/<slug:slug>/manage/participants/", event_views.redirect_unscoped_location_event, {"action": "manage-participants"}),
+    path("location-events/<slug:slug>/manage/data/", event_views.redirect_unscoped_location_event, {"action": "manage-data"}),
+    path("location-events/<slug:slug>/manage/dates/", event_views.redirect_unscoped_location_event, {"action": "manage-dates"}),
+    path("location-events/<slug:slug>/manage/tables/new/", event_views.redirect_unscoped_location_event, {"action": "table-create"}),
+
     # EVENTS
     path("events/", event_views.EventListView.as_view(), name="event-index"),
     path("events/new/", event_views.EventCreateView.as_view(), name="event-create"),
-    path("events/<slug:slug>/", event_views.EventDetailView.as_view(), name="event_detail"),
+    path("events/<slug:slug>/", event_views.legacy_location_event_route(event_views.EventDetailView.as_view(), "location-event-detail"), name="event_detail"),
     path("events/<slug:slug>/program/", event_views.EventProgramView.as_view(), name="event-program"),
     path("events/<slug:slug>/games/", event_views.EventGamesView.as_view(), name="event-games"),
-    path("events/<slug:slug>/join/", event_views.EventJoinView.as_view(), name="event-join"),
-    path("events/<slug:slug>/leave/", event_views.EventLeaveView.as_view(), name="event-leave"),
+    path("events/<slug:slug>/join/", event_views.legacy_location_event_route(event_views.EventJoinView.as_view(), "location-event-join"), name="event-join"),
+    path("events/<slug:slug>/leave/", event_views.legacy_location_event_route(event_views.EventLeaveView.as_view(), "location-event-leave"), name="event-leave"),
     path("events/<slug:slug>/save-phone/", event_views.EventSavePhoneView.as_view(), name="event-save-phone"),
-    path("events/<slug:slug>/manage/", event_views.EventManageIndexView.as_view(), name="event-manage"),
+    path("events/<slug:slug>/manage/", event_views.legacy_location_event_route(event_views.EventManageIndexView.as_view(), "location-event-manage"), name="event-manage"),
     path("events/<slug:slug>/manage/publish/", event_views.EventPublishView.as_view(), name="event-manage-publish"),
     path("events/<slug:slug>/manage/unpublish/", event_views.EventUnpublishView.as_view(), name="event-manage-unpublish"),
-    path("events/<slug:slug>/manage/participants/", event_views.EventManageParticipantsView.as_view(), name="event-manage-participants"),
-    path("events/<slug:slug>/manage/data/", event_views.EventManageDataView.as_view(), name="event-manage-data"),
-    path("events/<slug:slug>/manage/dates/", event_views.EventManageDatesView.as_view(), name="event-manage-dates"),
+    path("events/<slug:slug>/manage/approve/", event_views.redirect_legacy_location_event, {"location_event_route": "location-event-approve"}),
+    path("events/<slug:slug>/manage/participants/", event_views.legacy_location_event_route(event_views.EventManageParticipantsView.as_view(), "location-event-manage-participants"), name="event-manage-participants"),
+    path("events/<slug:slug>/manage/data/", event_views.legacy_location_event_route(event_views.EventManageDataView.as_view(), "location-event-manage-data"), name="event-manage-data"),
+    path("events/<slug:slug>/manage/dates/", event_views.legacy_location_event_route(event_views.EventManageDatesView.as_view(), "location-event-manage-dates"), name="event-manage-dates"),
+    path("events/<slug:slug>/manage/tables/new/", event_views.redirect_legacy_location_event, {"location_event_route": "location-event-table-create"}),
     path("events/<slug:slug>/manage/dates/<int:pk>/update/", event_views.EventManageDateUpdateView.as_view(), name="event-manage-date-update"),
     path("events/<slug:slug>/manage/dates/<int:pk>/delete/", event_views.EventManageDateDeleteView.as_view(), name="event-manage-date-delete"),
     path("events/<slug:slug>/manage/areas/", event_views.EventManageAreasView.as_view(), name="event-manage-areas"),
@@ -225,6 +250,7 @@ urlpatterns = [
 
     # ACCOUNT
     path("account/", account_views.index, name="account-index"),
+    path("account/activities/", account_views.activities, name="account-activities"),
     path("account/edit-profile/", profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
     path("account/change-email/", profile_views.change_email, name='change-email'),
     path("account/connect/telegram/", profile_views.connect_telegram_page, name='connect-telegram'),

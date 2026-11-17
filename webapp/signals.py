@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event, EventGame, Network, LocationNetwork
+    EventParticipant, Game, Location, Event, LocationEvent, EventGame, Network, LocationNetwork
 from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
 
 
@@ -48,13 +48,14 @@ def on_user_profile_saved(sender, instance, created, **kwargs):
 def notify_followers_on_new_table(sender, instance, created, **kwargs):
     # Copies made by duplicate_table set the flag: a series of N tables would
     # otherwise notify every follower N times.
-    if created and not getattr(instance, '_skip_follower_notification', False) and instance.location:
+    if (created and not getattr(instance, '_skip_follower_notification', False)
+            and instance.location_id and not instance.is_unpublished_location_table):
         location = instance.location
         recipient_ids = set(location.followers.values_list('user_profile_id', flat=True))
         # The location staff is notified too when the table could get a station:
         # send_queued_notifications adds the "assign a station" link to their mail.
         # Locations without stations only notify their followers.
-        if instance.physical_table_id is None and not instance.event_id and location.physical_tables.exists():
+        if instance.physical_table_id is None and location.physical_tables.exists():
             staff_ids = {location.creator_id, *location.managers.values_list('id', flat=True)}
             recipient_ids |= staff_ids
         # The author knows about their own table, even when they follow the location.
@@ -74,7 +75,7 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
 def add_table_game_to_event_library(sender, instance, created, **kwargs):
     """A game played at an event belongs to its library. Only on creation or when
     the game changes: a game the managers removed must not come back on any save."""
-    if instance.event_id and instance.game_id and (created or instance.tracker.has_changed('game')):
+    if instance.is_manifestation_table and instance.game_id and (created or instance.tracker.has_changed('game')):
         EventGame.objects.get_or_create(event_id=instance.event_id, game_id=instance.game_id)
 
 
@@ -92,6 +93,8 @@ def drop_removed_sponsors_from_event_games(sender, instance, action, reverse, **
 @receiver(pre_delete, sender=Table)
 def notify_players_on_table_delete(sender, instance, **kwargs):
     """Invia una notifica a tutti i giocatori quando un tavolo viene cancellato"""
+    if instance.is_unpublished_location_table:
+        return
     players = Player.objects.filter(table=instance, user_profile__isnull=False).select_related('user_profile__user')
     for player in players:
         Notification.objects.create(
@@ -107,7 +110,7 @@ def notify_players_on_table_delete(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Player)
 def notify_players_on_new_player(sender, instance, created, **kwargs):
-    if created and instance.user_profile_id:
+    if created and instance.user_profile_id and not instance.table.is_unpublished_location_table:
         players = instance.table.players.exclude(id=instance.user_profile.id)
         for player in players:
             Notification.objects.create(
@@ -122,9 +125,9 @@ def notify_players_on_new_player(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Player)
 def register_event_participation_on_join(sender, instance, created, **kwargs):
-    """When a user joins a table belonging to an event, ensure they are also
+    """When a user joins a manifestation table, ensure they are also
     registered as a participant of that event."""
-    if created and instance.user_profile_id and instance.table.event_id:
+    if created and instance.user_profile_id and instance.table.is_manifestation_table:
         EventParticipant.objects.get_or_create(
             event_id=instance.table.event_id,
             user_profile_id=instance.user_profile_id,
@@ -139,7 +142,7 @@ def register_event_participation_on_join(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def notify_players_on_new_comments(sender, instance, created, **kwargs):
-    if created and instance.comment_type == CommentType.USER:
+    if created and instance.comment_type == CommentType.USER and not instance.table.is_unpublished_location_table:
         players = instance.table.players.exclude(id=instance.author.id)
         for player in players:
             Notification.objects.create(
@@ -153,7 +156,7 @@ def notify_players_on_new_comments(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Table)
 def table_status_change_notifications(sender, instance, created, **kwargs):
-    if created:
+    if created or instance.is_unpublished_location_table:
         return
 
     # 1) leaderboard_status → EDITABLE / NOT_EDITABLE
@@ -216,6 +219,7 @@ SHRINKABLE_IMAGE_FIELDS = [
     (Location, 'cover', COVER_MAX_SIDE),
     (Table, 'custom_cover', COVER_MAX_SIDE),
     (Event, 'cover', COVER_MAX_SIDE),
+    (LocationEvent, 'cover', COVER_MAX_SIDE),
     (UserProfile, 'avatar', AVATAR_MAX_SIDE),
 ]
 

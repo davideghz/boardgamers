@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 from collections import defaultdict
+from functools import wraps
 from itertools import groupby
 
 from django.contrib import messages
@@ -9,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, F, Max, Min, Prefetch, Q
+from django.db.models import Count, F, Max, Min, Prefetch, Q, prefetch_related_objects
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -17,21 +18,20 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from webapp import emails
 from webapp.forms import (
     EventTableForm, EventForm, EventManageDataForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
-    EventTableCategoryForm, EventGameForm, EventGameTagForm,
+    EventTableCategoryForm, EventGameForm, EventGameTagForm, LocationEventForm, LocationEventDateForm,
 )
-from webapp.views.table_views import _links_formset_open
+from webapp.views.table_views import BaseTableDetailView, _links_formset_open, create_location_table
 from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
+from webapp.models import Event, LocationEvent, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventTableCategory, EventGame, EventGameTag
 from webapp.services.event_games import attach_booking_dates, featured_games, library_queryset
-from webapp.views.table_views import BaseTableDetailView
 
 logger = logging.getLogger(__name__)
 
@@ -51,23 +51,113 @@ class EventCreateView(LoginRequiredMixin, CreateView):
         return reverse('event-manage', kwargs={'slug': self.object.slug})
 
 
+class LocationEventCreateView(LoginRequiredMixin, View):
+    def get(self, request, location_slug):
+        location = self.get_location(request, location_slug)
+        return self.render_form(request, location, LocationEventForm(), LocationEventDateForm())
+
+    def post(self, request, location_slug):
+        location = self.get_location(request, location_slug)
+        event = LocationEvent(host_location=location, creator=request.user.user_profile)
+        form = LocationEventForm(request.POST, request.FILES, instance=event)
+        date_form = LocationEventDateForm(request.POST)
+        form_valid = form.is_valid()
+        date_valid = date_form.is_valid()
+        if not (form_valid and date_valid):
+            return self.render_form(request, location, form, date_form)
+
+        for field, value in date_form.cleaned_data.items():
+            setattr(event, field, value)
+        form.save()
+        if event.can_publish(request.user):
+            messages.success(request, _("Location event created. You can publish it from this page."))
+        else:
+            messages.success(request, _("Event created. The location managers can publish it."))
+        return redirect(event.action_url('manage'))
+
+    def get_location(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        if not location.can_create_events(request.user):
+            raise PermissionDenied
+        return location
+
+    def render_form(self, request, location, form, date_form):
+        return render(request, 'events/location_event_form.html', {
+            'location': location, 'form': form, 'date_form': date_form,
+            'can_manage_location_events': request.user.is_superuser or location.is_manager(request.user.user_profile),
+        })
+
+
+class LocationManageEventsView(LoginRequiredMixin, ListView):
+    template_name = 'locations/location_manage_events.html'
+    context_object_name = 'events'
+    paginate_by = 20
+
+    def get_queryset(self):
+        self.location = get_object_or_404(Location, slug=self.kwargs['location_slug'])
+        user = self.request.user
+        if not (user.is_superuser or self.location.is_manager(user.user_profile)):
+            raise PermissionDenied
+        return (self.location.hosted_events.select_related('host_location')
+                .order_by(F('date').desc(nulls_first=True), '-opening_time', '-pk'))
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            location=self.location, can_create_events=self.location.can_create_events(self.request.user), **kwargs,
+        )
+
+
 class EventManagerMixin(LoginRequiredMixin):
     """Ensures the logged-in user is a manager of the event (resolved via slug kwarg)."""
+
+    event_model = Event
 
     def dispatch(self, request, *args, **kwargs):
         # Check before running the view: anonymous users fall through to
         # LoginRequiredMixin, which redirects them to the login page.
         if request.user.is_authenticated:
             event = self._get_event()
-            user_profile = request.user.user_profile
-            if not (request.user.is_superuser or event.is_manager(user_profile)):
+            if not self.can_manage_event(event, request.user):
                 raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
     def _get_event(self):
         if not hasattr(self, '_event_cache'):
-            self._event_cache = get_object_or_404(Event, slug=self.kwargs['slug'])
+            events = self.event_model.objects.all()
+            if self.event_model is LocationEvent:
+                events = events.select_related('host_location').filter(host_location__slug=self.kwargs['location_slug'])
+            self._event_cache = get_object_or_404(events, slug=self.kwargs['slug'])
         return self._event_cache
+
+    def can_manage_event(self, event, user):
+        return event.can_manage(user)
+
+
+def legacy_location_event_route(view, location_event_route):
+    """Keep bookmarks and already-open forms for events moved to LocationEvent."""
+    @wraps(view)
+    def dispatch(request, slug, *args, **kwargs):
+        try:
+            return view(request, *args, slug=slug, **kwargs)
+        except Http404:
+            return redirect_legacy_location_event(request, slug, location_event_route)
+
+    return dispatch
+
+
+def redirect_legacy_location_event(request, slug, location_event_route):
+    event = get_object_or_404(LocationEvent.objects.select_related('host_location'), legacy_event_slug=slug)
+    return redirect_location_event_action(request, event, location_event_route.removeprefix('location-event-'))
+
+
+def redirect_unscoped_location_event(request, slug, action):
+    event = get_object_or_404(LocationEvent.objects.select_related('host_location'), slug=slug)
+    return redirect_location_event_action(request, event, action)
+
+
+def redirect_location_event_action(request, event, action):
+    url = event.action_url(action, query=request.GET)
+    return redirect(url, preserve_request=request.method not in ('GET', 'HEAD'))
 
 
 def _dates_with_gaps(event):
@@ -78,22 +168,32 @@ def _dates_with_gaps(event):
     return event_dates
 
 
+def _location_event_tables(event):
+    return event.tables.order_by('date', 'time', 'pk')
+
+
+def _program_slots(tables):
+    return [
+        {'time': time, 'tables': list(group)}
+        for time, group in groupby(tables, key=lambda table: table.time)
+    ]
+
+
 class EventPublicAccessMixin:
     """Resolve the event by slug, enforcing visibility (managers can preview
     their own unpublished events)."""
 
     def get_object(self, queryset=None):
         event = super().get_object(queryset)
-        user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        if not event.is_published:
-            if not user_profile or not event.is_manager(user_profile):
-                raise Http404
+        if not event.is_published and not event.can_manage(self.request.user):
+            raise Http404
         return event
 
 
 class EventDetailView(EventPublicAccessMixin, DetailView):
     """Slim event landing page: intro, sponsors, contacts + CTA to the program."""
-    queryset = Event.objects.select_related('creator')  # read by the JSON-LD organizer
+    context_object_name = 'event'
+    queryset = Event.objects.select_related('creator')
     template_name = 'events/event_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -106,28 +206,29 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             user_profile=user_profile).exists())
         today = timezone.localdate()
         is_concluded = event.is_concluded(today)
-        games = featured_games(event) if event.enable_public_games else []
+        show_library = not event.is_location_event and event.enable_public_games
+        games = featured_games(event) if show_library else []
         event_dates = _dates_with_gaps(event)
         context.update({
-            'is_manager': bool(user_profile and event.is_manager(user_profile)),
+            'is_manager': event.can_manage(self.request.user),
             'is_participant': is_participant,
             'just_joined': is_participant and self.request.session.pop(
-                'event_just_joined', None) == event.pk,
-            'needs_phone': is_participant and not user_profile.phone,
+                'event_just_joined', None) == event.get_absolute_url(),
+            'needs_phone': not event.is_location_event and is_participant and not user_profile.phone,
             'participant_count': event.participants.count(),
             'event_dates': event_dates,
             'today': today,
             'is_concluded': is_concluded,
             'featured_games': games,
-            'has_library': event.enable_public_games and (bool(games) or event.games.exists()),
-            'can_view_program': event.can_view_program(self.request.user),
+            'has_library': show_library and (bool(games) or event.games.exists()),
+            'can_view_program': not event.is_location_event and event.can_view_program(self.request.user),
             # Public link to the program: only while table booking is on.
             'program_url': (
                 reverse('event-program', kwargs={'slug': event.slug})
-                if event.table_booking_enabled else None),
+                if not event.is_location_event and event.table_booking_enabled else None),
             'show_custom_button': bool(event.custom_button_title and event.custom_button_url),
         })
-        if user_profile and event.table_booking_enabled:
+        if user_profile and not event.is_location_event and event.table_booking_enabled:
             my_agenda, my_tables_overlap = self._my_tables_agenda(event, user_profile)
             context['my_tables_agenda'] = my_agenda
             context['my_tables_overlap'] = my_tables_overlap
@@ -170,6 +271,48 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             )
         ]
         return agenda, has_overlap
+
+
+class LocationEventDetailView(EventDetailView):
+    queryset = LocationEvent.objects.select_related('host_location')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        location = self.object.host_location
+        user = self.request.user
+        context['event_members_only'] = location.event_join_permission == Location.PERM_MEMBERS_ONLY
+        context['cannot_join_event'] = (
+            user.is_authenticated and not context['is_participant'] and not location.can_join_events(user.user_profile)
+        )
+        if self.object.status != LocationEvent.PUBLISHED and not self.object.can_publish(user):
+            return context
+        tables = list(self.object.tables.select_related(
+            'game', 'play_area', 'physical_table__play_area', 'category',
+        ).order_by('time', 'pk'))
+        if not tables:
+            return context
+
+        table_areas = {
+            table.pk: table.physical_table.play_area if table.physical_table_id else table.play_area
+            for table in tables
+        }
+        areas = {str(area.pk): area for area in table_areas.values() if area}
+        games = {str(table.game_id): table.game for table in tables if table.game_id}
+        selected_area = areas.get(self.request.GET.get('area')) if len(areas) > 1 else None
+        selected_game = games.get(self.request.GET.get('game')) if len(games) > 1 else None
+        shown = [table for table in tables if (
+            (selected_area is None or table_areas[table.pk] == selected_area)
+            and (selected_game is None or table.game_id == selected_game.pk)
+        )]
+        prefetch_related_objects(shown, 'player_set')
+        context['location_program'] = {
+            'slots': _program_slots(shown),
+            'areas': sorted(areas.values(), key=lambda area: (area.order, area.name)) if len(areas) > 1 else [],
+            'games': sorted(games.values(), key=lambda game: game.name) if len(games) > 1 else [],
+            'selected_area': selected_area,
+            'selected_game': selected_game,
+        }
+        return context
 
 
 class EventGamesView(EventPublicAccessMixin, DetailView):
@@ -465,8 +608,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
 
         # ── Tables queryset ───────────────────────────────────────────────
         tables_qs = (
-            Table.objects
-            .filter(event=event)
+            event.tables
             .select_related('game', 'author', 'author__user', 'play_area', 'physical_table', 'category')
             .prefetch_related(
                 Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
@@ -505,10 +647,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         agenda_days = [
             {
                 'date': day,
-                'slots': [
-                    {'time': slot_time, 'tables': list(group)}
-                    for slot_time, group in groupby(day_tables, key=lambda tb: tb.time)
-                ],
+                'slots': _program_slots(day_tables),
             }
             for day, day_tables in groupby(tables_list, key=lambda tb: tb.date)
         ]
@@ -560,38 +699,41 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
 class EventJoinView(LoginRequiredMixin, View):
     """Register the logged-in user as a participant of the event."""
 
+    event_model = Event
+
     def post(self, request, slug):
-        event = get_object_or_404(Event, slug=slug)
+        event = get_object_or_404(self.event_model, slug=slug)
         user_profile = request.user.user_profile
-        if not event.is_published and not (
-                request.user.is_superuser or event.is_manager(user_profile)):
+        if not event.is_published and (event.is_location_event or not event.can_manage(request.user)):
             raise Http404
+        if event.is_location_event and not event.host_location.can_join_events(user_profile):
+            raise PermissionDenied(_('This event is reserved for members.'))
         if event.is_concluded():
             messages.info(request, _("This event has already ended, registration is closed."))
-            return redirect('event_detail', slug=slug)
-        participant, created = EventParticipant.objects.get_or_create(
-            event=event, user_profile=user_profile)
+            return redirect(event)
+        participant, created = event.participants.get_or_create(user_profile=user_profile)
         if created:
             # Shown once by the detail page as a confirmation modal with the share CTA
-            request.session['event_just_joined'] = event.pk
+            request.session['event_just_joined'] = event.get_absolute_url()
         else:
             messages.info(request, _("You are already registered for this event."))
-        return redirect('event_detail', slug=slug)
+        return redirect(event)
 
 
 class EventLeaveView(LoginRequiredMixin, View):
     """Unregister the logged-in user from the event (not allowed once it ended)."""
 
+    event_model = Event
+
     def post(self, request, slug):
-        event = get_object_or_404(Event, slug=slug)
+        event = get_object_or_404(self.event_model, slug=slug)
         if event.is_concluded():
             messages.info(request, _("This event has already ended, you can't leave it."))
-            return redirect('event_detail', slug=slug)
-        deleted, _rows = EventParticipant.objects.filter(
-            event=event, user_profile=request.user.user_profile).delete()
+            return redirect(event)
+        deleted, _rows = event.participants.filter(user_profile=request.user.user_profile).delete()
         if deleted:
             messages.success(request, _("You are no longer attending this event."))
-        return redirect('event_detail', slug=slug)
+        return redirect(event)
 
 
 class EventSavePhoneView(LoginRequiredMixin, View):
@@ -670,7 +812,7 @@ def event_table_create_view(request, event_slug):
         messages.error(request, _("You must define at least one date for the event before creating tables."), extra_tags="danger")
         return redirect('event_detail', slug=event_slug)
 
-    initial = {'event': event}
+    initial = {}
     if date_param := request.GET.get('date'):
         initial['date'] = date_param
     if area_param := request.GET.get('area'):
@@ -685,7 +827,6 @@ def event_table_create_view(request, event_slug):
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
             table.author = user_profile
-            table.event = event
             table.save()
             form.save_m2m()
             link_formset.instance = table
@@ -723,7 +864,6 @@ def event_table_update_view(request, event_slug, table_slug):
         link_formset = TableLinkFormSet(request.POST, instance=table)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
-            table.event = event
             table.save()
             form.save_m2m()
             link_formset.save()
@@ -744,21 +884,23 @@ def event_table_update_view(request, event_slug, table_slug):
 
 
 class EventManageIndexView(LoginRequiredMixin, DetailView):
-    model = Event
+    context_object_name = 'event'
+    queryset = Event.objects.all()
     template_name = 'events/event_manage_index.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
     def get_object(self, queryset=None):
         event = super().get_object(queryset)
-        user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        if not (self.request.user.is_superuser or (user_profile and event.is_manager(user_profile))):
+        if not event.can_manage(self.request.user):
             raise Http404
         return event
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
+        if event.is_location_event:
+            return context
         if event.status == Event.DRAFT:
             context['missing_publish_requirements'] = event.missing_publish_requirements()
         elif event.is_published:
@@ -808,37 +950,114 @@ class EventUnpublishView(EventManagerMixin, View):
 
 # ── Event management sub-views ────────────────────────────────────────────────
 
+class LocationEventManageIndexView(EventManageIndexView):
+    queryset = LocationEvent.objects.select_related('host_location')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(host_location__slug=self.kwargs['location_slug'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.object
+        can_manage_location_events = event.can_publish(self.request.user)
+        can_approve_event = can_manage_location_events and event.status == LocationEvent.DRAFT
+        context.update(
+            can_manage_location_events=can_manage_location_events,
+            can_approve_event=can_approve_event,
+            has_publishable_date=can_approve_event and event.has_publishable_date(),
+        )
+        if can_manage_location_events:
+            context['location_event_tables'] = _location_event_tables(event)
+        return context
+
+
+class LocationEventTableCreateView(LoginRequiredMixin, View):
+    def get(self, request, location_slug, slug):
+        return self._create(request, location_slug, slug, LocationEvent.objects.select_related('host_location'))
+
+    @transaction.atomic
+    def post(self, request, location_slug, slug):
+        return self._create(request, location_slug, slug, LocationEvent.objects.select_for_update(of=('self',)))
+
+    def _create(self, request, location_slug, slug, events):
+        event = get_object_or_404(events, host_location__slug=location_slug, slug=slug)
+        if not event.can_publish(request.user):
+            raise PermissionDenied
+        if not event.date:
+            messages.error(request, _('Set the event date before adding tables.'))
+            return redirect(event.action_url('manage-dates'))
+        return create_location_table(request, event.host_location, event)
+
+
+class LocationEventApproveView(LoginRequiredMixin, View):
+    @transaction.atomic
+    def post(self, request, location_slug, slug):
+        events = LocationEvent.objects.select_for_update(of=('self',)).select_related('host_location')
+        event = get_object_or_404(events, host_location__slug=location_slug, slug=slug)
+        if not event.can_publish(request.user):
+            raise PermissionDenied
+
+        if event.status != LocationEvent.DRAFT:
+            messages.info(request, _("Only events awaiting approval can be approved."))
+        elif not event.has_publishable_date():
+            messages.error(request, _("Add an upcoming date before publishing."))
+            return redirect(event.action_url('manage-dates'))
+        else:
+            event.status = LocationEvent.PUBLISHED
+            event.save(update_fields=['status', 'updated_at'])
+            messages.success(request, _("Event approved and published."))
+        return redirect(event.action_url('manage'))
+
+
 class EventManageDataView(EventManagerMixin, UpdateView):
     model = Event
     form_class = EventManageDataForm
     template_name = 'events/event_manage_data.html'
-    slug_field = 'slug'
-    slug_url_kwarg = 'slug'
+    context_object_name = 'event'
 
     def get_object(self, queryset=None):
         return self._get_event()
 
     def get_success_url(self):
         messages.success(self.request, _("Event updated successfully"))
-        return reverse('event-manage', kwargs={'slug': self.object.slug})
+        return self.object.action_url('manage')
+
+
+class LocationEventManageDataView(EventManageDataView):
+    event_model = LocationEvent
+    model = LocationEvent
+    form_class = LocationEventForm
+    template_name = 'events/location_event_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['location'] = self.object.host_location
+        return context
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            event = get_object_or_404(LocationEvent.objects.select_for_update(of=('self',)), pk=self.object.pk,
+                                      host_location__slug=self.kwargs['location_slug'])
+            if not event.can_manage(self.request.user):
+                raise PermissionDenied
+            # Schedule and publication can be updated from their own screens.
+            self.object = form.save(commit=False)
+            fields = ['name', 'description', 'updated_at']
+            if 'cover' in form.changed_data:
+                fields.append('cover')
+            self.object.save(update_fields=fields)
+        return redirect(self.get_success_url())
 
 
 class EventManageDatesView(EventManagerMixin, View):
     template_name = 'events/event_manage_dates.html'
 
-    def _event(self):
-        return self._get_event()
-
     def get(self, request, slug):
-        event = self._event()
-        return render(request, self.template_name, {
-            'event': event,
-            'dates': event.dates.all(),
-            'form': EventDateForm(),
-        })
+        return self.render_dates(request, self._get_event(), EventDateForm())
 
+    @transaction.atomic
     def post(self, request, slug):
-        event = self._event()
+        event = self._get_event()
         form = EventDateForm(request.POST)
         if form.is_valid():
             EventDate.objects.update_or_create(
@@ -850,11 +1069,37 @@ class EventManageDatesView(EventManagerMixin, View):
             )
             messages.success(request, _("Date added."))
             return redirect('event-manage-dates', slug=slug)
-        return render(request, self.template_name, {
-            'event': event,
-            'dates': event.dates.all(),
-            'form': form,
-        })
+        return self.render_dates(request, event, form)
+
+    def render_dates(self, request, event, form):
+        return render(request, self.template_name, {'event': event, 'dates': event.dates.all(), 'form': form})
+
+
+class LocationEventManageDatesView(EventManagerMixin, View):
+    event_model = LocationEvent
+
+    def get(self, request, location_slug, slug):
+        event = self._get_event()
+        initial = {'date': event.date, 'opening_time': event.opening_time, 'closing_time': event.closing_time}
+        return self.render_dates(request, event, LocationEventDateForm(initial=initial if event.date else {}))
+
+    @transaction.atomic
+    def post(self, request, location_slug, slug):
+        event = get_object_or_404(LocationEvent.objects.select_for_update(of=('self',)), pk=self._get_event().pk,
+                                  host_location__slug=location_slug)
+        if not event.can_manage(request.user):
+            raise PermissionDenied
+        form = LocationEventDateForm(request.POST)
+        if form.is_valid():
+            for field, value in form.cleaned_data.items():
+                setattr(event, field, value)
+            event.save(update_fields=['date', 'opening_time', 'closing_time', 'updated_at'])
+            messages.success(request, _("Date saved."))
+            return redirect(event.action_url('manage'))
+        return self.render_dates(request, event, form)
+
+    def render_dates(self, request, event, form):
+        return render(request, 'events/location_event_date.html', {'event': event, 'form': form})
 
 
 class EventManageDateUpdateView(EventManagerMixin, View):
@@ -871,9 +1116,14 @@ class EventManageDateUpdateView(EventManagerMixin, View):
 
 
 class EventManageDateDeleteView(EventManagerMixin, View):
+    @transaction.atomic
     def post(self, request, slug, pk):
-        event = self._get_event()
-        EventDate.objects.filter(pk=pk, event=event).delete()
+        event = Event.objects.select_for_update().get(pk=self._get_event().pk)
+        occurrence = get_object_or_404(EventDate, pk=pk, event=event)
+        if event.status == Event.PUBLISHED and not event.dates.exclude(pk=pk).exists():
+            messages.error(request, _("A published event needs at least one date. Add a replacement first."))
+            return redirect('event-manage-dates', slug=slug)
+        occurrence.delete()
         messages.success(request, _("Date removed."))
         return redirect('event-manage-dates', slug=slug)
 
@@ -1117,7 +1367,10 @@ class EventManageGameTagsReorderView(EventManagerMixin, View):
 class EventManageParticipantsView(EventManagerMixin, View):
     template_name = 'events/event_manage_participants.html'
 
-    def get(self, request, slug):
+    def can_manage_event(self, event, user):
+        return event.can_publish(user) if event.is_location_event else super().can_manage_event(event, user)
+
+    def get(self, request, slug, location_slug=None):
         event = self._get_event()
         participants = event.participants.select_related('user_profile__user').order_by('-created_at')
         return render(request, self.template_name, {

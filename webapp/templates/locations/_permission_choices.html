@@ -1,0 +1,20 @@
+<fieldset class="space-y-2">
+  <legend class="mb-2 text-sm font-bold text-content">{{ label }}</legend>
+  {% for value, choice in choices %}
+    {% if value == 'members_only' and require_public_membership and not membership_enabled %}
+      <label class="flex cursor-not-allowed items-center gap-3 rounded-xl border border-divider-soft bg-surface-alt p-4 opacity-50">
+        <input type="radio" name="{{ permission.html_name }}" value="{{ value }}" disabled class="h-4 w-4 border-divider">
+        <span class="text-sm font-medium text-content-muted">{{ choice }}</span>
+      </label>
+    {% else %}
+      <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors {% if permission.value == value %}border-content bg-surface-alt{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
+        <input type="radio" name="{{ permission.html_name }}" value="{{ value }}" {% if permission.value == value %}checked{% endif %}
+               class="h-4 w-4 border-divider text-content focus:ring-slate-500">
+        <span class="text-sm font-medium text-content">{{ choice }}</span>
+      </label>
+    {% endif %}
+  {% endfor %}
+  {% if permission.errors %}
+    <p class="text-xs text-red-500">{{ permission.errors|join:", " }}</p>
+  {% endif %}
+</fieldset>

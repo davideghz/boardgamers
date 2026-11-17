@@ -259,25 +259,7 @@
           {{ day.date|date:"l j F" }}
         </h2>
       {% endif %}
-      <div class="space-y-6">
-      {% for slot in day.slots %}
-        <div class="flex flex-col sm:flex-row sm:gap-4">
-          {# Time: above the cards on mobile, left column on desktop #}
-          <div class="flex-shrink-0 sm:w-16 sm:text-right sm:pt-1 mb-1.5 sm:mb-0">
-            <span class="inline-flex items-center gap-1 text-sm font-extrabold text-content">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-content-muted sm:hidden">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              {{ slot.time|time:"H:i" }}
-            </span>
-          </div>
-          {# Cards column #}
-          <div class="flex-1 min-w-0 space-y-2 sm:border-l-2 sm:border-divider-soft sm:pl-4">
-            {% for table in slot.tables %}{% event_agenda_card table %}{% endfor %}
-          </div>
-        </div>
-      {% endfor %}
-      </div>
+      {% include "events/_program_time_slots.html" with slots=day.slots only %}
       </div>
       {% endfor %}
     </div>

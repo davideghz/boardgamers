@@ -26,7 +26,7 @@ from meta.views import Meta
 from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
-    GameOutcome, PlayerOutcome, ResultMode
+    LocationEvent, GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.tables import (
     MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_comment, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
     comment_badges, duplicate_draft, duplicate_table, is_table_host, join_table,
@@ -85,7 +85,7 @@ def _location_picker_sections(request):
         if sections:
             return sections
     popular = list(Location.objects
-                   .annotate(tables_count=Count('tables'))
+                   .annotate(tables_count=Count('tables', filter=Table.public_condition('tables__')))
                    .filter(tables_count__gt=0)
                    .order_by('-tables_count', 'name')[:6])
     return [(_("Most active locations"), popular)] if popular else []
@@ -117,8 +117,8 @@ class TableIndexView(generic.ListView):
         players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
-        qs = (Table.objects
-              .filter(event__isnull=True)
+        qs = (Table.objects.public()
+              .filter(location__isnull=False)
               .select_related('author', 'author__user', 'location')
               .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
               .annotate(distance=DbDistance('location__point', user_point)))
@@ -324,9 +324,12 @@ class BaseTableDetailView(generic.DetailView):
 class TableDetailView(BaseTableDetailView):
     template_name = "tables/table_detail.html"
 
+    def get_queryset(self):
+        return super().get_queryset().visible_to(self.request.user).select_related('event', 'location_event')
+
     def dispatch(self, request, *args, **kwargs):
-        table = get_object_or_404(Table.objects.select_related('event'), slug=kwargs['slug'])
-        if table.event_id:
+        table = get_object_or_404(Table.objects.visible_to(request.user).select_related('event'), slug=kwargs['slug'])
+        if table.is_manifestation_table:
             return redirect('event_table_detail', event_slug=table.event.slug, table_slug=table.slug)
         return super().dispatch(request, *args, **kwargs)
 
@@ -371,7 +374,7 @@ class TableDetailView(BaseTableDetailView):
 
 @login_required
 def table_players_view(request, slug):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if not can_manage_roster(request.user.user_profile, table):
         messages.error(request, "You do not have permission to manage players for this table.", extra_tags="danger")
@@ -392,7 +395,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
     """View to manually add a player to a table (author/admin only)"""
 
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
 
         if not can_manage_roster(request.user.user_profile, table):
             messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
@@ -432,7 +435,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
 
 @login_required
 def remove_player_view(request, slug, player_id):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
     player = get_object_or_404(Player, id=player_id, table=table)
 
     if not can_manage_roster(request.user.user_profile, table):
@@ -503,36 +506,42 @@ def _table_creation_refusal(request, location):
 @login_required
 def table_create_view(request, location_slug):
     location = get_object_or_404(Location, slug=location_slug)
-    initial = {"location": location}
-    if location.default_table_time:
-        initial["time"] = location.default_table_time
+    return create_location_table(request, location)
 
+
+def create_location_table(request, location, location_event=None):
     if refusal := _table_creation_refusal(request, location):
         return refusal
 
+    initial = {"location": location}
+    if location.default_table_time:
+        initial["time"] = location.default_table_time
+    if location_event and location_event.opening_time:
+        initial["time"] = location_event.opening_time
+    instance = Table(location=location)
+    if location_event:
+        instance.location_event = location_event
+        instance.date = location_event.date
+
     if request.method == "POST":
-        form = TableForm(request.POST, request.FILES, location=location, user=request.user)
+        form = TableForm(request.POST, request.FILES, instance=instance, location=location, user=request.user)
         link_formset = TableLinkFormSet(request.POST)
         if form.is_valid() and link_formset.is_valid():
-            table = form.save(commit=False)
-            table.author = request.user.user_profile
-            table.location = location
-            table.save()
-            form.save_m2m()
-
-            link_formset.instance = table
-            link_formset.save()
-
-            if request.POST.get("join_table"):
-                with transaction.atomic():
+            with transaction.atomic():
+                form.instance.author = request.user.user_profile
+                form.instance.location = location
+                table = form.save()
+                link_formset.instance = table
+                link_formset.save()
+                if request.POST.get("join_table"):
                     table.players.add(request.user.user_profile)
 
             messages.success(request, _("Table was created successfully"))
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
-        if date_param := request.GET.get('date'):
+        if not location_event and (date_param := request.GET.get('date')):
             initial['date'] = date_param
-        form = TableForm(initial=initial, location=location, user=request.user)
+        form = TableForm(initial=initial, instance=instance, location=location, user=request.user)
         link_formset = TableLinkFormSet()
 
     context = {
@@ -540,6 +549,7 @@ def table_create_view(request, location_slug):
         "link_formset": link_formset,
         "links_formset_open": _links_formset_open(link_formset),
         "location": location,
+        "location_event": location_event,
     }
 
     return render(request, "tables/table_add_or_edit.html", context)
@@ -548,14 +558,15 @@ def table_create_view(request, location_slug):
 @login_required
 @only_admin_can_edit_closed_table
 @only_author_or_admin_can_edit
+@transaction.atomic
 def table_update_view(request, location_slug, table_slug):
-    table = get_object_or_404(Table, slug=table_slug)
-
-    if table.location is None:  # Controllo di sicurezza per evitare problemi
-        table.location = get_object_or_404(Location, slug=location_slug)
-        table.save()
-
-    location = table.location  # Ora la location è sempre valida
+    tables = Table.objects.visible_to(request.user).select_related('location', 'location_event')
+    table = get_object_or_404(tables, slug=table_slug, location__slug=location_slug)
+    if request.method == 'POST' and table.is_location_event_table:
+        # Rescheduling locks the event before updating its tables.
+        get_object_or_404(LocationEvent.objects.select_for_update(), pk=table.location_event_id)
+        table = get_object_or_404(tables, pk=table.pk)
+    location = table.location
 
     if request.method == "POST":
         form = TableForm(request.POST, request.FILES, instance=table, location=location, user=request.user)
@@ -578,6 +589,7 @@ def table_update_view(request, location_slug, table_slug):
         "links_formset_open": _links_formset_open(link_formset),
         "location": location,
         "table": table,
+        "location_event": table.location_event,
     }
     return render(request, "tables/table_add_or_edit.html", context)
 
@@ -601,7 +613,7 @@ def _next_weekly_date(table):
 
 @login_required
 def table_duplicate_view(request, slug):
-    source = get_object_or_404(Table.objects.select_related('location', 'game', 'author'), slug=slug)
+    source = get_object_or_404(Table.objects.public().select_related('location', 'game', 'author'), slug=slug)
     profile = request.user.user_profile
     if not can_duplicate_table(profile, source):
         messages.error(request, _("You don't have permission to duplicate this table."), extra_tags="danger")
@@ -657,7 +669,7 @@ def table_duplicate_view(request, slug):
 @login_required
 @author_or_admin_required
 def add_external_player(request, slug, available_seats):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if request.method == "POST":
         if available_seats > 0 or table.unlimited_seats:
@@ -670,7 +682,7 @@ def add_external_player(request, slug, available_seats):
 @login_required
 @author_or_admin_required
 def remove_external_player(request, slug):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if request.method == "POST":
         if table.external_players > 0:
@@ -683,7 +695,7 @@ def remove_external_player(request, slug):
 @login_required
 @author_or_admin_required
 def clear_external_players(request, slug):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if request.method == "POST":
         if table.external_players > 0:
@@ -708,7 +720,15 @@ class TableDeleteView(
 
     success_message = "Table was deleted successfully"
 
+    def get_queryset(self):
+        return super().get_queryset().visible_to(self.request.user)
+
     def get_success_url(self):
+        if self.object.location_event_id:
+            event = self.object.location_event
+            if self.object.is_unpublished_location_table:
+                return event.action_url('manage')
+            return event.get_absolute_url()
         if self.object.event_id:
             return reverse('event_detail', kwargs={'slug': self.object.event.slug})
         return reverse('home')
@@ -722,7 +742,8 @@ class CommentDeleteView(LoginRequiredMixin, IsAuthorOrAdminTestMixin, SuccessMes
 
     def get_object(self, queryset=None):
         uuid = self.kwargs.get('uuid')
-        return get_object_or_404(Comment, uuid=uuid)
+        tables = Table.objects.visible_to(self.request.user)
+        return get_object_or_404(Comment, uuid=uuid, table__in=tables)
 
     def get_success_url(self):
         table = self.get_object().table
@@ -739,7 +760,7 @@ def _report_table_action_error(request, error):
 
 class JoinTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        table = get_object_or_404(Table.objects.public(), slug=self.kwargs['slug'])
 
         try:
             result = join_table(request.user.user_profile, table)
@@ -758,7 +779,7 @@ class SaveTableResultView(LoginRequiredMixin, View):
     """JSON endpoint of the leaderboard editor: validates and stores the whole result."""
 
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        table = get_object_or_404(Table.objects.public(), slug=self.kwargs['slug'])
         try:
             data = json.loads(request.body)
         except (ValueError, TypeError):
@@ -776,7 +797,7 @@ class SaveTableResultView(LoginRequiredMixin, View):
 
 class LeaveTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=self.kwargs['slug'])
 
         try:
             leave_table(request.user.user_profile, table)
@@ -788,7 +809,7 @@ class LeaveTableView(LoginRequiredMixin, View):
 
 class AddGuestToTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
         guest = get_object_or_404(
             GuestProfile, id=request.POST.get('guest_id'), owner=request.user.user_profile)
 
@@ -802,7 +823,7 @@ class AddGuestToTableView(LoginRequiredMixin, View):
 
 class RemoveGuestFromTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
         player = get_object_or_404(
             Player, id=kwargs['player_id'], table=table, guest_profile__isnull=False)
 

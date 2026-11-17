@@ -27,7 +27,7 @@ class StaticViewSitemap(Sitemap):
 
     def lastmod(self, item):
         if item == 'home':
-            last_table = Table.objects.order_by('-updated_at').first()
+            last_table = Table.objects.public().order_by('-updated_at').first()
             return last_table.updated_at if last_table else None
         if item == 'locations-index':
             last_location = Location.objects.order_by('-created_at').first()
@@ -68,7 +68,7 @@ class TableSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Table.objects.all().order_by('-updated_at')
+        return Table.objects.public().order_by('-updated_at')
 
     def lastmod(self, obj):
         return obj.updated_at

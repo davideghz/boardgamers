@@ -34,6 +34,15 @@
          class="text-primary font-bold text-base hover:underline">{{ table.game }}</a>
     {% endif %}
     <p class="text-xs text-content-muted mt-1">{% trans "Created" %} {{ table.created_at|timesince }} {% trans "ago" %}</p>
+    {% if table.is_location_event_table %}
+      <p class="mt-2 text-sm text-content-muted">
+        {% trans "Location event" %}
+        <a class="ml-1 font-semibold text-primary hover:underline" href="{{ table.location_event.get_absolute_url }}">{{ table.location_event.name }}</a>
+      </p>
+      {% if table.is_unpublished_location_table %}
+        <p class="mt-1 text-sm text-content-muted">{% trans "This table will be public when the event is published." %}</p>
+      {% endif %}
+    {% endif %}
   </div>
 
   {# ── 3-COLUMN GRID ─────────────────────────────────────────────────── #}
@@ -217,7 +226,9 @@
           </div>
 
           {# Join / Leave / Closed #}
-          {% if table.is_session_active %}
+          {% if table.is_unpublished_location_table %}
+            <p class="text-sm text-content-muted">{% trans "Reservations will open when the event is published." %}</p>
+          {% elif table.is_session_active %}
             {% if user.is_authenticated %}
               {% if user.user_profile in table.players.all %}
                 <form method="post" action="{% url 'leave_table' table.slug %}">
@@ -331,6 +342,7 @@
   </div>{# /grid #}
 
   {# ── Mobile sticky CTA ────────────────────────────────────────────── #}
+  {% if not table.is_unpublished_location_table %}
   <div class="lg:hidden fixed bottom-0 left-0 md:left-[var(--sidebar-width)] right-0 z-30 bg-surface border-t border-divider px-4 py-3">
     {% if table.is_session_active %}
       {% if user.is_authenticated %}
@@ -383,6 +395,7 @@
       </button>
     {% endif %}
   </div>
+  {% endif %}
 
 {% endblock content %}
 

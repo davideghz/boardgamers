@@ -7,24 +7,24 @@
   {# ── PAGE HEADER ─────────────────────────────────────────────────── #}
   <div class="mb-6 flex items-start justify-between gap-3">
     <div>
-      <h1 class="text-2xl font-extrabold text-content">{% trans "Events" %}</h1>
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Manifestations" %}</h1>
       <p class="text-sm text-content-muted mt-1">{% trans "Conventions, tournaments and game days near you." %}</p>
     </div>
     <a href="{% url 'event-create' %}"
        class="flex-shrink-0 flex items-center gap-1.5 bg-elevated text-white text-xs font-bold px-3 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-      {% trans "Create event" %}
+      {% trans "Create manifestation" %}
     </a>
   </div>
 
   {# ── UPCOMING ─────────────────────────────────────────────────────── #}
   <section class="mb-10">
-    <h2 class="text-lg font-bold text-content mb-4">{% trans "Upcoming events" %}</h2>
+    <h2 class="text-lg font-bold text-content mb-4">{% trans "Upcoming manifestations" %}</h2>
 
     {% if upcoming_events %}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {% for event in upcoming_events %}
-          {% event_card event today %}
+          {% manifestation_card event today %}
         {% endfor %}
       </div>
     {% else %}
@@ -35,11 +35,11 @@
   {# ── PAST ─────────────────────────────────────────────────────────── #}
   {% if has_past_events %}
     <section class="mb-10">
-      <h2 class="text-lg font-bold text-content mb-4">{% trans "Past events" %}</h2>
+      <h2 class="text-lg font-bold text-content mb-4">{% trans "Past manifestations" %}</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {% for event in past_events %}
-          {% event_card event today %}
+          {% manifestation_card event today %}
         {% endfor %}
       </div>
 

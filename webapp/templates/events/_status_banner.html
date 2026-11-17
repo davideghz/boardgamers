@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n custom_tags %}
 {# Shown on the event's public pages, which only its managers can open while it isn't published #}
 {% if event.status == 'draft' %}
   <div class="mb-5 flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
@@ -9,10 +9,16 @@
       </svg>
       <div>
         <p class="text-sm font-semibold text-amber-800">{% trans "Draft" %}</p>
-        <p class="text-xs text-amber-700 mt-0.5">{% trans "This event is not visible to the public yet. Publish it when it's ready." %}</p>
+        <p class="text-xs text-amber-700 mt-0.5">
+          {% if event.is_location_event %}
+            {% trans "This event will become public after approval." %}
+          {% else %}
+            {% trans "This event is not visible to the public yet. Publish it when it's ready." %}
+          {% endif %}
+        </p>
       </div>
     </div>
-    <a href="{% url 'event-manage' event.slug %}"
+    <a href="{% event_action_url event 'manage' %}"
        class="inline-flex items-center justify-center gap-1.5 flex-shrink-0 rounded-full bg-amber-500 hover:bg-amber-600 px-4 py-2 text-xs font-bold text-white text-decoration-none transition-colors">
       {% trans "Go to publishing" %}
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">

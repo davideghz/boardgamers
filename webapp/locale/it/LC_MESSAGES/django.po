@@ -21,6 +21,239 @@ msgstr ""
 msgid "National affiliations"
 msgstr "Affiliazioni nazionali"
 
+msgid "Approve and publish"
+msgstr "Approva e pubblica"
+
+msgid "Manifestation"
+msgstr "Manifestazione"
+
+msgid "Manifestations"
+msgstr "Manifestazioni"
+
+msgid "Location event"
+msgstr "Evento"
+
+msgid "Location events"
+msgstr "Eventi"
+
+msgid "Location event participant"
+msgstr "Partecipante all’evento"
+
+msgid "Location event participants"
+msgstr "Partecipanti all’evento"
+
+msgid "This slug belongs to a location event."
+msgstr "Questo indirizzo è già associato a un evento."
+
+msgid "Upcoming location events"
+msgstr "Prossimi eventi"
+
+msgid "See all location events"
+msgstr "Vedi tutti gli eventi"
+
+msgid "Manage events"
+msgstr "Gestisci eventi"
+
+msgid "Manage this location’s events"
+msgstr "Gestisci gli eventi della sede"
+
+msgid "Who can create events"
+msgstr "Chi può creare eventi"
+
+msgid "Who can create events?"
+msgstr "Chi può creare eventi?"
+
+msgid "Who can join events"
+msgstr "Chi può partecipare agli eventi"
+
+msgid "Who can join events?"
+msgstr "Chi può partecipare agli eventi?"
+
+msgid "Control who can create and join tables and events at this location."
+msgstr "Decidi chi può creare tavoli ed eventi e chi può partecipare."
+
+msgid "Control who can create and join tables and events"
+msgstr "Decidi chi può creare tavoli ed eventi e chi può partecipare"
+
+msgid "Members-only table options are disabled while membership requests are closed."
+msgstr "Le opzioni «Solo i soci» per i tavoli sono disattivate quando le richieste di iscrizione sono chiuse."
+
+msgid "This event is reserved for members."
+msgstr "Questo evento è riservato ai soci."
+
+msgid "Event created. The location managers can publish it."
+msgstr "Evento creato. I gestori della sede possono pubblicarlo."
+
+msgid "Show events in homepage"
+msgstr "Mostra eventi in home page"
+
+msgid "When enabled, upcoming events from this location appear in the homepage feed."
+msgstr "Mostra in home page i prossimi eventi pubblicati di questa sede."
+
+msgid "Tables from the locations you own, manage or follow."
+msgstr "Tavoli delle tue sedi e di quelle che gestisci o segui."
+
+msgid "Add a table"
+msgstr "Aggiungi tavolo"
+
+msgid "Tables will be public when the event is published."
+msgstr "I tavoli saranno visibili al pubblico alla pubblicazione dell’evento."
+
+msgid "This table will be public when the event is published."
+msgstr "Il tavolo sarà visibile al pubblico alla pubblicazione dell’evento."
+
+msgid "Reservations will open when the event is published."
+msgstr "Le prenotazioni apriranno alla pubblicazione dell’evento."
+
+msgid "Set the event date before adding tables."
+msgstr "Imposta la data dell’evento per aggiungere tavoli."
+
+msgid "A linked table must use the location and date of its event."
+msgstr "Il tavolo deve avere la stessa sede e la stessa data dell’evento a cui è collegato."
+
+msgid "The table location must match its event."
+msgstr "La sede del tavolo deve coincidere con quella dell’evento."
+
+msgid "An event with linked tables needs a date."
+msgstr "Un evento con tavoli collegati deve avere una data."
+
+msgid "The event type and location are fixed while it has linked tables."
+msgstr "Il tipo e la sede dell’evento sono bloccati finché ci sono tavoli collegati."
+
+msgid "Event type"
+msgstr "Tipo di evento"
+
+msgid "Host location"
+msgstr "Sede ospitante"
+
+msgid "Create location event"
+msgstr "Crea evento"
+
+msgid "Create manifestation"
+msgstr "Crea manifestazione"
+
+msgid "Upcoming manifestations"
+msgstr "Prossime manifestazioni"
+
+msgid "Past manifestations"
+msgstr "Manifestazioni passate"
+
+msgid "See all manifestations"
+msgstr "Vedi tutte le manifestazioni"
+
+msgid "Manifestations we take part in"
+msgstr "Manifestazioni a cui partecipiamo"
+
+msgid "All events"
+msgstr "Tutti gli eventi"
+
+msgid "Confirm attendance"
+msgstr "Ci sarò"
+
+msgid "Date required"
+msgstr "Data mancante"
+
+msgid "Set event date"
+msgstr "Imposta la data"
+
+msgid "Date saved."
+msgstr "Data salvata."
+
+msgid "Add an upcoming date before publishing."
+msgstr "Aggiungi una data da oggi in poi per pubblicare."
+
+msgid "Add a date to show this event in the calendar."
+msgstr "Aggiungi una data per mostrare questo evento in calendario."
+
+msgid "A published event needs at least one date. Add a replacement first."
+msgstr "Un evento pubblicato deve avere almeno una data. Aggiungi prima la data sostitutiva."
+
+msgid "A location event can have only one date."
+msgstr "Un evento di sede può avere una sola data."
+
+msgid "Set different opening and closing times for the location event."
+msgstr "Imposta orari diversi per l’inizio e la fine dell’evento di sede."
+
+msgid "Closing time must differ from opening time."
+msgstr "L’orario di fine deve essere diverso da quello di inizio."
+
+msgid "An event with programmed tables cannot become a location event."
+msgstr "Un evento con tavoli in programma non può diventare un evento di sede."
+
+msgid "Location event created. You can publish it from this page."
+msgstr "Evento di sede creato. Puoi pubblicarlo da questa pagina."
+
+msgid "Event approved and published."
+msgstr "Evento approvato e pubblicato."
+
+msgid "Only events awaiting approval can be approved."
+msgstr "Puoi approvare solo gli eventi in attesa di approvazione."
+
+msgid "Search events and tables"
+msgstr "Cerca eventi e tavoli"
+
+msgid "Result type"
+msgstr "Tipo di risultato"
+
+msgctxt "appointment search results"
+msgid "All"
+msgstr "Tutti"
+
+msgctxt "appointment search period"
+msgid "Past"
+msgstr "Passati"
+
+msgid "Keywords"
+msgstr "Parole chiave"
+
+msgid "Search by event, table or game…"
+msgstr "Cerca per evento, tavolo o gioco…"
+
+msgid "When"
+msgstr "Quando"
+
+msgid "Today"
+msgstr "Oggi"
+
+msgid "This weekend"
+msgstr "Questo fine settimana"
+
+msgid "Custom date range"
+msgstr "Intervallo di date"
+
+msgid "From date"
+msgstr "Dal"
+
+msgid "To date"
+msgstr "Al"
+
+msgid "Remove location filter"
+msgstr "Rimuovi filtro per sede"
+
+#, python-format
+msgid "%(counter)s event found"
+msgid_plural "%(counter)s events found"
+msgstr[0] "%(counter)s evento trovato"
+msgstr[1] "%(counter)s eventi trovati"
+
+msgid "No events match your search."
+msgstr "Nessun evento corrisponde alla ricerca."
+
+msgid "Enter both a start and an end date."
+msgstr "Inserisci la data di inizio e quella di fine."
+
+msgid "The end date must be on or after the start date."
+msgstr "La data di fine deve coincidere con la data di inizio o essere successiva."
+
+msgid "Check the search filters and try again."
+msgstr "Controlla i filtri di ricerca e riprova."
+
+msgid "Search – Board-Gamers.com"
+msgstr "Cerca – Board-Gamers.com"
+
+msgid "Find events and game tables on Board Gamers."
+msgstr "Trova eventi e tavoli di gioco su Board Gamers."
+
 msgid "Affiliated locations"
 msgstr "Location affiliate"
 
@@ -1482,6 +1715,27 @@ msgstr "Questo browser non supporta le notifiche push."
 msgid "My tables"
 msgstr "I miei tavoli"
 
+msgid "My activities"
+msgstr "Le mie attività"
+
+msgid "Locations of your activities"
+msgstr "Location delle tue attività"
+
+#, python-format
+msgid "%(counter)s activity found"
+msgid_plural "%(counter)s activities found"
+msgstr[0] "%(counter)s attività trovata"
+msgstr[1] "%(counter)s attività trovate"
+
+msgid "No activities match the selected filters."
+msgstr "Nessuna attività corrisponde ai filtri selezionati."
+
+msgid "No past activities yet."
+msgstr "Nessuna attività passata."
+
+msgid "No upcoming activities."
+msgstr "Nessuna attività in programma."
+
 msgid "Upcoming"
 msgstr "In programma"
 
@@ -1944,11 +2198,21 @@ msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
 msgid "Cover image"
 msgstr "Immagine di copertina"
 
+msgid ""
+"Choose a landscape image (up to 200 KB). Without a cover, the event uses the "
+"location image or the default image."
+msgstr ""
+"Scegli un'immagine orizzontale (fino a 200 KB). Senza copertina, l'evento "
+"usa l'immagine della location o quella predefinita."
+
 msgid "Choose an image…"
 msgstr "Scegli un'immagine…"
 
 msgid "We'll use this to show the location on the map."
 msgstr "Lo useremo per mostrare la location sulla mappa."
+
+msgid "This event will become public after approval."
+msgstr "L’evento sarà visibile al pubblico dopo l’approvazione."
 
 msgid "You're attending"
 msgstr "Stai partecipando"
@@ -2323,6 +2587,9 @@ msgstr "Torna in bozza"
 
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
+
+msgid "Edit name, description and cover image"
+msgstr "Modifica nome, descrizione e immagine di copertina"
 
 #, python-format
 msgid "%(n)s person registered"
@@ -2700,11 +2967,11 @@ msgid "Crop image"
 msgstr "Ritaglia immagine"
 
 msgid ""
-"Move or resize the square, even beyond the image edges. Extra space is saved "
-"in white. Use the arrow keys and + or − to adjust it with the keyboard."
+"Move or resize the crop area, even beyond the image edges. Extra space is "
+"saved in white. Use the arrow keys and + or − to adjust it with the keyboard."
 msgstr ""
-"Sposta o ridimensiona il quadrato anche oltre i bordi dell'immagine. Lo "
-"spazio aggiunto sarà bianco. Da tastiera, usa le frecce e i tasti + o −."
+"Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. "
+"Lo spazio aggiunto sarà bianco. Da tastiera, usa le frecce e i tasti + o −."
 
 msgid "Fit whole image"
 msgstr "Inquadra tutta l'immagine"

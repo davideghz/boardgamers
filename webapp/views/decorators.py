@@ -23,7 +23,7 @@ def only_admin_can_edit_closed_table(view_func):
     """
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
-        table = get_object_or_404(Table, slug=table_slug)
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=table_slug)
         if table.status == table.CLOSED and not request.user.is_superuser:
             messages.error(request, _("Can't edit closed tables."), extra_tags="danger")
             return redirect("table-detail", slug=table_slug)
@@ -38,7 +38,7 @@ def only_author_or_admin_can_edit(view_func):
     """
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
-        table = get_object_or_404(Table, slug=table_slug)
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=table_slug)
         is_author = table.author_id is not None and request.user == table.author.user
         is_admin = request.user.is_staff
         is_location_manager = False
@@ -85,7 +85,7 @@ def user_passes_test_with_messages(
 def author_or_admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
         if (table.author_id is not None and table.author.user == request.user) or request.user.is_superuser:
             return view_func(request, *args, **kwargs)
         return HttpResponseForbidden("Request not allowed")

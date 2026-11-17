@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<a href="{% url 'event_table_detail' event_slug=table.event.slug table_slug=table.slug %}"
+<a href="{{ table.get_absolute_url }}"
    class="group flex items-stretch gap-3 rounded-xl border border-divider bg-surface hover:shadow-sm hover:border-divider transition-all overflow-hidden">
 
   {# Cover thumbnail: absolutely filled so the row height is driven by the text, image cropped via object-cover #}

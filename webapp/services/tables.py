@@ -107,9 +107,7 @@ def comment_badges(table, comments):
 def can_manage_roster(profile, table):
     """Who may add or remove *other people* at a table.
 
-    The table's author, superusers, and the staff of whatever hosts the table —
-    the location, or the event when it belongs to one (a table has exactly one
-    of the two, per the `table_location_xor_event` constraint).
+    The table's author, superusers, and the staff of the hosting location or manifestation.
 
     Distinct from joining or leaving, which is about one's own seat.
     """
@@ -127,8 +125,8 @@ def can_manage_roster(profile, table):
 
 
 def leaderboard_turned_off(table):
-    """An event table whose event has switched the leaderboard off: no section, no editing, no notifications."""
-    return bool(table.event_id) and not table.event.leaderboard_enabled
+    """A manifestation can switch off its tables' leaderboards."""
+    return table.is_manifestation_table and not table.event.leaderboard_enabled
 
 
 def leaderboard_available(table):
@@ -306,7 +304,7 @@ def can_edit_leaderboard(profile, table):
     latter can actually enable it: save_table_result() refuses mode changes
     from the others.
     """
-    if profile is None or leaderboard_turned_off(table):
+    if profile is None or table.is_unpublished_location_table or leaderboard_turned_off(table):
         return False
     if profile.user.is_superuser:
         return True
@@ -346,6 +344,9 @@ def _has_overlapping_table(profile, table):
 
 def join_table(profile, table):
     """Add `profile` to `table`. Returns a JoinResult; raises TableActionError."""
+    if table.is_unpublished_location_table:
+        raise TableActionError('event_unpublished', _('Reservations will open when the event is published.'))
+
     if not profile.is_email_verified:
         raise TableActionError('email_not_verified', 'Verify email to join table.')
 
@@ -379,7 +380,7 @@ def join_table(profile, table):
     )
 
     warnings = []
-    if table.event_id and _has_overlapping_table(profile, table):
+    if table.is_manifestation_table and _has_overlapping_table(profile, table):
         warnings.append(TableActionWarning('overlapping_table', _(
             "Heads up: you're also signed up for another table at an overlapping time.")))
 
@@ -475,9 +476,8 @@ DUPLICATED_FIELDS = (
 
 
 def can_duplicate_table(profile, table):
-    """Same people who manage the roster. Event tables are left out: their dates
-    and stations belong to the event schedule."""
-    return not table.event_id and can_manage_roster(profile, table)
+    """Same people who manage the roster. Copies are standalone tables at the location."""
+    return bool(table.location_id) and not table.is_unpublished_location_table and can_manage_roster(profile, table)
 
 
 def duplicate_draft(source):

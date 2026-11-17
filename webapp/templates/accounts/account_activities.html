@@ -1,0 +1,86 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags %}
+
+{% block content %}
+  <div class="max-w-2xl">
+    <div class="mb-6">
+      {% back_link 'account-index' label=_("Account") %}
+      <h1 class="text-2xl font-extrabold text-content">{% trans "My activities" %}</h1>
+    </div>
+
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <nav aria-label="{% trans 'Result type' %}" class="flex items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+        <a href="{% querystring type=None page=None %}"
+           {% if activity_type == 'all' %}aria-current="true"{% endif %}
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'all' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+          {% trans "All" %}
+        </a>
+        <a href="{% querystring type='events' page=None %}"
+           {% if activity_type == 'events' %}aria-current="true"{% endif %}
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'events' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+          {% trans "Events" %}
+        </a>
+        <a href="{% querystring type='tables' page=None %}"
+           {% if activity_type == 'tables' %}aria-current="true"{% endif %}
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'tables' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+          {% trans "Tables" %}
+        </a>
+      </nav>
+
+      <nav aria-label="{% trans 'When' %}" class="ml-auto flex items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+        <a href="{% querystring tab=None page=None %}"
+           {% if tab == 'upcoming' %}aria-current="true"{% endif %}
+           class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if tab == 'upcoming' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+          {% trans "Upcoming" %}
+        </a>
+        <a href="{% querystring tab='past' page=None %}"
+           {% if tab == 'past' %}aria-current="true"{% endif %}
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if tab == 'past' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+          {% trans "Past" %}
+        </a>
+      </nav>
+    </div>
+
+    {% trans "Search by title, game or description…" as search_placeholder %}
+    {% include "accounts/_activity_search_filters.html" %}
+
+    {% if has_filters %}
+      <div class="mb-3 flex items-center justify-between gap-3 text-xs text-content-muted">
+        <span>
+          {% blocktrans count counter=paginator.count %}{{ counter }} activity found{% plural %}{{ counter }} activities found{% endblocktrans %}
+        </span>
+        <a href="{% querystring q=None location=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+      </div>
+    {% endif %}
+
+    {% if items %}
+      <ul class="space-y-2">
+        {% for kind, activity in items %}
+          <li>
+            {% if kind == 'table' %}
+              {% horizontal_table_card activity show_author_icon=True %}
+            {% else %}
+              {% include "tags/horizontal_location_event_card.html" with event=activity only %}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="py-12 text-center text-sm text-content-muted">
+        {% if has_filters %}
+          {% trans "No activities match the selected filters." %}
+        {% elif tab == 'past' %}
+          {% trans "No past activities yet." %}
+        {% else %}
+          {% trans "No upcoming activities." %}
+        {% endif %}
+      </p>
+    {% endif %}
+
+    {% include "partials/_pagination.html" %}
+  </div>
+
+  {% if location_picker_sections %}
+    {% include "tables/_location_filter_modal.html" with local_filter=True %}
+  {% endif %}
+{% endblock content %}

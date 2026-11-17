@@ -170,25 +170,23 @@ class LocationDetailView(DetailView):
         games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
         # Query per i tavoli futuri di questa location
-        future_tables = Table.objects.filter(
+        future_tables = Table.objects.public().filter(
             location=location,
             date__gte=today,
-            event__isnull=True
         ).select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('date', 'time')
 
         # Query per i tavoli passati di questa location
-        past_tables = Table.objects.filter(
+        past_tables = Table.objects.public().filter(
             location=location,
             date__lt=today,
-            event__isnull=True
         ).select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('-date', '-time')
 
         # Sottoquery per contare le partite giocate per ogni gioco nella location
-        played_count = Table.objects.filter(
+        played_count = Table.objects.public().filter(
             game=OuterRef('pk'),
             location=location
         ).values('game').annotate(
@@ -218,6 +216,7 @@ class LocationDetailView(DetailView):
 
             # Calcolo dei top winner con ex aequo
             winners = UserProfile.objects.filter(
+                Table.public_condition('joined_tables__'),
                 joined_tables__location=location,
                 player__position=1
             ).values(
@@ -248,7 +247,7 @@ class LocationDetailView(DetailView):
         player_stats = []
         if location.show_top_gamers:
             player_stats = UserProfile.objects.filter(
-                Q(joined_tables__location=location)
+                Table.public_condition('joined_tables__'), joined_tables__location=location,
             ).annotate(
                 play_count=Count('joined_tables', distinct=True),
                 first_place=Count('joined_tables', filter=Q(player__position=1), distinct=True),
@@ -281,9 +280,15 @@ class LocationDetailView(DetailView):
         context['player_stats'] = player_stats
         context['is_following'] = is_following
         context['is_manager'] = is_manager
+        context['can_create_events'] = location.can_create_events(self.request.user)
         context['followers_count'] = followers_count
         context['has_pending_membership'] = has_pending_membership
         context['is_active_member'] = is_active_member
+        context['hosted_events'] = (
+            location.hosted_events.filter(status=Event.PUBLISHED, date__gte=today)
+            .select_related('host_location').annotate(participant_count=Count('participants'))
+            .order_by('date', 'opening_time', 'pk')[:6]
+        )
         context['sponsored_events'] = (
             location.sponsored_events
             .filter(status=Event.PUBLISHED, dates__date__gte=today)
@@ -446,7 +451,7 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
 
 
 class LocationManagePermissionsView(LoginRequiredMixin, SuccessMessageMixin, generic.UpdateView):
-    """View to manage table creation/join permissions for a location."""
+    """Manage creation and participation permissions for tables and events."""
     model = Location
     form_class = LocationPermissionsForm
     template_name = 'locations/location_manage_permissions.html'
@@ -1647,7 +1652,7 @@ class LocationManageStationAssignmentView(LoginRequiredMixin, View):
 
     def _tables(self, location):
         return (
-            Table.objects.filter(location=location, event__isnull=True, date__gte=timezone.localdate())
+            Table.objects.filter(location=location, date__gte=timezone.localdate())
             .exclude(status=Table.CLOSED)
             .select_related('game', 'author', 'play_area', 'physical_table', 'physical_table__play_area')
             .order_by('date', 'time')
@@ -1783,7 +1788,7 @@ class LocationManageTableSummaryView(LoginRequiredMixin, View):
         show_links = request.GET.get('show_links') == 'on' if submitted else False
 
         tables = (
-            Table.objects
+            Table.objects.public()
             .filter(location=location, date__gte=date_from, date__lte=date_to)
             .select_related('game')
             .prefetch_related(
@@ -1963,7 +1968,7 @@ class LocationCalendarView(View):
         dates = [monday + timedelta(days=i) for i in range(35)]  # 5 weeks
 
         # Real sessions from DB
-        sessions_qs = Table.objects.filter(
+        sessions_qs = Table.objects.public().filter(
             location=location,
             date__gte=dates[0],
             date__lte=dates[-1],

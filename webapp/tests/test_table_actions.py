@@ -117,8 +117,7 @@ class JoinTableTest(TestCase):
         from webapp.models import Event
 
         event = Event.objects.create(name='Con')
-        # A table belongs to either a location or an event, never both
-        # (DB constraint `table_location_xor_event`).
+        # Manifestation tables use the event schedule.
         first = make_table(author=self.profile, event=event)
         second = make_table(author=self.profile, event=event)
         join_table(self.profile, first)

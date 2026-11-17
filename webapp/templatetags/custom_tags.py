@@ -38,6 +38,16 @@ def back_link(url_name, *args, label="", query=None):
     return {"url": reverse(url_name, args=args, query=query), "label": label}
 
 
+@register.simple_tag
+def event_action_url(event, action):
+    return event.action_url(action)
+
+
+@register.inclusion_tag("partials/_back_link.html")
+def event_back_link(event, action, label=""):
+    return {'url': event.action_url(action), 'label': label}
+
+
 @register.inclusion_tag("tags/location_card.html", takes_context=True)
 def location_card(context, location):
     followed_ids = context.get('followed_location_ids', set())
@@ -50,13 +60,16 @@ def location_card(context, location):
 
 @register.inclusion_tag("tags/table_card.html")
 def table_card(table):
-    return {
-        'table': table,
-    }
+    return {'table': table}
 
 
-@register.inclusion_tag("tags/event_card.html", takes_context=True)
-def event_card(context, event, today=None):
+@register.inclusion_tag("tags/location_event_card.html")
+def location_event_card(event):
+    return {'event': event}
+
+
+@register.inclusion_tag("tags/manifestation_card.html", takes_context=True)
+def manifestation_card(context, event, today=None):
     # Pages that pass `managed_event_ids` get a gear linking to the event's management
     return {
         'event': event,

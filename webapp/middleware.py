@@ -76,6 +76,7 @@ class UserLanguageRedirectMiddleware:
 
                 # Only redirect if the path actually changed
                 if new_path != request.path:
-                    return redirect(new_path)
+                    query = request.GET.urlencode()
+                    return redirect(f'{new_path}?{query}' if query else new_path)
 
         return self.get_response(request)

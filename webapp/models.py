@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
 from django.db import router, transaction
 from django.urls import reverse
@@ -85,16 +86,16 @@ class SlugModel(models.Model):
         # the random suffix when one is needed, or Postgres raises DataError.
         max_length = self._meta.get_field('slug').max_length
         base_slug = base_slug[:max_length].rstrip('-')
-        qs = self.__class__.objects.filter(slug=base_slug)
-        if self.pk:
-            qs = qs.exclude(pk=self.pk)
-        if not qs.exists():
+        if not self.slug_is_taken(base_slug):
             return base_slug
         prefix = base_slug[:max_length - self.random_string_length - 1].rstrip('-')
         while True:
             candidate = f"{prefix}-{self.generate_random_string()}"
-            if not self.__class__.objects.filter(slug=candidate).exclude(pk=self.pk or 0).exists():
+            if not self.slug_is_taken(candidate):
                 return candidate
+
+    def slug_is_taken(self, slug):
+        return type(self).objects.filter(slug=slug).exclude(pk=self.pk).exists()
 
     def save(self, *args, **kwargs):
         if not self.regenerate_slug_on_rename:
@@ -205,6 +206,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     longitude = models.CharField(max_length=25, null=True, blank=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
     show_tables_in_homepage = models.BooleanField(default=True)
+    show_events_in_homepage = models.BooleanField(default=True, db_default=True)
     enable_membership = models.BooleanField(default=False)
     enable_calendar = models.BooleanField(default=False)
     # Lets visitors browse the game library (LocationGame) from the location page.
@@ -268,6 +270,10 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         ('anyone', _('Anyone')),
         ('members_only', _('Members only')),
     ]
+    EVENT_CREATION_CHOICES = [
+        (PERM_MEMBERS_ONLY, _('Members only')),
+        (PERM_MANAGERS_ONLY, _('Owners and managers only')),
+    ]
 
     table_creation_permission = models.CharField(
         max_length=20,
@@ -281,6 +287,14 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         default='anyone',
         verbose_name=_('Who can join tables'),
     )
+    event_creation_permission = models.CharField(
+        max_length=20, choices=EVENT_CREATION_CHOICES, default=PERM_MANAGERS_ONLY, db_default=PERM_MANAGERS_ONLY,
+        verbose_name=_('Who can create events'),
+    )
+    event_join_permission = models.CharField(
+        max_length=20, choices=TABLE_JOIN_CHOICES, default=PERM_ANYONE, db_default=PERM_ANYONE,
+        verbose_name=_('Who can join events'),
+    )
 
     _metadata = {
         'title': 'get_meta_title',
@@ -291,6 +305,21 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     def is_manager(self, user_profile):
         return bool(user_profile and (
             self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
+
+    def can_create_events(self, user):
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        if self.event_creation_permission == self.PERM_MEMBERS_ONLY:
+            return Membership.active_for(user.user_profile).filter(member__location=self).exists()
+        return self.is_manager(user.user_profile)
+
+    def can_join_events(self, profile):
+        return bool(profile and (
+            self.event_join_permission == self.PERM_ANYONE
+            or Membership.active_for(profile).filter(member__location=self).exists()
+        ))
 
     def get_meta_title(self):
         return _("%(name)s - Board-Gamers.com") % {'name': self.name}
@@ -564,6 +593,20 @@ class GuestProfile(DateTimeModel):
         return self.name
 
 
+class TableQuerySet(models.QuerySet):
+    def public(self):
+        return self.filter(self.model.public_condition())
+
+    def visible_to(self, user):
+        if user.is_superuser:
+            return self
+        if not user.is_authenticated:
+            return self.public()
+        profile = user.user_profile
+        managed_locations = Location.objects.filter(models.Q(creator=profile) | models.Q(managers=profile))
+        return self.filter(self.model.public_condition() | models.Q(location__in=managed_locations))
+
+
 class Table(DateTimeModel, ModelMeta, SlugModel):
     OPEN = 'open'
     ONGOING = 'ongoing'
@@ -604,6 +647,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     LIVE_WINDOW = datetime.timedelta(hours=12)
 
     slug_field_name = 'title'
+    objects = TableQuerySet.as_manager()
     title = models.CharField(max_length=144, null=False, blank=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
@@ -621,6 +665,9 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Location'))
     event = models.ForeignKey(
         'Event', on_delete=models.CASCADE, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
+    location_event = models.ForeignKey(
+        'LocationEvent', on_delete=models.CASCADE, related_name='tables', null=True, blank=True,
+        verbose_name=_('Location event'))
     play_area = models.ForeignKey(
         'PlayArea',
         on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
@@ -828,12 +875,43 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         return changed
 
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+        if update_fields is None or {'location_event', 'location_event_id', 'location', 'location_id'}.intersection(update_fields):
+            self._validate_event_location()
         # Keep both statuses in sync with the lifecycle on every save, so that
         # editing the date/time immediately realigns them (no drift waiting for
         # the cron). Set `_skip_status_recompute = True` to bypass if ever needed.
         if not getattr(self, '_skip_status_recompute', False):
             self.recompute_statuses()
         super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        self._validate_event_location()
+        if self.location_event_id and self.date and self.date != self.location_event.date:
+            raise ValidationError(_('A linked table must use the location and date of its event.'))
+
+    def _validate_event_location(self):
+        if self.location_event_id and self.location_id != self.location_event.host_location_id:
+            raise ValidationError(_('The table location must match its event.'))
+
+    @property
+    def is_location_event_table(self):
+        return self.location_event_id is not None
+
+    @property
+    def is_manifestation_table(self):
+        return self.event_id is not None
+
+    @property
+    def is_unpublished_location_table(self):
+        return bool(self.location_event_id and self.location_event.status != LocationEvent.PUBLISHED)
+
+    @classmethod
+    def public_condition(cls, prefix=''):
+        """Only site-event tables inherit visibility here. Manifestation pages enforce their own rules."""
+        return (models.Q(**{f'{prefix}location_event__isnull': True})
+                | models.Q(**{f'{prefix}location_event__status': LocationEvent.PUBLISHED}))
 
     @property
     def start_datetime(self):
@@ -921,7 +999,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         return None
 
     def get_absolute_url(self):
-        if self.event_id:
+        if self.is_manifestation_table:
             return reverse('event_table_detail',
                            kwargs={'event_slug': self.event.slug, 'table_slug': self.slug})
         return reverse('table-detail', kwargs={'slug': self.slug})
@@ -952,11 +1030,12 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             'url': _absolute_url(self.get_absolute_url(), request),
             'location': location,
         }
-        if self.event_id:
+        parent_event = self.location_event or self.event
+        if parent_event:
             data['superEvent'] = {
                 '@type': 'Event',
-                'name': self.event.name,
-                'url': _absolute_url(self.event.get_absolute_url(), request),
+                'name': parent_event.name,
+                'url': _absolute_url(parent_event.get_absolute_url(), request),
             }
         if not self.unlimited_seats:
             data['maximumAttendeeCapacity'] = self.max_players
@@ -976,12 +1055,10 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         ordering = ['-created_at']
         constraints = [
             models.CheckConstraint(
-                condition=(
-                    models.Q(location__isnull=False, event__isnull=True) |
-                    models.Q(location__isnull=True, event__isnull=False)
-                ),
-                name='table_location_xor_event',
-            )
+                condition=(models.Q(location__isnull=False, event__isnull=True)
+                           | models.Q(location__isnull=True, event__isnull=False, location_event__isnull=True)),
+                name='table_has_valid_event_and_location',
+            ),
         ]
 
 
@@ -1321,6 +1398,15 @@ class Membership(DateTimeModel):
     )
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
+    @classmethod
+    def active_for(cls, profile):
+        today = timezone.localdate()
+        return cls.objects.filter(
+            models.Q(start_date__isnull=True) | models.Q(start_date__lte=today),
+            models.Q(end_date__isnull=True) | models.Q(end_date__gte=today),
+            member__user_profile=profile, status=cls.ACTIVE,
+        )
+
     class Meta:
         verbose_name = _('Membership')
         verbose_name_plural = _('Memberships')
@@ -1578,7 +1664,11 @@ class FAQ(DateTimeModel):
         return self.question or ''
 
 
-class Event(DateTimeModel, ModelMeta, SlugModel):
+class ScheduledEvent(DateTimeModel, ModelMeta, SlugModel):
+    class Kind(models.TextChoices):
+        MANIFESTATION = 'manifestation', _('Manifestation')
+        LOCATION = 'location', _('Location event')
+
     # Managers publish their own events. Only an admin can block one, and a
     # blocked event can't be published again from the management pages.
     DRAFT = 'draft'
@@ -1597,41 +1687,12 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     cover = models.ImageField(
         upload_to='event-covers', null=True, blank=True,
         verbose_name=_('Cover'))
-
-    address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
-    city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
-    latitude = models.CharField(max_length=25, null=True, blank=True)
-    longitude = models.CharField(max_length=25, null=True, blank=True)
-    point = models.PointField(geography=True, default=Point(0.0, 0.0))
     phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
     email = models.EmailField(null=True, blank=True, verbose_name=_('Email'))
 
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=DRAFT, verbose_name=_('Status'))
 
-    creator = models.ForeignKey(
-        'UserProfile', on_delete=models.SET_NULL, related_name='created_events',
-        null=True, blank=True, verbose_name=_('Creator'))
-    managers = models.ManyToManyField(
-        'UserProfile', related_name='managed_events', blank=True, verbose_name=_('Managers'))
-    sponsor_locations = models.ManyToManyField(
-        Location, related_name='sponsored_events', blank=True, verbose_name=_('Sponsor locations'))
-    allowed_table_creators = models.ManyToManyField(
-        'UserProfile', related_name='event_table_creation_allowed', blank=True,
-        verbose_name=_('Additional table creators'))
-    leaderboard_enabled = models.BooleanField(
-        default=True, verbose_name=_('Leaderboard'),
-        help_text=_('When off, the tables of this event have no leaderboard.'))
-    # Lets visitors browse the game library (EventGame) from the event page.
-    enable_public_games = models.BooleanField(
-        # DB-level default too, so code that predates this column can still insert events
-        default=False, db_default=False, verbose_name=_('Public game library'))
-    # When off, the program page is reserved to managers and the event page shows
-    # no link to it.
-    table_booking_enabled = models.BooleanField(
-        default=True, db_default=True, verbose_name=_('Table booking'))
-    # Optional button shown first among the event page cards (e.g. the organizers'
-    # own program or ticket shop). Hidden unless both title and URL are set.
     custom_button_title = models.CharField(
         max_length=80, blank=True, default='', db_default='', verbose_name=_('Button title'))
     custom_button_subtitle = models.CharField(
@@ -1688,10 +1749,73 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['description'] = description
         if self.cover:
             data['image'] = _absolute_url(self.cover_url, request)
-        if self.creator and self.creator.nickname:
+        if self.is_location_event:
+            data['organizer'] = {'@type': 'Organization', 'name': self.host_location.name}
+        elif self.creator and self.creator.nickname:
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data
 
+    def get_absolute_url(self):
+        return reverse(self.detail_route, kwargs={'slug': self.slug})
+
+    def action_url(self, action, query=None):
+        route = self.detail_route if action == 'detail' else f'{self.route_prefix}-{action}'
+        kwargs = {'slug': self.slug}
+        if self.is_location_event and action not in ('detail', 'join', 'leave'):
+            kwargs['location_slug'] = self.host_location.slug
+        return reverse(route, kwargs=kwargs, query=query)
+
+    def can_manage(self, user):
+        return user.is_authenticated and (user.is_superuser or self.is_manager(user.user_profile))
+
+    @property
+    def is_published(self):
+        return self.status == self.PUBLISHED
+
+    def get_kind_display(self):
+        return self.kind.label
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        abstract = True
+        ordering = ['-created_at']
+
+
+class Event(ScheduledEvent):
+    route_prefix = 'event'
+    detail_route = 'event_detail'
+    kind = ScheduledEvent.Kind.MANIFESTATION
+    is_location_event = False
+
+    address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
+    city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
+    latitude = models.CharField(max_length=25, null=True, blank=True)
+    longitude = models.CharField(max_length=25, null=True, blank=True)
+    point = models.PointField(geography=True, default=Point(0.0, 0.0))
+
+    creator = models.ForeignKey(
+        'UserProfile', on_delete=models.SET_NULL, related_name='created_events',
+        null=True, blank=True, verbose_name=_('Creator'))
+    managers = models.ManyToManyField(
+        'UserProfile', related_name='managed_events', blank=True, verbose_name=_('Managers'))
+    sponsor_locations = models.ManyToManyField(
+        Location, related_name='sponsored_events', blank=True, verbose_name=_('Sponsor locations'))
+    allowed_table_creators = models.ManyToManyField(
+        'UserProfile', related_name='event_table_creation_allowed', blank=True,
+        verbose_name=_('Additional table creators'))
+    leaderboard_enabled = models.BooleanField(
+        default=True, verbose_name=_('Leaderboard'),
+        help_text=_('When off, the tables of this event have no leaderboard.'))
+    # Lets visitors browse the game library (EventGame) from the event page.
+    enable_public_games = models.BooleanField(
+        # DB-level default too, so code that predates this column can still insert events
+        default=False, db_default=False, verbose_name=_('Public game library'))
+    # When off, the program page is reserved to managers and the event page shows
+    # no link to it.
+    table_booking_enabled = models.BooleanField(
+        default=True, db_default=True, verbose_name=_('Table booking'))
     def as_schema_place(self):
         """schema.org/Place fragment for this event's venue, or None if unknown.
         Embeddable as the `location` of the event and of its tables."""
@@ -1712,23 +1836,28 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             }
         return place
 
-    def get_absolute_url(self):
-        return reverse('event_detail', kwargs={'slug': self.slug})
-
     def save(self, *args, **kwargs):
         if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
         super().save(*args, **kwargs)
 
+    def slug_is_taken(self, slug):
+        return super().slug_is_taken(slug) or LocationEvent.objects.filter(legacy_event_slug=slug).exists()
+
+    def clean(self):
+        super().clean()
+        if self.slug and LocationEvent.objects.filter(legacy_event_slug=self.slug).exists():
+            raise ValidationError({'slug': _('This slug belongs to a location event.')})
+
     def is_manager(self, user_profile):
-        return self.creator == user_profile or user_profile in self.managers.all()
+        return bool(user_profile and (self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
+
+    @property
+    def venue(self):
+        return self
 
     def can_create_table(self, user_profile):
         return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
-
-    @property
-    def is_published(self):
-        return self.status == self.PUBLISHED
 
     def missing_publish_requirements(self):
         """What the event still lacks before it can be published: an undated event
@@ -1780,13 +1909,101 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         dates = self.sorted_dates
         return bool(dates) and all(d.date < today for d in dates)
 
-    def __str__(self):
-        return self.name
+    class Meta(ScheduledEvent.Meta):
+        verbose_name = _('Manifestation')
+        verbose_name_plural = _('Manifestations')
 
-    class Meta:
-        verbose_name = _('Event')
-        verbose_name_plural = _('Events')
-        ordering = ['-created_at']
+
+class LocationEvent(ScheduledEvent):
+    route_prefix = 'location-event'
+    detail_route = 'location-event-detail'
+    kind = ScheduledEvent.Kind.LOCATION
+    is_location_event = True
+    regenerate_slug_on_rename = False
+
+    host_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='hosted_events', verbose_name=_('Host location'))
+    creator = models.ForeignKey(
+        'UserProfile', on_delete=models.SET_NULL, related_name='created_location_events',
+        null=True, blank=True, verbose_name=_('Creator'))
+    # Nullable for imported events that were still being configured.
+    date = models.DateField(null=True, verbose_name=_('Date'), db_index=True)
+    opening_time = models.TimeField(null=True, verbose_name=_('Opening time'))
+    closing_time = models.TimeField(null=True, verbose_name=_('Closing time'))
+    legacy_event_slug = models.SlugField(max_length=144, null=True, unique=True, editable=False)
+
+    @cached_property
+    def cover_url(self):
+        if self.cover:
+            return super().cover_url
+        return self.host_location.cover_url
+
+    @property
+    def venue(self):
+        return self.host_location
+
+    @property
+    def sorted_dates(self):
+        return [self] if self.date else []
+
+    @property
+    def start_date(self):
+        return self.date
+
+    @property
+    def end_date(self):
+        return self.date
+
+    def is_manager(self, user_profile):
+        return self.host_location.is_manager(user_profile)
+
+    def can_publish(self, user):
+        return super().can_manage(user)
+
+    def can_manage(self, user):
+        return super().can_manage(user) or (
+            user.is_authenticated and self.status == self.DRAFT
+            and self.host_location.event_creation_permission == Location.PERM_MEMBERS_ONLY
+            and self.creator_id == user.user_profile.pk
+            and self.host_location.can_create_events(user)
+        )
+
+    def has_publishable_date(self):
+        return bool(self.date and self.date >= timezone.localdate() and self.opening_time
+                    and self.closing_time and self.opening_time != self.closing_time)
+
+    def is_concluded(self, today=None):
+        if not self.date:
+            return False
+        local_now = timezone.localtime()
+        today = today or local_now.date()
+        end_date = self.date
+        if self.opening_time and self.closing_time and self.closing_time < self.opening_time:
+            end_date += datetime.timedelta(days=1)
+        return end_date < today or (end_date == today and bool(self.closing_time and self.closing_time <= local_now.time()))
+
+    def as_schema_place(self):
+        if self.host_location.address or self.host_location.city:
+            return self.host_location.as_schema_place()
+        return None
+
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+        if self._state.adding or (update_fields is not None and 'date' not in update_fields):
+            return super().save(*args, **kwargs)
+
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            previous = type(self).objects.using(using).select_for_update().only('date').get(pk=self.pk)
+            super().save(*args, **kwargs)
+            if self.date != previous.date:
+                for table in self.tables.using(using).select_related('location', 'location_event'):
+                    table.date = self.date
+                    table.save(update_fields=['date', 'status', 'leaderboard_status', 'updated_at'], using=using)
+
+    class Meta(ScheduledEvent.Meta):
+        verbose_name = _('Location event')
+        verbose_name_plural = _('Location events')
 
 
 class PlayArea(DateTimeModel):
@@ -1958,6 +2175,25 @@ class EventParticipant(DateTimeModel):
         verbose_name_plural = _('Event Participants')
         ordering = ['-created_at']
         unique_together = [('event', 'user_profile')]
+
+
+class LocationEventParticipant(DateTimeModel):
+    location_event = models.ForeignKey(
+        LocationEvent, on_delete=models.CASCADE, related_name='participants', verbose_name=_('Location event'))
+    user_profile = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, related_name='location_event_participations',
+        verbose_name=_('User'))
+
+    def __str__(self):
+        return f'{self.user_profile.nickname} @ {self.location_event.name}'
+
+    class Meta:
+        verbose_name = _('Location event participant')
+        verbose_name_plural = _('Location event participants')
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['location_event', 'user_profile'], name='location_event_participant_unique'),
+        ]
 
 
 class PushSubscription(DateTimeModel):
