@@ -1387,6 +1387,13 @@ class LocationGame(DateTimeModel):
     Can be owned by the location itself or by a member (socio),
     and can be physically stored at the association or at a member's home.
     """
+    class WithdrawalReason(models.TextChoices):
+        SOLD = 'sold', _('Sold')
+        DESTROYED = 'destroyed', _('Destroyed')
+        LOST = 'lost', _('Lost or missing')
+        RETURNED_TO_MEMBER = 'returned_to_member', _('Returned to member')
+        OTHER = 'other', _('Other')
+
     OWNED_BY_LOCATION = 'location'
     OWNED_BY_MEMBER = 'member'
     OWNERSHIP_CHOICES = [
@@ -1422,6 +1429,10 @@ class LocationGame(DateTimeModel):
         verbose_name=_('Physical Location')
     )
     is_archived = models.BooleanField(default=False, verbose_name=_('Archived'))
+    withdrawn_on = models.DateField(null=True, blank=True, verbose_name=_('Withdrawal date'))
+    withdrawal_reason = models.CharField(
+        max_length=20, choices=WithdrawalReason.choices, blank=True, verbose_name=_('Withdrawal reason'))
+    withdrawal_note = models.TextField(blank=True, verbose_name=_('Withdrawal note'))
     notes = models.TextField(blank=True, verbose_name=_('Notes'))
     tags = models.ManyToManyField(
         LocationGameTag, related_name='games', blank=True, verbose_name=_('Tags'))

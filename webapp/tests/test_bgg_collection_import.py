@@ -194,7 +194,7 @@ class ImportViewsTest(TestCase):
         self.assertRegex(preview.content.decode(), r'value="247030"[^>]*\schecked\s*>')
 
         items = [{'bgg_id': '247030', 'name': 'Terraforming Mars: Prelude'}]
-        self.assertEqual(self.batch(items).json(), {'added': ['247030'], 'skipped': [], 'failed': []})
+        self.assertEqual(self.batch(items).json(), {'added': ['247030'], 'skipped': [], 'archived': [], 'failed': []})
         self.assertEqual(self.location.location_games.get().game.bgg_code, '247030')
 
     @patch('webapp.views.location_views.fetch_bgg_collection')
@@ -222,13 +222,33 @@ class ImportViewsTest(TestCase):
             [{'bgg_id': '13', 'name': 'Catan'}, {'bgg_id': '230802', 'name': 'Azul'}, {'bgg_id': '1', 'name': 'X'}],
             tag_name='from bgg', ownership=LocationGame.OWNED_BY_MEMBER, owner_member=member.pk,
             physical_location=LocationGame.AT_HOME)
-        self.assertEqual(response.json(), {'added': ['13'], 'skipped': ['230802'], 'failed': ['1']})
+        self.assertEqual(response.json(), {'added': ['13'], 'skipped': ['230802'], 'archived': [], 'failed': ['1']})
 
         entry = LocationGame.objects.get(location=self.location, game=catan)
         self.assertEqual((entry.ownership, entry.owner_member, entry.physical_location),
                          (LocationGame.OWNED_BY_MEMBER, member, LocationGame.AT_HOME))
         self.assertEqual([t.name for t in entry.tags.all()], ["From BGG"])  # existing tag, any case
         self.assertFalse(existing.tags.exists())  # games already in the library are not touched
+
+    @patch('webapp.views.location_views.import_games_from_bgg')
+    @patch('webapp.views.location_views.fetch_bgg_collection')
+    def test_archived_entries_are_marked_and_skipped_by_code_or_name(self, fetch, import_games):
+        catan = LocationGame.objects.create(
+            location=self.location, game=GameFactory(name='Catan', bgg_code='13'), is_archived=True)
+        LocationGame.objects.create(location=self.location, game=GameFactory(name='Azul'), is_archived=True)
+        items = [{'bgg_id': '13', 'name': 'The Settlers of Catan'}, {'bgg_id': '230802', 'name': 'AZUL'}]
+        fetch.return_value = [{**item, 'is_expansion': False} for item in items]
+
+        response = self.client.get(self.preview_url, {'username': 'someone'})
+        self.assertContains(response, '>Out of the catalog</span>', count=2)
+        self.assertEqual(response.context['importable_count'], 0)
+        self.assertEqual(self.batch(items).json(), {
+            'added': [], 'skipped': [], 'archived': ['13', '230802'], 'failed': [],
+        })
+        import_games.assert_not_called()
+        catan.refresh_from_db()
+        self.assertTrue(catan.is_archived)
+        self.assertEqual(self.location.location_games.count(), 2)
 
     @patch('webapp.views.location_views.import_games_from_bgg')
     def test_batch_creates_a_new_tag(self, import_games):

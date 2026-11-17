@@ -117,9 +117,10 @@
       const BATCH_URL = '{% url "location-games-bgg-import-batch" location.slug %}';
       const MSG = {
         progress: '{% trans "Imported %(done)s of %(total)s…"|escapejs %}',
-        done: '{% trans "Done: %(added)s added, %(skipped)s already in the library, %(failed)s failed."|escapejs %}',
+        done: '{% trans "Done: %(added)s added, %(skipped)s already in the library, %(archived)s out of the catalog, %(failed)s failed."|escapejs %}',
         added: '{% trans "Imported"|escapejs %}',
         skipped: '{% trans "Already in the library"|escapejs %}',
+        archived: '{% trans "Out of the catalog"|escapejs %}',
         failed: '{% trans "Failed"|escapejs %}',
         leave: '{% trans "The import is still running. Leave anyway?"|escapejs %}',
       };
@@ -167,6 +168,7 @@
         const styles = {
           added: 'bg-green-100 text-green-700',
           skipped: 'bg-surface-input text-content-muted',
+          archived: 'bg-surface-input text-content-muted',
           failed: 'bg-red-100 text-red-700',
         };
         badge.className = 'flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ' + styles[state];
@@ -183,7 +185,7 @@
             if (resp.ok) return await resp.json();
           } catch (e) { /* network error: retry once */ }
         }
-        return { added: [], skipped: [], failed: batch.map(i => i.bgg_id) };
+        return { added: [], skipped: [], archived: [], failed: batch.map(i => i.bgg_id) };
       }
 
       let running = false;
@@ -205,15 +207,16 @@
         const text = document.getElementById('bgg-progress-text');
         progress.classList.remove('hidden');
 
-        const totals = { added: 0, skipped: 0, failed: 0 };
+        const totals = { added: 0, skipped: 0, archived: 0, failed: 0 };
         let done = 0;
         text.textContent = fmt(MSG.progress, { done, total: items.length });
         for (let i = 0; i < items.length; i += BATCH_SIZE) {
           const batch = items.slice(i, i + BATCH_SIZE);
           const result = await postBatch(options, batch);
-          for (const state of ['added', 'skipped', 'failed']) {
-            result[state].forEach(id => markRow(id, state));
-            totals[state] += result[state].length;
+          for (const state of Object.keys(totals)) {
+            const ids = result[state] || [];
+            ids.forEach(id => markRow(id, state));
+            totals[state] += ids.length;
           }
           done += batch.length;
           bar.style.width = `${Math.round(done / items.length * 100)}%`;

@@ -251,19 +251,21 @@ class LocationGameLoanTest(TestCase):
         self.enable_self_service()
         loan = self.create_loan()
         archive_url = self.game_url('location-game-archive')
+        withdrawal = {'action': 'archive', 'withdrawn_on': timezone.localdate().isoformat(),
+                      'withdrawal_reason': LocationGame.WithdrawalReason.SOLD}
         self.client.force_login(self.borrower.user)
-        self.assertEqual(self.client.post(archive_url, {'action': 'archive'}).status_code, 403)
+        self.assertEqual(self.client.post(archive_url, withdrawal).status_code, 403)
         self.client.force_login(self.manager.user)
-        self.client.post(archive_url, {'action': 'archive'})
+        self.client.post(archive_url, withdrawal)
         self.game.refresh_from_db()
         self.assertFalse(self.game.is_archived)
 
         return_game_loan(self.location, loan, self.manager)
         detail_url = self.game_url('location-game-detail')
         self.assertContains(self.client.get(detail_url), archive_url)
-        self.assertRedirects(self.client.post(archive_url, {'action': 'archive'}), detail_url)
+        self.assertRedirects(self.client.post(archive_url, withdrawal), detail_url)
         self.assertNotContains(self.client.get(self.url('location-games')), self.game.game.name)
-        self.assertContains(self.client.get(self.url('location-manage-games')), self.game.game.name)
+        self.assertContains(self.client.get(self.url('location-manage-games'), {'status': 'archived'}), self.game.game.name)
         self.assertTrue(self.game.loans.filter(pk=loan.pk).exists())
 
         self.client.force_login(self.borrower.user)
