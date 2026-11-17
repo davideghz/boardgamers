@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Prefetch, Q, Count, Subquery, OuterRef, Max
 from django.db.models.deletion import RestrictedError
 from django.http import Http404, HttpResponse, JsonResponse
@@ -27,7 +27,7 @@ from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
-    PhysicalTableForm, LocationGameTagForm, BGGCollectionImportForm, AddLocationNetworkForm, LocationNetworkForm
+    PhysicalTableForm, LocationGameTagForm, LocationGameWithdrawalForm, BGGCollectionImportForm, AddLocationNetworkForm, LocationNetworkForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
@@ -1163,15 +1163,18 @@ class LocationRemoveNetworkView(LoginRequiredMixin, View):
 
 
 class LocationManageGamesView(LoginRequiredMixin, View):
-    """List all games in a location's library."""
+    """Browse the current and archived entries in a location's library."""
 
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        location_games = location.location_games.select_related('game', 'owner_member').prefetch_related('tags')
+        show_archived = request.GET.get('status') == 'archived'
+        location_games = location.location_games.filter(is_archived=show_archived).select_related(
+            'game', 'owner_member').prefetch_related('tags')
         return render(request, 'locations/location_manage_games.html', {
             'location': location,
             'location_games': game_loans.with_game_loan_status(location_games),
+            'show_archived': show_archived,
             'tags': location.game_tags.all(),
             'tag_form': LocationGameTagForm(location=location),
             'meta': Meta(title=_("Games – %(name)s") % {'name': location.name}),
@@ -1251,12 +1254,20 @@ class AddLocationGameView(LoginRequiredMixin, View):
         _check_location_manager(request, location)
         form = LocationGameForm(request.POST, location=location)
         if form.is_valid():
-            location_game = form.save(commit=False)
-            location_game.location = location
-            location_game.save()
-            form.save_m2m()
-            messages.success(request, _("Game «%(name)s» added to the library.") % {'name': location_game.game.name})
-            return redirect('location-manage-games', slug=location.slug)
+            try:
+                with transaction.atomic():
+                    location_game = form.save(commit=False)
+                    location_game.location = location
+                    location_game.save()
+                    form.save_m2m()
+            except IntegrityError:
+                # A concurrent add or import may have inserted the same title.
+                form = LocationGameForm(request.POST, location=location)
+                if form.is_valid():
+                    raise
+            else:
+                messages.success(request, _("Game «%(name)s» added to the library.") % {'name': location_game.game.name})
+                return redirect('location-manage-games', slug=location.slug)
         return render(request, 'locations/location_manage_game_detail.html', {
             'location': location,
             'location_game': None,
@@ -1305,6 +1316,20 @@ class LocationGameDetailView(LoginRequiredMixin, View):
 BGG_IMPORT_BATCH_SIZE = 10  # games per request: keeps BGG calls and cover downloads under the Heroku timeout
 
 
+def _bgg_library_statuses(location, items):
+    by_code, by_name = {}, {}
+    library = location.location_games.order_by('is_archived').values_list('game__bgg_code', 'game__name', 'is_archived')
+    for code, name, is_archived in library:
+        status = 'archived' if is_archived else 'in_library'
+        if code:
+            by_code.setdefault(code, status)
+        by_name.setdefault(name.lower(), status)
+    return {
+        item['bgg_id']: by_code.get(item['bgg_id']) or by_name.get(item['name'].lower())
+        for item in items
+    }
+
+
 class LocationGamesBGGImportView(LoginRequiredMixin, View):
     """Preview the games a BGG user owns and pick the ones to add to the library.
     The import itself runs in batches through LocationGamesBGGImportBatchView."""
@@ -1321,18 +1346,14 @@ class LocationGamesBGGImportView(LoginRequiredMixin, View):
             except BGGCollectionError as e:
                 error = e.code
         if items:
-            library = location.location_games.select_related('game')
-            library_codes = {lg.game.bgg_code for lg in library if lg.game.bgg_code}
-            library_names = {lg.game.name.lower() for lg in library}
+            statuses = _bgg_library_statuses(location, items)
             known_codes = set(Game.objects.filter(bgg_code__in=[i['bgg_id'] for i in items])
                               .values_list('bgg_code', flat=True))
             for item in items:
-                if item['bgg_id'] in library_codes or item['name'].lower() in library_names:
-                    item['status'] = 'in_library'
-                elif item['bgg_id'] in known_codes:
-                    item['status'] = 'known'
-                else:
-                    item['status'] = 'new'
+                bgg_id = item['bgg_id']
+                status = statuses[bgg_id]
+                item['status'] = status or ('known' if bgg_id in known_codes else 'new')
+                item['can_import'] = status is None
         games = [i for i in items or [] if not i['is_expansion']]
         expansions = [i for i in items or [] if i['is_expansion']]
         return render(request, self.template_name, {
@@ -1342,7 +1363,7 @@ class LocationGamesBGGImportView(LoginRequiredMixin, View):
             'loaded': items is not None,
             'games': games,
             'expansions': expansions,
-            'importable_count': sum(1 for i in items or [] if i['status'] != 'in_library'),
+            'importable_count': sum(1 for i in items or [] if i['can_import']),
             'form': BGGCollectionImportForm(location=location),
             'tags': location.game_tags.all(),
             'batch_size': BGG_IMPORT_BATCH_SIZE,
@@ -1367,25 +1388,31 @@ class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
         if not form.is_valid() or not items or len(items) > BGG_IMPORT_BATCH_SIZE:
             return JsonResponse({'error': 'invalid'}, status=400)
 
+        statuses = _bgg_library_statuses(location, items)
+        eligible = [item for item in items if statuses[item['bgg_id']] != 'archived']
         try:
-            games = import_games_from_bgg(items)
+            games = import_games_from_bgg(eligible) if eligible else {}
         except Exception as e:
             logger.warning(f'BGG collection import failed for {location.slug}: {e}')
             return JsonResponse({'error': 'bgg'}, status=502)
 
         data = form.cleaned_data
         tag = None
-        if data['tag_name']:
+        if eligible and data['tag_name']:
             tag = location.game_tags.filter(name__iexact=data['tag_name']).first()
             if tag is None:
                 order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
                 tag = LocationGameTag.objects.create(location=location, name=data['tag_name'], order=order)
 
-        added, skipped, failed = [], [], []
+        added, skipped, archived, failed = [], [], [], []
         for item in items:
-            game = games.get(item['bgg_id'])
+            bgg_id = item['bgg_id']
+            if statuses[bgg_id] == 'archived':
+                archived.append(bgg_id)
+                continue
+            game = games.get(bgg_id)
             if game is None:
-                failed.append(item['bgg_id'])
+                failed.append(bgg_id)
                 continue
             entry, created = LocationGame.objects.get_or_create(
                 location=location, game=game, defaults={
@@ -1396,10 +1423,12 @@ class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
             if created:
                 if tag:
                     entry.tags.add(tag)
-                added.append(item['bgg_id'])
+                added.append(bgg_id)
+            elif entry.is_archived:
+                archived.append(bgg_id)
             else:
-                skipped.append(item['bgg_id'])
-        return JsonResponse({'added': added, 'skipped': skipped, 'failed': failed})
+                skipped.append(bgg_id)
+        return JsonResponse({'added': added, 'skipped': skipped, 'archived': archived, 'failed': failed})
 
 
 class LocationGameTagAddView(LoginRequiredMixin, View):
@@ -1454,7 +1483,24 @@ class LocationGameTagsReorderView(LoginRequiredMixin, View):
             return JsonResponse({'success': False}, status=400)
 
 
+@method_decorator(never_cache, name='dispatch')
 class LocationGameArchiveView(LoginRequiredMixin, View):
+    def render_page(self, request, location, location_game, form):
+        return render(request, 'locations/location_game_withdrawal.html', {
+            'location': location, 'location_game': location_game, 'form': form,
+        })
+
+    def get(self, request, slug, game_uuid):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        location_game = get_object_or_404(location.location_games.select_related('game'), uuid=game_uuid)
+        if location_game.is_archived:
+            return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
+        if game_loans.open_game_loans(location_game=location_game).exists():
+            messages.error(request, _('Record the return before archiving this game.'))
+            return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
+        return self.render_page(request, location, location_game, LocationGameWithdrawalForm())
+
     def post(self, request, slug, game_uuid):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
@@ -1462,18 +1508,27 @@ class LocationGameArchiveView(LoginRequiredMixin, View):
         if action not in ('archive', 'restore'):
             return HttpResponse(status=400)
 
+        form = LocationGameWithdrawalForm(request.POST)
         with transaction.atomic():
             location_game = get_object_or_404(location.location_games.select_for_update(), uuid=game_uuid)
             is_archived = action == 'archive'
-            if is_archived and game_loans.open_game_loans(location_game=location_game).exists():
-                messages.error(request, _('Record the return before archiving this game.'))
+            if location_game.is_archived == is_archived:
+                return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
+            if is_archived:
+                if game_loans.open_game_loans(location_game=location_game).exists():
+                    messages.error(request, _('Record the return before archiving this game.'))
+                    return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
+                if not form.is_valid():
+                    return self.render_page(request, location, location_game, form)
+                details = form.cleaned_data
+                message = _('Game removed from the current catalog.')
             else:
-                location_game.is_archived = is_archived
-                location_game.save(update_fields=['is_archived', 'updated_at'])
-                if is_archived:
-                    messages.success(request, _('Game archived.'))
-                else:
-                    messages.success(request, _('Game restored to the library.'))
+                details = {'withdrawn_on': None, 'withdrawal_reason': '', 'withdrawal_note': ''}
+                message = _('Game restored to the library.')
+            location.location_games.filter(pk=location_game.pk).update(
+                is_archived=is_archived, updated_at=timezone.now(), **details,
+            )
+        messages.success(request, message)
         return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
 
 
@@ -1486,6 +1541,9 @@ class DeleteLocationGameView(LoginRequiredMixin, View):
         try:
             with transaction.atomic():
                 location_game = get_object_or_404(location.location_games.select_for_update(), uuid=game_uuid)
+                if location_game.is_archived:
+                    messages.error(request, _('Restore the game before deleting its entry.'))
+                    return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
                 game_name = location_game.game.name
                 location_game.delete()
         except RestrictedError:
