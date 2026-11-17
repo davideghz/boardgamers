@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
-from django.db.models import Prefetch, Count
+from django.db.models import Case, Count, Prefetch, When
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
@@ -22,7 +22,7 @@ from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
-from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player
+from webapp.models import Comment, LocationEvent, UserProfile, Game, Table, Location, FAQ, Player
 from webapp.views.event_views import upcoming_events_queryset
 
 # for debug page
@@ -35,36 +35,61 @@ def homepage_view(request):
     user_location = None
     user_created_locations = None
     user_created_locations_ids = []
+    followed_location_ids = set()
+    quick_locations = []
 
     if request.user.is_authenticated:
-        user_created_locations = request.user.user_profile.locations.all()
-        user_created_locations_ids = user_created_locations.values_list('id', flat=True) if user_created_locations else []
+        profile = request.user.user_profile
+        user_created_locations = profile.locations.order_by('name')
+        created = list(user_created_locations)
+        user_created_locations_ids = [location.pk for location in created]
+        managed = list(profile.managed_locations.exclude(pk__in=user_created_locations_ids).order_by('name'))
+        followed_location_ids = set(profile.followed_locations.values_list('location_id', flat=True))
+        followed = Location.objects.filter(pk__in=followed_location_ids).exclude(
+            pk__in=[location.pk for location in created + managed],
+        ).order_by('name')
+        quick_locations = (
+            [(location, 'creator') for location in created]
+            + [(location, 'manager') for location in managed]
+            + [(location, None) for location in followed]
+        )
         try:
-            profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
-            if profile and profile.latitude and profile.longitude:
+            if profile.latitude and profile.longitude:
                 user_location = Point(float(profile.longitude), float(profile.latitude), srid=4326)
         except (TypeError, ValueError):
             pass
 
     today = timezone.localdate()
+    personal_location_ids = {location.pk for location, _role in quick_locations}
 
     comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
     players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
     games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
-    # Query per i tavoli futuri
-    future_tables = Table.objects.select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
-        comments_prefetch, players_prefetch, games_prefetch
-    ).filter(date__gte=today, location__show_tables_in_homepage=True, event__isnull=True).order_by('date')
+    table_locations = (
+        {'location_id__in': personal_location_ids} if request.user.is_authenticated
+        else {'location__show_tables_in_homepage': True}
+    )
+    event_order = []
+    if personal_location_ids:
+        event_order.append(Case(When(host_location_id__in=personal_location_ids, then=0), default=1))
 
-    # Query per i tavoli passati
-    past_tables = Table.objects.select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
-        comments_prefetch, players_prefetch, games_prefetch
-    ).filter(date__lt=today, location__show_tables_in_homepage=True, event__isnull=True).order_by('-date')[:12]
+    home_tables = (
+        Table.objects.public().filter(**table_locations)
+        .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
+        .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
+    )
+    future_tables = home_tables.filter(date__gte=today).order_by('date', 'time', 'pk')[:12]
+    past_tables = home_tables.filter(date__lt=today).order_by('-date', '-time', 'pk')[:12]
+    upcoming_location_events = (
+        LocationEvent.objects.filter(status=LocationEvent.PUBLISHED, date__gte=today,
+                                     host_location__show_events_in_homepage=True)
+        .select_related('host_location')
+        .annotate(participant_count=Count('participants'))
+        .order_by(*event_order, 'date', 'opening_time', 'pk')[:6]
+    )
 
-    # Se la posizione dell'utente è disponibile, ordina i tavoli futuri per distanza e filtra le locations vicine
     if user_location:
-        future_tables = future_tables.annotate(distance=DbDistance('location__point', user_location)).order_by('date')
         if user_created_locations is not None:
             user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
         nearby_locations = (Location.objects.annotate(distance=DbDistance('point', user_location))
@@ -78,38 +103,17 @@ def homepage_view(request):
                             .order_by('?'))
         location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 
-    followed_future_tables = []
-    followed_past_tables = []
-    followed_location_ids = set()
-    if request.user.is_authenticated:
-        followed_location_ids = set(request.user.user_profile.followed_locations.values_list('location_id', flat=True))
-        if followed_location_ids:
-            followed_future_tables = (
-                Table.objects
-                .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
-                .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-                .filter(location__in=followed_location_ids, date__gte=today, event__isnull=True)
-                .order_by('date')
-            )
-            followed_past_tables = (
-                Table.objects
-                .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
-                .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-                .filter(location__in=followed_location_ids, date__lt=today, event__isnull=True)
-                .order_by('-date')[:12]
-            )
-
     context = {
         'future_tables': future_tables,
         'past_tables': past_tables,
+        'upcoming_location_events': upcoming_location_events,
         'upcoming_events': upcoming_events_queryset(limit=6),
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
-        'followed_future_tables': followed_future_tables,
-        'followed_past_tables': followed_past_tables,
         'followed_location_ids': followed_location_ids,
+        'quick_locations': quick_locations,
         'today': today,
         'meta': Meta(
             title=_("Find Board Game Tables Near You - Board-Gamers.com"),
@@ -117,22 +121,6 @@ def homepage_view(request):
         )
     }
 
-    # Quick links for logged-in users: locations they created first, then the ones
-    # they manage, then the ones they follow. Each comes with the user's role.
-    quick_locations = []
-    if request.user.is_authenticated:
-        user_profile = request.user.user_profile
-        created = list(Location.objects.filter(creator=user_profile).order_by('name'))
-        managed = list(user_profile.managed_locations.exclude(
-            id__in=[location.id for location in created]).order_by('name'))
-        followed = Location.objects.filter(id__in=context['followed_location_ids']).exclude(
-            id__in=[location.id for location in created + managed]).order_by('name')
-        quick_locations = (
-            [(location, 'creator') for location in created]
-            + [(location, 'manager') for location in managed]
-            + [(location, None) for location in followed]
-        )
-    context['quick_locations'] = quick_locations
     return render(request, "staticpages/home.html", context)
 
 
@@ -195,7 +183,7 @@ def about(request):
     faqs = FAQ.objects.filter(is_active=True).select_related('category').order_by('category__order', 'order')
     about_stats = {
         'locations': Location.objects.count(),
-        'tables': Table.objects.count(),
+        'tables': Table.objects.public().count(),
         'players': UserProfile.objects.count(),
     }
 
@@ -270,7 +258,7 @@ def press(request):
         'colors': PRESS_COLORS,
         'stats': {
             'locations': Location.objects.count(),
-            'tables': Table.objects.count(),
+            'tables': Table.objects.public().count(),
             'players': UserProfile.objects.count(),
         },
         'meta': Meta(
@@ -343,7 +331,7 @@ def debug(request, template_name="staticpages/debug.html"):
     print('--------- Pozzobonelli > Cherso -----------')
     print(pozzobonelli.distance(cherso)*111.139)
 
-    tables = (Table.objects.filter(location__point__distance_lt=(user_point, Distance(m=55000)))
+    tables = (Table.objects.public().filter(location__point__distance_lt=(user_point, Distance(m=55000)))
               .annotate(distance=DbDistance('location__point', user_point))
               .order_by('distance'))
 

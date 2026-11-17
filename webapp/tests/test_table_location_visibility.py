@@ -33,6 +33,33 @@ class TableLocationVisibilityTest(TestCase):
         self.assertNotIn(self.upcoming, home.context['future_tables'])
         self.assertNotIn(self.past, home.context['past_tables'])
 
+    def test_home_only_lists_tables_from_owned_managed_and_followed_locations_after_login(self):
+        managed = LocationFactory(show_tables_in_homepage=False)
+        managed.managers.add(self.profile)
+        followed = LocationFactory(show_tables_in_homepage=False)
+        LocationFollower.objects.create(user_profile=self.profile, location=followed)
+        LocationFollower.objects.create(user_profile=self.profile, location=self.location)
+        public = TableFactory(author=self.profile, location=LocationFactory(), date=self.upcoming.date, time=time(16))
+        public_past = TableFactory(author=self.profile, location=public.location, date=self.past.date)
+        managed_table = TableFactory(author=self.profile, location=managed, date=self.upcoming.date, time=time(18))
+        followed_table = TableFactory(author=self.profile, location=followed, date=self.upcoming.date, time=time(20))
+        private_table = TableFactory(
+            author=self.profile, location=LocationFactory(show_tables_in_homepage=False), date=self.upcoming.date,
+        )
+
+        home_url = reverse('home')
+        home = self.client.get(home_url)
+        self.assertEqual(list(home.context['future_tables']), [public])
+        self.assertEqual(list(home.context['past_tables']), [public_past])
+
+        self.client.force_login(self.profile.user)
+        home = self.client.get(home_url)
+        self.assertEqual(list(home.context['future_tables']), [managed_table, followed_table, self.upcoming])
+        self.assertEqual(list(home.context['past_tables']), [self.past])
+        self.assertContains(home, self.upcoming.get_absolute_url())
+        self.assertNotContains(home, public.get_absolute_url())
+        self.assertNotContains(home, private_table.get_absolute_url())
+
     def test_location_tables_on_the_same_date_are_ordered_by_time(self):
         earlier_upcoming = TableFactory(
             author=self.profile, location=self.location, date=self.upcoming.date, time=time(18))

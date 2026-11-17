@@ -96,7 +96,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
     </a>
 
-    {% if user.user_profile.created_events.exists or user.user_profile.managed_events.exists %}
+    {% if has_managed_events %}
     <a href="{% url 'account-events' %}"
        class="group flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all">
       <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-surface-input flex items-center justify-center text-content-muted group-hover:bg-elevated group-hover:text-white transition-colors">

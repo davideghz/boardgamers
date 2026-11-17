@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -10,16 +11,46 @@ from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
     MemberPersonalDataForm
-from webapp.models import Notification, Membership, Table, GuestProfile, Event, Member, Location
-from django.db.models import Q
+from webapp.models import Notification, Membership, Table, GuestProfile, Event, LocationEvent, Member, Location
+from webapp.services.appointments import paginate_appointments
+
+
+def _manageable_location_events(profile):
+    return LocationEvent.objects.filter(
+        Q(host_location__creator=profile) | Q(host_location__managers=profile)
+        | Q(creator=profile, status=LocationEvent.DRAFT,
+            host_location__event_creation_permission=Location.PERM_MEMBERS_ONLY,
+            host_location_id__in=Membership.active_for(profile).values('member__location_id')),
+    ).distinct()
+
+
+def _manageable_events(profile):
+    manifestations = Event.objects.filter(Q(creator=profile) | Q(managers=profile)).distinct()
+    return manifestations, _manageable_location_events(profile)
+
+
+def _my_tables(user):
+    profile = user.user_profile
+    return Table.objects.visible_to(user).filter(Q(author=profile) | Q(players=profile)).distinct()
+
+
+def _my_location_events(user):
+    profile = user.user_profile
+    created = Q(creator=profile)
+    if not user.is_superuser:
+        created &= Q(status=LocationEvent.PUBLISHED) | Q(pk__in=_manageable_location_events(profile).values('pk'))
+    attending = Q(status=LocationEvent.PUBLISHED, participants__user_profile=profile)
+    return LocationEvent.objects.filter(created | attending).distinct()
 
 
 @login_required
 def index(request, template_name='accounts/account_index.html'):
     user = request.user
+    manifestations, location_events = _manageable_events(user.user_profile)
 
     return render(request, template_name, {
         'user': user,
+        'has_managed_events': manifestations.exists() or location_events.exists(),
         'meta': Meta(
             title=_("My Account - Board-Gamers.com"),
             description=_("Manage your profile: view your activities, notifications and settings."),
@@ -30,14 +61,17 @@ def index(request, template_name='accounts/account_index.html'):
 @login_required
 def events(request, template_name='accounts/account_events.html'):
     user_profile = request.user.user_profile
-    owned_events = user_profile.created_events.prefetch_related('dates')
-    managed_events = user_profile.managed_events.prefetch_related('dates').exclude(
-        id__in=owned_events.values_list('id', flat=True)
-    )
-    participating_events = Event.objects.filter(
-        participants__user_profile=user_profile,
-        status=Event.PUBLISHED,
-    ).prefetch_related('dates').distinct()
+    manifestations, location_events = _manageable_events(user_profile)
+    manageable = list(manifestations.prefetch_related('dates'))
+    manageable.extend(location_events.select_related('host_location'))
+    manageable.sort(key=lambda event: event.created_at, reverse=True)
+    owned_events = [event for event in manageable if event.creator_id == user_profile.pk]
+    managed_events = [event for event in manageable if event.creator_id != user_profile.pk]
+
+    attending = {'participants__user_profile': user_profile, 'status': Event.PUBLISHED}
+    participating_events = list(Event.objects.filter(**attending).prefetch_related('dates'))
+    participating_events.extend(LocationEvent.objects.filter(**attending).select_related('host_location'))
+    participating_events.sort(key=lambda event: event.created_at, reverse=True)
     return render(request, template_name, {
         'owned_events': owned_events,
         'managed_events': managed_events,
@@ -88,12 +122,7 @@ def locations(request, template_name='accounts/account_locations.html'):
 
 @login_required
 def tables(request, template_name='accounts/account_tables.html'):
-    user_profile = request.user.user_profile
-    base_qs = (
-        Table.objects
-        .filter(Q(author=user_profile) | Q(players=user_profile))
-        .distinct()
-    )
+    base_qs = _my_tables(request.user)
     # Locations of the user's tables: the only ones worth offering in the filter.
     my_locations = list(Location.objects.filter(tables__in=base_qs).distinct().order_by('name'))
 
@@ -101,7 +130,7 @@ def tables(request, template_name='accounts/account_tables.html'):
     q = request.GET.get('q', '').strip()
     location_slug = request.GET.get('location', '').strip()
 
-    qs = base_qs.select_related('author', 'location', 'game')
+    qs = base_qs.select_related('author', 'location', 'game', 'event')
     if location_slug:
         qs = qs.filter(location__slug=location_slug)
     if q:
@@ -134,11 +163,63 @@ def tables(request, template_name='accounts/account_tables.html'):
 
 
 @login_required
+def activities(request):
+    activity_type = request.GET.get('type', 'all')
+    if activity_type not in ('events', 'tables'):
+        activity_type = 'all'
+    tab = 'past' if request.GET.get('tab') == 'past' else 'upcoming'
+    q = request.GET.get('q', '').strip()
+    location_slug = request.GET.get('location', '').strip()
+
+    my_tables = _my_tables(request.user)
+    my_events = _my_location_events(request.user)
+    my_locations = list(Location.objects.filter(
+        Q(pk__in=my_tables.order_by().values('location_id'))
+        | Q(pk__in=my_events.order_by().values('host_location_id')),
+    ).order_by('name'))
+
+    today = timezone.localdate()
+    past = tab == 'past'
+    dates = Q(date__lt=today) if past else Q(date__gte=today)
+    tables = my_tables.filter(dates)
+    # Older imports can still be missing a date. Keep them visible in the upcoming tab.
+    events = my_events.filter(dates if past else dates | Q(date__isnull=True))
+    if location_slug:
+        tables = tables.filter(location__slug=location_slug)
+        events = events.filter(host_location__slug=location_slug)
+    if q:
+        tables = tables.filter(Q(title__icontains=q) | Q(description__icontains=q) | Q(game__name__icontains=q))
+        events = events.filter(Q(name__icontains=q) | Q(description__icontains=q))
+
+    querysets = {}
+    if activity_type != 'events':
+        querysets['table'] = tables.select_related('author', 'location', 'game')
+    if activity_type != 'tables':
+        querysets['event'] = events.select_related('host_location')
+    page_obj, items = paginate_appointments(querysets, request.GET.get('page'), newest_first=past)
+
+    return render(request, 'accounts/account_activities.html', {
+        'items': items,
+        'activity_type': activity_type,
+        'tab': tab,
+        'q': q,
+        'selected_location': location_slug,
+        'selected_location_obj': next((loc for loc in my_locations if loc.slug == location_slug), None),
+        'location_picker_sections': [(_("Locations of your activities"), my_locations)] if my_locations else [],
+        'has_filters': bool(q or location_slug),
+        'paginator': page_obj.paginator,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'meta': Meta(title=_("My activities")),
+    })
+
+
+@login_required
 def notifications(request, template_name='accounts/account_notifications.html'):
     user_profile = request.user.user_profile
 
     # Recupera tutte le notifiche dell'utente
-    user_notifications = (Notification.objects.filter(recipient=user_profile)
+    user_notifications = (Notification.objects.filter(Table.public_condition('table__'), recipient=user_profile)
                           .select_related('table', 'location').order_by('-created_at'))
 
     # Aggiorna in blocco quelle non ancora lette

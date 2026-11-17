@@ -1,0 +1,41 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags %}
+
+{% block content %}
+  <div class="mb-6">
+    {% if date_form %}
+      {% if can_manage_location_events %}
+        {% back_link 'location-manage-events' location.slug label=_("Events") %}
+        {% url 'location-manage-events' location.slug as cancel_url %}
+      {% else %}
+        {% back_link 'location-detail' location.slug label=location.name %}
+        {% url 'location-detail' location.slug as cancel_url %}
+      {% endif %}
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Create location event" %}</h1>
+      <p class="mt-1 text-sm text-content-muted">{{ location.name }}</p>
+      {% trans "Create event" as submit_label %}
+    {% else %}
+      {% event_back_link event 'manage' label=event.name %}
+      {% event_action_url event 'manage' as cancel_url %}
+      <h1 class="text-2xl font-extrabold text-content">{% trans "General info" %}</h1>
+      {% trans "Save changes" as submit_label %}
+    {% endif %}
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="max-w-xl space-y-5">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <p class="text-sm text-red-500" role="alert">{{ form.non_field_errors|join:", " }}</p>
+    {% endif %}
+    {% include "events/_location_event_form_field.html" with field=form.name only %}
+    {% include "events/_location_event_form_field.html" with field=form.description only %}
+    {% include "partials/_cover_field.html" with form=form cover_id="event-cover" wide_cover=True only %}
+    {% if date_form %}
+      <fieldset class="space-y-4 rounded-xl border border-divider bg-surface p-4">
+        <legend class="px-1 text-sm font-bold text-content">{% trans "Date and time" %}</legend>
+        {% include "events/_location_event_schedule_fields.html" with schedule=date_form only %}
+      </fieldset>
+    {% endif %}
+    {% include "events/_location_event_form_actions.html" with cancel_url=cancel_url submit_label=submit_label only %}
+  </form>
+{% endblock %}

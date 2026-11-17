@@ -7,7 +7,7 @@
   <div class="mb-6">
     {% back_link 'location-manage' location.slug label=_("Manage") %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Permissions" %}</h1>
-    <p class="text-sm text-content-muted mt-1">{% trans "Control who can create and join tables at this location." %}</p>
+    <p class="text-sm text-content-muted mt-1">{% trans "Control who can create and join tables and events at this location." %}</p>
   </div>
 
   {% if not location.enable_membership %}
@@ -18,7 +18,7 @@
       <div>
         <p class="text-sm font-semibold text-amber-700">{% trans "Membership not enabled" %}</p>
         <p class="text-xs text-amber-600 mt-0.5">
-          {% trans "Members only options are disabled because membership requests are not active for this location." %}
+          {% trans "Members-only table options are disabled while membership requests are closed." %}
           <a href="{% url 'location-manage-members' location.slug %}" class="underline font-medium">{% trans "Activate them in the Members page." %}</a>
         </p>
       </div>
@@ -28,59 +28,17 @@
   <form action="" method="post" class="max-w-xl space-y-6">
     {% csrf_token %}
 
-    {# Table creation permission #}
-    <div class="space-y-2">
-      <p class="text-sm font-bold text-content">{% trans "Who can create tables?" %}</p>
-      {% for value, label in form.instance.TABLE_CREATION_CHOICES %}
-        {% with is_members_only=value|stringformat:"s" %}
-          {% if is_members_only == 'members_only' and not location.enable_membership %}
-            <label class="flex items-center gap-3 p-4 rounded-xl border border-divider-soft bg-surface-alt cursor-not-allowed opacity-50">
-              <input type="radio" name="table_creation_permission" value="{{ value }}" disabled
-                     class="w-4 h-4 border-divider">
-              <span class="text-sm font-medium text-content-muted">{{ label }}</span>
-            </label>
-          {% else %}
-            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all
-                          {% if form.table_creation_permission.value == value %}border-content bg-surface-alt{% else %}border-divider bg-surface hover:border-divider{% endif %}">
-              <input type="radio" name="table_creation_permission" value="{{ value }}"
-                     {% if form.table_creation_permission.value == value %}checked{% endif %}
-                     class="w-4 h-4 text-content border-divider focus:ring-slate-500">
-              <span class="text-sm font-medium text-content">{{ label }}</span>
-            </label>
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
-      {% if form.table_creation_permission.errors %}
-        <p class="text-xs text-red-500">{{ form.table_creation_permission.errors|join:", " }}</p>
-      {% endif %}
-    </div>
+    <section aria-labelledby="table-permissions-heading" class="space-y-4">
+      <h2 id="table-permissions-heading" class="text-base font-bold text-content">{% trans "Tables" %}</h2>
+      {% include "locations/_permission_choices.html" with permission=form.table_creation_permission choices=form.instance.TABLE_CREATION_CHOICES label=_("Who can create tables?") require_public_membership=True membership_enabled=location.enable_membership only %}
+      {% include "locations/_permission_choices.html" with permission=form.table_join_permission choices=form.instance.TABLE_JOIN_CHOICES label=_("Who can join tables?") require_public_membership=True membership_enabled=location.enable_membership only %}
+    </section>
 
-    {# Table join permission #}
-    <div class="space-y-2">
-      <p class="text-sm font-bold text-content">{% trans "Who can join tables?" %}</p>
-      {% for value, label in form.instance.TABLE_JOIN_CHOICES %}
-        {% with is_members_only=value|stringformat:"s" %}
-          {% if is_members_only == 'members_only' and not location.enable_membership %}
-            <label class="flex items-center gap-3 p-4 rounded-xl border border-divider-soft bg-surface-alt cursor-not-allowed opacity-50">
-              <input type="radio" name="table_join_permission" value="{{ value }}" disabled
-                     class="w-4 h-4 border-divider">
-              <span class="text-sm font-medium text-content-muted">{{ label }}</span>
-            </label>
-          {% else %}
-            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all
-                          {% if form.table_join_permission.value == value %}border-content bg-surface-alt{% else %}border-divider bg-surface hover:border-divider{% endif %}">
-              <input type="radio" name="table_join_permission" value="{{ value }}"
-                     {% if form.table_join_permission.value == value %}checked{% endif %}
-                     class="w-4 h-4 text-content border-divider focus:ring-slate-500">
-              <span class="text-sm font-medium text-content">{{ label }}</span>
-            </label>
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
-      {% if form.table_join_permission.errors %}
-        <p class="text-xs text-red-500">{{ form.table_join_permission.errors|join:", " }}</p>
-      {% endif %}
-    </div>
+    <section aria-labelledby="event-permissions-heading" class="space-y-4">
+      <h2 id="event-permissions-heading" class="text-base font-bold text-content">{% trans "Events" %}</h2>
+      {% include "locations/_permission_choices.html" with permission=form.event_creation_permission choices=form.instance.EVENT_CREATION_CHOICES label=_("Who can create events?") only %}
+      {% include "locations/_permission_choices.html" with permission=form.event_join_permission choices=form.instance.TABLE_JOIN_CHOICES label=_("Who can join events?") only %}
+    </section>
 
     <button type="submit"
             class="w-full flex items-center justify-center gap-2 bg-elevated text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors">

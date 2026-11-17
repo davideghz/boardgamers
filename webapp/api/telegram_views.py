@@ -202,7 +202,7 @@ def _handle_tables(chat_id, message_thread_id=None):
 
     today = timezone.localdate()
     tables = (
-        Table.objects
+        Table.objects.public()
         .filter(location=config.location, date__gte=today, status=Table.OPEN)
         .select_related('game')
         .prefetch_related('player_set')

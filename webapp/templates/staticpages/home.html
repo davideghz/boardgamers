@@ -67,9 +67,9 @@
                class="flex items-center gap-1.5 bg-white text-slate-900 text-sm font-bold px-5 py-3 rounded-full hover:bg-blue-50 transition-colors text-decoration-none">
               {% trans "Bring your club here" %}
             </a>
-            <a href="{% url 'table-index' %}"
+            <a href="{% url 'appointment-search' %}"
                class="flex items-center gap-1.5 border border-white/40 text-white text-sm font-semibold px-5 py-3 rounded-full hover:bg-white/10 transition-colors text-decoration-none">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg> {% trans "Find a table" %}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 flex-shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg> {% trans "Search events and tables" %}
             </a>
           </div>
           <p class="text-xs text-blue-200">
@@ -116,6 +116,22 @@
 
   {% endif %}
 
+  {% if upcoming_location_events %}
+    <section class="mb-10" aria-labelledby="home-location-events-heading">
+      <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <h2 id="home-location-events-heading" class="text-lg font-bold text-content">{% trans "Events" %}</h2>
+        <a href="{% url 'appointment-search' %}?type=events" class="text-sm text-blue-600 font-semibold hover:underline">
+          {% trans "See all location events" %} →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {% for event in upcoming_location_events %}
+          {% location_event_card event %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
   {# ── TAVOLI ───────────────────────────────────────────────────────── #}
   <section class="mb-10">
 
@@ -142,15 +158,12 @@
         <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
         {% trans "to see tables from locations you follow." %}
       </p>
-    {% elif followed_future_tables %}
+    {% elif quick_locations %}
       <p class="text-xs text-content-muted mb-4">
-        {% trans "Follow new" %}
-        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
-        {% trans "to see their open tables here." %}
+        {% trans "Tables from the locations you own, manage or follow." %}
       </p>
     {% else %}
       <p class="text-xs text-content-muted mb-4">
-        {% trans "No open tables from the locations you follow." %}
         {% trans "Follow new" %}
         <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
         {% trans "to see their tables here." %}
@@ -159,59 +172,31 @@
 
     {# Upcoming tables #}
     <div id="tab-upcoming">
-      {% if user.is_authenticated %}
-        {% if followed_future_tables %}
-          <div class="embla overflow-hidden pb-2">
-            <div class="flex gap-3">
-              {% for table in followed_future_tables %}
-                {% table_card table %}
-              {% endfor %}
-            </div>
+      {% if future_tables %}
+        <div class="embla overflow-hidden pb-2">
+          <div class="flex gap-3">
+            {% for table in future_tables %}
+              {% table_card table %}
+            {% endfor %}
           </div>
-        {% else %}
-          <p class="text-sm text-content-muted italic">{% trans "No open tables right now — why not create one?" %}</p>
-        {% endif %}
+        </div>
       {% else %}
-        {% if future_tables %}
-          <div class="embla overflow-hidden pb-2">
-            <div class="flex gap-3">
-              {% for table in future_tables %}
-                {% table_card table %}
-              {% endfor %}
-            </div>
-          </div>
-        {% else %}
-          <p class="text-sm text-content-muted italic">{% trans "No open tables right now — why not create one?" %}</p>
-        {% endif %}
+        <p class="text-sm text-content-muted italic">{% trans "No open tables right now — why not create one?" %}</p>
       {% endif %}
     </div>
 
     {# Past tables #}
     <div id="tab-past" style="display:none">
-      {% if user.is_authenticated %}
-        {% if followed_past_tables %}
-          <div class="embla overflow-hidden pb-2">
-            <div class="flex gap-3">
-              {% for table in followed_past_tables %}
-                {% table_card table %}
-              {% endfor %}
-            </div>
+      {% if past_tables %}
+        <div class="embla overflow-hidden pb-2">
+          <div class="flex gap-3">
+            {% for table in past_tables %}
+              {% table_card table %}
+            {% endfor %}
           </div>
-        {% else %}
-          <p class="text-sm text-content-muted italic">{% trans "No past tables from the locations you follow." %}</p>
-        {% endif %}
+        </div>
       {% else %}
-        {% if past_tables %}
-          <div class="embla overflow-hidden pb-2">
-            <div class="flex gap-3">
-              {% for table in past_tables %}
-                {% table_card table %}
-              {% endfor %}
-            </div>
-          </div>
-        {% else %}
-          <p class="text-sm text-content-muted italic">{% trans "No past tables yet." %}</p>
-        {% endif %}
+        <p class="text-sm text-content-muted italic">{% trans "No past tables yet." %}</p>
       {% endif %}
     </div>
 
@@ -227,14 +212,14 @@
   {% if upcoming_events %}
     <section class="mb-10">
       <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 class="text-lg font-bold text-content">{% trans "Upcoming events" %}</h2>
+        <h2 class="text-lg font-bold text-content">{% trans "Manifestations" %}</h2>
         <a href="{% url 'event-index' %}" class="text-sm text-blue-600 font-semibold hover:underline">
-          {% trans "See all events" %} →
+          {% trans "See all manifestations" %} →
         </a>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {% for event in upcoming_events %}
-          {% event_card event today %}
+          {% manifestation_card event today %}
         {% endfor %}
       </div>
     </section>

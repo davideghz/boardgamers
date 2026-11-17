@@ -12,7 +12,7 @@
     <a href="{% url 'event-create' %}"
        class="flex-shrink-0 flex items-center gap-1.5 bg-elevated text-white text-xs font-bold px-3 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-      {% trans "Create event" %}
+      {% trans "Create manifestation" %}
     </a>
   </div>
 
@@ -24,10 +24,10 @@
       <h2 class="text-xs font-bold uppercase tracking-widest text-content-muted mb-2">{% trans "Organized by you" %}</h2>
 
       {% for event in owned_events %}
-        <a href="{% url 'event-manage' event.slug %}"
+        <a href="{% if event.is_location_event and event.is_published and not event.start_date %}{% event_action_url event 'manage-dates' %}{% else %}{% event_action_url event 'manage' %}{% endif %}"
            class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-          {% if event.cover %}
-            <img src="{{ event.cover.url }}" alt="{{ event.name }}"
+          {% if event.cover or event.is_location_event %}
+            <img src="{{ event.cover_url }}" alt="{{ event.name }}"
                  class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
           {% else %}
             <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0">
@@ -42,9 +42,11 @@
               </svg>
               <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
             </div>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.venue.city|default:"" }}{% if event.venue.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
-          {% if event.status == 'published' %}
+          {% if event.is_location_event and not event.start_date and event.status != 'blocked' %}
+            <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "Date required" %}</span>
+          {% elif event.status == 'published' %}
             <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Published" %}</span>
           {% elif event.status == 'draft' %}
             <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% trans "Draft" %}</span>
@@ -55,10 +57,10 @@
       {% endfor %}
 
       {% for event in managed_events %}
-        <a href="{% url 'event-manage' event.slug %}"
+        <a href="{% event_action_url event 'manage' %}"
            class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-          {% if event.cover %}
-            <img src="{{ event.cover.url }}" alt="{{ event.name }}"
+          {% if event.cover or event.is_location_event %}
+            <img src="{{ event.cover_url }}" alt="{{ event.name }}"
                  class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
           {% else %}
             <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0">
@@ -67,7 +69,7 @@
           {% endif %}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.venue.city|default:"" }}{% if event.venue.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
         </a>
@@ -80,10 +82,10 @@
       <h2 class="text-xs font-bold uppercase tracking-widest text-content-muted mb-2">{% trans "Events you're attending" %}</h2>
 
       {% for event in participating_events %}
-        <a href="{% url 'event_detail' event.slug %}"
+        <a href="{{ event.get_absolute_url }}"
            class="flex items-center gap-3 p-3 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-          {% if event.cover %}
-            <img src="{{ event.cover.url }}" alt="{{ event.name }}"
+          {% if event.cover or event.is_location_event %}
+            <img src="{{ event.cover_url }}" alt="{{ event.name }}"
                  class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
           {% else %}
             <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0">
@@ -92,7 +94,7 @@
           {% endif %}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-content truncate">{{ event.name }}</p>
-            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.city|default:"" }}{% if event.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
+            <p class="text-xs text-content-muted truncate mt-0.5">{{ event.venue.city|default:"" }}{% if event.venue.city and event.start_date %} · {% endif %}{{ event.start_date|date:"j M Y" }}</p>
           </div>
           <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% trans "Attending" %}</span>
         </a>
@@ -112,7 +114,7 @@
       <a href="{% url 'event-create' %}"
          class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-        {% trans "Create event" %}
+        {% trans "Create manifestation" %}
       </a>
     </div>
   {% endif %}

@@ -114,6 +114,30 @@
         {% endif %}
       </section>
 
+      {% if hosted_events or is_manager or can_create_events %}
+        <section aria-labelledby="location-events-heading">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 id="location-events-heading" class="text-lg font-bold text-content">{% trans "Location events" %}</h2>
+            {% if is_manager %}
+              <a href="{% url 'location-manage-events' location.slug %}" class="rounded-full bg-elevated px-4 py-2 text-sm font-bold text-white">{% trans "Manage events" %}</a>
+            {% elif can_create_events %}
+              <a href="{% url 'location-event-create' location.slug %}" class="rounded-full bg-elevated px-4 py-2 text-sm font-bold text-white">{% trans "Create location event" %}</a>
+            {% endif %}
+          </div>
+          {% if hosted_events %}
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {% for event in hosted_events %}{% location_event_card event %}{% endfor %}
+            </div>
+          {% endif %}
+          <div class="mt-3">
+            <a href="{% url 'appointment-search' %}?type=events&amp;location={{ location.slug|urlencode }}"
+               class="text-sm text-blue-600 font-semibold hover:underline">
+              {% trans "See all events" %} →
+            </a>
+          </div>
+        </section>
+      {% endif %}
+
       {# ── Tavoli ──────────────────────────────────────── #}
       <section>
         <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
@@ -158,9 +182,9 @@
 
         {% if future_tables or past_tables %}
           <div class="mt-3">
-            <a id="see-all-tables" href="{% url 'table-index' %}?location={{ location.slug }}"
-               data-upcoming-href="{% url 'table-index' %}?location={{ location.slug }}"
-               data-past-href="{% url 'table-index' %}?tab=past&location={{ location.slug }}"
+            <a id="see-all-tables" href="{% url 'appointment-search' %}?type=tables&amp;location={{ location.slug|urlencode }}"
+               data-upcoming-href="{% url 'appointment-search' %}?type=tables&amp;location={{ location.slug|urlencode }}"
+               data-past-href="{% url 'appointment-search' %}?type=tables&amp;when=past&amp;location={{ location.slug|urlencode }}"
                class="text-sm text-blue-600 font-semibold hover:underline">
               {% trans "See all tables" %} →
             </a>
@@ -168,12 +192,12 @@
         {% endif %}
       </section>
 
-      {# ── Eventi sponsorizzati ─────────────────────────── #}
+      {# ── Manifestazioni sponsorizzate ────────────────────── #}
       {% if sponsored_events %}
         <section>
-          <h2 class="text-lg font-bold text-content mb-4">{% trans "Events we take part in" %}</h2>
+          <h2 class="text-lg font-bold text-content mb-4">{% trans "Manifestations we take part in" %}</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {% for event in sponsored_events %}{% event_card event today %}{% endfor %}
+            {% for event in sponsored_events %}{% manifestation_card event today %}{% endfor %}
           </div>
         </section>
       {% endif %}

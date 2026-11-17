@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import PermissionDenied
@@ -8,6 +9,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.deletion import RestrictedError
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
@@ -17,7 +19,8 @@ from webapp.fields import NetworkLogoImageField
 from webapp.forms import NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
+    TelegramSetupToken, Event, LocationEvent, LocationEventParticipant, PlayArea, EventDate, PushSubscription, \
+    PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services import games as game_services
 from webapp.services.tables import sync_legacy_result
 
@@ -391,10 +394,22 @@ class PlayAreaInline(admin.TabularInline):
     fields = ('name', 'order')
 
 
+class EventDateAdminFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+        dates = [form.cleaned_data for form in self.forms
+                 if form.cleaned_data.get('date') and not form.cleaned_data.get('DELETE')]
+        if self.instance.is_published and not dates:
+            raise forms.ValidationError(_("Add a date to show this event in the calendar."))
+
+
 class EventDateInline(admin.TabularInline):
     model = EventDate
+    formset = EventDateAdminFormSet
     extra = 1
-    fields = ('date',)
+    fields = ('date', 'opening_time', 'closing_time')
 
 
 class PhysicalTableInline(admin.TabularInline):
@@ -407,7 +422,6 @@ class PhysicalTableInline(admin.TabularInline):
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'creator', 'status', 'participant_count', 'created_at')
     list_filter = ('status', 'city')
-    list_editable = ('status',)
     search_fields = ('name', 'city', 'creator__nickname')
     filter_horizontal = ('managers', 'sponsor_locations', 'allowed_table_creators')
     readonly_fields = ('created_at', 'updated_at')
@@ -420,6 +434,43 @@ class EventAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
             _participant_count=models.Count('participants', distinct=True))
+
+
+class AdminLocationEventForm(forms.ModelForm):
+    class Meta:
+        model = LocationEvent
+        fields = '__all__'
+
+    def clean(self):
+        data = super().clean()
+        date, opens, closes = (data.get(field) for field in ('date', 'opening_time', 'closing_time'))
+        if opens and opens == closes:
+            self.add_error('closing_time', _('Closing time must differ from opening time.'))
+        if data.get('status') == LocationEvent.PUBLISHED:
+            already_published = LocationEvent.objects.filter(
+                pk=self.instance.pk, status=LocationEvent.PUBLISHED,
+            ).exists()
+            if date and not already_published and date < timezone.localdate():
+                self.add_error('date', _('Add an upcoming date before publishing.'))
+        return data
+
+
+@admin.register(LocationEvent)
+class LocationEventAdmin(admin.ModelAdmin):
+    form = AdminLocationEventForm
+    list_display = ('name', 'host_location', 'date', 'opening_time', 'status')
+    list_filter = ('status', 'date')
+    search_fields = ('name', 'host_location__name', 'host_location__city')
+    autocomplete_fields = ('host_location', 'creator')
+
+    def get_readonly_fields(self, request, obj=None):
+        return ('host_location',) if obj and obj.tables.exists() else ()
+
+
+@admin.register(LocationEventParticipant)
+class LocationEventParticipantAdmin(admin.ModelAdmin):
+    list_display = ('location_event', 'user_profile', 'created_at')
+    autocomplete_fields = ('location_event', 'user_profile')
 
 
 @admin.register(EventGameTag)

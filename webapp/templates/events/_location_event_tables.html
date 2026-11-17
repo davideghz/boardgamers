@@ -1,0 +1,12 @@
+{% if location_event_tables %}
+  <ul class="mt-2 divide-y divide-divider">
+    {% for table in location_event_tables %}
+      <li>
+        <a href="{{ table.get_absolute_url }}" class="group flex items-baseline gap-3 py-2.5 text-sm">
+          <time datetime="{{ table.time|time:'H:i' }}" class="shrink-0 tabular-nums text-content-muted">{{ table.time|time:'H:i' }}</time>
+          <span class="min-w-0 break-words font-semibold text-content group-hover:underline">{{ table.title }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

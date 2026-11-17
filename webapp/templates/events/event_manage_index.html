@@ -5,11 +5,19 @@
 {% block content %}
 
   <div class="mb-6">
-    {% back_link 'event_detail' event.slug label=event.name %}
+    {% if can_manage_location_events %}
+      {% back_link 'location-manage-events' event.host_location.slug label=_("Events") %}
+    {% else %}
+      {% back_link event.detail_route event.slug label=event.name %}
+    {% endif %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Manage event" %}</h1>
+    {% if can_manage_location_events %}
+      <p class="mt-1 text-sm font-semibold text-content-muted"><a href="{{ event.get_absolute_url }}" class="hover:underline">{{ event.name }}</a></p>
+    {% endif %}
   </div>
 
   {# ── Publication ─────────────────────────────────────────────────── #}
+  {% if not event.is_location_event %}
   <div class="max-w-xl mb-6">
     {% if event.status == 'draft' %}
       <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
@@ -81,10 +89,37 @@
       </div>
     {% endif %}
   </div>
+  {% endif %}
 
   <div class="max-w-xl space-y-2">
 
-    <a href="{% url 'event-manage-data' event.slug %}"
+    {% if can_approve_event or event.is_published and not event.start_date %}
+      <section aria-labelledby="event-approval-heading" class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-divider bg-surface-alt p-4">
+        <div class="min-w-0 flex-1">
+          {% if has_publishable_date %}
+            <h2 id="event-approval-heading" class="text-sm font-bold text-content">{% trans "Pending approval" %}</h2>
+          {% elif event.is_published %}
+            <h2 id="event-approval-heading" class="text-sm font-bold text-content">{% trans "Date required" %}</h2>
+            <p class="mt-0.5 text-xs text-content-muted">{% trans "Add a date to show this event in the calendar." %}</p>
+          {% else %}
+            <h2 id="event-approval-heading" class="text-sm font-bold text-content">{% trans "Date required" %}</h2>
+            <p class="mt-0.5 text-xs text-content-muted">{% trans "Add an upcoming date before publishing." %}</p>
+          {% endif %}
+        </div>
+        {% if has_publishable_date %}
+        <form method="post" action="{% event_action_url event 'approve' %}">
+          {% csrf_token %}
+          <button type="submit" class="rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90">
+            {% trans "Approve and publish" %}
+          </button>
+        </form>
+        {% else %}
+          <a href="{% event_action_url event 'manage-dates' %}" class="rounded-full bg-elevated px-4 py-2.5 text-sm font-bold text-white">{% trans "Set event date" %}</a>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    <a href="{% event_action_url event 'manage-data' %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
@@ -93,14 +128,21 @@
       </div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-bold text-content">{% trans "General info" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Edit name, description, city and cover image" %}</p>
+        <p class="text-xs text-content-muted mt-0.5">
+          {% if event.is_location_event %}
+            {% trans "Edit name, description and cover image" %}
+          {% else %}
+            {% trans "Edit name, description, city and cover image" %}
+          {% endif %}
+        </p>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
       </svg>
     </a>
 
-    <a href="{% url 'event-manage-participants' event.slug %}"
+    {% if not event.is_location_event or can_manage_location_events %}
+    <a href="{% event_action_url event 'manage-participants' %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
@@ -117,8 +159,9 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
       </svg>
     </a>
+    {% endif %}
 
-    <a href="{% url 'event-manage-dates' event.slug %}"
+    <a href="{% event_action_url event 'manage-dates' %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
@@ -126,9 +169,17 @@
         </svg>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Dates" %}</p>
+        <p class="text-sm font-bold text-content">{% if event.is_location_event %}{% trans "Date and time" %}{% else %}{% trans "Dates" %}{% endif %}</p>
         <p class="text-xs text-content-muted mt-0.5">
-          {% blocktrans count n=event.dates.count %}{{ n }} date configured{% plural %}{{ n }} dates configured{% endblocktrans %}
+          {% if event.is_location_event %}
+            {% if event.date %}
+              {{ event.date|date:"j F Y" }}{% if event.opening_time %} · {{ event.opening_time|time:"H:i" }}{% endif %}{% if event.closing_time %}–{{ event.closing_time|time:"H:i" }}{% endif %}
+            {% else %}
+              {% trans "Date required" %}
+            {% endif %}
+          {% else %}
+            {% blocktrans count n=event.sorted_dates|length %}{{ n }} date configured{% plural %}{{ n }} dates configured{% endblocktrans %}
+          {% endif %}
         </p>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
@@ -136,6 +187,25 @@
       </svg>
     </a>
 
+    {% if event.is_location_event %}
+    {% if can_manage_location_events %}
+    <section aria-labelledby="event-tables-heading" class="rounded-xl border border-divider bg-surface p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="event-tables-heading" class="text-sm font-bold text-content">{% trans "Tables" %}</h2>
+        {% if event.start_date %}
+          <a href="{% event_action_url event 'table-create' %}"
+             class="rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90">{% trans "Add a table" %}</a>
+        {% endif %}
+      </div>
+      {% if not event.start_date %}
+        <p class="mt-1 text-xs text-content-muted">{% trans "Set the event date before adding tables." %}</p>
+      {% elif not event.is_published %}
+        <p class="mt-1 text-xs text-content-muted">{% trans "Tables will be public when the event is published." %}</p>
+      {% endif %}
+      {% include "events/_location_event_tables.html" %}
+    </section>
+    {% endif %}
+    {% else %}
     <a href="{% url 'event-manage-areas' event.slug %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
@@ -264,6 +334,7 @@
       </svg>
     </a>
 
+    {% endif %}
   </div>
 
 {% endblock content %}

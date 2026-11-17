@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<form method="get" class="flex flex-col sm:flex-row gap-2 mb-5"
+      onsubmit="this.querySelectorAll('input[name]').forEach(function (el) { if (!el.value.trim()) el.disabled = true; })">
+  {% if tab == 'past' %}<input type="hidden" name="tab" value="past">{% endif %}
+  {% if activity_type and activity_type != 'all' %}<input type="hidden" name="type" value="{{ activity_type }}">{% endif %}
+  {% include "partials/_search_input.html" with placeholder=search_placeholder %}
+  {% if location_picker_sections %}
+    {% include "partials/_location_filter_button.html" %}
+  {% endif %}
+  <button type="submit"
+          class="bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors">
+    {% trans "Search" %}
+  </button>
+</form>

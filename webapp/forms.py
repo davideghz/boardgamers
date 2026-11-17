@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
@@ -12,7 +13,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, LocationEvent, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services.game_loans import active_members, default_loan_due_date
 from webapp.services.images import COVER_MAX_SIDE, validate_network_logo
 
@@ -335,7 +336,7 @@ class AreaTaggedSelect(Select):
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category', 'series_root']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'event', 'location_event', 'category', 'series_root']
         widgets = {
             'location': HiddenInput(),
             'physical_table': AreaTaggedSelect(),
@@ -347,6 +348,9 @@ class TableForm(ModelForm, TailwindForm):
         self.staff_assigned_station = False
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
+            if self.instance.is_location_event_table:
+                self.fields['date'].disabled = True
+                self.fields['location'].disabled = True
         self.fields['unlimited_seats'].widget.attrs.update({
             'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
         # Only the location's own play areas and stations can be picked
@@ -463,9 +467,8 @@ class DuplicateTableLinkForm(TableLinkForm):
 class EventTableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
-        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location', 'series_root']
+        exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'location', 'event', 'location_event', 'series_root']
         widgets = {
-            'event': HiddenInput(),
             'physical_table': AreaTaggedSelect(),
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
@@ -473,6 +476,7 @@ class EventTableForm(ModelForm, TailwindForm):
     def __init__(self, *args, event=None, **kwargs):
         super().__init__(*args, **kwargs)
         if event is not None:
+            self.instance.event = event
             dates = event.dates.order_by('date')
             self.fields['date'].widget = Select(
                 choices=[('', _('Select a date'))] + [
@@ -638,6 +642,9 @@ class UserProfileAvatarForm(ModelForm, TailwindForm):
         fields = ['avatar']
 
 
+_COVER_INPUT_ATTRS = {'class': 'sr-only peer', 'data-crop-max-side': COVER_MAX_SIDE}
+
+
 class LocationForm(ModelForm, TailwindForm):
     city = CharField(widget=HiddenInput(), required=False)
     latitude = CharField(widget=HiddenInput(), required=False)
@@ -670,9 +677,8 @@ class LocationForm(ModelForm, TailwindForm):
         super().__init__(*args, **kwargs)
         self.fields['cover'].required = False
         self.fields['cover'].widget = FileInput(attrs={
-            'class': 'sr-only peer',
+            **_COVER_INPUT_ATTRS,
             'aria-describedby': 'location-cover-help',
-            'data-crop-max-side': COVER_MAX_SIDE,
         })
         self.fields['opening_hours'].required = False
         self.fields['opening_hours'].widget = HiddenInput()
@@ -684,7 +690,7 @@ class LocationManageDataForm(LocationForm):
     class Meta(LocationForm.Meta):
         fields = LocationForm.Meta.fields + [
             'facebook_url', 'instagram_url', 'leaderboard_edit_days',
-            'show_most_played_games', 'show_stats', 'show_top_gamers',
+            'show_events_in_homepage', 'show_most_played_games', 'show_stats', 'show_top_gamers',
         ]
         widgets = {
             **LocationForm.Meta.widgets,
@@ -818,12 +824,44 @@ class EventManageDataForm(EventForm):
         return cleaned_data
 
 
+class EventCoverInput(ClearableFileInput):
+    template_name = 'partials/_event_cover_input.html'
+
+
+class LocationEventForm(ModelForm, TailwindForm):
+    class Meta:
+        model = LocationEvent
+        fields = ['name', 'description', 'cover']
+        widgets = {
+            'cover': EventCoverInput(attrs={**_COVER_INPUT_ATTRS, 'aria-describedby': 'event-cover-help'}),
+        }
+
+    def clean_cover(self):
+        cover = self.cleaned_data['cover']
+        if isinstance(cover, UploadedFile):
+            validate_custom_cover_size(cover)
+        return cover
+
+
 class EventDateForm(TailwindForm):
-    date = DateField(widget=DateInput(), input_formats=['%Y-%m-%d'])
+    date = DateField(widget=DateInput(), input_formats=['%Y-%m-%d'], label=_('Date'))
     opening_time = TimeField(widget=TimeInput(), required=False, initial=datetime.time(10, 0),
                              label=_('Opening time'))
     closing_time = TimeField(widget=TimeInput(), required=False, initial=datetime.time(21, 0),
                              label=_('Closing time'))
+
+
+class LocationEventDateForm(EventDateForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in ('opening_time', 'closing_time'):
+            self.fields[field].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get('opening_time') and cleaned_data['opening_time'] == cleaned_data.get('closing_time'):
+            self.add_error('closing_time', _('Closing time must differ from opening time.'))
+        return cleaned_data
 
 
 class EventDateTimesForm(ModelForm, TailwindForm):
@@ -1363,4 +1401,5 @@ class GuestProfileForm(ModelForm):
 class LocationPermissionsForm(ModelForm):
     class Meta:
         model = Location
-        fields = ['table_creation_permission', 'table_join_permission']
+        fields = ['table_creation_permission', 'table_join_permission',
+                  'event_creation_permission', 'event_join_permission']

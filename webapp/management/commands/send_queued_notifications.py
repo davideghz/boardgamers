@@ -9,7 +9,7 @@ from collections import defaultdict
 import json
 import logging
 
-from webapp.models import Location, Notification, NotificationType, PhysicalTable
+from webapp.models import Location, Notification, NotificationType, PhysicalTable, Table
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +56,7 @@ class Command(BaseCommand):
     def _send_new_table(self, client):
         # 1. Recupera notifiche NEW_TABLE non inviate e non ancora lette sul sito
         notifications = Notification.objects.filter(
+            Table.public_condition('table__'),
             sent=False,
             is_read=False,
             notification_type=NotificationType.NEW_TABLE
@@ -111,6 +112,7 @@ class Command(BaseCommand):
         # Notifiche TABLES_ADDED (duplicazione di un tavolo con i partecipanti):
         # una sola per persona per tutta la serie. Vale la preferenza "nuovo tavolo".
         notifications = Notification.objects.filter(
+            Table.public_condition('table__'),
             sent=False,
             is_read=False,
             notification_type=NotificationType.TABLES_ADDED,
@@ -201,7 +203,7 @@ def _station_assignment_hrefs(notifications):
     `profile` è proprietario/manager della location e il tavolo può avere una
     postazione (la location ne ha, il tavolo no), altrimenti "". Lo staff e le
     location con postazioni si leggono una volta sola per tutto il lotto (2 query)."""
-    location_ids = {n.table.location_id for n in notifications if n.table.location_id and not n.table.event_id}
+    location_ids = {n.table.location_id for n in notifications if n.table.location_id}
     staff = defaultdict(set)
     for location_id, creator_id, manager_id in Location.objects.filter(
             id__in=location_ids).values_list('id', 'creator_id', 'managers'):
@@ -210,7 +212,7 @@ def _station_assignment_hrefs(notifications):
         location_id__in=location_ids).values_list('location_id', flat=True).distinct())
 
     def href(table, profile):
-        if (table.location_id in with_stations and table.physical_table_id is None and not table.event_id
+        if (table.location_id in with_stations and table.physical_table_id is None
                 and profile.id in staff[table.location_id]):
             return settings.DOMAIN_URL + reverse(
                 'location-table-update', kwargs={'location_slug': table.location.slug, 'table_slug': table.slug})

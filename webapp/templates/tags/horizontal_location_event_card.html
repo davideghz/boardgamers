@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<a href="{{ event.get_absolute_url }}"
+   class="flex items-center gap-3 rounded-xl border border-divider bg-surface p-3 hover:shadow-md transition-shadow">
+  <img loading="lazy" decoding="async" src="{{ event.cover_url }}" alt=""
+       class="h-20 w-20 shrink-0 rounded-xl border border-divider bg-surface-input object-cover">
+  <div class="min-w-0 flex-1 space-y-1">
+    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+      <p class="text-[10px] font-semibold uppercase tracking-wide text-content-muted">
+        {% if event.date %}
+          <time datetime="{{ event.date|date:'Y-m-d' }}{% if event.opening_time %}T{{ event.opening_time|time:'H:i' }}{% endif %}">
+            {{ event.date|date:"D j M" }}{% if event.opening_time %} · {{ event.opening_time|time:"H:i" }}{% endif %}
+          </time>{% if event.closing_time %} – {{ event.closing_time|time:"H:i" }}{% endif %}
+        {% else %}
+          {% trans "Date required" %}
+        {% endif %}
+      </p>
+      <span class="shrink-0 rounded-full bg-surface-input px-2 py-0.5 text-[10px] font-bold text-content-muted">
+        {% if event.is_published %}{% trans "Event" %}{% else %}{{ event.get_status_display }}{% endif %}
+      </span>
+    </div>
+    <p class="truncate text-sm font-bold text-content">{{ event.name }}</p>
+    {% include "tags/_card_location.html" with location=event.host_location only %}
+  </div>
+</a>

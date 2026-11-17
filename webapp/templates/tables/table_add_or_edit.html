@@ -1,5 +1,5 @@
 {% extends "base_webapp.html" %}
-{% load i18n static %}
+{% load custom_tags i18n static %}
 
 {% block style %}{% endblock style %}
 
@@ -34,6 +34,10 @@
       <div class="min-w-0">
         <p class="text-[10px] font-semibold uppercase tracking-wide text-content-muted">{% trans "Location" %}</p>
         <p class="text-sm font-bold text-content truncate">{{ location.name }}</p>
+        {% if location_event %}
+          <a href="{% if form.instance.pk %}{{ location_event.get_absolute_url }}{% else %}{% event_action_url location_event 'manage' %}{% endif %}"
+             class="text-xs text-content-muted hover:underline">{{ location_event.name }}</a>
+        {% endif %}
       </div>
     </div>
 

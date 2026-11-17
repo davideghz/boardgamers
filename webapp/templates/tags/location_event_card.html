@@ -1,0 +1,51 @@
+{% load i18n %}
+
+<a href="{{ event.get_absolute_url }}"
+   class="group flex flex-col rounded-xl border border-divider hover:shadow-sm transition-all overflow-hidden h-full w-full bg-surface cursor-pointer">
+
+  {# Cover image #}
+  <div class="w-full h-[150px] overflow-hidden relative">
+    <img loading="lazy" decoding="async" src="{{ event.cover_url }}" alt=""
+         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+  </div>
+
+  {# Body #}
+  <div class="p-2.5 flex-1 flex items-start gap-2.5">
+
+    {# Date badge #}
+    <time datetime="{{ event.date|date:'Y-m-d' }}" class="flex flex-col items-center justify-center bg-surface-input rounded-md px-2.5 py-1.5 min-w-[44px] flex-shrink-0">
+      <span class="text-[10px] font-semibold text-content-muted uppercase leading-tight">
+        {{ event.date|date:"D" }}
+      </span>
+      <span class="text-lg font-extrabold text-content leading-none">
+        {{ event.date|date:"j" }}
+      </span>
+      <span class="text-[10px] font-semibold text-content-muted uppercase leading-tight">
+        {{ event.date|date:"M" }}
+      </span>
+    </time>
+
+    {# Title + location #}
+    <div class="min-w-0 flex-1 flex flex-col gap-1 pt-0.5">
+      <h3 class="font-bold text-sm text-content leading-snug line-clamp-2">{{ event.name }}</h3>
+      {% include "tags/_card_location.html" with location=event.host_location show_city=True only %}
+    </div>
+
+  </div>
+
+  {# Footer: schedule and attendance #}
+  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2 border-t border-divider-soft bg-surface-alt text-xs text-content-muted">
+    {% if event.opening_time %}
+      <span class="flex items-center gap-1.5 whitespace-nowrap">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        {{ event.opening_time|time:"H:i" }}{% if event.closing_time %} – {{ event.closing_time|time:"H:i" }}{% endif %}
+      </span>
+    {% endif %}
+    <span class="ml-auto flex items-center gap-1.5">
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+      <span aria-hidden="true">{{ event.participant_count }}</span>
+      <span class="sr-only">{% blocktrans count n=event.participant_count %}{{ n }} person attending{% plural %}{{ n }} people attending{% endblocktrans %}</span>
+    </span>
+  </div>
+
+</a>

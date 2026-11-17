@@ -1,0 +1,6 @@
+{% if location %}
+  <span class="flex min-w-0 items-center {% if show_city %}gap-1{% else %}gap-0.5{% endif %} text-xs text-content-muted">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" class="h-3 w-3 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+    <span class="truncate">{{ location.name }}{% if show_city and location.city %} - {{ location.city }}{% endif %}</span>
+  </span>
+{% endif %}

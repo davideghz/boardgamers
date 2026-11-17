@@ -1,0 +1,7 @@
+<div class="min-w-0">
+  <label for="{{ field.id_for_label }}" class="mb-1 block text-xs font-semibold text-content-soft">{{ field.label }}</label>
+  {{ field }}
+  {% if field.errors %}
+    <p id="{{ field.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>
+  {% endif %}
+</div>

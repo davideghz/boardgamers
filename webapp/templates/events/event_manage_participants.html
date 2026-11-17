@@ -5,7 +5,7 @@
 {% block content %}
 
   <div class="mb-6">
-    {% back_link 'event-manage' event.slug label=_("Manage") %}
+    {% event_back_link event 'manage' label=_("Manage") %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Participants" %}</h1>
     <p class="text-sm text-content-muted mt-1">
       {% blocktrans count n=participants|length %}{{ n }} person registered{% plural %}{{ n }} people registered{% endblocktrans %}
