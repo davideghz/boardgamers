@@ -7,8 +7,6 @@
 
   {% if user.is_authenticated %}
 
-    {% include "staticpages/_contributor_banner.html" %}
-
     {# ── HEADER (logged in): quick links to own/followed locations ──── #}
     <div class="mb-8">
       <h1 class="text-2xl md:text-3xl font-extrabold text-content mb-4">
@@ -111,8 +109,6 @@
         </div>
       </div>
     </div>
-
-    {% include "staticpages/_contributor_banner.html" %}
 
   {% endif %}
 
