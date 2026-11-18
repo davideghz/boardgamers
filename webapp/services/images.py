@@ -22,6 +22,7 @@ NETWORK_LOGO_MAX_BYTES = 2 * 1024 * 1024
 NETWORK_LOGO_MAX_INPUT_SIDE = 2048
 NETWORK_LOGO_MAX_SIDE = 512
 NETWORK_LOGO_FORMATS = ('PNG', 'JPEG', 'WEBP')
+BANNER_COVER_MAX_BYTES = 5 * 1024 * 1024
 JPEG_QUALITY = 82
 # Sotto questa soglia un'immagine già entro le dimensioni viene lasciata com'è
 SMALL_ENOUGH_BYTES = 200 * 1024
@@ -47,6 +48,23 @@ def restrict_open_formats():
     for fmt in list(Image.OPEN):
         if fmt not in ALLOWED_OPEN_FORMATS:
             del Image.OPEN[fmt]
+
+
+def validate_banner_cover(upload):
+    if getattr(upload, '_committed', False):
+        return
+    if upload.size > BANNER_COVER_MAX_BYTES:
+        raise ValidationError(_('The cover must be 5 MB or smaller.'))
+    upload.seek(0)
+    try:
+        with Image.open(upload, formats=('PNG', 'JPEG', 'WEBP')) as image:
+            if max(image.size) > 8192:
+                raise ValidationError(_('The cover must be 8192 pixels or smaller on each side.'))
+            image.verify()
+    except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+        raise ValidationError(_('Upload a valid PNG, JPEG or WebP cover.')) from exc
+    finally:
+        upload.seek(0)
 
 
 def shrink_image_bytes(data, max_side):
