@@ -129,6 +129,7 @@ TEMPLATES = [
                 'webapp.context_processors.maps_api_key',
                 'webapp.context_processors.telegram_config',
                 'webapp.context_processors.vapid_public_key',
+                'webapp.context_processors.site_banners',
             ],
         },
     },

@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event, EventGame, Network, LocationNetwork
+    EventParticipant, Game, Location, Event, EventGame, Network, LocationNetwork, Banner
 from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
 
 
@@ -212,6 +212,7 @@ def table_status_change_notifications(sender, instance, created, **kwargs):
 
 # Campi immagine da ridurre al caricamento: (modello, campo, lato lungo massimo)
 SHRINKABLE_IMAGE_FIELDS = [
+    (Banner, 'cover', COVER_MAX_SIDE),
     (Game, 'image', COVER_MAX_SIDE),
     (Location, 'cover', COVER_MAX_SIDE),
     (Table, 'custom_cover', COVER_MAX_SIDE),

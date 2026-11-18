@@ -5836,3 +5836,126 @@ msgstr "Collega account"
 #~ msgstr ""
 #~ "Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
 #~ "agli organizzatori che ci sarai."
+
+msgid "Cover and link"
+msgstr "Copertina e link"
+
+msgid "Visibility"
+msgstr "Visibilità"
+
+msgid "Closing"
+msgstr "Chiusura"
+
+msgid "Cover preview"
+msgstr "Anteprima della copertina"
+
+msgid "Everyone"
+msgstr "Tutti"
+
+msgid "Anonymous visitors"
+msgstr "Visitatori anonimi"
+
+msgid "Authenticated users"
+msgstr "Utenti autenticati"
+
+msgid "Home page"
+msgstr "Home page"
+
+msgid "All pages"
+msgstr "Tutte le pagine"
+
+msgid "Permanently"
+msgstr "Definitivamente"
+
+msgid "For this tab session"
+msgstr "Per la sessione di questa scheda"
+
+msgid "For a number of days"
+msgstr "Per un numero di giorni"
+
+msgid "This browser"
+msgstr "Questo browser"
+
+msgid "Each account on this browser"
+msgstr "Ogni account su questo browser"
+
+msgid "Identifier"
+msgstr "Identificativo"
+
+msgid "Version"
+msgstr "Versione"
+
+msgid "Increase only to show a substantially new message again."
+msgstr "Aumenta solo per mostrare nuovamente un messaggio sostanzialmente diverso."
+
+msgid "Cover description"
+msgstr "Descrizione della copertina"
+
+msgid "Leave empty if the image is decorative."
+msgstr "Lascia vuoto se l'immagine è decorativa."
+
+msgid "Link text"
+msgstr "Testo del link"
+
+msgid "Link URL"
+msgstr "Indirizzo del link"
+
+msgid "An internal path starting with / or an http(s) URL."
+msgstr "Un percorso interno che inizia con / oppure un indirizzo http(s)."
+
+msgid "Audience"
+msgstr "Destinatari"
+
+msgid "Display on"
+msgstr "Mostra in"
+
+msgid "Priority"
+msgstr "Priorità"
+
+msgid "Higher values are shown first."
+msgstr "I valori più alti vengono mostrati per primi."
+
+msgid "Visible from"
+msgstr "Visibile dal"
+
+msgid "Visible until"
+msgstr "Visibile fino al"
+
+msgid "Hide after closing"
+msgstr "Nascondi dopo la chiusura"
+
+msgid "Days hidden after closing"
+msgstr "Giorni nascosto dopo la chiusura"
+
+msgid "Remember closing for"
+msgstr "Ricorda la chiusura per"
+
+msgid "Banner"
+msgstr "Banner"
+
+msgid "Banners"
+msgstr "Banner"
+
+msgid "The end must be after the start."
+msgstr "La fine deve essere successiva all'inizio."
+
+msgid "Enter how many days the banner should remain hidden."
+msgstr "Indica per quanti giorni il banner deve restare nascosto."
+
+msgid "Account-specific closing requires authenticated users as the audience."
+msgstr "La chiusura per account richiede gli utenti autenticati come destinatari."
+
+msgid "Enter the link text."
+msgstr "Inserisci il testo del link."
+
+msgid "Enter the link URL."
+msgstr "Inserisci l'indirizzo del link."
+
+msgid "The cover must be 5 MB or smaller."
+msgstr "La copertina può pesare al massimo 5 MB."
+
+msgid "The cover must be 8192 pixels or smaller on each side."
+msgstr "La copertina può misurare al massimo 8192 pixel per lato."
+
+msgid "Upload a valid PNG, JPEG or WebP cover."
+msgstr "Carica una copertina PNG, JPEG o WebP valida."

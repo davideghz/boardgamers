@@ -1,0 +1,112 @@
+{% load i18n %}
+{% if site_banners %}
+  <div id="site-banners">
+    {% for banner in site_banners %}
+      <section hidden data-banner data-banner-key="{{ banner.key }}" data-banner-version="{{ banner.version }}"
+               data-banner-policy="{{ banner.dismissal }}" data-banner-days="{{ banner.dismissal_days|default_if_none:'' }}"
+               data-banner-scope="{% if banner.dismissal_scope == 'account' %}user:{{ user.pk }}{% else %}browser{% endif %}"
+               role="region" aria-label="{{ banner.title|default:banner.message|truncatechars:100 }}"
+               class="mb-6 overflow-hidden rounded-xl border border-divider bg-surface text-content">
+        <div class="flex flex-col sm:flex-row">
+          {% if banner.cover %}
+            <img src="{{ banner.cover.url }}" alt="{{ banner.cover_alt }}" loading="lazy" decoding="async"
+                 class="h-36 w-full object-cover sm:h-auto sm:w-44 sm:max-h-48 flex-shrink-0">
+          {% endif %}
+          <div class="flex flex-1 items-start justify-between gap-3 px-4 py-3 min-w-0">
+            <div class="min-w-0 text-sm">
+              {% if banner.title %}<p class="font-semibold mb-1">{{ banner.title }}</p>{% endif %}
+              <p class="whitespace-pre-line break-words">{{ banner.message }}</p>
+              {% if banner.action_href and banner.action_label %}
+                <a href="{{ banner.action_href }}" class="inline-block mt-2 text-blue-600 font-semibold hover:underline">{{ banner.action_label }}</a>
+              {% endif %}
+            </div>
+            <button type="button" data-banner-close aria-label="{% trans 'Close' %}"
+                    class="flex-shrink-0 p-2 -m-1 rounded-md text-content-muted hover:text-content hover:bg-surface-alt transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+  <script>
+    (function () {
+      const root = document.getElementById('site-banners');
+      const banners = Array.from(root.querySelectorAll('[data-banner]'));
+      const day = 24 * 60 * 60 * 1000;
+      let active = null;
+
+      function keyFor(banner) {
+        const data = banner.dataset;
+        return 'bg:banner:' + data.bannerKey + ':v' + data.bannerVersion + ':' + data.bannerScope;
+      }
+
+      function storageFor(banner) {
+        return banner.dataset.bannerPolicy === 'session' ? sessionStorage : localStorage;
+      }
+
+      function remember(banner) {
+        const expiresAt = banner.dataset.bannerPolicy === 'days'
+          ? Date.now() + Number(banner.dataset.bannerDays) * day : null;
+        try {
+          storageFor(banner).setItem(keyFor(banner), JSON.stringify({dismissedAt: Date.now(), expiresAt: expiresAt}));
+        } catch (e) {}
+      }
+
+      function dismissed(banner) {
+        try {
+          const raw = storageFor(banner).getItem(keyFor(banner));
+          if (raw) {
+            let state;
+            try { state = JSON.parse(raw); } catch (e) { return false; }
+            return state !== null && Number.isFinite(state.dismissedAt) && state.dismissedAt > 0
+              && (state.expiresAt === null || (Number.isFinite(state.expiresAt) && state.expiresAt > Date.now()));
+          }
+          if (banner.dataset.bannerKey === 'contributor-invite' && banner.dataset.bannerVersion === '1'
+              && banner.dataset.bannerScope === 'browser') {
+            const lastClosed = Number(localStorage.getItem('alertClosedTimestamp'));
+            if (localStorage.getItem('bg:contributor-banner:dismissed') === '1'
+                || (Number.isFinite(lastClosed) && lastClosed > 0)) {
+              remember(banner);
+              return true;
+            }
+          }
+          return false;
+        } catch (e) {
+          // Respect an unreadable preference by keeping promotional content hidden.
+          return true;
+        }
+      }
+
+      function selectBanner() {
+        active = null;
+        banners.forEach(function (banner) {
+          banner.hidden = true;
+          if (!active && !dismissed(banner)) active = banner;
+        });
+        if (active) active.hidden = false;
+      }
+
+      banners.forEach(function (banner) {
+        banner.querySelector('[data-banner-close]').addEventListener('click', function () {
+          banner.hidden = true;
+          active = null;
+          remember(banner);
+          // Do not replace a closed banner with another one on this page.
+        });
+      });
+      selectBanner();
+      window.addEventListener('storage', function (event) {
+        if (active && event.key === keyFor(active) && dismissed(active)) {
+          active.hidden = true;
+          active = null;
+        }
+      });
+      window.addEventListener('pageshow', function (event) {
+        if (event.persisted) selectBanner();
+      });
+    })();
+  </script>
+{% endif %}

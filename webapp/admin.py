@@ -17,7 +17,8 @@ from webapp.fields import NetworkLogoImageField
 from webapp.forms import NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
+    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, \
+    PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services import games as game_services
 from webapp.services.tables import sync_legacy_result
 
@@ -351,6 +352,31 @@ class FAQInline(admin.TabularInline):
     extra = 0
     fields = ('question', 'order', 'is_active')
     show_change_link = True
+
+
+@admin.register(Banner)
+class BannerAdmin(TabbedTranslationAdmin):
+    list_display = ('key', 'title', 'version', 'is_active', 'priority', 'audience', 'placement', 'starts_at', 'ends_at')
+    list_editable = ('is_active', 'priority')
+    list_filter = ('is_active', 'audience', 'placement', 'dismissal')
+    search_fields = ('key', 'title', 'message')
+    readonly_fields = ('cover_preview',)
+    fieldsets = (
+        (None, {'fields': ('key', 'version', 'is_active', 'title', 'message')}),
+        (_('Cover and link'), {'fields': ('cover', 'cover_preview', 'cover_alt', 'action_label', 'action_url')}),
+        (_('Visibility'), {'fields': ('audience', 'placement', 'priority', 'starts_at', 'ends_at')}),
+        (_('Closing'), {'fields': ('dismissal', 'dismissal_days', 'dismissal_scope')}),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        return (*self.readonly_fields, 'key') if obj else self.readonly_fields
+
+    @admin.display(description=_('Cover preview'))
+    def cover_preview(self, obj):
+        if obj and obj.cover:
+            return format_html('<img src="{}" alt="" style="max-width:320px;max-height:160px;object-fit:contain">',
+                               obj.cover.url)
+        return '—'
 
 
 @admin.register(FAQCategory)
