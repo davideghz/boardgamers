@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from webapp.factories import UserProfileFactory
-from webapp.models import Event, EventDate, Table
+from webapp.models import Event, EventDate, PlayArea, Table
 
 
 class EventProgramAllDaysTest(TestCase):
@@ -67,8 +67,33 @@ class EventProgramAllDaysTest(TestCase):
         response = self.client.get(self.url, {'date': 'all', 'show_past': '1'})
         self.assertEqual([d['date'] for d in response.context['agenda_days']], [past, future])
 
-    def test_empty_day_message(self):
+    def test_empty_today_points_to_first_day_with_tables(self):
+        today, tomorrow = self.add_days(0, 1)
+        self.table(tomorrow)
+        response = self.client.get(self.url)
+        self.assertEqual(response.context['selected_date'], today)
+        self.assertEqual(response.context['first_table_date'], tomorrow)
+        self.assertContains(response, 'In questo giorno non ci sono tavoli prenotabili.')
+
+    def test_empty_day_points_to_first_day_with_tables(self):
+        first, second, third = self.add_days(1, 2, 3)
+        self.table(third)
+        response = self.client.get(self.url, {'date': first.isoformat()})
+        self.assertEqual(response.context['first_table_date'], third)
+        self.assertContains(response, 'In questo giorno non ci sono tavoli prenotabili.')
+        self.assertContains(response, 'Il primo giorno con tavoli prenotabili è')
+        self.assertContains(response, f'date={third.isoformat()}')
+
+    def test_empty_event_message(self):
         first, _ = self.add_days(1, 2)
         response = self.client.get(self.url, {'date': first.isoformat()})
-        self.assertContains(
-            response, 'Nel giorno selezionato non ci sono tavoli prenotabili per i filtri selezionati.')
+        self.assertFalse(response.context['event_has_tables'])
+        self.assertContains(response, 'Non ci sono ancora tavoli prenotabili per questo evento.')
+
+    def test_filters_hiding_tables_offer_reset(self):
+        first, _ = self.add_days(1, 2)
+        self.table(first)
+        area = PlayArea.objects.create(event=self.event, name="Sala")
+        response = self.client.get(self.url, {'date': first.isoformat(), 'area': area.id})
+        self.assertTrue(response.context['filters_hide_tables'])
+        self.assertContains(response, 'Nessun tavolo corrisponde ai filtri selezionati.')

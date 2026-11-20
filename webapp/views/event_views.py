@@ -427,6 +427,11 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             elif event_dates.exists():
                 selected_date = event_dates.first().date
 
+        # Days that have at least one table: an empty day points to the first one.
+        table_dates = set(Table.objects.filter(event=event).values_list('date', flat=True))
+        first_table_date = next(
+            (d.date for d in event_dates if d.date >= today and d.date in table_dates), None)
+
         # Dates shown in pills (past hidden unless show_past)
         visible_dates = event_dates if show_past else event_dates.filter(date__gte=today)
         has_past_dates = event_dates.filter(date__lt=today).exists()
@@ -523,6 +528,8 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         )
         games_in_event = Game.objects.filter(id__in=game_ids).order_by('name')
 
+        active_filter_count = sum(bool(f) for f in (selected_area, selected_category, selected_game))
+
         context.update({
             'event': event,
             'is_manager': is_manager,
@@ -542,12 +549,19 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             'selected_category_id': selected_category_id,
             'selected_category': selected_category,
             # Shown on the mobile "Filters" button; the day is navigation, not a filter
-            'active_filter_count': sum(bool(f) for f in (selected_area, selected_category, selected_game)),
+            'active_filter_count': active_filter_count,
             'view_mode': view_mode,
             'view_qs': '&view=grid' if view_mode == 'grid' else '',
             'agenda_days': agenda_days,
             'grid': grid,
             'has_tables': bool(tables_list),
+            # Empty state: the event has no tables at all, the filters hide
+            # the day's tables, or the day itself is empty.
+            'event_has_tables': bool(table_dates),
+            'filters_hide_tables': bool(active_filter_count) and (
+                selected_date in table_dates if selected_date
+                else any(d.date in table_dates for d in visible_dates)),
+            'first_table_date': first_table_date if first_table_date != selected_date else None,
             'has_conflicts': bool(conflict_ids),
             'games_in_event': games_in_event,
             'today': today,
