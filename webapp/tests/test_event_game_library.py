@@ -224,6 +224,16 @@ class GameDetailBackLinkTest(LibraryTestCase):
         self.assertEqual(list(direct.context['locations']), [club])
         self.assertNotIn('locations', self.client.get(self.game_url).context)
 
+    def test_stats_come_after_the_description_and_hide_from_a_library(self):
+        self.game.description = "Draft tiles."
+        self.game.save(update_fields=['description'])
+        direct = self.client.get(reverse('game-detail', args=[self.game.slug])).content.decode()
+        self.assertLess(direct.index("Draft tiles."), direct.index("Played tables"))
+        for params in ({'from_event': self.event.slug}, {'from_location': 'anywhere'}):
+            response = self.client.get(reverse('game-detail', args=[self.game.slug], query=params))
+            self.assertNotContains(response, "Played tables")
+            self.assertNotContains(response, "Gamers</p>")
+
     def test_general_list_when_game_not_in_event_or_event_hidden(self):
         other = GameFactory(name="Catan")
         url = reverse('game-detail', args=[other.slug], query={'from_event': self.event.slug})

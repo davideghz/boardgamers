@@ -57,8 +57,10 @@ class GameDetailView(DetailView):
         profile = getattr(self.request.user, 'user_profile', None)
         from_location = params.get('from_location')
         from_event = params.get('from_event')
-        # Coming from a library, the venues where the game is played elsewhere would be misleading.
-        if not (from_location or from_event):
+        # Coming from a library, community stats and the venues where the game is played elsewhere
+        # would be misleading.
+        context['from_library'] = bool(from_location or from_event)
+        if not context['from_library']:
             context['locations'] = (
                 Location.objects
                 .filter(tables__game=game)
