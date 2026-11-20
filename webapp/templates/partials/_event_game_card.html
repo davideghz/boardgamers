@@ -32,7 +32,16 @@
       </div>
     {% endif %}
     {% if entry.sponsor_locations.all %}
-      <p class="text-[11px] text-content-muted truncate">{% trans "From:" %} {% for location in entry.sponsor_locations.all %}{{ location.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+      {# Where to find the game at the event: the clubs that bring it #}
+      <ul class="flex flex-col gap-0.5 text-xs font-semibold text-content leading-snug">
+        <li class="sr-only">{% trans "Where to find it:" %}</li>
+        {% for location in entry.sponsor_locations.all %}
+          <li class="flex items-center gap-1 min-w-0" title="{{ location.name }}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-600" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+            <span class="truncate">{{ location.name }}</span>
+          </li>
+        {% endfor %}
+      </ul>
     {% endif %}
     {% if not is_concluded and can_view_program %}
       <div class="text-xs">
