@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
+from django.utils.html import escape
 
 from webapp.factories import UserProfileFactory, LocationFactory, GameFactory
 from webapp.models import Event, EventDate, EventGame, EventGameTag, Table
@@ -145,11 +146,6 @@ class BookingIndicatorTest(LibraryTestCase):
         EventDate.objects.create(event=self.event, date=self.today - datetime.timedelta(days=1))
         self.assertContains(self.client.get(self.detail_url), "Event concluded")
 
-    def test_game_does_not_link_to_its_site_page(self):
-        # Its "back" link leads to the site-wide library, not the event's one.
-        self.assertNotContains(
-            self.client.get(self.detail_url), reverse('game-detail', kwargs={'slug': self.game.slug}))
-
 
 class PublicLibraryTest(LibraryTestCase):
     def test_shows_every_game(self):
@@ -201,6 +197,34 @@ class PublicLibraryTest(LibraryTestCase):
         self.assertEqual(self.client.get(self.library_url).status_code, 404)
         self.client.force_login(self.owner.user)
         self.assertEqual(self.client.get(self.library_url).status_code, 200)
+
+
+class GameDetailBackLinkTest(LibraryTestCase):
+    def setUp(self):
+        super().setUp()
+        self.game = self.entry("Azul", self.flagged).game
+        self.game_url = reverse('game-detail', args=[self.game.slug], query={'from_event': self.event.slug})
+        self.back = f'href="{self.detail_url}"'
+
+    def test_cards_link_to_game_detail_with_the_event(self):
+        for url in (self.detail_url, self.library_url):
+            self.assertContains(self.client.get(url), f'href="{escape(self.game_url)}"')
+
+    def test_game_detail_links_back_to_the_event(self):
+        response = self.client.get(self.game_url)
+        self.assertContains(response, self.back)
+        self.assertContains(response, '<span class="truncate">Con</span>')
+
+    def test_general_list_when_game_not_in_event_or_event_hidden(self):
+        other = GameFactory(name="Catan")
+        url = reverse('game-detail', args=[other.slug], query={'from_event': self.event.slug})
+        self.assertNotContains(self.client.get(url), self.back)
+
+        self.event.status = Event.DRAFT
+        self.event.save(update_fields=['status'])
+        self.assertNotContains(self.client.get(self.game_url), self.back)
+        self.client.force_login(self.owner.user)
+        self.assertContains(self.client.get(self.game_url), self.back)
 
 
 class LibraryFlagTest(LibraryTestCase):
