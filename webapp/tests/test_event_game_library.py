@@ -159,6 +159,15 @@ class PublicLibraryTest(LibraryTestCase):
         self.assertContains(response, "Tagged")
         self.assertContains(response, "Untagged")
 
+    def test_card_shows_where_to_find_the_game(self):
+        first, second = LocationFactory(name="Club Uno"), LocationFactory(name="Club Due")
+        self.event.sponsor_locations.add(first, second)
+        self.entry("Azul").sponsor_locations.add(first, second)
+        response = self.client.get(self.library_url)
+        self.assertContains(response, "Where to find it:")
+        self.assertContains(response, "Club Uno")
+        self.assertContains(response, "Club Due")
+
     def names(self, **params):
         response = self.client.get(self.library_url, params)
         return [entry.game.name for entry in response.context['entries']]
