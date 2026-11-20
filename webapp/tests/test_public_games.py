@@ -1,10 +1,12 @@
+import datetime
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext, override
 
 from webapp.factories import UserProfileFactory, LocationFactory, GameFactory
-from webapp.models import LocationGame
+from webapp.models import LocationGame, Table
 
 
 class PublicGamesToggleTest(TestCase):
@@ -78,6 +80,13 @@ class PublicGamesToggleTest(TestCase):
         self.assertContains(response, general_list)
         self.assertNotContains(response, f'href="{self.games_url}"')
 
+    def test_game_detail_from_library_hides_where_it_is_played(self):
+        Table.objects.create(
+            title="Mars", location=self.location, game=self.game, author=self.owner,
+            date=datetime.date.today(), time=datetime.time(20, 0))
+        game_url = reverse('game-detail', args=[self.game.slug])
+        self.assertEqual(list(self.client.get(game_url).context['locations']), [self.location])
+        self.assertNotIn('locations', self.client.get(game_url, {'from_location': self.location.slug}).context)
 
 class PublicGamesPaginationTest(TestCase):
     def setUp(self):

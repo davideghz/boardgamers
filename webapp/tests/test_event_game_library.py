@@ -215,6 +215,15 @@ class GameDetailBackLinkTest(LibraryTestCase):
         self.assertContains(response, self.back)
         self.assertContains(response, '<span class="truncate">Con</span>')
 
+    def test_hides_where_it_is_played(self):
+        club = LocationFactory()
+        Table.objects.create(
+            title="Azul", location=club, game=self.game, author=self.owner,
+            date=self.today, time=datetime.time(20, 0))
+        direct = self.client.get(reverse('game-detail', args=[self.game.slug]))
+        self.assertEqual(list(direct.context['locations']), [club])
+        self.assertNotIn('locations', self.client.get(self.game_url).context)
+
     def test_general_list_when_game_not_in_event_or_event_hidden(self):
         other = GameFactory(name="Catan")
         url = reverse('game-detail', args=[other.slug], query={'from_event': self.event.slug})
