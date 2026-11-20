@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 12:59+0100\n"
+"POT-Creation-Date: 2026-11-20 10:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2474,14 +2474,54 @@ msgstr ""
 "Alcuni tavoli condividono una postazione in orari sovrapposti. I tavoli in "
 "conflitto sono segnalati qui sotto."
 
-msgid ""
-"On the selected day there are no bookable tables for the selected filters."
-msgstr ""
-"Nel giorno selezionato non ci sono tavoli prenotabili per i filtri "
-"selezionati."
+msgid "There are no bookable tables for this event yet."
+msgstr "Non ci sono ancora tavoli prenotabili per questo evento."
 
-msgid "There are no bookable tables for the selected filters."
-msgstr "Non ci sono tavoli prenotabili per i filtri selezionati."
+msgid ""
+"Create the first table: it will show up here and participants will be able "
+"to book a seat."
+msgstr ""
+"Crea il primo tavolo: comparirà qui e i partecipanti potranno prenotare un "
+"posto."
+
+msgid "Create the first table"
+msgstr "Crea il primo tavolo"
+
+msgid ""
+"The organizers are still putting the program together: check back in a few "
+"days."
+msgstr ""
+"Gli organizzatori stanno ancora preparando il programma: torna a dare "
+"un'occhiata tra qualche giorno."
+
+msgid "Back to the event"
+msgstr "Torna all'evento"
+
+msgid "No tables match the selected filters."
+msgstr "Nessun tavolo corrisponde ai filtri selezionati."
+
+msgid "Remove filters"
+msgstr "Rimuovi i filtri"
+
+msgid "There are no bookable tables on this day."
+msgstr "In questo giorno non ci sono tavoli prenotabili."
+
+#, python-format
+msgid "The first day with bookable tables is %(day)s."
+msgstr "Il primo giorno con tavoli prenotabili è %(day)s."
+
+#, python-format
+msgid "Go to %(day)s"
+msgstr "Vai al %(day)s"
+
+msgid "See all days"
+msgstr "Vedi tutti i giorni"
+
+msgid "Create a table on this day"
+msgstr "Crea un tavolo in questo giorno"
+
+msgid "There are no bookable tables in the coming days."
+msgstr "Non ci sono tavoli prenotabili nei prossimi giorni."
 
 msgid "All games"
 msgstr "Tutti i giochi"
@@ -5456,6 +5496,12 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid ""
+#~ "On the selected day there are no bookable tables for the selected filters."
+#~ msgstr ""
+#~ "Nel giorno selezionato non ci sono tavoli prenotabili per i filtri "
+#~ "selezionati."
 
 #~ msgid "New event to approve"
 #~ msgstr "Nuovo evento da approvare"

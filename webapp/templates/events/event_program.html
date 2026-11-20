@@ -199,20 +199,68 @@
 
   {# ── Program ──────────────────────────────────────────────────────── #}
   {% if not has_tables %}
-    <div class="flex flex-col items-center justify-center py-16 text-center">
+    {# Empty state: no tables in the whole event, tables hidden by the filters, #}
+    {# or an empty day (pointing to the first day that has tables). #}
+    {% with primary="inline-flex items-center gap-1.5 bg-elevated text-white rounded-full px-4 py-2 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none" secondary="inline-flex items-center gap-1.5 bg-surface text-content-soft border border-divider rounded-full px-4 py-2 text-sm font-semibold hover:border-slate-400 transition-colors text-decoration-none" %}
+    <div class="flex flex-col items-center justify-center py-16 text-center max-w-md mx-auto">
       <div class="w-12 h-12 rounded-full bg-surface-input flex items-center justify-center mb-3">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-content-muted">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
         </svg>
       </div>
-      <p class="text-sm font-semibold text-content">
-        {% if selected_date %}
-          {% trans "On the selected day there are no bookable tables for the selected filters." %}
+
+      {% if not event_has_tables %}
+        <p class="text-sm font-semibold text-content">{% trans "There are no bookable tables for this event yet." %}</p>
+        {% if can_create_table %}
+          <p class="text-sm text-content-muted mt-1">{% trans "Create the first table: it will show up here and participants will be able to book a seat." %}</p>
+          <div class="flex flex-wrap justify-center gap-2 mt-5">
+            {% if event.dates.exists %}
+              <a href="{% url 'event-table-create' event.slug %}{% if selected_date %}?date={{ selected_date|date:'Y-m-d' }}{% endif %}" class="{{ primary }}">{% trans "Create the first table" %}</a>
+            {% else %}
+              <a href="{% url 'event-manage-dates' event.slug %}" class="{{ primary }}">{% trans "Add dates first" %}</a>
+            {% endif %}
+          </div>
         {% else %}
-          {% trans "There are no bookable tables for the selected filters." %}
+          <p class="text-sm text-content-muted mt-1">{% trans "The organizers are still putting the program together: check back in a few days." %}</p>
+          <div class="flex flex-wrap justify-center gap-2 mt-5">
+            <a href="{% url 'event_detail' event.slug %}" class="{{ secondary }}">{% trans "Back to the event" %}</a>
+          </div>
         {% endif %}
-      </p>
+
+      {% elif filters_hide_tables %}
+        <p class="text-sm font-semibold text-content">{% trans "No tables match the selected filters." %}</p>
+        <div class="flex flex-wrap justify-center gap-2 mt-5">
+          <a href="?{% query_transform area='' category='' game='' %}" class="{{ primary }}">{% trans "Remove filters" %}</a>
+        </div>
+
+      {% elif selected_date %}
+        <p class="text-sm font-semibold text-content">{% trans "There are no bookable tables on this day." %}</p>
+        {% if first_table_date %}
+          <p class="text-sm text-content-muted mt-1">
+            {# Italian month and weekday names are lowercase mid-sentence #}
+            {% get_current_language as LANGUAGE_CODE %}
+            {% if LANGUAGE_CODE == 'it' %}{% with day=first_table_date|date:"l j F"|lower %}{% blocktrans %}The first day with bookable tables is {{ day }}.{% endblocktrans %}{% endwith %}{% else %}{% blocktrans with day=first_table_date|date:"l j F" %}The first day with bookable tables is {{ day }}.{% endblocktrans %}{% endif %}
+          </p>
+        {% endif %}
+        <div class="flex flex-wrap justify-center gap-2 mt-5">
+          {% if first_table_date %}
+            <a href="?{% query_transform date=first_table_date|date:'Y-m-d' %}" class="{{ primary }}">
+              {% blocktrans with day=first_table_date|date:"j M" %}Go to {{ day }}{% endblocktrans %}
+            </a>
+          {% endif %}
+          {% if has_many_dates %}
+            <a href="?{% query_transform date='all' view='' %}" class="{{ secondary }}">{% trans "See all days" %}</a>
+          {% endif %}
+          {% if can_create_table %}
+            <a href="{% url 'event-table-create' event.slug %}?date={{ selected_date|date:'Y-m-d' }}{% if selected_area %}&area={{ selected_area.id }}{% endif %}" class="{{ secondary }}">{% trans "Create a table on this day" %}</a>
+          {% endif %}
+        </div>
+
+      {% else %}
+        <p class="text-sm font-semibold text-content">{% trans "There are no bookable tables in the coming days." %}</p>
+      {% endif %}
     </div>
+    {% endwith %}
   {% elif view_mode == 'grid' %}
     {# ── Grid: stations/areas × time ──────────────────────────────── #}
     <div class="overflow-x-auto -mx-4 px-4 pb-2">
