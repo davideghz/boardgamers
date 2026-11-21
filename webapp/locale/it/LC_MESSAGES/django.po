@@ -5885,3 +5885,44 @@ msgstr "Collega account"
 #~ msgstr ""
 #~ "Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
 #~ "agli organizzatori che ci sarai."
+
+msgid "Only active accounts without Django admin roles or permissions can be merged."
+msgstr "Si possono unire solo account attivi senza ruoli o permessi di amministrazione Django."
+
+#, python-format
+msgid "Both profiles have different player records on table #%(table)s. Resolve them before merging."
+msgstr "I due profili hanno dati di partecipazione diversi al tavolo #%(table)s. Risolvi il conflitto prima di unire i profili."
+
+msgid "Select two different profiles that still exist."
+msgstr "Seleziona due profili diversi ancora esistenti."
+
+msgid "The duplicate still has linked records that could not be transferred."
+msgstr "Il duplicato ha ancora dati collegati che non è stato possibile trasferire."
+
+msgid "Merge the two selected profiles"
+msgstr "Unisci i due profili selezionati"
+
+msgid "Select exactly two profiles to merge."
+msgstr "Seleziona esattamente due profili da unire."
+
+msgid "Choose the profile to keep."
+msgstr "Scegli il profilo da conservare."
+
+#, python-format
+msgid "Merged profile %(duplicate)s into %(keeper)s."
+msgstr "Il profilo %(duplicate)s è stato unito a %(keeper)s."
+
+msgid "A database conflict prevented the merge. No changes were saved."
+msgstr "Un conflitto nel database ha impedito l’unione. Nessuna modifica è stata salvata."
+
+msgid "Merge profiles"
+msgstr "Unisci profili"
+
+msgid "The selected profile keeps its public URL, account credentials and settings. Linked records and social logins are transferred. The other profile and its login account are permanently deleted."
+msgstr "Il profilo selezionato conserva URL pubblico, credenziali e impostazioni. I dati collegati e gli accessi social vengono trasferiti. L’altro profilo e il suo account di accesso vengono eliminati definitivamente."
+
+msgid "Confirm merge"
+msgstr "Conferma unione"
+
+msgid "Back to profiles"
+msgstr "Torna ai profili"

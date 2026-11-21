@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  {% if error %}<p class="errornote" role="alert">{{ error }}</p>{% endif %}
+  <p>{% translate "The selected profile keeps its public URL, account credentials and settings. Linked records and social logins are transferred. The other profile and its login account are permanently deleted." %}</p>
+  {% if allowed %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="a" value="{{ profiles.0.pk }}">
+      <input type="hidden" name="b" value="{{ profiles.1.pk }}">
+      <fieldset class="module aligned">
+        <legend>{% translate "Choose the profile to keep." %}</legend>
+        {% for profile in profiles %}
+          <div class="form-row">
+            <label>
+              <input type="radio" name="keep" value="{{ profile.pk }}" required{% if keeper.pk == profile.pk %} checked{% endif %}>
+              {{ profile.nickname }} · /users/{{ profile.slug }}/ · {{ profile.user.username }}{% if profile.user.email %} · {{ profile.user.email }}{% endif %}
+            </label>
+          </div>
+        {% endfor %}
+      </fieldset>
+      <div class="submit-row">
+        <input type="submit" class="default" value="{% translate 'Confirm merge' %}">
+      </div>
+    </form>
+  {% endif %}
+  <p><a href="{% url 'admin:webapp_userprofile_changelist' %}">{% translate "Back to profiles" %}</a></p>
+{% endblock %}
