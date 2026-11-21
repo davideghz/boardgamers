@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -82,6 +83,18 @@ class AccountEventsFirstDateTest(TestCase):
 
 
 class EventCardEndedBadgeTest(TestCase):
+    def test_multiday_event_card_is_not_ended_on_the_last_day(self):
+        last_day = datetime.date(2026, 11, 22)
+        event = Event.objects.create(name="Multiday con", slug="multiday-con", status=Event.PUBLISHED)
+        EventDate.objects.create(event=event, date=last_day - datetime.timedelta(days=1))
+        EventDate.objects.create(event=event, date=last_day)
+
+        with patch.object(timezone, 'localdate', return_value=last_day):
+            response = self.client.get(reverse('event-index'))
+
+        self.assertContains(response, event.name)
+        self.assertNotContains(response, "Concluso")
+
     def test_past_event_card_says_ended(self):
         event = Event.objects.create(name="Old con", slug="old-con", status=Event.PUBLISHED)
         EventDate.objects.create(event=event, date=timezone.localdate() - datetime.timedelta(days=3))
