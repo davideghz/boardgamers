@@ -16,13 +16,13 @@
       <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white">
         {% trans "Blocked" %}
       </span>
-    {% elif today and event.start_date and event.start_date >= today %}
-      <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">
-        {% trans "Event" %}
-      </span>
-    {% else %}
+    {% elif is_concluded %}
       <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-600 text-white">
         {% trans "Ended" context "event" %}
+      </span>
+    {% else %}
+      <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">
+        {% trans "Event" %}
       </span>
     {% endif %}
     {% if event.city %}

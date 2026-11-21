@@ -60,7 +60,7 @@ def event_card(context, event, today=None):
     # Pages that pass `managed_event_ids` get a gear linking to the event's management
     return {
         'event': event,
-        'today': today,
+        'is_concluded': event.is_concluded(today),
         'can_manage': event.pk in context.get('managed_event_ids', ()),
     }
 
