@@ -7,7 +7,7 @@
       {% back_link 'location-game-detail' location.slug location_game.uuid label=location_game.game.name %}
       <h1 class="text-2xl font-extrabold text-content">{% trans "Record loan" %}</h1>
     {% else %}
-      {% back_link 'location-games' location.slug label=_("Games") %}
+      {% back_link 'location-games' location.slug label=_("Library") %}
       <h1 class="text-2xl font-extrabold text-content">{% trans "Borrow game" %}</h1>
     {% endif %}
   </div>

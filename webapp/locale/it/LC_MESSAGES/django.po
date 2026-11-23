@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 11:39+0100\n"
+"POT-Creation-Date: 2026-11-23 14:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,8 @@ msgid ""
 msgstr ""
 "%(dup)s unito a %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di "
 "ludoteca spostate, %(merged)d voci di ludoteca unite, %(event_moved)d voci "
-"di libreria evento spostate, %(event_merged)d voci di libreria evento unite."
+"della ludoteca dell’evento spostate, %(event_merged)d voci della ludoteca "
+"dell’evento unite."
 
 msgid "Merge games"
 msgstr "Unisci giochi"
@@ -274,8 +275,17 @@ msgstr ""
 msgid "Game"
 msgstr "Gioco"
 
+msgid ""
+"This game has been withdrawn from the library. Open its entry to restore it."
+msgstr ""
+"Questo gioco è uscito dalla ludoteca. Apri la scheda per ripristinarlo."
+
 msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
+
+msgid "The title of a withdrawn library entry cannot be changed."
+msgstr ""
+"Il titolo di una voce uscita dalla ludoteca non può essere modificato."
 
 msgid "A game with loan history cannot be replaced."
 msgstr "Un gioco con uno storico dei prestiti non può essere sostituito."
@@ -284,6 +294,21 @@ msgid "Record the return before changing the ownership or physical location."
 msgstr ""
 "Registra la restituzione prima di cambiare il proprietario o la collocazione "
 "del gioco."
+
+msgid "Withdrawal date"
+msgstr "Data di uscita"
+
+msgid "Withdrawal reason"
+msgstr "Motivo dell’uscita"
+
+msgid "Select a reason"
+msgstr "Seleziona un motivo"
+
+msgid "Withdrawal note"
+msgstr "Nota (facoltativa)"
+
+msgid "The withdrawal date cannot be in the future."
+msgstr "La data di uscita non può essere futura."
 
 msgid "Member"
 msgstr "Associato/a"
@@ -775,6 +800,21 @@ msgstr "Tag Gioco Location"
 msgid "Location Game Tags"
 msgstr "Tag Giochi Location"
 
+msgid "Sold"
+msgstr "Venduto"
+
+msgid "Destroyed"
+msgstr "Distrutto"
+
+msgid "Lost or missing"
+msgstr "Smarrito"
+
+msgid "Returned to member"
+msgstr "Restituito al socio"
+
+msgid "Other"
+msgstr "Altro"
+
 msgid "Owned by Location"
 msgstr "Dell'associazione"
 
@@ -787,8 +827,8 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-msgid "Archived"
-msgstr "Archiviato"
+msgid "Withdrawn"
+msgstr "Uscito dalla ludoteca"
 
 msgid "Tags"
 msgstr "Tag"
@@ -1009,8 +1049,8 @@ msgstr ""
 msgid "Game loans are disabled for this location."
 msgstr "I prestiti sono disattivati per questa sede."
 
-msgid "This game is archived."
-msgstr "Questo gioco è archiviato."
+msgid "This game has been withdrawn from the library."
+msgstr "Questo gioco è uscito dalla ludoteca."
 
 msgid "Only games owned by the location and kept on site can be borrowed."
 msgstr ""
@@ -1578,15 +1618,16 @@ msgstr[1] "%(n)s voci di ludoteca"
 #, python-format
 msgid "%(n)s event library entry"
 msgid_plural "%(n)s event library entries"
-msgstr[0] "%(n)s voce di libreria evento"
-msgstr[1] "%(n)s voci di libreria evento"
+msgstr[0] "%(n)s voce della ludoteca dell’evento"
+msgstr[1] "%(n)s voci della ludoteca dell’evento"
 
 msgid ""
-"These locations have both games in their library: the kept game's entry "
-"stays and the duplicate's notes are appended to it."
+"These locations have both games in their library. Merging combines their "
+"notes and tags and keeps the title in the library if either entry is active."
 msgstr ""
-"Queste location hanno entrambi i giochi in ludoteca: resta la voce del gioco "
-"tenuto e le note del doppione vengono aggiunte in coda."
+"Queste associazioni hanno entrambi i giochi in ludoteca. L’unione conserva "
+"note e tag di entrambe le voci e mantiene il titolo in ludoteca se almeno "
+"una voce è attiva."
 
 #, fuzzy
 #| msgid "Notes"
@@ -1818,7 +1859,9 @@ msgstr "Ciao"
 msgid ""
 "Please click the link to confirm your new email address. You need to be "
 "logged in."
-msgstr "Clicca sul link per confermare il tuo nuovo indirizzo email. Devi aver effettuato l'accesso."
+msgstr ""
+"Clicca sul link per confermare il tuo nuovo indirizzo email. Devi aver "
+"effettuato l'accesso."
 
 msgid "Confirm your email"
 msgstr "Conferma il tuo indirizzo email"
@@ -1826,7 +1869,9 @@ msgstr "Conferma il tuo indirizzo email"
 msgid ""
 "Please click the button below to confirm your new email address. You need to "
 "be logged in."
-msgstr "Clicca sul pulsante qui sotto per confermare il tuo nuovo indirizzo email. Devi aver effettuato l'accesso."
+msgstr ""
+"Clicca sul pulsante qui sotto per confermare il tuo nuovo indirizzo email. "
+"Devi aver effettuato l'accesso."
 
 msgid "Confirm"
 msgstr "Conferma"
@@ -2002,8 +2047,8 @@ msgstr "Nascondi"
 msgid "Reserve your seat at the game you like best"
 msgstr "Riserva il tuo posto per il gioco che preferisci"
 
-msgid "See the game library"
-msgstr "Vedi la libreria dei giochi"
+msgid "View library"
+msgstr "Vedi la ludoteca"
 
 msgid "All the games available at the event"
 msgstr "Tutti i giochi disponibili all'evento"
@@ -2098,6 +2143,9 @@ msgstr ""
 
 msgid "Close"
 msgstr "Chiudi"
+
+msgid "Library"
+msgstr "Ludoteca"
 
 #, python-format
 msgid "%(counter)s game in the library"
@@ -2231,9 +2279,6 @@ msgstr "Nessuna data aggiunta ancora."
 msgid "Add date"
 msgstr "Aggiungi data"
 
-msgid "Game library"
-msgstr "Libreria dei giochi"
-
 msgid "Add game"
 msgstr "Aggiungi Gioco"
 
@@ -2247,7 +2292,7 @@ msgid "No tags yet."
 msgstr "Ancora nessun tag."
 
 msgid "Create them on the library page."
-msgstr "Creali dalla pagina della libreria."
+msgstr "Creali dalla pagina della ludoteca."
 
 msgid "Sponsor locations that have this game"
 msgstr "Location sponsor che hanno questo gioco"
@@ -2265,17 +2310,20 @@ msgid "Danger zone"
 msgstr "Zona Pericolosa"
 
 msgid "Remove from library"
-msgstr "Rimuovi dalla libreria"
+msgstr "Rimuovi dalla ludoteca"
 
 msgid "Remove game"
 msgstr "Rimuovi gioco"
 
 #, python-format
 msgid "Remove «%(name)s» from the library?"
-msgstr "Rimuovere «%(name)s» dalla libreria?"
+msgstr "Rimuovere «%(name)s» dalla ludoteca?"
 
 msgid "Remove"
 msgstr "Rimuovi"
+
+msgid "Public library"
+msgstr "Ludoteca pubblica"
 
 msgctxt "game library"
 msgid "Visible"
@@ -2289,17 +2337,17 @@ msgid ""
 "Visitors can browse the library from the event page, which also shows the "
 "games with a tag flagged for it."
 msgstr ""
-"I visitatori possono sfogliare la libreria dalla pagina evento, che mostra "
+"I visitatori possono sfogliare la ludoteca dalla pagina evento, che mostra "
 "anche i giochi con un tag da mettere in evidenza."
 
 msgid "View public page"
 msgstr "Vedi pagina pubblica"
 
 msgid ""
-"Turn this on to show the library on the event page. Until then only managers "
-"can see it."
+"Turn this on to show the library on the event page. Until then only "
+"managers can see it."
 msgstr ""
-"Attivala per mostrare la libreria nella pagina evento. Fino ad allora può "
+"Attivala per mostrare la ludoteca nella pagina evento. Fino ad allora può "
 "vederla solo chi gestisce l'evento."
 
 msgid "Preview"
@@ -2309,7 +2357,7 @@ msgid "No games yet"
 msgstr "Ancora nessun gioco"
 
 msgid "Add the first game to the library."
-msgstr "Aggiungi il primo gioco alla libreria."
+msgstr "Aggiungi il primo gioco alla ludoteca."
 
 msgid ""
 "Only the managers can see this event. Publish it to make it visible to "
@@ -2379,8 +2427,8 @@ msgstr[1] "%(n)s categorie configurate"
 #, python-format
 msgid "%(n)s game in the library"
 msgid_plural "%(n)s games in the library"
-msgstr[0] "%(n)s gioco in libreria"
-msgstr[1] "%(n)s giochi in libreria"
+msgstr[0] "%(n)s gioco in ludoteca"
+msgstr[1] "%(n)s giochi in ludoteca"
 
 #, python-format
 msgid "%(n)s station configured"
@@ -2677,8 +2725,8 @@ msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
 
 #, python-format
-msgid "Games – %(name)s"
-msgstr "Giochi - %(name)s"
+msgid "Library – %(name)s"
+msgstr "Ludoteca – %(name)s"
 
 msgid "Game info"
 msgstr "Info sul gioco"
@@ -2858,11 +2906,8 @@ msgstr "Giochi più giocati"
 msgid "No games played at this location."
 msgstr "Nessun gioco giocato in questa location."
 
-msgid "See all games"
-msgstr "Vedi tutti i giochi"
-
 msgid "Add your games to the library"
-msgstr "Popola la libreria dei giochi"
+msgstr "Aggiungi i tuoi giochi alla ludoteca"
 
 msgid "Stats"
 msgstr "Statistiche"
@@ -2951,6 +2996,44 @@ msgstr "Conferma dopo aver ritirato il gioco in sede."
 
 msgid "Confirm pickup"
 msgstr "Conferma il ritiro"
+
+msgid "Restore to library"
+msgstr "Ripristina in ludoteca"
+
+msgid "Last recorded withdrawal"
+msgstr "Ultima uscita registrata"
+
+msgid "This game was withdrawn without a date or reason."
+msgstr "Questo gioco è uscito dalla ludoteca senza data o motivo registrati."
+
+msgid "Restore this game to the library?"
+msgstr "Ripristinare questo gioco in ludoteca?"
+
+msgid ""
+"The last withdrawal details will remain in the game entry. A new withdrawal "
+"will replace them."
+msgstr ""
+"I dati dell’ultima uscita resteranno nella scheda del gioco. Una nuova "
+"uscita li sostituirà."
+
+msgid "Confirm restore"
+msgstr "Conferma ripristino"
+
+msgid "Edit withdrawal"
+msgstr "Modifica uscita"
+
+msgid "Record withdrawal"
+msgstr "Registra uscita"
+
+msgid ""
+"The game will move to Withdrawn games and be removed from the public "
+"library."
+msgstr ""
+"Il gioco passerà tra i giochi usciti e verrà rimosso dalla ludoteca "
+"pubblica."
+
+msgid "Confirm withdrawal"
+msgstr "Conferma uscita"
 
 msgid "On loan"
 msgstr "In prestito"
@@ -3100,6 +3183,9 @@ msgstr ""
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
 
+msgid "Withdrawn games"
+msgstr "Giochi usciti"
+
 msgid "Game loans"
 msgstr "Prestiti"
 
@@ -3112,17 +3198,12 @@ msgstr "In ritardo"
 msgid "Record return"
 msgstr "Registra restituzione"
 
-msgid "Game archive"
-msgstr "Archivio"
+msgid "Record the return before withdrawing this game."
+msgstr ""
+"Registra la restituzione prima dell’uscita di questo gioco dalla ludoteca."
 
-msgid "Record the return before archiving this game."
-msgstr "Registra la restituzione prima di archiviare questo gioco."
-
-msgid "Restore to library"
-msgstr "Ripristina in ludoteca"
-
-msgid "Archive game"
-msgstr "Archivia gioco"
+msgid "Open library entry"
+msgstr "Apri la scheda nella ludoteca"
 
 msgid ""
 "To specify a member as the game owner, activate membership requests for your "
@@ -3133,6 +3214,13 @@ msgstr ""
 
 msgid "Go to the Members page"
 msgstr "Vai alla pagina Soci"
+
+msgid "Delete incorrect entry"
+msgstr "Elimina voce errata"
+
+#, python-format
+msgid "Permanently delete the library entry for «%(name)s»?"
+msgstr "Eliminare definitivamente la voce di «%(name)s» dalla ludoteca?"
 
 msgid "Loan status"
 msgstr "Stato del prestito"
@@ -3154,6 +3242,9 @@ msgstr "Nessun prestito corrisponde al filtro."
 
 msgid "Loan settings"
 msgstr "Impostazioni dei prestiti"
+
+msgid "Current games"
+msgstr "Giochi presenti"
 
 msgid ""
 "Visitors can browse your games from the location page. Owners, members and "
@@ -3178,11 +3269,14 @@ msgstr "Scarica CSV"
 msgid "Import from BoardGameGeek"
 msgstr "Importa da BoardGameGeek"
 
+msgid "No withdrawn games yet."
+msgstr "Nessun gioco uscito dalla ludoteca."
+
 msgid "Or import a collection from BoardGameGeek."
 msgstr "Oppure importa una collezione da BoardGameGeek."
 
 msgid "Only managers see them: they don't appear on the public library."
-msgstr "Li vedono solo i gestori: non compaiono nella libreria pubblica."
+msgstr "Li vedono solo i gestori: non compaiono nella ludoteca pubblica."
 
 msgid ""
 "Add to the library the games a BoardGameGeek user marks as owned. The "
@@ -3235,11 +3329,11 @@ msgstr "Importati %%(done)s di %%(total)s…"
 
 #, python-format
 msgid ""
-"Done: %%(added)s added, %%(skipped)s already in the library, %%(failed)s "
-"failed."
+"Done: %%(added)s added, %%(skipped)s already in the library, %%(archived)s "
+"withdrawn, %%(failed)s failed."
 msgstr ""
-"Fatto: %%(added)s aggiunti, %%(skipped)s già in ludoteca, %%(failed)s non "
-"riusciti."
+"Fatto: %%(added)s aggiunti, %%(skipped)s già in ludoteca, %%(archived)s "
+"usciti dalla ludoteca, %%(failed)s non riusciti."
 
 msgid "Imported"
 msgstr "Importato"
@@ -3259,8 +3353,8 @@ msgstr "Gestisci le affiliazioni nazionali di questa location"
 msgid "Add, remove managers and transfer ownership"
 msgstr "Aggiungi, rimuovi manager e trasferisci l'ownership"
 
-msgid "Manage the location's game library"
-msgstr "Gestisci la libreria dei giochi dell'associazione"
+msgid "Manage the location's library"
+msgstr "Gestisci la ludoteca dell’associazione"
 
 msgid "Assign stations"
 msgstr "Assegna postazioni"
@@ -3487,6 +3581,9 @@ msgstr "Carica"
 
 msgid "Delete document"
 msgstr "Elimina documento"
+
+msgid "Archived"
+msgstr "Archiviato"
 
 msgid "Add an affiliation"
 msgstr "Aggiungi un’affiliazione"
@@ -4931,21 +5028,21 @@ msgid "Category removed."
 msgstr "Categoria rimossa."
 
 msgid "The game library is now visible on the event page."
-msgstr "La libreria dei giochi ora è visibile nella pagina evento."
+msgstr "La ludoteca ora è visibile nella pagina evento."
 
 msgid "The game library is now hidden from the event page."
-msgstr "La libreria dei giochi ora è nascosta dalla pagina evento."
+msgstr "La ludoteca ora è nascosta dalla pagina evento."
 
 #, python-format
 msgid "Game «%(name)s» added to the library."
-msgstr "Gioco %(name)s aggiunto alla libreria"
+msgstr "Gioco %(name)s aggiunto alla ludoteca"
 
 msgid "Game updated."
 msgstr "Gioco aggiornato."
 
 #, python-format
 msgid "Game «%(name)s» removed from the library."
-msgstr "Gioco %(name)s rimosso dalla libreria"
+msgstr "Gioco %(name)s rimosso dalla ludoteca"
 
 msgid "Tag added."
 msgstr "Tag aggiunto."
@@ -5197,11 +5294,20 @@ msgstr "Gioco aggiornato con successo."
 msgid "Import from BGG – %(name)s"
 msgstr "Importa da BGG – %(name)s"
 
-msgid "Game archived."
-msgstr "Gioco archiviato."
+msgid "This entry has changed. Reload it before saving."
+msgstr "Questa voce è stata modificata. Ricaricala prima di salvare."
 
 msgid "Game restored to the library."
 msgstr "Gioco ripristinato in ludoteca."
+
+msgid "Withdrawal details updated."
+msgstr "Dati dell’uscita aggiornati."
+
+msgid "Game withdrawn from the library."
+msgstr "Gioco uscito dalla ludoteca."
+
+msgid "Restore the game before deleting its entry."
+msgstr "Ripristina il gioco prima di eliminarne la voce."
 
 msgid "This game cannot be removed because it has loan history."
 msgstr ""
@@ -5281,7 +5387,9 @@ msgid "Wrong password."
 msgstr "Password errata."
 
 msgid "We sent a link to the new address: open it to confirm the change."
-msgstr "Abbiamo inviato un link al nuovo indirizzo: aprilo per confermare la modifica."
+msgstr ""
+"Abbiamo inviato un link al nuovo indirizzo: aprilo per confermare la "
+"modifica."
 
 msgid "Email updated successfully."
 msgstr "Email aggiornata con successo."
@@ -5522,6 +5630,37 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "This game is archived."
+#~ msgstr "Questo gioco è archiviato."
+
+#~ msgid "See the game library"
+#~ msgstr "Vedi la libreria dei giochi"
+
+#, python-format
+#~ msgid "Games – %(name)s"
+#~ msgstr "Giochi - %(name)s"
+
+#~ msgid "Out of the catalog"
+#~ msgstr "Usciti dal catalogo"
+
+#~ msgid "See all games"
+#~ msgstr "Vedi tutti i giochi"
+
+#~ msgid "Catalog"
+#~ msgstr "Catalogo"
+
+#~ msgid "Open archived entry"
+#~ msgstr "Apri la scheda per ripristinare"
+
+#~ msgid "Current catalog"
+#~ msgstr "Catalogo corrente"
+
+#~ msgid "No games have left the catalog yet."
+#~ msgstr "Nessun gioco è ancora uscito dal catalogo."
+
+#~ msgid "Game removed from the current catalog."
+#~ msgstr "Gioco uscito dal catalogo corrente."
+
 #~ msgid "From:"
 #~ msgstr "Da:"
 
@@ -5530,6 +5669,12 @@ msgstr "Collega account"
 #~ msgstr ""
 #~ "Nel giorno selezionato non ci sono tavoli prenotabili per i filtri "
 #~ "selezionati."
+
+#~ msgid "Game archive"
+#~ msgstr "Archivio"
+
+#~ msgid "Archive game"
+#~ msgstr "Archivia gioco"
 
 #~ msgid "New event to approve"
 #~ msgstr "Nuovo evento da approvare"

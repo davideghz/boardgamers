@@ -230,7 +230,7 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
             'is_paginated': page_obj.has_other_pages(),
             'is_concluded': is_concluded,
             'meta': Meta(
-                title=_("Games – %(name)s") % {'name': event.name},
+                title=_("Library – %(name)s") % {'name': event.name},
                 description=_("Board games available at %(name)s.") % {'name': event.name},
             ),
         })

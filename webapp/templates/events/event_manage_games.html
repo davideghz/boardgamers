@@ -6,7 +6,7 @@
 
   <div class="mb-6">
     {% back_link 'event-manage' event.slug label=_("Manage") %}
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Game library" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Library" %}</h1>
   </div>
 
   {# ── Public game library toggle ─────────────────────────────────────── #}
@@ -17,7 +17,7 @@
                   {% if event.enable_public_games %}border-green-200 bg-green-50{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
       <div>
         <p class="text-sm font-semibold text-content">
-          {% trans "Public game library" %}
+          {% trans "Public library" %}
           {% if event.enable_public_games %}
             <span class="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% translate "Visible" context "game library" %}</span>
           {% else %}
