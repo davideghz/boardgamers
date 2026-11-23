@@ -18,7 +18,7 @@ import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from webapp.services.telegram import TELEGRAM_API_BASE
+from webapp.services.telegram import TELEGRAM_API_BASE, redact_token
 
 COMMANDS = {
     None: [
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                     timeout=10,
                 )
             except requests.RequestException as error:
-                self.stdout.write(self.style.ERROR(f"[{label}] request failed: {error}"))
+                self.stdout.write(self.style.ERROR(f"[{label}] request failed: {redact_token(error)}"))
                 continue
 
             if response.ok:
@@ -147,7 +147,7 @@ class Command(BaseCommand):
                 timeout=10,
             )
         except requests.RequestException as error:
-            self.stdout.write(self.style.ERROR(f"request failed: {error}"))
+            self.stdout.write(self.style.ERROR(f"request failed: {redact_token(error)}"))
             return None
 
         if not response.ok:

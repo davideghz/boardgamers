@@ -2,6 +2,8 @@ from .settings import *
 import dj_database_url
 import sentry_sdk
 
+from .sentry import scrub_secret
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -54,7 +56,9 @@ def _sentry_before_send(event, hint):
         message = record.getMessage()
         if message.startswith('Request failed with 400') and 'invalid_grant' in message:
             return None
-    return event
+    # The bot token is part of every Bot API URL: keep it out of messages,
+    # breadcrumbs and stack frame variables.
+    return scrub_secret(event, TELEGRAM_BOT_TOKEN)
 
 
 sentry_sdk.init(
