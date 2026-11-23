@@ -33,7 +33,7 @@ gunicorn==25.0.3
 idna==3.15
 jmespath==1.0.1
 maxminddb==2.6.3
-mistune==3.3.3
+mistune==3.3.4
 multidict==6.9.1
 nh3==0.3.3
 oauthlib==4.0.1
