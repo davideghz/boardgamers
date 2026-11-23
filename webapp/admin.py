@@ -329,15 +329,6 @@ class LocationGameAdmin(LoanRelatedAdminMixin, admin.ModelAdmin):
     list_filter = ('location', 'ownership', 'physical_location', 'is_archived', 'withdrawal_reason')
     search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')
     filter_horizontal = ('tags',)
-    readonly_fields = ('is_archived', 'withdrawn_on', 'withdrawal_reason', 'withdrawal_note')
-
-    def get_readonly_fields(self, request, obj=None):
-        fields = tuple(super().get_readonly_fields(request, obj))
-        if obj and (obj.is_archived or obj.loans.exists()):
-            fields += ('location', 'game')
-            if obj.loans.filter(returned_at__isnull=True).exists():
-                fields += ('ownership', 'owner_member', 'physical_location')
-        return fields
 
 
 @admin.register(LocationGameTag)

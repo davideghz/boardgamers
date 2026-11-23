@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 
-from webapp.factories import GameFactory, LocationFactory, TableFactory, UserProfileFactory
-from webapp.models import LocationGame, LocationGameTag
+from webapp.factories import GameFactory, LocationFactory, SuperUserProfileFactory, TableFactory, UserProfileFactory
+from webapp.models import LocationGame, LocationGameTag, Member
 from webapp.services.games import merge_games
 
 
@@ -267,3 +267,38 @@ class LocationGameWithdrawalTest(TestCase):
                 self.assertEqual(self.entry.withdrawn_on, self.today)
                 self.assertEqual(self.entry.withdrawal_reason, LocationGame.WithdrawalReason.LOST)
                 self.assertEqual(self.entry.withdrawal_note, 'Latest withdrawal')
+
+    def test_admin_can_edit_all_fields_of_an_archived_entry(self):
+        self.client.post(self.archive_url, self.withdrawal)
+        admin_profile = SuperUserProfileFactory()
+        self.client.force_login(admin_profile.user)
+        destination = LocationFactory()
+        replacement = GameFactory()
+        owner = Member.objects.create(location=destination, first_name='Ada', last_name='Rossi')
+        tag = LocationGameTag.objects.create(location=destination, name='Updated tag')
+        admin_url = reverse('admin:webapp_locationgame_change', args=[self.entry.pk])
+        response = self.client.get(admin_url)
+        self.assertEqual(response.status_code, 200)
+        data = {
+            'location': destination.pk, 'game': replacement.pk, 'ownership': LocationGame.OWNED_BY_MEMBER,
+            'owner_member': owner.pk, 'physical_location': LocationGame.AT_HOME, 'is_archived': '',
+            'withdrawn_on': (self.today - timedelta(days=3)).isoformat(),
+            'withdrawal_reason': LocationGame.WithdrawalReason.RETURNED_TO_MEMBER,
+            'withdrawal_note': 'Corrected withdrawal', 'notes': 'Corrected inventory note', 'tags': [tag.pk],
+            '_save': 'Save',
+        }
+        for field in data.keys() - {'_save'}:
+            self.assertIn(field, response.context['adminform'].form.fields)
+        self.assertRedirects(self.client.post(admin_url, data), reverse('admin:webapp_locationgame_changelist'))
+        self.entry.refresh_from_db()
+        self.assertFalse(self.entry.is_archived)
+        self.assertEqual(self.entry.location_id, destination.pk)
+        self.assertEqual(self.entry.game_id, replacement.pk)
+        self.assertEqual(self.entry.ownership, LocationGame.OWNED_BY_MEMBER)
+        self.assertEqual(self.entry.owner_member_id, owner.pk)
+        self.assertEqual(self.entry.physical_location, LocationGame.AT_HOME)
+        self.assertEqual(self.entry.withdrawn_on.isoformat(), data['withdrawn_on'])
+        self.assertEqual(self.entry.withdrawal_reason, data['withdrawal_reason'])
+        self.assertEqual(self.entry.withdrawal_note, data['withdrawal_note'])
+        self.assertEqual(self.entry.notes, data['notes'])
+        self.assertEqual(list(self.entry.tags.all()), [tag])
