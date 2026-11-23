@@ -264,7 +264,7 @@ class CoverUploadFormsTest(TestCase):
                     **data, 'max_players': 1, 'custom_cover-clear': 'on',
                 })
                 checkbox = re.search(r'<input\b[^>]*name="custom_cover-clear"[^>]*>', response.text)[0]
-                preview = re.search(r'<img\b[^>]*id="cover-preview"[^>]*>', response.text)[0]
+                preview = re.search(r'<img\b[^>]*data-cover-image[^>]*>', response.text)[0]
                 self.assertIn('checked', checkbox)
                 self.assertIn('hidden', preview)
 
