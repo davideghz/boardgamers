@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
@@ -14,9 +15,11 @@ from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services.game_loans import active_members, default_loan_due_date
-from webapp.services.images import COVER_MAX_SIDE, validate_network_logo
+from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, COVER_UPLOAD_MAX_JPEG_PIXELS, COVER_UPLOAD_MAX_PIXELS, \
+    validate_network_logo
 
 from django.urls import reverse
+from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -258,16 +261,23 @@ class TailwindForm(Form):
                 field.widget.attrs['class'] = _TW_INPUT_ERR + css[len(_TW_INPUT):]
 
 
-#: Maximum allowed size for a table's custom cover image.
-CUSTOM_COVER_MAX_SIZE = 200 * 1024  # 200 KB
-
-
 def validate_custom_cover_size(cover):
-    """Reject freshly uploaded cover images larger than the allowed size.
+    """Reject freshly uploaded cover images over the allowed file size or pixel count.
     An unchanged existing image is a FieldFile without a fresh upload and is
     left untouched."""
-    if cover and hasattr(cover, 'size') and cover.size > CUSTOM_COVER_MAX_SIZE:
-        raise ValidationError(_("The image is too large (max 200 KB)."))
+    if isinstance(cover, UploadedFile) and cover.size > COVER_UPLOAD_MAX_BYTES:
+        raise ValidationError(_("The image is too large (max %(size)s).") % {
+            'size': filesizeformat(COVER_UPLOAD_MAX_BYTES),
+        })
+    # ImageField.to_python sets `image` on new uploads, never on saved files.
+    image = getattr(cover, 'image', None) if isinstance(cover, UploadedFile) else None
+    if image is not None:
+        is_jpeg = image.format in ('JPEG', 'MPO')
+        max_pixels = COVER_UPLOAD_MAX_JPEG_PIXELS if is_jpeg else COVER_UPLOAD_MAX_PIXELS
+        if image.width * image.height > max_pixels:
+            raise ValidationError(_("The image has too many pixels (max %(max)s megapixels).") % {
+                'max': max_pixels // 1_000_000,
+            })
     return cover
 
 
@@ -344,6 +354,7 @@ class TableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, location=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['custom_cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         self.staff_assigned_station = False
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
@@ -472,6 +483,7 @@ class EventTableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, event=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['custom_cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         if event is not None:
             dates = event.dates.order_by('date')
             self.fields['date'].widget = Select(
@@ -669,6 +681,7 @@ class LocationForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['cover'].required = False
+        self.fields['cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         self.fields['cover'].widget = FileInput(attrs={
             'class': 'sr-only peer',
             'aria-describedby': 'location-cover-help',
@@ -676,6 +689,9 @@ class LocationForm(ModelForm, TailwindForm):
         })
         self.fields['opening_hours'].required = False
         self.fields['opening_hours'].widget = HiddenInput()
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
 
 
 class LocationManageDataForm(LocationForm):
@@ -791,8 +807,12 @@ class EventForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['cover'].required = False
+        self.fields['cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
         _enhance_phone_widget(self.fields['phone'])
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
 
 
 class EventManageDataForm(EventForm):
