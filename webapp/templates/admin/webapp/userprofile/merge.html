@@ -3,27 +3,53 @@
 
 {% block content %}
   {% if error %}<p class="errornote" role="alert">{{ error }}</p>{% endif %}
-  <p>{% translate "The selected profile keeps its public URL, account credentials and settings. Linked records and social logins are transferred. The other profile and its login account are permanently deleted." %}</p>
-  {% if allowed %}
+  <p>{% translate "The selected account keeps its password and profile settings. If it has no email, it takes the other account’s email and verification status. The other account is permanently deleted after its profile data and social logins from missing providers are transferred." %}</p>
+  <p>{% translate "If the account you keep has no password, the user can sign in with a linked social account and set a password in their account settings." %}</p>
+  {% if shared_providers %}
+    {% with providers=shared_providers|join:", " %}
+      <ul class="messagelist"><li class="warning" role="alert">{% blocktranslate %}Both accounts have logins with these providers: {{ providers }}. Only the selected account’s logins for these providers are kept.{% endblocktranslate %}</li></ul>
+    {% endwith %}
+  {% endif %}
     <form method="post">
       {% csrf_token %}
       <input type="hidden" name="a" value="{{ profiles.0.pk }}">
       <input type="hidden" name="b" value="{{ profiles.1.pk }}">
       <fieldset class="module aligned">
-        <legend>{% translate "Choose the profile to keep." %}</legend>
-        {% for profile in profiles %}
+        <legend>{% translate "Choose the account to keep." %}</legend>
+        {% for account in accounts %}
+          {% with profile=account.profile %}
           <div class="form-row">
             <label>
-              <input type="radio" name="keep" value="{{ profile.pk }}" required{% if keeper.pk == profile.pk %} checked{% endif %}>
-              {{ profile.nickname }} · /users/{{ profile.slug }}/ · {{ profile.user.username }}{% if profile.user.email %} · {{ profile.user.email }}{% endif %}
+              <input type="radio" name="keep" value="{{ profile.pk }}" required{% if keeper.pk == profile.pk %} checked{% endif %}{% if not allowed %} disabled{% endif %}>
+              {{ profile.nickname }} · /users/{{ profile.slug }}/ · {{ profile.user.username }}
             </label>
+            <dl>
+              <dt>{% translate "Email" %}</dt>
+              <dd>
+                {% if profile.user.email %}
+                  {{ profile.user.email }} ({% if profile.is_email_verified %}{% translate "Verified" %}{% else %}{% translate "Unverified" %}{% endif %})
+                {% else %}—{% endif %}
+              </dd>
+              <dt>{% translate "Usable password" %}</dt>
+              <dd>{% if account.has_password %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</dd>
+              <dt>{% translate "Social logins" %}</dt>
+              <dd>{% for login in account.logins %}{{ login.provider }} ({{ login.uid }}){% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+              <dt>{% translate "Last login" %}</dt>
+              <dd>{{ profile.user.last_login|default_if_none:"—" }}</dd>
+              <dt>{% translate "Tables created" %}</dt>
+              <dd>{{ profile.created_tables.count }}</dd>
+              <dt>{% translate "Locations created" %}</dt>
+              <dd>{{ profile.locations.count }}</dd>
+            </dl>
           </div>
+          {% endwith %}
         {% endfor %}
       </fieldset>
-      <div class="submit-row">
-        <input type="submit" class="default" value="{% translate 'Confirm merge' %}">
-      </div>
+      {% if allowed %}
+        <div class="submit-row">
+          <input type="submit" class="default" value="{% translate 'Confirm merge' %}">
+        </div>
+      {% endif %}
     </form>
-  {% endif %}
   <p><a href="{% url 'admin:webapp_userprofile_changelist' %}">{% translate "Back to profiles" %}</a></p>
 {% endblock %}

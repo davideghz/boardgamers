@@ -69,11 +69,11 @@ class UserProfileAdmin(admin.ModelAdmin):
     def has_merge_permission(self, request):
         return request.user.is_superuser
 
-    @admin.action(permissions=["merge"], description=_("Merge the two selected profiles"))
+    @admin.action(permissions=["merge"], description=_("Merge accounts"))
     def merge_profiles_action(self, request, queryset):
         ids = list(queryset.order_by('pk').values_list('pk', flat=True)[:3])
         if len(ids) != 2:
-            self.message_user(request, _("Select exactly two profiles to merge."), messages.ERROR)
+            self.message_user(request, _("Select exactly two accounts to merge."), messages.ERROR)
             return None
         url = reverse('admin:webapp_userprofile_merge')
         return redirect(f'{url}?a={ids[0]}&b={ids[1]}')
@@ -94,7 +94,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         except (TypeError, ValueError):
             profiles = []
         if len(profiles) != 2:
-            self.message_user(request, _("Select two different profiles that still exist."), messages.ERROR)
+            self.message_user(request, _("Select two different accounts that still exist."), messages.ERROR)
             return redirect('admin:webapp_userprofile_changelist')
 
         keeper = next((profile for profile in profiles if str(profile.pk) == data.get('keep')), None)
@@ -109,11 +109,11 @@ class UserProfileAdmin(admin.ModelAdmin):
         try:
             if allowed and request.method == 'POST':
                 if keeper is None:
-                    raise ValidationError(_("Choose the profile to keep."))
+                    raise ValidationError(_("Choose the account to keep."))
                 duplicate = next(profile for profile in profiles if profile.pk != keeper.pk)
                 with transaction.atomic():
-                    keeper = profile_merge.merge_profiles(keeper.pk, duplicate.pk)
-                    summary = _("Merged profile %(duplicate)s into %(keeper)s.") % {
+                    keeper = profile_merge.merge_accounts(keeper.pk, duplicate.pk)
+                    summary = _("Merged account %(duplicate)s into %(keeper)s.") % {
                         'duplicate': f'{duplicate.slug} (#{duplicate.pk})',
                         'keeper': f'{keeper.slug} (#{keeper.pk})',
                     }
@@ -125,11 +125,22 @@ class UserProfileAdmin(admin.ModelAdmin):
         except IntegrityError:
             error = _("A database conflict prevented the merge. No changes were saved.")
 
+        accounts = [
+            {
+                'profile': profile,
+                'has_password': profile_merge.has_password(profile.user),
+                'logins': list(profile.user.social_auth.order_by('provider', 'pk')),
+            }
+            for profile in profiles
+        ]
+        first, second = ({login.provider for login in account['logins']} for account in accounts)
         return TemplateResponse(request, 'admin/webapp/userprofile/merge.html', {
             **self.admin_site.each_context(request),
             'opts': self.model._meta,
-            'title': _("Merge profiles"),
+            'title': _("Merge accounts"),
             'profiles': profiles,
+            'accounts': accounts,
+            'shared_providers': sorted(first & second),
             'keeper': keeper,
             'error': error,
             'allowed': allowed,

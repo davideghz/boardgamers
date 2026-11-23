@@ -5893,33 +5893,67 @@ msgstr "Si possono unire solo account attivi senza ruoli o permessi di amministr
 msgid "Both profiles have different player records on table #%(table)s. Resolve them before merging."
 msgstr "I due profili hanno dati di partecipazione diversi al tavolo #%(table)s. Risolvi il conflitto prima di unire i profili."
 
-msgid "Select two different profiles that still exist."
-msgstr "Seleziona due profili diversi ancora esistenti."
+msgid "Select two different accounts that still exist."
+msgstr "Seleziona due account diversi ancora esistenti."
 
 msgid "The duplicate still has linked records that could not be transferred."
 msgstr "Il duplicato ha ancora dati collegati che non è stato possibile trasferire."
 
-msgid "Merge the two selected profiles"
-msgstr "Unisci i due profili selezionati"
+msgid "Select exactly two accounts to merge."
+msgstr "Seleziona esattamente due account da unire."
 
-msgid "Select exactly two profiles to merge."
-msgstr "Seleziona esattamente due profili da unire."
-
-msgid "Choose the profile to keep."
-msgstr "Scegli il profilo da conservare."
+msgid "Choose the account to keep."
+msgstr "Scegli l’account da conservare."
 
 #, python-format
-msgid "Merged profile %(duplicate)s into %(keeper)s."
-msgstr "Il profilo %(duplicate)s è stato unito a %(keeper)s."
+msgid "Merged account %(duplicate)s into %(keeper)s."
+msgstr "L’account %(duplicate)s è stato unito a %(keeper)s."
 
 msgid "A database conflict prevented the merge. No changes were saved."
 msgstr "Un conflitto nel database ha impedito l’unione. Nessuna modifica è stata salvata."
 
-msgid "Merge profiles"
-msgstr "Unisci profili"
+msgid "Merge accounts"
+msgstr "Unisci account"
 
-msgid "The selected profile keeps its public URL, account credentials and settings. Linked records and social logins are transferred. The other profile and its login account are permanently deleted."
-msgstr "Il profilo selezionato conserva URL pubblico, credenziali e impostazioni. I dati collegati e gli accessi social vengono trasferiti. L’altro profilo e il suo account di accesso vengono eliminati definitivamente."
+msgid "The selected account keeps its password and profile settings. If it has no email, it takes the other account’s email and verification status. The other account is permanently deleted after its profile data and social logins from missing providers are transferred."
+msgstr "L’account selezionato conserva la password e le impostazioni del profilo. Se è senza email, acquisisce l’indirizzo e lo stato di verifica dell’altro account. L’altro account viene eliminato definitivamente dopo il trasferimento dei dati del profilo e degli accessi social dei provider mancanti."
+
+msgid "If the account you keep has no password, the user can sign in with a linked social account and set a password in their account settings."
+msgstr "Se l’account conservato è senza password, l’utente può entrare con un accesso social collegato e impostare una password dalle impostazioni dell’account."
+
+#, python-format
+msgid "Both accounts have logins with these providers: %(providers)s. Only the selected account’s logins for these providers are kept."
+msgstr "Entrambi gli account hanno accessi con questi provider: %(providers)s. Per questi provider vengono conservati solo gli accessi dell’account selezionato."
+
+msgid "The email or username is already used by another account."
+msgstr "L’email o il nome utente è già in uso su un altro account."
+
+msgid "The email is too long to use as a username."
+msgstr "L’indirizzo email è troppo lungo per essere usato come nome utente."
+
+msgid "The merged account must have an email and at least one login method."
+msgstr "L’account risultante deve avere un’email e almeno un metodo di accesso."
+
+msgid "Verified"
+msgstr "Verificata"
+
+msgid "Unverified"
+msgstr "Non verificata"
+
+msgid "Usable password"
+msgstr "Password utilizzabile"
+
+msgid "Social logins"
+msgstr "Accessi social"
+
+msgid "Last login"
+msgstr "Ultimo accesso"
+
+msgid "Tables created"
+msgstr "Tavoli creati"
+
+msgid "Locations created"
+msgstr "Location create"
 
 msgid "Confirm merge"
 msgstr "Conferma unione"
