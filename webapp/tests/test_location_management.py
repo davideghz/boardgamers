@@ -95,6 +95,7 @@ class LocationManagementTest(TestCase):
         cover_url = re.escape(escape(self.location.cover.url))
         self.assertRegex(preview[1], rf'<img\b[^>]*\ssrc="{cover_url}"')
         self.assertContains(response, 'id="location-cover-dialog"')
+        self.assertContains(response, 'id="location-cover-edit"')
 
     def test_add_manager(self):
         new_manager = UserProfileFactory()

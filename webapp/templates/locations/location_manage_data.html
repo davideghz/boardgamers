@@ -29,7 +29,7 @@
       {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
     </div>
 
-    {% include "locations/_cover_field.html" %}
+    {% include 'partials/_cover_field.html' with field=form.cover variant="location" preview_ratio="square" crop_ratio="1" saved_image=form.initial.cover %}
 
     {# ── Address ─────────────────────────────────────────────────────── #}
     <div>

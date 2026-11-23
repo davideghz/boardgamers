@@ -50,6 +50,7 @@ class LocationCreateViewTest(TestCase):
         self.assertContains(response, 'aspect-ratio="1"')
         self.assertContains(response, 'Applica ritaglio')
         self.assertContains(response, "Inquadra tutta l'immagine")
+        self.assertContains(response, 'id="location-cover-edit"')
 
     def test_redirects_to_the_new_location_page(self):
         response = self._post()
