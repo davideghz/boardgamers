@@ -13,12 +13,14 @@ import hashlib
 import hmac
 import json
 import logging
+import time
 from datetime import datetime, timedelta, timezone as dt_timezone
 from urllib.parse import parse_qsl
 
 import requests
 from django.conf import settings
 from django.utils import timezone
+from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +32,38 @@ TELEGRAM_API_BASE = "https://api.telegram.org"
 INIT_DATA_MAX_AGE = timedelta(hours=24)
 
 
+# Pause before the single retry of a connection that could not be opened.
+RETRY_DELAY = 0.5
+
+
 # ── Bot API ───────────────────────────────────────────────────────────────────
+
+def redact_token(value):
+    """`value` as text, without the bot token: `requests` errors include the
+    URL, and every Bot API URL contains the token."""
+    token = settings.TELEGRAM_BOT_TOKEN
+    text = str(value)
+    return text.replace(token, '***') if token else text
+
+
+def _connection_not_opened(error):
+    """True if the request certainly never reached Telegram, so that sending it
+    again cannot post the message twice."""
+    if isinstance(error, requests.ConnectTimeout):
+        return True
+    cause = error.args[0] if error.args else None
+    return isinstance(cause, MaxRetryError) and isinstance(cause.reason, NewConnectionError)
+
+
+def _post(url, payload):
+    try:
+        return requests.post(url, json=payload, timeout=5)
+    except requests.ConnectionError as e:
+        if not _connection_not_opened(e):
+            raise
+    time.sleep(RETRY_DELAY)
+    return requests.post(url, json=payload, timeout=5)
+
 
 def send_message(chat_id, text, reply_markup=None, message_thread_id=None):
     """Send a message through the bot. Never raises: Telegram being down must
@@ -45,17 +78,13 @@ def send_message(chat_id, text, reply_markup=None, message_thread_id=None):
     if reply_markup:
         payload['reply_markup'] = reply_markup
     try:
-        resp = requests.post(
-            f"{TELEGRAM_API_BASE}/bot{token}/sendMessage",
-            json=payload,
-            timeout=5,
-        )
+        resp = _post(f"{TELEGRAM_API_BASE}/bot{token}/sendMessage", payload)
         if not resp.ok:
             logger.error("Telegram sendMessage error %s: %s", resp.status_code, resp.text)
         else:
             logger.info("Telegram sendMessage ok: %s", resp.text[:200])
     except Exception as e:
-        logger.error("Telegram sendMessage failed: %s", e)
+        logger.error("Telegram sendMessage failed: %s", redact_token(e))
 
 
 def miniapp_link(location):
