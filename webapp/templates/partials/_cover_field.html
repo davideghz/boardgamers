@@ -2,11 +2,16 @@
 {% comment %}
 Shared cover input. The field provides its prefixed name and ID, and
 saved_image is the file that was stored before the form was submitted.
+image_alt is the alternative text of the saved image (event variant only).
+
+The location variant also accepts crop_ratio (enables the crop editor),
+preview_ratio (Tailwind aspect name, "square" by default), preview_caption and
+help_text.
 {% endcomment %}
 {% with cover_id=field.id_for_label|default:field.html_name %}
 <div id="{{ cover_id }}-cover-field" data-cover-field class="{% if variant != "event" and variant != "location" %}space-y-3{% endif %}">
 {% if variant == "location" %}
-  {# --- Location: anteprima quadrata, selettore e ritaglio con Cropper.js --- #}
+  {# --- Locations: preview, picker and optional Cropper.js editor --- #}
   <figure id="{{ cover_id }}-preview" data-cover-preview class="mb-3 w-full max-w-40{% if not saved_image %} hidden{% endif %}">
     <div class="aspect-{{ preview_ratio|default:'square' }} overflow-hidden rounded-xl">
       <img data-cover-image class="w-full h-full object-cover" alt=""
@@ -31,13 +36,10 @@ saved_image is the file that was stored before the form was submitted.
   <p id="{{ cover_id }}-help" data-cover-help class="mt-1 text-xs text-content-muted">{% if help_text %}{{ help_text }}{% else %}{% trans "For the list, choose a square image. If it's a logo, leave some space around it." %}{% endif %}</p>
   <p class="mt-1 text-xs text-content-muted">{{ field.help_text }}</p>
 {% elif variant == "event" %}
-  {# --- Formazioni: selettore semplice con anteprima del file salvato --- #}
+  {# --- Events: simple picker with a preview of the saved file --- #}
   {% if saved_image %}
-    <img src="{{ saved_image.url }}" alt=""
+    <img src="{{ saved_image.url }}" alt="{{ image_alt }}"
          class="w-full h-40 object-cover rounded-xl mb-3">
-  {% endif %}
-  {% if preview_caption %}
-    <p class="text-xs text-content-muted -mt-1">{{ preview_caption }}</p>
   {% endif %}
   <label for="{{ field.id_for_label }}"
          class="flex items-center gap-2 w-full cursor-pointer rounded-xl border border-dashed border-divider px-4 py-3 text-sm text-content-muted hover:border-slate-400 hover:bg-surface-alt transition-colors">
@@ -45,9 +47,9 @@ saved_image is the file that was stored before the form was submitted.
     <span id="{{ cover_id }}-filename" data-cover-filename>{% trans "Choose an image…" %}</span>
     {{ field }}
   </label>
-  <p class="{% if variant == "event" %}mt-1 {% endif %}text-xs text-content-muted">{{ field.help_text }}</p>
+  <p class="mt-1 text-xs text-content-muted">{{ field.help_text }}</p>
 {% else %}
-  {# --- Tavoli: anteprima del file salvato, rimozione e selezione --- #}
+  {# --- Tables: preview of the saved file, removal and picker --- #}
   <p class="text-[11px] text-content-muted -mt-1">
     {% trans "Upload an image to show instead of the game cover." %} {{ field.help_text }}
   </p>
@@ -75,13 +77,13 @@ saved_image is the file that was stored before the form was submitted.
   <input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}" accept="image/*" class="hidden">
 {% endif %}
 
-{% if field.data %}<p data-cover-reselect class="{% if variant == "event" %}mt-1 {% endif %}text-xs text-content-muted">{% trans "Select the image again." %}</p>{% endif %}
+{% if field.data %}<p data-cover-reselect class="{% if variant == "event" or variant == "location" %}mt-1 {% endif %}text-xs text-content-muted">{% trans "Select the image again." %}</p>{% endif %}
 {% if field.errors %}
-  <p class="{% if variant == "event" %}mt-1 {% endif %}text-xs text-red-500">{{ field.errors|join:", " }}</p>
+  <p class="{% if variant == "event" or variant == "location" %}mt-1 {% endif %}text-xs text-red-500">{{ field.errors|join:", " }}</p>
 {% endif %}
 
 {% if variant == "location" and crop_ratio %}
-  {# --- Cropper: editor quadrato, upload su richiesta, originale come fallback --- #}
+  {# --- Crop editor: loaded on demand, the original file is the fallback --- #}
   <dialog id="{{ cover_id }}-dialog" data-cover-dialog aria-labelledby="{{ cover_id }}-dialog-title"
           class="m-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl border border-divider bg-surface p-4 text-content shadow-xl backdrop:bg-black/60">
     <h2 id="{{ cover_id }}-dialog-title" data-cover-dialog-title class="text-lg font-bold">{% trans "Crop image" %}</h2>
@@ -141,7 +143,11 @@ saved_image is the file that was stored before the form was submitted.
 
     input.addEventListener('change', function () {
       const file = input.files[0];
-      if (!file) return;
+      if (!file) {
+        // Table pages keep the last selection's preview, as before.
+        if (!image) filename.textContent = chooseImage;
+        return;
+      }
       filename.textContent = file.name;
       if (clear) clear.checked = false;
       if (reselect) reselect.hidden = true;

@@ -51,6 +51,7 @@ class LocationCreateViewTest(TestCase):
         self.assertContains(response, 'Applica ritaglio')
         self.assertContains(response, "Inquadra tutta l'immagine")
         self.assertContains(response, 'id="id_cover-edit"')
+        self.assertContains(response, 'Immagine di copertina')
 
     def test_redirects_to_the_new_location_page(self):
         response = self._post()

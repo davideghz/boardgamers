@@ -96,6 +96,7 @@ class LocationManagementTest(TestCase):
         self.assertRegex(preview[1], rf'<img\b[^>]*\ssrc="{cover_url}"')
         self.assertContains(response, 'id="id_cover-dialog"')
         self.assertContains(response, 'id="id_cover-edit"')
+        self.assertContains(response, 'Immagine di copertina')
 
     def test_add_manager(self):
         new_manager = UserProfileFactory()
