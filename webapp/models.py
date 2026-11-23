@@ -1428,7 +1428,7 @@ class LocationGame(DateTimeModel):
         max_length=20, choices=PHYSICAL_LOCATION_CHOICES, default=AT_ASSOCIATION,
         verbose_name=_('Physical Location')
     )
-    is_archived = models.BooleanField(default=False, verbose_name=_('Archived'))
+    is_archived = models.BooleanField(default=False, verbose_name=_('Withdrawn'))
     withdrawn_on = models.DateField(null=True, blank=True, verbose_name=_('Withdrawal date'))
     withdrawal_reason = models.CharField(
         max_length=20, choices=WithdrawalReason.choices, blank=True, verbose_name=_('Withdrawal reason'))

@@ -1177,7 +1177,7 @@ class LocationManageGamesView(LoginRequiredMixin, View):
             'show_archived': show_archived,
             'tags': location.game_tags.all(),
             'tag_form': LocationGameTagForm(location=location),
-            'meta': Meta(title=_("Games – %(name)s") % {'name': location.name}),
+            'meta': Meta(title=_("Library – %(name)s") % {'name': location.name}),
         })
 
 
@@ -1228,7 +1228,7 @@ class LocationGamesView(View):
             'page_obj': page_obj,
             'is_paginated': page_obj.has_other_pages(),
             'meta': Meta(
-                title=_("Games – %(name)s") % {'name': location.name},
+                title=_("Library – %(name)s") % {'name': location.name},
                 description=_("Board games available at %(name)s.") % {'name': location.name},
             ),
         })
@@ -1506,7 +1506,7 @@ class LocationGameArchiveView(LoginRequiredMixin, View):
         if action == 'restore':
             return self.render_page(request, location, location_game, restore=True)
         if action == 'archive' and game_loans.open_game_loans(location_game=location_game).exists():
-            messages.error(request, _('Record the return before archiving this game.'))
+            messages.error(request, _('Record the return before withdrawing this game.'))
             return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
         initial = None
         if action == 'update':
@@ -1538,13 +1538,13 @@ class LocationGameArchiveView(LoginRequiredMixin, View):
                 message = _('Game restored to the library.')
             else:
                 if action == 'archive' and game_loans.open_game_loans(location_game=location_game).exists():
-                    messages.error(request, _('Record the return before archiving this game.'))
+                    messages.error(request, _('Record the return before withdrawing this game.'))
                     return redirect('location-game-detail', slug=slug, game_uuid=game_uuid)
                 form = LocationGameWithdrawalForm(request.POST)
                 if not form.is_valid():
                     return self.render_page(request, location, location_game, form)
                 details = form.cleaned_data
-                message = _('Withdrawal details updated.') if action == 'update' else _('Game removed from the current catalog.')
+                message = _('Withdrawal details updated.') if action == 'update' else _('Game withdrawn from the library.')
             location.location_games.filter(pk=location_game.pk).update(
                 is_archived=action != 'restore', updated_at=timezone.now(), **details,
             )

@@ -5,7 +5,7 @@
 {% block content %}
 
   <div class="mb-6">
-    {% back_link 'event-manage-games' event.slug label=_("Game library") %}
+    {% back_link 'event-manage-games' event.slug label=_("Library") %}
     <h1 class="text-2xl font-extrabold text-content">
       {% if is_new %}{% trans "Add game" %}{% else %}{{ entry.game.name }}{% endif %}
     </h1>

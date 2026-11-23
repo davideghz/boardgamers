@@ -1200,7 +1200,7 @@ class LocationGameForm(ModelForm, TailwindForm):
             duplicate = duplicates.first()
             if duplicate and duplicate.is_archived:
                 self.archived_duplicate = duplicate
-                raise ValidationError(_('This game is out of the catalog. Open its entry to restore it.'))
+                raise ValidationError(_('This game has been withdrawn from the library. Open its entry to restore it.'))
             if duplicate:
                 raise ValidationError(_("This game is already in the library."))
         return game
@@ -1212,7 +1212,7 @@ class LocationGameForm(ModelForm, TailwindForm):
             cleaned['owner_member'] = None
         if self.instance.pk:
             if 'game' in self.changed_data and self.instance.is_archived:
-                self.add_error('game', _('The title of an archived entry cannot be changed.'))
+                self.add_error('game', _('The title of a withdrawn library entry cannot be changed.'))
             if 'game' in self.changed_data and self.instance.loans.exists():
                 raise ValidationError(_('A game with loan history cannot be replaced.'))
             if {'ownership', 'physical_location'} & set(self.changed_data):

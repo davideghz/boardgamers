@@ -45,7 +45,7 @@
 </ul>
 {% if library_conflicts %}
   <div class="merge-warning">
-    {% translate "These locations have both games in their library. Merging combines their notes and tags and keeps the title in the current catalog if either entry is active." %}
+    {% translate "These locations have both games in their library. Merging combines their notes and tags and keeps the title in the library if either entry is active." %}
     <ul>{% for entry in library_conflicts %}<li>{{ entry.location }}{% if entry.notes %} — {% translate "notes" %}: “{{ entry.notes|truncatechars:80 }}”{% endif %}</li>{% endfor %}</ul>
   </div>
 {% endif %}

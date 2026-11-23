@@ -7,7 +7,7 @@
   <div class="mb-6">
     {% back_link 'location-manage' location.slug label=_("Manage") %}
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
+      <h1 class="text-2xl font-extrabold text-content">{% trans "Library" %}</h1>
       <a href="{% url 'location-manage-game-loans' location.slug %}"
          class="rounded-full border border-divider bg-surface px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">
         {% trans "Game loans" %}
@@ -15,11 +15,11 @@
     </div>
   </div>
 
-  <nav class="mb-4 flex flex-wrap gap-2" aria-label="{% trans 'Catalog' %}">
+  <nav class="mb-4 flex flex-wrap gap-2" aria-label="{% trans 'Library' %}">
     <a href="{% url 'location-manage-games' location.slug %}" {% if not show_archived %}aria-current="page"{% endif %}
-       class="rounded-full px-4 py-2 text-sm font-semibold {% if not show_archived %}bg-elevated text-white{% else %}border border-divider text-content hover:bg-surface-alt{% endif %}">{% trans "Current catalog" %}</a>
+       class="rounded-full px-4 py-2 text-sm font-semibold {% if not show_archived %}bg-elevated text-white{% else %}border border-divider text-content hover:bg-surface-alt{% endif %}">{% trans "Current games" %}</a>
     <a href="{% url 'location-manage-games' location.slug %}?status=archived" {% if show_archived %}aria-current="page"{% endif %}
-       class="rounded-full px-4 py-2 text-sm font-semibold {% if show_archived %}bg-elevated text-white{% else %}border border-divider text-content hover:bg-surface-alt{% endif %}">{% trans "Out of the catalog" %}</a>
+       class="rounded-full px-4 py-2 text-sm font-semibold {% if show_archived %}bg-elevated text-white{% else %}border border-divider text-content hover:bg-surface-alt{% endif %}">{% trans "Withdrawn games" %}</a>
   </nav>
 
   {% if not show_archived %}
@@ -31,7 +31,7 @@
                   {% if location.enable_public_games %}border-green-200 bg-green-50{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
       <div>
         <p class="text-sm font-semibold text-content">
-          {% trans "Public game library" %}
+          {% trans "Public library" %}
           {% if location.enable_public_games %}
             <span class="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% translate "Visible" context "game library" %}</span>
           {% else %}
@@ -129,7 +129,7 @@
                 {% endif %}
                 {% if lg.is_archived %}
                   <span class="rounded-full bg-surface-input px-2 py-0.5 text-xs font-semibold text-content-muted">
-                    {% if lg.withdrawn_on %}{{ lg.get_withdrawal_reason_display }} · {{ lg.withdrawn_on|date:"DATE_FORMAT" }}{% else %}{% trans "Archived" %}{% endif %}
+                    {% if lg.withdrawn_on %}{{ lg.get_withdrawal_reason_display }} · {{ lg.withdrawn_on|date:"DATE_FORMAT" }}{% else %}{% trans "Withdrawn" %}{% endif %}
                   </span>
                 {% elif lg.is_on_loan %}
                   <span class="rounded-full bg-surface-input px-2 py-0.5 text-xs font-semibold text-content">{% trans "On loan" %}</span>
@@ -157,7 +157,7 @@
           </div>
         {% empty %}
           {% if show_archived %}
-            <p class="rounded-xl border border-divider bg-surface p-6 text-center text-sm text-content-muted">{% trans "No games have left the catalog yet." %}</p>
+            <p class="rounded-xl border border-divider bg-surface p-6 text-center text-sm text-content-muted">{% trans "No withdrawn games yet." %}</p>
           {% else %}
           <div class="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-divider bg-surface">
             <div class="w-12 h-12 rounded-full bg-surface-input flex items-center justify-center mb-3">

@@ -6,9 +6,9 @@
 
   <div class="mb-6">
     {% if location_game.is_archived %}
-      <a href="{% url 'location-manage-games' location.slug %}?status=archived" class="text-sm font-semibold text-blue-600 hover:underline">← {% trans "Out of the catalog" %}</a>
+      <a href="{% url 'location-manage-games' location.slug %}?status=archived" class="text-sm font-semibold text-blue-600 hover:underline">← {% trans "Withdrawn games" %}</a>
     {% else %}
-      {% back_link 'location-manage-games' location.slug label=_("Games") %}
+      {% back_link 'location-manage-games' location.slug label=_("Library") %}
     {% endif %}
     <h1 class="text-2xl font-extrabold text-content">
       {% if is_new %}{% trans "Add game" %}{% else %}{{ location_game.game.name }}{% endif %}
@@ -40,7 +40,7 @@
   {% if location_game %}
     <section class="mb-6 max-w-xl rounded-xl border border-divider bg-surface p-4">
       <h2 class="text-sm font-bold text-content">
-        {% if location_game.is_archived %}{% trans "Out of the catalog" %}{% elif location_game.has_withdrawal_details %}{% trans "Last recorded withdrawal" %}{% else %}{% trans "Catalog" %}{% endif %}
+        {% if location_game.is_archived %}{% trans "Withdrawn" %}{% elif location_game.has_withdrawal_details %}{% trans "Last recorded withdrawal" %}{% else %}{% trans "Library" %}{% endif %}
       </h2>
       {% if location_game.has_withdrawal_details %}
         <p class="mt-2 text-sm text-content">
@@ -48,7 +48,7 @@
         </p>
         {% if location_game.withdrawal_note %}<p class="mt-2 whitespace-pre-wrap break-words text-sm text-content-muted">{{ location_game.withdrawal_note }}</p>{% endif %}
       {% elif location_game.is_archived %}
-        <p class="mt-2 text-sm text-content-muted">{% trans "This game was archived without a date or reason." %}</p>
+        <p class="mt-2 text-sm text-content-muted">{% trans "This game was withdrawn without a date or reason." %}</p>
       {% endif %}
       {% if location_game.is_archived %}
         <div class="mt-3 flex flex-wrap gap-3">
@@ -58,10 +58,10 @@
              class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Restore to library" %}</a>
         </div>
       {% elif loan %}
-        <p class="mt-2 text-sm text-content-muted">{% trans "Record the return before archiving this game." %}</p>
+        <p class="mt-2 text-sm text-content-muted">{% trans "Record the return before withdrawing this game." %}</p>
       {% else %}
         <a href="{% url 'location-game-archive' location.slug location_game.uuid %}"
-           class="mt-3 inline-flex rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Record catalog withdrawal" %}</a>
+           class="mt-3 inline-flex rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Record withdrawal" %}</a>
       {% endif %}
     </section>
   {% endif %}
@@ -114,7 +114,7 @@
       </div>
       {% if form.archived_duplicate %}
         <a href="{% url 'location-game-detail' location.slug form.archived_duplicate.uuid %}"
-           class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">{% trans "Open archived entry" %}</a>
+           class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">{% trans "Open library entry" %}</a>
       {% endif %}
     </div>
 

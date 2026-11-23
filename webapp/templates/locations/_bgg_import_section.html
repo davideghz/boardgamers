@@ -33,7 +33,7 @@
         {% if item.status == 'in_library' %}
           <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Already in the library" %}</span>
         {% elif item.status == 'archived' %}
-          <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Out of the catalog" %}</span>
+          <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Withdrawn" %}</span>
         {% elif item.status == 'known' %}
           <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "On Board Gamers" %}</span>
         {% else %}

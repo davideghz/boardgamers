@@ -122,6 +122,6 @@ class PublicGamesPaginationTest(TestCase):
         detail = self.client.get(game_url)
         self.assertContains(detail, f'href="{escape(back_url)}"')
         with override(detail.wsgi_request.LANGUAGE_CODE):
-            label = gettext('Games – %(name)s') % {'name': self.location.name}
+            label = gettext('Library – %(name)s') % {'name': self.location.name}
         self.assertContains(detail, f'<span class="truncate">{escape(label)}</span>')
         self.assertEqual(self.client.get(back_url).context['page_obj'].number, 2)

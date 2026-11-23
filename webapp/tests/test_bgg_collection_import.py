@@ -246,7 +246,7 @@ class ImportViewsTest(TestCase):
         fetch.return_value = [{**item, 'is_expansion': False} for item in items]
 
         response = self.client.get(self.preview_url, {'username': 'someone'})
-        self.assertContains(response, '>Out of the catalog</span>', count=3)
+        self.assertContains(response, '>Withdrawn</span>', count=3)
         self.assertEqual(response.context['importable_count'], 0)
         self.assertEqual(self.batch(items).json(), {
             'added': [], 'skipped': [], 'archived': ['13', '230802', '822'], 'failed': [],

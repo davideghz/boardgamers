@@ -4,7 +4,7 @@
 {% block content %}
   <div class="mb-6">
     {% back_link 'location-game-detail' location.slug location_game.uuid label=location_game.game.name %}
-    <h1 class="text-2xl font-extrabold text-content">{% if location_game.is_archived %}{% trans "Edit withdrawal" %}{% else %}{% trans "Record catalog withdrawal" %}{% endif %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% if location_game.is_archived %}{% trans "Edit withdrawal" %}{% else %}{% trans "Record withdrawal" %}{% endif %}</h1>
   </div>
 
   <form method="post" class="max-w-xl space-y-4 rounded-xl border border-divider bg-surface p-4 sm:p-5">
@@ -12,7 +12,7 @@
     <input type="hidden" name="withdrawal_version" value="{{ withdrawal_version }}">
     <h2 class="break-words text-lg font-bold text-content">{{ location_game.game.name }}</h2>
     {% if not location_game.is_archived %}
-      <p class="text-sm text-content-muted">{% trans "The game will move to the archive and disappear from the public library." %}</p>
+      <p class="text-sm text-content-muted">{% trans "The game will move to Withdrawn games and be removed from the public library." %}</p>
     {% endif %}
     {% for field in form %}
       <div>

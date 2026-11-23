@@ -21,9 +21,9 @@
         {% if location_game.withdrawal_note %}<p class="mt-2 whitespace-pre-wrap break-words text-sm text-content-muted">{{ location_game.withdrawal_note }}</p>{% endif %}
       </div>
     {% else %}
-      <p class="text-sm text-content-muted">{% trans "This game was archived without a date or reason." %}</p>
+      <p class="text-sm text-content-muted">{% trans "This game was withdrawn without a date or reason." %}</p>
     {% endif %}
-    <p class="text-sm text-content">{% trans "Restore this game to the current catalog?" %}</p>
+    <p class="text-sm text-content">{% trans "Restore this game to the library?" %}</p>
     <p class="text-sm text-content-muted">{% trans "The last withdrawal details will remain in the game entry. A new withdrawal will replace them." %}</p>
     <div class="flex flex-wrap items-center gap-3">
       <button type="submit" name="confirmed" value="yes"

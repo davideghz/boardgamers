@@ -94,7 +94,7 @@ class LocationGameWithdrawalTest(TestCase):
             'physical_location': LocationGame.AT_ASSOCIATION,
         }
         response = self.client.post(self.url('location-add-game'), form_data)
-        self.assertContains(response, gettext('Open archived entry'))
+        self.assertContains(response, gettext('Open library entry'))
         self.assertContains(response, self.detail_url)
         self.assertEqual(self.location.location_games.count(), 1)
 
@@ -112,7 +112,7 @@ class LocationGameWithdrawalTest(TestCase):
 
     def test_legacy_archived_entry_can_be_restored(self):
         LocationGame.objects.filter(pk=self.entry.pk).update(is_archived=True)
-        self.assertContains(self.client.get(self.detail_url), gettext('This game was archived without a date or reason.'))
+        self.assertContains(self.client.get(self.detail_url), gettext('This game was withdrawn without a date or reason.'))
         self.assertRedirects(self.restore_entry(), self.detail_url)
         self.entry.refresh_from_db()
         self.assertFalse(self.entry.is_archived)

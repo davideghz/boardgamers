@@ -5,7 +5,7 @@
 {% block content %}
 
   <div class="mb-6">
-    {% back_link 'location-manage-games' location.slug label=_("Games") %}
+    {% back_link 'location-manage-games' location.slug label=_("Library") %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Import from BoardGameGeek" %}</h1>
     <p class="text-sm text-content-muted mt-1">
       {% trans "Add to the library the games a BoardGameGeek user marks as owned. The collection must be public." %}
@@ -117,10 +117,10 @@
       const BATCH_URL = '{% url "location-games-bgg-import-batch" location.slug %}';
       const MSG = {
         progress: '{% trans "Imported %(done)s of %(total)s…"|escapejs %}',
-        done: '{% trans "Done: %(added)s added, %(skipped)s already in the library, %(archived)s out of the catalog, %(failed)s failed."|escapejs %}',
+        done: '{% trans "Done: %(added)s added, %(skipped)s already in the library, %(archived)s withdrawn, %(failed)s failed."|escapejs %}',
         added: '{% trans "Imported"|escapejs %}',
         skipped: '{% trans "Already in the library"|escapejs %}',
-        archived: '{% trans "Out of the catalog"|escapejs %}',
+        archived: '{% trans "Withdrawn"|escapejs %}',
         failed: '{% trans "Failed"|escapejs %}',
         leave: '{% trans "The import is still running. Leave anyway?"|escapejs %}',
       };
