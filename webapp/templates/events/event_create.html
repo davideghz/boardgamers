@@ -38,6 +38,8 @@
         <span id="cover-label">{% trans "Choose an image…" %}</span>
         {{ form.cover }}
       </label>
+      <p class="mt-1 text-xs text-content-muted">{{ form.cover.help_text }}</p>
+      {% if form.cover.data %}<p class="mt-1 text-xs text-content-muted">{% trans "Select the image again." %}</p>{% endif %}
       {% if form.cover.errors %}<p class="mt-1 text-xs text-red-500">{{ form.cover.errors|join:", " }}</p>{% endif %}
     </div>
 

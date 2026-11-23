@@ -17,6 +17,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 logger = logging.getLogger(__name__)
 
 COVER_MAX_SIDE = 1200
+COVER_UPLOAD_MAX_BYTES = 5 * 1024 * 1024
 AVATAR_MAX_SIDE = 256
 NETWORK_LOGO_MAX_BYTES = 2 * 1024 * 1024
 NETWORK_LOGO_MAX_INPUT_SIDE = 2048
