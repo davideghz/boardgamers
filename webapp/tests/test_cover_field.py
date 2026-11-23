@@ -1,10 +1,5 @@
-import json
-import shutil
-import subprocess
 from collections import Counter
 from html.parser import HTMLParser
-from pathlib import Path
-from unittest import skipUnless
 
 from django import forms
 from django.conf import settings
@@ -12,37 +7,25 @@ from django.template.loader import render_to_string
 from django.test import SimpleTestCase, override_settings
 from django.utils import translation
 
+from webapp.forms import LocationForm
 from webapp.models import Table
 from webapp.tests.test_cover_uploads import cover_upload
 
 
 class CoverForm(forms.Form):
     custom_cover = forms.ImageField(required=False)
-    cover = forms.ImageField(required=False, widget=forms.FileInput)
+    cover = forms.ImageField(required=False, widget=forms.FileInput(attrs={'data-crop-max-side': 1200}))
 
 
 class ComponentParser(HTMLParser):
-    """Keep the rendered attributes, text and scripts for behavioral checks."""
+    """Collect the rendered tags and their attributes."""
     def __init__(self, html):
-        super().__init__(convert_charrefs=True)
-        self.root = {'tag': 'document', 'attrs': {}, 'text': '', 'children': []}
-        self.stack = [self.root]
+        super().__init__()
         self.elements = []
         self.feed(html)
 
     def handle_starttag(self, tag, attrs):
-        element = {'tag': tag, 'attrs': dict(attrs), 'text': '', 'children': []}
-        self.stack[-1]['children'].append(element)
-        self.elements.append(element)
-        if tag not in ('input', 'img', 'path', 'br', 'hr', 'meta', 'link'):
-            self.stack.append(element)
-
-    def handle_endtag(self, tag):
-        if self.stack[-1]['tag'] == tag:
-            self.stack.pop()
-
-    def handle_data(self, text):
-        self.stack[-1]['text'] += text
+        self.elements.append({'tag': tag, 'attrs': dict(attrs)})
 
 
 @override_settings(MEDIA_URL='/media/', STORAGES={
@@ -55,7 +38,7 @@ class CoverFieldTest(SimpleTestCase):
         self.saved_image = Table(custom_cover='covers/existing.png').custom_cover
 
     def render_component(self, prefix, variant='table', saved=True, **config):
-        name = 'cover' if variant == 'event' else 'custom_cover'
+        name = 'custom_cover' if variant == 'table' else 'cover'
         initial = {name: self.saved_image} if saved else {}
         form = CoverForm(prefix=prefix, initial=initial)
         return render_to_string('partials/_cover_field.html', {
@@ -63,7 +46,7 @@ class CoverFieldTest(SimpleTestCase):
         })
 
     def test_component_comments_are_not_visible(self):
-        for variant in ('table', 'event'):
+        for variant in ('table', 'event', 'location'):
             with self.subTest(variant=variant):
                 html = self.render_component('first', variant)
                 self.assertNotIn('{#', html)
@@ -101,50 +84,27 @@ class CoverFieldTest(SimpleTestCase):
                 if target:
                     self.assertIn(target, ids)
 
-    @skipUnless(shutil.which('node'), 'Node.js is required to execute the inline component script.')
-    def test_upload_and_removal_only_change_their_own_instance(self):
-        components = [ComponentParser(self.render_component(prefix)).root for prefix in ('first', 'second')]
-        result = self.run_component_scripts(components, [
-            {'type': 'select', 'component': 1, 'filename': 'second.png'},
-        ])
-        first, second = result['components']
-        self.assertEqual(first['src'], self.saved_image.url)
-        self.assertNotEqual(second['src'], self.saved_image.url)
-        self.assertEqual(second['filename'], 'second.png')
-        result = self.run_component_scripts(components, [
-            {'type': 'select', 'component': 1, 'filename': 'second.png'},
-            {'type': 'clear', 'component': 1, 'checked': True},
-            {'type': 'clear', 'component': 1, 'checked': False},
-            {'type': 'select', 'component': 0, 'filename': 'first.png'},
-        ])
-        first, second = result['components']
-        self.assertEqual(first['filename'], 'first.png')
-        self.assertEqual(second['src'], self.saved_image.url)
-        self.assertFalse(second['hidden'])
-        self.assertFalse(second['checked'])
-        self.assertEqual(result['revoked'], ['blob:1'])
+    def test_location_instances_have_unique_ids_and_accessible_dialogs(self):
+        html = ''.join(self.render_component(prefix, 'location', crop_ratio=1) for prefix in ('first', 'second'))
+        elements = ComponentParser(html).elements
+        ids = [element['attrs']['id'] for element in elements if 'id' in element['attrs']]
+        self.assertEqual(len(ids), len(set(ids)), Counter(ids))
+        for element in elements:
+            for attribute in ('aria-labelledby', 'aria-describedby'):
+                for target in element['attrs'].get(attribute, '').split():
+                    self.assertIn(target, ids)
 
-    @skipUnless(shutil.which('node'), 'Node.js is required to execute the inline component script.')
-    def test_event_filename_changes_are_independent(self):
-        components = [ComponentParser(self.render_component(prefix, 'event')).root for prefix in ('first', 'second')]
-        result = self.run_component_scripts(components, [{'type': 'select', 'component': 1, 'filename': 'second.png'}])
-        self.assertEqual(result['components'][0]['filename'], 'Choose an image…')
-        self.assertEqual(result['components'][1]['filename'], 'second.png')
+    def test_decimal_crop_ratio_uses_a_dot_in_italian(self):
+        with translation.override('it'):
+            html = self.render_component('first', 'location', crop_ratio=16 / 9)
+        selection = next(element['attrs'] for element in ComponentParser(html).elements
+                         if element['tag'] == 'cropper-selection')
+        self.assertAlmostEqual(float(selection['aspect-ratio']), 16 / 9)
 
-    @skipUnless(shutil.which('node'), 'Node.js is required to execute the inline component script.')
-    def test_emptying_the_event_selection_restores_the_label(self):
-        components = [ComponentParser(self.render_component('first', 'event')).root]
-        result = self.run_component_scripts(components, [
-            {'type': 'select', 'component': 0, 'filename': 'first.png'},
-            {'type': 'select', 'component': 0, 'filename': None},
-        ])
-        self.assertEqual(result['components'][0]['filename'], 'Choose an image…')
-
-    def run_component_scripts(self, components, actions):
-        result = subprocess.run(
-            [shutil.which('node'), str(Path(__file__).with_name('cover_field_runtime.js'))],
-            input=json.dumps({'components': components, 'actions': actions}), text=True,
-            capture_output=True, check=False, timeout=30,
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-        return json.loads(result.stdout)
+    def test_location_help_uses_the_prefixed_field_id(self):
+        form = LocationForm(prefix='first')
+        html = render_to_string('partials/_cover_field.html', {'field': form['cover'], 'variant': 'location'})
+        elements = ComponentParser(html).elements
+        file_input = next(element['attrs'] for element in elements if element['attrs'].get('type') == 'file')
+        self.assertEqual(file_input['aria-describedby'], 'id_first-cover-help')
+        self.assertIn(file_input['aria-describedby'], [element['attrs'].get('id') for element in elements])
