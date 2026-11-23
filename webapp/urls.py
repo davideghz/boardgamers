@@ -227,6 +227,7 @@ urlpatterns = [
     path("account/", account_views.index, name="account-index"),
     path("account/edit-profile/", profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
     path("account/change-email/", profile_views.change_email, name='change-email'),
+    path("account/change-email/<str:token>/", profile_views.confirm_email_change, name='email_change_confirm'),
     path("account/connect/telegram/", profile_views.connect_telegram_page, name='connect-telegram'),
     path("account/disconnect/<str:provider>/", profile_views.disconnect_social, name='disconnect-social'),
     path("account/events/", account_views.events, name="account-events"),

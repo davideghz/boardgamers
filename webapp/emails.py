@@ -29,6 +29,29 @@ def send_user_email_verification_code(user_profile):
     )
 
 
+def send_email_change_confirmation(user_profile, new_email, link):
+    """
+    Sends the link that confirms a change of email to the new address.
+
+    :param user_profile: The UserProfile instance of the user changing email.
+    :param new_email: The address to confirm.
+    :param link: The absolute confirmation URL.
+    """
+    context = {
+        'nickname': user_profile.nickname,
+        'button_href': link,
+    }
+    text_content = render_to_string('emails/email_change_confirmation.html', context=context)
+    html_content = render_to_string('emails/email_change_confirmation_html.html', context=context)
+    send_mail(
+        messages.EMAIL_SUBJECT_VERIFICATION_CODE,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [new_email],
+        html_message=html_content,
+    )
+
+
 def send_admin_contact_message(cleaned_data):
     """
     Sends an email to the admin with a contact message submitted by a user.
