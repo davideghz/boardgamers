@@ -7,12 +7,15 @@ For the local setup (PostgreSQL + PostGIS, GDAL/GEOS, `.env`), see the [Readme](
 
 - **`dev` is the integration branch.** Fork the repo (or create a branch if you have access),
   start from `dev` and open your PR against `dev`. Nobody pushes to `dev` directly: every change
-  goes through a pull request, reviewed by the maintainer, who tries it locally as an anonymous
-  visitor, a regular user and a location manager.
+  goes through a pull request, and only the maintainer merges it, after trying it locally as an
+  anonymous visitor, a regular user and a location manager.
 - **`master` is production.** The Heroku pipeline deploys every commit on `master`, and
   migrations run automatically in the release phase. Only the maintainer updates `master`, by
   merging `dev` into it with a merge commit (no squash or rebase, so the two branches don't
   diverge).
+- **Emergency hotfixes** are the exception: anyone can branch off `master` and open a PR against
+  `master`. Only the maintainer merges it, and `master` is then brought back into `dev` through a
+  PR (with a merge commit), so the fix isn't lost.
 - Keep PRs small and focused on one thing: one feature or one fix per PR.
 - Before opening the PR, rebase on the latest `dev`.
 - For anything bigger than a small fix, open an issue first so we can agree on the approach.

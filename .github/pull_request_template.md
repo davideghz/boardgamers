@@ -8,7 +8,7 @@
 
 ## Checklist
 
-- [ ] Rebased on the latest `dev` (the base branch of this PR)
+- [ ] Rebased on the latest base branch (`dev`, or `master` for an emergency hotfix)
 - [ ] `python manage.py test webapp.tests` passes locally
 - [ ] Migrations regenerated after rebase (if any)
 - [ ] `.po` updated and `.mo` recompiled (if strings changed)
