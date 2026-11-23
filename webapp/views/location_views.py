@@ -1323,7 +1323,8 @@ def _bgg_library_statuses(location, items):
         status = 'archived' if is_archived else 'in_library'
         if code:
             by_code.setdefault(code, status)
-        by_name.setdefault(name.lower(), status)
+        else:
+            by_name.setdefault(name.lower(), status)
     return {
         item['bgg_id']: by_code.get(item['bgg_id']) or by_name.get(item['name'].lower())
         for item in items
