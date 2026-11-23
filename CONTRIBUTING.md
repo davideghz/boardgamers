@@ -22,6 +22,25 @@ For the local setup (PostgreSQL + PostGIS, GDAL/GEOS, `.env`), see the [Readme](
 - For anything bigger than a small fix, open an issue first so we can agree on the approach.
   Some larger designs are written up in [`docs/`](docs/).
 
+## Releases
+
+The maintainer releases `dev` to production, ideally in small and frequent batches. A release
+ships everything on `dev`, so `dev` must always be releasable: unfinished work stays on its own
+branch or behind an option that is off.
+
+1. Open a PR from `dev` to `master`, titled `release: YYYY-MM-DD`. List the PRs it includes, the
+   new migrations and any manual step to run after the deploy (e.g. `setup_ses_template`).
+2. Test the updated `dev`: run the test suite, apply the migrations locally and try the affected
+   flows. Don't merge anything else into `dev` until the release is done, or it becomes part of it.
+3. If a migration is risky, take a backup first: `heroku pg:backups:capture -a boardgamers`.
+4. Merge with **"Create a merge commit"**. The merge starts the deploy and runs the migrations.
+5. Check the Heroku release, Sentry and the main pages, then run the manual steps.
+
+If something breaks, `heroku rollback -a boardgamers` restores the previous code but **does not
+undo migrations**. Fix `master` afterwards, or the next deploy brings the problem back.
+
+`master` is always a few merge commits ahead of `dev`: that's expected.
+
 ## Commits
 
 - Write commit messages **in English**, in the Conventional Commits style used in the history:

@@ -1,12 +1,12 @@
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AdminFileWidget
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import IntegrityError, models, transaction
 from django.db.models.deletion import RestrictedError
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -19,6 +19,7 @@ from webapp.models import UserProfile, Table, TableLink, Comment, Player, Locati
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services import games as game_services
+from webapp.services import profile_merge
 from webapp.services.tables import sync_legacy_result
 
 
@@ -62,7 +63,92 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("nickname", "created_at", "user", "phone", "is_email_verified")
-    search_fields = ("nickname", "user__username", "user__email", "phone")
+    search_fields = ("nickname", "slug", "user__username", "user__email", "phone")
+    actions = ["merge_profiles_action"]
+
+    def has_merge_permission(self, request):
+        return request.user.is_superuser
+
+    @admin.action(permissions=["merge"], description=_("Merge accounts"))
+    def merge_profiles_action(self, request, queryset):
+        ids = list(queryset.order_by('pk').values_list('pk', flat=True)[:3])
+        if len(ids) != 2:
+            self.message_user(request, _("Select exactly two accounts to merge."), messages.ERROR)
+            return None
+        url = reverse('admin:webapp_userprofile_merge')
+        return redirect(f'{url}?a={ids[0]}&b={ids[1]}')
+
+    def get_urls(self):
+        return [
+            path('merge/', self.admin_site.admin_view(self.merge_view), name='webapp_userprofile_merge'),
+        ] + super().get_urls()
+
+    def merge_view(self, request):
+        if not self.has_merge_permission(request):
+            raise PermissionDenied
+
+        data = request.POST if request.method == 'POST' else request.GET
+        try:
+            ids = [int(data.get(key)) for key in ('a', 'b')]
+            profiles = list(self.get_queryset(request).filter(pk__in=ids).select_related('user').order_by('pk'))
+        except (TypeError, ValueError):
+            profiles = []
+        if len(profiles) != 2:
+            self.message_user(request, _("Select two different accounts that still exist."), messages.ERROR)
+            return redirect('admin:webapp_userprofile_changelist')
+
+        keeper = next((profile for profile in profiles if str(profile.pk) == data.get('keep')), None)
+        error = None
+        allowed = True
+        try:
+            profile_merge.validate_accounts(*(profile.user for profile in profiles))
+        except ValidationError as exc:
+            error = ' '.join(exc.messages)
+            allowed = False
+
+        try:
+            if allowed and request.method == 'POST':
+                if keeper is None:
+                    raise ValidationError(_("Choose the account to keep."))
+                duplicate = next(profile for profile in profiles if profile.pk != keeper.pk)
+                with transaction.atomic():
+                    keeper = profile_merge.merge_accounts(keeper.pk, duplicate.pk)
+                    summary = _("Merged account %(duplicate)s into %(keeper)s.") % {
+                        'duplicate': f'{duplicate.slug} (#{duplicate.pk})',
+                        'keeper': f'{keeper.slug} (#{keeper.pk})',
+                    }
+                    self.log_change(request, keeper, summary)
+                self.message_user(request, summary, messages.SUCCESS)
+                return redirect('admin:webapp_userprofile_change', keeper.pk)
+        except ValidationError as exc:
+            error = ' '.join(exc.messages)
+        except IntegrityError:
+            error = _("A database conflict prevented the merge. No changes were saved.")
+
+        accounts = [
+            {
+                'profile': profile,
+                'has_password': profile_merge.has_password(profile.user),
+                'logins': list(profile.user.social_auth.order_by('provider', 'pk')),
+            }
+            for profile in profiles
+        ]
+        first, second = ({login.provider for login in account['logins']} for account in accounts)
+        without_email = any(not profile.user.email for profile in profiles)
+        unverified_email = next(
+            (profile.user.email for profile in profiles if profile.user.email and not profile.is_email_verified), None)
+        return TemplateResponse(request, 'admin/webapp/userprofile/merge.html', {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'title': _("Merge accounts"),
+            'profiles': profiles,
+            'accounts': accounts,
+            'shared_providers': sorted(first & second),
+            'unverified_import': unverified_email if without_email else None,
+            'keeper': keeper,
+            'error': error,
+            'allowed': allowed,
+        })
 
 
 class PlayerInline(admin.TabularInline):
