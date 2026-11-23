@@ -2,10 +2,10 @@
 
 <div>
   <p class="text-xs font-semibold text-content-soft mb-2">{% trans "Cover image" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
-  <figure id="location-cover-preview" class="mb-3 w-full max-w-40{% if not form.instance.cover %} hidden{% endif %}">
+  <figure id="location-cover-preview" class="mb-3 w-full max-w-40{% if not form.initial.cover %} hidden{% endif %}">
     <div class="aspect-square overflow-hidden rounded-xl">
       <img class="w-full h-full object-cover" alt=""
-           {% if form.instance.cover %}src="{{ form.instance.cover.url }}"{% endif %}>
+           {% if form.initial.cover %}src="{{ form.initial.cover.url }}"{% endif %}>
     </div>
     <figcaption class="mt-1 text-xs text-content-muted">{% trans "Preview in the location list" %}</figcaption>
   </figure>
@@ -20,6 +20,8 @@
     {% trans "Adjust crop" %}
   </button>
   <p id="location-cover-help" class="mt-1 text-xs text-content-muted">{% trans "For the list, choose a square image. If it's a logo, leave some space around it." %}</p>
+  <p class="mt-1 text-xs text-content-muted">{{ form.cover.help_text }}</p>
+  {% if form.cover.data %}<p class="mt-1 text-xs text-content-muted">{% trans "Select the image again." %}</p>{% endif %}
   {% if form.cover.errors %}<p class="mt-1 text-xs text-red-500">{{ form.cover.errors|join:", " }}</p>{% endif %}
 </div>
 
