@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 14:03+0100\n"
+"POT-Creation-Date: 2026-11-23 15:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Merge accounts"
+msgstr "Unisci account"
+
+msgid "Select exactly two accounts to merge."
+msgstr "Seleziona esattamente due account da unire."
+
+msgid "Select two different accounts that still exist."
+msgstr "Seleziona due account diversi ancora esistenti."
+
+msgid "Choose the account to keep."
+msgstr "Scegli l’account da conservare."
+
+#, python-format
+msgid "Merged account %(duplicate)s into %(keeper)s."
+msgstr "L’account %(duplicate)s è stato unito a %(keeper)s."
+
+msgid "A database conflict prevented the merge. No changes were saved."
+msgstr ""
+"Un conflitto nel database ha impedito l’unione. Nessuna modifica è stata "
+"salvata."
 
 msgid "National affiliations"
 msgstr "Affiliazioni nazionali"
@@ -284,8 +305,7 @@ msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
 
 msgid "The title of a withdrawn library entry cannot be changed."
-msgstr ""
-"Il titolo di una voce uscita dalla ludoteca non può essere modificato."
+msgstr "Il titolo di una voce uscita dalla ludoteca non può essere modificato."
 
 msgid "A game with loan history cannot be replaced."
 msgstr "Un gioco con uno storico dei prestiti non può essere sostituito."
@@ -1080,6 +1100,34 @@ msgstr "Il logo può misurare al massimo 2048 pixel per lato."
 msgid "Upload a valid PNG, JPEG or WebP logo."
 msgstr "Carica un logo PNG, JPEG o WebP valido."
 
+msgid ""
+"Only active accounts without Django admin roles or permissions can be merged."
+msgstr ""
+"Si possono unire solo account attivi senza ruoli o permessi di "
+"amministrazione Django."
+
+#, python-format
+msgid ""
+"Both profiles have different player records on table #%(table)s. Resolve "
+"them before merging."
+msgstr ""
+"I due profili hanno dati di partecipazione diversi al tavolo #%(table)s. "
+"Risolvi il conflitto prima di unire i profili."
+
+msgid "The email or username is already used by another account."
+msgstr "L’email o il nome utente è già in uso su un altro account."
+
+msgid "The email is too long to use as a username."
+msgstr "L’indirizzo email è troppo lungo per essere usato come nome utente."
+
+msgid "The duplicate still has linked records that could not be transferred."
+msgstr ""
+"Il duplicato ha ancora dati collegati che non è stato possibile trasferire."
+
+msgid "The merged account must have an email and at least one login method."
+msgstr ""
+"L’account risultante deve avere un’email e almeno un metodo di accesso."
+
 msgid "Invalid value."
 msgstr "Valore non valido."
 
@@ -1651,6 +1699,79 @@ msgstr "I due giochi hanno gli stessi valori in tutti i campi."
 
 msgid "Flags kept if true on either game:"
 msgstr "Flag mantenuti se veri su almeno uno dei due giochi:"
+
+msgid ""
+"The selected account keeps its password and profile settings. If it has no "
+"email, it takes the other account’s email and verification status. The other "
+"account is permanently deleted after its profile data and social logins from "
+"missing providers are transferred."
+msgstr ""
+"L’account selezionato conserva la password e le impostazioni del profilo. Se "
+"è senza email, acquisisce l’indirizzo e lo stato di verifica dell’altro "
+"account. L’altro account viene eliminato definitivamente dopo il "
+"trasferimento dei dati del profilo e degli accessi social dei provider "
+"mancanti."
+
+msgid ""
+"If the account you keep has no password, the user can sign in with a linked "
+"social account and set a password in their account settings."
+msgstr ""
+"Se l’account conservato è senza password, l’utente può entrare con un "
+"accesso social collegato e impostare una password dalle impostazioni "
+"dell’account."
+
+#, python-format
+msgid ""
+"Both accounts have logins with these providers: %(providers)s. Only the "
+"selected account’s logins for these providers are kept."
+msgstr ""
+"Entrambi gli account hanno accessi con questi provider: %(providers)s. Per "
+"questi provider vengono conservati solo gli accessi dell’account selezionato."
+
+#, python-format
+msgid ""
+"The email %(email)s is not verified: make sure it belongs to the user. If "
+"you keep the account without email, it imports this address: the user can't "
+"join tables until it is verified, and a Google login with it removes the "
+"password and the other logins."
+msgstr ""
+"L’email %(email)s non è verificata: controlla che appartenga all’utente. Se "
+"conservi l’account senza email, acquisisce questo indirizzo: l’utente non "
+"potrà unirsi ai tavoli finché non lo verifica, e un login Google con questo "
+"indirizzo rimuove la password e gli altri accessi."
+
+msgid "Verified"
+msgstr "Verificata"
+
+msgid "Unverified"
+msgstr "Non verificata"
+
+msgid "Usable password"
+msgstr "Password utilizzabile"
+
+msgid "Yes"
+msgstr "Sì"
+
+msgid "No"
+msgstr "No"
+
+msgid "Social logins"
+msgstr "Accessi social"
+
+msgid "Last login"
+msgstr "Ultimo accesso"
+
+msgid "Tables created"
+msgstr "Tavoli creati"
+
+msgid "Locations created"
+msgstr "Location create"
+
+msgid "Confirm merge"
+msgstr "Conferma unione"
+
+msgid "Back to profiles"
+msgstr "Torna ai profili"
 
 msgid "Welcome back"
 msgstr "Bentornato/a"
@@ -2344,8 +2465,8 @@ msgid "View public page"
 msgstr "Vedi pagina pubblica"
 
 msgid ""
-"Turn this on to show the library on the event page. Until then only "
-"managers can see it."
+"Turn this on to show the library on the event page. Until then only managers "
+"can see it."
 msgstr ""
 "Attivala per mostrare la ludoteca nella pagina evento. Fino ad allora può "
 "vederla solo chi gestisce l'evento."
@@ -3026,11 +3147,9 @@ msgid "Record withdrawal"
 msgstr "Registra uscita"
 
 msgid ""
-"The game will move to Withdrawn games and be removed from the public "
-"library."
+"The game will move to Withdrawn games and be removed from the public library."
 msgstr ""
-"Il gioco passerà tra i giochi usciti e verrà rimosso dalla ludoteca "
-"pubblica."
+"Il gioco passerà tra i giochi usciti e verrà rimosso dalla ludoteca pubblica."
 
 msgid "Confirm withdrawal"
 msgstr "Conferma uscita"
@@ -4811,9 +4930,6 @@ msgstr "Concluso"
 msgid "Created by you"
 msgstr "Creati da te"
 
-msgid "Yes"
-msgstr "Sì"
-
 msgid "My Account - Board-Gamers.com"
 msgstr "Il Mio Account - Board-Gamers.com"
 
@@ -5214,9 +5330,6 @@ msgstr "Username"
 
 msgid "Membership Status"
 msgstr "Membership"
-
-msgid "No"
-msgstr "No"
 
 msgid "Membership deleted."
 msgstr "Membership cancellata."
