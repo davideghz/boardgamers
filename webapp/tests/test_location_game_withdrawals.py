@@ -250,23 +250,65 @@ class LocationGameWithdrawalTest(TestCase):
         self.assertEqual(self.entry.withdrawn_on, self.today)
         self.assertEqual(self.entry.withdrawal_note, 'Latest withdrawal')
 
-    def test_merging_an_archived_duplicate_keeps_its_latest_withdrawal(self):
-        for is_archived in (False, True):
-            with self.subTest(kept_is_archived=is_archived):
+    def test_merging_an_archived_duplicate_into_an_active_entry_keeps_its_latest_withdrawal(self):
+        LocationGame.objects.filter(pk=self.entry.pk).update(
+            withdrawn_on=self.today - timedelta(days=3),
+            withdrawal_reason=LocationGame.WithdrawalReason.SOLD, withdrawal_note='Older withdrawal',
+        )
+        duplicate = LocationGame.objects.create(
+            location=self.location, game=GameFactory(), is_archived=True, withdrawn_on=self.today,
+            withdrawal_reason=LocationGame.WithdrawalReason.LOST, withdrawal_note='Latest withdrawal',
+        )
+        merge_games(self.entry.game, duplicate.game, {})
+        self.entry.refresh_from_db()
+        self.assertFalse(self.entry.is_archived)
+        self.assertEqual(self.entry.withdrawn_on, self.today)
+        self.assertEqual(self.entry.withdrawal_reason, LocationGame.WithdrawalReason.LOST)
+        self.assertEqual(self.entry.withdrawal_note, 'Latest withdrawal')
+
+    def test_merging_two_archived_entries_preserves_the_latest_withdrawal(self):
+        earlier = self.today - timedelta(days=3)
+        cases = (
+            (earlier, self.today, 'duplicate'),
+            (self.today, earlier, 'kept'),
+            (self.today, self.today, 'kept'),
+            (None, self.today, 'duplicate'),
+            (self.today, None, 'kept'),
+            (None, None, 'kept'),
+        )
+        for kept_date, duplicate_date, source in cases:
+            with self.subTest(kept_date=kept_date, duplicate_date=duplicate_date):
                 LocationGame.objects.filter(pk=self.entry.pk).update(
-                    is_archived=is_archived, withdrawn_on=self.today - timedelta(days=3),
-                    withdrawal_reason=LocationGame.WithdrawalReason.SOLD, withdrawal_note='Older withdrawal',
+                    is_archived=True, withdrawn_on=kept_date,
+                    withdrawal_reason=LocationGame.WithdrawalReason.SOLD, withdrawal_note='Kept withdrawal',
                 )
+                self.entry.refresh_from_db()
                 duplicate = LocationGame.objects.create(
-                    location=self.location, game=GameFactory(), is_archived=True, withdrawn_on=self.today,
-                    withdrawal_reason=LocationGame.WithdrawalReason.LOST, withdrawal_note='Latest withdrawal',
+                    location=self.location, game=GameFactory(), is_archived=True, withdrawn_on=duplicate_date,
+                    withdrawal_reason=LocationGame.WithdrawalReason.LOST, withdrawal_note='Duplicate withdrawal',
+                )
+                expected_source = duplicate if source == 'duplicate' else self.entry
+                expected_details = (
+                    expected_source.withdrawn_on, expected_source.withdrawal_reason, expected_source.withdrawal_note,
                 )
                 merge_games(self.entry.game, duplicate.game, {})
                 self.entry.refresh_from_db()
-                self.assertEqual(self.entry.is_archived, is_archived)
-                self.assertEqual(self.entry.withdrawn_on, self.today)
-                self.assertEqual(self.entry.withdrawal_reason, LocationGame.WithdrawalReason.LOST)
-                self.assertEqual(self.entry.withdrawal_note, 'Latest withdrawal')
+                self.assertTrue(self.entry.is_archived)
+                self.assertEqual((
+                    self.entry.withdrawn_on, self.entry.withdrawal_reason, self.entry.withdrawal_note,
+                ), expected_details)
+                self.assertEqual(self.location.location_games.count(), 1)
+
+    def test_merging_two_legacy_archived_entries_preserves_the_available_details(self):
+        LocationGame.objects.filter(pk=self.entry.pk).update(is_archived=True)
+        duplicate = LocationGame.objects.create(
+            location=self.location, game=GameFactory(), is_archived=True, withdrawal_note='Legacy withdrawal note',
+        )
+        merge_games(self.entry.game, duplicate.game, {})
+        self.entry.refresh_from_db()
+        self.assertTrue(self.entry.is_archived)
+        self.assertIsNone(self.entry.withdrawn_on)
+        self.assertEqual(self.entry.withdrawal_note, 'Legacy withdrawal note')
 
     def test_admin_can_edit_all_fields_of_an_archived_entry(self):
         self.client.post(self.archive_url, self.withdrawal)

@@ -124,9 +124,10 @@ def merge_games(keeper, duplicate, choices):
                 kept.owner_member_id = entry.owner_member_id
                 kept.physical_location = entry.physical_location
                 fields.extend(['is_archived', 'ownership', 'owner_member', 'physical_location'])
-            newer_withdrawal = entry.withdrawn_on and (
-                not kept.withdrawn_on or entry.withdrawn_on > kept.withdrawn_on)
-            if entry.has_withdrawal_details and (not kept.has_withdrawal_details or newer_withdrawal):
+            copy_withdrawal = entry.has_withdrawal_details and not kept.has_withdrawal_details
+            if entry.withdrawn_on is not None:
+                copy_withdrawal = kept.withdrawn_on is None or entry.withdrawn_on > kept.withdrawn_on
+            if copy_withdrawal:
                 kept.withdrawn_on = entry.withdrawn_on
                 kept.withdrawal_reason = entry.withdrawal_reason
                 kept.withdrawal_note = entry.withdrawal_note
