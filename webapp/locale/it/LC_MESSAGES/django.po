@@ -6172,3 +6172,6 @@ msgstr "Collega account"
 #~ msgstr ""
 #~ "Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
 #~ "agli organizzatori che ci sarai."
+
+msgid "Move or resize the crop area, even beyond the image edges. Extra space stays transparent. Use the arrow keys and + or − to adjust it with the keyboard."
+msgstr "Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. Lo spazio aggiunto resta trasparente. Da tastiera, usa le frecce e i tasti + o −."

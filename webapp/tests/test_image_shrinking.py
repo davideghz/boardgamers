@@ -38,11 +38,12 @@ class ShrinkImageBytesTest(TestCase):
         self.assertEqual(img.format, 'JPEG')
         self.assertEqual(img.size, (COVER_MAX_SIDE, COVER_MAX_SIDE // 2))
 
-    def test_transparency_is_flattened_on_white(self):
+    def test_transparency_is_preserved_when_resizing(self):
         result = shrink_image_bytes(png_bytes((2000, 2000)), 100)
-        img = Image.open(BytesIO(result)).convert('RGB')
-        r, g, b = img.getpixel((50, 50))
-        self.assertGreater(min(r, g, b), 240)
+        with Image.open(BytesIO(result)) as img:
+            self.assertEqual(img.format, 'PNG')
+            self.assertEqual(img.mode, 'RGBA')
+            self.assertEqual(img.getpixel((50, 50))[3], 0)
 
     def test_small_light_image_is_left_alone(self):
         self.assertIsNone(shrink_image_bytes(png_bytes((300, 300), 'RGB', (1, 2, 3)), COVER_MAX_SIDE))
@@ -90,7 +91,7 @@ class ShrinkOnUploadTest(TestCase):
             self.assertEqual(max(img.size), AVATAR_MAX_SIDE)
 
     def test_saving_without_new_upload_does_not_touch_storage(self):
-        with mock.patch('webapp.signals.shrink_content_file') as shrink:
+        with mock.patch('webapp.fields.shrink_content_file') as shrink:
             self.user_profile.avatar = 'avatars/me.png'
             self.user_profile.save()
             self.user_profile.nickname = 'renamed'
