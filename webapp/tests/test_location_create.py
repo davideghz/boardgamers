@@ -39,17 +39,19 @@ class LocationCreateViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         preview = re.search(
-            r'<figure\b[^>]*\sid="location-cover-preview"[^>]*>(.*?)</figure>',
+            r'<figure\b[^>]*\sid="id_cover-preview"[^>]*>(.*?)</figure>',
             response.text,
             re.DOTALL,
         )
         self.assertIsNotNone(preview)
         self.assertRegex(preview[1], r'<img\b(?![^>]*\ssrc=)[^>]*>')
         self.assertContains(response, "Se è un logo, lascia un po' di spazio attorno.")
-        self.assertContains(response, 'id="location-cover-dialog"')
+        self.assertContains(response, 'id="id_cover-dialog"')
         self.assertContains(response, 'aspect-ratio="1"')
         self.assertContains(response, 'Applica ritaglio')
         self.assertContains(response, "Inquadra tutta l'immagine")
+        self.assertContains(response, 'id="id_cover-edit"')
+        self.assertContains(response, 'Immagine di copertina')
 
     def test_redirects_to_the_new_location_page(self):
         response = self._post()

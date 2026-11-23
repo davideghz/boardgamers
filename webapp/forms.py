@@ -684,7 +684,7 @@ class LocationForm(ModelForm, TailwindForm):
         self.fields['cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         self.fields['cover'].widget = FileInput(attrs={
             'class': 'sr-only peer',
-            'aria-describedby': 'location-cover-help',
+            'aria-describedby': f'{self["cover"].auto_id}-help',
             'data-crop-max-side': COVER_MAX_SIDE,
         })
         self.fields['opening_hours'].required = False

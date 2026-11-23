@@ -31,7 +31,11 @@
       {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
     </div>
 
-    {% include "locations/_cover_field.html" %}
+    {# ── Cover image ─────────────────────────────────────────────────── #}
+    <div>
+      <p class="text-xs font-semibold text-content-soft mb-2">{% trans "Cover image" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
+      {% include 'partials/_cover_field.html' with field=form.cover variant="location" crop_ratio="1" saved_image=form.initial.cover %}
+    </div>
 
     {# ── Address ─────────────────────────────────────────────────────── #}
     <div>
