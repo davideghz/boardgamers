@@ -1,2 +1,2 @@
-# The maintainer reviews every change (the master ruleset requires code owner review).
+# The maintainer reviews every change (the dev and master rulesets require code owner review).
 * @davideghz

@@ -8,7 +8,7 @@
 
   <div class="mb-6">
     {% back_link 'event_detail' event.slug label=event.name %}
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Games" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Library" %}</h1>
     <p class="text-sm text-content-muted mt-1">
       {% blocktrans count counter=total_count %}{{ counter }} game in the library{% plural %}{{ counter }} games in the library{% endblocktrans %}
     </p>

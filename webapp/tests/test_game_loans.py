@@ -251,19 +251,21 @@ class LocationGameLoanTest(TestCase):
         self.enable_self_service()
         loan = self.create_loan()
         archive_url = self.game_url('location-game-archive')
+        withdrawal = {'action': 'archive', 'withdrawn_on': timezone.localdate().isoformat(),
+                      'withdrawal_reason': LocationGame.WithdrawalReason.SOLD}
         self.client.force_login(self.borrower.user)
-        self.assertEqual(self.client.post(archive_url, {'action': 'archive'}).status_code, 403)
+        self.assertEqual(self.client.post(archive_url, withdrawal).status_code, 403)
         self.client.force_login(self.manager.user)
-        self.client.post(archive_url, {'action': 'archive'})
+        self.client.post(archive_url, withdrawal)
         self.game.refresh_from_db()
         self.assertFalse(self.game.is_archived)
 
         return_game_loan(self.location, loan, self.manager)
         detail_url = self.game_url('location-game-detail')
         self.assertContains(self.client.get(detail_url), archive_url)
-        self.assertRedirects(self.client.post(archive_url, {'action': 'archive'}), detail_url)
+        self.assertRedirects(self.client.post(archive_url, withdrawal), detail_url)
         self.assertNotContains(self.client.get(self.url('location-games')), self.game.game.name)
-        self.assertContains(self.client.get(self.url('location-manage-games')), self.game.game.name)
+        self.assertContains(self.client.get(self.url('location-manage-games'), {'status': 'archived'}), self.game.game.name)
         self.assertTrue(self.game.loans.filter(pk=loan.pk).exists())
 
         self.client.force_login(self.borrower.user)
@@ -271,7 +273,10 @@ class LocationGameLoanTest(TestCase):
         self.client.post(borrow_url)
         self.assertEqual(self.game.loans.count(), 1)
         self.client.force_login(self.manager.user)
-        self.assertRedirects(self.client.post(archive_url, {'action': 'restore'}), detail_url)
+        confirmation = self.client.get(archive_url, {'action': 'restore'})
+        self.assertRedirects(self.client.post(archive_url, {
+            'action': 'restore', 'confirmed': 'yes', 'withdrawal_version': confirmation.context['withdrawal_version'],
+        }), detail_url)
         self.client.force_login(self.borrower.user)
         self.assertContains(self.client.get(self.url('location-games')), borrow_url)
 
@@ -302,9 +307,41 @@ class LocationGameLoanTest(TestCase):
         self.manager.user.delete()
         self.assertFalse(LocationGameLoan.objects.filter(pk=loan.pk).exists())
 
+    def test_admin_can_edit_entries_with_open_or_returned_loans(self):
+        admin_profile = SuperUserProfileFactory()
+        self.client.force_login(admin_profile.user)
+        for returned in (False, True):
+            with self.subTest(returned=returned):
+                game = LocationGame.objects.create(location=self.location, game=GameFactory())
+                loan = create_game_loan(self.location, game, self.manager, member=self.member)
+                if returned:
+                    return_game_loan(self.location, loan, self.manager)
+                replacement = GameFactory()
+                url = reverse('admin:webapp_locationgame_change', args=[game.pk])
+                data = {
+                    'location': self.other_location.pk, 'game': replacement.pk,
+                    'ownership': LocationGame.OWNED_BY_MEMBER, 'owner_member': self.other_member.pk,
+                    'physical_location': LocationGame.AT_HOME, 'is_archived': 'on',
+                    'withdrawn_on': timezone.localdate().isoformat(),
+                    'withdrawal_reason': LocationGame.WithdrawalReason.LOST, 'withdrawal_note': 'Admin correction',
+                    '_save': 'Save',
+                }
+                self.assertEqual(self.client.post(url, data).status_code, 302)
+                game.refresh_from_db()
+                self.assertEqual(game.location_id, self.other_location.pk)
+                self.assertEqual(game.game_id, replacement.pk)
+                self.assertEqual(game.ownership, LocationGame.OWNED_BY_MEMBER)
+                self.assertEqual(game.owner_member_id, self.other_member.pk)
+                self.assertEqual(game.physical_location, LocationGame.AT_HOME)
+                self.assertTrue(game.is_archived)
+                self.assertEqual(game.withdrawn_on, timezone.localdate())
+                self.assertEqual(game.withdrawal_reason, LocationGame.WithdrawalReason.LOST)
+                self.assertEqual(game.withdrawal_note, 'Admin correction')
+                self.assertTrue(game.loans.filter(pk=loan.pk).exists())
+
 
 class ConcurrentGameLoanTest(TransactionTestCase):
-    def test_admin_cannot_move_game_during_checkout(self):
+    def test_admin_can_move_game_after_concurrent_checkout(self):
         manager = SuperUserProfileFactory()
         location = LocationFactory(creator=manager, enable_game_loans=True)
         destination = LocationFactory()
@@ -341,7 +378,7 @@ class ConcurrentGameLoanTest(TransactionTestCase):
             self.assertEqual(result.result(timeout=10).status_code, 302)
 
         game.refresh_from_db()
-        self.assertEqual(game.location, location)
+        self.assertEqual(game.location, destination)
         self.assertEqual(loan.location, location)
 
     def test_manager_and_member_cannot_both_check_out_same_game(self):
