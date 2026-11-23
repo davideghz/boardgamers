@@ -87,15 +87,15 @@ class LocationManagementTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         preview = re.search(
-            r'<figure\b[^>]*\sid="location-cover-preview"[^>]*>(.*?)</figure>',
+            r'<figure\b[^>]*\sid="id_cover-preview"[^>]*>(.*?)</figure>',
             response.text,
             re.DOTALL,
         )
         self.assertIsNotNone(preview)
         cover_url = re.escape(escape(self.location.cover.url))
         self.assertRegex(preview[1], rf'<img\b[^>]*\ssrc="{cover_url}"')
-        self.assertContains(response, 'id="location-cover-dialog"')
-        self.assertContains(response, 'id="location-cover-edit"')
+        self.assertContains(response, 'id="id_cover-dialog"')
+        self.assertContains(response, 'id="id_cover-edit"')
 
     def test_add_manager(self):
         new_manager = UserProfileFactory()

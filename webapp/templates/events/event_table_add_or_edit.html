@@ -420,7 +420,7 @@
       });
     });
 
-    /* ── Custom cover: collapse + file preview ───────────────────────── */
+    /* ── Custom cover: collapse ───────────────────────── */
     document.addEventListener('DOMContentLoaded', function () {
       var toggle = document.getElementById('cover-toggle');
       var body = document.getElementById('cover-body');
@@ -431,36 +431,6 @@
           body.style.display = open ? '' : 'none';
           if (chevron) chevron.classList.toggle('rotate-90', open);
           toggle.setAttribute('aria-expanded', String(open));
-        });
-      }
-
-      var input = document.getElementById('id_custom_cover');
-      var previewWrap = document.getElementById('cover-preview-wrap');
-      var preview = document.getElementById('cover-preview');
-      var label = document.getElementById('cover-btn-label');
-      var clear = document.getElementById('custom_cover-clear_id');
-      var savedUrl = preview.getAttribute('src');
-      var chooseImage = label.textContent;
-
-      if (clear) {
-        clear.addEventListener('change', function () {
-          input.value = '';
-          label.textContent = chooseImage;
-          preview.hidden = clear.checked;
-          if (savedUrl) preview.src = savedUrl;
-        });
-      }
-
-      if (input) {
-        input.addEventListener('change', function () {
-          var file = input.files && input.files[0];
-          if (!file) return;
-          preview.src = URL.createObjectURL(file);
-          preview.hidden = false;
-          previewWrap.classList.remove('hidden');
-          if (label) label.textContent = file.name;
-          // Picking a new file overrides a pending "remove current image".
-          if (clear) clear.checked = false;
         });
       }
     });

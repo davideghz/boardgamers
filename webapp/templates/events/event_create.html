@@ -92,17 +92,6 @@
 {% endblock content %}
 
 {% block extrabodyjs %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const input = document.getElementById('{{ form.cover.id_for_label }}');
-      const label = document.getElementById('cover-label');
-      if (input && label) {
-        input.addEventListener('change', function () {
-          label.textContent = input.files[0] ? input.files[0].name : '{% trans "Choose an image…"|escapejs %}';
-        });
-      }
-    });
-  </script>
   {% include "partials/google-maps-form.html" %}
   {% include "partials/intl_tel_input.html" %}
 {% endblock %}
