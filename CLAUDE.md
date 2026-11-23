@@ -16,7 +16,10 @@ game libraries, shops). Main concepts, all in `webapp/models.py`:
 
 ## Things that are easy to get wrong
 
-- `master` deploys to production on every commit. Never push to it; open a PR.
+- PRs target `dev`: branch off `dev` and pass `--base dev` to `gh pr create`. Only emergency
+  hotfixes branch off `master` and target it.
+- `master` deploys to production on every commit. Never push to `dev` or `master`; PRs to
+  `dev` need the maintainer's approval, and only the maintainer merges into `master`.
 - The frontend is **Tailwind via the Play CDN**, not Bootstrap, and has no build step.
   Use the semantic color tokens so dark mode works. No Alpine.js: vanilla JS inline.
   Icons are inline SVG.

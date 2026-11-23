@@ -1,0 +1,35 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags i18n %}
+
+{% block content %}
+  <div class="mb-6">
+    {% back_link 'location-game-detail' location.slug location_game.uuid label=location_game.game.name %}
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Restore to library" %}</h1>
+  </div>
+
+  <form method="post" class="max-w-xl space-y-4 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="restore">
+    <input type="hidden" name="withdrawal_version" value="{{ withdrawal_version }}">
+    <h2 class="break-words text-lg font-bold text-content">{{ location_game.game.name }}</h2>
+    {% if location_game.has_withdrawal_details %}
+      <div class="rounded-lg bg-surface-alt p-3">
+        <p class="text-sm font-semibold text-content">{% trans "Last recorded withdrawal" %}</p>
+        <p class="mt-1 text-sm text-content">
+          {{ location_game.get_withdrawal_reason_display }}{% if location_game.withdrawn_on %} · {{ location_game.withdrawn_on|date:"DATE_FORMAT" }}{% endif %}
+        </p>
+        {% if location_game.withdrawal_note %}<p class="mt-2 whitespace-pre-wrap break-words text-sm text-content-muted">{{ location_game.withdrawal_note }}</p>{% endif %}
+      </div>
+    {% else %}
+      <p class="text-sm text-content-muted">{% trans "This game was withdrawn without a date or reason." %}</p>
+    {% endif %}
+    <p class="text-sm text-content">{% trans "Restore this game to the library?" %}</p>
+    <p class="text-sm text-content-muted">{% trans "The last withdrawal details will remain in the game entry. A new withdrawal will replace them." %}</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="submit" name="confirmed" value="yes"
+              class="rounded-full bg-elevated px-4 py-2 text-sm font-semibold text-white hover:opacity-90">{% trans "Confirm restore" %}</button>
+      <a href="{% url 'location-game-detail' location.slug location_game.uuid %}"
+         class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+{% endblock content %}

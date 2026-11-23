@@ -72,7 +72,7 @@ def check_game_loan_availability(location, location_game):
     if not location.enable_game_loans:
         raise GameLoanError(_('Game loans are disabled for this location.'))
     if location_game.is_archived:
-        raise GameLoanError(_('This game is archived.'))
+        raise GameLoanError(_('This game has been withdrawn from the library.'))
     if not location_game.is_lendable:
         raise GameLoanError(_('Only games owned by the location and kept on site can be borrowed.'))
     if open_game_loans(location_game=location_game).exists():

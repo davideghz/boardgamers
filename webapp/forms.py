@@ -564,7 +564,7 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email=email).exists():
+        if email and User.objects.filter(email__iexact=email).exists():
             raise ValidationError(_("Email already registered."))
         return email
 
@@ -1171,6 +1171,7 @@ class LocationGameForm(ModelForm, TailwindForm):
         self.location = location
         super().__init__(*args, **kwargs)
         membership_enabled = bool(location and location.enable_membership)
+        self.archived_duplicate = None
 
         # owner_member is always visible; set required=False (FK is nullable)
         self.fields['owner_member'].required = False
@@ -1196,7 +1197,11 @@ class LocationGameForm(ModelForm, TailwindForm):
             duplicates = LocationGame.objects.filter(location=self.location, game=game)
             if self.instance.pk:
                 duplicates = duplicates.exclude(pk=self.instance.pk)
-            if duplicates.exists():
+            duplicate = duplicates.first()
+            if duplicate and duplicate.is_archived:
+                self.archived_duplicate = duplicate
+                raise ValidationError(_('This game has been withdrawn from the library. Open its entry to restore it.'))
+            if duplicate:
                 raise ValidationError(_("This game is already in the library."))
         return game
 
@@ -1206,12 +1211,28 @@ class LocationGameForm(ModelForm, TailwindForm):
         if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
             cleaned['owner_member'] = None
         if self.instance.pk:
+            if 'game' in self.changed_data and self.instance.is_archived:
+                self.add_error('game', _('The title of a withdrawn library entry cannot be changed.'))
             if 'game' in self.changed_data and self.instance.loans.exists():
                 raise ValidationError(_('A game with loan history cannot be replaced.'))
             if {'ownership', 'physical_location'} & set(self.changed_data):
                 if self.instance.loans.filter(returned_at__isnull=True).exists():
                     raise ValidationError(_('Record the return before changing the ownership or physical location.'))
         return cleaned
+
+
+class LocationGameWithdrawalForm(TailwindForm):
+    withdrawn_on = DateField(label=_('Withdrawal date'), initial=timezone.localdate, widget=CustomDateInputWidget())
+    withdrawal_reason = ChoiceField(
+        label=_('Withdrawal reason'), choices=[('', _('Select a reason')), *LocationGame.WithdrawalReason.choices],
+    )
+    withdrawal_note = CharField(label=_('Withdrawal note'), required=False, widget=Textarea)
+
+    def clean_withdrawn_on(self):
+        withdrawn_on = self.cleaned_data['withdrawn_on']
+        if withdrawn_on > timezone.localdate():
+            raise ValidationError(_('The withdrawal date cannot be in the future.'))
+        return withdrawn_on
 
 
 class LocationGameLoanForm(TailwindForm):

@@ -2,11 +2,38 @@ import random
 import string
 
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from social_django.models import UserSocialAuth
 from webapp.models import UserProfile
 from django.contrib.gis.geos import Point
 
 User = get_user_model()
+
+
+def associate_by_email(backend, details, user=None, *args, **kwargs):
+    """
+    Like social_core.pipeline.social_auth.associate_by_email, but an account that
+    never verified its email may have been created by someone else. The provider
+    vouches for the address, so its owner takes the account over and every access
+    set up before (password, sessions, social logins, push) is revoked.
+    """
+    from social_core.pipeline.social_auth import associate_by_email as _associate_by_email
+    result = _associate_by_email(backend, details, user, *args, **kwargs)
+    if not result:
+        return None
+
+    user = result['user']
+    profile = UserProfile.objects.filter(user=user).first()
+    if profile and not profile.is_email_verified:
+        with transaction.atomic():
+            # Changing the password also invalidates the open sessions.
+            user.set_unusable_password()
+            user.save(update_fields=['password'])
+            user.social_auth.all().delete()
+            profile.push_subscriptions.all().delete()
+            profile.is_email_verified = True
+            profile.save(update_fields=['is_email_verified'])
+    return result
 
 
 def create_user_profile(backend, user, response, *args, **kwargs):
@@ -69,7 +96,7 @@ def validate_social_connect(strategy, backend, user, social, *args, **kwargs):
     # Case 2: Google email taken by another account
     if backend.name == 'google-oauth2' and not request.user.email:
         google_email = kwargs.get('details', {}).get('email', '')
-        if google_email and User.objects.filter(email=google_email).exclude(pk=request.user.pk).exists():
+        if google_email and User.objects.filter(email__iexact=google_email).exclude(pk=request.user.pk).exists():
             django_messages.error(
                 request,
                 _("The Google email address is already associated with another account."),
@@ -110,7 +137,7 @@ def copy_email_from_google_if_missing(backend, user, response, *args, **kwargs):
     if not user or user.email:
         return
     email = response.get('email', '')
-    if email and not User.objects.filter(email=email).exclude(pk=user.pk).exists():
+    if email and not User.objects.filter(email__iexact=email).exclude(pk=user.pk).exists():
         user.email = email
         user.save(update_fields=['email'])
 

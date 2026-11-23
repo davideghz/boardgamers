@@ -1,19 +1,45 @@
 # Contributing to Board Gamers
 
-Thanks for helping out! This file covers how to get a change from your machine into `master`.
+Thanks for helping out! This file covers how to get a change from your machine into `dev`.
 For the local setup (PostgreSQL + PostGIS, GDAL/GEOS, `.env`), see the [Readme](Readme.md).
 
 ## Workflow
 
+- **`dev` is the integration branch.** Fork the repo (or create a branch if you have access),
+  start from `dev` and open your PR against `dev`. Nobody pushes to `dev` directly: every change
+  goes through a pull request that the maintainer approves, after trying it locally as an
+  anonymous visitor, a regular user and a location manager. Once approved, anyone with write
+  access can merge it.
 - **`master` is production.** The Heroku pipeline deploys every commit on `master`, and
-  migrations run automatically in the release phase. `master` is protected: nobody pushes to it
-  directly, every change goes through a pull request, and only the maintainer merges, after
-  trying the change locally as an anonymous visitor, a regular user and a location manager.
-- Fork the repo (or create a branch if you have access) and open a PR against `master`.
+  migrations run automatically in the release phase. Only the maintainer updates `master`, by
+  merging `dev` into it with a merge commit (no squash or rebase, so the two branches don't
+  diverge).
+- **Emergency hotfixes** are the exception: anyone can branch off `master` and open a PR against
+  `master`. Only the maintainer merges it, and `master` is then brought back into `dev` through a
+  PR (with a merge commit), so the fix isn't lost.
 - Keep PRs small and focused on one thing: one feature or one fix per PR.
-- Before opening the PR, rebase on the latest `master`.
+- Before opening the PR, rebase on the latest `dev`.
 - For anything bigger than a small fix, open an issue first so we can agree on the approach.
   Some larger designs are written up in [`docs/`](docs/).
+
+## Releases
+
+The maintainer releases `dev` to production, ideally in small and frequent batches. A release
+ships everything on `dev`, so `dev` must always be releasable: unfinished work stays on its own
+branch or behind an option that is off.
+
+1. Open a PR from `dev` to `master`, titled `release: YYYY-MM-DD`. List the PRs it includes, the
+   new migrations and any manual step to run after the deploy (e.g. `setup_ses_template`).
+2. Test the updated `dev`: run the test suite, apply the migrations locally and try the affected
+   flows. Don't merge anything else into `dev` until the release is done, or it becomes part of it.
+3. If a migration is risky, take a backup first: `heroku pg:backups:capture -a boardgamers`.
+4. Merge with **"Create a merge commit"**. The merge starts the deploy and runs the migrations.
+5. Check the Heroku release, Sentry and the main pages, then run the manual steps.
+
+If something breaks, `heroku rollback -a boardgamers` restores the previous code but **does not
+undo migrations**. Fix `master` afterwards, or the next deploy brings the problem back.
+
+`master` is always a few merge commits ahead of `dev`: that's expected.
 
 ## Commits
 
@@ -46,7 +72,7 @@ Migrations are numbered, and two PRs that both add `00NN_…` will conflict.
 
 - Generate migrations with `python manage.py makemigrations webapp` and commit them in the same PR
   as the model change.
-- If `master` gained a new migration while your PR was open: rebase, **delete your migration and
+- If `dev` gained a new migration while your PR was open: rebase, **delete your migration and
   regenerate it** so that it depends on the latest one. Don't commit merge migrations.
 - Data migrations must be reversible, or at least safe to run on production data: they run
   automatically on deploy. Running one twice must do no harm.
@@ -141,7 +167,7 @@ python manage.py compilemessages
 
 The PR template repeats this list:
 
-- [ ] Rebased on the latest `master`
+- [ ] Rebased on the latest `dev`
 - [ ] `python manage.py test webapp.tests` passes locally
 - [ ] Migrations regenerated after rebase (if any)
 - [ ] `.po` updated and `.mo` recompiled (if strings changed)
