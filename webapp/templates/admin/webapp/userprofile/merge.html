@@ -10,6 +10,9 @@
       <ul class="messagelist"><li class="warning" role="alert">{% blocktranslate %}Both accounts have logins with these providers: {{ providers }}. Only the selected account’s logins for these providers are kept.{% endblocktranslate %}</li></ul>
     {% endwith %}
   {% endif %}
+  {% if unverified_import %}
+    <ul class="messagelist"><li class="warning" role="alert">{% blocktranslate with email=unverified_import %}The email {{ email }} is not verified: make sure it belongs to the user. If you keep the account without email, it imports this address: the user can't join tables until it is verified, and a Google login with it removes the password and the other logins.{% endblocktranslate %}</li></ul>
+  {% endif %}
     <form method="post">
       {% csrf_token %}
       <input type="hidden" name="a" value="{{ profiles.0.pk }}">

@@ -134,6 +134,9 @@ class UserProfileAdmin(admin.ModelAdmin):
             for profile in profiles
         ]
         first, second = ({login.provider for login in account['logins']} for account in accounts)
+        without_email = any(not profile.user.email for profile in profiles)
+        unverified_email = next(
+            (profile.user.email for profile in profiles if profile.user.email and not profile.is_email_verified), None)
         return TemplateResponse(request, 'admin/webapp/userprofile/merge.html', {
             **self.admin_site.each_context(request),
             'opts': self.model._meta,
@@ -141,6 +144,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             'profiles': profiles,
             'accounts': accounts,
             'shared_providers': sorted(first & second),
+            'unverified_import': unverified_email if without_email else None,
             'keeper': keeper,
             'error': error,
             'allowed': allowed,

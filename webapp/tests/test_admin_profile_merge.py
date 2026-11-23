@@ -161,6 +161,20 @@ class AdminProfileMergeTests(TestCase):
         )
         self.assertFalse(UserSocialAuth.objects.filter(pk=dropped.pk).exists())
 
+    def test_preview_warns_about_importing_an_unverified_email(self):
+        warning = f'L’email {self.duplicate.user.email} non è verificata'
+        self.duplicate.is_email_verified = False
+        self.duplicate.save(update_fields=['is_email_verified'])
+        # Both accounts have an email: nothing is imported.
+        self.assertNotContains(self.client.get(self.url, self.ids), warning)
+
+        User.objects.filter(pk=self.keeper.user_id).update(email='')
+        self.assertContains(self.client.get(self.url, self.ids), warning)
+
+        self.duplicate.is_email_verified = True
+        self.duplicate.save(update_fields=['is_email_verified'])
+        self.assertNotContains(self.client.get(self.url, self.ids), warning)
+
     def test_missing_login_method_rolls_back_email_and_profile_transfer(self):
         user = self.keeper.user
         user.email = ''
