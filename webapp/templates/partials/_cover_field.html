@@ -2,17 +2,15 @@
 {% comment %}
 Shared cover input. The field provides its prefixed name and ID, and
 saved_image is the file that was stored before the form was submitted.
+image_alt is the alternative text of the saved image (event variant only).
 {% endcomment %}
 {% with cover_id=field.id_for_label|default:field.html_name %}
 <div id="{{ cover_id }}-cover-field" data-cover-field class="{% if variant != "event" %}space-y-3{% endif %}">
 {% if variant == "event" %}
-  {# --- Formazioni: selettore semplice con anteprima del file salvato --- #}
+  {# --- Events: simple picker with a preview of the saved file --- #}
   {% if saved_image %}
-    <img src="{{ saved_image.url }}" alt=""
+    <img src="{{ saved_image.url }}" alt="{{ image_alt }}"
          class="w-full h-40 object-cover rounded-xl mb-3">
-  {% endif %}
-  {% if preview_caption %}
-    <p class="text-xs text-content-muted -mt-1">{{ preview_caption }}</p>
   {% endif %}
   <label for="{{ field.id_for_label }}"
          class="flex items-center gap-2 w-full cursor-pointer rounded-xl border border-dashed border-divider px-4 py-3 text-sm text-content-muted hover:border-slate-400 hover:bg-surface-alt transition-colors">
@@ -20,9 +18,9 @@ saved_image is the file that was stored before the form was submitted.
     <span id="{{ cover_id }}-filename" data-cover-filename>{% trans "Choose an image…" %}</span>
     {{ field }}
   </label>
-  <p class="{% if variant == "event" %}mt-1 {% endif %}text-xs text-content-muted">{{ field.help_text }}</p>
+  <p class="mt-1 text-xs text-content-muted">{{ field.help_text }}</p>
 {% else %}
-  {# --- Tavoli: anteprima del file salvato, rimozione e selezione --- #}
+  {# --- Tables: preview of the saved file, removal and picker --- #}
   <p class="text-[11px] text-content-muted -mt-1">
     {% trans "Upload an image to show instead of the game cover." %} {{ field.help_text }}
   </p>
@@ -71,7 +69,11 @@ saved_image is the file that was stored before the form was submitted.
 
     input.addEventListener('change', function () {
       const file = input.files[0];
-      if (!file) return;
+      if (!file) {
+        // Table pages keep the last selection's preview, as before.
+        if (!image) filename.textContent = chooseImage;
+        return;
+      }
       filename.textContent = file.name;
       if (clear) clear.checked = false;
       if (reselect) reselect.hidden = true;

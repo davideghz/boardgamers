@@ -67,7 +67,7 @@ async function main() {
     const root = roots[action.component].querySelector('[data-cover-field]');
     const input = root.querySelector('input[type="file"]');
     if (action.type === 'select') {
-      input.files = [{ name: action.filename }];
+      input.files = action.filename ? [{ name: action.filename }] : [];
       await input.dispatch('change');
     } else if (action.type === 'clear') {
       const clear = root.querySelector('[data-cover-clear]');

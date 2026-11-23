@@ -67,7 +67,12 @@ class CoverFieldTest(SimpleTestCase):
             with self.subTest(variant=variant):
                 html = self.render_component('first', variant)
                 self.assertNotIn('{#', html)
-                self.assertNotIn('Componente condiviso', html)
+                self.assertNotIn('Shared cover input', html)
+
+    def test_event_image_uses_the_given_alt_text(self):
+        html = self.render_component('first', 'event', image_alt='Games "Con"')
+        image = next(element['attrs'] for element in ComponentParser(html).elements if element['tag'] == 'img')
+        self.assertEqual(image['alt'], 'Games "Con"')
 
     def test_prefixed_inputs_bind_uploads_and_removals(self):
         html = self.render_component('first')
@@ -125,6 +130,15 @@ class CoverFieldTest(SimpleTestCase):
         result = self.run_component_scripts(components, [{'type': 'select', 'component': 1, 'filename': 'second.png'}])
         self.assertEqual(result['components'][0]['filename'], 'Choose an image…')
         self.assertEqual(result['components'][1]['filename'], 'second.png')
+
+    @skipUnless(shutil.which('node'), 'Node.js is required to execute the inline component script.')
+    def test_emptying_the_event_selection_restores_the_label(self):
+        components = [ComponentParser(self.render_component('first', 'event')).root]
+        result = self.run_component_scripts(components, [
+            {'type': 'select', 'component': 0, 'filename': 'first.png'},
+            {'type': 'select', 'component': 0, 'filename': None},
+        ])
+        self.assertEqual(result['components'][0]['filename'], 'Choose an image…')
 
     def run_component_scripts(self, components, actions):
         result = subprocess.run(
