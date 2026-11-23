@@ -7,8 +7,9 @@ For the local setup (PostgreSQL + PostGIS, GDAL/GEOS, `.env`), see the [Readme](
 
 - **`dev` is the integration branch.** Fork the repo (or create a branch if you have access),
   start from `dev` and open your PR against `dev`. Nobody pushes to `dev` directly: every change
-  goes through a pull request, and only the maintainer merges it, after trying it locally as an
-  anonymous visitor, a regular user and a location manager.
+  goes through a pull request that the maintainer approves, after trying it locally as an
+  anonymous visitor, a regular user and a location manager. Once approved, anyone with write
+  access can merge it.
 - **`master` is production.** The Heroku pipeline deploys every commit on `master`, and
   migrations run automatically in the release phase. Only the maintainer updates `master`, by
   merging `dev` into it with a merge commit (no squash or rebase, so the two branches don't
