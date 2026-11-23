@@ -88,7 +88,8 @@ def merge_games(keeper, duplicate, choices):
     The keeper's slug never changes (fields are written with update(), so a new
     name does not regenerate it). Library entries of a location holding both
     games are folded into the keeper's entry, appending the duplicate's notes
-    and adding its tags. An active entry takes precedence over an archived one.
+    and adding its tags. An active entry takes precedence over an archived one,
+    and the most recent withdrawal details are retained.
     """
     if keeper.pk == duplicate.pk:
         raise ValueError('Cannot merge a game into itself.')
@@ -118,18 +119,18 @@ def merge_games(keeper, duplicate, choices):
                 kept.notes = f'{kept.notes}\n{entry.notes}'.strip() if kept.notes.strip() else entry.notes
                 fields.append('notes')
             if kept.is_archived and not entry.is_archived:
+                kept.is_archived = False
                 kept.ownership = entry.ownership
                 kept.owner_member_id = entry.owner_member_id
                 kept.physical_location = entry.physical_location
-                fields.extend(['ownership', 'owner_member', 'physical_location'])
-            if kept.is_archived and (
-                not entry.is_archived or entry.withdrawn_on and (not kept.withdrawn_on or entry.withdrawn_on > kept.withdrawn_on)
-            ):
-                kept.is_archived = entry.is_archived
+                fields.extend(['is_archived', 'ownership', 'owner_member', 'physical_location'])
+            newer_withdrawal = entry.withdrawn_on and (
+                not kept.withdrawn_on or entry.withdrawn_on > kept.withdrawn_on)
+            if entry.has_withdrawal_details and (not kept.has_withdrawal_details or newer_withdrawal):
                 kept.withdrawn_on = entry.withdrawn_on
                 kept.withdrawal_reason = entry.withdrawal_reason
                 kept.withdrawal_note = entry.withdrawal_note
-                fields.extend(['is_archived', 'withdrawn_on', 'withdrawal_reason', 'withdrawal_note'])
+                fields.extend(['withdrawn_on', 'withdrawal_reason', 'withdrawal_note'])
             if fields:
                 kept.save(update_fields=[*fields, 'updated_at'])
             entry.delete()

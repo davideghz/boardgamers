@@ -273,7 +273,10 @@ class LocationGameLoanTest(TestCase):
         self.client.post(borrow_url)
         self.assertEqual(self.game.loans.count(), 1)
         self.client.force_login(self.manager.user)
-        self.assertRedirects(self.client.post(archive_url, {'action': 'restore'}), detail_url)
+        confirmation = self.client.get(archive_url, {'action': 'restore'})
+        self.assertRedirects(self.client.post(archive_url, {
+            'action': 'restore', 'confirmed': 'yes', 'withdrawal_version': confirmation.context['withdrawal_version'],
+        }), detail_url)
         self.client.force_login(self.borrower.user)
         self.assertContains(self.client.get(self.url('location-games')), borrow_url)
 

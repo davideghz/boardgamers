@@ -1445,6 +1445,10 @@ class LocationGame(DateTimeModel):
         ordering = ['game__name']
 
     @property
+    def has_withdrawal_details(self):
+        return bool(self.withdrawn_on or self.withdrawal_reason or self.withdrawal_note)
+
+    @property
     def is_lendable(self):
         return (not self.is_archived and self.ownership == self.OWNED_BY_LOCATION
                 and self.physical_location == self.AT_ASSOCIATION)
