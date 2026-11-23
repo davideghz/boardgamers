@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 11:08+0100\n"
+"POT-Creation-Date: 2026-11-23 11:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -984,6 +984,21 @@ msgstr "Questo account %(provider)s è già collegato a un altro utente."
 msgid "The Google email address is already associated with another account."
 msgstr "L'indirizzo email Google è già associato a un altro account."
 
+msgid "This email is already in use."
+msgstr "Questa email è già in uso."
+
+msgid "Email cannot be empty."
+msgstr "L'email non può essere vuota."
+
+msgid "Enter a valid email address."
+msgstr "Inserisci un indirizzo email valido."
+
+msgid "This is already your email."
+msgstr "Questa è già la tua email."
+
+msgid "Error. Invalid verification code."
+msgstr "Errore. Codice di verifica non valido."
+
 msgid ""
 "Ask a manager to record this loan. Your account is linked to more than one "
 "active member record."
@@ -1797,6 +1812,25 @@ msgstr "nuovi messaggi"
 msgid "Link to table"
 msgstr "Link al tavolo"
 
+msgid "Hey"
+msgstr "Ciao"
+
+msgid ""
+"Please click the link to confirm your new email address. You need to be "
+"logged in."
+msgstr "Clicca sul link per confermare il tuo nuovo indirizzo email. Devi aver effettuato l'accesso."
+
+msgid "Confirm your email"
+msgstr "Conferma il tuo indirizzo email"
+
+msgid ""
+"Please click the button below to confirm your new email address. You need to "
+"be logged in."
+msgstr "Clicca sul pulsante qui sotto per confermare il tuo nuovo indirizzo email. Devi aver effettuato l'accesso."
+
+msgid "Confirm"
+msgstr "Conferma"
+
 msgid "New message from contact form"
 msgstr "Nuovo messaggio dal form di contatto"
 
@@ -1808,9 +1842,6 @@ msgstr "email"
 
 msgid "message"
 msgstr "messaggio"
-
-msgid "Hey"
-msgstr "Ciao"
 
 msgid ""
 "We are sorry to inform you that a table you were participating in has been "
@@ -1908,9 +1939,6 @@ msgid ""
 msgstr ""
 "Clicca sul link per confermare il tuo indirizzo email e completare la "
 "configurazione del tuo account"
-
-msgid "Confirm your email"
-msgstr "Conferma il tuo indirizzo email"
 
 msgid ""
 "Please click the button below to confirm your email address and finish "
@@ -2652,15 +2680,6 @@ msgstr "Invita/Rimuovi Gamers"
 msgid "Games – %(name)s"
 msgstr "Giochi - %(name)s"
 
-msgid "Played tables"
-msgstr "Tavoli giocati"
-
-msgid "Gamers"
-msgstr "Gamers"
-
-msgid "View on BoardGameGeek"
-msgstr ""
-
 msgid "Game info"
 msgstr "Info sul gioco"
 
@@ -2678,6 +2697,15 @@ msgstr "Media"
 
 msgid "Heavy"
 msgstr "Alta"
+
+msgid "Played tables"
+msgstr "Tavoli giocati"
+
+msgid "Gamers"
+msgstr "Gamers"
+
+msgid "View on BoardGameGeek"
+msgstr ""
 
 msgid "Played at"
 msgstr "Dove si gioca"
@@ -5249,14 +5277,11 @@ msgstr "%(nickname)s aggiunto ai tuoi preferiti."
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-msgid "Email cannot be empty."
-msgstr "L'email non può essere vuota."
-
-msgid "This email is already in use."
-msgstr "Questa email è già in uso."
-
 msgid "Wrong password."
 msgstr "Password errata."
+
+msgid "We sent a link to the new address: open it to confirm the change."
+msgstr "Abbiamo inviato un link al nuovo indirizzo: aprilo per confermare la modifica."
 
 msgid "Email updated successfully."
 msgstr "Email aggiornata con successo."
@@ -5645,11 +5670,6 @@ msgstr "Collega account"
 #~| msgid "Please enter a valid phone number."
 #~ msgid "Enter a valid integer."
 #~ msgstr "Inserisci un numero di telefono valido."
-
-#, fuzzy
-#~| msgid "Sent to your email address."
-#~ msgid "Enter a valid email address."
-#~ msgstr "Inviate al tuo indirizzo email."
 
 #, fuzzy
 #~| msgid "Phone number"

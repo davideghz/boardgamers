@@ -564,7 +564,7 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email=email).exists():
+        if email and User.objects.filter(email__iexact=email).exists():
             raise ValidationError(_("Email already registered."))
         return email
 
