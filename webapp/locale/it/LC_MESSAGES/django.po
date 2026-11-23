@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 15:53+0100\n"
+"POT-Creation-Date: 2026-11-23 16:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -134,6 +134,10 @@ msgstr "Nessun socio trovato."
 msgid "The image is too large (max %(size)s)."
 msgstr "L'immagine è troppo grande (max %(size)s)."
 
+#, python-format
+msgid "The image has too many pixels (max %(max)s megapixels)."
+msgstr "L'immagine ha troppi pixel (max %(max)s megapixel)."
+
 msgid "This field is required."
 msgstr "Questo campo è obbligatorio."
 
@@ -142,6 +146,10 @@ msgstr "Il numero massimo di giocatori non può essere inferiore al minimo."
 
 msgid "The selected station does not belong to the selected area."
 msgstr "La postazione selezionata non appartiene all’area selezionata."
+
+#, python-format
+msgid "Max %(size)s"
+msgstr "Max %(size)s"
 
 msgid "e.g. Rulebook, Score sheet…"
 msgstr "es. Regolamento, Foglio punteggi…"
@@ -2747,10 +2755,6 @@ msgstr "Seleziona un gioco (opzionale)"
 
 msgid "Upload an image to show instead of the game cover."
 msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
-
-#, python-format
-msgid "Max %(size)s"
-msgstr "Max %(size)s"
 
 msgid "Remove current image"
 msgstr "Rimuovi immagine"

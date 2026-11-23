@@ -18,6 +18,10 @@ logger = logging.getLogger(__name__)
 
 COVER_MAX_SIDE = 1200
 COVER_UPLOAD_MAX_BYTES = 5 * 1024 * 1024
+# Un file leggero può avere moltissimi pixel. I JPEG vengono decodificati già
+# rimpiccioliti, gli altri formati per intero: per questo hanno un limite più basso.
+COVER_UPLOAD_MAX_JPEG_PIXELS = 64_000_000
+COVER_UPLOAD_MAX_PIXELS = 16_000_000
 AVATAR_MAX_SIDE = 256
 NETWORK_LOGO_MAX_BYTES = 2 * 1024 * 1024
 NETWORK_LOGO_MAX_INPUT_SIDE = 2048
@@ -55,10 +59,12 @@ def shrink_image_bytes(data, max_side):
     (già piccola, non decodificabile, o la riduzione non farebbe risparmiare)."""
     try:
         with Image.open(BytesIO(data)) as img:
-            img = ImageOps.exif_transpose(img)
             if max(img.size) <= max_side and len(data) <= SMALL_ENOUGH_BYTES:
                 return None
+            # Prima la riduzione, poi la rotazione: così thumbnail() può far decodificare
+            # i JPEG già rimpiccioliti, invece di tenere in memoria tutti i pixel.
             img.thumbnail((max_side, max_side), Image.LANCZOS)
+            img = ImageOps.exif_transpose(img)
             img = _to_rgb(img)
             out = BytesIO()
             img.save(out, 'JPEG', quality=JPEG_QUALITY, optimize=True, progressive=True)

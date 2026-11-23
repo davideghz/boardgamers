@@ -14,6 +14,7 @@ from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
 from django.utils import timezone, translation
 from PIL import Image
+from PIL.JpegImagePlugin import JpegImageFile
 
 from webapp.factories import LocationFactory, TableFactory, UserProfileFactory
 from webapp.forms import (
@@ -21,7 +22,9 @@ from webapp.forms import (
     TableDuplicateForm, TableForm, validate_custom_cover_size,
 )
 from webapp.models import Event, EventDate, Location, Table
-from webapp.services.images import COVER_UPLOAD_MAX_BYTES
+from webapp.services.images import (
+    COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, SMALL_ENOUGH_BYTES, shrink_image_bytes,
+)
 from webapp.services.tables import duplicate_draft
 
 
@@ -53,6 +56,30 @@ class CoverUploadSizeTest(SimpleTestCase):
     def test_empty_and_clear_values_are_accepted(self):
         for value in (None, False):
             self.assertIs(validate_custom_cover_size(value), value)
+
+
+class CoverShrinkTest(SimpleTestCase):
+    def test_large_jpeg_is_decoded_at_reduced_size_and_keeps_its_rotation(self):
+        source = Image.new('RGB', (8000, 6000), 'navy')
+        exif = Image.Exif()
+        exif[0x0112] = 6  # rotate 90 degrees when displayed
+        output = BytesIO()
+        source.save(output, 'JPEG', quality=95, exif=exif)
+
+        real_load, sizes = JpegImageFile.load, []
+
+        def load(image):
+            result = real_load(image)
+            sizes.append(image.size)
+            return result
+
+        with mock.patch.object(JpegImageFile, 'load', load):
+            shrunk = shrink_image_bytes(output.getvalue() + bytes(SMALL_ENOUGH_BYTES), COVER_MAX_SIDE)
+        self.assertTrue(sizes)
+        self.assertLess(max(sizes[0]), 8000)
+        with Image.open(BytesIO(shrunk)) as result:
+            self.assertEqual(result.size, (900, 1200))
+            self.assertIsNone(result.getexif().get(0x0112))
 
 
 class CoverUploadFormsTest(TestCase):
@@ -127,6 +154,21 @@ class CoverUploadFormsTest(TestCase):
                     form = form_class(data=data, files={field_name: upload}, instance=instance, **kwargs)
                     self.assertFalse(form.is_valid())
                     self.assertIn(field_name, form.errors)
+
+    def test_all_forms_reject_new_images_with_too_many_pixels(self):
+        for fmt, limit in (('PNG', 'COVER_UPLOAD_MAX_PIXELS'), ('JPEG', 'COVER_UPLOAD_MAX_JPEG_PIXELS')):
+            output = BytesIO()
+            Image.new('RGB', (32, 24), 'navy').save(output, fmt)
+            for max_pixels, valid in ((32 * 24, True), (32 * 24 - 1, False)):
+                for form_class, data, instance, field_name, kwargs in self.form_cases():
+                    with (self.subTest(form=form_class.__name__, format=fmt, valid=valid),
+                          mock.patch(f'webapp.forms.{limit}', max_pixels)):
+                        if instance.pk:
+                            instance.refresh_from_db()
+                        upload = SimpleUploadedFile(f'selected.{fmt.lower()}', output.getvalue())
+                        form = form_class(data=data, files={field_name: upload}, instance=instance, **kwargs)
+                        self.assertEqual(form.is_valid(), valid, form.errors)
+                        self.assertEqual(field_name in form.errors, not valid)
 
     def test_existing_covers_are_preserved_without_reading_storage(self):
         for form_class, data, instance, field_name, kwargs in self.form_cases():

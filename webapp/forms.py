@@ -15,7 +15,8 @@ from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
 from webapp.services.game_loans import active_members, default_loan_due_date
-from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, validate_network_logo
+from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, COVER_UPLOAD_MAX_JPEG_PIXELS, COVER_UPLOAD_MAX_PIXELS, \
+    validate_network_logo
 
 from django.urls import reverse
 from django.template.defaultfilters import filesizeformat
@@ -261,13 +262,22 @@ class TailwindForm(Form):
 
 
 def validate_custom_cover_size(cover):
-    """Reject freshly uploaded cover images larger than the allowed size.
+    """Reject freshly uploaded cover images over the allowed file size or pixel count.
     An unchanged existing image is a FieldFile without a fresh upload and is
     left untouched."""
     if isinstance(cover, UploadedFile) and cover.size > COVER_UPLOAD_MAX_BYTES:
         raise ValidationError(_("The image is too large (max %(size)s).") % {
             'size': filesizeformat(COVER_UPLOAD_MAX_BYTES),
         })
+    # ImageField.to_python sets `image` on new uploads, never on saved files.
+    image = getattr(cover, 'image', None) if isinstance(cover, UploadedFile) else None
+    if image is not None:
+        is_jpeg = image.format in ('JPEG', 'MPO')
+        max_pixels = COVER_UPLOAD_MAX_JPEG_PIXELS if is_jpeg else COVER_UPLOAD_MAX_PIXELS
+        if image.width * image.height > max_pixels:
+            raise ValidationError(_("The image has too many pixels (max %(max)s megapixels).") % {
+                'max': max_pixels // 1_000_000,
+            })
     return cover
 
 
