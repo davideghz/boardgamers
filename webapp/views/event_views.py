@@ -15,6 +15,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.cache import add_never_cache_headers
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import DetailView, UpdateView
@@ -106,9 +107,33 @@ def _dates_with_gaps(event):
     return event_dates
 
 
+class EventSectionUnavailable(Http404):
+    def __init__(self, event, title):
+        super().__init__()
+        self.event = event
+        self.title = title
+
+
 class EventPublicAccessMixin:
     """Resolve the event by slug, enforcing visibility (managers can preview
     their own unpublished events)."""
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404 as error:
+            title = _('Event unavailable')
+            public_event = None
+            if isinstance(error, EventSectionUnavailable) and error.event.is_published:
+                title = error.title
+                public_event = error.event
+            response = render(request, 'events/event_not_found.html', {
+                'title': title,
+                'public_event': public_event,
+                'meta': Meta(title=title),
+            }, status=404)
+            add_never_cache_headers(response)
+            return response
 
     def get_object(self, queryset=None):
         event = super().get_object(queryset)
@@ -215,7 +240,7 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
         if not event.enable_public_games:
             user = self.request.user
             if not (user.is_authenticated and (user.is_superuser or event.is_manager(user.user_profile))):
-                raise Http404
+                raise EventSectionUnavailable(event, _('Game catalog unavailable'))
         return event
 
     @staticmethod
@@ -417,7 +442,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
     def get_object(self, queryset=None):
         event = super().get_object(queryset)
         if not event.can_view_program(self.request.user):
-            raise Http404
+            raise EventSectionUnavailable(event, _('Program unavailable'))
         return event
 
     def get_context_data(self, **kwargs):

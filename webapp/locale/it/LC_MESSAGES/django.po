@@ -5837,6 +5837,24 @@ msgstr "Scegli la sede organizzatrice"
 msgid "You have no locations where you can create an event."
 msgstr "Non hai location per cui puoi creare un evento."
 
+msgid "Event unavailable"
+msgstr "Evento non disponibile"
+
+msgid "Program unavailable"
+msgstr "Programma non disponibile"
+
+msgid "Game catalog unavailable"
+msgstr "Catalogo non disponibile"
+
+msgid "Go back to the event page for the available information."
+msgstr "Torna alla pagina dell'evento per le informazioni disponibili."
+
+msgid "Check the link or look for the event in the list of public events."
+msgstr "Controlla il link oppure cerca l'evento nell'elenco degli eventi pubblici."
+
+msgid "View events"
+msgstr "Vedi gli eventi"
+
 #~ msgid "This game is archived."
 #~ msgstr "Questo gioco è archiviato."
 
