@@ -9,6 +9,10 @@
     <h1 class="text-2xl font-extrabold text-content">{% trans "Manage event" %}</h1>
   </div>
 
+  <div class="max-w-xl mb-6">
+    {% include "events/_event_locations.html" with event=event only %}
+  </div>
+
   {# ── Publication ─────────────────────────────────────────────────── #}
   <div class="max-w-xl mb-6">
     {% if event.status == 'draft' %}

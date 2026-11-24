@@ -134,7 +134,8 @@ class CoverUploadFormsTest(TestCase):
             ('table-duplicate', {'slug': self.table.slug}, self.duplicate_data, 'custom_cover', self.table),
             ('location-create', {}, self.location_data, 'cover', None),
             ('location-manage-data', {'slug': self.location.slug}, self.location_data, 'cover', self.location),
-            ('event-create', {}, self.event_data, 'cover', None),
+            ('location-event-create', {'slug': self.location.slug},
+             {**self.event_data, 'venue_location': self.location.pk, 'date': self.day.isoformat()}, 'cover', None),
             ('event-manage-data', {'slug': self.event.slug}, self.event_data, 'cover', self.event),
         ]
 
@@ -200,7 +201,7 @@ class CoverUploadFormsTest(TestCase):
             'location-table-create': Table,
             'event-table-create': Table,
             'location-create': Location,
-            'event-create': Event,
+            'location-event-create': Event,
         }
         for route, kwargs, data, field_name, instance in self.post_cases():
             if instance is not None:

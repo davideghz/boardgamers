@@ -5828,6 +5828,15 @@ msgstr "Ancora nessun evento."
 msgid "Event created as a draft."
 msgstr "Evento creato in bozza."
 
+msgid "Not assigned"
+msgstr "Da assegnare"
+
+msgid "Choose an organizing location"
+msgstr "Scegli la sede organizzatrice"
+
+msgid "You have no locations where you can create an event."
+msgstr "Non hai location per cui puoi creare un evento."
+
 #~ msgid "This game is archived."
 #~ msgstr "Questo gioco è archiviato."
 

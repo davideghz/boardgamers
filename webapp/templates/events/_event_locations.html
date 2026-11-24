@@ -1,0 +1,28 @@
+{% load i18n %}
+<dl class="grid gap-3 sm:grid-cols-2 rounded-xl border border-divider bg-surface p-4">
+  <div class="min-w-0 break-words">
+    <dt class="text-xs font-semibold text-content-muted">{% translate "Organizing location" %}</dt>
+    <dd class="mt-1 text-sm font-semibold">
+      {% if event.organizer_location_id %}
+        <a class="text-blue-600 hover:underline" href="{% url 'location-detail' event.organizer_location.slug %}">{{ event.organizer_location.name }}</a>
+      {% else %}
+        {% translate "Not assigned" %}
+      {% endif %}
+    </dd>
+  </div>
+  <div class="min-w-0 break-words">
+    <dt class="text-xs font-semibold text-content-muted">{% translate "Venue" %}</dt>
+    <dd class="mt-1 text-sm font-semibold">
+      {% if event.venue_location_id %}
+        <a class="text-blue-600 hover:underline" href="{% url 'location-detail' event.venue_location.slug %}">{{ event.venue_label }}</a>
+      {% else %}
+        {{ event.venue_label|default:_("Not assigned") }}
+      {% endif %}
+    </dd>
+    {% if event.organizer_location_id and event.venue_label %}
+      <dd class="mt-1 text-xs text-content-muted">
+        {% if event.is_at_organizer_location %}{% translate "At the organizing location" %}{% else %}{% translate "External venue" %}{% endif %}
+      </dd>
+    {% endif %}
+  </div>
+</dl>

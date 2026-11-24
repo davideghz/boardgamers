@@ -1,97 +1,29 @@
 {% extends "base_webapp.html" %}
-{% load custom_tags %}
-{% load i18n %}
+{% load i18n custom_tags %}
 
 {% block content %}
-
   <div class="mb-6">
-    {% back_link 'account-events' label=_("My Events") %}
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Create event" %}</h1>
-    <p class="text-sm text-content-muted mt-1">{% trans "The event starts as a draft: you can publish it yourself once it's ready." %}</p>
+    {% back_link 'event-index' label=_("Events") %}
+    <h1 class="text-2xl font-extrabold text-content">{% translate "Create event" %}</h1>
   </div>
 
-  <form enctype="multipart/form-data" action="" method="post" class="max-w-xl space-y-5">
-    {% csrf_token %}
-    {{ form.latitude }}
-    {{ form.longitude }}
-
-    {# ── Name ────────────────────────────────────────────────────────── #}
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-      {{ form.name }}
-      {% if form.name.errors %}<p class="mt-1 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
-    </div>
-
-    {# ── Description ─────────────────────────────────────────────────── #}
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-      {{ form.description }}
-      {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
-    </div>
-
-    {# ── Cover image ─────────────────────────────────────────────────── #}
-    <div>
-      <p class="text-xs font-semibold text-content-soft mb-2">{% trans "Cover image" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span></p>
-      {% include 'partials/_cover_field.html' with field=form.cover variant="event" saved_image=form.initial.cover %}
-    </div>
-
-    {# ── City ────────────────────────────────────────────────────────── #}
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
-      {{ form.city }}
-      {% if form.city.errors %}<p class="mt-1 text-xs text-red-500">{{ form.city.errors|join:", " }}</p>{% endif %}
-    </div>
-
-    {# ── Address ─────────────────────────────────────────────────────── #}
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.address.id_for_label }}">
-        {{ form.address.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
-      </label>
-      {{ form.address }}
-      <p class="mt-1 text-[11px] text-content-muted">{% trans "We'll use this to show the location on the map." %}</p>
-      {% if form.address.errors %}<p class="mt-1 text-xs text-red-500">{{ form.address.errors|join:", " }}</p>{% endif %}
-    </div>
-
-    {# ── Map ─────────────────────────────────────────────────────────── #}
-    <div id="gmp-map" class="w-full h-48 rounded-xl overflow-hidden border border-divider"></div>
-
-    {# ── Phone ───────────────────────────────────────────────────────── #}
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.phone.id_for_label }}">
-        {{ form.phone.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
-      </label>
-      {{ form.phone }}
-      {% if form.phone.errors %}<p class="mt-1 text-xs text-red-500">{{ form.phone.errors|join:", " }}</p>{% endif %}
-    </div>
-
-    {# ── Email ───────────────────────────────────────────────────────── #}
-    <div>
-      <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.email.id_for_label }}">
-        {{ form.email.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
-      </label>
-      {{ form.email }}
-      {% if form.email.errors %}<p class="mt-1 text-xs text-red-500">{{ form.email.errors|join:", " }}</p>{% endif %}
-    </div>
-
-    {# ── Submit / Cancel ─────────────────────────────────────────────── #}
-    <div class="flex gap-3 pt-2">
-      <a href="{% url 'account-events' %}"
-         class="flex items-center justify-center gap-2 rounded-full border border-divider px-4 py-3 text-sm font-semibold text-content hover:bg-surface-alt transition-colors text-decoration-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-        {% trans "Cancel" %}
-      </a>
-      <button type="submit"
-              class="flex-1 flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-        {% trans "Create event" %}
-      </button>
-    </div>
-
-  </form>
-
-{% endblock content %}
-
-{% block extrabodyjs %}
-  {% include "partials/google-maps-form.html" %}
-  {% include "partials/intl_tel_input.html" %}
+  <div class="max-w-xl">
+    {% if locations %}
+      <h2 class="mb-3 text-sm font-semibold text-content-muted">{% translate "Choose an organizing location" %}</h2>
+      <ul class="space-y-2">
+        {% for location in locations %}
+          <li>
+            <a href="{% url 'location-event-create' location.slug %}"
+               class="block rounded-xl border border-divider bg-surface p-4 text-content hover:bg-surface-alt">
+              <span class="font-semibold">{{ location.name }}</span>
+              {% if location.city %}<span class="block text-sm text-content-muted">{{ location.city }}</span>{% endif %}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="mb-3 text-content-muted">{% translate "You have no locations where you can create an event." %}</p>
+      <a href="{% url 'location-create' %}" class="font-semibold text-blue-600 hover:underline">{% translate "Add location" %}</a>
+    {% endif %}
+  </div>
 {% endblock %}

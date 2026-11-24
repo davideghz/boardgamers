@@ -12,7 +12,6 @@
         {% url 'location-detail' location.slug as cancel_url %}
       {% endif %}
       <h1 class="text-2xl font-extrabold text-content">{% trans "Create location event" %}</h1>
-      <p class="mt-1 text-sm text-content-muted">{{ location.name }}</p>
       {% trans "Create event" as submit_label %}
     {% else %}
       {% back_link 'event-manage' event.slug label=event.name %}
@@ -20,6 +19,9 @@
       <h1 class="text-2xl font-extrabold text-content">{% trans "General info" %}</h1>
       {% trans "Save changes" as submit_label %}
     {% endif %}
+    <p class="mt-1 text-sm text-content-muted">
+      {% translate "Organizing location" %} · <strong>{{ form.instance.organizer_location.name }}</strong>
+    </p>
   </div>
 
   <form method="post" enctype="multipart/form-data" class="max-w-xl space-y-5">

@@ -17,11 +17,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView
 
 from webapp import emails
 from webapp.forms import (
-    EventTableForm, EventForm, EventManageDataForm, OrganizedEventForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
+    EventTableForm, EventManageDataForm, OrganizedEventForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
     EventTableCategoryForm, EventGameForm, EventGameTagForm,
 )
@@ -36,19 +36,12 @@ from webapp.views.table_views import BaseTableDetailView
 logger = logging.getLogger(__name__)
 
 
-class EventCreateView(LoginRequiredMixin, CreateView):
-    model = Event
-    form_class = EventForm
+class EventCreateView(LoginRequiredMixin, View):
     template_name = 'events/event_create.html'
 
-    def form_valid(self, form):
-        form.instance.creator = self.request.user.user_profile
-        response = super().form_valid(form)
-        messages.success(self.request, _("Event created as a draft. Publish it from this page when it's ready."))
-        return response
-
-    def get_success_url(self):
-        return reverse('event-manage', kwargs={'slug': self.object.slug})
+    def get(self, request):
+        locations = Location.event_creation_locations(request.user).order_by('name', 'pk')
+        return render(request, self.template_name, {'locations': locations})
 
 
 @login_required

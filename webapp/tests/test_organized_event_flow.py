@@ -28,6 +28,9 @@ class OrganizedEventFlowTest(TestCase):
         event = Event.objects.get(name=self.data['name'])
         self.assertEqual((event.organizer_location, event.venue_location), (self.club, self.fair))
         self.assertEqual(event.dates.get().closing_time, time(1))
+        manage = self.client.get(reverse('event-manage', args=[event.slug]))
+        self.assertContains(manage, reverse('location-detail', args=[self.club.slug]))
+        self.assertContains(manage, reverse('location-detail', args=[self.fair.slug]))
         self.assertContains(self.client.get(reverse('location-manage-events', args=[self.club.slug])), event.name)
         self.client.post(reverse('event-manage-dates', args=[event.slug]), {
             'date': self.day + timedelta(days=2), 'opening_time': '10:00', 'closing_time': '18:00'})
@@ -44,12 +47,17 @@ class OrganizedEventFlowTest(TestCase):
 
     def test_member_can_propose_and_cannot_edit_or_publish(self):
         profile = UserProfileFactory()
-        self.client.force_login(profile.user)
-        self.assertEqual(self.client.post(self.create_url, self.data).status_code, 403)
-        self.club.event_creation_permission = Location.PERM_MEMBERS_ONLY
-        self.club.save(update_fields=['event_creation_permission'])
         Membership.objects.create(member=Member.objects.create(location=self.club, user_profile=profile),
                                   status=Membership.ACTIVE)
+        self.client.force_login(profile.user)
+        entry = reverse('event-create')
+        self.assertNotContains(self.client.get(entry), self.create_url)
+        self.assertEqual(self.client.post(entry, self.data).status_code, 405)
+        self.assertEqual(self.client.post(self.create_url, self.data).status_code, 403)
+        self.assertFalse(Event.objects.exists())
+        self.club.event_creation_permission = Location.PERM_MEMBERS_ONLY
+        self.club.save(update_fields=['event_creation_permission'])
+        self.assertContains(self.client.get(entry), self.create_url)
         self.client.post(self.create_url, self.data)
         event = Event.objects.get(creator=profile)
         self.assertEqual(event.status, Event.DRAFT)

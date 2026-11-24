@@ -131,12 +131,7 @@
 
       {# ── Description ─────────────────────────────────── #}
       {% if event.organizer_location %}
-        <section class="rounded-xl border border-divider bg-surface p-4">
-          <p>{% translate "Organizing location" %} · <a class="font-semibold text-blue-600" href="{% url 'location-detail' event.organizer_location.slug %}">{{ event.organizer_location.name }}</a></p>
-          <p class="mt-1">{% translate "Venue" %} · {{ event.venue_label }}
-            {% if event.is_at_organizer_location %}({% translate "At the organizing location" %}){% else %}({% translate "External venue" %}){% endif %}
-          </p>
-        </section>
+        {% include "events/_event_locations.html" with event=event only %}
       {% endif %}
       {% if event.description %}
         <section>
