@@ -838,9 +838,16 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         self.leaderboard_status = new_leaderboard_status
         return changed
 
+    def _event_date_changed(self):
+        """Tables already outside the calendar (e.g. of an event that got its organizer
+        later) must still be saved by the cron and the other actions."""
+        if not self.event_id:
+            return False
+        return not Table.objects.filter(pk=self.pk, event_id=self.event_id, date=self.date).exists()
+
     def clean(self):
         super().clean()
-        if self.event_id and self.event.organizer_location_id and self.date:
+        if self.date and self.event_id and self.event.organizer_location_id and self._event_date_changed():
             try:
                 self.event.validate_table_date(self.date)
             except ValidationError as error:
@@ -853,7 +860,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if not getattr(self, '_skip_status_recompute', False):
             self.recompute_statuses()
         fields = kwargs.get('update_fields')
-        if self.event_id and (fields is None or {'event', 'event_id', 'date'}.intersection(fields)):
+        if (fields is None or {'event', 'event_id', 'date'}.intersection(fields)) and self._event_date_changed():
             with transaction.atomic():
                 event = Event.objects.select_for_update().get(pk=self.event_id)
                 if event.organizer_location_id:
