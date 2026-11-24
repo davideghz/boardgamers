@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 11:22+0100\n"
+"POT-Creation-Date: 2026-11-24 11:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -959,7 +959,8 @@ msgid "Version"
 msgstr "Versione"
 
 msgid "Increase only to show a substantially new message again."
-msgstr "Aumenta solo per mostrare nuovamente un messaggio sostanzialmente diverso."
+msgstr ""
+"Aumenta solo per mostrare nuovamente un messaggio sostanzialmente diverso."
 
 msgid "Message"
 msgstr "Messaggio"
@@ -1047,6 +1048,15 @@ msgstr "Pubblicato"
 
 msgid "Blocked"
 msgstr "Bloccato"
+
+msgid "Organizing location"
+msgstr "Sede organizzatrice"
+
+msgid "Venue location"
+msgstr "Sede ospitante"
+
+msgid "Venue name"
+msgstr "Nome del luogo"
 
 msgid "Creator"
 msgstr "Creatore"

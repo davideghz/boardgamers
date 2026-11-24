@@ -894,7 +894,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if self.location_id:
             location = self.location.as_schema_place(request)
         elif self.event_id:
-            location = self.event.as_schema_place()
+            location = self.event.as_schema_place(request)
         else:
             location = None
         if not location:
@@ -1669,6 +1669,17 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         upload_to='event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Cover'))
 
+    # PROTECT also stops the deletion of the profile that created the location
+    # (Location.creator cascades): reassign its events first.
+    organizer_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='organized_events', null=True, blank=True,
+        verbose_name=_('Organizing location'),
+    )
+    venue_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='events_at_venue', null=True, blank=True,
+        verbose_name=_('Venue location'),
+    )
+    venue_name = models.CharField(max_length=255, blank=True, default='', db_default='', verbose_name=_('Venue name'))
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
     city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -1739,7 +1750,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         Console flags. Relative URLs are made absolute from `request` when
         available, else from settings.DOMAIN_URL (S3 media URLs are already
         absolute)."""
-        place = self.as_schema_place()
+        place = self.as_schema_place(request)
         if not self.start_date or not place:
             return None
         data = {
@@ -1759,16 +1770,22 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['description'] = description
         if self.cover:
             data['image'] = _absolute_url(self.cover_url, request)
-        if self.creator and self.creator.nickname:
+        if self.organizer_location_id:
+            data['organizer'] = {'@type': 'Organization', 'name': self.organizer_location.name}
+        elif self.creator and self.creator.nickname:
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data
 
-    def as_schema_place(self):
+    def as_schema_place(self, request=None):
         """schema.org/Place fragment for this event's venue, or None if unknown.
-        Embeddable as the `location` of the event and of its tables."""
+        Embeddable as the `location` of the event and of its tables. A venue
+        without an address falls back to the address of the event."""
+        venue = self.venue_location
+        if venue and (venue.address or venue.city):
+            return venue.as_schema_place(request)
         if not (self.address or self.city):
             return None
-        place = {'@type': 'Place', 'name': self.city or self.name}
+        place = {'@type': 'Place', 'name': venue.name if venue else self.venue_name or self.city or self.name}
         postal = {'@type': 'PostalAddress'}
         if self.address:
             postal['streetAddress'] = self.address
@@ -1782,6 +1799,10 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
                 'longitude': self.longitude,
             }
         return place
+
+    @property
+    def is_at_organizer_location(self):
+        return self.organizer_location_id is not None and self.organizer_location_id == self.venue_location_id
 
     def get_absolute_url(self):
         return reverse('event_detail', kwargs={'slug': self.slug})
