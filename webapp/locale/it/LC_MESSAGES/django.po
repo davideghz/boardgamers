@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 11:45+0100\n"
+"POT-Creation-Date: 2026-11-24 13:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3024,6 +3024,16 @@ msgctxt "game imported from BGG"
 msgid "New"
 msgstr "Nuovo"
 
+#, python-format
+msgid "guest of %(owner)s"
+msgstr "ospite di %(owner)s"
+
+#, python-format
+msgid "%(counter)s table"
+msgid_plural "%(counter)s tables"
+msgstr[0] "%(counter)s tavolo"
+msgstr[1] "%(counter)s tavoli"
+
 msgid "Edit location"
 msgstr "Modifica location"
 
@@ -3085,6 +3095,9 @@ msgstr "Giochi più giocati"
 
 msgid "No games played at this location."
 msgstr "Nessun gioco giocato in questa location."
+
+msgid "Games played"
+msgstr "Giochi giocati"
 
 msgid "Add your games to the library"
 msgstr "Aggiungi i tuoi giochi alla ludoteca"
@@ -3160,6 +3173,18 @@ msgstr "Domenica"
 
 msgid "Affiliations declared by this location."
 msgstr "Affiliazioni dichiarate da questa location."
+
+#, python-format
+msgid "%(counter)s table at this location"
+msgid_plural "%(counter)s tables at this location"
+msgstr[0] "%(counter)s tavolo in questa location"
+msgstr[1] "%(counter)s tavoli in questa location"
+
+msgid "Game details"
+msgstr "Scheda del gioco"
+
+msgid "No results recorded for this game yet."
+msgstr "Nessun risultato registrato per questo gioco."
 
 msgid "Record loan"
 msgstr "Registra prestito"
@@ -4196,9 +4221,6 @@ msgstr "Nei tuoi preferiti"
 
 msgid "Add to favorites"
 msgstr "Aggiungi ai preferiti"
-
-msgid "Games played"
-msgstr "Giochi giocati"
 
 msgid "victories"
 msgstr "vittorie"
@@ -5508,6 +5530,22 @@ msgid "The game library is now hidden from the location page."
 msgstr "La ludoteca ora è nascosta dalla pagina della location."
 
 #, python-format
+msgid "Games played – %(name)s"
+msgstr "Giochi giocati – %(name)s"
+
+#, python-format
+msgid "Board games played at %(name)s and their leaderboards."
+msgstr "Giochi da tavolo giocati presso %(name)s e le loro classifiche."
+
+#, python-format
+msgid "%(game)s leaderboard – %(name)s"
+msgstr "Classifica di %(game)s – %(name)s"
+
+#, python-format
+msgid "Who wins most at %(game)s at %(name)s."
+msgstr "Chi vince di più a %(game)s presso %(name)s."
+
+#, python-format
 msgid "Add Game – %(name)s"
 msgstr "Aggiungi Gioco - %(name)s"
 
@@ -5866,10 +5904,6 @@ msgstr "Collega account"
 
 #~ msgid "See the game library"
 #~ msgstr "Vedi la libreria dei giochi"
-
-#, python-format
-#~ msgid "Games – %(name)s"
-#~ msgstr "Giochi - %(name)s"
 
 #~ msgid "Out of the catalog"
 #~ msgstr "Usciti dal catalogo"
