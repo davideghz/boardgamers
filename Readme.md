@@ -80,6 +80,25 @@ backend also reads existing uploads. If a local database references files that e
 use staging S3 or copy the files you need into `media/`, preserving their paths relative to the
 bucket's `media/` prefix. Missing local files return 404.
 
+Uploaded images use `ManagedImageField` together with `ManagedImagesModel` (already inherited
+by `DateTimeModel`). Covers, game images, avatars and affiliation logos share this lifecycle.
+For a new image such as a banner cover, use `ManagedImageField(max_side=COVER_MAX_SIDE, ...)`
+on a model inheriting `DateTimeModel`; normalization and cleanup are then automatic.
+
+Opaque resized images use JPEG; transparent images keep their alpha channel in PNG. The crop
+editor follows the same rule: extra space is white for opaque images, transparent otherwise.
+Stored names get a unique suffix, so a deleted file's URL is never reused. Existing files are not rewritten
+when other model fields are edited.
+
+Replaced, cleared and deleted images are removed from the configured storage only after the
+database transaction commits, and only when no image field still references the same file in
+that storage. This includes files shared by different models. Avoid `QuerySet.update()` and raw
+SQL for image replacements, since they bypass the model lifecycle; `resize_images` explicitly
+uses the shared cleanup service for its bulk updates. Cleanup does not scan historical orphan
+files, and uploads written before an outer transaction rolls back may still need a later audit.
+
+S3 development credentials also need `s3:DeleteObject` for cleanup of unreferenced media files.
+
 Use a dedicated IAM identity for development. This example permits listing the staging bucket
 and managing objects under `media/`. `ListBucket` lets S3 return a 404 when the storage backend
 checks a new filename, and `PutObjectAcl` permits uploads with `public-read` on buckets that allow

@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.models import Event, EventDate, EventParticipant, Location, Member, Membership, Table
+from webapp.services.tables import join_table
 from webapp.sitemaps import TableSitemap
 
 
@@ -56,6 +57,35 @@ class OrganizedEventAccessTest(TestCase):
         self.event.table_booking_enabled = False
         self.event.save(update_fields=['table_booking_enabled'])
         self.assertNotIn(self.table, TableSitemap().items())
+
+    def test_members_only_does_not_lock_out_staff(self):
+        self.organizer.event_creation_permission = Location.PERM_MEMBERS_ONLY
+        self.organizer.event_join_permission = Location.PERM_MEMBERS_ONLY
+        self.organizer.save(update_fields=['event_creation_permission', 'event_join_permission'])
+        self.event.status = Event.PUBLISHED
+        self.event.save(update_fields=['status'])
+        superuser = UserProfileFactory(user__is_superuser=True)
+        join = reverse('event-join', args=[self.event.slug])
+        for profile in (self.organizer.creator, self.manager, superuser):
+            with self.subTest(profile=profile):
+                self.assertTrue(self.organizer.can_create_events(profile.user))
+                self.client.force_login(profile.user)
+                self.assertEqual(self.client.post(join).status_code, 302)
+                self.assertTrue(EventParticipant.objects.filter(event=self.event, user_profile=profile).exists())
+                profile.is_email_verified = True
+                profile.save(update_fields=['is_email_verified'])
+                join_table(profile, self.table)
+        for outsider in (self.venue_owner, self.member):
+            with self.subTest(outsider=outsider):
+                self.assertFalse(self.organizer.can_create_events(outsider.user))
+                self.client.force_login(outsider.user)
+                self.assertEqual(self.client.post(join).status_code, 403)
+
+    def test_managers_only_creation_excludes_members(self):
+        member = Member.objects.create(location=self.organizer, user_profile=self.member)
+        Membership.objects.create(member=member, status=Membership.ACTIVE)
+        self.assertFalse(self.organizer.can_create_events(self.member.user))
+        self.assertTrue(self.organizer.can_create_events(self.manager.user))
 
     def test_membership_dates_and_location_are_checked_for_creation_and_attendance(self):
         self.organizer.event_creation_permission = Location.PERM_MEMBERS_ONLY

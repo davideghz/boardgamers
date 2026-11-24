@@ -3,11 +3,13 @@
 {% load static %}
 {% load i18n %}
 
+{% block banners %}{% endblock banners %}
+
 {% block content %}
 
   {% if user.is_authenticated %}
 
-    {% include "staticpages/_contributor_banner.html" %}
+    {% include "partials/_banners.html" %}
 
     {# ── HEADER (logged in): quick links to own/followed locations ──── #}
     <div class="mb-8">
@@ -112,7 +114,7 @@
       </div>
     </div>
 
-    {% include "staticpages/_contributor_banner.html" %}
+    {% include "partials/_banners.html" %}
 
   {% endif %}
 

@@ -16,19 +16,21 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
-from django.db import router, transaction
-from django.urls import reverse
-from django.utils import timezone
+from django.db import transaction
+from django.urls import reverse, translate_url
+from django.utils import timezone, translation
 from django.utils.encoding import force_bytes
 from django.utils.functional import cached_property
-from django.utils.http import urlsafe_base64_encode
-from django.utils.translation import gettext_lazy as _
+from django.utils.http import urlsafe_base64_encode, url_has_allowed_host_and_scheme
+from django.utils.translation import get_language, gettext_lazy as _
 from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
 
-from webapp.fields import NetworkLogoImageField
+from webapp.fields import ManagedImageField, NetworkLogoImageField
+from webapp.image_models import ManagedImagesModel
+from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE
 
 
 def _plain_text(markdown_text):
@@ -53,7 +55,7 @@ def _absolute_url(url, request=None):
     return settings.DOMAIN_URL + url
 
 
-class DateTimeModel(models.Model):
+class DateTimeModel(ManagedImagesModel):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -138,7 +140,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    image = models.ImageField(upload_to='games', null=True, blank=True)
+    image = ManagedImageField(upload_to='games', null=True, blank=True, max_side=COVER_MAX_SIDE)
     description = models.TextField()
     bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
     min_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Minimum players'))
@@ -199,7 +201,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
     networks = models.ManyToManyField('Network', through='LocationNetwork', related_name='locations', blank=True)
     description = models.TextField()
-    cover = models.ImageField(upload_to='location-covers', null=True, blank=True)
+    cover = ManagedImageField(upload_to='location-covers', null=True, blank=True, max_side=COVER_MAX_SIDE)
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -312,9 +314,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         if user.is_superuser:
             return cls.objects.all()
         profile = user.user_profile
-        managed = models.Q(event_creation_permission=cls.PERM_MANAGERS_ONLY) & (
-            models.Q(creator=profile) | models.Q(managers=profile)
-        )
+        managed = models.Q(creator=profile) | models.Q(managers=profile)
         member = models.Q(
             event_creation_permission=cls.PERM_MEMBERS_ONLY,
             pk__in=Membership.active_for(profile).values('member__location_id'),
@@ -327,6 +327,8 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     def can_join_events(self, profile):
         return bool(profile and (
             self.event_join_permission == self.PERM_ANYONE
+            or profile.user.is_superuser
+            or self.is_manager(profile)
             or Membership.active_for(profile).filter(member__location=self).exists()
         ))
 
@@ -420,52 +422,9 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         super().save(*args, **kwargs)
 
 
-class NetworkLogoModel(models.Model):
-    logo_field_name = None
-
-    class Meta:
-        abstract = True
-
-    def _saved_logo_name(self, using):
-        return (type(self)._base_manager.using(using).select_for_update().filter(pk=self.pk)
-                .order_by().values_list(self.logo_field_name, flat=True).first())
-
-    def _delete_logo_after_commit(self, name, using):
-        if not name:
-            return
-        storage = self._meta.get_field(self.logo_field_name).storage
-
-        def delete_if_unreferenced():
-            if not (Network.objects.using(using).filter(logo=name).exists() or
-                    LocationNetwork.objects.using(using).filter(custom_logo=name).exists()):
-                storage.delete(name)
-
-        transaction.on_commit(delete_if_unreferenced, using=using, robust=True)
-
-    def save(self, *, using=None, update_fields=None, **kwargs):
-        using = using or router.db_for_write(type(self), instance=self)
-        if update_fields is not None:
-            update_fields = frozenset(update_fields)
-        logo_field = self.logo_field_name
-        if (self.pk is None or kwargs.get('force_insert') or
-                (update_fields is not None and logo_field not in update_fields) or
-                (update_fields is None and using == self._state.db and logo_field in self.get_deferred_fields())):
-            return super().save(using=using, update_fields=update_fields, **kwargs)
-
-        with transaction.atomic(using=using):
-            previous_name = self._saved_logo_name(using)
-            result = super().save(using=using, update_fields=update_fields, **kwargs)
-            if previous_name != getattr(self, logo_field).name:
-                self._delete_logo_after_commit(previous_name, using)
-            return result
-
-    save.alters_data = True
-
-
-class Network(NetworkLogoModel, DateTimeModel, SlugModel):
+class Network(DateTimeModel, SlugModel):
     slug_field_name = 'name'
     regenerate_slug_on_rename = False
-    logo_field_name = 'logo'
 
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(max_length=144, unique=True, blank=True)
@@ -482,8 +441,7 @@ class Network(NetworkLogoModel, DateTimeModel, SlugModel):
         return self.name
 
 
-class LocationNetwork(NetworkLogoModel, DateTimeModel):
-    logo_field_name = 'custom_logo'
+class LocationNetwork(DateTimeModel):
 
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='network_affiliations')
     network = models.ForeignKey(Network, on_delete=models.PROTECT, related_name='affiliations',
@@ -518,7 +476,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    avatar = models.ImageField(upload_to='avatars', null=True, blank=True)
+    avatar = ManagedImageField(upload_to='avatars', null=True, blank=True, max_side=AVATAR_MAX_SIDE)
     phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
@@ -710,8 +668,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
-    custom_cover = models.ImageField(
-        upload_to='table-covers', null=True, blank=True,
+    custom_cover = ManagedImageField(
+        upload_to='table-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Custom cover'),
         help_text=_('Optional image shown instead of the game cover.'))
 
@@ -889,9 +847,16 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         self.leaderboard_status = new_leaderboard_status
         return changed
 
+    def _event_date_changed(self):
+        """Tables already outside the calendar (e.g. of an event that got its organizer
+        later) must still be saved by the cron and the other actions."""
+        if not self.event_id:
+            return False
+        return not Table.objects.filter(pk=self.pk, event_id=self.event_id, date=self.date).exists()
+
     def clean(self):
         super().clean()
-        if self.event_id and self.event.organizer_location_id and self.date:
+        if self.date and self.event_id and self.event.organizer_location_id and self._event_date_changed():
             try:
                 self.event.validate_table_date(self.date)
             except ValidationError as error:
@@ -904,7 +869,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if not getattr(self, '_skip_status_recompute', False):
             self.recompute_statuses()
         fields = kwargs.get('update_fields')
-        if self.event_id and (fields is None or {'event', 'event_id', 'date'}.intersection(fields)):
+        if (fields is None or {'event', 'event_id', 'date'}.intersection(fields)) and self._event_date_changed():
             with transaction.atomic():
                 event = Event.objects.select_for_update().get(pk=self.event_id)
                 if event.organizer_location_id:
@@ -1013,7 +978,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if self.location_id:
             location = self.location.as_schema_place(request)
         elif self.event_id:
-            location = self.event.as_schema_place()
+            location = self.event.as_schema_place(request)
         else:
             location = None
         if not location:
@@ -1647,6 +1612,104 @@ class TelegramSetupToken(DateTimeModel):
         return not self.used and self.expires_at > timezone.now()
 
 
+def validate_banner_link(value):
+    if value.startswith('/') and url_has_allowed_host_and_scheme(value, allowed_hosts=set()):
+        return
+    URLValidator(schemes=['http', 'https'])(value)
+
+
+class BannerQuerySet(models.QuerySet):
+    def visible(self, *, authenticated, home, at=None):
+        at = at or timezone.now()
+        audiences = [Banner.Audience.EVERYONE,
+                     Banner.Audience.AUTHENTICATED if authenticated else Banner.Audience.ANONYMOUS]
+        placements = [Banner.Placement.SITE]
+        if home:
+            placements.append(Banner.Placement.HOME)
+        return self.filter(is_active=True, audience__in=audiences, placement__in=placements).filter(
+            models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=at),
+            models.Q(ends_at__isnull=True) | models.Q(ends_at__gt=at),
+        )
+
+
+class Banner(DateTimeModel):
+    class Audience(models.TextChoices):
+        EVERYONE = 'everyone', _('Everyone')
+        ANONYMOUS = 'anonymous', _('Anonymous visitors')
+        AUTHENTICATED = 'authenticated', _('Authenticated users')
+
+    class Placement(models.TextChoices):
+        HOME = 'home', _('Home page')
+        SITE = 'site', _('All pages')
+
+    class Dismissal(models.TextChoices):
+        PERMANENT = 'permanent', _('Permanently')
+        DAYS = 'days', _('For a number of days')
+
+    key = models.SlugField(_('Identifier'), max_length=80, unique=True)
+    version = models.PositiveIntegerField(_('Version'), default=1, validators=[MinValueValidator(1)],
+                                         help_text=_('Increase only to show a substantially new message again.'))
+    title = models.CharField(_('Title'), max_length=150, blank=True)
+    message = models.TextField(_('Message'))
+    cover = ManagedImageField(_('Cover'), upload_to='banners/', blank=True, max_side=COVER_MAX_SIDE)
+    cover_alt = models.CharField(_('Cover description'), max_length=200, blank=True,
+                                 help_text=_('Leave empty if the image is decorative.'))
+    action_label = models.CharField(_('Link text'), max_length=100, blank=True)
+    action_url = models.CharField(_('Link URL'), max_length=500, blank=True, validators=[validate_banner_link],
+                                  help_text=_('An internal path starting with / or an http(s) URL.'))
+    is_active = models.BooleanField(_('Active'), default=False, db_index=True)
+    audience = models.CharField(_('Audience'), max_length=20, choices=Audience.choices, default=Audience.EVERYONE)
+    placement = models.CharField(_('Display on'), max_length=10, choices=Placement.choices, default=Placement.HOME)
+    priority = models.PositiveIntegerField(_('Priority'), default=0, help_text=_('Higher values are shown first.'))
+    starts_at = models.DateTimeField(_('Visible from'), null=True, blank=True)
+    ends_at = models.DateTimeField(_('Visible until'), null=True, blank=True)
+    dismissal = models.CharField(_('Hide after closing'), max_length=10, choices=Dismissal.choices,
+                                 default=Dismissal.PERMANENT)
+    dismissal_days = models.PositiveIntegerField(_('Days hidden after closing'), null=True, blank=True,
+                                                 validators=[MinValueValidator(1)])
+
+    objects = BannerQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _('Banner')
+        verbose_name_plural = _('Banners')
+        ordering = ['-priority', 'pk']
+
+    def __str__(self):
+        return self.title or self.key
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
+            errors['ends_at'] = _('The end must be after the start.')
+        if self.dismissal == self.Dismissal.DAYS and not self.dismissal_days:
+            errors['dismissal_days'] = _('Enter how many days the banner should remain hidden.')
+        # The forms only have the translated fields, so the errors go on those.
+        labels = {name: getattr(self, name) for name in
+                  (f'action_label_{language}' for language, _name in settings.LANGUAGES)}
+        if self.action_url:
+            errors.update({name: _('Enter the link text.') for name, label in labels.items() if not label})
+        elif any(labels.values()):
+            errors['action_url'] = _('Enter the link URL.')
+        if errors:
+            raise ValidationError(errors)
+
+    @property
+    def action_href(self):
+        if not self.action_url:
+            return ''
+        try:
+            validate_banner_link(self.action_url)
+        except ValidationError:
+            return ''
+        if self.action_url.startswith('/'):
+            language = get_language()
+            with translation.override(settings.LANGUAGE_CODE):
+                return translate_url(self.action_url, language)
+        return self.action_url
+
+
 class FAQCategory(DateTimeModel):
     name = models.CharField(max_length=100, verbose_name=_('Name'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
@@ -1707,10 +1770,12 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255, verbose_name=_('Name'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))
-    cover = models.ImageField(
-        upload_to='event-covers', null=True, blank=True,
+    cover = ManagedImageField(
+        upload_to='event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Cover'))
 
+    # PROTECT also stops the deletion of the profile that created the location
+    # (Location.creator cascades): reassign its events first.
     organizer_location = models.ForeignKey(
         Location, on_delete=models.PROTECT, related_name='organized_events', null=True, blank=True,
         verbose_name=_('Organizing location'),
@@ -1802,7 +1867,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         Console flags. Relative URLs are made absolute from `request` when
         available, else from settings.DOMAIN_URL (S3 media URLs are already
         absolute)."""
-        place = self.as_schema_place()
+        place = self.as_schema_place(request)
         if not self.start_date or not place:
             return None
         data = {
@@ -1828,14 +1893,16 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data
 
-    def as_schema_place(self):
+    def as_schema_place(self, request=None):
         """schema.org/Place fragment for this event's venue, or None if unknown.
-        Embeddable as the `location` of the event and of its tables."""
-        if self.venue_location_id:
-            return self.venue_location.as_schema_place()
+        Embeddable as the `location` of the event and of its tables. A venue
+        without an address falls back to the address of the event."""
+        venue = self.venue_location
+        if venue and (venue.address or venue.city):
+            return venue.as_schema_place(request)
         if not (self.address or self.city):
             return None
-        place = {'@type': 'Place', 'name': self.venue_name or self.city or self.name}
+        place = {'@type': 'Place', 'name': venue.name if venue else self.venue_name or self.city or self.name}
         postal = {'@type': 'PostalAddress'}
         if self.address:
             postal['streetAddress'] = self.address
