@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("webapp", "0100_location_game_withdrawn_label"),
+        ("webapp", "0103_seed_contributor_banner"),
     ]
 
     operations = [

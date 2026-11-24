@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
@@ -13,7 +13,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services.game_loans import active_members, default_loan_due_date
 from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, COVER_UPLOAD_MAX_JPEG_PIXELS, COVER_UPLOAD_MAX_PIXELS, \
     validate_network_logo
@@ -741,6 +741,24 @@ class NetworkLogoField(FileField):
         if upload is not None:
             validate_network_logo(upload)
         return upload
+
+
+class BannerForm(ModelForm):
+    class Meta:
+        model = Banner
+        fields = '__all__'
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
+
+
+class BannerChangeListForm(ModelForm):
+    """The list only edits a few fields: report errors on the others on the whole row."""
+    def add_error(self, field, error):
+        known = {*self.fields, NON_FIELD_ERRORS}
+        if field is None and hasattr(error, 'error_dict') and not known.issuperset(error.error_dict):
+            error = ValidationError([e for errors in error.error_dict.values() for e in errors])
+        super().add_error(field, error)
 
 
 class NetworkForm(ModelForm):
