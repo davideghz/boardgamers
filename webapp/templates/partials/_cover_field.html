@@ -88,7 +88,7 @@ help_text.
           class="m-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl border border-divider bg-surface p-4 text-content shadow-xl backdrop:bg-black/60">
     <h2 id="{{ cover_id }}-dialog-title" data-cover-dialog-title class="text-lg font-bold">{% trans "Crop image" %}</h2>
     <p id="{{ cover_id }}-crop-help" data-cover-crop-help class="mt-1 text-sm text-content-muted">
-      {% trans "Move or resize the crop area, even beyond the image edges. Extra space stays transparent. Use the arrow keys and + or − to adjust it with the keyboard." %}
+      {% trans "Move or resize the crop area, even beyond the image edges. Extra space is saved in white, or stays transparent if the image has transparency. Use the arrow keys and + or − to adjust it with the keyboard." %}
     </p>
     <p id="{{ cover_id }}-crop-status" data-cover-crop-status role="status" hidden class="mt-3 text-sm text-content-muted"></p>
     <div id="{{ cover_id }}-crop-stage" data-cover-crop-stage tabindex="0" role="group" aria-labelledby="{{ cover_id }}-dialog-title"
@@ -109,7 +109,7 @@ help_text.
   </dialog>
 
   <template id="{{ cover_id }}-crop-template" data-cover-crop-template>
-    <cropper-canvas class="h-full" style="background:repeating-conic-gradient(var(--surface-3) 0% 25%,var(--surface) 0% 50%) 50% / 16px 16px">
+    <cropper-canvas class="h-full bg-white">
       <cropper-image translatable></cropper-image>
       <cropper-shade hidden></cropper-shade>
       <cropper-selection aspect-ratio="{{ crop_ratio|unlocalize }}" movable resizable zoomable outlined precise>
@@ -249,6 +249,23 @@ help_text.
         return window.coverCropperLibrary;
       }
 
+      // JPEG has no alpha; for the other formats a reduced copy is enough to tell.
+      function hasTransparency(source, sourceImage) {
+        if (source.type === 'image/jpeg') return false;
+        const { naturalWidth, naturalHeight } = sourceImage;
+        const scale = Math.min(1, 512 / Math.max(naturalWidth, naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(naturalHeight * scale));
+        const context = canvas.getContext('2d');
+        context.drawImage(sourceImage, 0, 0, canvas.width, canvas.height);
+        const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        for (let alpha = 3; alpha < pixels.length; alpha += 4) {
+          if (pixels[alpha] < 255) return true;
+        }
+        return false;
+      }
+
       function showStatus(message) {
         status.textContent = message;
         status.hidden = !message;
@@ -319,6 +336,10 @@ help_text.
             template: cropTemplate.innerHTML,
           });
           session.canvas = session.cropper.getCropperCanvas();
+          session.transparent = hasTransparency(source, sourceImage);
+          if (session.transparent) {
+            session.canvas.style.background = 'repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface) 0% 50%) 50% / 16px 16px';
+          }
           session.selection = session.cropper.getCropperSelection();
           session.cropperImage = session.cropper.getCropperImage();
           await session.cropperImage.$ready();
@@ -410,14 +431,15 @@ help_text.
           const canvas = await session.selection.$toCanvas({
             width,
             height,
+            beforeDraw(context) {
+              // Opaque images stay JPEG: a photo with padding would be a huge PNG.
+              if (session.transparent) return;
+              context.fillStyle = '#fff';
+              context.fillRect(0, 0, width, height);
+            },
           });
-          const pixels = canvas.getContext('2d').getImageData(0, 0, width, height).data;
-          let transparent = false;
-          for (let alpha = 3; alpha < pixels.length; alpha += 4) {
-            if (pixels[alpha] < 255) { transparent = true; break; }
-          }
-          const type = transparent ? 'image/png' : 'image/jpeg';
-          const extension = transparent ? 'png' : 'jpg';
+          const type = session.transparent ? 'image/png' : 'image/jpeg';
+          const extension = session.transparent ? 'png' : 'jpg';
           const blob = await new Promise(resolve => canvas.toBlob(resolve, type, 0.85));
           if (editor !== session) return;
           if (!blob || blob.type !== type) throw new Error('Could not encode cropped image');

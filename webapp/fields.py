@@ -1,8 +1,15 @@
+import os
+import re
+import uuid
+
 from django.core.files.base import File
 from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 
 from webapp.services.images import normalize_network_logo, shrink_content_file
+
+
+UNIQUE_SUFFIX = re.compile(r'_[0-9a-f]{32}$')
 
 
 class ManagedImageFile(ImageFieldFile):
@@ -47,6 +54,14 @@ class ManagedImageField(ImageField):
         if self.max_side is not None:
             kwargs['max_side'] = self.max_side
         return name, path, args, kwargs
+
+    def generate_filename(self, instance, filename):
+        """Never reuse a name: deleted files free theirs, but caches keep serving the old image."""
+        root, extension = os.path.splitext(super().generate_filename(instance, filename))
+        suffix = f'_{uuid.uuid4().hex}'
+        # Shorten the original name here, or the storage would cut the suffix instead.
+        root = UNIQUE_SUFFIX.sub('', root)[:self.max_length - len(suffix) - len(extension)]
+        return f'{root}{suffix}{extension}'
 
 
 class NetworkLogoFile(ManagedImageFile):

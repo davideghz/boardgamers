@@ -81,11 +81,6 @@ def _has_transparency(img):
     return 'transparency' in img.info
 
 
-def jpeg_name(name):
-    """`games/bgg_123.png` -> `bgg_123.jpg` (upload_to aggiunge la cartella)."""
-    return os.path.splitext(os.path.basename(name))[0] + '.jpg'
-
-
 def resized_image_name(name, data):
     """Keep the stored extension consistent with the actual normalized format."""
     with Image.open(BytesIO(data)) as image:

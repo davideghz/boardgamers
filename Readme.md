@@ -86,7 +86,8 @@ For a new image such as a banner cover, use `ManagedImageField(max_side=COVER_MA
 on a model inheriting `DateTimeModel`; normalization and cleanup are then automatic.
 
 Opaque resized images use JPEG; transparent images keep their alpha channel in PNG. The crop
-editor follows the same rule and keeps extra space transparent. Existing files are not rewritten
+editor follows the same rule: extra space is white for opaque images, transparent otherwise.
+Stored names get a unique suffix, so a deleted file's URL is never reused. Existing files are not rewritten
 when other model fields are edited.
 
 Replaced, cleared and deleted images are removed from the configured storage only after the

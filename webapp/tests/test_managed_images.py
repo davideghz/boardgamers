@@ -90,6 +90,21 @@ class ManagedImagesTest(TestCase):
         self.assertFalse(self.storage.exists(old_name))
         self.assertTrue(self.storage.exists(self.game.image.name))
 
+    def test_freed_name_is_never_reused(self):
+        names = {self.game.image.name}
+        for _ in range(2):
+            with self.captureOnCommitCallbacks(execute=True):
+                self.game.image = upload()
+                self.game.save(update_fields=['image'])
+            names.add(self.game.image.name)
+        self.assertEqual(len(names), 3)
+
+    def test_long_names_keep_the_unique_suffix(self):
+        self.game.image = upload('x' * 90 + '.png')
+        self.game.save(update_fields=['image'])
+        self.assertRegex(self.game.image.name, r'^games/x+_[0-9a-f]{32}\.png$')
+        self.assertLessEqual(len(self.game.image.name), 100)
+
     def test_clear_keeps_original_on_rollback(self):
         old_name = self.game.image.name
         with self.captureOnCommitCallbacks(execute=True) as callbacks:

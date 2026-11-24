@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 20:09+0100\n"
+"POT-Creation-Date: 2026-11-24 10:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2147,12 +2147,6 @@ msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
 msgid "Cover image"
 msgstr "Immagine di copertina"
 
-msgid "Choose an image…"
-msgstr "Scegli un'immagine…"
-
-msgid "Select the image again."
-msgstr "Seleziona di nuovo l'immagine."
-
 msgid "We'll use this to show the location on the map."
 msgstr "Lo useremo per mostrare la location sulla mappa."
 
@@ -2753,15 +2747,6 @@ msgstr "Data e ora"
 msgid "Select a game (optional)"
 msgstr "Seleziona un gioco (opzionale)"
 
-msgid "Upload an image to show instead of the game cover."
-msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
-
-msgid "Remove current image"
-msgstr "Rimuovi immagine"
-
-msgid "Choose an image"
-msgstr "Scegli un'immagine…"
-
 msgid "Players"
 msgstr "Giocatori"
 
@@ -2928,51 +2913,6 @@ msgstr "Già su Board Gamers"
 msgctxt "game imported from BGG"
 msgid "New"
 msgstr "Nuovo"
-
-msgid "Preview in the location list"
-msgstr "Anteprima nella lista delle location"
-
-msgid "Adjust crop"
-msgstr "Regola ritaglio"
-
-msgid ""
-"For the list, choose a square image. If it's a logo, leave some space around "
-"it."
-msgstr ""
-"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
-"spazio attorno."
-
-msgid "Crop image"
-msgstr "Ritaglia immagine"
-
-msgid ""
-"Move or resize the crop area, even beyond the image edges. Extra space is "
-"saved in white. Use the arrow keys and + or − to adjust it with the keyboard."
-msgstr ""
-"Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. "
-"Lo spazio aggiunto sarà bianco. Da tastiera, usa le frecce e i tasti + o −."
-
-msgid "Fit whole image"
-msgstr "Inquadra tutta l'immagine"
-
-msgid "Use original"
-msgstr "Usa originale"
-
-msgid "Apply crop"
-msgstr "Applica ritaglio"
-
-msgid "Loading…"
-msgstr "Caricamento…"
-
-msgid ""
-"Could not open the crop editor. Use the original image or choose another "
-"file."
-msgstr ""
-"Impossibile aprire lo strumento di ritaglio. Usa l'immagine originale o "
-"scegli un altro file."
-
-msgid "Could not apply the crop. Try again or use the original image."
-msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
 
 msgid "Edit location"
 msgstr "Modifica location"
@@ -3415,6 +3355,9 @@ msgstr ""
 
 msgid "BoardGameGeek username"
 msgstr "Username BoardGameGeek"
+
+msgid "Loading…"
+msgstr "Caricamento…"
 
 msgid "Load collection"
 msgstr "Carica collezione"
@@ -4010,6 +3953,65 @@ msgstr "Gratuito e Open source"
 #, python-format
 msgid "Back to %(label)s"
 msgstr "Torna a %(label)s"
+
+msgid "Preview in the location list"
+msgstr "Anteprima nella lista delle location"
+
+msgid "Choose an image…"
+msgstr "Scegli un'immagine…"
+
+msgid "Adjust crop"
+msgstr "Regola ritaglio"
+
+msgid ""
+"For the list, choose a square image. If it's a logo, leave some space around "
+"it."
+msgstr ""
+"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
+"spazio attorno."
+
+msgid "Upload an image to show instead of the game cover."
+msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
+
+msgid "Remove current image"
+msgstr "Rimuovi immagine"
+
+msgid "Choose an image"
+msgstr "Scegli un'immagine…"
+
+msgid "Select the image again."
+msgstr "Seleziona di nuovo l'immagine."
+
+msgid "Crop image"
+msgstr "Ritaglia immagine"
+
+msgid ""
+"Move or resize the crop area, even beyond the image edges. Extra space is "
+"saved in white, or stays transparent if the image has transparency. Use the "
+"arrow keys and + or − to adjust it with the keyboard."
+msgstr ""
+"Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. "
+"Lo spazio aggiunto sarà bianco, o resterà trasparente se l'immagine ha "
+"trasparenze. Da tastiera, usa le frecce e i tasti + o −."
+
+msgid "Fit whole image"
+msgstr "Inquadra tutta l'immagine"
+
+msgid "Use original"
+msgstr "Usa originale"
+
+msgid "Apply crop"
+msgstr "Applica ritaglio"
+
+msgid ""
+"Could not open the crop editor. Use the original image or choose another "
+"file."
+msgstr ""
+"Impossibile aprire lo strumento di ritaglio. Usa l'immagine originale o "
+"scegli un altro file."
+
+msgid "Could not apply the crop. Try again or use the original image."
+msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
 
 msgid "Where to find it:"
 msgstr "Dove trovarlo:"
@@ -6172,6 +6174,3 @@ msgstr "Collega account"
 #~ msgstr ""
 #~ "Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
 #~ "agli organizzatori che ci sarai."
-
-msgid "Move or resize the crop area, even beyond the image edges. Extra space stays transparent. Use the arrow keys and + or − to adjust it with the keyboard."
-msgstr "Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. Lo spazio aggiunto resta trasparente. Da tastiera, usa le frecce e i tasti + o −."
