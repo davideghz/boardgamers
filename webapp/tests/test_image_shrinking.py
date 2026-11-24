@@ -85,7 +85,7 @@ class ShrinkOnUploadTest(TestCase):
         self.user_profile.save()
 
         avatar = self.user_profile.avatar
-        self.assertEqual(avatar.name, 'avatars/me.jpg')
+        self.assertRegex(avatar.name, r'^avatars/me_[0-9a-f]{32}\.jpg$')
         with avatar.open('rb') as content, Image.open(content) as img:
             self.assertEqual(img.format, 'JPEG')
             self.assertEqual(max(img.size), AVATAR_MAX_SIDE)
