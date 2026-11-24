@@ -309,15 +309,16 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     def can_create_events(self, user):
         if not user.is_authenticated:
             return False
-        if user.is_superuser:
+        if user.is_superuser or self.is_manager(user.user_profile):
             return True
-        if self.event_creation_permission == self.PERM_MEMBERS_ONLY:
-            return Membership.active_for(user.user_profile).filter(member__location=self).exists()
-        return self.is_manager(user.user_profile)
+        return (self.event_creation_permission == self.PERM_MEMBERS_ONLY
+                and Membership.active_for(user.user_profile).filter(member__location=self).exists())
 
     def can_join_events(self, profile):
         return bool(profile and (
             self.event_join_permission == self.PERM_ANYONE
+            or profile.user.is_superuser
+            or self.is_manager(profile)
             or Membership.active_for(profile).filter(member__location=self).exists()
         ))
 
