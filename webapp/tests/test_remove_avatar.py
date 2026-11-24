@@ -21,7 +21,9 @@ class RemoveAvatarTest(TestCase):
 
     def test_removes_the_avatar_and_its_file(self):
         self.client.force_login(self.user_profile.user)
-        response = self.client.post(self.url)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url)
+            self.assertTrue(default_storage.exists('avatars/me.png'))
         self.assertRedirects(response, reverse('user-profile-edit'), fetch_redirect_response=False)
         self.user_profile.refresh_from_db()
         self.assertFalse(self.user_profile.avatar)

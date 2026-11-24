@@ -79,6 +79,27 @@ class DuplicateTableServiceTest(TestCase):
             self.assertEqual(list(copy.links.values_list('label', 'url')),
                              [('Regole', 'https://example.com/rules')])
 
+    def test_inherited_cover_changed_meanwhile_is_read_again(self):
+        draft = duplicate_draft(self.source)
+        Table.objects.filter(pk=self.source.pk).update(custom_cover='table-covers/new.jpg')
+
+        copies = duplicate_table(self.source, draft, [future(7), future(14)], [], False, by=self.author)
+
+        self.assertEqual({copy.custom_cover.name for copy in copies}, {'table-covers/new.jpg'})
+
+    def test_cover_removed_from_the_draft_is_not_restored(self):
+        draft = duplicate_draft(self.source)
+        draft.custom_cover = ''
+
+        copy = duplicate_table(self.source, draft, [future(7)], [], False, by=self.author)[0]
+
+        self.assertFalse(copy.custom_cover)
+
+    def test_source_is_locked_while_copying(self):
+        with CaptureQueriesContext(connection) as queries:
+            self.duplicate([future(7)])
+        self.assertTrue(any('FOR UPDATE' in query['sql'] for query in queries))
+
     def test_copies_of_a_copy_point_to_the_series_root(self):
         first = self.duplicate([future(7)])[0]
 
