@@ -6032,6 +6032,40 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+msgid "Event layout"
+msgstr "Configurazione dell'evento"
+
+msgid "Venue layout"
+msgstr "Configurazione della sede"
+
+msgid "Play areas and stations"
+msgstr "Aree di gioco e postazioni"
+
+msgid "Choose a station from this schedule’s layout."
+msgstr "Scegli una postazione dalla configurazione prevista per questo programma."
+
+msgid "Choose a play area from this schedule’s layout."
+msgstr "Scegli un'area di gioco dalla configurazione prevista per questo programma."
+
+msgid "The selected station changed. Choose the station again."
+msgstr "La postazione selezionata è cambiata. Scegli di nuovo la postazione."
+
+msgid "Only events held at their organizing location can use the venue layout."
+msgstr "Solo gli eventi che si svolgono nella sede organizzatrice possono usarne la configurazione."
+
+#, python-format
+msgid "Reassign these upcoming sessions before changing the layout: %(sessions)s"
+msgstr "Riassegna queste sessioni future prima di cambiare configurazione: %(sessions)s"
+
+msgid "Reassign upcoming event sessions before removing this play area or station."
+msgstr "Riassegna le sessioni future degli eventi prima di rimuovere quest'area o postazione."
+
+msgid "Choose a play area from this station’s layout."
+msgstr "Scegli un'area di gioco appartenente alla configurazione della postazione."
+
+msgid "Reassign upcoming event sessions before transferring this station."
+msgstr "Riassegna le sessioni future degli eventi prima di trasferire questa postazione."
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

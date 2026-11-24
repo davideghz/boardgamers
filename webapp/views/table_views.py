@@ -10,8 +10,9 @@ from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from geoip2.errors import AddressNotFoundError
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.db.models.deletion import RestrictedError
 from django.db.models import Count, Prefetch, Q
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
@@ -597,6 +598,18 @@ def warn_station_conflict(request, table):
     return True
 
 
+def remove_layout_resource(request, queryset, success_message):
+    try:
+        with transaction.atomic():
+            resource = queryset.select_for_update().first()
+            if resource is not None:
+                resource.delete()
+    except RestrictedError:
+        messages.error(request, _('Reassign upcoming event sessions before removing this play area or station.'))
+    else:
+        messages.success(request, success_message)
+
+
 def _duplicate_link_formset(source, data=None):
     """Links formset of the duplicate page, prefilled with the source's links."""
     initial = [{'label': link.label, 'url': link.url} for link in source.links.all()]
@@ -631,14 +644,18 @@ def table_duplicate_view(request, slug):
         if form.is_valid() and link_formset.is_valid():
             links = [(f.cleaned_data['label'], f.cleaned_data['url']) for f in link_formset.forms
                      if f.cleaned_data and not f.cleaned_data.get('DELETE')]
-            copies = duplicate_table(
-                source, form.instance, form.cleaned_data['dates'], links,
-                copy_players=form.cleaned_data['copy_players'], by=profile,
-            )
-            messages.success(request, ngettext(
-                "%(count)d table was created", "%(count)d tables were created", len(copies),
-            ) % {'count': len(copies)})
-            return redirect("table-detail", slug=copies[0].slug)
+            try:
+                copies = duplicate_table(
+                    source, form.instance, form.cleaned_data['dates'], links,
+                    copy_players=form.cleaned_data['copy_players'], by=profile,
+                )
+            except ValidationError as error:
+                form.add_error(None, error)
+            else:
+                messages.success(request, ngettext(
+                    "%(count)d table was created", "%(count)d tables were created", len(copies),
+                ) % {'count': len(copies)})
+                return redirect("table-detail", slug=copies[0].slug)
     else:
         form = TableDuplicateForm(instance=draft)
         link_formset = _duplicate_link_formset(source)
