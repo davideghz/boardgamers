@@ -35,7 +35,9 @@ from webapp.models import Location, Table, UserProfile, Comment, Game, LocationF
     PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services import game_loans
+from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import reopen_location_leaderboards
+from webapp.views.table_views import warn_station_conflict
 
 logger = logging.getLogger(__name__)
 
@@ -1804,7 +1806,7 @@ class LocationManageStationAssignmentView(LoginRequiredMixin, View):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
         tables = list(self._tables(location))
-        conflict_ids = _station_conflict_ids(tables)
+        conflict_ids = station_conflict_ids(tables)
         unassigned_only = request.GET.get('unassigned') == '1'
         shown = [t for t in tables if not t.physical_table_id] if unassigned_only else tables
         days = defaultdict(list)
@@ -1833,31 +1835,12 @@ class LocationManageStationAssignmentView(LoginRequiredMixin, View):
             table.physical_table = None
         table.save(update_fields=['physical_table', 'play_area', 'updated_at'])
 
-        if table.physical_table_id and table.id in _station_conflict_ids(list(self._tables(location))):
-            messages.warning(request, _(
-                "Warning: this station is already booked by another table at an overlapping time."))
-        else:
+        if not warn_station_conflict(request, table):
             messages.success(request, _("Station of «%(title)s» updated.") % {'title': table.title})
         url = reverse('location-manage-station-assignment', kwargs={'slug': location.slug})
         if request.POST.get('unassigned') == '1':
             url += '?unassigned=1'
         return redirect(f"{url}#table-{table.pk}")
-
-
-def _station_conflict_ids(tables):
-    """Ids of the tables that share a station with another table at an
-    overlapping time on the same date."""
-    by_slot = defaultdict(list)
-    for table in tables:
-        if table.physical_table_id:
-            by_slot[(table.date, table.physical_table_id)].append(table)
-    conflict_ids = set()
-    for same_station in by_slot.values():
-        for i, a in enumerate(same_station):
-            for b in same_station[i + 1:]:
-                if a.overlaps_with(b):
-                    conflict_ids.update((a.id, b.id))
-    return conflict_ids
 
 
 class LocationManageWidgetView(LoginRequiredMixin, View):
