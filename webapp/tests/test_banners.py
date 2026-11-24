@@ -34,6 +34,7 @@ class BannerTest(TestCase):
                 self.assertContains(response, 'data-banner-key="test-banner"', count=1)
                 self.assertContains(response, '<section hidden data-banner')
                 self.assertNotContains(response, 'data-dismiss-url=')
+                self.assertNotContains(response, 'data-banner-scope=')
                 html = response.content.decode()
                 banner_position = html.index('data-banner-key="test-banner"')
                 heading_position = html.index('<h1')
@@ -120,19 +121,15 @@ class BannerTest(TestCase):
         self.banner.starts_at = timezone.now()
         self.banner.ends_at = self.banner.starts_at
         self.banner.dismissal = Banner.Dismissal.DAYS
-        self.banner.dismissal_scope = Banner.Scope.ACCOUNT
         with self.assertRaises(ValidationError) as caught:
             self.banner.full_clean()
-        self.assertTrue({'ends_at', 'dismissal_days', 'dismissal_scope'} <= caught.exception.message_dict.keys())
+        self.assertTrue({'ends_at', 'dismissal_days'} <= caught.exception.message_dict.keys())
 
-    def test_account_scope_uses_the_current_user_and_browser_storage(self):
-        self.banner.audience = Banner.Audience.AUTHENTICATED
-        self.banner.dismissal_scope = Banner.Scope.ACCOUNT
-        self.banner.full_clean()
-        self.banner.save()
-        profile = UserProfileFactory()
-        self.client.force_login(profile.user)
-        self.assertContains(self.client.get(reverse('home')), f'data-banner-scope="user:{profile.user_id}"')
+    def test_session_closing_is_rejected(self):
+        self.banner.dismissal = 'session'
+        with self.assertRaises(ValidationError) as caught:
+            self.banner.full_clean()
+        self.assertIn('dismissal', caught.exception.message_dict)
 
     def test_cover_is_optional_and_uses_translated_alternative_text(self):
         self.assertNotContains(self.client.get(reverse('home')), 'src="/media/banners/')
@@ -156,6 +153,9 @@ class BannerTest(TestCase):
         self.assertContains(response, 'type="file"')
         self.assertContains(response, 'name="message_it"')
         self.assertContains(response, 'name="message_en"')
+        form = response.context['adminform'].form
+        self.assertNotIn('dismissal_scope', form.fields)
+        self.assertEqual({value for value, _ in form.fields['dismissal'].choices if value}, {'permanent', 'days'})
 
 
 class BannerCoverTest(TestCase):

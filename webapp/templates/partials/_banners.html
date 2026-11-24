@@ -4,7 +4,6 @@
     {% for banner in site_banners %}
       <section hidden data-banner data-banner-key="{{ banner.key }}" data-banner-version="{{ banner.version }}"
                data-banner-policy="{{ banner.dismissal }}" data-banner-days="{{ banner.dismissal_days|default_if_none:'' }}"
-               data-banner-scope="{% if banner.dismissal_scope == 'account' %}user:{{ user.pk }}{% else %}browser{% endif %}"
                role="region" aria-label="{{ banner.title|default:banner.message|truncatechars:100 }}"
                class="mb-6 overflow-hidden rounded-xl border border-divider bg-surface text-content">
         <div class="flex flex-col sm:flex-row">
@@ -40,32 +39,25 @@
 
       function keyFor(banner) {
         const data = banner.dataset;
-        return 'bg:banner:' + data.bannerKey + ':v' + data.bannerVersion + ':' + data.bannerScope;
+        return 'bg:banner:' + data.bannerKey + ':v' + data.bannerVersion + ':browser';
       }
 
-      function storageFor(banner) {
-        return banner.dataset.bannerPolicy === 'session' ? sessionStorage : localStorage;
-      }
-
-      function remember(banner) {
-        const expiresAt = banner.dataset.bannerPolicy === 'days'
-          ? Date.now() + Number(banner.dataset.bannerDays) * day : null;
+      function remember(banner, expiresAt = null) {
         try {
-          storageFor(banner).setItem(keyFor(banner), JSON.stringify({dismissedAt: Date.now(), expiresAt: expiresAt}));
+          localStorage.setItem(keyFor(banner), JSON.stringify({dismissedAt: Date.now(), expiresAt: expiresAt}));
         } catch (e) {}
       }
 
       function dismissed(banner) {
         try {
-          const raw = storageFor(banner).getItem(keyFor(banner));
+          const raw = localStorage.getItem(keyFor(banner));
           if (raw) {
             let state;
             try { state = JSON.parse(raw); } catch (e) { return false; }
             return state !== null && Number.isFinite(state.dismissedAt) && state.dismissedAt > 0
               && (state.expiresAt === null || (Number.isFinite(state.expiresAt) && state.expiresAt > Date.now()));
           }
-          if (banner.dataset.bannerKey === 'contributor-invite' && banner.dataset.bannerVersion === '1'
-              && banner.dataset.bannerScope === 'browser') {
+          if (banner.dataset.bannerKey === 'contributor-invite' && banner.dataset.bannerVersion === '1') {
             const lastClosed = Number(localStorage.getItem('alertClosedTimestamp'));
             if (Number.isFinite(lastClosed) && lastClosed > 0) {
               remember(banner);
@@ -92,7 +84,9 @@
         banner.querySelector('[data-banner-close]').addEventListener('click', function () {
           banner.hidden = true;
           active = null;
-          remember(banner);
+          const expiresAt = banner.dataset.bannerPolicy === 'days'
+            ? Date.now() + Number(banner.dataset.bannerDays) * day : null;
+          remember(banner, expiresAt);
           // Do not replace a closed banner with another one on this page.
         });
       });

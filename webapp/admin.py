@@ -443,7 +443,7 @@ class BannerAdmin(TabbedTranslationAdmin):
         (None, {'fields': ('key', 'version', 'is_active', 'title', 'message')}),
         (_('Cover and link'), {'fields': ('cover', 'cover_preview', 'cover_alt', 'action_label', 'action_url')}),
         (_('Visibility'), {'fields': ('audience', 'placement', 'priority', 'starts_at', 'ends_at')}),
-        (_('Closing'), {'fields': ('dismissal', 'dismissal_days', 'dismissal_scope')}),
+        (_('Closing'), {'fields': ('dismissal', 'dismissal_days')}),
     )
 
     def get_readonly_fields(self, request, obj=None):

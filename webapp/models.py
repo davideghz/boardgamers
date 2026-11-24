@@ -1551,12 +1551,7 @@ class Banner(DateTimeModel):
 
     class Dismissal(models.TextChoices):
         PERMANENT = 'permanent', _('Permanently')
-        SESSION = 'session', _('For this tab session')
         DAYS = 'days', _('For a number of days')
-
-    class Scope(models.TextChoices):
-        BROWSER = 'browser', _('This browser')
-        ACCOUNT = 'account', _('Each account on this browser')
 
     key = models.SlugField(_('Identifier'), max_length=80, unique=True)
     version = models.PositiveIntegerField(_('Version'), default=1, validators=[MinValueValidator(1)],
@@ -1580,8 +1575,6 @@ class Banner(DateTimeModel):
                                  default=Dismissal.PERMANENT)
     dismissal_days = models.PositiveIntegerField(_('Days hidden after closing'), null=True, blank=True,
                                                  validators=[MinValueValidator(1)])
-    dismissal_scope = models.CharField(_('Remember closing for'), max_length=10, choices=Scope.choices,
-                                       default=Scope.BROWSER)
 
     objects = BannerQuerySet.as_manager()
 
@@ -1600,8 +1593,6 @@ class Banner(DateTimeModel):
             errors['ends_at'] = _('The end must be after the start.')
         if self.dismissal == self.Dismissal.DAYS and not self.dismissal_days:
             errors['dismissal_days'] = _('Enter how many days the banner should remain hidden.')
-        if self.dismissal_scope == self.Scope.ACCOUNT and self.audience != self.Audience.AUTHENTICATED:
-            errors['dismissal_scope'] = _('Account-specific closing requires authenticated users as the audience.')
         if self.action_url and not self.action_label:
             errors['action_label'] = _('Enter the link text.')
         if self.action_label and not self.action_url:

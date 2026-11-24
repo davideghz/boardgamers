@@ -14,17 +14,15 @@ Each banner has:
   Replaced, cleared and deleted covers are removed only after commit, when no image field in
   the same storage still references the file. No banner-specific resize or cleanup signal is
   needed: `Banner` inherits `ManagedImagesModel` through `DateTimeModel`.
-  The cover appears above
-  the message on phones and beside it on larger screens. Leave the description empty for a
-  decorative image.
+  The cover appears above the message on phones and beside it on larger screens. Leave the
+  description empty for a decorative image.
 - An optional link: a path beginning with `/`, or an HTTP/HTTPS URL. Internal paths follow
   the current site language. Following a link does not mark an action as completed or close
   the banner.
 - An audience (everyone, anonymous visitors or authenticated users), placement (home or all
   pages), priority and optional start/end dates. The start is inclusive and the end exclusive.
-- A closing policy: permanently, for a number of days, or for this tab session.
-- A closing scope: the browser, or each authenticated account on that browser. The latter
-  requires the authenticated audience and does not synchronize across devices.
+- A closing policy: permanently or for a number of days. Closing is remembered for the browser,
+  shared by anonymous visitors and every account using it. It does not synchronize across devices.
 
 The server filters candidates and sends at most the first 20, ordered by descending priority
 and then creation ID. The browser shows the first candidate that has not been dismissed.
@@ -33,13 +31,14 @@ than appearing immediately in its place. Dismissals in another tab and history r
 are also handled.
 
 Permanent and timed dismissals use `localStorage`, with keys of the form
-`bg:banner:<identifier>:v<version>:<scope>`. The optional tab-session policy uses `sessionStorage`.
+`bg:banner:<identifier>:v<version>:browser`. Existing browser dismissal keys are preserved.
 Clearing browser data clears these preferences. Unavailable storage does not prevent immediate
 closing; unreadable preferences keep promotional banners hidden.
 
 Earlier `alertClosedTimestamp` preferences become permanent dismissals for `contributor-invite`,
-version 1, including timestamps older than 24 hours. This preserves the choice of users who
-already closed the invitation; increase the banner version to show a new message.
+version 1, including timestamps older than 24 hours and even if the banner uses timed closing.
+This preserves the choice of users who already closed the invitation; increase the banner
+version to show a new message.
 Dismissals never write to the profile or call a server endpoint.
 
 These are informational banners. Account requirements such as email verification must continue

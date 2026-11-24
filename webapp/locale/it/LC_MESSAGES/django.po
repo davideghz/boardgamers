@@ -6206,17 +6206,8 @@ msgstr "Tutte le pagine"
 msgid "Permanently"
 msgstr "Definitivamente"
 
-msgid "For this tab session"
-msgstr "Per la sessione di questa scheda"
-
 msgid "For a number of days"
 msgstr "Per un numero di giorni"
-
-msgid "This browser"
-msgstr "Questo browser"
-
-msgid "Each account on this browser"
-msgstr "Ogni account su questo browser"
 
 msgid "Identifier"
 msgstr "Identificativo"
@@ -6266,9 +6257,6 @@ msgstr "Nascondi dopo la chiusura"
 msgid "Days hidden after closing"
 msgstr "Giorni nascosto dopo la chiusura"
 
-msgid "Remember closing for"
-msgstr "Ricorda la chiusura per"
-
 msgid "Banner"
 msgstr "Banner"
 
@@ -6280,9 +6268,6 @@ msgstr "La fine deve essere successiva all'inizio."
 
 msgid "Enter how many days the banner should remain hidden."
 msgstr "Indica per quanti giorni il banner deve restare nascosto."
-
-msgid "Account-specific closing requires authenticated users as the audience."
-msgstr "La chiusura per account richiede gli utenti autenticati come destinatari."
 
 msgid "Enter the link text."
 msgstr "Inserisci il testo del link."
