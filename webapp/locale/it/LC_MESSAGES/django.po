@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 20:09+0100\n"
+"POT-Creation-Date: 2026-11-24 11:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,18 @@ msgstr ""
 
 msgid "Merge games"
 msgstr "Unisci giochi"
+
+msgid "Cover and link"
+msgstr "Copertina e link"
+
+msgid "Visibility"
+msgstr "Visibilità"
+
+msgid "Closing"
+msgstr "Chiusura"
+
+msgid "Cover preview"
+msgstr "Anteprima della copertina"
 
 msgid "Participants"
 msgstr "Partecipanti"
@@ -919,6 +931,100 @@ msgstr "Telegram Setup Token"
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
 
+msgid "Everyone"
+msgstr "Tutti"
+
+msgid "Anonymous visitors"
+msgstr "Visitatori anonimi"
+
+msgid "Authenticated users"
+msgstr "Utenti autenticati"
+
+msgid "Home page"
+msgstr "Home page"
+
+msgid "All pages"
+msgstr "Tutte le pagine"
+
+msgid "Permanently"
+msgstr "Definitivamente"
+
+msgid "For a number of days"
+msgstr "Per un numero di giorni"
+
+msgid "Identifier"
+msgstr "Identificativo"
+
+msgid "Version"
+msgstr "Versione"
+
+msgid "Increase only to show a substantially new message again."
+msgstr ""
+"Aumenta solo per mostrare nuovamente un messaggio sostanzialmente diverso."
+
+msgid "Message"
+msgstr "Messaggio"
+
+msgid "Cover"
+msgstr "Immagine di copertina"
+
+msgid "Cover description"
+msgstr "Descrizione della copertina"
+
+msgid "Leave empty if the image is decorative."
+msgstr "Lascia vuoto se l'immagine è decorativa."
+
+msgid "Link text"
+msgstr "Testo del link"
+
+msgid "Link URL"
+msgstr "Indirizzo del link"
+
+msgid "An internal path starting with / or an http(s) URL."
+msgstr "Un percorso interno che inizia con / oppure un indirizzo http(s)."
+
+msgid "Audience"
+msgstr "Destinatari"
+
+msgid "Display on"
+msgstr "Mostra in"
+
+msgid "Priority"
+msgstr "Priorità"
+
+msgid "Higher values are shown first."
+msgstr "I valori più alti vengono mostrati per primi."
+
+msgid "Visible from"
+msgstr "Visibile dal"
+
+msgid "Visible until"
+msgstr "Visibile fino al"
+
+msgid "Hide after closing"
+msgstr "Nascondi dopo la chiusura"
+
+msgid "Days hidden after closing"
+msgstr "Giorni nascosto dopo la chiusura"
+
+msgid "Banner"
+msgstr "Banner"
+
+msgid "Banners"
+msgstr "Banner"
+
+msgid "The end must be after the start."
+msgstr "La fine deve essere successiva all'inizio."
+
+msgid "Enter how many days the banner should remain hidden."
+msgstr "Indica per quanti giorni il banner deve restare nascosto."
+
+msgid "Enter the link text."
+msgstr "Inserisci il testo del link."
+
+msgid "Enter the link URL."
+msgstr "Inserisci l'indirizzo del link."
+
 msgid "FAQ Category"
 msgstr "FAQ Category"
 
@@ -942,9 +1048,6 @@ msgstr "Pubblicato"
 
 msgid "Blocked"
 msgstr "Bloccato"
-
-msgid "Cover"
-msgstr "Immagine di copertina"
 
 msgid "Organizing location"
 msgstr "Sede organizzatrice"
@@ -1695,8 +1798,6 @@ msgstr ""
 "note e tag di entrambe le voci e mantiene il titolo in ludoteca se almeno "
 "una voce è attiva."
 
-#, fuzzy
-#| msgid "Notes"
 msgid "notes"
 msgstr "Note"
 
@@ -2025,7 +2126,7 @@ msgid "email"
 msgstr "email"
 
 msgid "message"
-msgstr "messaggio"
+msgstr "Messaggio"
 
 msgid ""
 "We are sorry to inform you that a table you were participating in has been "
@@ -2155,12 +2256,6 @@ msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
 
 msgid "Cover image"
 msgstr "Immagine di copertina"
-
-msgid "Choose an image…"
-msgstr "Scegli un'immagine…"
-
-msgid "Select the image again."
-msgstr "Seleziona di nuovo l'immagine."
 
 msgid "We'll use this to show the location on the map."
 msgstr "Lo useremo per mostrare la location sulla mappa."
@@ -2762,15 +2857,6 @@ msgstr "Data e ora"
 msgid "Select a game (optional)"
 msgstr "Seleziona un gioco (opzionale)"
 
-msgid "Upload an image to show instead of the game cover."
-msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
-
-msgid "Remove current image"
-msgstr "Rimuovi immagine"
-
-msgid "Choose an image"
-msgstr "Scegli un'immagine…"
-
 msgid "Players"
 msgstr "Giocatori"
 
@@ -2937,51 +3023,6 @@ msgstr "Già su Board Gamers"
 msgctxt "game imported from BGG"
 msgid "New"
 msgstr "Nuovo"
-
-msgid "Preview in the location list"
-msgstr "Anteprima nella lista delle location"
-
-msgid "Adjust crop"
-msgstr "Regola ritaglio"
-
-msgid ""
-"For the list, choose a square image. If it's a logo, leave some space around "
-"it."
-msgstr ""
-"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
-"spazio attorno."
-
-msgid "Crop image"
-msgstr "Ritaglia immagine"
-
-msgid ""
-"Move or resize the crop area, even beyond the image edges. Extra space is "
-"saved in white. Use the arrow keys and + or − to adjust it with the keyboard."
-msgstr ""
-"Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. "
-"Lo spazio aggiunto sarà bianco. Da tastiera, usa le frecce e i tasti + o −."
-
-msgid "Fit whole image"
-msgstr "Inquadra tutta l'immagine"
-
-msgid "Use original"
-msgstr "Usa originale"
-
-msgid "Apply crop"
-msgstr "Applica ritaglio"
-
-msgid "Loading…"
-msgstr "Caricamento…"
-
-msgid ""
-"Could not open the crop editor. Use the original image or choose another "
-"file."
-msgstr ""
-"Impossibile aprire lo strumento di ritaglio. Usa l'immagine originale o "
-"scegli un altro file."
-
-msgid "Could not apply the crop. Try again or use the original image."
-msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
 
 msgid "Edit location"
 msgstr "Modifica location"
@@ -3425,6 +3466,9 @@ msgstr ""
 msgid "BoardGameGeek username"
 msgstr "Username BoardGameGeek"
 
+msgid "Loading…"
+msgstr "Caricamento…"
+
 msgid "Load collection"
 msgstr "Carica collezione"
 
@@ -3837,9 +3881,6 @@ msgstr "Mostra nomi giocatori"
 msgid "Show table links"
 msgstr "Mostra link ai tavoli"
 
-msgid "Message"
-msgstr "messaggio"
-
 msgid "Copy"
 msgstr "Copia"
 
@@ -4020,6 +4061,65 @@ msgstr "Gratuito e Open source"
 msgid "Back to %(label)s"
 msgstr "Torna a %(label)s"
 
+msgid "Preview in the location list"
+msgstr "Anteprima nella lista delle location"
+
+msgid "Choose an image…"
+msgstr "Scegli un'immagine…"
+
+msgid "Adjust crop"
+msgstr "Regola ritaglio"
+
+msgid ""
+"For the list, choose a square image. If it's a logo, leave some space around "
+"it."
+msgstr ""
+"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
+"spazio attorno."
+
+msgid "Upload an image to show instead of the game cover."
+msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
+
+msgid "Remove current image"
+msgstr "Rimuovi immagine"
+
+msgid "Choose an image"
+msgstr "Scegli un'immagine…"
+
+msgid "Select the image again."
+msgstr "Seleziona di nuovo l'immagine."
+
+msgid "Crop image"
+msgstr "Ritaglia immagine"
+
+msgid ""
+"Move or resize the crop area, even beyond the image edges. Extra space is "
+"saved in white, or stays transparent if the image has transparency. Use the "
+"arrow keys and + or − to adjust it with the keyboard."
+msgstr ""
+"Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. "
+"Lo spazio aggiunto sarà bianco, o resterà trasparente se l'immagine ha "
+"trasparenze. Da tastiera, usa le frecce e i tasti + o −."
+
+msgid "Fit whole image"
+msgstr "Inquadra tutta l'immagine"
+
+msgid "Use original"
+msgstr "Usa originale"
+
+msgid "Apply crop"
+msgstr "Applica ritaglio"
+
+msgid ""
+"Could not open the crop editor. Use the original image or choose another "
+"file."
+msgstr ""
+"Impossibile aprire lo strumento di ritaglio. Usa l'immagine originale o "
+"scegli un altro file."
+
+msgid "Could not apply the crop. Try again or use the original image."
+msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
+
 msgid "Where to find it:"
 msgstr "Dove trovarlo:"
 
@@ -4105,16 +4205,6 @@ msgstr "vittorie"
 
 msgid "No tables played yet."
 msgstr "Ancora nessun tavolo giocato."
-
-msgid "Hey!"
-msgstr "Hey!"
-
-msgid ""
-"Do you know your way around code and want to contribute to Board-Gamers?"
-msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
-
-msgid "Contact us"
-msgstr "Contattaci"
 
 msgid "For clubs & associations"
 msgstr "Per club e associazioni"
@@ -4802,6 +4892,9 @@ msgstr "Cambiare modalità azzera la classifica compilata. Continuare?"
 msgid "Want to report a mistake or a better suggested mode for this game?"
 msgstr ""
 "Vuoi segnalarci un errore o una modalità suggerita migliore per questo gioco?"
+
+msgid "Contact us"
+msgstr "Contattaci"
 
 msgid "Remove link"
 msgstr "Rimuovi link"
@@ -5761,6 +5854,13 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "Hey!"
+#~ msgstr "Hey!"
+
+#~ msgid ""
+#~ "Do you know your way around code and want to contribute to Board-Gamers?"
+#~ msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
+
 #~ msgid "This game is archived."
 #~ msgstr "Questo gioco è archiviato."
 
@@ -6008,19 +6108,9 @@ msgstr "Collega account"
 #~ msgstr "Inserisci un numero di telefono valido."
 
 #, fuzzy
-#~| msgid "Invalid name."
-#~ msgid "Enter a valid date."
-#~ msgstr "Nome non valido."
-
-#, fuzzy
 #~| msgid "Date and time"
 #~ msgid "Enter a valid time."
 #~ msgstr "Data e ora"
-
-#, fuzzy
-#~| msgid "Current email"
-#~ msgid "Currently"
-#~ msgstr "Email attuale"
 
 #, fuzzy
 #~| msgid "Light"

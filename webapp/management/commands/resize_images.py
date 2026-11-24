@@ -1,13 +1,14 @@
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
-from webapp.services.images import jpeg_name, shrink_image_bytes
-from webapp.signals import SHRINKABLE_IMAGE_FIELDS
+from webapp.services.image_files import delete_image_after_commit, resizable_image_fields
+from webapp.services.images import resized_image_name, shrink_image_bytes
 
 
 class Command(BaseCommand):
-    help = ("Shrink already-uploaded covers and avatars to JPEG with a max side "
-            "(same rules as new uploads). The configured storage retains the original files.")
+    help = ("Resize uploaded images with the same rules as new uploads, preserving transparency. "
+            "Replaced files are deleted after commit only when no longer referenced.")
 
     def add_arguments(self, parser):
         parser.add_argument('--dry-run', action='store_true', help='Show what would be shrunk without saving')
@@ -23,7 +24,7 @@ class Command(BaseCommand):
         bytes_before = 0
         bytes_after = 0
 
-        for model, field_name, max_side in SHRINKABLE_IMAGE_FIELDS:
+        for model, field_name, max_side in resizable_image_fields():
             if only_model and model.__name__.lower() != only_model:
                 continue
 
@@ -49,8 +50,15 @@ class Command(BaseCommand):
 
                 old_name = field_file.name
                 if not dry_run:
-                    field_file.save(jpeg_name(old_name), ContentFile(shrunk), save=False)
-                    model.objects.filter(pk=instance.pk).update(**{field_name: field_file.name})
+                    using = instance._state.db
+                    with transaction.atomic(using=using):
+                        current_name = (model._base_manager.using(using).select_for_update()
+                                        .filter(pk=instance.pk).values_list(field_name, flat=True).first())
+                        if current_name != old_name:
+                            continue
+                        field_file.save(resized_image_name(old_name, shrunk), ContentFile(shrunk), save=False)
+                        model._base_manager.using(using).filter(pk=instance.pk).update(**{field_name: field_file.name})
+                        delete_image_after_commit(field_file.storage, old_name, using=using)
 
                 shrunk_count += 1
                 bytes_before += len(data)

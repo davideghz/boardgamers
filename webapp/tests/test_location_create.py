@@ -75,7 +75,7 @@ class LocationCreateViewTest(TestCase):
 
             self.assertRedirects(response, reverse('location-detail', kwargs={'slug': location.slug}))
             self.assertTrue(location.is_manager(self.profile))
-            self.assertEqual(location.cover.url, '/media/location-covers/cover.png')
+            self.assertRegex(location.cover.url, r'^/media/location-covers/cover_[0-9a-f]{32}\.png$')
             self.assertEqual((Path(media_root) / location.cover.name).read_bytes(), image.getvalue())
 
     def test_website_without_scheme_gets_https(self):
