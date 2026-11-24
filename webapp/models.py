@@ -1770,7 +1770,19 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def cover_url(self):
         if self.cover and hasattr(self.cover, 'url'):
             return self.cover.url
+        if self.organizer_location_id:
+            return self.organizer_location.cover_url
         return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
+
+    @property
+    def venue(self):
+        return self.venue_location or self
+
+    @property
+    def venue_label(self):
+        if self.venue_location_id:
+            return self.venue_location.name
+        return self.venue_name or self.city or self.address or ''
 
     def structured_data(self, request=None):
         """schema.org/Event JSON-LD payload for search-engine rich results, or
@@ -1864,6 +1876,12 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         missing = []
         if not self.dates.exists():
             missing.append(_('Add at least one date'))
+        if self.organizer_location_id:
+            if not self.venue_location_id and not all(
+                    value not in (None, '') for value in (self.venue_name, self.address, self.latitude, self.longitude)):
+                missing.append(_('Choose a venue or enter its name, address and coordinates'))
+            if self.dates.filter(models.Q(opening_time__isnull=True) | models.Q(closing_time__isnull=True)).exists():
+                missing.append(_('Set opening and closing times for each date'))
         if not self.description.strip():
             missing.append(_('Write a description'))
         return missing

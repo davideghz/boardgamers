@@ -5786,6 +5786,48 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+msgid "Latitude"
+msgstr "Latitudine"
+
+msgid "Longitude"
+msgstr "Longitudine"
+
+msgid "Enter an external venue below"
+msgstr "Inserisci qui sotto un luogo esterno"
+
+msgid "Required for a public venue."
+msgstr "Campo obbligatorio per pubblicare il luogo."
+
+msgid "Choose a venue or enter its name, address and coordinates"
+msgstr "Scegli un luogo o inserisci nome, indirizzo e coordinate"
+
+msgid "Set opening and closing times for each date"
+msgstr "Indica gli orari di apertura e chiusura di ogni giornata"
+
+msgid "Venue"
+msgstr "Luogo"
+
+msgid "At the organizing location"
+msgstr "In sede"
+
+msgid "External venue"
+msgstr "Fuori sede"
+
+msgid "Create location event"
+msgstr "Crea evento"
+
+msgid "Choose a landscape image. Without a cover, the event uses the location image or the default image."
+msgstr "Scegli un’immagine orizzontale. In assenza di una copertina, l’evento usa l’immagine della location oppure quella predefinita."
+
+msgid "Organized events"
+msgstr "Eventi organizzati"
+
+msgid "No events yet."
+msgstr "Ancora nessun evento."
+
+msgid "Event created as a draft."
+msgstr "Evento creato in bozza."
+
 #~ msgid "This game is archived."
 #~ msgstr "Questo gioco è archiviato."
 

@@ -21,7 +21,7 @@ from django.views.generic import CreateView, DetailView, UpdateView
 
 from webapp import emails
 from webapp.forms import (
-    EventTableForm, EventForm, EventManageDataForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
+    EventTableForm, EventForm, EventManageDataForm, OrganizedEventForm, EventDateForm, EventDateTimesForm, PlayAreaForm, PhysicalTableForm,
     AddEventManagerForm, AddSponsorLocationForm, AddTableCreatorForm, TableLinkFormSet,
     EventTableCategoryForm, EventGameForm, EventGameTagForm,
 )
@@ -51,9 +51,43 @@ class EventCreateView(LoginRequiredMixin, CreateView):
         return reverse('event-manage', kwargs={'slug': self.object.slug})
 
 
+@login_required
+@transaction.atomic
+def organized_event_create(request, slug):
+    location = get_object_or_404(Location, slug=slug)
+    if not location.can_create_events(request.user):
+        raise PermissionDenied
+    event = Event(organizer_location=location, creator=request.user.user_profile, venue_location=location)
+    form = OrganizedEventForm(request.POST if request.method == 'POST' else None, request.FILES or None, instance=event)
+    date_form = EventDateForm(request.POST if request.method == 'POST' else None)
+    can_manage = request.user.is_superuser or location.is_manager(request.user.user_profile)
+    if request.method == 'POST' and form.is_valid() and date_form.is_valid():
+        event = form.save()
+        EventDate.objects.create(event=event, **date_form.cleaned_data)
+        messages.success(request, _('Event created as a draft.'))
+        if can_manage:
+            return redirect('event-manage', slug=event.slug)
+        return redirect('location-detail', slug=slug)
+    return render(request, 'events/location_event_form.html', {
+        'location': location, 'form': form, 'date_form': date_form, 'can_manage_location_events': can_manage,
+    })
+
+
+@login_required
+def location_manage_events(request, slug):
+    location = get_object_or_404(Location, slug=slug)
+    if not (request.user.is_superuser or location.is_manager(request.user.user_profile)):
+        raise PermissionDenied
+    events = location.organized_events.select_related('venue_location', 'organizer_location').prefetch_related('dates')
+    return render(request, 'locations/location_manage_events.html', {
+        'location': location, 'events': events.order_by('-created_at'), 'can_create': location.can_create_events(request.user),
+    })
+
+
 class EventManagerMixin(LoginRequiredMixin):
     """Ensures the logged-in user is a manager of the event (resolved via slug kwarg)."""
 
+    @transaction.atomic
     def dispatch(self, request, *args, **kwargs):
         # Check before running the view: anonymous users fall through to
         # LoginRequiredMixin, which redirects them to the login page.
@@ -66,7 +100,8 @@ class EventManagerMixin(LoginRequiredMixin):
 
     def _get_event(self):
         if not hasattr(self, '_event_cache'):
-            self._event_cache = get_object_or_404(Event, slug=self.kwargs['slug'])
+            events = Event.objects.select_for_update() if self.request.method == 'POST' else Event.objects.all()
+            self._event_cache = get_object_or_404(events, slug=self.kwargs['slug'])
         return self._event_cache
 
 
@@ -86,7 +121,7 @@ class EventPublicAccessMixin:
         event = super().get_object(queryset)
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
         if not event.is_published:
-            if not user_profile or not event.is_manager(user_profile):
+            if not user_profile or not (self.request.user.is_superuser or event.is_manager(user_profile)):
                 raise Http404
         return event
 
@@ -830,7 +865,12 @@ class EventUnpublishView(EventManagerMixin, View):
 
 class EventManageDataView(EventManagerMixin, UpdateView):
     model = Event
-    form_class = EventManageDataForm
+    def get_form_class(self):
+        return OrganizedEventForm if self.object.organizer_location_id else EventManageDataForm
+
+    def get_template_names(self):
+        return ['events/location_event_form.html'] if self.object.organizer_location_id else super().get_template_names()
+
     template_name = 'events/event_manage_data.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -860,6 +900,8 @@ class EventManageDatesView(EventManagerMixin, View):
     def post(self, request, slug):
         event = self._event()
         form = EventDateForm(request.POST)
+        if event.organizer_location_id and event.is_published:
+            form.fields['opening_time'].required = form.fields['closing_time'].required = True
         if form.is_valid():
             EventDate.objects.update_or_create(
                 event=event, date=form.cleaned_data['date'],
@@ -882,6 +924,8 @@ class EventManageDateUpdateView(EventManagerMixin, View):
         event = self._get_event()
         event_date = get_object_or_404(EventDate, pk=pk, event=event)
         form = EventDateTimesForm(request.POST, instance=event_date)
+        if event.organizer_location_id and event.is_published:
+            form.fields['opening_time'].required = form.fields['closing_time'].required = True
         if form.is_valid():
             form.save()
             messages.success(request, _("Opening hours updated."))
@@ -1202,7 +1246,15 @@ class EventManagePhysicalTablesReorderView(EventManagerMixin, View):
             return JsonResponse({'success': False}, status=400)
 
 
-class EventManageManagersView(EventManagerMixin, View):
+class LegacyEventStaffMixin(EventManagerMixin):
+    def _get_event(self):
+        event = super()._get_event()
+        if event.organizer_location_id:
+            raise Http404
+        return event
+
+
+class EventManageManagersView(LegacyEventStaffMixin, View):
     template_name = 'events/event_manage_managers.html'
 
     def get(self, request, slug):
@@ -1228,7 +1280,7 @@ class EventManageManagersView(EventManagerMixin, View):
         })
 
 
-class EventManageManagerRemoveView(EventManagerMixin, View):
+class EventManageManagerRemoveView(LegacyEventStaffMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
         from webapp.models import UserProfile as UP
@@ -1238,7 +1290,7 @@ class EventManageManagerRemoveView(EventManagerMixin, View):
         return redirect('event-manage-managers', slug=slug)
 
 
-class EventManageTableCreatorsView(EventManagerMixin, View):
+class EventManageTableCreatorsView(LegacyEventStaffMixin, View):
     template_name = 'events/event_manage_table_creators.html'
 
     def get(self, request, slug):
@@ -1264,7 +1316,7 @@ class EventManageTableCreatorsView(EventManagerMixin, View):
         })
 
 
-class EventManageTableCreatorRemoveView(EventManagerMixin, View):
+class EventManageTableCreatorRemoveView(LegacyEventStaffMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
         from webapp.models import UserProfile as UP
@@ -1274,7 +1326,7 @@ class EventManageTableCreatorRemoveView(EventManagerMixin, View):
         return redirect('event-manage-table-creators', slug=slug)
 
 
-class EventManageLocationsView(EventManagerMixin, View):
+class EventManageLocationsView(LegacyEventStaffMixin, View):
     template_name = 'events/event_manage_locations.html'
 
     def get(self, request, slug):
@@ -1300,7 +1352,7 @@ class EventManageLocationsView(EventManagerMixin, View):
         })
 
 
-class EventManageLocationRemoveView(EventManagerMixin, View):
+class EventManageLocationRemoveView(LegacyEventStaffMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
         location = get_object_or_404(Location, pk=pk)

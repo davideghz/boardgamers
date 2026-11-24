@@ -209,6 +209,7 @@
       </svg>
     </a>
 
+    {% if not event.organizer_location_id %}
     <a href="{% url 'event-manage-managers' event.slug %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
@@ -264,6 +265,7 @@
       </svg>
     </a>
 
+    {% endif %}
   </div>
 
 {% endblock content %}

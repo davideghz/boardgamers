@@ -1,0 +1,8 @@
+{% if schedule.non_field_errors %}
+  <p class="text-sm text-red-500" role="alert">{{ schedule.non_field_errors|join:", " }}</p>
+{% endif %}
+{% include "events/_location_event_form_field.html" with field=schedule.date only %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+  {% include "events/_location_event_form_field.html" with field=schedule.opening_time only %}
+  {% include "events/_location_event_form_field.html" with field=schedule.closing_time only %}
+</div>

@@ -57,6 +57,8 @@ urlpatterns = [
 
     # LOCATION MANAGEMENT
     path("locations/<slug:slug>/manage/", location_views.LocationManageIndexView.as_view(), name="location-manage"),
+    path("locations/<slug:slug>/events/new/", event_views.organized_event_create, name="location-event-create"),
+    path("locations/<slug:slug>/manage/events/", event_views.location_manage_events, name="location-manage-events"),
     path("locations/<slug:slug>/manage/data/", location_views.LocationManageDataView.as_view(),
          name="location-manage-data"),
     path("locations/<slug:slug>/manage/networks/", location_views.LocationManageNetworksView.as_view(),

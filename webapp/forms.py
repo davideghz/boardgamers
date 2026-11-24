@@ -9,7 +9,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
     inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
-    ClearableFileInput, FileField
+    ClearableFileInput, FileField, DecimalField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -844,6 +844,34 @@ class EventManageDataForm(EventForm):
         if title and not url and 'custom_button_url' not in self.errors:
             self.add_error('custom_button_url', _('A button with a title needs a link.'))
         return cleaned_data
+
+
+class OrganizedEventForm(EventManageDataForm):
+    latitude = DecimalField(min_value=-90, max_value=90, decimal_places=8, required=False, label=_('Latitude'))
+    longitude = DecimalField(min_value=-180, max_value=180, decimal_places=8, required=False, label=_('Longitude'))
+
+    class Meta(EventManageDataForm.Meta):
+        fields = ['name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city',
+                  'latitude', 'longitude', 'phone', 'email', 'leaderboard_enabled', 'table_booking_enabled',
+                  'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['venue_location'].empty_label = _('Enter an external venue below')
+        self.fields['cover'].widget.attrs = {'class': 'sr-only peer', 'accept': 'image/*'}
+        if not self.instance.pk:
+            for name in ('leaderboard_enabled', 'table_booking_enabled', 'custom_button_title',
+                         'custom_button_subtitle', 'custom_button_url'):
+                self.fields.pop(name)
+        self.fields['description'].required = self.instance.is_published
+
+    def clean(self):
+        data = super().clean()
+        if self.instance.is_published and not data.get('venue_location'):
+            for name in ('venue_name', 'address', 'latitude', 'longitude'):
+                if data.get(name) in (None, ''):
+                    self.add_error(name, _('Required for a public venue.'))
+        return data
 
 
 class EventDateForm(TailwindForm):

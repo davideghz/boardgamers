@@ -284,9 +284,12 @@ class LocationDetailView(DetailView):
         context['followers_count'] = followers_count
         context['has_pending_membership'] = has_pending_membership
         context['is_active_member'] = is_active_member
+        context['organized_events'] = location.organized_events.filter(status=Event.PUBLISHED).select_related(
+            'organizer_location', 'venue_location').prefetch_related('dates').order_by('-created_at')
+        context['can_create_events'] = location.can_create_events(self.request.user)
         context['sponsored_events'] = (
             location.sponsored_events
-            .filter(status=Event.PUBLISHED, dates__date__gte=today)
+            .filter(organizer_location__isnull=True, status=Event.PUBLISHED, dates__date__gte=today)
             .prefetch_related('dates')
             .distinct()
             .order_by('name')
