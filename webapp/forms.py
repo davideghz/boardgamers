@@ -483,8 +483,10 @@ class EventTableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, event=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.event = event
         self.fields['custom_cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         if event is not None:
+            self.fields['event'].queryset = Event.objects.filter(pk=event.pk)
             dates = event.dates.order_by('date')
             self.fields['date'].widget = Select(
                 choices=[('', _('Select a date'))] + [
@@ -507,6 +509,12 @@ class EventTableForm(ModelForm, TailwindForm):
         self.fields['category'].empty_label = _('No category')
         self.fields['unlimited_seats'].widget.attrs.update({
             'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
+
+    def clean_date(self):
+        date = self.cleaned_data['date']
+        if self.event:
+            self.event.validate_table_date(date)
+        return date
 
     def clean_custom_cover(self):
         return validate_custom_cover_size(self.cleaned_data.get('custom_cover'))

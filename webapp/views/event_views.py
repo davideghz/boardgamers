@@ -7,7 +7,7 @@ from itertools import groupby
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Count, F, Max, Min, Prefetch, Q
 from django.core.paginator import Paginator
@@ -675,8 +675,9 @@ class EventTableDetailView(BaseTableDetailView):
 
 
 @login_required
+@transaction.atomic
 def event_table_create_view(request, event_slug):
-    event = get_object_or_404(Event, slug=event_slug)
+    event = get_object_or_404(Event.objects.select_for_update() if request.method == 'POST' else Event, slug=event_slug)
     user_profile = request.user.user_profile
 
     if not event.can_create_table(user_profile) and not request.user.is_superuser:
@@ -726,8 +727,9 @@ def event_table_create_view(request, event_slug):
 
 
 @login_required
+@transaction.atomic
 def event_table_update_view(request, event_slug, table_slug):
-    event = get_object_or_404(Event, slug=event_slug)
+    event = get_object_or_404(Event.objects.select_for_update() if request.method == 'POST' else Event, slug=event_slug)
     table = get_object_or_404(Table, slug=table_slug, event=event)
     user_profile = request.user.user_profile
 
@@ -891,8 +893,13 @@ class EventManageDateUpdateView(EventManagerMixin, View):
 class EventManageDateDeleteView(EventManagerMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
-        EventDate.objects.filter(pk=pk, event=event).delete()
-        messages.success(request, _("Date removed."))
+        try:
+            with transaction.atomic():
+                get_object_or_404(EventDate, pk=pk, event=event).delete()
+        except ValidationError as error:
+            messages.error(request, error.messages[0])
+        else:
+            messages.success(request, _("Date removed."))
         return redirect('event-manage-dates', slug=slug)
 
 

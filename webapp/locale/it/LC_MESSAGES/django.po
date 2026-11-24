@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 11:46+0100\n"
+"POT-Creation-Date: 2026-11-24 12:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,6 +86,9 @@ msgstr "Chiusura"
 
 msgid "Cover preview"
 msgstr "Anteprima della copertina"
+
+msgid "A published event needs at least one date."
+msgstr "Un evento pubblicato deve avere almeno una giornata."
 
 msgid "Participants"
 msgstr "Partecipanti"
@@ -1101,6 +1104,9 @@ msgstr "Link del pulsante"
 msgid "%(name)s — gaming event"
 msgstr "%(name)s – evento boardgames"
 
+msgid "Choose one of the event dates."
+msgstr "Seleziona una delle giornate dell’evento."
+
 msgid "Add at least one date"
 msgstr "Aggiungi almeno una data"
 
@@ -1112,6 +1118,12 @@ msgstr "Eventi"
 
 msgid "Play Areas"
 msgstr "Aree di gioco"
+
+msgid "Move the tables scheduled on this date first."
+msgstr "Sposta prima i tavoli programmati per questa giornata."
+
+msgid "An event date cannot change event."
+msgstr "Una giornata non può essere trasferita a un altro evento."
 
 msgid "Event Date"
 msgstr "Data Evento"
@@ -3795,7 +3807,9 @@ msgstr "Richieste di iscrizione non attive"
 
 msgid ""
 "Members-only table options are disabled while membership requests are closed."
-msgstr "Le opzioni «Solo i soci» per i tavoli sono disattivate quando le richieste di iscrizione sono chiuse."
+msgstr ""
+"Le opzioni «Solo i soci» per i tavoli sono disattivate quando le richieste "
+"di iscrizione sono chiuse."
 
 msgid "Activate them in the Members page."
 msgstr "Attivale dalla pagina Soci."

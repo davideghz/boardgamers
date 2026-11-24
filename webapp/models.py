@@ -16,6 +16,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
+from django.db import transaction
 from django.urls import reverse, translate_url
 from django.utils import timezone, translation
 from django.utils.encoding import force_bytes
@@ -837,13 +838,35 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         self.leaderboard_status = new_leaderboard_status
         return changed
 
+    def _event_date_changed(self):
+        """Tables already outside the calendar (e.g. of an event that got its organizer
+        later) must still be saved by the cron and the other actions."""
+        if not self.event_id:
+            return False
+        return not Table.objects.filter(pk=self.pk, event_id=self.event_id, date=self.date).exists()
+
+    def clean(self):
+        super().clean()
+        if self.date and self.event_id and self.event.organizer_location_id and self._event_date_changed():
+            try:
+                self.event.validate_table_date(self.date)
+            except ValidationError as error:
+                raise ValidationError({'date': error}) from error
+
     def save(self, *args, **kwargs):
         # Keep both statuses in sync with the lifecycle on every save, so that
         # editing the date/time immediately realigns them (no drift waiting for
         # the cron). Set `_skip_status_recompute = True` to bypass if ever needed.
         if not getattr(self, '_skip_status_recompute', False):
             self.recompute_statuses()
-        super().save(*args, **kwargs)
+        fields = kwargs.get('update_fields')
+        if (fields is None or {'event', 'event_id', 'date'}.intersection(fields)) and self._event_date_changed():
+            with transaction.atomic():
+                event = Event.objects.select_for_update().get(pk=self.event_id)
+                if event.organizer_location_id:
+                    event.validate_table_date(self.date)
+                return super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @property
     def start_datetime(self):
@@ -1899,6 +1922,10 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def is_published(self):
         return self.status == self.PUBLISHED
 
+    def validate_table_date(self, date):
+        if not self.dates.filter(date=date).exists():
+            raise ValidationError(_('Choose one of the event dates.'))
+
     def missing_publish_requirements(self):
         """What the event still lacks before it can be published: an undated event
         wouldn't show up in the event list, and an empty page tells visitors nothing."""
@@ -1996,6 +2023,24 @@ class EventDate(DateTimeModel):
     date = models.DateField(verbose_name=_('Date'))
     opening_time = models.TimeField(null=True, blank=True, verbose_name=_('Opening time'))
     closing_time = models.TimeField(null=True, blank=True, verbose_name=_('Closing time'))
+
+    def check_removal(self, *, replacing=False, removed=None):
+        if self.event.tables.filter(date=self.date).exists():
+            raise ValidationError(_('Move the tables scheduled on this date first.'))
+        if not replacing and self.event.is_published and not self.event.dates.exclude(
+                pk__in=removed if removed is not None else [self.pk]).exists():
+            raise ValidationError(_('A published event needs at least one date.'))
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            Event.objects.select_for_update().get(pk=self.event_id)
+            if self.pk:
+                old = EventDate.objects.get(pk=self.pk)
+                if old.event_id != self.event_id:
+                    raise ValidationError(_('An event date cannot change event.'))
+                if old.date != self.date and old.event.organizer_location_id:
+                    old.check_removal(replacing=True)
+            return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.event.name} — {self.date}"
