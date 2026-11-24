@@ -582,7 +582,7 @@ class EventGameTagAdmin(admin.ModelAdmin):
 class EventGameAdmin(admin.ModelAdmin):
     list_display = ('game', 'event', 'created_at')
     search_fields = ('game__name', 'event__name')
-    autocomplete_fields = ('event', 'game')
+    autocomplete_fields = ('event', 'game', 'source_location_game')
     filter_horizontal = ('tags', 'sponsor_locations')
     readonly_fields = ('uuid', 'created_at', 'updated_at')
 

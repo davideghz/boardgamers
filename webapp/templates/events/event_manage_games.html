@@ -14,22 +14,26 @@
     {% csrf_token %}
     <label for="public-games-enabled"
            class="flex items-start justify-between gap-4 p-4 rounded-xl border cursor-pointer transition-colors
-                  {% if event.enable_public_games %}border-green-200 bg-green-50{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
+                  {% if event.catalog_is_public %}border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
       <div>
         <p class="text-sm font-semibold text-content">
           {% trans "Public library" %}
-          {% if event.enable_public_games %}
+          {% if event.catalog_is_public %}
             <span class="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{% translate "Visible" context "game library" %}</span>
           {% else %}
             <span class="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% translate "Hidden" context "game library" %}</span>
           {% endif %}
         </p>
         <p class="text-xs text-content-muted mt-0.5">
-          {% if event.enable_public_games %}
+          {% if event.catalog_is_public %}
             {% trans "Visitors can browse the library from the event page, which also shows the games with a tag flagged for it." %}
             <a href="{% url 'event-games' event.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "View public page" %} →</a>
           {% else %}
-            {% trans "Turn this on to show the library on the event page. Until then only managers can see it." %}
+            {% if event.uses_location_library and not event.organizer_location.enable_public_games %}
+              {% translate "The event catalog stays hidden while the organizing location library is private." %}
+            {% else %}
+              {% trans "Turn this on to show the library on the event page. Until then only managers can see it." %}
+            {% endif %}
             <a href="{% url 'event-games' event.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "Preview" %} →</a>
           {% endif %}
         </p>
@@ -51,10 +55,18 @@
     </noscript>
   </form>
 
+  {% if event.organizer_location_id %}
+    <p class="mb-4 text-sm text-content-muted">{% if event.uses_location_library %}{% translate "The event catalog uses the organizing location library, plus the event selection." %}{% else %}{% translate "The event catalog uses the event selection." %}{% endif %}
+      <a class="text-blue-600" href="{% url 'event-manage-data' event.slug %}">{% translate "Change catalog" %}</a></p>
+  {% endif %}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
     {# ── Games ───────────────────────────────────────────────────────── #}
     <div class="lg:col-span-2 min-w-0">
+      {% if event.uses_location_library %}
+        <h2 class="mb-2 text-sm font-semibold text-content">{% translate "Event selection" %}</h2>
+        <p class="mb-2 text-xs text-content-muted">{% translate "These games, which include those of the event tables, are shown together with the organizing location library. Add a library game here to give it a tag." %}</p>
+      {% endif %}
       <div class="flex gap-2 mb-3">
         <div class="relative flex-1">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
