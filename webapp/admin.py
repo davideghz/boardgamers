@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.forms import BaseInlineFormSet
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
@@ -475,7 +476,39 @@ class PlayAreaInline(admin.TabularInline):
     fields = ('name', 'order')
 
 
+class EventDateInlineFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        if not self.instance.organizer_location_id or any(self.errors):
+            return
+        days = []
+        for form in self.forms:
+            data = form.cleaned_data
+            if not data.get('DELETE') and data.get('date'):
+                days.append(data['date'])
+            if form.instance.pk and (data.get('DELETE') or 'date' in form.changed_data):
+                old = EventDate.objects.get(pk=form.instance.pk)
+                old.check_removal(replacing=True)
+        if self.instance.is_published and not days:
+            raise ValidationError(_('A published event needs at least one date.'))
+
+    @transaction.atomic
+    def save(self, commit=True):
+        if not commit or not self.instance.organizer_location_id:
+            return super().save(commit=commit)
+        event = Event.objects.select_for_update().get(pk=self.instance.pk)
+        # Django deletes existing inlines before saving new ones. Check the
+        # last-day rule against the result of the whole calendar edit.
+        for form in self.deleted_forms:
+            form.instance._defer_last_date_check = True
+        dates = super().save()
+        if event.is_published and not event.dates.exists():
+            raise ValidationError(_('A published event needs at least one date.'))
+        return dates
+
+
 class EventDateInline(admin.TabularInline):
+    formset = EventDateInlineFormSet
     model = EventDate
     extra = 1
     fields = ('date',)

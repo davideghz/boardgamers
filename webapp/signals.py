@@ -11,8 +11,21 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event, EventGame, Network, LocationNetwork
+    EventParticipant, Game, Location, Event, EventDate, EventGame, Network, LocationNetwork
 from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
+
+
+@receiver(pre_delete, sender=EventDate)
+def protect_event_program(sender, instance, origin, **kwargs):
+    if isinstance(origin, EventDate) or getattr(origin, 'model', None) is EventDate:
+        event = Event.objects.select_for_update().get(pk=instance.event_id)
+        if event.organizer_location_id:
+            instance.event = event
+            removed = origin.values('pk') if getattr(origin, 'model', None) is EventDate else [instance.pk]
+            instance.check_removal(
+                replacing=getattr(instance, '_defer_last_date_check', False),
+                removed=removed,
+            )
 
 
 @receiver(user_logged_out)
