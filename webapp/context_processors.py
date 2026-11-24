@@ -1,10 +1,19 @@
 from django.conf import settings
 
-from webapp.models import Notification, Table
+from webapp.models import Banner, Notification, Table
 
 
 def maps_api_key(request):
     return {'maps_api_key': settings.MAPS_API_KEY}
+
+
+def site_banners(request):
+    match = request.resolver_match
+    if not match or match.namespace == 'admin':
+        return {}
+    return {'site_banners': Banner.objects.visible(
+        authenticated=request.user.is_authenticated, home=match.url_name == 'home',
+    )[:20]}
 
 
 def telegram_config(request):

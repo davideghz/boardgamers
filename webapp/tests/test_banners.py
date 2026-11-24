@@ -1,0 +1,308 @@
+from datetime import timedelta
+from io import BytesIO
+from tempfile import TemporaryDirectory
+from unittest import mock
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
+from django.db import transaction
+from django.forms import modelform_factory
+from django.test import TestCase, override_settings
+from django.urls import reverse
+from django.utils import timezone, translation
+from PIL import Image
+
+from webapp.factories import GameFactory, UserProfileFactory
+from webapp.forms import BannerForm
+from webapp.models import Banner
+from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES
+from webapp.tests.test_managed_images import upload
+
+
+class BannerTest(TestCase):
+    def setUp(self):
+        Banner.objects.update(is_active=False)
+        self.banner = Banner.objects.create(key='test-banner', title='A new feature', message='Try it.', is_active=True)
+
+    def test_home_renders_hidden_candidates_for_anonymous_and_authenticated_users(self):
+        for authenticated in (False, True):
+            with self.subTest(authenticated=authenticated):
+                if authenticated:
+                    self.client.force_login(UserProfileFactory().user)
+                response = self.client.get(reverse('home'))
+                self.assertContains(response, 'data-banner-key="test-banner"', count=1)
+                self.assertContains(response, '<section hidden data-banner')
+                self.assertNotContains(response, 'data-dismiss-url=')
+                self.assertNotContains(response, 'data-banner-scope=')
+                html = response.content.decode()
+                banner_position = html.index('data-banner-key="test-banner"')
+                heading_position = html.index('<h1')
+                if authenticated:
+                    self.assertLess(banner_position, heading_position)
+                else:
+                    self.assertGreater(banner_position, heading_position)
+
+    def test_new_banners_are_inactive_until_enabled(self):
+        Banner.objects.create(key='draft', message='Not ready')
+        self.assertNotContains(self.client.get(reverse('home')), 'data-banner-key="draft"')
+
+    def test_audience_is_filtered_before_rendering(self):
+        Banner.objects.create(key='members', message='Members', is_active=True, audience=Banner.Audience.AUTHENTICATED)
+        Banner.objects.create(key='visitors', message='Visitors', is_active=True, audience=Banner.Audience.ANONYMOUS)
+        response = self.client.get(reverse('home'))
+        self.assertNotContains(response, 'data-banner-key="members"')
+        self.assertContains(response, 'data-banner-key="visitors"')
+        self.client.force_login(UserProfileFactory().user)
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'data-banner-key="members"')
+        self.assertNotContains(response, 'data-banner-key="visitors"')
+
+    def test_home_and_site_wide_placements(self):
+        Banner.objects.create(key='everywhere', message='Everywhere', is_active=True, placement=Banner.Placement.SITE)
+        response = self.client.get(reverse('about'))
+        self.assertNotContains(response, 'data-banner-key="test-banner"')
+        self.assertContains(response, 'data-banner-key="everywhere"')
+
+    def test_scheduling_includes_start_and_excludes_end(self):
+        now = timezone.now()
+        self.banner.starts_at = now
+        self.banner.ends_at = now + timedelta(hours=1)
+        self.banner.save()
+        visible = lambda at: Banner.objects.visible(authenticated=False, home=True, at=at).filter(pk=self.banner.pk).exists()
+        self.assertFalse(visible(now - timedelta(seconds=1)))
+        self.assertTrue(visible(now))
+        self.assertFalse(visible(self.banner.ends_at))
+
+    def test_priority_orders_candidates(self):
+        high = Banner.objects.create(key='urgent', message='Urgent', is_active=True, priority=100)
+        self.assertEqual(list(Banner.objects.visible(authenticated=False, home=True)), [high, self.banner])
+
+    def test_content_is_translated_and_internal_link_follows_language(self):
+        self.banner.message_en = 'English message'
+        self.banner.message_it = 'Messaggio italiano'
+        self.banner.action_label_it = 'Dettagli'
+        self.banner.action_label_en = 'More'
+        self.banner.action_url = '/contacts'
+        self.banner.save()
+        with translation.override('en'):
+            response = self.client.get(reverse('home'))
+            banner_html = response.content.decode().split('data-banner-key="test-banner"', 1)[1].split('</section>', 1)[0]
+            self.assertIn('English message', banner_html)
+            self.assertIn('href="/en/contacts"', banner_html)
+        with translation.override('it'):
+            response = self.client.get(reverse('home'))
+            banner_html = response.content.decode().split('data-banner-key="test-banner"', 1)[1].split('</section>', 1)[0]
+            self.assertIn('Messaggio italiano', banner_html)
+            self.assertIn('href="/contacts"', banner_html)
+
+    def test_message_is_escaped_and_unsafe_links_are_not_rendered(self):
+        self.banner.message = '<script>alert(1)</script>'
+        self.banner.action_url = 'javascript:alert(2)'
+        self.banner.action_label = 'Click'
+        self.banner.save()
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;')
+        self.assertNotContains(response, 'javascript:alert(2)')
+        with self.assertRaises(ValidationError):
+            self.banner.full_clean()
+
+    def test_relative_external_and_unsafe_links(self):
+        for url in ('/contacts', 'https://example.com/news'):
+            self.banner.action_url = url
+            self.banner.action_label_it = 'Altro'
+            self.banner.action_label_en = 'More'
+            self.banner.message_it = 'Provalo.'
+            self.banner.message_en = 'Try it.'
+            self.banner.full_clean()
+        for url in ('//example.com', '/\\example.com', 'data:text/html,test'):
+            self.banner.action_url = url
+            with self.subTest(url=url), self.assertRaises(ValidationError):
+                self.banner.full_clean()
+
+    def test_invalid_schedule_and_closing_settings_are_rejected(self):
+        self.banner.starts_at = timezone.now()
+        self.banner.ends_at = self.banner.starts_at
+        self.banner.dismissal = Banner.Dismissal.DAYS
+        with self.assertRaises(ValidationError) as caught:
+            self.banner.full_clean()
+        self.assertTrue({'ends_at', 'dismissal_days'} <= caught.exception.message_dict.keys())
+
+    def test_session_closing_is_rejected(self):
+        self.banner.dismissal = 'session'
+        with self.assertRaises(ValidationError) as caught:
+            self.banner.full_clean()
+        self.assertIn('dismissal', caught.exception.message_dict)
+
+    def test_cover_is_optional_and_uses_translated_alternative_text(self):
+        self.assertNotContains(self.client.get(reverse('home')), 'src="/media/banners/')
+        self.banner.cover = 'banners/cover.jpg'
+        self.banner.cover_alt_it = 'Una serata di giochi'
+        self.banner.save()
+        with translation.override('it'):
+            response = self.client.get(reverse('home'))
+        self.assertContains(response, 'alt="Una serata di giochi"')
+        self.assertContains(response, '/media/banners/cover.jpg')
+
+    def test_banner_admin_requires_model_permissions(self):
+        url = reverse('admin:webapp_banner_changelist')
+        self.assertEqual(self.client.get(url).status_code, 302)
+        self.client.force_login(UserProfileFactory(user__is_staff=True).user)
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self.client.force_login(UserProfileFactory(user__is_staff=True, user__is_superuser=True).user)
+        self.assertContains(self.client.get(reverse('admin:index')), url)
+        response = self.client.get(reverse('admin:webapp_banner_change', args=[self.banner.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'type="file"')
+        self.assertContains(response, 'name="message_it"')
+        self.assertContains(response, 'name="message_en"')
+        form = response.context['adminform'].form
+        self.assertNotIn('dismissal_scope', form.fields)
+        self.assertEqual({value for value, _ in form.fields['dismissal'].choices if value}, {'permanent', 'days'})
+
+
+class BannerAdminFormTest(TestCase):
+    def setUp(self):
+        self.client.force_login(UserProfileFactory(user__is_staff=True, user__is_superuser=True).user)
+
+    def post(self, **data):
+        return self.client.post(reverse('admin:webapp_banner_add'), {
+            'key': 'from-admin', 'version': 1, 'message_it': 'Messaggio', 'message_en': 'Message',
+            'audience': 'everyone', 'placement': 'home', 'priority': 0, 'dismissal': 'permanent', **data})
+
+    def assert_errors(self, response, *fields):
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.context['adminform'].form.errors), set(fields))
+        self.assertFalse(Banner.objects.filter(key='from-admin').exists())
+
+    def test_valid_banner_is_created(self):
+        self.assertEqual(self.post(action_url='/contacts', action_label_it='Vai', action_label_en='Go').status_code, 302)
+        self.assertTrue(Banner.objects.filter(key='from-admin').exists())
+
+    def test_missing_translations_are_reported_on_their_fields(self):
+        for language in ('it', 'en'):
+            with self.subTest(language=language), translation.override(language):
+                self.assert_errors(self.post(action_url='/contacts'), 'action_label_it', 'action_label_en')
+                self.assert_errors(self.post(action_url='/contacts', action_label_it='Vai'), 'action_label_en')
+                self.assert_errors(self.post(action_label_en='Go'), 'action_url')
+                self.assert_errors(self.post(message_it=''), 'message_it')
+                self.assert_errors(self.post(message_en=''), 'message_en')
+
+    def test_list_reports_errors_on_fields_it_does_not_edit(self):
+        Banner.objects.all().delete()
+        banner = Banner.objects.create(key='invalid', message='Message', dismissal=Banner.Dismissal.DAYS)
+        url = reverse('admin:webapp_banner_changelist')
+        data = {'form-TOTAL_FORMS': 1, 'form-INITIAL_FORMS': 1, 'form-0-id': banner.pk, 'form-0-priority': 3, '_save': 'Save'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['cl'].formset.forms[0].non_field_errors())
+        Banner.objects.filter(pk=banner.pk).update(dismissal_days=2)
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        banner.refresh_from_db()
+        self.assertEqual(banner.priority, 3)
+
+
+class BannerCoverTest(TestCase):
+    def setUp(self):
+        self.enterContext(override_settings(MEDIA_ROOT=self.enterContext(TemporaryDirectory()), STORAGES={
+            **settings.STORAGES, 'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        }))
+
+    def test_uploaded_cover_is_resized_before_storage(self):
+        output = BytesIO()
+        Image.effect_noise((2400, 1600), 100).convert('RGB').save(output, 'JPEG', quality=95)
+        upload = SimpleUploadedFile('cover.jpg', output.getvalue(), 'image/jpeg')
+        banner = Banner(key='with-cover', message='A cover', message_en='A cover', cover=upload)
+        banner.full_clean()
+        banner.save()
+        with banner.cover.open('rb') as content, Image.open(content) as image:
+            self.assertLessEqual(max(image.size), COVER_MAX_SIDE)
+
+    def test_oversized_or_invalid_covers_are_rejected(self):
+        form_class = modelform_factory(Banner, form=BannerForm, fields=['cover'])
+        huge = upload('huge.png')
+        huge.size = COVER_UPLOAD_MAX_BYTES + 1
+        for cover in (SimpleUploadedFile('bad.png', b'not an image'), huge,
+                      upload('pixels.png', size=(4100, 4100), mode='L', color=0)):
+            with self.subTest(name=cover.name):
+                form = form_class(data={}, files={'cover': cover})
+                self.assertIn('cover', form.errors)
+
+    def test_editing_text_does_not_reopen_or_reprocess_an_existing_cover(self):
+        banner = Banner.objects.create(key='old-cover', message='Old', message_en='Old', cover='banners/old.jpg')
+        with mock.patch('webapp.fields.shrink_content_file') as shrink:
+            banner.message = 'New'
+            banner.full_clean()
+            banner.save()
+        shrink.assert_not_called()
+
+    def test_transparent_cover_uses_the_shared_png_normalization(self):
+        banner = Banner(key='transparent', message='Transparent', message_en='Transparent', cover=upload(size=(1600, 1200)))
+        banner.full_clean()
+        banner.save()
+        self.assertTrue(banner.cover.name.endswith('.png'))
+        with banner.cover.open('rb') as content, Image.open(content) as image:
+            self.assertEqual(image.format, 'PNG')
+            self.assertEqual(image.size, (1200, 900))
+            self.assertEqual(image.getpixel((500, 500))[3], 128)
+
+    def test_replacing_a_banner_cover_removes_the_previous_file_after_commit(self):
+        banner = Banner.objects.create(key='replacement', message='Cover', cover=upload())
+        storage, name = banner.cover.storage, banner.cover.name
+        with self.captureOnCommitCallbacks(execute=True):
+            banner.cover = upload('new.png')
+            banner.save(update_fields=['cover'])
+            self.assertTrue(storage.exists(name))
+        self.assertFalse(storage.exists(name))
+        self.assertTrue(storage.exists(banner.cover.name))
+
+    def test_admin_clear_checkbox_uses_shared_cleanup_after_commit(self):
+        banner = Banner.objects.create(key='clear', message='Cover', cover=upload())
+        storage, name = banner.cover.storage, banner.cover.name
+        form_class = modelform_factory(Banner, fields=['cover'])
+        form = form_class(data={'cover-clear': 'on'}, instance=banner)
+        self.assertTrue(form.is_valid(), form.errors)
+        with self.captureOnCommitCallbacks(execute=True):
+            form.save()
+            self.assertTrue(storage.exists(name))
+        banner.refresh_from_db()
+        self.assertFalse(banner.cover)
+        self.assertFalse(storage.exists(name))
+
+    def test_deleting_a_banner_preserves_files_referenced_by_another_model(self):
+        banner = Banner.objects.create(key='shared', message='Cover', cover=upload())
+        storage, name = banner.cover.storage, banner.cover.name
+        game = GameFactory(image=name)
+        with self.captureOnCommitCallbacks(execute=True):
+            banner.delete()
+        self.assertTrue(storage.exists(name))
+        with self.captureOnCommitCallbacks(execute=True):
+            game.delete()
+        self.assertFalse(storage.exists(name))
+
+    def test_banner_deletion_rollback_preserves_the_cover(self):
+        banner = Banner.objects.create(key='rollback', message='Cover', cover=upload())
+        storage, name, pk = banner.cover.storage, banner.cover.name, banner.pk
+        with self.captureOnCommitCallbacks(execute=True) as callbacks:
+            with transaction.atomic():
+                banner.delete()
+                transaction.set_rollback(True)
+        self.assertEqual(callbacks, [])
+        self.assertTrue(Banner.objects.filter(pk=pk).exists())
+        self.assertTrue(storage.exists(name))
+
+    def test_resize_command_discovers_banner_covers_without_a_registry(self):
+        from io import StringIO
+        storage = Banner._meta.get_field('cover').storage
+        name = storage.save('banners/original.png', upload(size=(1600, 1200)))
+        banner = Banner.objects.create(key='resize', message='Cover', cover=name)
+        with self.captureOnCommitCallbacks(execute=True):
+            call_command('resize_images', model='banner', stdout=StringIO())
+            self.assertTrue(storage.exists(name))
+        banner.refresh_from_db()
+        self.assertFalse(storage.exists(name))
+        with banner.cover.open('rb') as content, Image.open(content) as image:
+            self.assertEqual(image.format, 'PNG')
+            self.assertEqual(image.size, (1200, 900))
+            self.assertEqual(image.getpixel((500, 500))[3], 128)
