@@ -864,9 +864,24 @@ class EventManageDataForm(EventForm):
         return cleaned_data
 
 
+class CoordinateField(DecimalField):
+    """Round to 8 decimals (about a millimeter): maps give many more."""
+    def __init__(self, **kwargs):
+        super().__init__(required=False, **kwargs)
+
+    def to_python(self, value):
+        value = super().to_python(value)
+        if value is not None and value.is_finite() and value.as_tuple().exponent < -8:
+            value = round(value, 8)
+        return value
+
+    def widget_attrs(self, widget):
+        return {**super().widget_attrs(widget), 'step': 'any'}
+
+
 class OrganizedEventForm(EventManageDataForm):
-    latitude = DecimalField(min_value=-90, max_value=90, decimal_places=8, required=False, label=_('Latitude'))
-    longitude = DecimalField(min_value=-180, max_value=180, decimal_places=8, required=False, label=_('Longitude'))
+    latitude = CoordinateField(min_value=-90, max_value=90, label=_('Latitude'))
+    longitude = CoordinateField(min_value=-180, max_value=180, label=_('Longitude'))
 
     class Meta(EventManageDataForm.Meta):
         fields = ['name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city',
@@ -876,7 +891,8 @@ class OrganizedEventForm(EventManageDataForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['venue_location'].empty_label = _('Enter an external venue below')
-        self.fields['cover'].widget.attrs = {'class': 'sr-only peer', 'accept': 'image/*'}
+        self.fields['cover'].widget.attrs = {
+            'class': 'sr-only peer', 'accept': 'image/*', 'data-crop-max-side': COVER_MAX_SIDE}
         if not self.instance.pk:
             for name in ('leaderboard_enabled', 'table_booking_enabled', 'custom_button_title',
                          'custom_button_subtitle', 'custom_button_url'):

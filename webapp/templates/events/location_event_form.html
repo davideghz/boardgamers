@@ -39,7 +39,13 @@
     </div>
     {% for field in form %}{% if field.name != 'name' and field.name != 'description' and field.name != 'cover' %}
       {% include "events/_location_event_form_field.html" with field=field only %}
-    {% endif %}{% endfor %}
+    {% endif %}
+      {% if field.name == 'address' %}
+        <p class="text-xs text-content-muted">{% trans "Choose a suggestion to fill in the city and the coordinates." %}</p>
+      {% elif field.name == 'longitude' %}
+        <div id="gmp-map" class="w-full h-48 rounded-xl overflow-hidden border border-divider"></div>
+      {% endif %}
+    {% endfor %}
     {% if date_form %}
       <fieldset class="space-y-4 rounded-xl border border-divider bg-surface p-4">
         <legend class="px-1 text-sm font-bold text-content">{% trans "Date and time" %}</legend>
@@ -48,4 +54,8 @@
     {% endif %}
     {% include "events/_location_event_form_actions.html" with cancel_url=cancel_url submit_label=submit_label only %}
   </form>
+{% endblock %}
+
+{% block extrabodyjs %}
+  {% include "partials/google-maps-form.html" %}
 {% endblock %}

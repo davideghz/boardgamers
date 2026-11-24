@@ -72,10 +72,10 @@ class EventVenueTest(TestCase):
             with self.subTest(instance=instance), self.assertRaises(ProtectedError):
                 instance.delete()
 
-    def test_admin_does_not_edit_the_new_fields_yet(self):
+    def test_admin_edits_organizer_and_venue(self):
         self.client.force_login(UserProfileFactory(user__is_staff=True, user__is_superuser=True).user)
         fields = self.client.get(reverse('admin:webapp_event_add')).context['adminform'].form.fields
-        self.assertFalse({'organizer_location', 'venue_location', 'venue_name'} & set(fields))
+        self.assertLessEqual({'organizer_location', 'venue_location', 'venue_name'}, set(fields))
 
     def test_only_unassigned_events_require_legacy_mapping(self):
         legacy = Event.objects.create(name='Edizione storica')

@@ -2795,7 +2795,8 @@ msgid "Go back to the event page for the available information."
 msgstr "Torna alla pagina dell'evento per le informazioni disponibili."
 
 msgid "Check the link or look for the event in the list of public events."
-msgstr "Controlla il link oppure cerca l'evento nell'elenco degli eventi pubblici."
+msgstr ""
+"Controlla il link oppure cerca l'evento nell'elenco degli eventi pubblici."
 
 msgid "Back to the event"
 msgstr "Torna all'evento"
@@ -3008,8 +3009,15 @@ msgstr "Invita/Rimuovi Gamers"
 msgid "Create location event"
 msgstr "Crea evento"
 
-msgid "Choose a landscape image. Without a cover, the event uses the location image or the default image."
-msgstr "Scegli un’immagine orizzontale. In assenza di una copertina, l’evento usa l’immagine della location oppure quella predefinita."
+msgid ""
+"Choose a landscape image. Without a cover, the event uses the location image "
+"or the default image."
+msgstr ""
+"Scegli un’immagine orizzontale. In assenza di una copertina, l’evento usa "
+"l’immagine della location oppure quella predefinita."
+
+msgid "Choose a suggestion to fill in the city and the coordinates."
+msgstr "Scegli un suggerimento per compilare città e coordinate."
 
 #, python-format
 msgid "Library – %(name)s"

@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.models import Event, Location, Member, Membership
+from webapp.services.images import COVER_MAX_SIDE
 
 
 class OrganizedEventFlowTest(TestCase):
@@ -71,6 +72,30 @@ class OrganizedEventFlowTest(TestCase):
         self.assertEqual(len(event.missing_publish_requirements()), 2)
         self.assertEqual(self.client.get(reverse('event-manage-data', args=[event.slug])).status_code, 200)
         self.assertEqual(self.client.get(reverse('event-manage-managers', args=[event.slug])).status_code, 404)
+
+    def test_cover_editor_knows_the_maximum_side(self):
+        self.client.force_login(self.manager.user)
+        self.assertContains(self.client.get(self.create_url), f'data-crop-max-side="{COVER_MAX_SIDE}"')
+
+    def test_coordinates_from_a_map_are_rounded(self):
+        self.client.force_login(self.manager.user)
+        venue = {'venue_location': '', 'venue_name': 'Sala Civica', 'address': 'Via Roma 1'}
+        self.client.post(self.create_url, {
+            **self.data, **venue, 'latitude': '45.464212345678901', 'longitude': '9.1899999999999995'})
+        event = Event.objects.get()
+        self.assertEqual((event.latitude, event.longitude), ('45.46421235', '9.19000000'))
+        for value in ('90.5', 'NaN', 'Infinity', '1e30', 'abc'):
+            with self.subTest(value=value):
+                response = self.client.post(self.create_url, {**self.data, **venue, 'latitude': value})
+                self.assertIn('latitude', response.context['form'].errors)
+        self.assertEqual(Event.objects.count(), 1)
+
+    def test_managers_can_create_events_reserved_to_members(self):
+        self.club.event_creation_permission = Location.PERM_MEMBERS_ONLY
+        self.club.save(update_fields=['event_creation_permission'])
+        self.client.force_login(self.manager.user)
+        self.assertContains(self.client.get(reverse('event-create')), self.create_url)
+        self.assertEqual(self.client.get(self.create_url).status_code, 200)
 
     def test_manual_venue_can_publish_and_remains_complete_on_edit(self):
         self.client.force_login(self.manager.user)
