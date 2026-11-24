@@ -506,11 +506,18 @@ def duplicate_table(source, draft, dates, links, copy_players, by):
     series_root_id = source.series_root_id or source.id
     copies = []
     with transaction.atomic():
+        # Until the copies are committed, nobody can replace the source's cover
+        # and delete the file they share.
+        current_cover = (Table.objects.select_for_update().order_by().filter(pk=source.pk)
+                         .values_list('custom_cover', flat=True).first())
+        cover = draft.custom_cover
+        if cover and cover._committed and cover.name == source.custom_cover.name:
+            cover = current_cover
         for date in sorted(dates):
             table = Table(
                 **values, date=date, author=source.author or by, series_root_id=series_root_id,
                 # A fresh upload is stored once, by the first copy; the others reuse its file.
-                custom_cover=copies[0].custom_cover.name if copies else draft.custom_cover,
+                custom_cover=copies[0].custom_cover.name if copies else cover,
             )
             table._skip_follower_notification = True
             table.save()

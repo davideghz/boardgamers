@@ -15,7 +15,6 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_toke
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
-from django.db import router, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -27,7 +26,9 @@ from meta.models import ModelMeta
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
 
-from webapp.fields import NetworkLogoImageField
+from webapp.fields import ManagedImageField, NetworkLogoImageField
+from webapp.image_models import ManagedImagesModel
+from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE
 
 
 def _plain_text(markdown_text):
@@ -52,7 +53,7 @@ def _absolute_url(url, request=None):
     return settings.DOMAIN_URL + url
 
 
-class DateTimeModel(models.Model):
+class DateTimeModel(ManagedImagesModel):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -137,7 +138,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    image = models.ImageField(upload_to='games', null=True, blank=True)
+    image = ManagedImageField(upload_to='games', null=True, blank=True, max_side=COVER_MAX_SIDE)
     description = models.TextField()
     bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
     min_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Minimum players'))
@@ -198,7 +199,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
     networks = models.ManyToManyField('Network', through='LocationNetwork', related_name='locations', blank=True)
     description = models.TextField()
-    cover = models.ImageField(upload_to='location-covers', null=True, blank=True)
+    cover = ManagedImageField(upload_to='location-covers', null=True, blank=True, max_side=COVER_MAX_SIDE)
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -382,52 +383,9 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         super().save(*args, **kwargs)
 
 
-class NetworkLogoModel(models.Model):
-    logo_field_name = None
-
-    class Meta:
-        abstract = True
-
-    def _saved_logo_name(self, using):
-        return (type(self)._base_manager.using(using).select_for_update().filter(pk=self.pk)
-                .order_by().values_list(self.logo_field_name, flat=True).first())
-
-    def _delete_logo_after_commit(self, name, using):
-        if not name:
-            return
-        storage = self._meta.get_field(self.logo_field_name).storage
-
-        def delete_if_unreferenced():
-            if not (Network.objects.using(using).filter(logo=name).exists() or
-                    LocationNetwork.objects.using(using).filter(custom_logo=name).exists()):
-                storage.delete(name)
-
-        transaction.on_commit(delete_if_unreferenced, using=using, robust=True)
-
-    def save(self, *, using=None, update_fields=None, **kwargs):
-        using = using or router.db_for_write(type(self), instance=self)
-        if update_fields is not None:
-            update_fields = frozenset(update_fields)
-        logo_field = self.logo_field_name
-        if (self.pk is None or kwargs.get('force_insert') or
-                (update_fields is not None and logo_field not in update_fields) or
-                (update_fields is None and using == self._state.db and logo_field in self.get_deferred_fields())):
-            return super().save(using=using, update_fields=update_fields, **kwargs)
-
-        with transaction.atomic(using=using):
-            previous_name = self._saved_logo_name(using)
-            result = super().save(using=using, update_fields=update_fields, **kwargs)
-            if previous_name != getattr(self, logo_field).name:
-                self._delete_logo_after_commit(previous_name, using)
-            return result
-
-    save.alters_data = True
-
-
-class Network(NetworkLogoModel, DateTimeModel, SlugModel):
+class Network(DateTimeModel, SlugModel):
     slug_field_name = 'name'
     regenerate_slug_on_rename = False
-    logo_field_name = 'logo'
 
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(max_length=144, unique=True, blank=True)
@@ -444,8 +402,7 @@ class Network(NetworkLogoModel, DateTimeModel, SlugModel):
         return self.name
 
 
-class LocationNetwork(NetworkLogoModel, DateTimeModel):
-    logo_field_name = 'custom_logo'
+class LocationNetwork(DateTimeModel):
 
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='network_affiliations')
     network = models.ForeignKey(Network, on_delete=models.PROTECT, related_name='affiliations',
@@ -480,7 +437,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    avatar = models.ImageField(upload_to='avatars', null=True, blank=True)
+    avatar = ManagedImageField(upload_to='avatars', null=True, blank=True, max_side=AVATAR_MAX_SIDE)
     phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
@@ -648,8 +605,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
-    custom_cover = models.ImageField(
-        upload_to='table-covers', null=True, blank=True,
+    custom_cover = ManagedImageField(
+        upload_to='table-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Custom cover'),
         help_text=_('Optional image shown instead of the game cover.'))
 
@@ -1609,8 +1566,8 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255, verbose_name=_('Name'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))
-    cover = models.ImageField(
-        upload_to='event-covers', null=True, blank=True,
+    cover = ManagedImageField(
+        upload_to='event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Cover'))
 
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))

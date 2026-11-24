@@ -2,7 +2,7 @@ from time import sleep
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.gis.geos import Point
-from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
@@ -11,8 +11,7 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event, EventGame, Network, LocationNetwork
-from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
+    EventParticipant, Event, EventGame
 
 
 @receiver(user_logged_out)
@@ -208,41 +207,3 @@ def table_status_change_notifications(sender, instance, created, **kwargs):
                     subject=subject,
                     message=message,
                 )
-
-
-# Campi immagine da ridurre al caricamento: (modello, campo, lato lungo massimo)
-SHRINKABLE_IMAGE_FIELDS = [
-    (Game, 'image', COVER_MAX_SIDE),
-    (Location, 'cover', COVER_MAX_SIDE),
-    (Table, 'custom_cover', COVER_MAX_SIDE),
-    (Event, 'cover', COVER_MAX_SIDE),
-    (UserProfile, 'avatar', AVATAR_MAX_SIDE),
-]
-
-
-def _shrink_uploaded_images(sender, instance, **kwargs):
-    """Riduce le immagini appena caricate (form, admin) prima del salvataggio nello storage.
-
-    Tocca solo i file non ancora salvati (`_committed=False`): un salvataggio
-    del modello senza nuovo upload non riscarica né rielabora nulla.
-    """
-    for model, field_name, max_side in SHRINKABLE_IMAGE_FIELDS:
-        if sender is not model:
-            continue
-        field_file = getattr(instance, field_name)
-        if not field_file or field_file._committed:
-            continue
-        field_file.seek(0)
-        name, content = shrink_content_file(field_file.read(), field_file.name, max_side)
-        content.name = name
-        setattr(instance, field_name, content)
-
-
-for _model in {model for model, _f, _s in SHRINKABLE_IMAGE_FIELDS}:
-    pre_save.connect(_shrink_uploaded_images, sender=_model, dispatch_uid=f'shrink_images_{_model.__name__}')
-
-
-@receiver(pre_delete, sender=LocationNetwork)
-@receiver(pre_delete, sender=Network)
-def delete_network_logo(sender, instance, using, **kwargs):
-    instance._delete_logo_after_commit(instance._saved_logo_name(using), using)

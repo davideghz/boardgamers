@@ -140,6 +140,9 @@ def merge_games(keeper, duplicate, choices):
         event_library_moved, event_library_merged = merge_event_library(keeper, duplicate)
 
         Game.objects.filter(pk=keeper.pk).update(**values)
+        if 'image' in values and keeper.image.name != values['image']:
+            from webapp.services.image_files import delete_image_after_commit
+            delete_image_after_commit(keeper.image.storage, keeper.image.name, using=keeper._state.db)
         duplicate.delete()
 
     return MergeResult(tables_moved, library_moved, library_merged, event_library_moved, event_library_merged)

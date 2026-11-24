@@ -241,7 +241,7 @@ def upload_avatar(request):
 def remove_avatar(request):
     user_profile = request.user.user_profile
     if user_profile.avatar:
-        # Drop the stored file too: nothing else points at it.
+        # The shared image lifecycle removes the file after commit if unreferenced.
         user_profile.avatar.delete(save=False)
         user_profile.avatar = None
         user_profile.save(update_fields=['avatar'])
