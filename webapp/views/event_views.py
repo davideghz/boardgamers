@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Count, F, Max, Min, Prefetch, Q
 from django.core.paginator import Paginator
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -101,13 +101,23 @@ class EventManagerMixin(LoginRequiredMixin):
 
 
 class EventOwnLayoutMixin:
-    """Route shared layout management through the venue after the event permission check."""
+    """Respect venue permissions after the event permission check."""
 
     def dispatch(self, request, *args, **kwargs):
         event = self._get_event()
         if event.layout_mode == Event.LayoutMode.VENUE:
             if request.method in ('GET', 'HEAD') and hasattr(self, 'get'):
-                return redirect(self.venue_management_view, slug=event.venue_location.slug)
+                if event.can_manage_venue_layout(request.user):
+                    return redirect(self.venue_management_view, slug=event.venue_location.slug)
+                if self.venue_management_view == 'location-manage-stations':
+                    resources = event.layout_stations_for(request.user)
+                    heading = _('Venue stations')
+                else:
+                    resources = event.effective_play_areas()
+                    heading = _('Venue play areas')
+                return render(request, 'events/event_venue_layout_resources.html', {
+                    'event': event, 'resources': resources, 'heading': heading,
+                })
             if request.method == 'POST':
                 raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
@@ -373,15 +383,13 @@ class EventListView(View):
             .values_list('pk', flat=True))
 
 
-def _build_program_grid(event, tables, selected_area, *, can_manage_layout):
+def _build_program_grid(event, tables, selected_area, *, user):
     """Build a station/area × time grid. Columns adapt to the most granular
     structure available: stations, else play areas, else a single 'General'
     column ("area generale" fallback)."""
     UNASSIGNED = 'none'
-    stations = event.effective_physical_tables().select_related('play_area')
-    if event.layout_mode == Event.LayoutMode.VENUE and not can_manage_layout:
-        assigned_stations = {table.physical_table_id for table in tables if table.physical_table_id}
-        stations = stations.filter(Q(is_visible=True) | Q(pk__in=assigned_stations))
+    assigned_stations = {table.physical_table_id for table in tables if table.physical_table_id}
+    stations = event.layout_stations_for(user, include=assigned_stations).select_related('play_area')
     if selected_area:
         stations = stations.filter(play_area=selected_area)
     stations = list(stations)
@@ -440,7 +448,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
 
         is_manager = bool(user_profile and event.is_manager(user_profile))
-        can_manage_layout = is_manager or self.request.user.is_superuser
+        can_view_private_conflicts = is_manager or self.request.user.is_superuser
         can_create_table = bool(user_profile and event.can_create_table(user_profile))
 
         # ── Date filtering ────────────────────────────────────────────────
@@ -538,7 +546,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         tables_qs = tables_qs.order_by('date', 'time')
 
         tables_list = list(tables_qs)
-        conflict_ids = station_conflict_ids(tables_list, public_only=not can_manage_layout)
+        conflict_ids = station_conflict_ids(tables_list, public_only=not can_view_private_conflicts)
         for t in tables_list:
             t.has_conflict = t.id in conflict_ids
 
@@ -557,7 +565,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         ]
         grid = None
         if view_mode == 'grid':
-            grid = _build_program_grid(event, tables_list, selected_area, can_manage_layout=can_manage_layout)
+            grid = _build_program_grid(event, tables_list, selected_area, user=self.request.user)
 
         # ── Games present in this event (for the filter modal) ────────────
         game_ids = (
@@ -737,7 +745,7 @@ def event_table_create_view(request, event_slug):
             pass
 
     if request.method == 'POST':
-        form = EventTableForm(request.POST, request.FILES, event=event)
+        form = EventTableForm(request.POST, request.FILES, event=event, user=request.user)
         link_formset = TableLinkFormSet(request.POST)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
@@ -754,7 +762,7 @@ def event_table_create_view(request, event_slug):
             warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
-        form = EventTableForm(initial=initial, event=event)
+        form = EventTableForm(initial=initial, event=event, user=request.user)
         link_formset = TableLinkFormSet()
 
     return render(request, 'events/event_table_add_or_edit.html', {
@@ -778,7 +786,7 @@ def event_table_update_view(request, event_slug, table_slug):
         return redirect('event_table_detail', event_slug=event_slug, table_slug=table_slug)
 
     if request.method == 'POST':
-        form = EventTableForm(request.POST, request.FILES, instance=table, event=event)
+        form = EventTableForm(request.POST, request.FILES, instance=table, event=event, user=request.user)
         link_formset = TableLinkFormSet(request.POST, instance=table)
         if form.is_valid() and link_formset.is_valid():
             table = form.save(commit=False)
@@ -790,7 +798,7 @@ def event_table_update_view(request, event_slug, table_slug):
             warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
-        form = EventTableForm(instance=table, event=event)
+        form = EventTableForm(instance=table, event=event, user=request.user)
         link_formset = TableLinkFormSet(instance=table)
 
     return render(request, 'events/event_table_add_or_edit.html', {
@@ -819,6 +827,10 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         event = self.object
         context['catalog_count'] = effective_catalog(event).count()
+        context['can_manage_venue_layout'] = (
+            event.layout_mode == Event.LayoutMode.VENUE and event.can_manage_venue_layout(self.request.user)
+        )
+        context['station_count'] = event.layout_stations_for(self.request.user).count()
         if event.status == Event.DRAFT:
             context['missing_publish_requirements'] = event.missing_publish_requirements()
         elif event.is_published:
@@ -826,6 +838,25 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
             context['participant_count'] = event.participants.count()
             context['table_count'] = event.tables.count()
         return context
+
+
+class EventVenueLayoutRequestView(EventManagerMixin, View):
+    def post(self, request, slug):
+        event = self._get_event()
+        if not event.has_external_venue:
+            raise Http404
+        action = request.POST.get('action')
+        if action == 'request' and event.venue_layout_requested_from_id is None:
+            event.venue_layout_requested_from_id = event.venue_location_id
+            message = _('Layout request sent to the venue.')
+        elif action == 'cancel' and event.venue_layout_requested_from_id and not event.venue_layout_approved:
+            event.venue_layout_requested_from_id = None
+            message = _('Layout request withdrawn.')
+        else:
+            return HttpResponseBadRequest()
+        event.save(update_fields=['venue_layout_requested_from', 'updated_at'])
+        messages.success(request, message)
+        return redirect('event-manage', slug=slug)
 
 
 class EventPublishView(EventManagerMixin, View):

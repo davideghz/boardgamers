@@ -482,7 +482,7 @@ class EventTableForm(ModelForm, TailwindForm):
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
 
-    def __init__(self, *args, event=None, **kwargs):
+    def __init__(self, *args, event=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event
         self.fields['custom_cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
@@ -496,7 +496,9 @@ class EventTableForm(ModelForm, TailwindForm):
                 attrs={'class': _TW_INPUT}
             )
             self.fields['date'].input_formats = ['%Y-%m-%d']
-            setup_table_station_fields(self, event.effective_play_areas(), event.effective_physical_tables())
+            current_station = (self.instance.physical_table_id,) if self.instance.physical_table_id else ()
+            setup_table_station_fields(self, event.effective_play_areas(),
+                                       event.layout_stations_for(user, include=current_station))
             self.fields['category'].queryset = EventTableCategory.objects.filter(event=event)
         else:
             self.fields['date'].input_formats = ['%Y-%m-%d']
@@ -900,7 +902,7 @@ class OrganizedEventForm(EventManageDataForm):
         else:
             self.fields['layout_mode'].required = False
             self.fields['layout_mode'].help_text = _(
-                'The venue layout is available when the venue is the organizing location.')
+                'Use the venue layout for on-site events or after approval from the external venue.')
         self.fields['description'].required = self.instance.is_published
 
     def clean(self):

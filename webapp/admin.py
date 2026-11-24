@@ -558,7 +558,7 @@ class EventAdmin(admin.ModelAdmin):
     list_editable = ('status',)
     search_fields = ('name', 'city', 'creator__nickname')
     filter_horizontal = ('managers', 'sponsor_locations', 'allowed_table_creators')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'venue_layout_requested_from', 'venue_layout_approved')
     inlines = [PlayAreaInline, EventDateInline, PhysicalTableInline]
 
     @admin.display(description=_('Participants'), ordering='_participant_count')

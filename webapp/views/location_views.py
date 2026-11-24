@@ -8,13 +8,13 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
 from django.db.models import Exists, Prefetch, Q, Count, OuterRef, Max
 from django.db.models.deletion import RestrictedError
 from django.db.models.functions import Coalesce
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -1700,6 +1700,49 @@ class LocationManageAreasReorderView(LoginRequiredMixin, View):
 
 
 # ---- Station Management Views ----
+
+class LocationVenueLayoutRequestsView(LoginRequiredMixin, View):
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        requests = location.venue_layout_requests.select_related('organizer_location').prefetch_related('dates')
+        paginator = Paginator(requests.order_by('venue_layout_approved', 'name', 'pk'), 24)
+        page_obj = paginator.get_page(request.GET.get('page'))
+        return render(request, 'locations/location_venue_layout_requests.html', {
+            'location': location, 'page_obj': page_obj, 'paginator': paginator,
+            'is_paginated': page_obj.has_other_pages(),
+        })
+
+
+class LocationVenueLayoutDecisionView(LoginRequiredMixin, View):
+    @transaction.atomic
+    def post(self, request, slug, pk):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        event = get_object_or_404(Event.objects.select_for_update(), pk=pk,
+                                  venue_location=location, venue_layout_requested_from=location)
+        action = request.POST.get('action')
+        if action == 'approve' and not event.venue_layout_approved:
+            event.venue_layout_approved = True
+            message = _('Venue layout approved for this event.')
+        elif action == 'decline' and not event.venue_layout_approved:
+            event.venue_layout_requested_from = None
+            message = _('Venue layout request declined.')
+        elif action == 'revoke' and event.venue_layout_approved:
+            event.layout_mode = Event.LayoutMode.EVENT
+            event.venue_layout_approved = False
+            event.venue_layout_requested_from = None
+            message = _('Venue layout approval revoked.')
+        else:
+            return HttpResponseBadRequest()
+        try:
+            event.save(update_fields=['venue_layout_approved', 'venue_layout_requested_from', 'layout_mode', 'updated_at'])
+        except ValidationError:
+            messages.error(request, _('The organizer must reassign the upcoming sessions before you revoke access.'))
+        else:
+            messages.success(request, message)
+        return redirect('location-venue-layout-requests', slug=location.slug)
+
 
 class LocationManageStationsView(LoginRequiredMixin, View):
     """List, add and reorder the location's physical stations (Table 1, 2, ...)."""

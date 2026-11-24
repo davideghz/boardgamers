@@ -88,6 +88,10 @@
 
   <div class="max-w-xl space-y-2">
 
+    {% if event.has_external_venue %}
+      {% include "events/_venue_layout_request.html" %}
+    {% endif %}
+
     <a href="{% url 'event-manage-data' event.slug %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
@@ -145,7 +149,7 @@
       </svg>
     </a>
 
-    {% if event.layout_mode == 'venue' %}
+    {% if can_manage_venue_layout %}
       {% url 'location-manage-areas' event.venue_location.slug as areas_url %}
     {% else %}
       {% url 'event-manage-areas' event.slug as areas_url %}
@@ -205,7 +209,7 @@
       </svg>
     </a>
 
-    {% if event.layout_mode == 'venue' %}
+    {% if can_manage_venue_layout %}
       {% url 'location-manage-stations' event.venue_location.slug as stations_url %}
     {% else %}
       {% url 'event-manage-stations' event.slug as stations_url %}
@@ -220,7 +224,7 @@
       <div class="flex-1 min-w-0">
         <p class="text-sm font-bold text-content">{% if event.layout_mode == 'venue' %}{% trans "Venue stations" %}{% else %}{% trans "Stations" %}{% endif %}</p>
         <p class="text-xs text-content-muted mt-0.5">
-          {% blocktrans count n=event.effective_physical_tables.count %}{{ n }} station configured{% plural %}{{ n }} stations configured{% endblocktrans %}
+          {% blocktrans count n=station_count %}{{ n }} station configured{% plural %}{{ n }} stations configured{% endblocktrans %}
         </p>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">

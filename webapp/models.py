@@ -1873,6 +1873,11 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         Location, on_delete=models.PROTECT, related_name='events_at_venue', null=True, blank=True,
         verbose_name=_('Venue location'),
     )
+    venue_layout_requested_from = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='venue_layout_requests', null=True, blank=True,
+        verbose_name=_('Layout requested from'),
+    )
+    venue_layout_approved = models.BooleanField(default=False, db_default=False, verbose_name=_('Venue layout approved'))
     venue_name = models.CharField(max_length=255, blank=True, default='', db_default='', verbose_name=_('Venue name'))
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
     city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
@@ -2010,11 +2015,23 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def is_at_organizer_location(self):
         return self.organizer_location_id is not None and self.organizer_location_id == self.venue_location_id
 
-    _LAYOUT_FIELDS = ('layout_mode', 'organizer_location', 'venue_location')
+    @property
+    def has_external_venue(self):
+        return bool(self.organizer_location_id and self.venue_location_id and not self.is_at_organizer_location)
+
+    @property
+    def can_use_venue_layout(self):
+        return self.is_at_organizer_location or (
+            self.has_external_venue and self.venue_layout_approved
+            and self.venue_layout_requested_from_id == self.venue_location_id
+        )
+
+    _LAYOUT_ACCESS_FIELDS = ('venue_layout_requested_from', 'venue_layout_approved')
+    _LAYOUT_FIELDS = ('layout_mode', 'organizer_location', 'venue_location', *_LAYOUT_ACCESS_FIELDS)
 
     def layout_owner(self):
         if self.layout_mode == self.LayoutMode.VENUE:
-            return {'location_id': self.venue_location_id} if self.is_at_organizer_location else None
+            return {'location_id': self.venue_location_id} if self.can_use_venue_layout else None
         return {'event_id': self.pk} if self.pk else None
 
     def effective_play_areas(self):
@@ -2025,6 +2042,29 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         owner = self.layout_owner()
         return PhysicalTable.objects.filter(**owner) if owner else PhysicalTable.objects.none()
 
+    def can_manage_venue_layout(self, user):
+        return bool(self.venue_location_id and user and user.is_authenticated and (
+            user.is_superuser or self.venue_location.is_manager(user.user_profile)
+        ))
+
+    def layout_stations_for(self, user, *, include=()):
+        stations = self.effective_physical_tables()
+        if self.layout_mode == self.LayoutMode.VENUE and not self.can_manage_venue_layout(user):
+            stations = stations.filter(models.Q(is_visible=True) | models.Q(pk__in=include))
+        return stations
+
+    def _clear_layout_access_on_move(self, previous, fields=None):
+        if not previous or previous.venue_layout_requested_from_id is None:
+            return False
+        for name in ('organizer_location', 'venue_location'):
+            attribute = f'{name}_id'
+            if ((fields is None or name in fields or attribute in fields)
+                    and getattr(self, attribute) != getattr(previous, attribute)):
+                self.venue_layout_requested_from_id = None
+                self.venue_layout_approved = False
+                return True
+        return False
+
     def _validate_layout_change(self, previous, fields=None):
         def proposed(name):
             source = self if fields is None or name in fields or name.removesuffix('_id') in fields else previous
@@ -2033,8 +2073,14 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         mode = proposed('layout_mode')
         organizer = proposed('organizer_location_id')
         venue = proposed('venue_location_id')
-        if mode == self.LayoutMode.VENUE and (organizer is None or organizer != venue):
-            raise ValidationError(_('Only events held at their organizing location can use the venue layout.'))
+        requested_from = proposed('venue_layout_requested_from_id')
+        approved = proposed('venue_layout_approved')
+        if requested_from is not None and (organizer is None or organizer == venue or requested_from != venue):
+            raise ValidationError(_('Layout requests must go to the event’s current external venue.'))
+        if approved and requested_from is None:
+            raise ValidationError(_('Venue approval requires a layout request.'))
+        if mode == self.LayoutMode.VENUE and (organizer is None or (organizer != venue and not approved)):
+            raise ValidationError(_('Choose the organizing location or get approval from the external venue to use its layout.'))
         if previous is None or (previous.layout_mode == mode and
                 (mode == self.LayoutMode.EVENT or previous.venue_location_id == venue)):
             return
@@ -2054,6 +2100,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def clean(self):
         super().clean()
         previous = Event.objects.filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first() if self.pk else None
+        self._clear_layout_access_on_move(previous)
         self._validate_layout_change(previous)
 
     def get_absolute_url(self):
@@ -2068,6 +2115,8 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
                 previous = None
                 if self.pk:
                     previous = Event.objects.select_for_update().filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first()
+                if self._clear_layout_access_on_move(previous, update_fields) and update_fields is not None:
+                    update_fields = kwargs['update_fields'] = {*update_fields, *self._LAYOUT_ACCESS_FIELDS}
                 self._validate_layout_change(previous, update_fields if previous else None)
             super().save(*args, **kwargs)
             # The sources of the selected games belong to the organizing location.
@@ -2177,11 +2226,20 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         ordering = ['-created_at']
         constraints = [
             models.CheckConstraint(
-                condition=(~models.Q(layout_mode='venue') | models.Q(
-                    organizer_location__isnull=False, venue_location__isnull=False,
-                    organizer_location=models.F('venue_location'),
+                condition=(models.Q(venue_layout_requested_from__isnull=True, venue_layout_approved=False) | (
+                    models.Q(venue_layout_requested_from__isnull=False, organizer_location__isnull=False,
+                             venue_location__isnull=False, venue_layout_requested_from=models.F('venue_location'))
+                    & ~models.Q(organizer_location=models.F('venue_location'))
                 )),
-                name='event_venue_layout_requires_organizer_venue',
+                name='event_layout_request_matches_external_venue',
+            ),
+            models.CheckConstraint(
+                condition=(~models.Q(layout_mode='venue') | (
+                    models.Q(organizer_location__isnull=False, venue_location__isnull=False) & (
+                        models.Q(organizer_location=models.F('venue_location')) | models.Q(venue_layout_approved=True)
+                    )
+                )),
+                name='event_venue_layout_requires_access',
             ),
         ]
 
