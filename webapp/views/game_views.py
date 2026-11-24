@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.models import Event, Game, Location
+from webapp.models import Event, Game, Location, Table
 from webapp.services.game_loans import can_view_game_library, is_active_member
 
 
@@ -18,8 +18,8 @@ class GameListView(ListView):
     def get_queryset(self):
         self.q = self.request.GET.get('q', '').strip()
         queryset = Game.objects.annotate(
-            table_count=Count('created_tables', distinct=True),
-            player_count=Count('created_tables__players', distinct=True)
+            table_count=Count('created_tables', filter=Table.public_condition('created_tables__'), distinct=True),
+            player_count=Count('created_tables__players', filter=Table.public_condition('created_tables__'), distinct=True),
         )
         if self.q:
             queryset = queryset.filter(Q(name__icontains=self.q) | Q(description__icontains=self.q))
@@ -43,8 +43,8 @@ class GameDetailView(DetailView):
 
     def get_queryset(self):
         return Game.objects.annotate(
-            table_count=Count('created_tables', distinct=True),
-            player_count=Count('created_tables__players', distinct=True)
+            table_count=Count('created_tables', filter=Table.public_condition('created_tables__'), distinct=True),
+            player_count=Count('created_tables__players', filter=Table.public_condition('created_tables__'), distinct=True),
         )
 
     def get_context_data(self, **kwargs):
@@ -63,7 +63,7 @@ class GameDetailView(DetailView):
         if not context['from_library']:
             context['locations'] = (
                 Location.objects
-                .filter(tables__game=game)
+                .filter(Table.public_condition('tables__'), tables__game=game)
                 .annotate(game_table_count=Count('tables', distinct=True))
                 .order_by('-game_table_count')
             )

@@ -268,6 +268,18 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         ('anyone', _('Anyone')),
         ('members_only', _('Members only')),
     ]
+    EVENT_CREATION_CHOICES = [
+        (PERM_MANAGERS_ONLY, _('Owners and managers only')),
+        (PERM_MEMBERS_ONLY, _('Members only')),
+    ]
+    event_creation_permission = models.CharField(
+        max_length=20, choices=EVENT_CREATION_CHOICES, default=PERM_MANAGERS_ONLY, db_default=PERM_MANAGERS_ONLY,
+        verbose_name=_('Who can create events'),
+    )
+    event_join_permission = models.CharField(
+        max_length=20, choices=TABLE_JOIN_CHOICES, default=PERM_ANYONE, db_default=PERM_ANYONE,
+        verbose_name=_('Who can join events'),
+    )
 
     table_creation_permission = models.CharField(
         max_length=20,
@@ -291,6 +303,21 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     def is_manager(self, user_profile):
         return bool(user_profile and (
             self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
+
+    def can_create_events(self, user):
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        if self.event_creation_permission == self.PERM_MEMBERS_ONLY:
+            return Membership.active_for(user.user_profile).filter(member__location=self).exists()
+        return self.is_manager(user.user_profile)
+
+    def can_join_events(self, profile):
+        return bool(profile and (
+            self.event_join_permission == self.PERM_ANYONE
+            or Membership.active_for(profile).filter(member__location=self).exists()
+        ))
 
     def get_meta_title(self):
         return _("%(name)s - Board-Gamers.com") % {'name': self.name}
@@ -564,7 +591,31 @@ class GuestProfile(DateTimeModel):
         return self.name
 
 
+class TableQuerySet(models.QuerySet):
+    def public(self):
+        return self.filter(Table.public_condition())
+
+    def visible_to(self, user):
+        if user.is_superuser:
+            return self
+        if not user.is_authenticated:
+            return self.public()
+        return self.filter(Table.public_condition() | models.Q(event__in=Event.objects.managed_by(user.user_profile)))
+
+
 class Table(DateTimeModel, ModelMeta, SlugModel):
+    objects = TableQuerySet.as_manager()
+
+    @classmethod
+    def public_condition(cls, prefix=''):
+        return models.Q(**{f'{prefix}event__isnull': True}) | models.Q(**{
+            f'{prefix}event__status': Event.PUBLISHED, f'{prefix}event__table_booking_enabled': True,
+        })
+
+    @property
+    def is_public(self):
+        return not self.event_id or (self.event.is_published and self.event.table_booking_enabled)
+
     OPEN = 'open'
     ONGOING = 'ongoing'
     CLOSED = 'closed'
@@ -1321,6 +1372,15 @@ class Membership(DateTimeModel):
     )
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
+    @classmethod
+    def active_for(cls, profile):
+        today = timezone.localdate()
+        return cls.objects.filter(
+            models.Q(start_date__isnull=True) | models.Q(start_date__lte=today),
+            models.Q(end_date__isnull=True) | models.Q(end_date__gte=today),
+            member__user_profile=profile, status=cls.ACTIVE,
+        )
+
     class Meta:
         verbose_name = _('Membership')
         verbose_name_plural = _('Memberships')
@@ -1593,7 +1653,19 @@ class FAQ(DateTimeModel):
         return self.question or ''
 
 
+class EventQuerySet(models.QuerySet):
+    def managed_by(self, profile):
+        if not profile:
+            return self.none()
+        legacy_staff = models.Q(organizer_location__isnull=True) & (
+            models.Q(creator=profile) | models.Q(managers=profile)
+        )
+        return self.filter(legacy_staff | models.Q(organizer_location__creator=profile)
+                           | models.Q(organizer_location__managers=profile)).distinct()
+
+
 class Event(DateTimeModel, ModelMeta, SlugModel):
+    objects = EventQuerySet.as_manager()
     # Managers publish their own events. Only an admin can block one, and a
     # blocked event can't be published again from the management pages.
     DRAFT = 'draft'
@@ -1753,10 +1825,14 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         super().save(*args, **kwargs)
 
     def is_manager(self, user_profile):
-        return self.creator == user_profile or user_profile in self.managers.all()
+        if self.organizer_location_id:
+            return self.organizer_location.is_manager(user_profile)
+        return bool(user_profile and (self.creator_id == user_profile.pk or user_profile in self.managers.all()))
 
     def can_create_table(self, user_profile):
-        return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
+        return self.is_manager(user_profile) or (
+            not self.organizer_location_id and user_profile in self.allowed_table_creators.all()
+        )
 
     @property
     def is_published(self):

@@ -12,6 +12,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from webapp.models import Table
+from webapp.services.tables import can_manage_roster
 from webapp.services.telegram import (
     miniapp_language, profile_from_init_data, validate_init_data,
 )
@@ -23,7 +24,7 @@ def only_admin_can_edit_closed_table(view_func):
     """
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
-        table = get_object_or_404(Table, slug=table_slug)
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=table_slug, location__slug=location_slug)
         if table.status == table.CLOSED and not request.user.is_superuser:
             messages.error(request, _("Can't edit closed tables."), extra_tags="danger")
             return redirect("table-detail", slug=table_slug)
@@ -38,7 +39,7 @@ def only_author_or_admin_can_edit(view_func):
     """
     @wraps(view_func)
     def _wrapped_view(request, location_slug, table_slug, *args, **kwargs):
-        table = get_object_or_404(Table, slug=table_slug)
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=table_slug, location__slug=location_slug)
         is_author = table.author_id is not None and request.user == table.author.user
         is_admin = request.user.is_staff
         is_location_manager = False
@@ -85,8 +86,12 @@ def user_passes_test_with_messages(
 def author_or_admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
-        if (table.author_id is not None and table.author.user == request.user) or request.user.is_superuser:
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
+        if table.event_id and table.event.organizer_location_id:
+            allowed = can_manage_roster(request.user.user_profile, table)
+        else:
+            allowed = table.author_id == request.user.user_profile.pk or request.user.is_superuser
+        if allowed:
             return view_func(request, *args, **kwargs)
         return HttpResponseForbidden("Request not allowed")
     return _wrapped_view

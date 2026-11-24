@@ -20,6 +20,7 @@ def index(request, template_name='accounts/account_index.html'):
 
     return render(request, template_name, {
         'user': user,
+        'manages_events': Event.objects.managed_by(user.user_profile).exists(),
         'meta': Meta(
             title=_("My Account - Board-Gamers.com"),
             description=_("Manage your profile: view your activities, notifications and settings."),
@@ -30,10 +31,9 @@ def index(request, template_name='accounts/account_index.html'):
 @login_required
 def events(request, template_name='accounts/account_events.html'):
     user_profile = request.user.user_profile
-    owned_events = user_profile.created_events.prefetch_related('dates')
-    managed_events = user_profile.managed_events.prefetch_related('dates').exclude(
-        id__in=owned_events.values_list('id', flat=True)
-    )
+    staff_events = Event.objects.managed_by(user_profile).prefetch_related('dates')
+    owned_events = staff_events.filter(creator=user_profile)
+    managed_events = staff_events.exclude(creator=user_profile)
     participating_events = Event.objects.filter(
         participants__user_profile=user_profile,
         status=Event.PUBLISHED,
@@ -90,7 +90,7 @@ def locations(request, template_name='accounts/account_locations.html'):
 def tables(request, template_name='accounts/account_tables.html'):
     user_profile = request.user.user_profile
     base_qs = (
-        Table.objects
+        Table.objects.visible_to(request.user)
         .filter(Q(author=user_profile) | Q(players=user_profile))
         .distinct()
     )
@@ -138,7 +138,7 @@ def notifications(request, template_name='accounts/account_notifications.html'):
     user_profile = request.user.user_profile
 
     # Recupera tutte le notifiche dell'utente
-    user_notifications = (Notification.objects.filter(recipient=user_profile)
+    user_notifications = (Notification.objects.filter(Table.public_condition('table__'), recipient=user_profile)
                           .select_related('table', 'location').order_by('-created_at'))
 
     # Aggiorna in blocco quelle non ancora lette

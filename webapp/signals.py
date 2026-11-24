@@ -92,6 +92,8 @@ def drop_removed_sponsors_from_event_games(sender, instance, action, reverse, **
 @receiver(pre_delete, sender=Table)
 def notify_players_on_table_delete(sender, instance, **kwargs):
     """Invia una notifica a tutti i giocatori quando un tavolo viene cancellato"""
+    if not instance.is_public:
+        return
     players = Player.objects.filter(table=instance, user_profile__isnull=False).select_related('user_profile__user')
     for player in players:
         Notification.objects.create(
@@ -107,7 +109,7 @@ def notify_players_on_table_delete(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Player)
 def notify_players_on_new_player(sender, instance, created, **kwargs):
-    if created and instance.user_profile_id:
+    if created and instance.user_profile_id and instance.table.is_public:
         players = instance.table.players.exclude(id=instance.user_profile.id)
         for player in players:
             Notification.objects.create(
@@ -139,7 +141,7 @@ def register_event_participation_on_join(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def notify_players_on_new_comments(sender, instance, created, **kwargs):
-    if created and instance.comment_type == CommentType.USER:
+    if created and instance.comment_type == CommentType.USER and instance.table.is_public:
         players = instance.table.players.exclude(id=instance.author.id)
         for player in players:
             Notification.objects.create(

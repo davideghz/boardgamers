@@ -14,7 +14,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.fields import NetworkLogoImageField
-from webapp.forms import NetworkForm, NetworkLogoField
+from webapp.forms import LocationPermissionsForm, NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network
@@ -215,8 +215,14 @@ class LocationNetworkInline(admin.TabularInline):
         return super().get_queryset(request).select_related('network')
 
 
+class LocationAdminForm(LocationPermissionsForm):
+    class Meta(LocationPermissionsForm.Meta):
+        fields = '__all__'
+
+
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
+    form = LocationAdminForm
     list_display = ("name", "city", "creator", "enable_membership", "enable_calendar", "created_at")
     list_filter = ("city", "network_affiliations__network", "enable_membership", "enable_calendar", "created_at")
     list_editable = ("enable_membership", "enable_calendar")

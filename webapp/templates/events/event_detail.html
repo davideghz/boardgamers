@@ -82,7 +82,7 @@
                   </button>
                 </form>
               </span>
-            {% else %}
+            {% elif can_join_event %}
               <form method="post" action="{% url 'event-join' event.slug %}">
                 {% csrf_token %}
                 <button type="submit"
@@ -416,7 +416,7 @@
                       </button>
                     </form>
                   </div>
-                {% else %}
+                {% elif can_join_event %}
                   <form method="post" action="{% url 'event-join' event.slug %}">
                     {% csrf_token %}
                     <button type="submit"
