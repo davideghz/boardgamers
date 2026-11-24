@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 13:01+0100\n"
+"POT-Creation-Date: 2026-11-24 14:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -394,6 +394,9 @@ msgstr "Socio Proprietario"
 
 msgid "Physical Location"
 msgstr "Ubicazione"
+
+msgid "Select a game"
+msgstr "Seleziona un gioco"
 
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
@@ -1070,6 +1073,18 @@ msgstr "Pubblicato"
 msgid "Blocked"
 msgstr "Bloccato"
 
+msgid "Automatic for the venue"
+msgstr "Automatica in base al luogo"
+
+msgid "Organizing location library"
+msgstr "Libreria della sede organizzatrice"
+
+msgid "Event selection"
+msgstr "Selezione per l'evento"
+
+msgid "Game catalog"
+msgstr "Catalogo dei giochi"
+
 msgid "Organizing location"
 msgstr "Sede organizzatrice"
 
@@ -1163,6 +1178,12 @@ msgstr "Tag Gioco Evento"
 
 msgid "Event Game Tags"
 msgstr "Tag Giochi Evento"
+
+msgid "Source in the organizing library"
+msgstr "Titolo nella libreria della sede organizzatrice"
+
+msgid "Choose this title from the organizing location."
+msgstr "Seleziona lo stesso titolo dalla libreria della sede organizzatrice."
 
 msgid "Event Game"
 msgstr "Gioco Evento"
@@ -2566,8 +2587,10 @@ msgstr "Aggiungi data"
 msgid "Add game"
 msgstr "Aggiungi Gioco"
 
-msgid "Select a game"
-msgstr "Seleziona un gioco"
+msgid "Choose a game from the organizing library or search all games."
+msgstr ""
+"Scegli un titolo dalla libreria della sede organizzatrice oppure cerca tra "
+"tutti i giochi."
 
 msgid "Change"
 msgstr "Cambia"
@@ -2628,6 +2651,13 @@ msgid "View public page"
 msgstr "Vedi pagina pubblica"
 
 msgid ""
+"The event catalog stays hidden while the organizing location library is "
+"private."
+msgstr ""
+"Il catalogo dell'evento resta nascosto finché la libreria della sede "
+"organizzatrice è privata."
+
+msgid ""
 "Turn this on to show the library on the event page. Until then only managers "
 "can see it."
 msgstr ""
@@ -2636,6 +2666,28 @@ msgstr ""
 
 msgid "Preview"
 msgstr "Anteprima"
+
+msgid ""
+"The event catalog uses the organizing location library, plus the event "
+"selection."
+msgstr ""
+"Il catalogo dell'evento usa la libreria della sede organizzatrice, più la "
+"selezione per l'evento."
+
+msgid "The event catalog uses the event selection."
+msgstr "Il catalogo dell'evento usa la selezione per l'evento."
+
+msgid "Change catalog"
+msgstr "Cambia catalogo"
+
+msgid ""
+"These games, which include those of the event tables, are shown together "
+"with the organizing location library. Add a library game here to give it a "
+"tag."
+msgstr ""
+"Questi giochi, che comprendono quelli dei tavoli dell'evento, sono mostrati "
+"insieme alla libreria della sede organizzatrice. Aggiungi qui un gioco della "
+"libreria per assegnargli un tag."
 
 msgid "No games yet"
 msgstr "Ancora nessun gioco"
@@ -4200,6 +4252,9 @@ msgstr ""
 
 msgid "Could not apply the crop. Try again or use the original image."
 msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
+
+msgid "To be brought"
+msgstr "Da portare"
 
 msgid "Where to find it:"
 msgstr "Dove trovarlo:"
@@ -5962,44 +6017,11 @@ msgstr "Collega account"
 #~ "Do you know your way around code and want to contribute to Board-Gamers?"
 #~ msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
 
-msgid "Automatic for the venue"
-msgstr "Automatica in base al luogo"
-
-msgid "Organizing location library"
-msgstr "Libreria della sede organizzatrice"
-
-msgid "Event selection"
-msgstr "Selezione per l'evento"
-
-msgid "Game catalog"
-msgstr "Catalogo dei giochi"
-
-msgid "Source in the organizing library"
-msgstr "Titolo nella libreria della sede organizzatrice"
-
-msgid "Choose this title from the organizing location."
-msgstr "Seleziona lo stesso titolo dalla libreria della sede organizzatrice."
-
-msgid "The event catalog uses the organizing location library."
-msgstr "Il catalogo dell'evento usa la libreria della sede organizzatrice."
-
-msgid "The event catalog uses the event selection."
-msgstr "Il catalogo dell'evento usa la selezione per l'evento."
-
-msgid "Change catalog"
-msgstr "Cambia catalogo"
-
-msgid "Visitors can browse the organizing location library from the event page."
-msgstr "I visitatori possono consultare la libreria della sede organizzatrice dalla pagina dell'evento."
-
-msgid "The event catalog stays hidden while the organizing location library is private."
-msgstr "Il catalogo dell'evento resta nascosto finché la libreria della sede organizzatrice è privata."
-
-msgid "To be brought"
-msgstr "Da portare"
-
-msgid "Choose a game from the organizing library or search all games."
-msgstr "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca tra tutti i giochi."
+#~ msgid ""
+#~ "Visitors can browse the organizing location library from the event page."
+#~ msgstr ""
+#~ "I visitatori possono consultare la libreria della sede organizzatrice "
+#~ "dalla pagina dell'evento."
 
 #~ msgid "This game is archived."
 #~ msgstr "Questo gioco è archiviato."

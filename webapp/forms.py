@@ -1406,9 +1406,21 @@ class EventGameForm(ModelForm, TailwindForm):
             self.fields['source_location_game'].queryset = LocationGame.objects.filter(
                 Q(is_archived=False) | Q(pk=self.instance.source_location_game_id),
                 location_id=event.organizer_location_id,
-            ).select_related('game', 'location')
+            ).select_related('game').order_by('game__name', 'pk')
+            self.fields['source_location_game'].label_from_instance = lambda title: title.game.name
         else:
             self.fields.pop('source_location_game')
+            self.instance.source_location_game = None
+
+    @property
+    def source_games(self):
+        """The game of each source title, for the page script."""
+        return dict(self.fields['source_location_game'].queryset.values_list('pk', 'game_id'))
+
+    @property
+    def selected_game(self):
+        """The game to show in the picker, kept when the form has errors."""
+        return Game.objects.filter(pk=self['game'].value()).first() if str(self['game'].value() or '').isdigit() else None
 
     def clean(self):
         data = super().clean()
@@ -1425,6 +1437,14 @@ class EventGameForm(ModelForm, TailwindForm):
                 return data
             game = data['game'] = source.game
             field = 'source_location_game'
+        elif source and source.game_id != game.pk:
+            # The two fields name the same title: the one that changed wins.
+            # When both did, the model reports the mismatch.
+            if 'source_location_game' not in self.changed_data:
+                data['source_location_game'] = None
+            elif 'game' not in self.changed_data:
+                game = data['game'] = source.game
+                field = 'source_location_game'
         if self.event.games.filter(game=game).exclude(pk=self.instance.pk).exists():
             self.add_error(field, _('This game is already in the library.'))
         return data

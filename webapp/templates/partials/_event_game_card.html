@@ -1,5 +1,5 @@
 {% load i18n %}
-{# A game of an event's library: square cover tile with tags, details below. Requires `entry` (with first_table_date, see services/event_games.py), `event`, `is_concluded` and `can_view_program`. #}
+{# A game of an event's library: square cover tile with tags, details below. Requires `entry` (a CatalogEntry, see services/event_games.py), `event`, `is_concluded` and `can_view_program`. #}
 {% with game=entry.game %}
 {% url 'game-detail' game.slug as game_url %}
 <div class="group flex flex-col min-w-0">
@@ -8,9 +8,9 @@
       <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async"
            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     </a>
-    {% if not event.uses_location_library and entry.tags.all %}
+    {% if entry.tags %}
       <div class="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">
-        {% for tag in entry.tags.all %}
+        {% for tag in entry.tags %}
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/75 backdrop-blur-sm text-white">{{ tag.name }}</span>
         {% endfor %}
       </div>
@@ -35,17 +35,18 @@
         {% endif %}
       </div>
     {% endif %}
-    {% if event.uses_location_library %}
+    {% if entry.location_game %}
       <p class="text-xs text-content-muted">
-        {% if entry.is_on_loan %}{% translate "On loan" %}
-        {% elif entry.physical_location == 'home' %}{% translate "To be brought" %}
+        {% if entry.location_game.is_on_loan %}{% translate "On loan" %}
+        {% elif entry.location_game.physical_location == 'home' or not event.is_at_organizer_location %}{% translate "To be brought" %}
         {% else %}{% translate "At the association" %}{% endif %}
       </p>
-    {% elif entry.sponsor_locations.all %}
+    {% endif %}
+    {% if entry.sponsor_locations %}
       {# Where to find the game at the event: the clubs that bring it #}
       <ul class="flex flex-col gap-0.5 text-xs font-semibold text-content leading-snug">
         <li class="sr-only">{% trans "Where to find it:" %}</li>
-        {% for location in entry.sponsor_locations.all %}
+        {% for location in entry.sponsor_locations %}
           <li class="flex items-center gap-1 min-w-0" title="{{ location.name }}">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-600" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
             <span class="truncate">{{ location.name }}</span>

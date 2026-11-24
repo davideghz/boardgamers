@@ -26,11 +26,7 @@
         </p>
         <p class="text-xs text-content-muted mt-0.5">
           {% if event.catalog_is_public %}
-            {% if event.uses_location_library %}
-              {% translate "Visitors can browse the organizing location library from the event page." %}
-            {% else %}
-              {% trans "Visitors can browse the library from the event page, which also shows the games with a tag flagged for it." %}
-            {% endif %}
+            {% trans "Visitors can browse the library from the event page, which also shows the games with a tag flagged for it." %}
             <a href="{% url 'event-games' event.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "View public page" %} →</a>
           {% else %}
             {% if event.uses_location_library and not event.organizer_location.enable_public_games %}
@@ -60,7 +56,7 @@
   </form>
 
   {% if event.organizer_location_id %}
-    <p class="mb-4 text-sm text-content-muted">{% if event.uses_location_library %}{% translate "The event catalog uses the organizing location library." %}{% else %}{% translate "The event catalog uses the event selection." %}{% endif %}
+    <p class="mb-4 text-sm text-content-muted">{% if event.uses_location_library %}{% translate "The event catalog uses the organizing location library, plus the event selection." %}{% else %}{% translate "The event catalog uses the event selection." %}{% endif %}
       <a class="text-blue-600" href="{% url 'event-manage-data' event.slug %}">{% translate "Change catalog" %}</a></p>
   {% endif %}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -69,6 +65,7 @@
     <div class="lg:col-span-2 min-w-0">
       {% if event.uses_location_library %}
         <h2 class="mb-2 text-sm font-semibold text-content">{% translate "Event selection" %}</h2>
+        <p class="mb-2 text-xs text-content-muted">{% translate "These games, which include those of the event tables, are shown together with the organizing location library. Add a library game here to give it a tag." %}</p>
       {% endif %}
       <div class="flex gap-2 mb-3">
         <div class="relative flex-1">

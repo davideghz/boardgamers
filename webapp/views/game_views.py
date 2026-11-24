@@ -77,6 +77,6 @@ class GameDetailView(DetailView):
                 context['back_library_query'] = {key: params[key] for key in ('q', 'page') if key in params}
         if from_event:
             event = Event.objects.select_related('organizer_location').filter(slug=from_event).first()
-            if event and event.can_view_catalog(self.request.user) and effective_catalog(event).filter(game=game).exists():
+            if event and event.can_view_catalog(self.request.user) and effective_catalog(event).filter(pk=game.pk).exists():
                 context['back_event'] = event
         return context

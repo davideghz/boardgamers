@@ -31,7 +31,7 @@ from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
-from webapp.services.event_games import attach_booking_dates, effective_catalog, featured_games, library_queryset
+from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
 from webapp.views.table_views import BaseTableDetailView
 
 logger = logging.getLogger(__name__)
@@ -249,29 +249,27 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
-        tags = []
-        sponsors = []
-        if not event.uses_location_library:
-            tags = list(event.game_tags.all())
-            sponsors = list(event.sponsor_locations.only('id', 'name').order_by('name'))
+        tags = list(event.game_tags.all())
+        sponsors = list(event.sponsor_locations.only('id', 'name').order_by('name'))
         selected_tag = self._selected(tags, self.request.GET.get('tag'))
         selected_sponsor = self._selected(sponsors, self.request.GET.get('sponsor'))
         q = self.request.GET.get('q', '').strip()
 
-        entries = effective_catalog(event)
-        total_count = entries.count()
+        games = effective_catalog(event)
+        total_count = games.count()
         if q:
-            entries = entries.filter(game__name__icontains=q)
+            games = games.filter(name__icontains=q)
+        selections = EventGame.objects.filter(event=event)
         if selected_tag:
-            entries = entries.filter(tags=selected_tag)
+            games = games.filter(pk__in=selections.filter(tags=selected_tag).values('game_id'))
         if selected_sponsor:
-            entries = entries.filter(sponsor_locations=selected_sponsor)
+            games = games.filter(pk__in=selections.filter(sponsor_locations=selected_sponsor).values('game_id'))
 
-        paginator = Paginator(entries, self.paginate_by)
+        paginator = Paginator(games, self.paginate_by)
         page_obj = paginator.get_page(self.request.GET.get('page'))
         is_concluded = event.is_concluded()
         context.update({
-            'entries': attach_booking_dates(event, page_obj.object_list),
+            'entries': catalog_entries(event, page_obj.object_list),
             'can_view_program': event.can_view_program(self.request.user),
             'total_count': total_count,
             'tags': tags,
@@ -833,6 +831,7 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
+        context['catalog_count'] = effective_catalog(event).count()
         if event.status == Event.DRAFT:
             context['missing_publish_requirements'] = event.missing_publish_requirements()
         elif event.is_published:

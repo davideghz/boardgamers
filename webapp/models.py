@@ -1939,7 +1939,15 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def save(self, *args, **kwargs):
         if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
-        super().save(*args, **kwargs)
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            # The sources of the selected games belong to the organizing location.
+            update_fields = kwargs.get('update_fields')
+            if update_fields is None or {'organizer_location', 'organizer_location_id'} & set(update_fields):
+                stale = self.games.filter(source_location_game__isnull=False)
+                if self.organizer_location_id:
+                    stale = stale.exclude(source_location_game__location_id=self.organizer_location_id)
+                stale.update(source_location_game=None)
 
     def is_manager(self, user_profile):
         if self.organizer_location_id:
