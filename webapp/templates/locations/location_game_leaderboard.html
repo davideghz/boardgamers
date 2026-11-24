@@ -25,7 +25,7 @@
     {% if leaderboard %}
       <div class="space-y-3">
         {% for row in leaderboard %}
-          {% include "locations/_leaderboard_row.html" with player=row.user guest=row.guest stats=row rank=forloop.counter only %}
+          {% include "locations/_leaderboard_row.html" with player=row.user guest=row.guest stats=row rank=row.rank only %}
         {% endfor %}
       </div>
     {% else %}

@@ -17,14 +17,14 @@
     {% if guest %}
       <p class="text-sm font-semibold text-content truncate">{{ guest.name|truncatechars:22 }}</p>
       <p class="text-xs text-content-muted truncate">
-        {% blocktrans with owner=guest.owner.nickname %}guest of {{ owner }}{% endblocktrans %} · {{ stats.play_count }} {% trans "tables" %}
+        {% blocktrans with owner=guest.owner.nickname %}guest of {{ owner }}{% endblocktrans %} · {% blocktrans count counter=stats.play_count %}{{ counter }} table{% plural %}{{ counter }} tables{% endblocktrans %}
       </p>
     {% else %}
       <a href="{% url 'user-profile-detail' player.slug %}"
          class="text-sm font-semibold text-content text-decoration-none hover:text-primary transition-colors block truncate">
         {{ player.nickname|truncatechars:22 }}
       </a>
-      <p class="text-xs text-content-muted">{{ stats.play_count }} {% trans "tables" %}</p>
+      <p class="text-xs text-content-muted">{% blocktrans count counter=stats.play_count %}{{ counter }} table{% plural %}{{ counter }} tables{% endblocktrans %}</p>
     {% endif %}
   </div>
   <div class="flex items-center gap-3 text-xs flex-shrink-0">

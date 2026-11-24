@@ -11,8 +11,9 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
-from django.db.models import Prefetch, Q, Count, Max
+from django.db.models import Exists, Prefetch, Q, Count, OuterRef, Max
 from django.db.models.deletion import RestrictedError
+from django.db.models.functions import Coalesce
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -191,33 +192,9 @@ class LocationDetailView(DetailView):
         if location.show_most_played_games:
             popular_games = _played_games(location, today)[:10]
 
-            # Calcolo dei top winner con ex aequo
-            winners = UserProfile.objects.filter(
-                joined_tables__location=location,
-                player__position=1
-            ).values(
-                'joined_tables__game', 'nickname'
-            ).annotate(
-                win_count=Count('joined_tables', distinct=True)
-            )
-
-            winners_by_game = defaultdict(lambda: {'max': 0, 'winners': []})
-
-            for entry in winners:
-                game_id = entry['joined_tables__game']
-                nickname = entry['nickname']
-                win_count = entry['win_count']
-
-                current_max = winners_by_game[game_id]['max']
-                if win_count > current_max:
-                    winners_by_game[game_id]['max'] = win_count
-                    winners_by_game[game_id]['winners'] = [nickname]
-                elif win_count == current_max:
-                    winners_by_game[game_id]['winners'].append(nickname)
-
+            winners = _top_winners(location, popular_games, today)
             for game in popular_games:
-                top = winners_by_game.get(game.id)
-                game.top_winners = top['winners'] if top else []
+                game.top_winners = winners.get(game.pk, [])
 
         # Query per i giocatori con numero di partite e posizioni
         player_stats = []
@@ -1214,31 +1191,56 @@ def _played_games(location, today):
     return Game.objects.filter(
         created_tables__location=location,
         created_tables__event__isnull=True,
-        created_tables__date__lte=today,
+        created_tables__date__lt=today,
     ).annotate(
         play_count=Count('created_tables', distinct=True)
-    ).order_by('-play_count', 'name')
+    ).defer('description').order_by('-play_count', 'name', 'pk')
+
+
+def _ranked_players(location, today):
+    """Players of the past non-event tables of a location whose result was recorded."""
+    with_position = Player.objects.filter(
+        table=OuterRef('table'), position__isnull=False).exclude(position=Table.UNSET_POSITION)
+    return Player.objects.filter(
+        Q(table__game_outcome__isnull=False) | Exists(with_position),
+        table__location=location,
+        table__event__isnull=True,
+        table__date__lt=today,
+    ).exclude(table__result_mode=ResultMode.NONE)
+
+
+def _top_winners(location, games, today):
+    """{game id: names with most wins}, ties included; same rules as the game leaderboard."""
+    wins = (
+        _ranked_players(location, today).filter(table__game__in=[game.pk for game in games], position=1)
+        .values('table__game', 'user_profile', 'guest_profile')
+        .annotate(name=Coalesce('user_profile__nickname', 'guest_profile__name'),
+                  win_count=Count('table', distinct=True))
+        .exclude(name__isnull=True)
+        .order_by('-win_count', 'name')
+    )
+    most_wins, winners = {}, defaultdict(list)
+    for row in wins:
+        game = row['table__game']
+        if row['win_count'] == most_wins.setdefault(game, row['win_count']):
+            winners[game].append(row['name'])
+    return winners
 
 
 def _game_leaderboard(location, game, today):
     """Medal leaderboard of one game at a location: gold, silver, bronze, then most tables played.
 
-    Users and guests are ranked separately by identity; tables without a leaderboard are skipped.
+    Users and guests are ranked separately by identity; tables without a recorded
+    result are skipped. Equal players share the same rank.
     """
-    players = Player.objects.filter(
-        table__location=location,
-        table__event__isnull=True,
-        table__game=game,
-        table__date__lte=today,
-    ).exclude(table__result_mode=ResultMode.NONE)
-    if game.default_result_mode == ResultMode.NONE:
-        players = players.exclude(table__result_mode__isnull=True)
-    rows = list(players.values('user_profile', 'guest_profile').annotate(
+    criteria = ('first_place', 'second_place', 'third_place', 'play_count')
+    rows = list(_ranked_players(location, today).filter(table__game=game).values('user_profile', 'guest_profile').annotate(
+        name=Coalesce('user_profile__nickname', 'guest_profile__name'),
         play_count=Count('table', distinct=True),
         first_place=Count('table', filter=Q(position=1), distinct=True),
         second_place=Count('table', filter=Q(position=2), distinct=True),
         third_place=Count('table', filter=Q(position=3), distinct=True),
-    ).order_by('-first_place', '-second_place', '-third_place', '-play_count'))
+    ).order_by(*(f'-{field}' for field in criteria), 'name', 'user_profile', 'guest_profile'))
 
     users = UserProfile.objects.in_bulk([r['user_profile'] for r in rows if r['user_profile']])
     guests = GuestProfile.objects.select_related('owner').in_bulk(
@@ -1246,14 +1248,20 @@ def _game_leaderboard(location, game, today):
     for row in rows:
         row['user'] = users.get(row['user_profile'])
         row['guest'] = guests.get(row['guest_profile'])
-    return [r for r in rows if r['user'] or r['guest']]
+    rows = [r for r in rows if r['user'] or r['guest']]
+    previous = None
+    for index, row in enumerate(rows, start=1):
+        tied = previous and all(row[field] == previous[field] for field in criteria)
+        row['rank'] = previous['rank'] if tied else index
+        previous = row
+    return rows
 
 
 class LocationPlayedGamesView(View):
     """Public list of the games played at a location, each linking to its leaderboard."""
 
     def get(self, request, slug):
-        location = get_object_or_404(Location, slug=slug)
+        location = get_object_or_404(Location, slug=slug, show_most_played_games=True)
         played_games = _played_games(location, timezone.localdate())
         q = request.GET.get('q', '').strip()
         if q:
@@ -1263,6 +1271,8 @@ class LocationPlayedGamesView(View):
             'location': location,
             'played_games': page_obj.object_list,
             'page_obj': page_obj,
+            'paginator': page_obj.paginator,
+            'is_paginated': page_obj.has_other_pages(),
             'q': q,
             'meta': Meta(
                 title=_("Games played – %(name)s") % {'name': location.name},
@@ -1275,7 +1285,8 @@ class LocationGameLeaderboardView(View):
     """Public leaderboard of one game at a location."""
 
     def get(self, request, slug, game_slug):
-        location = get_object_or_404(Location, slug=slug)
+        location = get_object_or_404(
+            Location, slug=slug, show_most_played_games=True, show_top_gamers=True)
         today = timezone.localdate()
         game = get_object_or_404(_played_games(location, today), slug=game_slug)
         return render(request, 'locations/location_game_leaderboard.html', {

@@ -23,8 +23,12 @@
   {# Game list #}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
     {% for game in played_games %}
+      {% if location.show_top_gamers %}
       <a href="{% url 'location-game-leaderboard' location.slug game.slug %}"
          class="flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface hover:bg-surface-alt transition-colors text-decoration-none">
+      {% else %}
+      <div class="flex items-center gap-3 p-2.5 rounded-xl border border-divider bg-surface">
+      {% endif %}
         <div class="w-12 h-12 rounded-lg bg-surface-input flex items-center justify-center flex-shrink-0 overflow-hidden">
           <img src="{{ game.cover_url }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">
         </div>
@@ -34,8 +38,10 @@
             {% blocktrans count counter=game.play_count %}{{ counter }} table{% plural %}{{ counter }} tables{% endblocktrans %}
           </p>
         </div>
+        {% if location.show_top_gamers %}
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-      </a>
+        {% endif %}
+      {% if location.show_top_gamers %}</a>{% else %}</div>{% endif %}
     {% empty %}
       <p class="text-sm text-content-muted italic sm:col-span-2">{% if q %}{% trans "No games found." %}{% else %}{% trans "No games played at this location." %}{% endif %}</p>
     {% endfor %}

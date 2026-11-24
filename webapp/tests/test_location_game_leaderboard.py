@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from webapp.factories import UserProfileFactory, LocationFactory, GameFactory, TableFactory
-from webapp.models import GuestProfile, Player, ResultMode
+from webapp.models import GameOutcome, GuestProfile, Player, ResultMode
 
 
 class LocationGameLeaderboardTest(TestCase):
@@ -74,3 +74,71 @@ class LocationGameLeaderboardTest(TestCase):
         self.assertContains(response, reverse('location-played-games', kwargs={'slug': self.location.slug}))
         self.assertContains(response, reverse('location-game-leaderboard',
                                               kwargs={'slug': self.location.slug, 'game_slug': self.game.slug}))
+
+    def leaderboard(self, game=None):
+        response = self.client.get(reverse('location-game-leaderboard', args=[self.location.slug, (game or self.game).slug]))
+        return response.context['leaderboard']
+
+    def test_hidden_statistics_are_not_public(self):
+        games_url = reverse('location-played-games', args=[self.location.slug])
+        leaderboard_url = reverse('location-game-leaderboard', args=[self.location.slug, self.game.slug])
+        for most_played, top_gamers, games_status, leaderboard_status in (
+                (True, True, 200, 200), (True, False, 200, 404), (False, True, 404, 404), (False, False, 404, 404)):
+            with self.subTest(most_played=most_played, top_gamers=top_gamers):
+                self.location.show_most_played_games = most_played
+                self.location.show_top_gamers = top_gamers
+                self.location.save()
+                self.assertEqual(self.client.get(leaderboard_url).status_code, leaderboard_status)
+                response = self.client.get(games_url)
+                self.assertEqual(response.status_code, games_status)
+                if games_status == 200:
+                    self.assertEqual(leaderboard_url in response.content.decode(), top_gamers)
+                detail = self.client.get(reverse('location-detail', args=[self.location.slug])).content.decode()
+                self.assertEqual(leaderboard_url in detail, most_played and top_gamers)
+                self.assertEqual(games_url + '"' in detail, most_played)
+
+    def test_played_games_are_paginated(self):
+        past = timezone.localdate() - datetime.timedelta(days=5)
+        for i in range(45):
+            self._table(GameFactory(name=f"Game {i:02d}"), past)
+        url = reverse('location-played-games', args=[self.location.slug])
+        response = self.client.get(url, {'q': 'Game'})
+        self.assertEqual(len(response.context['played_games']), 40)
+        self.assertContains(response, 'q=Game&amp;page=2')
+        self.assertEqual(len(self.client.get(url, {'q': 'Game', 'page': 2}).context['played_games']), 5)
+
+    def test_todays_tables_are_not_played_yet(self):
+        game = GameFactory(name="Today")
+        Player.objects.create(table=self._table(game, timezone.localdate()), user_profile=self.bob, position=1)
+        url = reverse('location-game-leaderboard', args=[self.location.slug, game.slug])
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_tables_without_a_result_do_not_count(self):
+        game = GameFactory(name="No results")
+        past = timezone.localdate() - datetime.timedelta(days=5)
+        Player.objects.create(table=self._table(game, past), user_profile=self.bob)
+        self.assertEqual(self.leaderboard(game), [])
+        lost = self._table(game, past, result_mode=ResultMode.COOP)
+        lost.game_outcome = GameOutcome.LOST
+        lost.save()
+        Player.objects.create(table=lost, user_profile=self.alice)
+        rows = self.leaderboard(game)
+        self.assertEqual([(r['user'], r['play_count'], r['first_place']) for r in rows], [(self.alice, 1, 0)])
+
+    def test_equal_players_share_the_rank_in_a_stable_order(self):
+        game = GameFactory(name="Ties")
+        table = self._table(game, timezone.localdate() - datetime.timedelta(days=5))
+        Player.objects.create(table=table, user_profile=self.bob, position=1)
+        Player.objects.create(table=table, user_profile=self.alice, position=1)
+        Player.objects.create(table=table, guest_profile=self.guest, position=3)
+        self.assertEqual([(r['name'], r['rank']) for r in self.leaderboard(game)], [('Alice', 1), ('Bob', 1), ('Carla', 3)])
+
+    def test_winners_on_the_location_page_match_the_leaderboard(self):
+        game = GameFactory(name="Guest wins")
+        past = timezone.localdate() - datetime.timedelta(days=5)
+        Player.objects.create(table=self._table(game, past), guest_profile=self.guest, position=1)
+        response = self.client.get(reverse('location-detail', args=[self.location.slug]))
+        winners = {g.name: g.top_winners for g in response.context['popular_games']}
+        self.assertEqual(winners["Guest wins"], ["Carla"])
+        self.assertEqual(winners["Azul"], ["Alice"])
+        self.assertEqual(winners["GDR"], [])

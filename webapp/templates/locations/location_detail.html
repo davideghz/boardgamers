@@ -190,13 +190,17 @@
         {% if popular_games %}
           <div class="space-y-3">
             {% for game in popular_games %}
+              {% if location.show_top_gamers %}
               <a href="{% url 'location-game-leaderboard' location.slug game.slug %}"
                  class="flex items-center gap-3 rounded-lg hover:bg-surface-alt transition-colors">
+              {% else %}
+              <div class="flex items-center gap-3">
+              {% endif %}
                 <span class="text-sm font-bold text-content-muted w-5 text-right flex-shrink-0">{{ forloop.counter }}</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between mb-1">
                     <span class="text-sm font-semibold text-content">{{ game.name|truncatechars:28 }}</span>
-                    <span class="text-xs text-content-muted">{{ game.play_count }} {% trans "tables" %}</span>
+                    <span class="text-xs text-content-muted">{% blocktrans count counter=game.play_count %}{{ counter }} table{% plural %}{{ counter }} tables{% endblocktrans %}</span>
                   </div>
                   <div class="relative w-full overflow-hidden rounded-full bg-surface-input h-2">
                     <div class="h-full bg-blue-500 rounded-full transition-all"
@@ -209,7 +213,7 @@
                     </p>
                   {% endif %}
                 </div>
-              </a>
+              {% if location.show_top_gamers %}</a>{% else %}</div>{% endif %}
             {% endfor %}
           </div>
         {% else %}
