@@ -7,5 +7,7 @@ class WebappConfig(AppConfig):
 
     def ready(self):
         import webapp.signals
+        from webapp.image_models import connect_image_cleanup
         from webapp.services.images import restrict_open_formats
         restrict_open_formats()
+        connect_image_cleanup(self.apps)

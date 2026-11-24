@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ValidationError
 from django.db.models import Count, Q, Subquery, OuterRef, Exists, Value
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,8 +17,8 @@ from django.conf import settings as django_settings
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
 from webapp.models import UserProfile, Game, Player, Table, FavoriteUser
+from webapp.services import email_change
 
-from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 
@@ -146,20 +147,28 @@ def change_email(request):
     if request.method == 'POST':
         new_email = request.POST.get('new_email', '').strip()
         password = request.POST.get('password', '')
-        if not new_email:
-            messages.error(request, _("Email cannot be empty."))
-        elif User.objects.filter(email=new_email).exclude(pk=request.user.pk).exists():
-            messages.error(request, _("This email is already in use."))
-        elif request.user.has_usable_password() and not request.user.check_password(password):
+        if request.user.has_usable_password() and not request.user.check_password(password):
             messages.error(request, _("Wrong password."))
+            return redirect('user-profile-edit')
+        try:
+            email_change.request_change(request.user, new_email)
+        except ValidationError as e:
+            messages.error(request, e.messages[0])
         else:
-            # Only sync username to email for users whose username IS their email
-            # (Google and email-registered users). Telegram users keep their own username.
-            if request.user.username == request.user.email:
-                request.user.username = new_email
-            request.user.email = new_email
-            request.user.save(update_fields=['email', 'username'])
-            messages.success(request, _("Email updated successfully."))
+            messages.success(request, _("We sent a link to the new address: open it to confirm the change."))
+    return redirect('user-profile-edit')
+
+
+@login_required
+def confirm_email_change(request, token):
+    # The login is part of the proof: whoever owns the new address must not be able
+    # to confirm, by mistake, a change asked by somebody else.
+    try:
+        email_change.confirm_change(request.user, token)
+    except ValidationError as e:
+        messages.error(request, e.messages[0])
+    else:
+        messages.success(request, _("Email updated successfully."))
     return redirect('user-profile-edit')
 
 
@@ -232,7 +241,7 @@ def upload_avatar(request):
 def remove_avatar(request):
     user_profile = request.user.user_profile
     if user_profile.avatar:
-        # Drop the stored file too: nothing else points at it.
+        # The shared image lifecycle removes the file after commit if unreferenced.
         user_profile.avatar.delete(save=False)
         user_profile.avatar = None
         user_profile.save(update_fields=['avatar'])

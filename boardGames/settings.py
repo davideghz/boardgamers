@@ -129,6 +129,7 @@ TEMPLATES = [
                 'webapp.context_processors.maps_api_key',
                 'webapp.context_processors.telegram_config',
                 'webapp.context_processors.vapid_public_key',
+                'webapp.context_processors.site_banners',
             ],
         },
     },
@@ -199,8 +200,9 @@ SOCIAL_AUTH_PIPELINE = (
     # 'social_core.pipeline.mail.mail_validation',
 
     # Associates the current social details with another user account with
-    # a similar email address. Disabled by default.
-    'social_core.pipeline.social_auth.associate_by_email',
+    # a similar email address. Custom step: revokes the previous accesses of an
+    # account whose email was never verified.
+    'webapp.pipeline.associate_by_email',
 
     # Create a user account if we haven't found one yet.
     'social_core.pipeline.user.create_user',
@@ -318,22 +320,19 @@ EMAIL_PORT = env('EMAIL_PORT', default='2525')
 
 # FILES UPLOAD
 
-AWS_S3_ACCESS_KEY_ID = env('AWS_S3_ACCESS_KEY_ID')
-AWS_S3_SECRET_ACCESS_KEY = env('AWS_S3_SECRET_ACCESS_KEY')
+AWS_S3_ACCESS_KEY_ID = env('AWS_S3_ACCESS_KEY_ID', default=None)
+AWS_S3_SECRET_ACCESS_KEY = env('AWS_S3_SECRET_ACCESS_KEY', default=None)
 
 AWS_STORAGE_BUCKET_NAME = 'boardgamers-staging-public'
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
-# s3 static settings
-# AWS_LOCATION = 'static'
-# STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-# s3 public media settings
 PUBLIC_MEDIA_LOCATION = 'media'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-DEFAULT_FILE_STORAGE = 'boardGames.storage_backends.PublicMediaStorage'
+STORAGES = {
+    'default': {'BACKEND': 'webapp.storage_backends.PublicMediaStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 15  # 5MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE

@@ -1,19 +1,26 @@
 from django.contrib import admin, messages
-from django.core.exceptions import PermissionDenied
+from django.contrib.admin.widgets import AdminFileWidget
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import IntegrityError, models, transaction
+from django.db.models.deletion import RestrictedError
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
+from webapp.fields import NetworkLogoImageField
+from webapp.forms import BannerChangeListForm, BannerForm, NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, PhysicalTable, EventParticipant, EventGame, EventGameTag
+    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, \
+    PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services import games as game_services
+from webapp.services import profile_merge
 from webapp.services.tables import sync_legacy_result
 
 
@@ -57,7 +64,92 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("nickname", "created_at", "user", "phone", "is_email_verified")
-    search_fields = ("nickname", "user__username", "user__email", "phone")
+    search_fields = ("nickname", "slug", "user__username", "user__email", "phone")
+    actions = ["merge_profiles_action"]
+
+    def has_merge_permission(self, request):
+        return request.user.is_superuser
+
+    @admin.action(permissions=["merge"], description=_("Merge accounts"))
+    def merge_profiles_action(self, request, queryset):
+        ids = list(queryset.order_by('pk').values_list('pk', flat=True)[:3])
+        if len(ids) != 2:
+            self.message_user(request, _("Select exactly two accounts to merge."), messages.ERROR)
+            return None
+        url = reverse('admin:webapp_userprofile_merge')
+        return redirect(f'{url}?a={ids[0]}&b={ids[1]}')
+
+    def get_urls(self):
+        return [
+            path('merge/', self.admin_site.admin_view(self.merge_view), name='webapp_userprofile_merge'),
+        ] + super().get_urls()
+
+    def merge_view(self, request):
+        if not self.has_merge_permission(request):
+            raise PermissionDenied
+
+        data = request.POST if request.method == 'POST' else request.GET
+        try:
+            ids = [int(data.get(key)) for key in ('a', 'b')]
+            profiles = list(self.get_queryset(request).filter(pk__in=ids).select_related('user').order_by('pk'))
+        except (TypeError, ValueError):
+            profiles = []
+        if len(profiles) != 2:
+            self.message_user(request, _("Select two different accounts that still exist."), messages.ERROR)
+            return redirect('admin:webapp_userprofile_changelist')
+
+        keeper = next((profile for profile in profiles if str(profile.pk) == data.get('keep')), None)
+        error = None
+        allowed = True
+        try:
+            profile_merge.validate_accounts(*(profile.user for profile in profiles))
+        except ValidationError as exc:
+            error = ' '.join(exc.messages)
+            allowed = False
+
+        try:
+            if allowed and request.method == 'POST':
+                if keeper is None:
+                    raise ValidationError(_("Choose the account to keep."))
+                duplicate = next(profile for profile in profiles if profile.pk != keeper.pk)
+                with transaction.atomic():
+                    keeper = profile_merge.merge_accounts(keeper.pk, duplicate.pk)
+                    summary = _("Merged account %(duplicate)s into %(keeper)s.") % {
+                        'duplicate': f'{duplicate.slug} (#{duplicate.pk})',
+                        'keeper': f'{keeper.slug} (#{keeper.pk})',
+                    }
+                    self.log_change(request, keeper, summary)
+                self.message_user(request, summary, messages.SUCCESS)
+                return redirect('admin:webapp_userprofile_change', keeper.pk)
+        except ValidationError as exc:
+            error = ' '.join(exc.messages)
+        except IntegrityError:
+            error = _("A database conflict prevented the merge. No changes were saved.")
+
+        accounts = [
+            {
+                'profile': profile,
+                'has_password': profile_merge.has_password(profile.user),
+                'logins': list(profile.user.social_auth.order_by('provider', 'pk')),
+            }
+            for profile in profiles
+        ]
+        first, second = ({login.provider for login in account['logins']} for account in accounts)
+        without_email = any(not profile.user.email for profile in profiles)
+        unverified_email = next(
+            (profile.user.email for profile in profiles if profile.user.email and not profile.is_email_verified), None)
+        return TemplateResponse(request, 'admin/webapp/userprofile/merge.html', {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'title': _("Merge accounts"),
+            'profiles': profiles,
+            'accounts': accounts,
+            'shared_providers': sorted(first & second),
+            'unverified_import': unverified_email if without_email else None,
+            'keeper': keeper,
+            'error': error,
+            'allowed': allowed,
+        })
 
 
 class PlayerInline(admin.TabularInline):
@@ -107,16 +199,53 @@ class PlayerAdmin(admin.ModelAdmin):
         sync_legacy_result(obj.table)
 
 
+class LocationNetworkInline(admin.TabularInline):
+    model = LocationNetwork
+    verbose_name_plural = _('National affiliations')
+    extra = 0
+    fields = ('network', 'local_name', 'custom_logo')
+    readonly_fields = ('network', 'local_name')
+    formfield_overrides = {
+        NetworkLogoImageField: {'form_class': NetworkLogoField, 'widget': AdminFileWidget},
+    }
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('network')
+
+
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ("name", "city", "creator", "enable_membership", "enable_calendar", "created_at")
-    list_filter = ("city", "enable_membership", "enable_calendar", "created_at")
+    list_filter = ("city", "network_affiliations__network", "enable_membership", "enable_calendar", "created_at")
     list_editable = ("enable_membership", "enable_calendar")
     search_fields = ("name", "city", "creator__nickname")
     filter_horizontal = ("managers",)
+    inlines = [LocationNetworkInline]
     formfield_overrides = {
         models.JSONField: {'widget': JSONEditorWidget},
     }
+
+
+@admin.register(Network)
+class NetworkAdmin(admin.ModelAdmin):
+    form = NetworkForm
+    list_display = ('name', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'slug')
+    readonly_fields = ('slug',)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and self.admin_site.get_model_admin(Location).has_view_or_change_permission(request):
+            return (*self.readonly_fields, 'affiliated_locations')
+        return self.readonly_fields
+
+    @admin.display(description=_('Affiliated locations'))
+    def affiliated_locations(self, obj):
+        url = reverse('admin:webapp_location_changelist', query={'network_affiliations__network__id__exact': obj.pk})
+        return format_html('<a href="{}">{}</a>', url, _('View affiliated locations'))
 
 
 @admin.register(Game)
@@ -161,7 +290,11 @@ class GameAdmin(admin.ModelAdmin):
         if request.method == 'POST' and 'confirm' in request.POST:
             choices = {f: request.POST.get(f'choice_{f}', 'keeper') for f in game_services.MERGEABLE_FIELDS}
             duplicate_repr = f'{duplicate} (#{duplicate.pk})'
-            result = game_services.merge_games(keeper, duplicate, choices)
+            try:
+                result = game_services.merge_games(keeper, duplicate, choices)
+            except RestrictedError:
+                self.message_user(request, _("The merge would remove a library entry with loan history."), level=messages.ERROR)
+                return redirect('admin:webapp_game_changelist')
             keeper.refresh_from_db()
             summary = _("Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library entries "
                         "moved, %(merged)d library entries merged, %(event_moved)d event library entries moved, "
@@ -231,12 +364,29 @@ class MembershipInline(admin.TabularInline):
     fields = ('status', 'start_date', 'end_date', 'approved_by', 'notes')
 
 
+class LoanRelatedAdminMixin:
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        # Django wraps these admin POSTs in a transaction. Lock the object
+        # before the form decides which fields can be edited.
+        if request.method == 'POST' and request.resolver_match:
+            prefix = f'{self.opts.app_label}_{self.opts.model_name}'
+            if request.resolver_match.url_name in (f'{prefix}_change', f'{prefix}_delete'):
+                queryset = queryset.select_for_update(of=('self',))
+        return queryset
+
+
 @admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
+class MemberAdmin(LoanRelatedAdminMixin, admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'fiscal_code', 'location', 'user_profile', 'email')
     list_filter = ('location',)
     search_fields = ('first_name', 'last_name', 'fiscal_code', 'email')
     inlines = [MembershipInline]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.game_loans.exists():
+            return (*super().get_readonly_fields(request, obj), 'location')
+        return super().get_readonly_fields(request, obj)
 
 
 @admin.register(Membership)
@@ -261,10 +411,18 @@ class GuestProfileAdmin(admin.ModelAdmin):
 
 
 @admin.register(LocationGame)
-class LocationGameAdmin(admin.ModelAdmin):
-    list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location')
-    list_filter = ('location', 'ownership', 'physical_location')
+class LocationGameAdmin(LoanRelatedAdminMixin, admin.ModelAdmin):
+    list_display = ('game', 'location', 'ownership', 'owner_member', 'physical_location', 'is_archived', 'withdrawn_on')
+    list_filter = ('location', 'ownership', 'physical_location', 'is_archived', 'withdrawal_reason')
     search_fields = ('game__name', 'location__name', 'owner_member__first_name', 'owner_member__last_name')
+    filter_horizontal = ('tags',)
+
+
+@admin.register(LocationGameTag)
+class LocationGameTagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'order')
+    search_fields = ('name', 'location__name')
+    autocomplete_fields = ('location',)
 
 
 class FAQInline(admin.TabularInline):
@@ -272,6 +430,35 @@ class FAQInline(admin.TabularInline):
     extra = 0
     fields = ('question', 'order', 'is_active')
     show_change_link = True
+
+
+@admin.register(Banner)
+class BannerAdmin(TabbedTranslationAdmin):
+    form = BannerForm
+    list_display = ('key', 'title', 'version', 'is_active', 'priority', 'audience', 'placement', 'starts_at', 'ends_at')
+    list_editable = ('is_active', 'priority')
+    list_filter = ('is_active', 'audience', 'placement', 'dismissal')
+    search_fields = ('key', 'title', 'message')
+    readonly_fields = ('cover_preview',)
+    fieldsets = (
+        (None, {'fields': ('key', 'version', 'is_active', 'title', 'message')}),
+        (_('Cover and link'), {'fields': ('cover', 'cover_preview', 'cover_alt', 'action_label', 'action_url')}),
+        (_('Visibility'), {'fields': ('audience', 'placement', 'priority', 'starts_at', 'ends_at')}),
+        (_('Closing'), {'fields': ('dismissal', 'dismissal_days')}),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        return (*self.readonly_fields, 'key') if obj else self.readonly_fields
+
+    def get_changelist_form(self, request, **kwargs):
+        return super().get_changelist_form(request, **{'form': BannerChangeListForm, **kwargs})
+
+    @admin.display(description=_('Cover preview'))
+    def cover_preview(self, obj):
+        if obj and obj.cover:
+            return format_html('<img src="{}" alt="" style="max-width:320px;max-height:160px;object-fit:contain">',
+                               obj.cover.url)
+        return '—'
 
 
 @admin.register(FAQCategory)
@@ -326,6 +513,8 @@ class PhysicalTableInline(admin.TabularInline):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    # Not editable until the event pages show them.
+    exclude = ('organizer_location', 'venue_location', 'venue_name')
     list_display = ('name', 'city', 'creator', 'status', 'participant_count', 'created_at')
     list_filter = ('status', 'city')
     list_editable = ('status',)

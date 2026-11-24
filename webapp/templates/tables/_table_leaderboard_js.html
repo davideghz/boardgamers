@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function editCoop() {
     const btn = (val, label, on) => `<button type="button" data-action="coop" data-value="${val}"
-        class="flex-1 py-4 rounded-2xl text-base font-extrabold border-2 transition-colors
+        class="flex-1 py-4 rounded-xl text-base font-extrabold border-2 transition-colors
                ${S.coopOutcome === val ? on : 'border-divider text-content-soft hover:bg-surface-input'}">${esc(label)}</button>`;
     return `
       <div class="flex gap-3 mb-4">

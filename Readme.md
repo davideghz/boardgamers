@@ -2,6 +2,7 @@
 
 - [Project Requirements](#project-requirements)
 - [Setup Without Docker (Linux/MacOS)](#setup-without-docker-linuxmacos)
+- [Local media storage](#local-media-storage)
 - [Heroku Setup](#heroku-setup)
 - [Email in local development (Mailtrap)](#email-in-local-development-mailtrap)
 - [Translations](#translations)
@@ -67,6 +68,66 @@ python manage.py populate_db
 ```bash
 python manage.py runserver
 ```
+
+## Local media storage
+
+With `boardGames.local_settings`, uploads go to `media/` by default. Django serves them under
+`/media/` when `DEBUG=True`. Filesystem mode works without AWS credentials.
+
+To test uploads against `boardgamers-staging-public`, set `USE_S3=True` in `.env` and configure
+staging credentials with `AWS_S3_ACCESS_KEY_ID` and `AWS_S3_SECRET_ACCESS_KEY`. The selected
+backend also reads existing uploads. If a local database references files that exist only in S3,
+use staging S3 or copy the files you need into `media/`, preserving their paths relative to the
+bucket's `media/` prefix. Missing local files return 404.
+
+Uploaded images use `ManagedImageField` together with `ManagedImagesModel` (already inherited
+by `DateTimeModel`). Covers, game images, avatars and affiliation logos share this lifecycle.
+For a new image such as a banner cover, use `ManagedImageField(max_side=COVER_MAX_SIDE, ...)`
+on a model inheriting `DateTimeModel`; normalization and cleanup are then automatic.
+
+Opaque resized images use JPEG; transparent images keep their alpha channel in PNG. The crop
+editor follows the same rule: extra space is white for opaque images, transparent otherwise.
+Stored names get a unique suffix, so a deleted file's URL is never reused. Existing files are not rewritten
+when other model fields are edited.
+
+Replaced, cleared and deleted images are removed from the configured storage only after the
+database transaction commits, and only when no image field still references the same file in
+that storage. This includes files shared by different models. Avoid `QuerySet.update()` and raw
+SQL for image replacements, since they bypass the model lifecycle; `resize_images` explicitly
+uses the shared cleanup service for its bulk updates. Cleanup does not scan historical orphan
+files, and uploads written before an outer transaction rolls back may still need a later audit.
+
+S3 development credentials also need `s3:DeleteObject` for cleanup of unreferenced media files.
+
+Use a dedicated IAM identity for development. This example permits listing the staging bucket
+and managing objects under `media/`. `ListBucket` lets S3 return a 404 when the storage backend
+checks a new filename, and `PutObjectAcl` permits uploads with `public-read` on buckets that allow
+ACLs. See [HeadObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html)
+and [PutObject permissions](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html).
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::boardgamers-staging-public"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:DeleteObject", "s3:AbortMultipartUpload"],
+      "Resource": "arn:aws:s3:::boardgamers-staging-public/media/*"
+    },
+    {
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::boardgamers-prod-public", "arn:aws:s3:::boardgamers-prod-public/*"]
+    }
+  ]
+}
+```
+
 ## Heroku Setup
 
 The production app is `boardgamers` (stack `heroku-26`, Heroku Postgres with PostGIS, Heroku Scheduler).
@@ -286,6 +347,9 @@ Run with `python manage.py [command-name]`
 
 - `fill_missing_bgg_data [--dry-run]`
   - Fills missing game info (players, playtime, weight, year) from BoardGameGeek for games with a `bgg_code`.
+
+- `flag_bgg_expansions [--dry-run]`
+  - Sets `Game.is_expansion` from BoardGameGeek for games with a `bgg_code`. New imports set it on their own.
 
 - `setup_telegram_bot`
   - Registers the bot's command list with Telegram. Run it when the bot commands change.

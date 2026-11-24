@@ -1,11 +1,13 @@
 import datetime
 from io import BytesIO
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
@@ -36,11 +38,12 @@ class ShrinkImageBytesTest(TestCase):
         self.assertEqual(img.format, 'JPEG')
         self.assertEqual(img.size, (COVER_MAX_SIDE, COVER_MAX_SIDE // 2))
 
-    def test_transparency_is_flattened_on_white(self):
+    def test_transparency_is_preserved_when_resizing(self):
         result = shrink_image_bytes(png_bytes((2000, 2000)), 100)
-        img = Image.open(BytesIO(result)).convert('RGB')
-        r, g, b = img.getpixel((50, 50))
-        self.assertGreater(min(r, g, b), 240)
+        with Image.open(BytesIO(result)) as img:
+            self.assertEqual(img.format, 'PNG')
+            self.assertEqual(img.mode, 'RGBA')
+            self.assertEqual(img.getpixel((50, 50))[3], 0)
 
     def test_small_light_image_is_left_alone(self):
         self.assertIsNone(shrink_image_bytes(png_bytes((300, 300), 'RGB', (1, 2, 3)), COVER_MAX_SIDE))
@@ -70,28 +73,31 @@ class RestrictedOpenFormatsTest(TestCase):
 
 class ShrinkOnUploadTest(TestCase):
     def setUp(self):
-        patcher = mock.patch('storages.backends.s3.S3Storage._save', side_effect=lambda name, content: name)
-        self.save_mock = patcher.start()
-        self.addCleanup(patcher.stop)
+        media_root = self.enterContext(TemporaryDirectory())
+        self.enterContext(override_settings(MEDIA_ROOT=media_root, STORAGES={
+            **settings.STORAGES,
+            'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        }))
         self.user_profile = UserProfileFactory()
 
     def test_new_upload_is_shrunk_before_storage(self):
         self.user_profile.avatar = SimpleUploadedFile('me.png', noisy_png_bytes((1000, 800)), 'image/png')
         self.user_profile.save()
 
-        name, content = self.save_mock.call_args.args
-        self.assertTrue(name.endswith('me.jpg'))
-        content.seek(0)
-        img = Image.open(content)
-        self.assertEqual(img.format, 'JPEG')
-        self.assertEqual(max(img.size), AVATAR_MAX_SIDE)
+        avatar = self.user_profile.avatar
+        self.assertRegex(avatar.name, r'^avatars/me_[0-9a-f]{32}\.jpg$')
+        with avatar.open('rb') as content, Image.open(content) as img:
+            self.assertEqual(img.format, 'JPEG')
+            self.assertEqual(max(img.size), AVATAR_MAX_SIDE)
 
     def test_saving_without_new_upload_does_not_touch_storage(self):
-        self.user_profile.avatar = 'avatars/me.png'
-        self.user_profile.save()
-        self.user_profile.nickname = 'renamed'
-        self.user_profile.save()
-        self.save_mock.assert_not_called()
+        with mock.patch('webapp.fields.shrink_content_file') as shrink:
+            self.user_profile.avatar = 'avatars/me.png'
+            self.user_profile.save()
+            self.user_profile.nickname = 'renamed'
+            self.user_profile.save()
+        shrink.assert_not_called()
+        self.assertFalse(self.user_profile.avatar.storage.exists('avatars/me.png'))
 
 
 class LocationPastTablesLimitTest(TestCase):

@@ -59,7 +59,7 @@ def differing_fields(game_a, game_b):
 
 def library_conflicts(keeper, duplicate):
     """Locations that have both games in their library."""
-    return list(
+    return (
         LocationGame.objects.filter(game=duplicate, location__location_games__game=keeper)
         .select_related('location')
     )
@@ -87,7 +87,9 @@ def merge_games(keeper, duplicate, choices):
     `choices`: {field: 'keeper' | 'duplicate'} for MERGEABLE_FIELDS (missing = keeper).
     The keeper's slug never changes (fields are written with update(), so a new
     name does not regenerate it). Library entries of a location holding both
-    games are folded into the keeper's entry, appending the duplicate's notes.
+    games are folded into the keeper's entry, appending the duplicate's notes
+    and adding its tags. An active entry takes precedence over an archived one,
+    and the most recent withdrawal details are retained.
     """
     if keeper.pk == duplicate.pk:
         raise ValueError('Cannot merge a game into itself.')
@@ -109,17 +111,38 @@ def merge_games(keeper, duplicate, choices):
         tables_moved = Table.objects.filter(game=duplicate).update(game=keeper)
 
         library_merged = 0
-        for entry in library_conflicts(keeper, duplicate):
-            kept = LocationGame.objects.get(location=entry.location, game=keeper)
+        for entry in library_conflicts(keeper, duplicate).select_for_update(of=('self',)).order_by('pk'):
+            kept = LocationGame.objects.select_for_update().get(location=entry.location, game=keeper)
+            kept.tags.add(*entry.tags.all())
+            fields = []
             if entry.notes.strip():
                 kept.notes = f'{kept.notes}\n{entry.notes}'.strip() if kept.notes.strip() else entry.notes
-                kept.save(update_fields=['notes', 'updated_at'])
+                fields.append('notes')
+            if kept.is_archived and not entry.is_archived:
+                kept.is_archived = False
+                kept.ownership = entry.ownership
+                kept.owner_member_id = entry.owner_member_id
+                kept.physical_location = entry.physical_location
+                fields.extend(['is_archived', 'ownership', 'owner_member', 'physical_location'])
+            copy_withdrawal = entry.has_withdrawal_details and not kept.has_withdrawal_details
+            if entry.withdrawn_on is not None:
+                copy_withdrawal = kept.withdrawn_on is None or entry.withdrawn_on > kept.withdrawn_on
+            if copy_withdrawal:
+                kept.withdrawn_on = entry.withdrawn_on
+                kept.withdrawal_reason = entry.withdrawal_reason
+                kept.withdrawal_note = entry.withdrawal_note
+                fields.extend(['withdrawn_on', 'withdrawal_reason', 'withdrawal_note'])
+            if fields:
+                kept.save(update_fields=[*fields, 'updated_at'])
             entry.delete()
             library_merged += 1
         library_moved = LocationGame.objects.filter(game=duplicate).update(game=keeper)
         event_library_moved, event_library_merged = merge_event_library(keeper, duplicate)
 
         Game.objects.filter(pk=keeper.pk).update(**values)
+        if 'image' in values and keeper.image.name != values['image']:
+            from webapp.services.image_files import delete_image_after_commit
+            delete_image_after_commit(keeper.image.storage, keeper.image.name, using=keeper._state.db)
         duplicate.delete()
 
     return MergeResult(tables_moved, library_moved, library_merged, event_library_moved, event_library_merged)

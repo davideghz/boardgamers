@@ -2,18 +2,24 @@ import datetime
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
-    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple
+    inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
+    ClearableFileInput, FileField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
+from webapp.services.game_loans import active_members, default_loan_due_date
+from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, COVER_UPLOAD_MAX_JPEG_PIXELS, COVER_UPLOAD_MAX_PIXELS, \
+    validate_network_logo
 
 from django.urls import reverse
+from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -201,16 +207,19 @@ class MemberPickerWidget(SearchPickerWidget):
     placeholder = _('Name or nickname…')
     no_results_text = _('No members found.')
 
-    def __init__(self, location, attrs=None, button_label=None):
+    def __init__(self, location, attrs=None, button_label=None, *, active_only=False):
         super().__init__(attrs, button_label)
         self.location = location
+        self.active_only = active_only
 
     def get_search_url(self):
-        return reverse('member-search', kwargs={'slug': self.location.slug})
+        url = reverse('member-search', kwargs={'slug': self.location.slug})
+        return url + '?active=1' if self.active_only else url
 
     def get_item(self, value):
         from webapp.api.search_views import member_result
-        member = self.location.members.select_related('user_profile').filter(pk=value).first()
+        members = active_members(self.location) if self.active_only else self.location.members.all()
+        member = members.select_related('user_profile').filter(pk=value).first()
         return member and member_result(member)
 
 
@@ -252,16 +261,23 @@ class TailwindForm(Form):
                 field.widget.attrs['class'] = _TW_INPUT_ERR + css[len(_TW_INPUT):]
 
 
-#: Maximum allowed size for a table's custom cover image.
-CUSTOM_COVER_MAX_SIZE = 200 * 1024  # 200 KB
-
-
 def validate_custom_cover_size(cover):
-    """Reject freshly uploaded cover images larger than the allowed size.
+    """Reject freshly uploaded cover images over the allowed file size or pixel count.
     An unchanged existing image is a FieldFile without a fresh upload and is
     left untouched."""
-    if cover and hasattr(cover, 'size') and cover.size > CUSTOM_COVER_MAX_SIZE:
-        raise ValidationError(_("The image is too large (max 200 KB)."))
+    if isinstance(cover, UploadedFile) and cover.size > COVER_UPLOAD_MAX_BYTES:
+        raise ValidationError(_("The image is too large (max %(size)s).") % {
+            'size': filesizeformat(COVER_UPLOAD_MAX_BYTES),
+        })
+    # ImageField.to_python sets `image` on new uploads, never on saved files.
+    image = getattr(cover, 'image', None) if isinstance(cover, UploadedFile) else None
+    if image is not None:
+        is_jpeg = image.format in ('JPEG', 'MPO')
+        max_pixels = COVER_UPLOAD_MAX_JPEG_PIXELS if is_jpeg else COVER_UPLOAD_MAX_PIXELS
+        if image.width * image.height > max_pixels:
+            raise ValidationError(_("The image has too many pixels (max %(max)s megapixels).") % {
+                'max': max_pixels // 1_000_000,
+            })
     return cover
 
 
@@ -284,21 +300,89 @@ def clean_table_seats(form, cleaned_data):
         form.add_error('max_players', _("Maximum players cannot be less than minimum players."))
 
 
+def setup_table_station_fields(form, play_areas, stations):
+    """Limit the play area and station dropdowns to the given querysets, shared
+    by TableForm and EventTableForm. Areas show their bare name (their __str__
+    repeats the event or location), stations are prefixed by their area."""
+    stations = stations.select_related('play_area')
+    form.fields['play_area'].queryset = play_areas
+    form.fields['play_area'].label_from_instance = lambda a: a.name
+    form.fields['physical_table'].queryset = stations
+    form.fields['physical_table'].widget.station_area_map = {s.pk: s.play_area_id for s in stations}
+    form.fields['physical_table'].label_from_instance = (
+        lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
+    )
+
+
+def clean_table_station(form, cleaned_data):
+    """The selected station must belong to the selected play area, shared by
+    TableForm and EventTableForm. With no area picked, the station's own area is
+    taken (the form's JS does the same when a station is picked)."""
+    physical_table = cleaned_data.get('physical_table')
+    if not physical_table:
+        return
+    play_area = cleaned_data.get('play_area')
+    if play_area is None and 'play_area' not in form.errors:
+        play_area = cleaned_data['play_area'] = physical_table.play_area
+    if physical_table.play_area_id != (play_area.id if play_area else None):
+        form.add_error('physical_table', _("The selected station does not belong to the selected area."))
+
+
+class AreaTaggedSelect(Select):
+    """Select that tags each <option> with a data-area attribute, so the station
+    dropdown can be filtered client-side by the selected play area."""
+    station_area_map = {}
+
+    def create_option(self, name, value, *args, **kwargs):
+        option = super().create_option(name, value, *args, **kwargs)
+        pk = getattr(value, 'value', value)
+        area_id = self.station_area_map.get(pk)
+        if area_id is not None:
+            option['attrs']['data-area'] = str(area_id)
+        return option
+
+
 class TableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
         exclude = ['slug', 'author', 'players', 'status', 'leaderboard_status', 'category', 'series_root']
         widgets = {
             'location': HiddenInput(),
+            'physical_table': AreaTaggedSelect(),
             'game': HiddenInput(),  # set by the game search modal (_bgg_game_modal.html)
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, location=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['custom_cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
+        self.staff_assigned_station = False
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
         self.fields['unlimited_seats'].widget.attrs.update({
             'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
+        # Only the location's own play areas and stations can be picked
+        # (TableDuplicateForm has neither field: copies keep the source's).
+        if 'play_area' not in self.fields:
+            return
+        if location is not None:
+            stations = PhysicalTable.objects.filter(location=location)
+            can_manage = bool(user and user.is_authenticated and (
+                user.is_superuser or location.is_manager(user.user_profile)))
+            if not can_manage:
+                stations = stations.filter(is_visible=True)
+            setup_table_station_fields(self, PlayArea.objects.filter(location=location), stations)
+            # Keep a staff-assigned hidden station when its author edits the game.
+            if (not can_manage and self.instance.physical_table_id
+                    and not self.instance.physical_table.is_visible):
+                self.staff_assigned_station = True
+                self.fields.pop('physical_table')
+                self.fields.pop('play_area')
+                return
+        else:
+            self.fields['play_area'].queryset = PlayArea.objects.none()
+            self.fields['physical_table'].queryset = PhysicalTable.objects.none()
+        self.fields['play_area'].required = False
+        self.fields['physical_table'].required = False
 
     def clean_title(self):
         title = self.cleaned_data['title']
@@ -317,6 +401,7 @@ class TableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        clean_table_station(self, cleaned_data)
         clean_table_seats(self, cleaned_data)
         return cleaned_data
 
@@ -386,20 +471,6 @@ class DuplicateTableLinkForm(TableLinkForm):
         return any(self.data.get(self.add_prefix(name)) for name in ('label', 'url'))
 
 
-class AreaTaggedSelect(Select):
-    """Select that tags each <option> with a data-area attribute, so the station
-    dropdown can be filtered client-side by the selected play area."""
-    station_area_map = {}
-
-    def create_option(self, name, value, *args, **kwargs):
-        option = super().create_option(name, value, *args, **kwargs)
-        pk = getattr(value, 'value', value)
-        area_id = self.station_area_map.get(pk)
-        if area_id is not None:
-            option['attrs']['data-area'] = str(area_id)
-        return option
-
-
 class EventTableForm(ModelForm, TailwindForm):
     class Meta:
         model = Table
@@ -412,6 +483,7 @@ class EventTableForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, event=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['custom_cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         if event is not None:
             dates = event.dates.order_by('date')
             self.fields['date'].widget = Select(
@@ -421,15 +493,8 @@ class EventTableForm(ModelForm, TailwindForm):
                 attrs={'class': _TW_INPUT}
             )
             self.fields['date'].input_formats = ['%Y-%m-%d']
-            self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
-            stations = PhysicalTable.objects.filter(event=event).select_related('play_area')
-            self.fields['physical_table'].queryset = stations
-            self.fields['physical_table'].widget.station_area_map = {
-                s.pk: s.play_area_id for s in stations
-            }
-            self.fields['physical_table'].label_from_instance = (
-                lambda s: f"{s.play_area.name} — {s.name}" if s.play_area_id else s.name
-            )
+            setup_table_station_fields(self, PlayArea.objects.filter(event=event),
+                                       PhysicalTable.objects.filter(event=event))
             self.fields['category'].queryset = EventTableCategory.objects.filter(event=event)
         else:
             self.fields['date'].input_formats = ['%Y-%m-%d']
@@ -448,13 +513,7 @@ class EventTableForm(ModelForm, TailwindForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
-        # The selected station must belong to the selected play area.
-        physical_table = cleaned_data.get('physical_table')
-        play_area = cleaned_data.get('play_area')
-        if physical_table and physical_table.play_area_id != (play_area.id if play_area else None):
-            self.add_error('physical_table', _("The selected station does not belong to the selected area."))
-
+        clean_table_station(self, cleaned_data)
         clean_table_seats(self, cleaned_data)
         return cleaned_data
 
@@ -517,7 +576,7 @@ class UserRegistrationForm(UserCreationForm, TailwindForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email=email).exists():
+        if email and User.objects.filter(email__iexact=email).exists():
             raise ValidationError(_("Email already registered."))
         return email
 
@@ -622,22 +681,105 @@ class LocationForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['cover'].required = False
-        self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
+        self.fields['cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
+        self.fields['cover'].widget = FileInput(attrs={
+            'class': 'sr-only peer',
+            'aria-describedby': f'{self["cover"].auto_id}-help',
+            'data-crop-max-side': COVER_MAX_SIDE,
+        })
         self.fields['opening_hours'].required = False
         self.fields['opening_hours'].widget = HiddenInput()
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
 
 
 class LocationManageDataForm(LocationForm):
     """LocationForm plus the settings that only the management page shows."""
 
     class Meta(LocationForm.Meta):
-        fields = LocationForm.Meta.fields + ['leaderboard_edit_days']
+        fields = LocationForm.Meta.fields + [
+            'facebook_url', 'instagram_url', 'leaderboard_edit_days',
+            'show_most_played_games', 'show_stats', 'show_top_gamers',
+        ]
+        widgets = {
+            **LocationForm.Meta.widgets,
+            'facebook_url': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'facebook.com/…',
+            }),
+            'instagram_url': TextInput(attrs={
+                'inputmode': 'url', 'autocapitalize': 'none', 'spellcheck': 'false',
+                'placeholder': 'instagram.com/…',
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['leaderboard_edit_days'].widget.attrs.update({
             'min': Location.LEADERBOARD_EDIT_DAYS_MIN, 'max': Location.LEADERBOARD_EDIT_DAYS_MAX,
         })
+
+
+class NetworkLogoField(FileField):
+    widget = ClearableFileInput(attrs={'accept': 'image/png,image/jpeg,image/webp'})
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('help_text', _('PNG, JPEG or WebP. Up to 2 MB and 2048 pixels per side.'))
+        super().__init__(**kwargs)
+
+    def to_python(self, data):
+        upload = super().to_python(data)
+        if upload is not None:
+            validate_network_logo(upload)
+        return upload
+
+
+class BannerForm(ModelForm):
+    class Meta:
+        model = Banner
+        fields = '__all__'
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
+
+
+class BannerChangeListForm(ModelForm):
+    """The list only edits a few fields: report errors on the others on the whole row."""
+    def add_error(self, field, error):
+        known = {*self.fields, NON_FIELD_ERRORS}
+        if field is None and hasattr(error, 'error_dict') and not known.issuperset(error.error_dict):
+            error = ValidationError([e for errors in error.error_dict.values() for e in errors])
+        super().add_error(field, error)
+
+
+class NetworkForm(ModelForm):
+    logo = NetworkLogoField(label=_('National logo'), required=False)
+
+    class Meta:
+        model = Network
+        fields = ['name', 'logo', 'website', 'is_active']
+
+
+class LocationNetworkForm(ModelForm, TailwindForm):
+    custom_logo = NetworkLogoField(label=_('Custom affiliation logo'), required=False)
+
+    class Meta:
+        model = LocationNetwork
+        fields = ['local_name', 'custom_logo']
+
+
+class AddLocationNetworkForm(LocationNetworkForm):
+    class Meta(LocationNetworkForm.Meta):
+        fields = ['network', *LocationNetworkForm.Meta.fields]
+
+    def __init__(self, *args, location, **kwargs):
+        super().__init__(*args, **kwargs)
+        network_field = self.fields['network']
+        networks = Network.objects.filter(is_active=True)
+        # A submitted choice may have been added by another manager since the form was opened.
+        network_field.queryset = networks if self.is_bound else networks.exclude(locations=location)
+        network_field.empty_label = _('Choose a national network')
 
 
 class ContactForm(TailwindForm):
@@ -683,15 +825,35 @@ class EventForm(ModelForm, TailwindForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['cover'].required = False
+        self.fields['cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
         self.fields['cover'].widget = FileInput(attrs={'class': 'hidden'})
         _enhance_phone_widget(self.fields['phone'])
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
 
 
 class EventManageDataForm(EventForm):
     """EventForm plus the settings that only the management page shows."""
 
     class Meta(EventForm.Meta):
-        fields = EventForm.Meta.fields + ['leaderboard_enabled']
+        fields = EventForm.Meta.fields + [
+            'leaderboard_enabled', 'table_booking_enabled',
+            'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['custom_button_url'].widget.attrs['placeholder'] = 'https://'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('custom_button_title')
+        url = cleaned_data.get('custom_button_url')
+        if url and not title:
+            self.add_error('custom_button_title', _('A button with a link needs a title.'))
+        if title and not url and 'custom_button_url' not in self.errors:
+            self.add_error('custom_button_url', _('A button with a title needs a link.'))
+        return cleaned_data
 
 
 class EventDateForm(TailwindForm):
@@ -714,6 +876,26 @@ class PlayAreaForm(ModelForm, TailwindForm):
         model = PlayArea
         fields = ['name']
 
+    def __init__(self, *args, event=None, location=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event
+        self.location = location
+
+    def clean_name(self):
+        # (event, name) and (location, name) are unique: check here, otherwise a
+        # duplicate name blows up as an IntegrityError on save.
+        name = self.cleaned_data.get('name')
+        if name and (self.event is not None or self.location is not None):
+            if self.event is not None:
+                qs = PlayArea.objects.filter(event=self.event, name=name)
+            else:
+                qs = PlayArea.objects.filter(location=self.location, name=name)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise ValidationError(_('An area with this name already exists.'))
+        return name
+
 
 class EventTableCategoryForm(ModelForm, TailwindForm):
     class Meta:
@@ -724,19 +906,26 @@ class EventTableCategoryForm(ModelForm, TailwindForm):
 class PhysicalTableForm(ModelForm, TailwindForm):
     class Meta:
         model = PhysicalTable
-        fields = ['name', 'play_area']
+        fields = ['name', 'play_area', 'is_visible']
 
-    def __init__(self, *args, event=None, **kwargs):
+    def __init__(self, *args, event=None, location=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event
+        self.location = location
+        if location is None:
+            self.fields.pop('is_visible')
         if event is not None:
             # Set event on the instance so ModelForm.validate_unique() can check
             # the (event, name) unique_together constraint at validation time,
             # instead of letting a duplicate name blow up as an IntegrityError.
             self.instance.event = event
             self.fields['play_area'].queryset = PlayArea.objects.filter(event=event)
+        elif location is not None:
+            self.instance.location = location
+            self.fields['play_area'].queryset = PlayArea.objects.filter(location=location)
         else:
             self.fields['play_area'].queryset = PlayArea.objects.none()
+        self.fields['play_area'].label_from_instance = lambda a: a.name
         self.fields['play_area'].required = False
 
     def clean_name(self):
@@ -747,6 +936,12 @@ class PhysicalTableForm(ModelForm, TailwindForm):
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
                 raise ValidationError(_('A station with this name already exists for this event.'))
+        elif name and self.location is not None:
+            qs = PhysicalTable.objects.filter(location=self.location, name=name)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise ValidationError(_('A station with this name already exists for this location.'))
         return name
 
 
@@ -992,6 +1187,9 @@ _TW_SELECT = (
 )
 
 
+_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
+
+
 class LocationGameForm(ModelForm, TailwindForm):
     """Form to add/edit a game in a location's library."""
     game = ModelChoiceField(
@@ -1002,17 +1200,22 @@ class LocationGameForm(ModelForm, TailwindForm):
 
     class Meta:
         model = LocationGame
-        fields = ['game', 'ownership', 'owner_member', 'physical_location', 'notes']
+        fields = ['game', 'tags', 'ownership', 'owner_member', 'physical_location', 'notes']
+        widgets = {
+            'tags': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
+        }
 
     def __init__(self, *args, location=None, **kwargs):
         self.location = location
         super().__init__(*args, **kwargs)
         membership_enabled = bool(location and location.enable_membership)
+        self.archived_duplicate = None
 
         # owner_member is always visible; set required=False (FK is nullable)
         self.fields['owner_member'].required = False
 
         if location:
+            self.fields['tags'].queryset = location.game_tags.all()
             # Built here: the member search URL depends on the location.
             self.fields['owner_member'].queryset = Member.objects.filter(location=location)
             self.fields['owner_member'].widget = MemberPickerWidget(location)
@@ -1032,7 +1235,11 @@ class LocationGameForm(ModelForm, TailwindForm):
             duplicates = LocationGame.objects.filter(location=self.location, game=game)
             if self.instance.pk:
                 duplicates = duplicates.exclude(pk=self.instance.pk)
-            if duplicates.exists():
+            duplicate = duplicates.first()
+            if duplicate and duplicate.is_archived:
+                self.archived_duplicate = duplicate
+                raise ValidationError(_('This game has been withdrawn from the library. Open its entry to restore it.'))
+            if duplicate:
                 raise ValidationError(_("This game is already in the library."))
         return game
 
@@ -1041,10 +1248,82 @@ class LocationGameForm(ModelForm, TailwindForm):
         # When the game belongs to the location, no member owner makes sense
         if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
             cleaned['owner_member'] = None
+        if self.instance.pk:
+            if 'game' in self.changed_data and self.instance.is_archived:
+                self.add_error('game', _('The title of a withdrawn library entry cannot be changed.'))
+            if 'game' in self.changed_data and self.instance.loans.exists():
+                raise ValidationError(_('A game with loan history cannot be replaced.'))
+            if {'ownership', 'physical_location'} & set(self.changed_data):
+                if self.instance.loans.filter(returned_at__isnull=True).exists():
+                    raise ValidationError(_('Record the return before changing the ownership or physical location.'))
         return cleaned
 
 
-_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
+class LocationGameWithdrawalForm(TailwindForm):
+    withdrawn_on = DateField(label=_('Withdrawal date'), initial=timezone.localdate, widget=CustomDateInputWidget())
+    withdrawal_reason = ChoiceField(
+        label=_('Withdrawal reason'), choices=[('', _('Select a reason')), *LocationGame.WithdrawalReason.choices],
+    )
+    withdrawal_note = CharField(label=_('Withdrawal note'), required=False, widget=Textarea)
+
+    def clean_withdrawn_on(self):
+        withdrawn_on = self.cleaned_data['withdrawn_on']
+        if withdrawn_on > timezone.localdate():
+            raise ValidationError(_('The withdrawal date cannot be in the future.'))
+        return withdrawn_on
+
+
+class LocationGameLoanForm(TailwindForm):
+    member = ModelChoiceField(queryset=Member.objects.none(), label=_('Member'))
+    due_date = DateField(label=_('Due date'), widget=CustomDateInputWidget())
+
+    def __init__(self, *args, location, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['member'].queryset = active_members(location)
+        self.fields['member'].widget = MemberPickerWidget(location, active_only=True)
+        self.initial.setdefault('due_date', default_loan_due_date(location))
+
+
+class LocationGameLoanSettingsForm(ModelForm, TailwindForm):
+    class Meta:
+        model = Location
+        fields = ['enable_game_loans', 'game_loan_days', 'enable_member_game_loans', 'show_game_loan_borrower']
+        help_texts = {
+            'enable_game_loans': _('When disabled, managers can still record returns and view loan history.'),
+            'enable_member_game_loans': _('Members with a valid membership can confirm pickup themselves.'),
+            'show_game_loan_borrower': _('Only members with a valid membership at this location see the nickname.'),
+        }
+
+
+class BGGCollectionImportForm(TailwindForm):
+    """Options applied to every game imported from a BGG collection."""
+    tag_name = CharField(
+        max_length=64, required=False, label=_('Tag for the imported games'),
+        widget=TextInput(attrs={'list': 'location-game-tags', 'autocomplete': 'off'}))
+    ownership = ChoiceField(choices=LocationGame.OWNERSHIP_CHOICES, initial=LocationGame.OWNED_BY_LOCATION,
+                            label=_('Ownership'))
+    owner_member = ModelChoiceField(queryset=Member.objects.none(), required=False, label=_('Owner Member'))
+    physical_location = ChoiceField(choices=LocationGame.PHYSICAL_LOCATION_CHOICES,
+                                    initial=LocationGame.AT_ASSOCIATION, label=_('Physical Location'))
+
+    def __init__(self, *args, location, **kwargs):
+        self.location = location
+        super().__init__(*args, **kwargs)
+        self.fields['owner_member'].queryset = Member.objects.filter(location=location)
+        self.fields['owner_member'].widget = MemberPickerWidget(location)
+        if not location.enable_membership:
+            self.fields['owner_member'].disabled = True
+        for fn in ('ownership', 'physical_location'):
+            self.fields[fn].widget.attrs['class'] = _TW_SELECT
+
+    def clean_tag_name(self):
+        return self.cleaned_data['tag_name'].strip()
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('ownership') == LocationGame.OWNED_BY_LOCATION:
+            cleaned['owner_member'] = None
+        return cleaned
 
 
 class EventGameForm(ModelForm, TailwindForm):
@@ -1082,7 +1361,24 @@ class EventGameForm(ModelForm, TailwindForm):
         return game
 
 
-class EventGameTagForm(ModelForm, TailwindForm):
+class _GameTagNameMixin:
+    """Tag names are unique per library, ignoring case. The owner (event or
+    location) is not a form field, so ModelForm skips unique_together: check here."""
+
+    def sibling_tags(self):
+        raise NotImplementedError
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        duplicates = self.sibling_tags().filter(name__iexact=name)
+        if self.instance.pk:
+            duplicates = duplicates.exclude(pk=self.instance.pk)
+        if duplicates.exists():
+            raise ValidationError(_("A tag with this name already exists."))
+        return name
+
+
+class EventGameTagForm(_GameTagNameMixin, ModelForm, TailwindForm):
     class Meta:
         model = EventGameTag
         fields = ['name', 'show_on_event_page']
@@ -1091,15 +1387,21 @@ class EventGameTagForm(ModelForm, TailwindForm):
         self.event = event
         super().__init__(*args, **kwargs)
 
-    def clean_name(self):
-        # `event` is not a form field: same reason as EventGameForm.clean_game.
-        name = self.cleaned_data['name'].strip()
-        duplicates = self.event.game_tags.filter(name__iexact=name)
-        if self.instance.pk:
-            duplicates = duplicates.exclude(pk=self.instance.pk)
-        if duplicates.exists():
-            raise ValidationError(_("A tag with this name already exists."))
-        return name
+    def sibling_tags(self):
+        return self.event.game_tags.all()
+
+
+class LocationGameTagForm(_GameTagNameMixin, ModelForm, TailwindForm):
+    class Meta:
+        model = LocationGameTag
+        fields = ['name']
+
+    def __init__(self, *args, location, **kwargs):
+        self.location = location
+        super().__init__(*args, **kwargs)
+
+    def sibling_tags(self):
+        return self.location.game_tags.all()
 
 
 class GuestProfileForm(ModelForm):

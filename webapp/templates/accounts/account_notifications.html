@@ -1,4 +1,5 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
@@ -7,9 +8,7 @@
 
   <div class="mb-6 flex items-center justify-between gap-3">
     <div>
-      <p class="text-sm text-content-muted mb-1">
-        <a href="{% url 'account-index' %}" class="text-blue-600 hover:underline">{% trans "Account" %}</a> ›
-      </p>
+      {% back_link 'account-index' label=_("Account") %}
       <h1 class="text-2xl font-extrabold text-content">{% trans "Notifications" %}</h1>
     </div>
     <a href="{% url 'account-notifications-edit' %}"

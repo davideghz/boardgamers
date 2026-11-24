@@ -4,6 +4,7 @@ from django.urls import path, include
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
+from .views import game_loan_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.location_views import FollowLocationView
 
@@ -58,6 +59,12 @@ urlpatterns = [
     path("locations/<slug:slug>/manage/", location_views.LocationManageIndexView.as_view(), name="location-manage"),
     path("locations/<slug:slug>/manage/data/", location_views.LocationManageDataView.as_view(),
          name="location-manage-data"),
+    path("locations/<slug:slug>/manage/networks/", location_views.LocationManageNetworksView.as_view(),
+         name="location-manage-networks"),
+    path("locations/<slug:slug>/manage/networks/<int:pk>/", location_views.LocationManageNetworksView.as_view(),
+         name="location-edit-network"),
+    path("locations/<slug:slug>/manage/networks/<int:pk>/remove/", location_views.LocationRemoveNetworkView.as_view(),
+         name="location-remove-network"),
     path("locations/<slug:slug>/manage/permissions/", location_views.LocationManagePermissionsView.as_view(),
          name="location-manage-permissions"),
     path("locations/<slug:slug>/manage/managers/", location_views.LocationManageManagersView.as_view(),
@@ -97,8 +104,8 @@ urlpatterns = [
     path("locations/<slug:slug>/request-membership/", location_views.RequestMembershipView.as_view(),
          name="location-request-membership"),
 
-    path("locations/<slug:slug>/manage/table-stats/", location_views.LocationManageTableStatsView.as_view(),
-         name="location-manage-table-stats"),
+    path("locations/<slug:slug>/manage/table-summary/", location_views.LocationManageTableSummaryView.as_view(),
+         name="location-manage-table-summary"),
 
     # LOCATION TELEGRAM
     path("locations/<slug:slug>/manage/telegram/", location_views.LocationManageTelegramView.as_view(),
@@ -107,6 +114,22 @@ urlpatterns = [
          name="telegram-disconnect-group"),
 
     # LOCATION GAMES
+    path("locations/<slug:slug>/manage/areas/", location_views.LocationManageAreasView.as_view(),
+         name="location-manage-areas"),
+    path("locations/<slug:slug>/manage/areas/reorder/", location_views.LocationManageAreasReorderView.as_view(),
+         name="location-manage-areas-reorder"),
+    path("locations/<slug:slug>/manage/areas/<int:pk>/delete/", location_views.LocationManageAreaDeleteView.as_view(),
+         name="location-manage-area-delete"),
+    path("locations/<slug:slug>/manage/stations/", location_views.LocationManageStationsView.as_view(),
+         name="location-manage-stations"),
+    path("locations/<slug:slug>/manage/stations/reorder/", location_views.LocationManageStationsReorderView.as_view(),
+         name="location-manage-stations-reorder"),
+    path("locations/<slug:slug>/manage/stations/<int:pk>/", location_views.LocationManageStationEditView.as_view(),
+         name="location-manage-station-edit"),
+    path("locations/<slug:slug>/manage/stations/<int:pk>/delete/",
+         location_views.LocationManageStationDeleteView.as_view(), name="location-manage-station-delete"),
+    path("locations/<slug:slug>/manage/stations/assign/",
+         location_views.LocationManageStationAssignmentView.as_view(), name="location-manage-station-assignment"),
     path("locations/<slug:slug>/manage/widget/", location_views.LocationManageWidgetView.as_view(),
          name="location-manage-widget"),
     path("locations/<slug:slug>/manage/games/", location_views.LocationManageGamesView.as_view(),
@@ -115,6 +138,14 @@ urlpatterns = [
          name="location-toggle-public-games"),
     path("locations/<slug:slug>/games/", location_views.LocationGamesView.as_view(),
          name="location-games"),
+    path("locations/<slug:slug>/games/<uuid:game_uuid>/borrow/", game_loan_views.LocationGameLoanBorrowView.as_view(),
+         name="location-game-loan-borrow"),
+    path("locations/<slug:slug>/manage/games/loans/", game_loan_views.LocationGameLoanManageView.as_view(),
+         name="location-manage-game-loans"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/loans/add/", game_loan_views.LocationGameLoanCreateView.as_view(),
+         name="location-game-loan-create"),
+    path("locations/<slug:slug>/manage/games/loans/<uuid:loan_uuid>/return/", game_loan_views.LocationGameLoanReturnView.as_view(),
+         name="location-game-loan-return"),
     path("locations/<slug:slug>/manage/games/csv/", location_views.DownloadGamesCSVView.as_view(),
          name="location-games-csv"),
     path("locations/<slug:slug>/manage/games/add/", location_views.AddLocationGameView.as_view(),
@@ -123,6 +154,20 @@ urlpatterns = [
          name="location-game-detail"),
     path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/delete/", location_views.DeleteLocationGameView.as_view(),
          name="location-delete-game"),
+    path("locations/<slug:slug>/manage/games/<uuid:game_uuid>/archive/", location_views.LocationGameArchiveView.as_view(),
+         name="location-game-archive"),
+    path("locations/<slug:slug>/manage/games/import-bgg/", location_views.LocationGamesBGGImportView.as_view(),
+         name="location-games-bgg-import"),
+    path("locations/<slug:slug>/manage/games/import-bgg/batch/", location_views.LocationGamesBGGImportBatchView.as_view(),
+         name="location-games-bgg-import-batch"),
+    path("locations/<slug:slug>/manage/games/tags/add/", location_views.LocationGameTagAddView.as_view(),
+         name="location-game-tag-add"),
+    path("locations/<slug:slug>/manage/games/tags/reorder/", location_views.LocationGameTagsReorderView.as_view(),
+         name="location-game-tags-reorder"),
+    path("locations/<slug:slug>/manage/games/tags/<int:pk>/update/", location_views.LocationGameTagUpdateView.as_view(),
+         name="location-game-tag-update"),
+    path("locations/<slug:slug>/manage/games/tags/<int:pk>/delete/", location_views.LocationGameTagDeleteView.as_view(),
+         name="location-game-tag-delete"),
 
     # LOCATION TABLES
     path("locations/<slug:location_slug>/tables/new/", table_views.table_create_view, name="location-table-create"),
@@ -136,8 +181,11 @@ urlpatterns = [
     path("events/<slug:slug>/program/", event_views.EventProgramView.as_view(), name="event-program"),
     path("events/<slug:slug>/games/", event_views.EventGamesView.as_view(), name="event-games"),
     path("events/<slug:slug>/join/", event_views.EventJoinView.as_view(), name="event-join"),
+    path("events/<slug:slug>/leave/", event_views.EventLeaveView.as_view(), name="event-leave"),
     path("events/<slug:slug>/save-phone/", event_views.EventSavePhoneView.as_view(), name="event-save-phone"),
     path("events/<slug:slug>/manage/", event_views.EventManageIndexView.as_view(), name="event-manage"),
+    path("events/<slug:slug>/manage/publish/", event_views.EventPublishView.as_view(), name="event-manage-publish"),
+    path("events/<slug:slug>/manage/unpublish/", event_views.EventUnpublishView.as_view(), name="event-manage-unpublish"),
     path("events/<slug:slug>/manage/participants/", event_views.EventManageParticipantsView.as_view(), name="event-manage-participants"),
     path("events/<slug:slug>/manage/data/", event_views.EventManageDataView.as_view(), name="event-manage-data"),
     path("events/<slug:slug>/manage/dates/", event_views.EventManageDatesView.as_view(), name="event-manage-dates"),
@@ -179,6 +227,7 @@ urlpatterns = [
     path("account/", account_views.index, name="account-index"),
     path("account/edit-profile/", profile_views.UserProfileUpdateView.as_view(), name='user-profile-edit'),
     path("account/change-email/", profile_views.change_email, name='change-email'),
+    path("account/change-email/<str:token>/", profile_views.confirm_email_change, name='email_change_confirm'),
     path("account/connect/telegram/", profile_views.connect_telegram_page, name='connect-telegram'),
     path("account/disconnect/<str:provider>/", profile_views.disconnect_social, name='disconnect-social'),
     path("account/events/", account_views.events, name="account-events"),

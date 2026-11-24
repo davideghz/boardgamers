@@ -1,7 +1,6 @@
-from unittest import mock
-
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -15,6 +14,10 @@ def a_pdf(name='modulo.pdf', size=1024):
 
 class MembershipDocumentManagementTest(TestCase):
     def setUp(self):
+        self.enterContext(override_settings(STORAGES={
+            **settings.STORAGES,
+            'default': {'BACKEND': 'django.core.files.storage.InMemoryStorage'},
+        }))
         self.client = Client()
         self.owner = UserProfileFactory()
         self.manager = UserProfileFactory()
@@ -23,15 +26,10 @@ class MembershipDocumentManagementTest(TestCase):
         self.location.managers.add(self.manager)
         self.list_url = reverse('location-membership-documents', kwargs={'slug': self.location.slug})
 
-        # Uploads would otherwise hit S3.
-        patcher = mock.patch('storages.backends.s3.S3Storage._save', side_effect=lambda name, content: name)
-        self.save_mock = patcher.start()
-        self.addCleanup(patcher.stop)
-
     def _document(self, name='Modulo di adesione', is_active=True):
         return MembershipDocument.objects.create(
             location=self.location, name=name, is_active=is_active,
-            file='membership-documents/modulo.pdf',
+            file=a_pdf(),
         )
 
     def test_manager_can_upload_a_document(self):
@@ -44,6 +42,7 @@ class MembershipDocumentManagementTest(TestCase):
         document = self.location.membership_documents.get()
         self.assertEqual(document.name, 'Modulo di adesione')
         self.assertTrue(document.is_active)
+        self.assertTrue(document.file.storage.exists(document.file.name))
 
     def test_the_upload_page_explains_how_to_prepare_the_document(self):
         self.client.force_login(self.owner.user)
@@ -101,6 +100,7 @@ class MembershipDocumentManagementTest(TestCase):
 
         self.client.post(action_url, {'action': 'delete'})
         self.assertFalse(MembershipDocument.objects.filter(pk=document.pk).exists())
+        self.assertFalse(document.file.storage.exists(document.file.name))
 
     def test_a_document_of_another_location_is_not_reachable(self):
         other_location = LocationFactory(creator=self.owner, enable_membership=True)

@@ -1,6 +1,14 @@
-from django.test import TestCase
+import re
+from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import translation
+from PIL import Image
 
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.forms import LocationForm, LocationManageDataForm
@@ -25,12 +33,50 @@ class LocationCreateViewTest(TestCase):
         }
         return self.client.post(reverse('location-create'), data)
 
+    def test_cover_preview_starts_without_an_image(self):
+        with translation.override('it'):
+            response = self.client.get(reverse('location-create'))
+
+        self.assertEqual(response.status_code, 200)
+        preview = re.search(
+            r'<figure\b[^>]*\sid="id_cover-preview"[^>]*>(.*?)</figure>',
+            response.text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(preview)
+        self.assertRegex(preview[1], r'<img\b(?![^>]*\ssrc=)[^>]*>')
+        self.assertContains(response, "Se è un logo, lascia un po' di spazio attorno.")
+        self.assertContains(response, 'id="id_cover-dialog"')
+        self.assertContains(response, 'aspect-ratio="1"')
+        self.assertContains(response, 'Applica ritaglio')
+        self.assertContains(response, "Inquadra tutta l'immagine")
+        self.assertContains(response, 'id="id_cover-edit"')
+        self.assertContains(response, 'Immagine di copertina')
+
     def test_redirects_to_the_new_location_page(self):
         response = self._post()
 
         location = Location.objects.get(name='Circolo Ludico')
         self.assertEqual(location.creator, self.profile)
         self.assertRedirects(response, reverse('location-detail', kwargs={'slug': location.slug}))
+
+    @override_settings(MEDIA_URL='/media/', STORAGES={
+        **settings.STORAGES,
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    })
+    def test_saves_uploaded_cover_to_local_media(self):
+        image = BytesIO()
+        Image.new('RGB', (10, 10)).save(image, 'PNG')
+        cover = SimpleUploadedFile('cover.png', image.getvalue(), content_type='image/png')
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self._post(cover=cover)
+            location = Location.objects.get(name='Circolo Ludico')
+
+            self.assertRedirects(response, reverse('location-detail', kwargs={'slug': location.slug}))
+            self.assertTrue(location.is_manager(self.profile))
+            self.assertRegex(location.cover.url, r'^/media/location-covers/cover_[0-9a-f]{32}\.png$')
+            self.assertEqual((Path(media_root) / location.cover.name).read_bytes(), image.getvalue())
 
     def test_website_without_scheme_gets_https(self):
         self._post(website='www.circololudico.it')

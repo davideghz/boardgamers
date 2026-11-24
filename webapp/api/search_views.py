@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from webapp.forms import USER_SEARCH_MIN_LENGTH
 from webapp.models import FavoriteUser, Location, UserProfile, Member
+from webapp.services.game_loans import active_members
 
 #: Maximum number of results returned by every search.
 SEARCH_LIMIT = 12
@@ -105,15 +106,11 @@ def location_result(location):
 
 
 def location_search_view(request):
-    """Locations by name or city. With `tables=1` only the ones whose
-    tables are listed on the public tables page (the tables location filter)."""
+    """Locations by name or city."""
     query = request.GET.get('q', '').strip()
     if len(query) < LOCATION_SEARCH_MIN_LENGTH:
         return JsonResponse({'results': []})
-    locations = Location.objects.all()
-    if request.GET.get('tables'):
-        locations = locations.filter(show_tables_in_homepage=True)
-    locations = (locations
+    locations = (Location.objects
                  .filter(Q(name__icontains=query) | Q(city__icontains=query))
                  .annotate(rank=Case(When(name__istartswith=query, then=Value(0)),
                                      default=Value(1), output_field=IntegerField()))
@@ -137,7 +134,7 @@ def member_search_view(request, slug):
     if not request.user.is_authenticated:
         return JsonResponse({'results': []}, status=403)
     profile = request.user.user_profile
-    if location.creator != profile and not location.managers.filter(pk=profile.pk).exists():
+    if not location.is_manager(profile):
         return JsonResponse({'results': []}, status=403)
     query = request.GET.get('q', '').strip()
     if not query:
@@ -146,7 +143,8 @@ def member_search_view(request, slug):
     for word in query.split():
         words &= (Q(first_name__icontains=word) | Q(last_name__icontains=word)
                   | Q(user_profile__nickname__icontains=word))
-    members = (location.members.filter(words)
+    queryset = active_members(location) if request.GET.get('active') == '1' else location.members.all()
+    members = (queryset.filter(words)
                .select_related('user_profile')
                .order_by(Lower('last_name'), Lower('first_name'))[:SEARCH_LIMIT])
     return JsonResponse({'results': [member_result(member) for member in members]})

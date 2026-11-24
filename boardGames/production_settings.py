@@ -2,6 +2,8 @@ from .settings import *
 import dj_database_url
 import sentry_sdk
 
+from .sentry import scrub_secret
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -34,6 +36,7 @@ DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
 # S3
 AWS_STORAGE_BUCKET_NAME = 'boardgamers-prod-public'
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
 
 # SES
 EMAIL_BACKEND = 'django_ses.SESBackend'
@@ -53,7 +56,9 @@ def _sentry_before_send(event, hint):
         message = record.getMessage()
         if message.startswith('Request failed with 400') and 'invalid_grant' in message:
             return None
-    return event
+    # The bot token is part of every Bot API URL: keep it out of messages,
+    # breadcrumbs and stack frame variables.
+    return scrub_secret(event, TELEGRAM_BOT_TOKEN)
 
 
 sentry_sdk.init(

@@ -20,6 +20,10 @@
       </td>
     </tr>
   </table>
+  {% verbatim %}{{#if assign_station_href}}{% endverbatim %}
+    {% trans "No station is assigned to this table yet: you can assign one by editing it (optional)." %}
+    <a href="{{ assign_station_href }}">{% trans "Assign a station" %}</a>
+  {% verbatim %}{{/if}}{% endverbatim %}
 {% endblock main_content %}
 
 {% block cta_label %}

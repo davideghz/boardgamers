@@ -53,12 +53,12 @@ def homepage_view(request):
     games_prefetch = Prefetch('game', queryset=Game.objects.all())
 
     # Query per i tavoli futuri
-    future_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+    future_tables = Table.objects.select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
         comments_prefetch, players_prefetch, games_prefetch
     ).filter(date__gte=today, location__show_tables_in_homepage=True, event__isnull=True).order_by('date')
 
     # Query per i tavoli passati
-    past_tables = Table.objects.select_related('author', 'author__user', 'location').prefetch_related(
+    past_tables = Table.objects.select_related('author', 'author__user', 'location', 'play_area', 'physical_table').prefetch_related(
         comments_prefetch, players_prefetch, games_prefetch
     ).filter(date__lt=today, location__show_tables_in_homepage=True, event__isnull=True).order_by('-date')[:12]
 
@@ -86,14 +86,14 @@ def homepage_view(request):
         if followed_location_ids:
             followed_future_tables = (
                 Table.objects
-                .select_related('author', 'author__user', 'location')
+                .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
                 .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
                 .filter(location__in=followed_location_ids, date__gte=today, event__isnull=True)
                 .order_by('date')
             )
             followed_past_tables = (
                 Table.objects
-                .select_related('author', 'author__user', 'location')
+                .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
                 .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
                 .filter(location__in=followed_location_ids, date__lt=today, event__isnull=True)
                 .order_by('-date')[:12]

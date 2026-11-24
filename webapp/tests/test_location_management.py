@@ -1,8 +1,10 @@
 import datetime
+import re
 
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
 from webapp.models import Location, Table, UserProfile
 from webapp.factories import GameFactory, UserProfileFactory, LocationFactory, UserFactory
 
@@ -76,6 +78,26 @@ class LocationManagementTest(TestCase):
         response = self.client.get(reverse('location-manage-data', kwargs={'slug': self.location.slug}))
         self.assertEqual(response.status_code, 403)
 
+    def test_manage_data_previews_the_saved_cover(self):
+        self.location.cover = 'location-covers/logo.png'
+        self.location.save(update_fields=['cover'])
+        self.client.force_login(self.manager.user)
+
+        response = self.client.get(reverse('location-manage-data', kwargs={'slug': self.location.slug}))
+
+        self.assertEqual(response.status_code, 200)
+        preview = re.search(
+            r'<figure\b[^>]*\sid="id_cover-preview"[^>]*>(.*?)</figure>',
+            response.text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(preview)
+        cover_url = re.escape(escape(self.location.cover.url))
+        self.assertRegex(preview[1], rf'<img\b[^>]*\ssrc="{cover_url}"')
+        self.assertContains(response, 'id="id_cover-dialog"')
+        self.assertContains(response, 'id="id_cover-edit"')
+        self.assertContains(response, 'Immagine di copertina')
+
     def test_add_manager(self):
         new_manager = UserProfileFactory()
         self.client.force_login(self.manager.user)
@@ -138,6 +160,40 @@ class LocationManagementTest(TestCase):
 
         self.location.refresh_from_db()
         self.assertRedirects(response, reverse('location-detail', kwargs={'slug': self.location.slug}))
+
+    def test_manager_can_show_and_remove_social_profile_links(self):
+        manage_url = reverse('location-manage-data', kwargs={'slug': self.location.slug})
+        detail_url = reverse('location-detail', kwargs={'slug': self.location.slug})
+        facebook_url = 'https://www.facebook.com/profile.php?id=12345'
+        instagram_url = 'https://instagram.com/circolo.ludico/'
+        data = self._location_data(
+            name=self.location.name, facebook_url=facebook_url, instagram_url='instagram.com/circolo.ludico/',
+        )
+        self.client.force_login(self.manager.user)
+        self.assertRedirects(self.client.post(manage_url, data), detail_url)
+
+        self.client.logout()
+        response = self.client.get(detail_url)
+        self.assertContains(response, f'href="{facebook_url}"')
+        self.assertContains(response, f'href="{instagram_url}"')
+
+        self.client.force_login(self.manager.user)
+        self.assertRedirects(self.client.post(manage_url, {**data, 'facebook_url': ''}), detail_url)
+        response = self.client.get(detail_url)
+        self.assertNotContains(response, 'title="Facebook"')
+        self.assertContains(response, f'href="{instagram_url}"')
+
+    def test_manage_data_rejects_wrong_social_domains_and_instagram_post_links(self):
+        self.client.force_login(self.manager.user)
+        manage_url = reverse('location-manage-data', kwargs={'slug': self.location.slug})
+        response = self.client.post(manage_url, self._location_data(
+            facebook_url='https://facebook.com.example.org/circolo',
+            instagram_url='https://www.instagram.com/p/example/',
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('facebook_url', response.context['form'].errors)
+        self.assertIn('instagram_url', response.context['form'].errors)
 
     def test_lengthening_the_leaderboard_window_reopens_recent_tables(self):
         table = Table.objects.create(

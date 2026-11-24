@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 23:35+0100\n"
+"POT-Creation-Date: 2026-11-24 11:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,36 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Merge accounts"
+msgstr "Unisci account"
+
+msgid "Select exactly two accounts to merge."
+msgstr "Seleziona esattamente due account da unire."
+
+msgid "Select two different accounts that still exist."
+msgstr "Seleziona due account diversi ancora esistenti."
+
+msgid "Choose the account to keep."
+msgstr "Scegli l’account da conservare."
+
+#, python-format
+msgid "Merged account %(duplicate)s into %(keeper)s."
+msgstr "L’account %(duplicate)s è stato unito a %(keeper)s."
+
+msgid "A database conflict prevented the merge. No changes were saved."
+msgstr ""
+"Un conflitto nel database ha impedito l’unione. Nessuna modifica è stata "
+"salvata."
+
+msgid "National affiliations"
+msgstr "Affiliazioni nazionali"
+
+msgid "Affiliated locations"
+msgstr "Location affiliate"
+
+msgid "View affiliated locations"
+msgstr "Vedi le location affiliate"
 
 msgid "Merge the two selected games"
 msgstr "Unisci i due giochi selezionati"
@@ -27,6 +57,10 @@ msgstr "Seleziona esattamente due giochi da unire."
 msgid "Games not found."
 msgstr "Giochi non trovati."
 
+msgid "The merge would remove a library entry with loan history."
+msgstr ""
+"L’unione eliminerebbe una voce della ludoteca con uno storico dei prestiti."
+
 #, python-format
 msgid ""
 "Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library "
@@ -35,10 +69,23 @@ msgid ""
 msgstr ""
 "%(dup)s unito a %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di "
 "ludoteca spostate, %(merged)d voci di ludoteca unite, %(event_moved)d voci "
-"di libreria evento spostate, %(event_merged)d voci di libreria evento unite."
+"della ludoteca dell’evento spostate, %(event_merged)d voci della ludoteca "
+"dell’evento unite."
 
 msgid "Merge games"
 msgstr "Unisci giochi"
+
+msgid "Cover and link"
+msgstr "Copertina e link"
+
+msgid "Visibility"
+msgstr "Visibilità"
+
+msgid "Closing"
+msgstr "Chiusura"
+
+msgid "Cover preview"
+msgstr "Anteprima della copertina"
 
 msgid "Participants"
 msgstr "Partecipanti"
@@ -95,14 +142,26 @@ msgstr "Nome o nickname…"
 msgid "No members found."
 msgstr "Nessun socio trovato."
 
-msgid "The image is too large (max 200 KB)."
-msgstr "L'immagine è troppo grande (max 200 KB)."
+#, python-format
+msgid "The image is too large (max %(size)s)."
+msgstr "L'immagine è troppo grande (max %(size)s)."
+
+#, python-format
+msgid "The image has too many pixels (max %(max)s megapixels)."
+msgstr "L'immagine ha troppi pixel (max %(max)s megapixel)."
 
 msgid "This field is required."
 msgstr "Questo campo è obbligatorio."
 
 msgid "Maximum players cannot be less than minimum players."
 msgstr "Il numero massimo di giocatori non può essere inferiore al minimo."
+
+msgid "The selected station does not belong to the selected area."
+msgstr "La postazione selezionata non appartiene all’area selezionata."
+
+#, python-format
+msgid "Max %(size)s"
+msgstr "Max %(size)s"
 
 msgid "e.g. Rulebook, Score sheet…"
 msgstr "es. Regolamento, Foglio punteggi…"
@@ -125,9 +184,6 @@ msgstr "Seleziona una data"
 
 msgid "No category"
 msgstr "Nessuna categoria"
-
-msgid "The selected station does not belong to the selected area."
-msgstr "La postazione selezionata non appartiene all’area selezionata."
 
 msgid "Your comment..."
 msgstr "Il tuo commento..."
@@ -162,14 +218,38 @@ msgstr "Indirizzo"
 msgid "Website"
 msgstr "Sito web"
 
+msgid "PNG, JPEG or WebP. Up to 2 MB and 2048 pixels per side."
+msgstr "PNG, JPEG o WebP. Massimo 2 MB e 2048 pixel per lato."
+
+msgid "National logo"
+msgstr "Logo nazionale"
+
+msgid "Custom affiliation logo"
+msgstr "Logo personalizzato dell’affiliazione"
+
+msgid "Choose a national network"
+msgstr "Scegli un’associazione nazionale"
+
+msgid "A button with a link needs a title."
+msgstr "Un pulsante con un link deve avere un titolo."
+
+msgid "A button with a title needs a link."
+msgstr "Un pulsante con un titolo deve avere un link."
+
 msgid "Opening time"
 msgstr "Orario di apertura"
 
 msgid "Closing time"
 msgstr "Orario di chiusura"
 
+msgid "An area with this name already exists."
+msgstr "Esiste già un’area con questo nome."
+
 msgid "A station with this name already exists for this event."
 msgstr "Esiste già una postazione con questo nome per questo evento."
+
+msgid "A station with this name already exists for this location."
+msgstr "Esiste già una postazione con questo nome per questo luogo."
 
 msgid "Manager"
 msgstr "Manager"
@@ -237,8 +317,68 @@ msgstr ""
 msgid "Game"
 msgstr "Gioco"
 
+msgid ""
+"This game has been withdrawn from the library. Open its entry to restore it."
+msgstr ""
+"Questo gioco è uscito dalla ludoteca. Apri la scheda per ripristinarlo."
+
 msgid "This game is already in the library."
 msgstr "Questo gioco è già in ludoteca."
+
+msgid "The title of a withdrawn library entry cannot be changed."
+msgstr "Il titolo di una voce uscita dalla ludoteca non può essere modificato."
+
+msgid "A game with loan history cannot be replaced."
+msgstr "Un gioco con uno storico dei prestiti non può essere sostituito."
+
+msgid "Record the return before changing the ownership or physical location."
+msgstr ""
+"Registra la restituzione prima di cambiare il proprietario o la collocazione "
+"del gioco."
+
+msgid "Withdrawal date"
+msgstr "Data di uscita"
+
+msgid "Withdrawal reason"
+msgstr "Motivo dell’uscita"
+
+msgid "Select a reason"
+msgstr "Seleziona un motivo"
+
+msgid "Withdrawal note"
+msgstr "Nota (facoltativa)"
+
+msgid "The withdrawal date cannot be in the future."
+msgstr "La data di uscita non può essere futura."
+
+msgid "Member"
+msgstr "Associato/a"
+
+msgid "Due date"
+msgstr "Data di rientro prevista"
+
+msgid "When disabled, managers can still record returns and view loan history."
+msgstr ""
+"Anche con i prestiti disattivati, i gestori possono registrare le "
+"restituzioni e consultare lo storico."
+
+msgid "Members with a valid membership can confirm pickup themselves."
+msgstr "I soci con tessera valida possono registrare autonomamente il ritiro."
+
+msgid "Only members with a valid membership at this location see the nickname."
+msgstr "Il nickname è visibile ai soci con tessera valida per questa sede."
+
+msgid "Tag for the imported games"
+msgstr "Tag per i giochi importati"
+
+msgid "Ownership"
+msgstr "Proprietà"
+
+msgid "Owner Member"
+msgstr "Socio Proprietario"
+
+msgid "Physical Location"
+msgstr "Ubicazione"
 
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
@@ -286,8 +426,8 @@ msgstr "Un tavolo è stato eliminato"
 msgid "A new player joined the table"
 msgstr "Nuovo giocatore al tavolo"
 
-msgid "New event to approve"
-msgstr "Nuovo evento da approvare"
+msgid "New event published"
+msgstr "Nuovo evento pubblicato"
 
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
@@ -346,9 +486,36 @@ msgstr "Anno pubblicazione"
 msgid "Suggested result mode"
 msgstr "Modalità suggerita"
 
+msgid "Expansion"
+msgstr "Espansione"
+
 #, python-format
 msgid "%(name)s - Board-Gamers.com"
 msgstr "%(name)s - Board-Gamers.com"
+
+msgid "Enable game loans"
+msgstr "Abilita i prestiti"
+
+msgid "Allow members to record their own loans"
+msgstr "Consenti ai soci di registrare i propri prestiti"
+
+msgid "Show the borrower’s nickname to members"
+msgstr "Mostra ai soci il nickname di chi ha preso il gioco"
+
+msgid "Default loan duration (days)"
+msgstr "Durata predefinita del prestito (giorni)"
+
+msgid "Facebook profile"
+msgstr "Profilo Facebook"
+
+msgid "Enter a Facebook profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Facebook."
+
+msgid "Instagram profile"
+msgstr "Profilo Instagram"
+
+msgid "Enter an Instagram profile URL."
+msgstr "Inserisci l’indirizzo di un profilo Instagram."
 
 msgid "Default table time"
 msgstr "Orario default dei tavoli"
@@ -386,6 +553,24 @@ msgstr "Chi può unirsi ai tavoli"
 #, python-format
 msgid "Game nights in %(address)s"
 msgstr "Serate di gioco a %(address)s"
+
+msgid "Active"
+msgstr "Attivo"
+
+msgid "National network"
+msgstr "Associazione nazionale"
+
+msgid "National networks"
+msgstr "Associazioni nazionali"
+
+msgid "Local affiliation name"
+msgstr "Nome locale dell’affiliazione"
+
+msgid "Location affiliation"
+msgstr "Affiliazione della location"
+
+msgid "Location affiliations"
+msgstr "Affiliazioni delle location"
 
 msgid "Phone"
 msgstr "Telefono"
@@ -617,17 +802,11 @@ msgstr "Città"
 msgid "Province"
 msgstr "Provincia"
 
-msgid "Member"
-msgstr "Associato/a"
-
 msgid "Members"
 msgstr "Soci"
 
 msgid "Pending"
 msgstr "In attesa"
-
-msgid "Active"
-msgstr "Attivo"
 
 msgid "Expired"
 msgstr "Scaduto"
@@ -653,6 +832,30 @@ msgstr "Documento di adesione"
 msgid "Membership Documents"
 msgstr "Documenti di adesione"
 
+msgid "Order"
+msgstr "Ordine"
+
+msgid "Location Game Tag"
+msgstr "Tag Gioco Location"
+
+msgid "Location Game Tags"
+msgstr "Tag Giochi Location"
+
+msgid "Sold"
+msgstr "Venduto"
+
+msgid "Destroyed"
+msgstr "Distrutto"
+
+msgid "Lost or missing"
+msgstr "Smarrito"
+
+msgid "Returned to member"
+msgstr "Restituito al socio"
+
+msgid "Other"
+msgstr "Altro"
+
 msgid "Owned by Location"
 msgstr "Dell'associazione"
 
@@ -665,20 +868,35 @@ msgstr "In associazione"
 msgid "At member's home"
 msgstr "A casa di un socio"
 
-msgid "Ownership"
-msgstr "Proprietà"
+msgid "Withdrawn"
+msgstr "Uscito dalla ludoteca"
 
-msgid "Owner Member"
-msgstr "Socio Proprietario"
-
-msgid "Physical Location"
-msgstr "Ubicazione"
+msgid "Tags"
+msgstr "Tag"
 
 msgid "Location Game"
 msgstr "Gioco nella Location"
 
 msgid "Location Games"
 msgstr "Giochi nella Location"
+
+msgid "Loaned at"
+msgstr "Data di consegna"
+
+msgid "Returned at"
+msgstr "Data di restituzione"
+
+msgid "Loan recorded by"
+msgstr "Prestito registrato da"
+
+msgid "Return recorded by"
+msgstr "Restituzione registrata da"
+
+msgid "Location Game Loan"
+msgstr "Prestito della ludoteca"
+
+msgid "Location Game Loans"
+msgstr "Prestiti della ludoteca"
 
 msgid "Chat ID"
 msgstr "Chat ID"
@@ -713,8 +931,99 @@ msgstr "Telegram Setup Token"
 msgid "Telegram Setup Tokens"
 msgstr "Telegram Setup Tokens"
 
-msgid "Order"
-msgstr "Ordine"
+msgid "Everyone"
+msgstr "Tutti"
+
+msgid "Anonymous visitors"
+msgstr "Visitatori anonimi"
+
+msgid "Authenticated users"
+msgstr "Utenti autenticati"
+
+msgid "Home page"
+msgstr "Home page"
+
+msgid "All pages"
+msgstr "Tutte le pagine"
+
+msgid "Permanently"
+msgstr "Definitivamente"
+
+msgid "For a number of days"
+msgstr "Per un numero di giorni"
+
+msgid "Identifier"
+msgstr "Identificativo"
+
+msgid "Version"
+msgstr "Versione"
+
+msgid "Increase only to show a substantially new message again."
+msgstr ""
+"Aumenta solo per mostrare nuovamente un messaggio sostanzialmente diverso."
+
+msgid "Message"
+msgstr "Messaggio"
+
+msgid "Cover"
+msgstr "Immagine di copertina"
+
+msgid "Cover description"
+msgstr "Descrizione della copertina"
+
+msgid "Leave empty if the image is decorative."
+msgstr "Lascia vuoto se l'immagine è decorativa."
+
+msgid "Link text"
+msgstr "Testo del link"
+
+msgid "Link URL"
+msgstr "Indirizzo del link"
+
+msgid "An internal path starting with / or an http(s) URL."
+msgstr "Un percorso interno che inizia con / oppure un indirizzo http(s)."
+
+msgid "Audience"
+msgstr "Destinatari"
+
+msgid "Display on"
+msgstr "Mostra in"
+
+msgid "Priority"
+msgstr "Priorità"
+
+msgid "Higher values are shown first."
+msgstr "I valori più alti vengono mostrati per primi."
+
+msgid "Visible from"
+msgstr "Visibile dal"
+
+msgid "Visible until"
+msgstr "Visibile fino al"
+
+msgid "Hide after closing"
+msgstr "Nascondi dopo la chiusura"
+
+msgid "Days hidden after closing"
+msgstr "Giorni nascosto dopo la chiusura"
+
+msgid "Banner"
+msgstr "Banner"
+
+msgid "Banners"
+msgstr "Banner"
+
+msgid "The end must be after the start."
+msgstr "La fine deve essere successiva all'inizio."
+
+msgid "Enter how many days the banner should remain hidden."
+msgstr "Indica per quanti giorni il banner deve restare nascosto."
+
+msgid "Enter the link text."
+msgstr "Inserisci il testo del link."
+
+msgid "Enter the link URL."
+msgstr "Inserisci l'indirizzo del link."
 
 msgid "FAQ Category"
 msgstr "FAQ Category"
@@ -731,14 +1040,23 @@ msgstr "Risposta"
 msgid "FAQ"
 msgstr "FAQ"
 
-msgid "Pending approval"
-msgstr "In attesa"
+msgid "Draft"
+msgstr "Bozza"
 
-msgid "Approved"
-msgstr "Approvato"
+msgid "Published"
+msgstr "Pubblicato"
 
-msgid "Cover"
-msgstr "Immagine di copertina"
+msgid "Blocked"
+msgstr "Bloccato"
+
+msgid "Organizing location"
+msgstr "Sede organizzatrice"
+
+msgid "Venue location"
+msgstr "Sede ospitante"
+
+msgid "Venue name"
+msgstr "Nome del luogo"
 
 msgid "Creator"
 msgstr "Creatore"
@@ -761,9 +1079,27 @@ msgstr "Se disattivata, i tavoli di questo evento non hanno la classifica."
 msgid "Public game library"
 msgstr "Ludoteca pubblica"
 
+msgid "Table booking"
+msgstr "Prenotazione dei tavoli"
+
+msgid "Button title"
+msgstr "Titolo del pulsante"
+
+msgid "Button subtitle"
+msgstr "Sottotitolo del pulsante"
+
+msgid "Button link"
+msgstr "Link del pulsante"
+
 #, python-format
 msgid "%(name)s — gaming event"
 msgstr "%(name)s – evento boardgames"
+
+msgid "Add at least one date"
+msgstr "Aggiungi almeno una data"
+
+msgid "Write a description"
+msgstr "Scrivi una descrizione"
 
 msgid "Events"
 msgstr "Eventi"
@@ -792,9 +1128,6 @@ msgstr "Tag Gioco Evento"
 msgid "Event Game Tags"
 msgstr "Tag Giochi Evento"
 
-msgid "Tags"
-msgstr "Tag"
-
 msgid "Event Game"
 msgstr "Gioco Evento"
 
@@ -803,6 +1136,9 @@ msgstr "Giochi Evento"
 
 msgid "On-site label, e.g. \"Table 1\""
 msgstr "Etichetta sul posto, es. \"Tavolo 1\""
+
+msgid "Selectable by all users"
+msgstr "Selezionabile da tutti gli utenti"
 
 msgid "Stations"
 msgstr "Postazioni"
@@ -828,6 +1164,90 @@ msgstr "Questo account %(provider)s è già collegato a un altro utente."
 
 msgid "The Google email address is already associated with another account."
 msgstr "L'indirizzo email Google è già associato a un altro account."
+
+msgid "This email is already in use."
+msgstr "Questa email è già in uso."
+
+msgid "Email cannot be empty."
+msgstr "L'email non può essere vuota."
+
+msgid "Enter a valid email address."
+msgstr "Inserisci un indirizzo email valido."
+
+msgid "This is already your email."
+msgstr "Questa è già la tua email."
+
+msgid "Error. Invalid verification code."
+msgstr "Errore. Codice di verifica non valido."
+
+msgid ""
+"Ask a manager to record this loan. Your account is linked to more than one "
+"active member record."
+msgstr ""
+"Chiedi a un gestore di registrare il prestito. Il tuo profilo è collegato a "
+"più schede socio attive."
+
+msgid "Game loans are disabled for this location."
+msgstr "I prestiti sono disattivati per questa sede."
+
+msgid "This game has been withdrawn from the library."
+msgstr "Questo gioco è uscito dalla ludoteca."
+
+msgid "Only games owned by the location and kept on site can be borrowed."
+msgstr ""
+"Si possono prendere in prestito solo i giochi di proprietà della sede e "
+"custoditi in sede."
+
+msgid "This game is already on loan."
+msgstr "Questo gioco è già in prestito."
+
+msgid "Select a member with a valid membership for this location."
+msgstr "Seleziona un socio con tessera valida per questa sede."
+
+msgid "This game is no longer in the library."
+msgstr "Questo gioco non è più in ludoteca."
+
+msgid "The due date cannot be before the loan date."
+msgstr ""
+"La data di rientro deve coincidere con la data di consegna o essere "
+"successiva."
+
+msgid "The logo must be 2 MB or smaller."
+msgstr "Il logo può pesare al massimo 2 MB."
+
+msgid "The logo must be 2048 pixels or smaller on each side."
+msgstr "Il logo può misurare al massimo 2048 pixel per lato."
+
+msgid "Upload a valid PNG, JPEG or WebP logo."
+msgstr "Carica un logo PNG, JPEG o WebP valido."
+
+msgid ""
+"Only active accounts without Django admin roles or permissions can be merged."
+msgstr ""
+"Si possono unire solo account attivi senza ruoli o permessi di "
+"amministrazione Django."
+
+#, python-format
+msgid ""
+"Both profiles have different player records on table #%(table)s. Resolve "
+"them before merging."
+msgstr ""
+"I due profili hanno dati di partecipazione diversi al tavolo #%(table)s. "
+"Risolvi il conflitto prima di unire i profili."
+
+msgid "The email or username is already used by another account."
+msgstr "L’email o il nome utente è già in uso su un altro account."
+
+msgid "The email is too long to use as a username."
+msgstr "L’indirizzo email è troppo lungo per essere usato come nome utente."
+
+msgid "The duplicate still has linked records that could not be transferred."
+msgstr ""
+"Il duplicato ha ancora dati collegati che non è stato possibile trasferire."
+
+msgid "The merged account must have an email and at least one login method."
+msgstr ""
+"L’account risultante deve avere un’email e almeno un metodo di accesso."
 
 msgid "Invalid value."
 msgstr "Valore non valido."
@@ -988,6 +1408,9 @@ msgstr "Attendere."
 msgid "An error occurred. Please try again."
 msgstr "Si è verificato un errore. Riprova."
 
+msgid "Account"
+msgstr "Account"
+
 msgid "Edit profile"
 msgstr "Modifica profilo"
 
@@ -1057,9 +1480,6 @@ msgstr "Imposta prima una password e un'email, o collega un altro account"
 
 msgid "Connect"
 msgstr "Collega"
-
-msgid "Account"
-msgstr "Account"
 
 msgid "Create event"
 msgstr "Crea evento"
@@ -1296,7 +1716,7 @@ msgid "Search by title, game or description…"
 msgstr "Cerca per titolo, gioco o descrizione…"
 
 msgid "Remove filter"
-msgstr "Rimuovi filtri"
+msgstr "Rimuovi filtro"
 
 msgid "All locations"
 msgstr "Tutte le locations"
@@ -1367,18 +1787,17 @@ msgstr[1] "%(n)s voci di ludoteca"
 #, python-format
 msgid "%(n)s event library entry"
 msgid_plural "%(n)s event library entries"
-msgstr[0] "%(n)s voce di libreria evento"
-msgstr[1] "%(n)s voci di libreria evento"
+msgstr[0] "%(n)s voce della ludoteca dell’evento"
+msgstr[1] "%(n)s voci della ludoteca dell’evento"
 
 msgid ""
-"These locations have both games in their library: the kept game's entry "
-"stays and the duplicate's notes are appended to it."
+"These locations have both games in their library. Merging combines their "
+"notes and tags and keeps the title in the library if either entry is active."
 msgstr ""
-"Queste location hanno entrambi i giochi in ludoteca: resta la voce del gioco "
-"tenuto e le note del doppione vengono aggiunte in coda."
+"Queste associazioni hanno entrambi i giochi in ludoteca. L’unione conserva "
+"note e tag di entrambe le voci e mantiene il titolo in ludoteca se almeno "
+"una voce è attiva."
 
-#, fuzzy
-#| msgid "Notes"
 msgid "notes"
 msgstr "Note"
 
@@ -1399,6 +1818,79 @@ msgstr "I due giochi hanno gli stessi valori in tutti i campi."
 
 msgid "Flags kept if true on either game:"
 msgstr "Flag mantenuti se veri su almeno uno dei due giochi:"
+
+msgid ""
+"The selected account keeps its password and profile settings. If it has no "
+"email, it takes the other account’s email and verification status. The other "
+"account is permanently deleted after its profile data and social logins from "
+"missing providers are transferred."
+msgstr ""
+"L’account selezionato conserva la password e le impostazioni del profilo. Se "
+"è senza email, acquisisce l’indirizzo e lo stato di verifica dell’altro "
+"account. L’altro account viene eliminato definitivamente dopo il "
+"trasferimento dei dati del profilo e degli accessi social dei provider "
+"mancanti."
+
+msgid ""
+"If the account you keep has no password, the user can sign in with a linked "
+"social account and set a password in their account settings."
+msgstr ""
+"Se l’account conservato è senza password, l’utente può entrare con un "
+"accesso social collegato e impostare una password dalle impostazioni "
+"dell’account."
+
+#, python-format
+msgid ""
+"Both accounts have logins with these providers: %(providers)s. Only the "
+"selected account’s logins for these providers are kept."
+msgstr ""
+"Entrambi gli account hanno accessi con questi provider: %(providers)s. Per "
+"questi provider vengono conservati solo gli accessi dell’account selezionato."
+
+#, python-format
+msgid ""
+"The email %(email)s is not verified: make sure it belongs to the user. If "
+"you keep the account without email, it imports this address: the user can't "
+"join tables until it is verified, and a Google login with it removes the "
+"password and the other logins."
+msgstr ""
+"L’email %(email)s non è verificata: controlla che appartenga all’utente. Se "
+"conservi l’account senza email, acquisisce questo indirizzo: l’utente non "
+"potrà unirsi ai tavoli finché non lo verifica, e un login Google con questo "
+"indirizzo rimuove la password e gli altri accessi."
+
+msgid "Verified"
+msgstr "Verificata"
+
+msgid "Unverified"
+msgstr "Non verificata"
+
+msgid "Usable password"
+msgstr "Password utilizzabile"
+
+msgid "Yes"
+msgstr "Sì"
+
+msgid "No"
+msgstr "No"
+
+msgid "Social logins"
+msgstr "Accessi social"
+
+msgid "Last login"
+msgstr "Ultimo accesso"
+
+msgid "Tables created"
+msgstr "Tavoli creati"
+
+msgid "Locations created"
+msgstr "Location create"
+
+msgid "Confirm merge"
+msgstr "Conferma unione"
+
+msgid "Back to profiles"
+msgstr "Torna ai profili"
 
 msgid "Welcome back"
 msgstr "Bentornato/a"
@@ -1565,14 +2057,20 @@ msgstr "Puoi gestire le tue preferenze di notifica email nel tuo profilo"
 msgid "at this link"
 msgstr "a questo link"
 
-msgid "A new event is waiting for approval"
-msgstr "Un nuovo evento è in attesa di approvazione"
+msgid "A new event has been published"
+msgstr "È stato pubblicato un nuovo evento"
 
 msgid "Created by"
 msgstr "Creato da"
 
-msgid "Approve it from the admin"
-msgstr "Approvalo dall'admin"
+msgid "Published by"
+msgstr "Pubblicato da"
+
+msgid "If it breaks the rules, block it from the admin"
+msgstr "Se viola le regole, bloccalo dall'admin"
+
+msgid "If it breaks the rules, block it from the admin."
+msgstr "Se viola le regole, bloccalo dall'admin."
 
 msgid "Open in the admin"
 msgstr "Apri nell'admin"
@@ -1595,6 +2093,29 @@ msgstr "nuovi messaggi"
 msgid "Link to table"
 msgstr "Link al tavolo"
 
+msgid "Hey"
+msgstr "Ciao"
+
+msgid ""
+"Please click the link to confirm your new email address. You need to be "
+"logged in."
+msgstr ""
+"Clicca sul link per confermare il tuo nuovo indirizzo email. Devi aver "
+"effettuato l'accesso."
+
+msgid "Confirm your email"
+msgstr "Conferma il tuo indirizzo email"
+
+msgid ""
+"Please click the button below to confirm your new email address. You need to "
+"be logged in."
+msgstr ""
+"Clicca sul pulsante qui sotto per confermare il tuo nuovo indirizzo email. "
+"Devi aver effettuato l'accesso."
+
+msgid "Confirm"
+msgstr "Conferma"
+
 msgid "New message from contact form"
 msgstr "Nuovo messaggio dal form di contatto"
 
@@ -1605,10 +2126,7 @@ msgid "email"
 msgstr "email"
 
 msgid "message"
-msgstr "messaggio"
-
-msgid "Hey"
-msgstr "Ciao"
+msgstr "Messaggio"
 
 msgid ""
 "We are sorry to inform you that a table you were participating in has been "
@@ -1646,6 +2164,13 @@ msgstr ""
 msgid "Description:"
 msgstr "Descrizione:"
 
+msgid ""
+"No station is assigned to this table yet: you can assign one by editing it "
+"(optional)."
+msgstr ""
+"Al tavolo non è ancora assegnata una postazione: puoi assegnarla modificando "
+"il tavolo (facoltativo)."
+
 msgid "New Table"
 msgstr "Nuovo Tavolo"
 
@@ -1656,6 +2181,9 @@ msgid ""
 msgstr ""
 "Un nuovo tavolo è stato creato da <strong>%(creator_name)s</strong> presso "
 "<strong>%(location_name)s</strong>."
+
+msgid "Assign a station"
+msgstr "Assegna una postazione"
 
 #, python-format
 msgid ""
@@ -1697,9 +2225,6 @@ msgstr ""
 "Clicca sul link per confermare il tuo indirizzo email e completare la "
 "configurazione del tuo account"
 
-msgid "Confirm your email"
-msgstr "Conferma il tuo indirizzo email"
-
 msgid ""
 "Please click the button below to confirm your email address and finish "
 "setting up your account."
@@ -1707,27 +2232,39 @@ msgstr ""
 "Clicca sul pulsante qui sotto per confermare il tuo indirizzo email e "
 "completare la configurazione del tuo account."
 
+msgid ""
+"This event is not visible to the public yet. Publish it when it's ready."
+msgstr ""
+"Questo evento non è ancora visibile al pubblico. Pubblicalo quando è pronto."
+
+msgid "Go to publishing"
+msgstr "Vai alla pubblicazione"
+
+msgid ""
+"An admin blocked this event: it is not visible to the public. Contact us if "
+"you think it's a mistake."
+msgstr ""
+"Un admin ha bloccato questo evento: non è visibile al pubblico. Contattaci "
+"se pensi sia un errore."
+
 msgid "My Events"
 msgstr "I miei Eventi"
 
-msgid "The event will be published after approval by an admin."
-msgstr "L'evento sarà pubblicato dopo l'approvazione di un admin."
+msgid ""
+"The event starts as a draft: you can publish it yourself once it's ready."
+msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
 
 msgid "Cover image"
 msgstr "Immagine di copertina"
 
-msgid "Choose an image…"
-msgstr "Scegli un'immagine…"
-
 msgid "We'll use this to show the location on the map."
 msgstr "Lo useremo per mostrare la location sulla mappa."
 
-msgid ""
-"This event is awaiting admin approval and is not yet visible to the public."
-msgstr "Evento in attesa di approvazione, non visibile al pubblico."
-
 msgid "You're attending"
 msgstr "Stai partecipando"
+
+msgid "Leave the event"
+msgstr "Non partecipare più"
 
 msgid "Attend this event"
 msgstr "Partecipa all’evento"
@@ -1735,8 +2272,8 @@ msgstr "Partecipa all’evento"
 msgid "Log in to attend"
 msgstr "Accedi per partecipare"
 
-msgid "See the program"
-msgstr "Vedi il programma"
+msgid "Bookable tables"
+msgstr "Tavoli prenotabili"
 
 msgid "Read more"
 msgstr "Espandi"
@@ -1744,20 +2281,11 @@ msgstr "Espandi"
 msgid "Show less"
 msgstr "Nascondi"
 
-msgid "Sponsored by"
-msgstr "Sostenuto da"
+msgid "Reserve your seat at the game you like best"
+msgstr "Riserva il tuo posto per il gioco che preferisci"
 
-#, python-format
-msgid "%(n)s table scheduled"
-msgid_plural "%(n)s tables scheduled"
-msgstr[0] "%(n)s tavolo in programma"
-msgstr[1] "%(n)s tavoli in programma"
-
-msgid "Browse the schedule by time, area and game"
-msgstr "Sfoglia il programma per orario, area e gioco"
-
-msgid "See the game library"
-msgstr "Vedi la libreria dei giochi"
+msgid "View library"
+msgstr "Vedi la ludoteca"
 
 msgid "All the games available at the event"
 msgstr "Tutti i giochi disponibili all'evento"
@@ -1795,6 +2323,9 @@ msgstr "Giochi in evidenza"
 msgid "See all"
 msgstr "Vedi tutti"
 
+msgid "Sponsored by"
+msgstr "Sostenuto da"
+
 msgid "Add your phone number"
 msgstr "Aggiungi il tuo numero di telefono"
 
@@ -1819,17 +2350,39 @@ msgid_plural "%(n)s people attending"
 msgstr[0] "%(n)s persona partecipa"
 msgstr[1] "%(n)s persone partecipano"
 
+msgid "Share event"
+msgstr "Condividi evento"
+
 msgid "Manage event"
 msgstr "Gestisci evento"
 
+msgid "Internal program (managers only)"
+msgstr "Programma interno (solo manager)"
+
 msgid "Dates"
 msgstr "Date"
+
+msgid "today"
+msgstr "oggi"
 
 msgid "How to get there"
 msgstr "Come arrivare"
 
 msgid "Map not available"
 msgstr "Mappa non disponibile"
+
+msgid "You're in!"
+msgstr "Ci sei!"
+
+msgid "Games are better with friends: invite them to join you at the event!"
+msgstr ""
+"Si gioca meglio in compagnia: invita i tuoi amici a partecipare all'evento!"
+
+msgid "Close"
+msgstr "Chiudi"
+
+msgid "Library"
+msgstr "Ludoteca"
 
 #, python-format
 msgid "%(counter)s game in the library"
@@ -1933,6 +2486,24 @@ msgstr ""
 "Se disattivata, i tavoli di questo evento non mostrano la classifica e "
 "nessuno può compilarla."
 
+msgid ""
+"When off, the program is visible only to the event managers and the event "
+"page doesn't show your tables."
+msgstr ""
+"Se disattivata, il programma è visibile solo ai manager dell'evento e la "
+"pagina dell'evento non mostra la sezione con i tuoi tavoli."
+
+msgid "Custom button"
+msgstr "Pulsante personalizzato"
+
+msgid ""
+"Shown first among the event page buttons, e.g. to link your own program or "
+"ticket shop. Without a title and a link the button is hidden."
+msgstr ""
+"Compare per primo tra i pulsanti della pagina dell'evento, ad esempio per "
+"linkare il vostro programma o la biglietteria. Senza titolo e link il "
+"pulsante viene nascosto."
+
 msgid "Event dates"
 msgstr "Date evento"
 
@@ -1944,9 +2515,6 @@ msgstr "Nessuna data aggiunta ancora."
 
 msgid "Add date"
 msgstr "Aggiungi data"
-
-msgid "Game library"
-msgstr "Libreria dei giochi"
 
 msgid "Add game"
 msgstr "Aggiungi Gioco"
@@ -1961,7 +2529,7 @@ msgid "No tags yet."
 msgstr "Ancora nessun tag."
 
 msgid "Create them on the library page."
-msgstr "Creali dalla pagina della libreria."
+msgstr "Creali dalla pagina della ludoteca."
 
 msgid "Sponsor locations that have this game"
 msgstr "Location sponsor che hanno questo gioco"
@@ -1979,17 +2547,20 @@ msgid "Danger zone"
 msgstr "Zona Pericolosa"
 
 msgid "Remove from library"
-msgstr "Rimuovi dalla libreria"
+msgstr "Rimuovi dalla ludoteca"
 
 msgid "Remove game"
 msgstr "Rimuovi gioco"
 
 #, python-format
 msgid "Remove «%(name)s» from the library?"
-msgstr "Rimuovere «%(name)s» dalla libreria?"
+msgstr "Rimuovere «%(name)s» dalla ludoteca?"
 
 msgid "Remove"
 msgstr "Rimuovi"
+
+msgid "Public library"
+msgstr "Ludoteca pubblica"
 
 msgctxt "game library"
 msgid "Visible"
@@ -2003,7 +2574,7 @@ msgid ""
 "Visitors can browse the library from the event page, which also shows the "
 "games with a tag flagged for it."
 msgstr ""
-"I visitatori possono sfogliare la libreria dalla pagina evento, che mostra "
+"I visitatori possono sfogliare la ludoteca dalla pagina evento, che mostra "
 "anche i giochi con un tag da mettere in evidenza."
 
 msgid "View public page"
@@ -2013,7 +2584,7 @@ msgid ""
 "Turn this on to show the library on the event page. Until then only managers "
 "can see it."
 msgstr ""
-"Attivala per mostrare la libreria nella pagina evento. Fino ad allora può "
+"Attivala per mostrare la ludoteca nella pagina evento. Fino ad allora può "
 "vederla solo chi gestisce l'evento."
 
 msgid "Preview"
@@ -2023,13 +2594,45 @@ msgid "No games yet"
 msgstr "Ancora nessun gioco"
 
 msgid "Add the first game to the library."
-msgstr "Aggiungi il primo gioco alla libreria."
+msgstr "Aggiungi il primo gioco alla ludoteca."
 
-msgid "Remove this tag from all the games?"
-msgstr "Rimuovere questo tag da tutti i giochi?"
+msgid ""
+"Only the managers can see this event. Publish it to make it visible to "
+"everyone."
+msgstr ""
+"Solo i gestori vedono questo evento. Pubblicalo per renderlo visibile a "
+"tutti."
 
-msgid "Add tag"
-msgstr "Aggiungi tag"
+msgid "Before publishing:"
+msgstr "Prima di pubblicare:"
+
+msgid "Publish event"
+msgstr "Pubblica evento"
+
+msgid "The event is visible to everyone."
+msgstr "L'evento è visibile a tutti."
+
+msgid ""
+"Back to draft? The event will disappear from the event list and its page "
+"will no longer be reachable."
+msgstr ""
+"Tornare in bozza? L'evento sparirà dalla lista eventi e la sua pagina non "
+"sarà più raggiungibile."
+
+#, python-format
+msgid "%(n)s registered participant will lose access."
+msgid_plural "%(n)s registered participants will lose access."
+msgstr[0] "%(n)s iscritto perderà l'accesso."
+msgstr[1] "%(n)s iscritti perderanno l'accesso."
+
+#, python-format
+msgid "%(n)s table is scheduled."
+msgid_plural "%(n)s tables are scheduled."
+msgstr[0] "%(n)s tavolo è in programma."
+msgstr[1] "%(n)s tavoli sono in programma."
+
+msgid "Back to draft"
+msgstr "Torna in bozza"
 
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -2061,8 +2664,8 @@ msgstr[1] "%(n)s categorie configurate"
 #, python-format
 msgid "%(n)s game in the library"
 msgid_plural "%(n)s games in the library"
-msgstr[0] "%(n)s gioco in libreria"
-msgstr[1] "%(n)s giochi in libreria"
+msgstr[0] "%(n)s gioco in ludoteca"
+msgstr[1] "%(n)s giochi in ludoteca"
 
 #, python-format
 msgid "%(n)s station configured"
@@ -2141,14 +2744,14 @@ msgstr "Aggiungi admin tavoli"
 msgid "Remove table creator?"
 msgstr "Rimuovere l'admin tavoli?"
 
-msgid "Program"
-msgstr "Programma"
-
 msgid "Create table"
 msgstr "Crea un tavolo qui"
 
 msgid "Add dates first"
 msgstr "Prima aggiungi le date"
+
+msgid "All days"
+msgstr "Tutti i giorni"
 
 msgid "Hide past days"
 msgstr "Nascondi giorni passati"
@@ -2171,6 +2774,12 @@ msgstr "Agenda"
 msgid "Grid"
 msgstr "Griglia"
 
+msgid "Filters"
+msgstr "Filtri"
+
+msgid "Clear all"
+msgstr "Rimuovi tutti"
+
 msgid ""
 "Some tables share a station at overlapping times. Conflicting tables are "
 "marked below."
@@ -2178,8 +2787,60 @@ msgstr ""
 "Alcuni tavoli condividono una postazione in orari sovrapposti. I tavoli in "
 "conflitto sono segnalati qui sotto."
 
+msgid "There are no bookable tables for this event yet."
+msgstr "Non ci sono ancora tavoli prenotabili per questo evento."
+
+msgid ""
+"Create the first table: it will show up here and participants will be able "
+"to book a seat."
+msgstr ""
+"Crea il primo tavolo: comparirà qui e i partecipanti potranno prenotare un "
+"posto."
+
+msgid "Create the first table"
+msgstr "Crea il primo tavolo"
+
+msgid ""
+"The organizers are still putting the program together: check back in a few "
+"days."
+msgstr ""
+"Gli organizzatori stanno ancora preparando il programma: torna a dare "
+"un'occhiata tra qualche giorno."
+
+msgid "Back to the event"
+msgstr "Torna all'evento"
+
+msgid "No tables match the selected filters."
+msgstr "Nessun tavolo corrisponde ai filtri selezionati."
+
+msgid "Remove filters"
+msgstr "Rimuovi i filtri"
+
+msgid "There are no bookable tables on this day."
+msgstr "In questo giorno non ci sono tavoli prenotabili."
+
+#, python-format
+msgid "The first day with bookable tables is %(day)s."
+msgstr "Il primo giorno con tavoli prenotabili è %(day)s."
+
+#, python-format
+msgid "Go to %(day)s"
+msgstr "Vai al %(day)s"
+
+msgid "See all days"
+msgstr "Vedi tutti i giorni"
+
+msgid "Create a table on this day"
+msgstr "Crea un tavolo in questo giorno"
+
+msgid "There are no bookable tables in the coming days."
+msgstr "Non ci sono tavoli prenotabili nei prossimi giorni."
+
 msgid "All games"
 msgstr "Tutti i giochi"
+
+msgid "Area"
+msgstr "Area"
 
 msgid "Edit table"
 msgstr "Modifica tavolo"
@@ -2195,18 +2856,6 @@ msgstr "Data e ora"
 
 msgid "Select a game (optional)"
 msgstr "Seleziona un gioco (opzionale)"
-
-msgid "Upload an image to show instead of the game cover."
-msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
-
-msgid "Max 200Kb"
-msgstr "Max 200Kb"
-
-msgid "Remove current image"
-msgstr "Rimuovi immagine"
-
-msgid "Choose an image"
-msgstr "Scegli un'immagine…"
 
 msgid "Players"
 msgstr "Giocatori"
@@ -2294,20 +2943,15 @@ msgstr "Accedi per unirti al tavolo"
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
 
-msgid "Add to Google Calendar"
-msgstr "Aggiungi a Google Calendar"
+msgid "Add to Calendar"
+msgstr "Aggiungi al Calendario"
 
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
 
-msgid "Played tables"
-msgstr "Tavoli giocati"
-
-msgid "Gamers"
-msgstr "Gamers"
-
-msgid "View on BoardGameGeek"
-msgstr ""
+#, python-format
+msgid "Library – %(name)s"
+msgstr "Ludoteca – %(name)s"
 
 msgid "Game info"
 msgstr "Info sul gioco"
@@ -2326,6 +2970,15 @@ msgstr "Media"
 
 msgid "Heavy"
 msgstr "Alta"
+
+msgid "Played tables"
+msgstr "Tavoli giocati"
+
+msgid "Gamers"
+msgstr "Gamers"
+
+msgid "View on BoardGameGeek"
+msgstr ""
 
 msgid "Played at"
 msgstr "Dove si gioca"
@@ -2354,6 +3007,22 @@ msgstr "Nessun gioco corrisponde alla ricerca."
 
 msgid "No games available yet."
 msgstr "Nessun gioco disponibile al momento."
+
+msgid "Filter…"
+msgstr "Filtra…"
+
+msgid "Filter"
+msgstr "Filtra"
+
+msgid "Already in the library"
+msgstr "Già in ludoteca"
+
+msgid "On Board Gamers"
+msgstr "Già su Board Gamers"
+
+msgctxt "game imported from BGG"
+msgid "New"
+msgstr "Nuovo"
 
 msgid "Edit location"
 msgstr "Modifica location"
@@ -2417,11 +3086,8 @@ msgstr "Giochi più giocati"
 msgid "No games played at this location."
 msgstr "Nessun gioco giocato in questa location."
 
-msgid "See all games"
-msgstr "Vedi tutti i giochi"
-
 msgid "Add your games to the library"
-msgstr "Popola la libreria dei giochi"
+msgstr "Aggiungi i tuoi giochi alla ludoteca"
 
 msgid "Stats"
 msgstr "Statistiche"
@@ -2492,8 +3158,80 @@ msgstr "Sabato"
 msgid "Sunday"
 msgstr "Domenica"
 
+msgid "Affiliations declared by this location."
+msgstr "Affiliazioni dichiarate da questa location."
+
+msgid "Record loan"
+msgstr "Registra prestito"
+
+msgid "Borrow game"
+msgstr "Prendi in prestito"
+
+#, python-format
+msgid "Return by %(date)s."
+msgstr "Da restituire entro il %(date)s."
+
+msgid "Confirm once you have picked up the game at the location."
+msgstr "Conferma dopo aver ritirato il gioco in sede."
+
+msgid "Confirm pickup"
+msgstr "Conferma il ritiro"
+
+msgid "Restore to library"
+msgstr "Ripristina in ludoteca"
+
+msgid "Last recorded withdrawal"
+msgstr "Ultima uscita registrata"
+
+msgid "This game was withdrawn without a date or reason."
+msgstr "Questo gioco è uscito dalla ludoteca senza data o motivo registrati."
+
+msgid "Restore this game to the library?"
+msgstr "Ripristinare questo gioco in ludoteca?"
+
+msgid ""
+"The last withdrawal details will remain in the game entry. A new withdrawal "
+"will replace them."
+msgstr ""
+"I dati dell’ultima uscita resteranno nella scheda del gioco. Una nuova "
+"uscita li sostituirà."
+
+msgid "Confirm restore"
+msgstr "Conferma ripristino"
+
+msgid "Edit withdrawal"
+msgstr "Modifica uscita"
+
+msgid "Record withdrawal"
+msgstr "Registra uscita"
+
+msgid ""
+"The game will move to Withdrawn games and be removed from the public library."
+msgstr ""
+"Il gioco passerà tra i giochi usciti e verrà rimosso dalla ludoteca pubblica."
+
+msgid "Confirm withdrawal"
+msgstr "Conferma uscita"
+
+msgid "On loan"
+msgstr "In prestito"
+
 msgid "At home"
 msgstr "A casa"
+
+msgid "On site"
+msgstr "In sede"
+
+#, python-format
+msgid "Loaned on %(loan_date)s · Due %(due_date)s"
+msgstr "Consegnato il %(loan_date)s · Rientro previsto il %(due_date)s"
+
+#, python-format
+msgid "Borrowed by %(nickname)s"
+msgstr "In prestito a %(nickname)s"
+
+msgid "Official website"
+msgstr "Sito ufficiale"
 
 msgid ""
 "Discover all board game locations near you. Find the perfect place for your "
@@ -2523,14 +3261,32 @@ msgstr "Login"
 msgid "to see near tables."
 msgstr "per vedere i tavoli vicini"
 
+msgid "Set your address"
+msgstr "Inserisci un indirizzo"
+
 msgid "Tables near to"
 msgstr "Tavoli vicini a"
 
 msgid "Edit address"
 msgstr "Modifica indirizzo"
 
-msgid "Set your address"
-msgstr "Inserisci un indirizzo"
+msgid "All"
+msgstr "Tutte"
+
+msgid "Affiliation unavailable"
+msgstr "Affiliazione non disponibile"
+
+msgid "Apply filter"
+msgstr "Applica filtro"
+
+msgid "Clear filter"
+msgstr "Azzera filtro"
+
+msgid "This national affiliation is unavailable."
+msgstr "Questa affiliazione nazionale non è disponibile."
+
+msgid "No locations match this affiliation."
+msgstr "Nessuna location corrisponde a questa affiliazione."
 
 msgid "No locations available yet."
 msgstr "Nessuna location disponibile al momento."
@@ -2541,8 +3297,13 @@ msgstr ""
 "C'è un club, un'associazione o un negozio di giochi vicino a te? Aggiungilo "
 "per primo."
 
-msgid "View page"
-msgstr "Vedi pagina"
+msgid "No locations to show on the map."
+msgstr "Nessuna location da mostrare sulla mappa."
+
+msgid "Drag to reorder. Areas can be assigned to the tables of this location."
+msgstr ""
+"Trascina per riordinare. Le aree si possono assegnare ai tavoli di questo "
+"luogo."
 
 msgid "Location info"
 msgstr "Info location"
@@ -2570,8 +3331,57 @@ msgstr ""
 "Se attivato, i prossimi tavoli di questa sede appariranno nel feed della "
 "homepage."
 
+msgid "Show most played games"
+msgstr "Mostra i giochi più giocati"
+
+msgid ""
+"When enabled, the location page shows the most played games and their top "
+"winners."
+msgstr ""
+"Se attivato, la pagina della sede mostra i giochi più giocati e i relativi "
+"vincitori."
+
+msgid "Show stats"
+msgstr "Mostra statistiche"
+
+msgid "Show the total number of gamers and tables on the location page."
+msgstr ""
+"Mostra il numero totale di giocatori e tavoli nella pagina della location."
+
+msgid "Show top gamers"
+msgstr "Mostra la classifica dei giocatori"
+
+msgid ""
+"When enabled, the location page shows the ranking of the players with the "
+"most podiums."
+msgstr ""
+"Se attivato, la pagina della sede mostra la classifica dei giocatori con più "
+"podi."
+
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
+
+msgid "Withdrawn games"
+msgstr "Giochi usciti"
+
+msgid "Game loans"
+msgstr "Prestiti"
+
+msgid "Member unavailable"
+msgstr "Socio non disponibile"
+
+msgid "Overdue"
+msgstr "In ritardo"
+
+msgid "Record return"
+msgstr "Registra restituzione"
+
+msgid "Record the return before withdrawing this game."
+msgstr ""
+"Registra la restituzione prima dell’uscita di questo gioco dalla ludoteca."
+
+msgid "Open library entry"
+msgstr "Apri la scheda nella ludoteca"
 
 msgid ""
 "To specify a member as the game owner, activate membership requests for your "
@@ -2582,6 +3392,37 @@ msgstr ""
 
 msgid "Go to the Members page"
 msgstr "Vai alla pagina Soci"
+
+msgid "Delete incorrect entry"
+msgstr "Elimina voce errata"
+
+#, python-format
+msgid "Permanently delete the library entry for «%(name)s»?"
+msgstr "Eliminare definitivamente la voce di «%(name)s» dalla ludoteca?"
+
+msgid "Loan status"
+msgstr "Stato del prestito"
+
+#, python-format
+msgid "Loan recorded by %(nickname)s"
+msgstr "Prestito registrato da %(nickname)s"
+
+#, python-format
+msgid "Returned on %(return_date)s"
+msgstr "Restituito il %(return_date)s"
+
+#, python-format
+msgid "Return recorded by %(nickname)s"
+msgstr "Restituzione registrata da %(nickname)s"
+
+msgid "No loans match this filter."
+msgstr "Nessun prestito corrisponde al filtro."
+
+msgid "Loan settings"
+msgstr "Impostazioni dei prestiti"
+
+msgid "Current games"
+msgstr "Giochi presenti"
 
 msgid ""
 "Visitors can browse your games from the location page. Owners, members and "
@@ -2597,17 +3438,110 @@ msgstr ""
 "Attivala per mostrare l'elenco dei vostri giochi nella pagina della "
 "location. Proprietari, soci e note restano privati."
 
+msgid "Search by game, member or tag…"
+msgstr "Cerca per gioco, socio o tag…"
+
 msgid "Download CSV"
 msgstr "Scarica CSV"
+
+msgid "Import from BoardGameGeek"
+msgstr "Importa da BoardGameGeek"
+
+msgid "No withdrawn games yet."
+msgstr "Nessun gioco uscito dalla ludoteca."
+
+msgid "Or import a collection from BoardGameGeek."
+msgstr "Oppure importa una collezione da BoardGameGeek."
+
+msgid "Only managers see them: they don't appear on the public library."
+msgstr "Li vedono solo i gestori: non compaiono nella ludoteca pubblica."
+
+msgid ""
+"Add to the library the games a BoardGameGeek user marks as owned. The "
+"collection must be public."
+msgstr ""
+"Aggiungi alla ludoteca i giochi che un utente di BoardGameGeek segna come "
+"posseduti. La collezione deve essere pubblica."
+
+msgid "BoardGameGeek username"
+msgstr "Username BoardGameGeek"
+
+msgid "Loading…"
+msgstr "Caricamento…"
+
+msgid "Load collection"
+msgstr "Carica collezione"
+
+#, python-format
+msgid "There is no BoardGameGeek user called «%(username)s»."
+msgstr "Non esiste un utente BoardGameGeek chiamato «%(username)s»."
+
+msgid ""
+"BoardGameGeek is still preparing this collection. Try again in a few seconds."
+msgstr ""
+"BoardGameGeek sta ancora preparando questa collezione. Riprova tra qualche "
+"secondo."
+
+msgid "Try again"
+msgstr "Riprova"
+
+#, python-format
+msgid "«%(username)s» has no owned games, or the collection is private."
+msgstr ""
+"«%(username)s» non ha giochi posseduti, oppure la collezione è privata."
+
+msgid "Expansions"
+msgstr "Espansioni"
+
+msgid ""
+"A new name creates the tag. Games already in the library are not touched."
+msgstr ""
+"Un nome nuovo crea il tag. I giochi già in ludoteca non vengono modificati."
+
+msgid "Import"
+msgstr "Importa"
+
+msgid "Go to the library"
+msgstr "Vai alla ludoteca"
+
+#, python-format
+msgid "Imported %%(done)s of %%(total)s…"
+msgstr "Importati %%(done)s di %%(total)s…"
+
+#, python-format
+msgid ""
+"Done: %%(added)s added, %%(skipped)s already in the library, %%(archived)s "
+"withdrawn, %%(failed)s failed."
+msgstr ""
+"Fatto: %%(added)s aggiunti, %%(skipped)s già in ludoteca, %%(archived)s "
+"usciti dalla ludoteca, %%(failed)s non riusciti."
+
+msgid "Imported"
+msgstr "Importato"
+
+msgid "Failed"
+msgstr "Non riuscito"
+
+msgid "The import is still running. Leave anyway?"
+msgstr "L'importazione è ancora in corso. Uscire comunque?"
 
 msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
 
+msgid "Manage this location's affiliations with national networks"
+msgstr "Gestisci le affiliazioni nazionali di questa location"
+
 msgid "Add, remove managers and transfer ownership"
 msgstr "Aggiungi, rimuovi manager e trasferisci l'ownership"
 
-msgid "Manage the location's game library"
-msgstr "Gestisci la libreria dei giochi dell'associazione"
+msgid "Manage the location's library"
+msgstr "Gestisci la ludoteca dell’associazione"
+
+msgid "Assign stations"
+msgstr "Assegna postazioni"
+
+msgid "Assign the upcoming games to your stations"
+msgstr "Assegna le prossime partite alle tue postazioni"
 
 msgid "Manage members and memberships"
 msgstr "Gestisci associati e membership"
@@ -2618,8 +3552,8 @@ msgstr "Permessi"
 msgid "Control who can create and join tables"
 msgstr "Decidi chi può creare e unirsi ai tavoli"
 
-msgid "Table statistics"
-msgstr "Statistiche tavoli"
+msgid "Table summary"
+msgstr "Riepilogo tavoli"
 
 msgid "Generate a message with table status to share on chat"
 msgstr "Genera un messaggio con lo stato dei tavoli da condividere in chat"
@@ -2829,6 +3763,24 @@ msgstr "Carica"
 msgid "Delete document"
 msgstr "Elimina documento"
 
+msgid "Archived"
+msgstr "Archiviato"
+
+msgid "Add an affiliation"
+msgstr "Aggiungi un’affiliazione"
+
+msgid "Add affiliation"
+msgstr "Aggiungi affiliazione"
+
+msgid "There are no national networks available yet."
+msgstr "Non ci sono ancora associazioni nazionali disponibili."
+
+msgid "Can't find your national network?"
+msgstr "Non trovi la tua associazione nazionale?"
+
+msgid "Write to us"
+msgstr "Scrivici"
+
 msgid "Control who can create and join tables at this location."
 msgstr "Decidi chi può creare e unirsi ai tavoli."
 
@@ -2854,6 +3806,58 @@ msgstr "Chi può unirsi ai tavoli?"
 msgid "Save permissions"
 msgstr "Salva permessi"
 
+msgid ""
+"Assign the upcoming games to your stations. It is optional: the station is "
+"shown on the game page."
+msgstr ""
+"Assegna le prossime partite alle tue postazioni. È facoltativo: la "
+"postazione viene mostrata nella pagina della partita."
+
+msgid ""
+"This location has no stations yet. Create them first (e.g. Table 1, Table "
+"2), then come back to assign the games."
+msgstr ""
+"Questa location non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo "
+"2), poi torna qui per assegnare le partite."
+
+msgid "Create stations"
+msgstr "Crea postazioni"
+
+msgid "Without station"
+msgstr "Senza postazione"
+
+msgid "Manage stations"
+msgstr "Gestisci postazioni"
+
+msgid "Station booked by another game at an overlapping time"
+msgstr "Postazione occupata da un’altra partita in un orario sovrapposto"
+
+msgid "No station"
+msgstr "Senza postazione"
+
+msgid "All upcoming games have a station."
+msgstr "Tutte le prossime partite hanno una postazione."
+
+msgid "No upcoming games at this location."
+msgstr "Nessuna partita in programma in questa location."
+
+msgid "Edit station"
+msgstr "Modifica postazione"
+
+msgid ""
+"Hidden stations can only be picked by location managers when creating or "
+"editing a game; they stay visible on the game."
+msgstr ""
+"Le postazioni nascoste possono essere scelte solo dai gestori della location "
+"quando si crea o modifica una partita; restano visibili sulla partita."
+
+msgid "Assign the upcoming games to the stations"
+msgstr "Assegna le prossime partite alle postazioni"
+
+msgctxt "station"
+msgid "Hidden"
+msgstr "Nascosta"
+
 msgid "Generate a message to share table status on WhatsApp or other chats."
 msgstr ""
 "Genera un messaggio per condividere lo status dei tavoli su WhatsApp o altre "
@@ -2874,8 +3878,8 @@ msgstr "Mostra tavoli chiusi"
 msgid "Show player names"
 msgstr "Mostra nomi giocatori"
 
-msgid "Message"
-msgstr "messaggio"
+msgid "Show table links"
+msgstr "Mostra link ai tavoli"
 
 msgid "Copy"
 msgstr "Copia"
@@ -3053,14 +4057,86 @@ msgstr "Widget per il tuo sito"
 msgid "Free and open source"
 msgstr "Gratuito e Open source"
 
-msgid "From:"
-msgstr "Da:"
+#, python-format
+msgid "Back to %(label)s"
+msgstr "Torna a %(label)s"
+
+msgid "Preview in the location list"
+msgstr "Anteprima nella lista delle location"
+
+msgid "Choose an image…"
+msgstr "Scegli un'immagine…"
+
+msgid "Adjust crop"
+msgstr "Regola ritaglio"
+
+msgid ""
+"For the list, choose a square image. If it's a logo, leave some space around "
+"it."
+msgstr ""
+"Per la lista, scegli un'immagine quadrata. Se è un logo, lascia un po' di "
+"spazio attorno."
+
+msgid "Upload an image to show instead of the game cover."
+msgstr "Carica un'immagine da mostrare al posto della copertina del gioco."
+
+msgid "Remove current image"
+msgstr "Rimuovi immagine"
+
+msgid "Choose an image"
+msgstr "Scegli un'immagine…"
+
+msgid "Select the image again."
+msgstr "Seleziona di nuovo l'immagine."
+
+msgid "Crop image"
+msgstr "Ritaglia immagine"
+
+msgid ""
+"Move or resize the crop area, even beyond the image edges. Extra space is "
+"saved in white, or stays transparent if the image has transparency. Use the "
+"arrow keys and + or − to adjust it with the keyboard."
+msgstr ""
+"Sposta o ridimensiona l'area di ritaglio anche oltre i bordi dell'immagine. "
+"Lo spazio aggiunto sarà bianco, o resterà trasparente se l'immagine ha "
+"trasparenze. Da tastiera, usa le frecce e i tasti + o −."
+
+msgid "Fit whole image"
+msgstr "Inquadra tutta l'immagine"
+
+msgid "Use original"
+msgstr "Usa originale"
+
+msgid "Apply crop"
+msgstr "Applica ritaglio"
+
+msgid ""
+"Could not open the crop editor. Use the original image or choose another "
+"file."
+msgstr ""
+"Impossibile aprire lo strumento di ritaglio. Usa l'immagine originale o "
+"scegli un altro file."
+
+msgid "Could not apply the crop. Try again or use the original image."
+msgstr "Impossibile applicare il ritaglio. Riprova o usa l'immagine originale."
+
+msgid "Where to find it:"
+msgstr "Dove trovarlo:"
 
 msgid "See the tables"
 msgstr "Vedi i tavoli"
 
 msgid "Reservation not needed"
 msgstr "Prenotazione non necessaria"
+
+msgid "Remove this tag from all the games?"
+msgstr "Rimuovere questo tag da tutti i giochi?"
+
+msgid "Add tag"
+msgstr "Aggiungi tag"
+
+msgid "View page"
+msgstr "Vedi pagina"
 
 msgid "Personal data"
 msgstr "Dati anagrafici"
@@ -3090,6 +4166,12 @@ msgid "Type at least %(count)s character"
 msgid_plural "Type at least %(count)s characters"
 msgstr[0] "Inserisci almeno %(count)s carattere"
 msgstr[1] "Inserisci almeno %(count)s caratteri"
+
+msgid "Link copied!"
+msgstr "Link Copiato!"
+
+msgid "Share"
+msgstr "Condividi"
 
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
@@ -3123,16 +4205,6 @@ msgstr "vittorie"
 
 msgid "No tables played yet."
 msgstr "Ancora nessun tavolo giocato."
-
-msgid "Hey!"
-msgstr "Hey!"
-
-msgid ""
-"Do you know your way around code and want to contribute to Board-Gamers?"
-msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
-
-msgid "Contact us"
-msgstr "Contattaci"
 
 msgid "For clubs & associations"
 msgstr "Per club e associazioni"
@@ -3629,9 +4701,9 @@ msgstr "Scrivi un commento..."
 msgid "Send comment"
 msgstr "Invia commento"
 
-msgid "Only gamers that joined the table can comment on this page."
+msgid "Only players, the organizer and the managers can comment on this page."
 msgstr ""
-"Solo i gamers che si sono uniti al tavolo possono commentare in questa "
+"Solo i giocatori, l'organizzatore e i gestori possono commentare in questa "
 "pagina."
 
 #, python-format
@@ -3657,6 +4729,13 @@ msgstr "%(name)s (ospite) si è unito al tavolo"
 #, python-format
 msgid "%(name)s (guest) left the table"
 msgstr "%(name)s (ospite) ha lasciato il tavolo"
+
+msgid "Organizer"
+msgstr "Organizzatore"
+
+msgctxt "comment badge"
+msgid "Manager"
+msgstr "Gestore"
 
 msgid "There are no comments yet."
 msgstr "Non ci sono ancora commenti."
@@ -3814,6 +4893,9 @@ msgid "Want to report a mistake or a better suggested mode for this game?"
 msgstr ""
 "Vuoi segnalarci un errore o una modalità suggerita migliore per questo gioco?"
 
+msgid "Contact us"
+msgstr "Contattaci"
+
 msgid "Remove link"
 msgstr "Rimuovi link"
 
@@ -3880,6 +4962,16 @@ msgstr "Dettagli del tavolo"
 msgid "Edit details"
 msgstr "Modifica dettagli"
 
+msgid "Station assigned by the staff"
+msgstr "Postazione assegnata dallo staff"
+
+msgid ""
+"The area and station of this game can only be changed by the location "
+"managers."
+msgstr ""
+"Area e postazione di questa partita possono essere modificate solo dai "
+"gestori della location."
+
 msgid ""
 "If you can't find the game, you can leave this field empty. We'll fill it "
 "for you!"
@@ -3898,9 +4990,6 @@ msgstr "Sei sicuro di voler eliminare"
 msgid "This action cannot be undone."
 msgstr "Questa azione non può essere annullata."
 
-msgid "Back to tables"
-msgstr "Torna ai tavoli"
-
 msgid "Created"
 msgstr "Creato"
 
@@ -3913,17 +5002,19 @@ msgstr "Tavolo riservato ai soci"
 msgid "Become a member"
 msgstr "Richiedi membership"
 
-msgid "Link copied!"
-msgstr "Link Copiato!"
-
-msgid "Share"
-msgstr "Condividi"
-
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
 msgid "Accept the challenge, join a table!"
 msgstr "Accetta la sfida, unisciti a un tavolo!"
+
+#, python-format
+msgid "No past tables for %(location_name)s."
+msgstr "Nessun tavolo passato per %(location_name)s."
+
+#, python-format
+msgid "No upcoming tables for %(location_name)s."
+msgstr "Nessun tavolo in programma per %(location_name)s."
 
 msgid "Manage players"
 msgstr "Gestisci giocatori"
@@ -3943,11 +5034,12 @@ msgstr "Rimuovi giocatore?"
 msgid "Conflict"
 msgstr "Conflitto"
 
+msgctxt "event"
+msgid "Ended"
+msgstr "Concluso"
+
 msgid "Created by you"
 msgstr "Creati da te"
-
-msgid "Yes"
-msgstr "Sì"
 
 msgid "My Account - Board-Gamers.com"
 msgstr "Il Mio Account - Board-Gamers.com"
@@ -4070,13 +5162,8 @@ msgstr "Non è possibile modificare tavoli chiusi."
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
-msgid "Event created! It will be published once approved by an admin."
-msgstr ""
-"Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
-
-#, python-format
-msgid "Games – %(name)s"
-msgstr "Giochi - %(name)s"
+msgid "Event created as a draft. Publish it from this page when it's ready."
+msgstr "Evento creato come bozza. Pubblicalo da questa pagina quando è pronto."
 
 #, python-format
 msgid "Board games available at %(name)s."
@@ -4089,20 +5176,21 @@ msgstr ""
 "Attenzione: questa postazione è già occupata da un altro tavolo in un orario "
 "sovrapposto."
 
-msgid "No station"
-msgstr "Senza postazione"
-
 msgid "General"
 msgstr "Generale"
 
 msgid "This event has already ended, registration is closed."
 msgstr "Questo evento è già terminato, le iscrizioni sono chiuse."
 
-msgid "You're now registered for this event!"
-msgstr "Ora sei iscritto a questo evento!"
-
 msgid "You are already registered for this event."
 msgstr "Sei già iscritto a questo evento."
+
+msgid "This event has already ended, you can't leave it."
+msgstr ""
+"Questo evento è già terminato, non puoi più annullare la partecipazione."
+
+msgid "You are no longer attending this event."
+msgstr "Non partecipi più a questo evento."
 
 msgid "Phone number saved."
 msgstr "Numero di telefono salvato."
@@ -4121,6 +5209,23 @@ msgstr "Tavolo creato con successo"
 
 msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
+
+msgid "This event was blocked by an admin and can't be published."
+msgstr ""
+"Questo evento è stato bloccato da un admin e non può essere pubblicato."
+
+msgid "This event is already published."
+msgstr "Questo evento è già pubblicato."
+
+#, python-format
+msgid "Before publishing: %(missing)s."
+msgstr "Prima di pubblicare: %(missing)s."
+
+msgid "Your event is published and visible to everyone."
+msgstr "Il tuo evento è pubblicato e visibile a tutti."
+
+msgid "The event is back to draft and no longer visible to the public."
+msgstr "L'evento è tornato in bozza e non è più visibile al pubblico."
 
 msgid "Event updated successfully"
 msgstr "Evento aggiornato con successo."
@@ -4150,21 +5255,21 @@ msgid "Category removed."
 msgstr "Categoria rimossa."
 
 msgid "The game library is now visible on the event page."
-msgstr "La libreria dei giochi ora è visibile nella pagina evento."
+msgstr "La ludoteca ora è visibile nella pagina evento."
 
 msgid "The game library is now hidden from the event page."
-msgstr "La libreria dei giochi ora è nascosta dalla pagina evento."
+msgstr "La ludoteca ora è nascosta dalla pagina evento."
 
 #, python-format
 msgid "Game «%(name)s» added to the library."
-msgstr "Gioco %(name)s aggiunto alla libreria"
+msgstr "Gioco %(name)s aggiunto alla ludoteca"
 
 msgid "Game updated."
 msgstr "Gioco aggiornato."
 
 #, python-format
 msgid "Game «%(name)s» removed from the library."
-msgstr "Gioco %(name)s rimosso dalla libreria"
+msgstr "Gioco %(name)s rimosso dalla ludoteca"
 
 msgid "Tag added."
 msgstr "Tag aggiunto."
@@ -4198,6 +5303,46 @@ msgstr "Location aggiunta."
 
 msgid "Location removed."
 msgstr "Location rimossa."
+
+msgctxt "game loan filter"
+msgid "Open"
+msgstr "Aperti"
+
+msgctxt "game loan filter"
+msgid "Overdue"
+msgstr "In ritardo"
+
+msgctxt "game loan filter"
+msgid "Returned"
+msgstr "Restituiti"
+
+msgctxt "game loan filter"
+msgid "All"
+msgstr "Tutti"
+
+#, python-format
+msgid "Game loans – %(name)s"
+msgstr "Prestiti – %(name)s"
+
+msgid "Game loan settings saved."
+msgstr "Impostazioni dei prestiti salvate."
+
+#, python-format
+msgid "%(game)s – %(name)s"
+msgstr "%(game)s – %(name)s"
+
+msgid "Game loan recorded."
+msgstr "Prestito registrato."
+
+#, python-format
+msgid "Game loan recorded. Return by %(date)s."
+msgstr "Prestito registrato. Rientro previsto il %(date)s."
+
+msgid "Game return recorded."
+msgstr "Restituzione registrata."
+
+msgid "This game loan was already returned."
+msgstr "La restituzione di questo prestito è già stata registrata."
 
 msgid "Board Games - Board-Gamers.com"
 msgstr "Giochi da Tavolo - Board-Gamers.com"
@@ -4297,9 +5442,6 @@ msgstr "Username"
 msgid "Membership Status"
 msgstr "Membership"
 
-msgid "No"
-msgstr "No"
-
 msgid "Membership deleted."
 msgstr "Membership cancellata."
 
@@ -4340,6 +5482,25 @@ msgstr ""
 "Ricordati di stampare e firmare i documenti di adesione: li trovi in \"Le "
 "mie iscrizioni\"."
 
+#, python-format
+msgid "National affiliations – %(name)s"
+msgstr "Affiliazioni nazionali – %(name)s"
+
+msgid "Affiliation updated."
+msgstr "Affiliazione aggiornata."
+
+msgid "This affiliation already exists."
+msgstr "Affiliazione già presente."
+
+msgid "Affiliation added."
+msgstr "Affiliazione aggiunta."
+
+msgid "This national network is no longer available."
+msgstr "Questa associazione nazionale non è più disponibile."
+
+msgid "Affiliation removed."
+msgstr "Affiliazione rimossa."
+
 msgid "The game library is now visible on the location page."
 msgstr "La ludoteca ora è visibile nella pagina della location."
 
@@ -4350,12 +5511,50 @@ msgstr "La ludoteca ora è nascosta dalla pagina della location."
 msgid "Add Game – %(name)s"
 msgstr "Aggiungi Gioco - %(name)s"
 
-#, python-format
-msgid "%(game)s – %(name)s"
-msgstr "%(game)s – %(name)s"
-
 msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
+
+#, python-format
+msgid "Import from BGG – %(name)s"
+msgstr "Importa da BGG – %(name)s"
+
+msgid "This entry has changed. Reload it before saving."
+msgstr "Questa voce è stata modificata. Ricaricala prima di salvare."
+
+msgid "Game restored to the library."
+msgstr "Gioco ripristinato in ludoteca."
+
+msgid "Withdrawal details updated."
+msgstr "Dati dell’uscita aggiornati."
+
+msgid "Game withdrawn from the library."
+msgstr "Gioco uscito dalla ludoteca."
+
+msgid "Restore the game before deleting its entry."
+msgstr "Ripristina il gioco prima di eliminarne la voce."
+
+msgid "This game cannot be removed because it has loan history."
+msgstr ""
+"Questo gioco non può essere rimosso perché ha uno storico dei prestiti."
+
+#, python-format
+msgid "Play areas – %(name)s"
+msgstr "Aree di gioco – %(name)s"
+
+#, python-format
+msgid "Stations – %(name)s"
+msgstr "Postazioni – %(name)s"
+
+msgid "Station updated."
+msgstr "Postazione aggiornata."
+
+#, python-format
+msgid "Assign stations – %(name)s"
+msgstr "Assegna postazioni – %(name)s"
+
+#, python-format
+msgid "Station of «%(title)s» updated."
+msgstr "Postazione di «%(title)s» aggiornata."
 
 #, python-format
 msgid "Widget – %(name)s"
@@ -4366,8 +5565,8 @@ msgid "Telegram – %(name)s"
 msgstr "Telegram - %(name)s"
 
 #, python-format
-msgid "Table stats – %(name)s"
-msgstr "Stats tavoli - %(name)s"
+msgid "Table summary – %(name)s"
+msgstr "Riepilogo tavoli – %(name)s"
 
 #, python-format
 msgid "Tables of %(date)s"
@@ -4377,12 +5576,12 @@ msgstr "Tavoli del %(date)s"
 msgid "Tables from %(date_from)s to %(date_to)s"
 msgstr "Tavoli dal %(date_from)s al %(date_to)s"
 
-msgid "🟢 Available seats:"
-msgstr "🟢 Posti disponibili:"
-
 #, python-format
 msgid "%(occupied)s/%(max)s seats"
 msgstr "%(occupied)s/%(max)s posti"
+
+msgid "🟢 Available seats:"
+msgstr "🟢 Posti disponibili:"
 
 msgid "🟡 Full tables:"
 msgstr "🟡 Tavoli pieni:"
@@ -4408,14 +5607,13 @@ msgstr "%(nickname)s aggiunto ai tuoi preferiti."
 msgid "Profile updated successfully"
 msgstr "Profilo aggiornato con successo"
 
-msgid "Email cannot be empty."
-msgstr "L'email non può essere vuota."
-
-msgid "This email is already in use."
-msgstr "Questa email è già in uso."
-
 msgid "Wrong password."
 msgstr "Password errata."
+
+msgid "We sent a link to the new address: open it to confirm the change."
+msgstr ""
+"Abbiamo inviato un link al nuovo indirizzo: aprilo per confermare la "
+"modifica."
 
 msgid "Email updated successfully."
 msgstr "Email aggiornata con successo."
@@ -4656,6 +5854,96 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "Hey!"
+#~ msgstr "Hey!"
+
+#~ msgid ""
+#~ "Do you know your way around code and want to contribute to Board-Gamers?"
+#~ msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
+
+#~ msgid "This game is archived."
+#~ msgstr "Questo gioco è archiviato."
+
+#~ msgid "See the game library"
+#~ msgstr "Vedi la libreria dei giochi"
+
+#, python-format
+#~ msgid "Games – %(name)s"
+#~ msgstr "Giochi - %(name)s"
+
+#~ msgid "Out of the catalog"
+#~ msgstr "Usciti dal catalogo"
+
+#~ msgid "See all games"
+#~ msgstr "Vedi tutti i giochi"
+
+#~ msgid "Catalog"
+#~ msgstr "Catalogo"
+
+#~ msgid "Open archived entry"
+#~ msgstr "Apri la scheda per ripristinare"
+
+#~ msgid "Current catalog"
+#~ msgstr "Catalogo corrente"
+
+#~ msgid "No games have left the catalog yet."
+#~ msgstr "Nessun gioco è ancora uscito dal catalogo."
+
+#~ msgid "Game removed from the current catalog."
+#~ msgstr "Gioco uscito dal catalogo corrente."
+
+#~ msgid "From:"
+#~ msgstr "Da:"
+
+#~ msgid ""
+#~ "On the selected day there are no bookable tables for the selected filters."
+#~ msgstr ""
+#~ "Nel giorno selezionato non ci sono tavoli prenotabili per i filtri "
+#~ "selezionati."
+
+#~ msgid "Game archive"
+#~ msgstr "Archivio"
+
+#~ msgid "Archive game"
+#~ msgstr "Archivia gioco"
+
+#~ msgid "New event to approve"
+#~ msgstr "Nuovo evento da approvare"
+
+#~ msgid "Pending approval"
+#~ msgstr "In attesa"
+
+#~ msgid "Approved"
+#~ msgstr "Approvato"
+
+#~ msgid "A new event is waiting for approval"
+#~ msgstr "Un nuovo evento è in attesa di approvazione"
+
+#~ msgid "Approve it from the admin"
+#~ msgstr "Approvalo dall'admin"
+
+#~ msgid "The event will be published after approval by an admin."
+#~ msgstr "L'evento sarà pubblicato dopo l'approvazione di un admin."
+
+#~ msgid "Event created! It will be published once approved by an admin."
+#~ msgstr ""
+#~ "Evento creato! Sarà pubblicato dopo l’approvazione di un amministratore."
+
+#~ msgid "See the program"
+#~ msgstr "Vedi il programma"
+
+#~ msgid "Program"
+#~ msgstr "Programma"
+
+#~ msgid "External program link"
+#~ msgstr "Link al programma esterno"
+
+#~ msgid "Opens the organizers' website"
+#~ msgstr "Apre il sito degli organizzatori"
+
+#~ msgid "Browse the schedule by time, area and game"
+#~ msgstr "Sfoglia il programma per orario, area e gioco"
+
 #~ msgid "Add your location"
 #~ msgstr "Aggiungi la tua location"
 
@@ -4760,11 +6048,6 @@ msgstr "Collega account"
 #~ msgstr "Inserisci un numero di telefono valido."
 
 #, fuzzy
-#~| msgid "Sent to your email address."
-#~ msgid "Enter a valid email address."
-#~ msgstr "Inviate al tuo indirizzo email."
-
-#, fuzzy
 #~| msgid "Phone number"
 #~ msgid "Enter a number."
 #~ msgstr "Numero di telefono"
@@ -4825,19 +6108,9 @@ msgstr "Collega account"
 #~ msgstr "Inserisci un numero di telefono valido."
 
 #, fuzzy
-#~| msgid "Invalid name."
-#~ msgid "Enter a valid date."
-#~ msgstr "Nome non valido."
-
-#, fuzzy
 #~| msgid "Date and time"
 #~ msgid "Enter a valid time."
 #~ msgstr "Data e ora"
-
-#, fuzzy
-#~| msgid "Current email"
-#~ msgid "Currently"
-#~ msgstr "Email attuale"
 
 #, fuzzy
 #~| msgid "Light"

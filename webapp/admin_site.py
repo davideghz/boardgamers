@@ -22,8 +22,10 @@ class CustomAdminSite(AdminSite):
         ]),
         ('location_group', 'Location', [
             ('webapp', 'Location'),
+            ('webapp', 'Network'),
             ('webapp', 'LocationFollower'),
             ('webapp', 'LocationGame'),
+            ('webapp', 'LocationGameTag'),
             ('webapp', 'Member'),
             ('webapp', 'Membership'),
             ('webapp', 'TelegramGroupConfig'),
@@ -35,6 +37,7 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'Comment'),
         ]),
         ('others_group', 'Other', [
+            ('webapp', 'Banner'),
             ('webapp', 'Game'),
             ('webapp', 'Event'),
             ('webapp', 'EventParticipant'),

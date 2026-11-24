@@ -1,20 +1,27 @@
-"""Riduzione delle immagini caricate (copertine, avatar) prima del salvataggio su S3.
-
-Le copertine BGG arrivano a piena risoluzione (PNG fino a diversi MB) ma sono
-mostrate al massimo come hero di pagina: le riduciamo a JPEG con lato lungo
-limitato. JPEG e non WebP perché le copertine finiscono anche in og:image.
-"""
+"""Resize uploads before storage: JPEG for opaque images, PNG to preserve alpha."""
 import logging
 import os
+from contextlib import contextmanager
 from io import BytesIO
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.utils.translation import gettext_lazy as _
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 logger = logging.getLogger(__name__)
 
 COVER_MAX_SIDE = 1200
+COVER_UPLOAD_MAX_BYTES = 5 * 1024 * 1024
+# Un file leggero può avere moltissimi pixel. I JPEG vengono decodificati già
+# rimpiccioliti, gli altri formati per intero: per questo hanno un limite più basso.
+COVER_UPLOAD_MAX_JPEG_PIXELS = 64_000_000
+COVER_UPLOAD_MAX_PIXELS = 16_000_000
 AVATAR_MAX_SIDE = 256
+NETWORK_LOGO_MAX_BYTES = 2 * 1024 * 1024
+NETWORK_LOGO_MAX_INPUT_SIDE = 2048
+NETWORK_LOGO_MAX_SIDE = 512
+NETWORK_LOGO_FORMATS = ('PNG', 'JPEG', 'WEBP')
 JPEG_QUALITY = 82
 # Sotto questa soglia un'immagine già entro le dimensioni viene lasciata com'è
 SMALL_ENOUGH_BYTES = 200 * 1024
@@ -43,42 +50,42 @@ def restrict_open_formats():
 
 
 def shrink_image_bytes(data, max_side):
-    """Restituisce i byte JPEG ridotti, oppure None se l'immagine va lasciata com'è
-    (già piccola, non decodificabile, o la riduzione non farebbe risparmiare)."""
+    """Return resized JPEG/PNG bytes, or None when the original can be kept."""
     try:
         with Image.open(BytesIO(data)) as img:
-            img = ImageOps.exif_transpose(img)
+            oversized = max(img.size) > max_side
             if max(img.size) <= max_side and len(data) <= SMALL_ENOUGH_BYTES:
                 return None
+            # Prima la riduzione, poi la rotazione: così thumbnail() può far decodificare
+            # i JPEG già rimpiccioliti, invece di tenere in memoria tutti i pixel.
             img.thumbnail((max_side, max_side), Image.LANCZOS)
-            img = _to_rgb(img)
+            img = ImageOps.exif_transpose(img)
             out = BytesIO()
-            img.save(out, 'JPEG', quality=JPEG_QUALITY, optimize=True, progressive=True)
+            if _has_transparency(img):
+                img.convert('RGBA').save(out, 'PNG', optimize=True)
+            else:
+                img.convert('RGB').save(out, 'JPEG', quality=JPEG_QUALITY, optimize=True, progressive=True)
     except (UnidentifiedImageError, OSError, ValueError) as e:
         logger.warning(f'Image shrink skipped: {e}')
         return None
 
     result = out.getvalue()
-    if len(result) > len(data) * MIN_SAVING_RATIO:
+    if not oversized and len(result) > len(data) * MIN_SAVING_RATIO:
         return None
     return result
 
 
-def _to_rgb(img):
-    """Appiattisce la trasparenza su bianco: il JPEG non ha canale alpha."""
-    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
-        img = img.convert('RGBA')
-        background = Image.new('RGB', img.size, (255, 255, 255))
-        background.paste(img, mask=img.getchannel('A'))
-        return background
-    if img.mode != 'RGB':
-        return img.convert('RGB')
-    return img
+def _has_transparency(img):
+    if 'A' in img.getbands():
+        return img.getchannel('A').getextrema()[0] < 255
+    return 'transparency' in img.info
 
 
-def jpeg_name(name):
-    """`games/bgg_123.png` -> `bgg_123.jpg` (upload_to aggiunge la cartella)."""
-    return os.path.splitext(os.path.basename(name))[0] + '.jpg'
+def resized_image_name(name, data):
+    """Keep the stored extension consistent with the actual normalized format."""
+    with Image.open(BytesIO(data)) as image:
+        extension = '.png' if image.format == 'PNG' else '.jpg'
+    return os.path.splitext(os.path.basename(name))[0] + extension
 
 
 def shrink_content_file(data, name, max_side):
@@ -86,4 +93,34 @@ def shrink_content_file(data, name, max_side):
     shrunk = shrink_image_bytes(data, max_side)
     if shrunk is None:
         return name, ContentFile(data)
-    return jpeg_name(name), ContentFile(shrunk)
+    return resized_image_name(name, shrunk), ContentFile(shrunk)
+
+
+@contextmanager
+def _open_network_logo(upload):
+    if upload.size > NETWORK_LOGO_MAX_BYTES:
+        raise ValidationError(_('The logo must be 2 MB or smaller.'))
+    upload.seek(0)
+    try:
+        with Image.open(upload, formats=NETWORK_LOGO_FORMATS) as image:
+            if max(image.size) > NETWORK_LOGO_MAX_INPUT_SIDE:
+                raise ValidationError(_('The logo must be 2048 pixels or smaller on each side.'))
+            yield image
+    except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+        raise ValidationError(_('Upload a valid PNG, JPEG or WebP logo.')) from exc
+    finally:
+        upload.seek(0)
+
+
+def validate_network_logo(upload):
+    with _open_network_logo(upload) as image:
+        image.load()
+
+
+def normalize_network_logo(upload, name):
+    with _open_network_logo(upload) as source:
+        logo = ImageOps.exif_transpose(source).convert('RGBA')
+        logo.thumbnail((NETWORK_LOGO_MAX_SIDE, NETWORK_LOGO_MAX_SIDE), Image.LANCZOS)
+        output = BytesIO()
+        logo.save(output, format='PNG')
+    return f'{os.path.splitext(name)[0]}.png', ContentFile(output.getvalue())

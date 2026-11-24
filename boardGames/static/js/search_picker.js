@@ -186,7 +186,9 @@
       + '<p class="text-sm text-content-muted">' + esc(picker.dataset.searchingText) + '</p></div>';
     debounceTimer = setTimeout(function () {
       var token = ++searchToken;
-      fetch(withExclude(picker.dataset.searchUrl + '?q=' + encodeURIComponent(q)), {credentials: 'same-origin'})
+      var url = new URL(picker.dataset.searchUrl, window.location.href);
+      url.searchParams.set('q', q);
+      fetch(withExclude(url.href), {credentials: 'same-origin'})
         .then(function (r) { return r.json(); })
         .then(function (data) { if (token === searchToken) render(data.results); })
         .catch(function () { if (token === searchToken) message(picker.dataset.noResultsText); });

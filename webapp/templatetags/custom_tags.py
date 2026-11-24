@@ -32,12 +32,19 @@ def render_markdown(value):
 
 
 
+@register.inclusion_tag("partials/_back_link.html")
+def back_link(url_name, *args, label="", query=None):
+    """Link back to the page that logically contains the current one."""
+    return {"url": reverse(url_name, args=args, query=query), "label": label}
+
+
 @register.inclusion_tag("tags/location_card.html", takes_context=True)
 def location_card(context, location):
     followed_ids = context.get('followed_location_ids', set())
     return {
         'location': location,
         'is_followed': location.id in followed_ids,
+        'affiliations': getattr(location, 'public_affiliations', ()),
     }
 
 
@@ -48,9 +55,14 @@ def table_card(table):
     }
 
 
-@register.inclusion_tag("tags/event_card.html")
-def event_card(event, today=None):
-    return {'event': event, 'today': today}
+@register.inclusion_tag("tags/event_card.html", takes_context=True)
+def event_card(context, event, today=None):
+    # Pages that pass `managed_event_ids` get a gear linking to the event's management
+    return {
+        'event': event,
+        'is_concluded': event.is_concluded(today),
+        'can_manage': event.pk in context.get('managed_event_ids', ()),
+    }
 
 
 @register.inclusion_tag("tags/event_table_card.html")

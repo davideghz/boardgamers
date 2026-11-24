@@ -1,0 +1,20 @@
+{% extends "emails/base/base_email_html.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% trans "Confirm your email" %}
+{% endblock title %}
+
+{% block main_content %}
+    {% trans "Hey" %} {{ nickname }},<br>
+    {% trans "Please click the button below to confirm your new email address. You need to be logged in." %}
+{% endblock main_content %}
+
+{% block cta_label %}
+  {% trans "Confirm" %}
+{% endblock cta_label %}
+
+{% block cta_href %}
+  {{ button_href }}
+{% endblock cta_href %}

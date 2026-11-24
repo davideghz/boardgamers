@@ -29,7 +29,7 @@ The two layers share the same database records. The `sent` field on `Notificatio
 
 | Type | Trigger | Recipients |
 |---|---|---|
-| `new_table` | Table created | Followers of the location |
+| `new_table` | Table created | Followers of the location; also its owner and managers (not the author) when the location has stations and the table has none |
 | `new_player` | User joins a table | Other players at the table |
 | `new_comment` | Comment posted | All players at the table |
 | `leaderboard_editable` | Leaderboard opens for editing | All players at the table |
@@ -92,7 +92,7 @@ There is no task queue (Celery, RQ, etc.) — scheduling is external.
 - `recipient.notification_new_table=True` (if False, the record is still marked sent without sending)
 - `recipient.user.email` must be non-empty
 
-**Template variables per recipient**: `name`, `title`, `game`, `date`, `time`, `location_name`, `button_href`.
+**Template variables per recipient**: `name`, `title`, `game`, `date`, `time`, `location_name`, `button_href`, `assign_station_href` (link to edit the table, set only for the location owner/managers when, at send time, the location has stations and the table has none; staff and stations are read once per batch; after changing the template run `setup_ses_template`).
 
 **After sending**: sets `sent=True`, `sent_at=now()` on all processed records in a single `UPDATE`.
 

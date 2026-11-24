@@ -5,14 +5,15 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.models import Game, Location
+from webapp.models import Event, Game, Location
+from webapp.services.game_loans import can_view_game_library, is_active_member
 
 
 class GameListView(ListView):
     model = Game
     template_name = 'games/game_list.html'
     context_object_name = 'games'
-    paginate_by = 14
+    paginate_by = 24  # fills whole rows of the 2/3/4-column grid
 
     def get_queryset(self):
         self.q = self.request.GET.get('q', '').strip()
@@ -48,14 +49,33 @@ class GameDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        game = self.get_object()
+        game = self.object
         context['table_count'] = game.table_count
         context['player_count'] = game.player_count
-        context['meta'] = self.get_object().as_meta(self.request)
-        context['locations'] = (
-            Location.objects
-            .filter(tables__game=game)
-            .annotate(game_table_count=Count('tables', distinct=True))
-            .order_by('-game_table_count')
-        )
+        context['meta'] = game.as_meta(self.request)
+        params = self.request.GET
+        profile = getattr(self.request.user, 'user_profile', None)
+        from_location = params.get('from_location')
+        from_event = params.get('from_event')
+        # Coming from a library, community stats and the venues where the game is played elsewhere
+        # would be misleading.
+        context['from_library'] = bool(from_location or from_event)
+        if not context['from_library']:
+            context['locations'] = (
+                Location.objects
+                .filter(tables__game=game)
+                .annotate(game_table_count=Count('tables', distinct=True))
+                .order_by('-game_table_count')
+            )
+        if from_location:
+            location = Location.objects.filter(
+                slug=from_location, location_games__game=game, location_games__is_archived=False,
+            ).first()
+            if location and can_view_game_library(location, is_member=is_active_member(location, profile)):
+                context['back_location'] = location
+                context['back_library_query'] = {key: params[key] for key in ('q', 'page') if key in params}
+        if from_event:
+            event = Event.objects.filter(slug=from_event, games__game=game).first()
+            if event and (event.is_published or event.is_manager(profile)):
+                context['back_event'] = event
         return context

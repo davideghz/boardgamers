@@ -1,8 +1,12 @@
+import datetime
+
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext, override
 
 from webapp.factories import UserProfileFactory, LocationFactory, GameFactory
-from webapp.models import LocationGame
+from webapp.models import LocationGame, Table
 
 
 class PublicGamesToggleTest(TestCase):
@@ -65,6 +69,24 @@ class PublicGamesToggleTest(TestCase):
         response = self.client.get(reverse('location-manage-games', kwargs={'slug': self.location.slug}))
         self.assertContains(response, self.toggle_url)
 
+    def test_game_detail_uses_general_list_for_direct_visit_or_hidden_library(self):
+        game_url = reverse('game-detail', args=[self.game.slug])
+        general_list = f'href="{reverse("game-list")}"'
+        self.assertContains(self.client.get(game_url), general_list)
+
+        self.location.enable_public_games = False
+        self.location.save(update_fields=['enable_public_games'])
+        response = self.client.get(game_url, {'from_location': self.location.slug})
+        self.assertContains(response, general_list)
+        self.assertNotContains(response, f'href="{self.games_url}"')
+
+    def test_game_detail_from_library_hides_where_it_is_played(self):
+        Table.objects.create(
+            title="Mars", location=self.location, game=self.game, author=self.owner,
+            date=datetime.date.today(), time=datetime.time(20, 0))
+        game_url = reverse('game-detail', args=[self.game.slug])
+        self.assertEqual(list(self.client.get(game_url).context['locations']), [self.location])
+        self.assertNotIn('locations', self.client.get(game_url, {'from_location': self.location.slug}).context)
 
 class PublicGamesPaginationTest(TestCase):
     def setUp(self):
@@ -88,3 +110,18 @@ class PublicGamesPaginationTest(TestCase):
         self.assertEqual([lg.game.name for lg in response.context['location_games']], ["Wingspan"])
         self.assertEqual(response.context['total_count'], 21)
         self.assertFalse(response.context['is_paginated'])
+
+    def test_game_detail_links_back_to_library_search_and_page(self):
+        query = {'q': 'Game', 'page': 2}
+        response = self.client.get(self.games_url, query)
+        game = response.context['location_games'][0].game
+        game_url = reverse('game-detail', args=[game.slug], query={'from_location': self.location.slug, **query})
+        self.assertContains(response, f'href="{escape(game_url)}"')
+
+        back_url = reverse('location-games', args=[self.location.slug], query=query)
+        detail = self.client.get(game_url)
+        self.assertContains(detail, f'href="{escape(back_url)}"')
+        with override(detail.wsgi_request.LANGUAGE_CODE):
+            label = gettext('Library – %(name)s') % {'name': self.location.name}
+        self.assertContains(detail, f'<span class="truncate">{escape(label)}</span>')
+        self.assertEqual(self.client.get(back_url).context['page_obj'].number, 2)

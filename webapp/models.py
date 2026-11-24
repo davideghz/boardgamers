@@ -14,18 +14,22 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
-from django.urls import reverse
-from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
+from django.urls import reverse, translate_url
+from django.utils import timezone, translation
 from django.utils.encoding import force_bytes
 from django.utils.functional import cached_property
-from django.utils.http import urlsafe_base64_encode
-from django.utils.translation import gettext_lazy as _
+from django.utils.http import urlsafe_base64_encode, url_has_allowed_host_and_scheme
+from django.utils.translation import get_language, gettext_lazy as _
 from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
-from webapp.storage_backends import PublicMediaStorage
+
+from webapp.fields import ManagedImageField, NetworkLogoImageField
+from webapp.image_models import ManagedImagesModel
+from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE
 
 
 def _plain_text(markdown_text):
@@ -50,7 +54,7 @@ def _absolute_url(url, request=None):
     return settings.DOMAIN_URL + url
 
 
-class DateTimeModel(models.Model):
+class DateTimeModel(ManagedImagesModel):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -61,6 +65,7 @@ class DateTimeModel(models.Model):
 class SlugModel(models.Model):
     slug_field_name = None
     random_string_length = 6
+    regenerate_slug_on_rename = True
 
     class Meta:
         abstract = True
@@ -94,7 +99,10 @@ class SlugModel(models.Model):
                 return candidate
 
     def save(self, *args, **kwargs):
-        if self.pk:
+        if not self.regenerate_slug_on_rename:
+            if not self.slug:
+                self.slug = self.create_unique_slug()
+        elif self.pk:
             original = type(self).objects.get(pk=self.pk)
             original_slug = slugify(getattr(original, self.slug_field_name))
             current_slug = slugify(self.get_slug_source_value())
@@ -135,7 +143,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
 
-    image = models.ImageField(upload_to='games', null=True, blank=True, storage=PublicMediaStorage())
+    image = ManagedImageField(upload_to='games', null=True, blank=True, max_side=COVER_MAX_SIDE)
     description = models.TextField()
     bgg_code = models.CharField(max_length=20, null=True, blank=True, verbose_name='BGG Code')
     min_players = models.SmallIntegerField(null=True, blank=True, verbose_name=_('Minimum players'))
@@ -152,6 +160,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
         db_default=ResultMode.NONE, verbose_name=_('Suggested result mode'))
     bgg_imported = models.BooleanField(default=False, db_index=True)
     verified = models.BooleanField(default=False, db_index=True)
+    is_expansion = models.BooleanField(default=False, db_default=False, verbose_name=_('Expansion'))
 
     _metadata = {
         'title': 'get_meta_title',
@@ -193,6 +202,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     LEADERBOARD_EDIT_DAYS_DEFAULT = 2
     LEADERBOARD_EDIT_DAYS_MIN = 2
     LEADERBOARD_EDIT_DAYS_MAX = 30
+    GAME_LOAN_DAYS_DEFAULT = 7
 
     slug_field_name = 'name'
     name = models.CharField(max_length=255)
@@ -200,8 +210,9 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
 
     creator = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='locations', null=True, blank=True)
     managers = models.ManyToManyField('UserProfile', related_name='managed_locations', blank=True)
+    networks = models.ManyToManyField('Network', through='LocationNetwork', related_name='locations', blank=True)
     description = models.TextField()
-    cover = models.ImageField(upload_to='location-covers', null=True, blank=True, storage=PublicMediaStorage())
+    cover = ManagedImageField(upload_to='location-covers', null=True, blank=True, max_side=COVER_MAX_SIDE)
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=144, null=True, blank=True)
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -212,7 +223,36 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     enable_calendar = models.BooleanField(default=False)
     # Lets visitors browse the game library (LocationGame) from the location page.
     enable_public_games = models.BooleanField(default=True)
+    # Sections of the public location page the managers can hide.
+    show_most_played_games = models.BooleanField(default=True)
+    show_stats = models.BooleanField(default=True)
+    show_top_gamers = models.BooleanField(default=True)
+    enable_game_loans = models.BooleanField(default=False, verbose_name=_('Enable game loans'))
+    enable_member_game_loans = models.BooleanField(
+        default=False, verbose_name=_('Allow members to record their own loans'))
+    show_game_loan_borrower = models.BooleanField(
+        default=False, verbose_name=_('Show the borrower’s nickname to members'))
+    game_loan_days = models.PositiveSmallIntegerField(
+        default=GAME_LOAN_DAYS_DEFAULT,
+        validators=[MinValueValidator(1)],
+        verbose_name=_('Default loan duration (days)'),
+    )
     website = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(
+        _('Facebook profile'), blank=True, max_length=500,
+        validators=[RegexValidator(
+            r'\Ahttps?://(?:(?:www|m|web)\.)?(?:facebook\.com|fb\.com)/'
+            r'(?:[\w.-]+|(?:people|pages|p)/[^/?#]+(?:/\d+)?|share/[\w-]+)/?(?:[?#]|\Z)',
+            _('Enter a Facebook profile URL.'), flags=re.IGNORECASE,
+        )],
+    )
+    instagram_url = models.URLField(
+        _('Instagram profile'), blank=True, max_length=500,
+        validators=[RegexValidator(
+            r'\Ahttps?://(?:www\.)?instagram\.com/[\w.]+/?(?:[?#]|\Z)',
+            _('Enter an Instagram profile URL.'), flags=re.IGNORECASE,
+        )],
+    )
     opening_hours = models.JSONField(null=True, blank=True)
     default_table_time = models.TimeField(
         default=datetime.time(20, 30),
@@ -261,6 +301,10 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         'description': 'get_meta_description',
         'image': 'cover_url',
     }
+
+    def is_manager(self, user_profile):
+        return bool(user_profile and (
+            self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
 
     def get_meta_title(self):
         return _("%(name)s - Board-Gamers.com") % {'name': self.name}
@@ -352,6 +396,47 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         super().save(*args, **kwargs)
 
 
+class Network(DateTimeModel, SlugModel):
+    slug_field_name = 'name'
+    regenerate_slug_on_rename = False
+
+    name = models.CharField(_('Name'), max_length=255)
+    slug = models.SlugField(max_length=144, unique=True, blank=True)
+    logo = NetworkLogoImageField(_('National logo'), upload_to='network-logos', blank=True)
+    website = models.URLField(_('Website'), blank=True, validators=[URLValidator(schemes=['http', 'https'])])
+    is_active = models.BooleanField(_('Active'), default=True)
+
+    class Meta:
+        ordering = ['name', 'pk']
+        verbose_name = _('National network')
+        verbose_name_plural = _('National networks')
+
+    def __str__(self):
+        return self.name
+
+
+class LocationNetwork(DateTimeModel):
+
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='network_affiliations')
+    network = models.ForeignKey(Network, on_delete=models.PROTECT, related_name='affiliations',
+                                verbose_name=_('National network'))
+    local_name = models.CharField(_('Local affiliation name'), max_length=100, blank=True)
+    custom_logo = NetworkLogoImageField(_('Custom affiliation logo'), upload_to='location-network-logos', blank=True)
+
+    class Meta:
+        ordering = ['network__name', 'network_id', 'pk']
+        constraints = [models.UniqueConstraint(fields=['location', 'network'], name='unique_location_network')]
+        verbose_name = _('Location affiliation')
+        verbose_name_plural = _('Location affiliations')
+
+    @property
+    def display_name(self):
+        return self.local_name or self.network.name
+
+    def __str__(self):
+        return f'{self.location.name} – {self.network.name}'
+
+
 class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     slug_field_name = 'nickname'
     nickname = models.CharField(unique=True, max_length=25, null=False, blank=True)
@@ -365,7 +450,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     latitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     longitude = models.CharField(max_length=25, null=True, blank=True, db_index=True)
     point = models.PointField(geography=True, default=Point(0.0, 0.0))
-    avatar = models.ImageField(upload_to='avatars', null=True, blank=True, storage=PublicMediaStorage())
+    avatar = ManagedImageField(upload_to='avatars', null=True, blank=True, max_side=AVATAR_MAX_SIDE)
     phone = PhoneNumberField(null=True, blank=True, region='IT', verbose_name=_('Phone'))
 
     preferred_language = models.CharField(
@@ -533,8 +618,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     players = models.ManyToManyField(UserProfile, through='Player', related_name='joined_tables', blank=True)
     game = models.ForeignKey(
         Game, on_delete=models.SET_NULL, related_name='created_tables', null=True, blank=True, verbose_name=_('Game'))
-    custom_cover = models.ImageField(
-        upload_to='table-covers', null=True, blank=True, storage=PublicMediaStorage(),
+    custom_cover = ManagedImageField(
+        upload_to='table-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Custom cover'),
         help_text=_('Optional image shown instead of the game cover.'))
 
@@ -821,7 +906,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if self.location_id:
             location = self.location.as_schema_place(request)
         elif self.event_id:
-            location = self.event.as_schema_place()
+            location = self.event.as_schema_place(request)
         else:
             location = None
         if not location:
@@ -1227,7 +1312,7 @@ class MembershipDocument(DateTimeModel):
     )
     name = models.CharField(max_length=200, verbose_name=_('Name'))
     file = models.FileField(
-        upload_to='membership-documents', storage=PublicMediaStorage(),
+        upload_to='membership-documents',
         verbose_name=_('File')
     )
     is_active = models.BooleanField(default=True, verbose_name=_('Active'))
@@ -1248,12 +1333,37 @@ class MembershipDocument(DateTimeModel):
         return name.rsplit('.', 1)[-1].upper() if '.' in name else ''
 
 
+class LocationGameTag(DateTimeModel):
+    """A label for the games of a location's library, defined by its managers.
+    Internal only: tags are not shown on the public library."""
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='game_tags', verbose_name=_('Location'))
+    name = models.CharField(max_length=64, verbose_name=_('Name'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Location Game Tag')
+        verbose_name_plural = _('Location Game Tags')
+        ordering = ['order', 'name']
+        unique_together = [('location', 'name')]
+
+
 class LocationGame(DateTimeModel):
     """
     Represents a game in a location's library.
     Can be owned by the location itself or by a member (socio),
     and can be physically stored at the association or at a member's home.
     """
+    class WithdrawalReason(models.TextChoices):
+        SOLD = 'sold', _('Sold')
+        DESTROYED = 'destroyed', _('Destroyed')
+        LOST = 'lost', _('Lost or missing')
+        RETURNED_TO_MEMBER = 'returned_to_member', _('Returned to member')
+        OTHER = 'other', _('Other')
+
     OWNED_BY_LOCATION = 'location'
     OWNED_BY_MEMBER = 'member'
     OWNERSHIP_CHOICES = [
@@ -1288,7 +1398,14 @@ class LocationGame(DateTimeModel):
         max_length=20, choices=PHYSICAL_LOCATION_CHOICES, default=AT_ASSOCIATION,
         verbose_name=_('Physical Location')
     )
+    is_archived = models.BooleanField(default=False, verbose_name=_('Withdrawn'))
+    withdrawn_on = models.DateField(null=True, blank=True, verbose_name=_('Withdrawal date'))
+    withdrawal_reason = models.CharField(
+        max_length=20, choices=WithdrawalReason.choices, blank=True, verbose_name=_('Withdrawal reason'))
+    withdrawal_note = models.TextField(blank=True, verbose_name=_('Withdrawal note'))
     notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    tags = models.ManyToManyField(
+        LocationGameTag, related_name='games', blank=True, verbose_name=_('Tags'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
@@ -1297,8 +1414,80 @@ class LocationGame(DateTimeModel):
         unique_together = ('location', 'game')
         ordering = ['game__name']
 
+    @property
+    def has_withdrawal_details(self):
+        return bool(self.withdrawn_on or self.withdrawal_reason or self.withdrawal_note)
+
+    @property
+    def is_lendable(self):
+        return (not self.is_archived and self.ownership == self.OWNED_BY_LOCATION
+                and self.physical_location == self.AT_ASSOCIATION)
+
     def __str__(self):
         return f"{self.game.name} @ {self.location.name}"
+
+
+def delete_game_loan_member(collector, field, sub_objs, using):
+    """Keep the borrower for open loans and anonymize returned loans."""
+    models.RESTRICT(collector, field, sub_objs.filter(returned_at__isnull=True), using)
+    returned = sub_objs.filter(returned_at__isnull=False)
+    for actor in ('loaned_by', 'returned_by'):
+        # A self-service loan can also identify the borrower as its operator.
+        loan_ids = list(returned.filter(**{actor: models.F('member__user_profile')}).values_list('pk', flat=True))
+        if loan_ids:
+            collector.add_field_update(field.model._meta.get_field(actor), None, sub_objs.filter(pk__in=loan_ids))
+    models.SET_NULL(collector, field, returned, using)
+
+
+class LocationGameLoan(DateTimeModel):
+    # Collect the loans when deleting their location, including those that restrict
+    # deleting the game or member individually.
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='game_loans', verbose_name=_('Location'))
+    location_game = models.ForeignKey(
+        LocationGame, on_delete=models.RESTRICT, related_name='loans', verbose_name=_('Location Game'),
+    )
+    member = models.ForeignKey(
+        Member, on_delete=delete_game_loan_member, null=True, blank=True,
+        related_name='game_loans', verbose_name=_('Member'),
+    )
+    loaned_at = models.DateTimeField(default=timezone.now, verbose_name=_('Loaned at'))
+    due_date = models.DateField(verbose_name=_('Due date'))
+    returned_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Returned at'))
+    loaned_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='recorded_game_loans', verbose_name=_('Loan recorded by'),
+    )
+    returned_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='recorded_game_returns', verbose_name=_('Return recorded by'),
+    )
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        verbose_name = _('Location Game Loan')
+        verbose_name_plural = _('Location Game Loans')
+        ordering = ['-loaned_at', '-pk']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['location_game'], condition=models.Q(returned_at__isnull=True),
+                name='unique_open_loan_per_location_game',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(returned_at__isnull=True) | models.Q(returned_at__gte=models.F('loaned_at')),
+                name='game_loan_return_after_checkout',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(returned_at__isnull=False) | models.Q(member__isnull=False),
+                name='open_game_loan_has_member',
+            ),
+        ]
+
+    @property
+    def is_overdue(self):
+        return self.returned_at is None and self.due_date < timezone.localdate()
+
+    def __str__(self):
+        return f'{self.location_game} ({self.loaned_at:%Y-%m-%d})'
 
 
 class TelegramGroupConfig(DateTimeModel):
@@ -1342,6 +1531,104 @@ class TelegramSetupToken(DateTimeModel):
         return not self.used and self.expires_at > timezone.now()
 
 
+def validate_banner_link(value):
+    if value.startswith('/') and url_has_allowed_host_and_scheme(value, allowed_hosts=set()):
+        return
+    URLValidator(schemes=['http', 'https'])(value)
+
+
+class BannerQuerySet(models.QuerySet):
+    def visible(self, *, authenticated, home, at=None):
+        at = at or timezone.now()
+        audiences = [Banner.Audience.EVERYONE,
+                     Banner.Audience.AUTHENTICATED if authenticated else Banner.Audience.ANONYMOUS]
+        placements = [Banner.Placement.SITE]
+        if home:
+            placements.append(Banner.Placement.HOME)
+        return self.filter(is_active=True, audience__in=audiences, placement__in=placements).filter(
+            models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=at),
+            models.Q(ends_at__isnull=True) | models.Q(ends_at__gt=at),
+        )
+
+
+class Banner(DateTimeModel):
+    class Audience(models.TextChoices):
+        EVERYONE = 'everyone', _('Everyone')
+        ANONYMOUS = 'anonymous', _('Anonymous visitors')
+        AUTHENTICATED = 'authenticated', _('Authenticated users')
+
+    class Placement(models.TextChoices):
+        HOME = 'home', _('Home page')
+        SITE = 'site', _('All pages')
+
+    class Dismissal(models.TextChoices):
+        PERMANENT = 'permanent', _('Permanently')
+        DAYS = 'days', _('For a number of days')
+
+    key = models.SlugField(_('Identifier'), max_length=80, unique=True)
+    version = models.PositiveIntegerField(_('Version'), default=1, validators=[MinValueValidator(1)],
+                                         help_text=_('Increase only to show a substantially new message again.'))
+    title = models.CharField(_('Title'), max_length=150, blank=True)
+    message = models.TextField(_('Message'))
+    cover = ManagedImageField(_('Cover'), upload_to='banners/', blank=True, max_side=COVER_MAX_SIDE)
+    cover_alt = models.CharField(_('Cover description'), max_length=200, blank=True,
+                                 help_text=_('Leave empty if the image is decorative.'))
+    action_label = models.CharField(_('Link text'), max_length=100, blank=True)
+    action_url = models.CharField(_('Link URL'), max_length=500, blank=True, validators=[validate_banner_link],
+                                  help_text=_('An internal path starting with / or an http(s) URL.'))
+    is_active = models.BooleanField(_('Active'), default=False, db_index=True)
+    audience = models.CharField(_('Audience'), max_length=20, choices=Audience.choices, default=Audience.EVERYONE)
+    placement = models.CharField(_('Display on'), max_length=10, choices=Placement.choices, default=Placement.HOME)
+    priority = models.PositiveIntegerField(_('Priority'), default=0, help_text=_('Higher values are shown first.'))
+    starts_at = models.DateTimeField(_('Visible from'), null=True, blank=True)
+    ends_at = models.DateTimeField(_('Visible until'), null=True, blank=True)
+    dismissal = models.CharField(_('Hide after closing'), max_length=10, choices=Dismissal.choices,
+                                 default=Dismissal.PERMANENT)
+    dismissal_days = models.PositiveIntegerField(_('Days hidden after closing'), null=True, blank=True,
+                                                 validators=[MinValueValidator(1)])
+
+    objects = BannerQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _('Banner')
+        verbose_name_plural = _('Banners')
+        ordering = ['-priority', 'pk']
+
+    def __str__(self):
+        return self.title or self.key
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
+            errors['ends_at'] = _('The end must be after the start.')
+        if self.dismissal == self.Dismissal.DAYS and not self.dismissal_days:
+            errors['dismissal_days'] = _('Enter how many days the banner should remain hidden.')
+        # The forms only have the translated fields, so the errors go on those.
+        labels = {name: getattr(self, name) for name in
+                  (f'action_label_{language}' for language, _name in settings.LANGUAGES)}
+        if self.action_url:
+            errors.update({name: _('Enter the link text.') for name, label in labels.items() if not label})
+        elif any(labels.values()):
+            errors['action_url'] = _('Enter the link URL.')
+        if errors:
+            raise ValidationError(errors)
+
+    @property
+    def action_href(self):
+        if not self.action_url:
+            return ''
+        try:
+            validate_banner_link(self.action_url)
+        except ValidationError:
+            return ''
+        if self.action_url.startswith('/'):
+            language = get_language()
+            with translation.override(settings.LANGUAGE_CODE):
+                return translate_url(self.action_url, language)
+        return self.action_url
+
+
 class FAQCategory(DateTimeModel):
     name = models.CharField(max_length=100, verbose_name=_('Name'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
@@ -1375,23 +1662,36 @@ class FAQ(DateTimeModel):
 
 
 class Event(DateTimeModel, ModelMeta, SlugModel):
-    PENDING = 'pending'
-    APPROVED = 'approved'
-    REJECTED = 'rejected'
+    # Managers publish their own events. Only an admin can block one, and a
+    # blocked event can't be published again from the management pages.
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
+    BLOCKED = 'blocked'
     STATUS_CHOICES = [
-        (PENDING, _('Pending approval')),
-        (APPROVED, _('Approved')),
-        (REJECTED, _('Rejected')),
+        (DRAFT, _('Draft')),
+        (PUBLISHED, _('Published')),
+        (BLOCKED, _('Blocked')),
     ]
 
     slug_field_name = 'name'
     name = models.CharField(max_length=255, verbose_name=_('Name'))
     slug = models.SlugField(max_length=144, unique=True, null=False, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))
-    cover = models.ImageField(
-        upload_to='event-covers', null=True, blank=True, storage=PublicMediaStorage(),
+    cover = ManagedImageField(
+        upload_to='event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Cover'))
 
+    # PROTECT also stops the deletion of the profile that created the location
+    # (Location.creator cascades): reassign its events first.
+    organizer_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='organized_events', null=True, blank=True,
+        verbose_name=_('Organizing location'),
+    )
+    venue_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='events_at_venue', null=True, blank=True,
+        verbose_name=_('Venue location'),
+    )
+    venue_name = models.CharField(max_length=255, blank=True, default='', db_default='', verbose_name=_('Venue name'))
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
     city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -1401,7 +1701,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     email = models.EmailField(null=True, blank=True, verbose_name=_('Email'))
 
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default=PENDING, verbose_name=_('Status'))
+        max_length=20, choices=STATUS_CHOICES, default=DRAFT, verbose_name=_('Status'))
 
     creator = models.ForeignKey(
         'UserProfile', on_delete=models.SET_NULL, related_name='created_events',
@@ -1420,6 +1720,18 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     enable_public_games = models.BooleanField(
         # DB-level default too, so code that predates this column can still insert events
         default=False, db_default=False, verbose_name=_('Public game library'))
+    # When off, the program page is reserved to managers and the event page shows
+    # no link to it.
+    table_booking_enabled = models.BooleanField(
+        default=True, db_default=True, verbose_name=_('Table booking'))
+    # Optional button shown first among the event page cards (e.g. the organizers'
+    # own program or ticket shop). Hidden unless both title and URL are set.
+    custom_button_title = models.CharField(
+        max_length=80, blank=True, default='', db_default='', verbose_name=_('Button title'))
+    custom_button_subtitle = models.CharField(
+        max_length=160, blank=True, default='', db_default='', verbose_name=_('Button subtitle'))
+    custom_button_url = models.URLField(
+        max_length=500, blank=True, default='', db_default='', verbose_name=_('Button link'))
 
     _metadata = {
         'title': 'get_meta_title',
@@ -1450,7 +1762,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         Console flags. Relative URLs are made absolute from `request` when
         available, else from settings.DOMAIN_URL (S3 media URLs are already
         absolute)."""
-        place = self.as_schema_place()
+        place = self.as_schema_place(request)
         if not self.start_date or not place:
             return None
         data = {
@@ -1470,16 +1782,22 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['description'] = description
         if self.cover:
             data['image'] = _absolute_url(self.cover_url, request)
-        if self.creator and self.creator.nickname:
+        if self.organizer_location_id:
+            data['organizer'] = {'@type': 'Organization', 'name': self.organizer_location.name}
+        elif self.creator and self.creator.nickname:
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data
 
-    def as_schema_place(self):
+    def as_schema_place(self, request=None):
         """schema.org/Place fragment for this event's venue, or None if unknown.
-        Embeddable as the `location` of the event and of its tables."""
+        Embeddable as the `location` of the event and of its tables. A venue
+        without an address falls back to the address of the event."""
+        venue = self.venue_location
+        if venue and (venue.address or venue.city):
+            return venue.as_schema_place(request)
         if not (self.address or self.city):
             return None
-        place = {'@type': 'Place', 'name': self.city or self.name}
+        place = {'@type': 'Place', 'name': venue.name if venue else self.venue_name or self.city or self.name}
         postal = {'@type': 'PostalAddress'}
         if self.address:
             postal['streetAddress'] = self.address
@@ -1494,6 +1812,10 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             }
         return place
 
+    @property
+    def is_at_organizer_location(self):
+        return self.organizer_location_id is not None and self.organizer_location_id == self.venue_location_id
+
     def get_absolute_url(self):
         return reverse('event_detail', kwargs={'slug': self.slug})
 
@@ -1507,6 +1829,27 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
     def can_create_table(self, user_profile):
         return self.is_manager(user_profile) or user_profile in self.allowed_table_creators.all()
+
+    @property
+    def is_published(self):
+        return self.status == self.PUBLISHED
+
+    def missing_publish_requirements(self):
+        """What the event still lacks before it can be published: an undated event
+        wouldn't show up in the event list, and an empty page tells visitors nothing."""
+        missing = []
+        if not self.dates.exists():
+            missing.append(_('Add at least one date'))
+        if not self.description.strip():
+            missing.append(_('Write a description'))
+        return missing
+
+    def can_view_program(self, user):
+        """The program is public while table booking is on; otherwise only the
+        event managers and superusers can open it."""
+        if self.table_booking_enabled:
+            return True
+        return user.is_authenticated and (user.is_superuser or self.is_manager(user.user_profile))
 
     @cached_property
     def sorted_dates(self):
@@ -1551,19 +1894,35 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
 
 class PlayArea(DateTimeModel):
+    """A room or zone where tables are played. Belongs to either an event or a
+    location: the two sets are independent (events don't inherit location areas)."""
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='play_areas', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='play_areas',
+        null=True, blank=True, verbose_name=_('Event'))
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='play_areas',
+        null=True, blank=True, verbose_name=_('Location'))
     name = models.CharField(max_length=144, verbose_name=_('Name'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     def __str__(self):
-        return f"{self.event.name} — {self.name}"
+        owner = self.event or self.location
+        return f"{owner.name} — {self.name}"
 
     class Meta:
         verbose_name = _('Play Area')
         verbose_name_plural = _('Play Areas')
         ordering = ['order', 'name']
-        unique_together = [('event', 'name')]
+        unique_together = [('event', 'name'), ('location', 'name')]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(event__isnull=False, location__isnull=True)
+                    | models.Q(event__isnull=True, location__isnull=False)
+                ),
+                name='playarea_event_xor_location',
+            ),
+        ]
 
 
 class EventDate(DateTimeModel):
@@ -1643,28 +2002,44 @@ class EventGame(DateTimeModel):
 
 
 class PhysicalTable(DateTimeModel):
-    """A physical playing station ("postazione") at an event — e.g. Table 1, 2, 3.
+    """A physical playing station ("postazione") at an event or a location — e.g.
+    Table 1, 2, 3. Belongs to exactly one of the two, like PlayArea.
 
     Game sessions (Table) can be assigned to a station for a time slot. A station
     can exist without any session (free / game-lending stations).
     """
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='physical_tables', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='physical_tables',
+        null=True, blank=True, verbose_name=_('Event'))
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='physical_tables',
+        null=True, blank=True, verbose_name=_('Location'))
     play_area = models.ForeignKey(
         PlayArea, on_delete=models.SET_NULL, related_name='physical_tables',
         null=True, blank=True, verbose_name=_('Play Area'))
     name = models.CharField(max_length=144, verbose_name=_('Name'),
                             help_text=_('On-site label, e.g. "Table 1"'))
+    is_visible = models.BooleanField(default=True, verbose_name=_('Selectable by all users'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     def __str__(self):
-        return f"{self.event.name} — {self.name}"
+        owner = self.event or self.location
+        return f"{owner.name} — {self.name}"
 
     class Meta:
         verbose_name = _('Station')
         verbose_name_plural = _('Stations')
         ordering = ['order', 'name']
-        unique_together = [('event', 'name')]
+        unique_together = [('event', 'name'), ('location', 'name')]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(event__isnull=False, location__isnull=True)
+                    | models.Q(event__isnull=True, location__isnull=False)
+                ),
+                name='physicaltable_event_xor_location',
+            ),
+        ]
 
 
 class EventParticipant(DateTimeModel):

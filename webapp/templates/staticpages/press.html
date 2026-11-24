@@ -18,7 +18,7 @@
     {# ── ABOUT ────────────────────────────────────────────────────────── #}
     <section>
       <h2 class="text-xl font-extrabold text-content mb-4">{% trans "In a few words" %}</h2>
-      <div class="rounded-2xl border border-divider bg-surface p-6">
+      <div class="rounded-xl border border-divider bg-surface p-6">
         <p id="press-boilerplate" class="text-sm text-content leading-relaxed">
           {% trans "Board-Gamers.com is a free, open source platform for board game clubs, game libraries and shops. It helps them organize game tables, events and members, and it helps players find a table near them. It is built by volunteers who love board games." %}
         </p>
@@ -30,15 +30,15 @@
       </div>
 
       <dl class="grid grid-cols-3 gap-3 mt-4">
-        <div class="rounded-2xl border border-divider bg-surface p-4 text-center">
+        <div class="rounded-xl border border-divider bg-surface p-4 text-center">
           <dt class="text-xs text-content-muted">{% trans "Locations" %}</dt>
           <dd class="text-2xl font-extrabold text-content mt-1">{{ stats.locations }}</dd>
         </div>
-        <div class="rounded-2xl border border-divider bg-surface p-4 text-center">
+        <div class="rounded-xl border border-divider bg-surface p-4 text-center">
           <dt class="text-xs text-content-muted">{% trans "Tables" %}</dt>
           <dd class="text-2xl font-extrabold text-content mt-1">{{ stats.tables }}</dd>
         </div>
-        <div class="rounded-2xl border border-divider bg-surface p-4 text-center">
+        <div class="rounded-xl border border-divider bg-surface p-4 text-center">
           <dt class="text-xs text-content-muted">{% trans "Players" %}</dt>
           <dd class="text-2xl font-extrabold text-content mt-1">{{ stats.players }}</dd>
         </div>
@@ -51,7 +51,7 @@
       <p class="text-sm text-content-muted mb-4">{% trans "Vector files (SVG) scale to any size; the avatars are also available as PNG for social networks." %}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {% for logo in logos %}
-          <div class="rounded-2xl border border-divider bg-surface overflow-hidden flex flex-col">
+          <div class="rounded-xl border border-divider bg-surface overflow-hidden flex flex-col">
             {# Fixed backgrounds, whatever the site theme: each logo is shown where it belongs #}
             <div class="h-44 flex items-center justify-center p-6 border-b border-divider"
                  style="background: {% if logo.dark %}#0B1120{% else %}#FFFFFF{% endif %}">
@@ -81,7 +81,7 @@
       <h2 class="text-xl font-extrabold text-content mb-4">{% trans "Colors and font" %}</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {% for name, hex, use in colors %}
-          <div class="rounded-2xl border border-divider bg-surface overflow-hidden">
+          <div class="rounded-xl border border-divider bg-surface overflow-hidden">
             <div class="h-16 border-b border-divider" style="background: {{ hex }}"></div>
             <div class="p-3">
               <p class="text-sm font-bold text-content">{{ name }}</p>
@@ -91,7 +91,7 @@
           </div>
         {% endfor %}
       </div>
-      <div class="rounded-2xl border border-divider bg-surface p-5 mt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+      <div class="rounded-xl border border-divider bg-surface p-5 mt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
         <p class="text-3xl font-extrabold text-content">Inter</p>
         <p class="text-sm text-content-muted">
           {% trans "The website and the logo use Inter, a free font. The logo is set in Inter ExtraBold." %}

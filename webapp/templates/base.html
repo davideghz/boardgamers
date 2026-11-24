@@ -136,6 +136,22 @@
     }
 
     /* ── 3rd-party widgets: dark overrides (phase 4) ───────────────────── */
+    /* Google's InfoWindow has a light shell in both page themes. */
+    .location-map-popup {
+      color-scheme: light;
+      min-width: 140px;
+      max-width: 224px;
+      padding: 8px 10px 10px;
+      background-color: #fff;
+      color: #0f172a;
+      overflow-wrap: anywhere;
+    }
+    .location-map-popup p { margin: 0; font-size: 13px; font-weight: 700; }
+    .location-map-popup ul { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 0; padding: 0; list-style: none; }
+    .location-map-popup li { max-width: 100%; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #334155; font-size: 12px; font-weight: 500; }
+    .location-map-popup a { display: inline-block; margin-top: 5px; color: #1d4ed8; font-size: 12px; font-weight: 600; }
+    .location-map-popup a:hover, .location-map-popup a:focus-visible { text-decoration: underline; }
+
     /* Native select chevron: lighten in dark */
     .dark select {
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");

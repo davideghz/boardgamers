@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone, translation
+from django.utils.html import escape
 
 from webapp.factories import UserProfileFactory, LocationFactory, GameFactory
 from webapp.models import Event, EventDate, EventGame, EventGameTag, Table
@@ -20,7 +21,7 @@ class LibraryTestCase(TestCase):
         self.owner = UserProfileFactory(preferred_language='en')
         self.outsider = UserProfileFactory(preferred_language='en')
         self.event = Event.objects.create(
-            name="Con", slug="con", creator=self.owner, status=Event.APPROVED, enable_public_games=True)
+            name="Con", slug="con", creator=self.owner, status=Event.PUBLISHED, enable_public_games=True)
         EventDate.objects.create(event=self.event, date=self.today + datetime.timedelta(days=10))
         self.detail_url = reverse('event_detail', kwargs={'slug': self.event.slug})
         self.library_url = reverse('event-games', kwargs={'slug': self.event.slug})
@@ -145,10 +146,6 @@ class BookingIndicatorTest(LibraryTestCase):
         EventDate.objects.create(event=self.event, date=self.today - datetime.timedelta(days=1))
         self.assertContains(self.client.get(self.detail_url), "Event concluded")
 
-    def test_game_name_links_to_its_page(self):
-        self.assertContains(
-            self.client.get(self.detail_url), reverse('game-detail', kwargs={'slug': self.game.slug}))
-
 
 class PublicLibraryTest(LibraryTestCase):
     def test_shows_every_game(self):
@@ -157,6 +154,15 @@ class PublicLibraryTest(LibraryTestCase):
         response = self.client.get(self.library_url)
         self.assertContains(response, "Tagged")
         self.assertContains(response, "Untagged")
+
+    def test_card_shows_where_to_find_the_game(self):
+        first, second = LocationFactory(name="Club Uno"), LocationFactory(name="Club Due")
+        self.event.sponsor_locations.add(first, second)
+        self.entry("Azul").sponsor_locations.add(first, second)
+        response = self.client.get(self.library_url)
+        self.assertContains(response, "Where to find it:")
+        self.assertContains(response, "Club Uno")
+        self.assertContains(response, "Club Due")
 
     def names(self, **params):
         response = self.client.get(self.library_url, params)
@@ -185,12 +191,59 @@ class PublicLibraryTest(LibraryTestCase):
         self.assertEqual(len(self.names()), 16)
         self.assertEqual(self.names(page=2), ["Game 16"])
 
-    def test_pending_event_is_private(self):
-        self.event.status = Event.PENDING
+    def test_draft_event_is_private(self):
+        self.event.status = Event.DRAFT
         self.event.save()
         self.assertEqual(self.client.get(self.library_url).status_code, 404)
         self.client.force_login(self.owner.user)
         self.assertEqual(self.client.get(self.library_url).status_code, 200)
+
+
+class GameDetailBackLinkTest(LibraryTestCase):
+    def setUp(self):
+        super().setUp()
+        self.game = self.entry("Azul", self.flagged).game
+        self.game_url = reverse('game-detail', args=[self.game.slug], query={'from_event': self.event.slug})
+        self.back = f'href="{self.detail_url}"'
+
+    def test_cards_link_to_game_detail_with_the_event(self):
+        for url in (self.detail_url, self.library_url):
+            self.assertContains(self.client.get(url), f'href="{escape(self.game_url)}"')
+
+    def test_game_detail_links_back_to_the_event(self):
+        response = self.client.get(self.game_url)
+        self.assertContains(response, self.back)
+        self.assertContains(response, '<span class="truncate">Con</span>')
+
+    def test_hides_where_it_is_played(self):
+        club = LocationFactory()
+        Table.objects.create(
+            title="Azul", location=club, game=self.game, author=self.owner,
+            date=self.today, time=datetime.time(20, 0))
+        direct = self.client.get(reverse('game-detail', args=[self.game.slug]))
+        self.assertEqual(list(direct.context['locations']), [club])
+        self.assertNotIn('locations', self.client.get(self.game_url).context)
+
+    def test_stats_come_after_the_description_and_hide_from_a_library(self):
+        self.game.description = "Draft tiles."
+        self.game.save(update_fields=['description'])
+        direct = self.client.get(reverse('game-detail', args=[self.game.slug])).content.decode()
+        self.assertLess(direct.index("Draft tiles."), direct.index("Played tables"))
+        for params in ({'from_event': self.event.slug}, {'from_location': 'anywhere'}):
+            response = self.client.get(reverse('game-detail', args=[self.game.slug], query=params))
+            self.assertNotContains(response, "Played tables")
+            self.assertNotContains(response, "Gamers</p>")
+
+    def test_general_list_when_game_not_in_event_or_event_hidden(self):
+        other = GameFactory(name="Catan")
+        url = reverse('game-detail', args=[other.slug], query={'from_event': self.event.slug})
+        self.assertNotContains(self.client.get(url), self.back)
+
+        self.event.status = Event.DRAFT
+        self.event.save(update_fields=['status'])
+        self.assertNotContains(self.client.get(self.game_url), self.back)
+        self.client.force_login(self.owner.user)
+        self.assertContains(self.client.get(self.game_url), self.back)
 
 
 class LibraryFlagTest(LibraryTestCase):

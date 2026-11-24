@@ -66,15 +66,15 @@ def bgg_search_view(request):
     if len(query) < 2:
         return Response({'local': []})
 
-    # Names starting with the query first, then the other matches
+    # Base games before expansions; names starting with the query first
     local_qs = (
         Game.objects.filter(name__icontains=query)
         .annotate(prefix_match=Case(When(name__istartswith=query, then=0), default=1))
-        .order_by('prefix_match', 'name')[:15]
+        .order_by('is_expansion', 'prefix_match', 'name')[:15]
     )
     local_data = [
         {'id': g.id, 'name': g.name, 'year_published': g.year_published,
-         'min_players': g.min_players, 'max_players': g.max_players}
+         'min_players': g.min_players, 'max_players': g.max_players, 'is_expansion': g.is_expansion}
         for g in local_qs
     ]
     return Response({'local': local_data})
@@ -82,7 +82,7 @@ def bgg_search_view(request):
 
 @api_view(['GET'])
 def bgg_search_external_view(request):
-    """Search BGG on demand, classify via batch /thing and drop expansions."""
+    """Search BGG on demand, classify via batch /thing, expansions last."""
     if not request.user.is_authenticated:
         return Response({'error': 'Authentication required'}, status=401)
 
@@ -108,18 +108,20 @@ def bgg_search_external_view(request):
     # Batch classify unknowns
     classifications = fetch_bgg_classifications(unknown_ids) if unknown_ids else {}
 
-    # Drop expansions
     bgg_data = []
     for r in bgg_results:
         game = existing.get(r['bgg_id'])
         if game:
             r.update({'id': game.id, 'name': game.name, 'year_published': game.year_published,
-                      'min_players': game.min_players, 'max_players': game.max_players})
+                      'min_players': game.min_players, 'max_players': game.max_players,
+                      'is_expansion': game.is_expansion})
         else:
             info = classifications.get(r['bgg_id'])
-            if info is not None and info['is_expansion']:
-                continue
+            r['is_expansion'] = bool(info and info['is_expansion'])
         bgg_data.append(r)
+    # Expansions are kept (some venues play them as games of their own), but a
+    # base game gets many of them: list them after the base games.
+    bgg_data.sort(key=lambda r: r['is_expansion'])
 
     return Response({'bgg': bgg_data[:15]})
 

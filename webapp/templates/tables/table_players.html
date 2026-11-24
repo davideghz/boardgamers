@@ -1,12 +1,11 @@
 {% extends "base_webapp.html" %}
+{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
 
   <div class="mb-6">
-    <p class="text-sm text-content-muted mb-1">
-      <a href="{% url 'table-detail' table.slug %}" class="text-blue-600 hover:underline">{{ table.title }}</a> ›
-    </p>
+    {% back_link 'table-detail' table.slug label=table.title %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Manage players" %}</h1>
   </div>
 

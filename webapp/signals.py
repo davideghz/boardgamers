@@ -2,7 +2,7 @@ from time import sleep
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.contrib.gis.geos import Point
-from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
@@ -11,8 +11,7 @@ from django.utils.translation import gettext as _, activate
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Game, Location, Event, EventGame
-from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, shrink_content_file
+    EventParticipant, Event, EventGame
 
 
 @receiver(user_logged_out)
@@ -49,16 +48,25 @@ def notify_followers_on_new_table(sender, instance, created, **kwargs):
     # Copies made by duplicate_table set the flag: a series of N tables would
     # otherwise notify every follower N times.
     if created and not getattr(instance, '_skip_follower_notification', False) and instance.location:
-        followers = instance.location.followers.all()
-        for follower in followers:
-            Notification.objects.create(
-                recipient=follower.user_profile,
+        location = instance.location
+        recipient_ids = set(location.followers.values_list('user_profile_id', flat=True))
+        # The location staff is notified too when the table could get a station:
+        # send_queued_notifications adds the "assign a station" link to their mail.
+        # Locations without stations only notify their followers.
+        if instance.physical_table_id is None and not instance.event_id and location.physical_tables.exists():
+            staff_ids = {location.creator_id, *location.managers.values_list('id', flat=True)}
+            recipient_ids |= staff_ids
+        # The author knows about their own table, even when they follow the location.
+        recipient_ids -= {None, instance.author_id}
+        Notification.objects.bulk_create([
+            Notification(
+                recipient_id=recipient_id,
                 notification_type=NotificationType.NEW_TABLE,
                 table=instance,
-                location=instance.location,
+                location=location,
             )
-            # if follower.user_profile.notification_new_table:
-            #     send_notification_new_table(follower.user_profile, instance)
+            for recipient_id in recipient_ids
+        ])
 
 
 @receiver(post_save, sender=Table)
@@ -199,35 +207,3 @@ def table_status_change_notifications(sender, instance, created, **kwargs):
                     subject=subject,
                     message=message,
                 )
-
-
-# Campi immagine da ridurre al caricamento: (modello, campo, lato lungo massimo)
-SHRINKABLE_IMAGE_FIELDS = [
-    (Game, 'image', COVER_MAX_SIDE),
-    (Location, 'cover', COVER_MAX_SIDE),
-    (Table, 'custom_cover', COVER_MAX_SIDE),
-    (Event, 'cover', COVER_MAX_SIDE),
-    (UserProfile, 'avatar', AVATAR_MAX_SIDE),
-]
-
-
-def _shrink_uploaded_images(sender, instance, **kwargs):
-    """Riduce le immagini appena caricate (form, admin) prima che vadano su S3.
-
-    Tocca solo i file non ancora salvati (`_committed=False`): un salvataggio
-    del modello senza nuovo upload non riscarica né rielabora nulla.
-    """
-    for model, field_name, max_side in SHRINKABLE_IMAGE_FIELDS:
-        if sender is not model:
-            continue
-        field_file = getattr(instance, field_name)
-        if not field_file or field_file._committed:
-            continue
-        field_file.seek(0)
-        name, content = shrink_content_file(field_file.read(), field_file.name, max_side)
-        content.name = name
-        setattr(instance, field_name, content)
-
-
-for _model in {model for model, _f, _s in SHRINKABLE_IMAGE_FIELDS}:
-    pre_save.connect(_shrink_uploaded_images, sender=_model, dispatch_uid=f'shrink_images_{_model.__name__}')
