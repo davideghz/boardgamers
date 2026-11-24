@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
+from django.db.models import Q
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
@@ -885,7 +886,7 @@ class OrganizedEventForm(EventManageDataForm):
 
     class Meta(EventManageDataForm.Meta):
         fields = ['name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city',
-                  'latitude', 'longitude', 'phone', 'email', 'leaderboard_enabled', 'table_booking_enabled',
+                  'latitude', 'longitude', 'phone', 'email', 'catalog_mode', 'leaderboard_enabled', 'table_booking_enabled',
                   'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
 
     def __init__(self, *args, **kwargs):
@@ -1398,19 +1399,42 @@ class EventGameForm(ModelForm, TailwindForm):
         self.event = event
         super().__init__(*args, **kwargs)
         self.fields['tags'].queryset = event.game_tags.all()
+        self.instance.event = event
         self.fields['sponsor_locations'].queryset = event.sponsor_locations.only('id', 'name').order_by('name')
+
+    @property
+    def selected_game(self):
+        """The game to show in the picker, kept when the form has errors."""
+        value = str(self['game'].value() or '')
+        return Game.objects.filter(pk=value).first() if value.isdigit() else None
+
+    @property
+    def library_games(self):
+        """The organizing location's games, listed first in the search modal."""
+        return list(
+            Game.objects
+            .filter(location_games__location_id=self.event.organizer_location_id, location_games__is_archived=False)
+            .order_by('name', 'pk')
+            .values('id', 'name', 'year_published', 'min_players', 'max_players', 'is_expansion')
+        ) if self.event.organizer_location_id else []
 
     def clean_game(self):
         # `event` is not a form field, so ModelForm skips the (event, game)
         # unique_together check: do it here.
-        game = self.cleaned_data.get('game')
-        if game:
-            duplicates = EventGame.objects.filter(event=self.event, game=game)
-            if self.instance.pk:
-                duplicates = duplicates.exclude(pk=self.instance.pk)
-            if duplicates.exists():
-                raise ValidationError(_("This game is already in the library."))
+        game = self.cleaned_data['game']
+        if self.event.games.filter(game=game).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(_("This game is already in the library."))
         return game
+
+    def clean(self):
+        data = super().clean()
+        game = data.get('game')
+        if game:
+            # The source follows the game. A title withdrawn after it was selected stays the source.
+            titles = LocationGame.objects.filter(location_id=self.event.organizer_location_id, game=game)
+            self.instance.source_location_game = titles.filter(
+                Q(is_archived=False) | Q(pk=self.instance.source_location_game_id)).first()
+        return data
 
 
 class _GameTagNameMixin:
