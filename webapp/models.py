@@ -894,7 +894,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if self.location_id:
             location = self.location.as_schema_place(request)
         elif self.event_id:
-            location = self.event.as_schema_place()
+            location = self.event.as_schema_place(request)
         else:
             location = None
         if not location:
@@ -1669,6 +1669,8 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         upload_to='event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Cover'))
 
+    # PROTECT also stops the deletion of the profile that created the location
+    # (Location.creator cascades): reassign its events first.
     organizer_location = models.ForeignKey(
         Location, on_delete=models.PROTECT, related_name='organized_events', null=True, blank=True,
         verbose_name=_('Organizing location'),
@@ -1748,7 +1750,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         Console flags. Relative URLs are made absolute from `request` when
         available, else from settings.DOMAIN_URL (S3 media URLs are already
         absolute)."""
-        place = self.as_schema_place()
+        place = self.as_schema_place(request)
         if not self.start_date or not place:
             return None
         data = {
@@ -1774,14 +1776,16 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data
 
-    def as_schema_place(self):
+    def as_schema_place(self, request=None):
         """schema.org/Place fragment for this event's venue, or None if unknown.
-        Embeddable as the `location` of the event and of its tables."""
-        if self.venue_location_id:
-            return self.venue_location.as_schema_place()
+        Embeddable as the `location` of the event and of its tables. A venue
+        without an address falls back to the address of the event."""
+        venue = self.venue_location
+        if venue and (venue.address or venue.city):
+            return venue.as_schema_place(request)
         if not (self.address or self.city):
             return None
-        place = {'@type': 'Place', 'name': self.venue_name or self.city or self.name}
+        place = {'@type': 'Place', 'name': venue.name if venue else self.venue_name or self.city or self.name}
         postal = {'@type': 'PostalAddress'}
         if self.address:
             postal['streetAddress'] = self.address
