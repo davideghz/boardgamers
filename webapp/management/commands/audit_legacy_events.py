@@ -24,7 +24,7 @@ def events_for_audit():
     participants = EventParticipant.objects.only('event', 'user_profile').annotate(
         booking_dates=ArraySubquery(booking_dates),
     ).order_by('pk')
-    return Event.objects.order_by('pk').prefetch_related(
+    return Event.objects.filter(organizer_location__isnull=True).order_by('pk').prefetch_related(
         Prefetch('dates', queryset=EventDate.objects.order_by('date')),
         Prefetch('tables', queryset=Table.objects.only('event', 'slug', 'date').order_by('pk')),
         Prefetch('managers', queryset=profiles),

@@ -946,6 +946,15 @@ msgstr "Bloccato"
 msgid "Cover"
 msgstr "Immagine di copertina"
 
+msgid "Organizing location"
+msgstr "Sede organizzatrice"
+
+msgid "Venue location"
+msgstr "Sede ospitante"
+
+msgid "Venue name"
+msgstr "Nome del luogo"
+
 msgid "Creator"
 msgstr "Creatore"
 

@@ -1613,6 +1613,15 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         upload_to='event-covers', null=True, blank=True,
         verbose_name=_('Cover'))
 
+    organizer_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='organized_events', null=True, blank=True,
+        verbose_name=_('Organizing location'),
+    )
+    venue_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name='events_at_venue', null=True, blank=True,
+        verbose_name=_('Venue location'),
+    )
+    venue_name = models.CharField(max_length=255, blank=True, default='', db_default='', verbose_name=_('Venue name'))
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Address'))
     city = models.CharField(max_length=144, null=True, blank=True, verbose_name=_('City'))
     latitude = models.CharField(max_length=25, null=True, blank=True)
@@ -1703,16 +1712,20 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             data['description'] = description
         if self.cover:
             data['image'] = _absolute_url(self.cover_url, request)
-        if self.creator and self.creator.nickname:
+        if self.organizer_location_id:
+            data['organizer'] = {'@type': 'Organization', 'name': self.organizer_location.name}
+        elif self.creator and self.creator.nickname:
             data['organizer'] = {'@type': 'Organization', 'name': self.creator.nickname}
         return data
 
     def as_schema_place(self):
         """schema.org/Place fragment for this event's venue, or None if unknown.
         Embeddable as the `location` of the event and of its tables."""
+        if self.venue_location_id:
+            return self.venue_location.as_schema_place()
         if not (self.address or self.city):
             return None
-        place = {'@type': 'Place', 'name': self.city or self.name}
+        place = {'@type': 'Place', 'name': self.venue_name or self.city or self.name}
         postal = {'@type': 'PostalAddress'}
         if self.address:
             postal['streetAddress'] = self.address
@@ -1726,6 +1739,10 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
                 'longitude': self.longitude,
             }
         return place
+
+    @property
+    def is_at_organizer_location(self):
+        return self.organizer_location_id is not None and self.organizer_location_id == self.venue_location_id
 
     def get_absolute_url(self):
         return reverse('event_detail', kwargs={'slug': self.slug})

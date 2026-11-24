@@ -93,7 +93,7 @@ class EventPublicAccessMixin:
 
 class EventDetailView(EventPublicAccessMixin, DetailView):
     """Slim event landing page: intro, sponsors, contacts + CTA to the program."""
-    queryset = Event.objects.select_related('creator')  # read by the JSON-LD organizer
+    queryset = Event.objects.select_related('creator', 'organizer_location', 'venue_location')
     template_name = 'events/event_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
