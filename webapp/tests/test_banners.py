@@ -15,8 +15,9 @@ from django.utils import timezone, translation
 from PIL import Image
 
 from webapp.factories import GameFactory, UserProfileFactory
+from webapp.forms import BannerForm
 from webapp.models import Banner
-from webapp.services.images import BANNER_COVER_MAX_BYTES, COVER_MAX_SIDE, validate_banner_cover
+from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES
 from webapp.tests.test_managed_images import upload
 
 
@@ -110,7 +111,10 @@ class BannerTest(TestCase):
     def test_relative_external_and_unsafe_links(self):
         for url in ('/contacts', 'https://example.com/news'):
             self.banner.action_url = url
-            self.banner.action_label = 'More'
+            self.banner.action_label_it = 'Altro'
+            self.banner.action_label_en = 'More'
+            self.banner.message_it = 'Provalo.'
+            self.banner.message_en = 'Try it.'
             self.banner.full_clean()
         for url in ('//example.com', '/\\example.com', 'data:text/html,test'):
             self.banner.action_url = url
@@ -158,6 +162,47 @@ class BannerTest(TestCase):
         self.assertEqual({value for value, _ in form.fields['dismissal'].choices if value}, {'permanent', 'days'})
 
 
+class BannerAdminFormTest(TestCase):
+    def setUp(self):
+        self.client.force_login(UserProfileFactory(user__is_staff=True, user__is_superuser=True).user)
+
+    def post(self, **data):
+        return self.client.post(reverse('admin:webapp_banner_add'), {
+            'key': 'from-admin', 'version': 1, 'message_it': 'Messaggio', 'message_en': 'Message',
+            'audience': 'everyone', 'placement': 'home', 'priority': 0, 'dismissal': 'permanent', **data})
+
+    def assert_errors(self, response, *fields):
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.context['adminform'].form.errors), set(fields))
+        self.assertFalse(Banner.objects.filter(key='from-admin').exists())
+
+    def test_valid_banner_is_created(self):
+        self.assertEqual(self.post(action_url='/contacts', action_label_it='Vai', action_label_en='Go').status_code, 302)
+        self.assertTrue(Banner.objects.filter(key='from-admin').exists())
+
+    def test_missing_translations_are_reported_on_their_fields(self):
+        for language in ('it', 'en'):
+            with self.subTest(language=language), translation.override(language):
+                self.assert_errors(self.post(action_url='/contacts'), 'action_label_it', 'action_label_en')
+                self.assert_errors(self.post(action_url='/contacts', action_label_it='Vai'), 'action_label_en')
+                self.assert_errors(self.post(action_label_en='Go'), 'action_url')
+                self.assert_errors(self.post(message_it=''), 'message_it')
+                self.assert_errors(self.post(message_en=''), 'message_en')
+
+    def test_list_reports_errors_on_fields_it_does_not_edit(self):
+        Banner.objects.all().delete()
+        banner = Banner.objects.create(key='invalid', message='Message', dismissal=Banner.Dismissal.DAYS)
+        url = reverse('admin:webapp_banner_changelist')
+        data = {'form-TOTAL_FORMS': 1, 'form-INITIAL_FORMS': 1, 'form-0-id': banner.pk, 'form-0-priority': 3, '_save': 'Save'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['cl'].formset.forms[0].non_field_errors())
+        Banner.objects.filter(pk=banner.pk).update(dismissal_days=2)
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        banner.refresh_from_db()
+        self.assertEqual(banner.priority, 3)
+
+
 class BannerCoverTest(TestCase):
     def setUp(self):
         self.enterContext(override_settings(MEDIA_ROOT=self.enterContext(TemporaryDirectory()), STORAGES={
@@ -168,20 +213,24 @@ class BannerCoverTest(TestCase):
         output = BytesIO()
         Image.effect_noise((2400, 1600), 100).convert('RGB').save(output, 'JPEG', quality=95)
         upload = SimpleUploadedFile('cover.jpg', output.getvalue(), 'image/jpeg')
-        banner = Banner(key='with-cover', message='A cover', cover=upload)
+        banner = Banner(key='with-cover', message='A cover', message_en='A cover', cover=upload)
         banner.full_clean()
         banner.save()
         with banner.cover.open('rb') as content, Image.open(content) as image:
             self.assertLessEqual(max(image.size), COVER_MAX_SIDE)
 
     def test_oversized_or_invalid_covers_are_rejected(self):
-        for upload in (SimpleUploadedFile('bad.png', b'not an image'),
-                       SimpleUploadedFile('huge.png', b'x' * (BANNER_COVER_MAX_BYTES + 1))):
-            with self.subTest(name=upload.name), self.assertRaises(ValidationError):
-                validate_banner_cover(upload)
+        form_class = modelform_factory(Banner, form=BannerForm, fields=['cover'])
+        huge = upload('huge.png')
+        huge.size = COVER_UPLOAD_MAX_BYTES + 1
+        for cover in (SimpleUploadedFile('bad.png', b'not an image'), huge,
+                      upload('pixels.png', size=(4100, 4100), mode='L', color=0)):
+            with self.subTest(name=cover.name):
+                form = form_class(data={}, files={'cover': cover})
+                self.assertIn('cover', form.errors)
 
     def test_editing_text_does_not_reopen_or_reprocess_an_existing_cover(self):
-        banner = Banner.objects.create(key='old-cover', message='Old', cover='banners/old.jpg')
+        banner = Banner.objects.create(key='old-cover', message='Old', message_en='Old', cover='banners/old.jpg')
         with mock.patch('webapp.fields.shrink_content_file') as shrink:
             banner.message = 'New'
             banner.full_clean()
@@ -189,7 +238,7 @@ class BannerCoverTest(TestCase):
         shrink.assert_not_called()
 
     def test_transparent_cover_uses_the_shared_png_normalization(self):
-        banner = Banner(key='transparent', message='Transparent', cover=upload(size=(1600, 1200)))
+        banner = Banner(key='transparent', message='Transparent', message_en='Transparent', cover=upload(size=(1600, 1200)))
         banner.full_clean()
         banner.save()
         self.assertTrue(banner.cover.name.endswith('.png'))

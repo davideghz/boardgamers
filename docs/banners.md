@@ -8,7 +8,8 @@ Each banner has:
 - A stable identifier and a positive version. Increase the version for a substantially new
   message, not for copy corrections: each version has its own dismissal preference.
 - Italian and English title, message, link text and cover description. Messages are plain text.
-- An optional PNG, JPEG or WebP cover, up to 5 MB and 8192 pixels per side. New uploads are
+  Both messages are required, and so are both link texts when there is a link.
+- An optional cover, with the same size limits as the other covers. New uploads are
   resized using `ManagedImageField(max_side=COVER_MAX_SIDE)` and the shared image pipeline
   (1200-pixel maximum side). Transparency is preserved in PNG; opaque resized covers use JPEG.
   Replaced, cleared and deleted covers are removed only after commit, when no image field in
@@ -47,5 +48,5 @@ to be checked on the server, independently of banner dismissal.
 Checks:
 
 ```sh
-.venv/bin/python manage.py test webapp.tests --keepdb --noinput
+python manage.py test webapp.tests
 ```

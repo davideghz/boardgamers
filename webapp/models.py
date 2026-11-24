@@ -29,7 +29,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from webapp.fields import ManagedImageField, NetworkLogoImageField
 from webapp.image_models import ManagedImagesModel
-from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE, validate_banner_cover
+from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE
 
 
 def _plain_text(markdown_text):
@@ -1558,8 +1558,7 @@ class Banner(DateTimeModel):
                                          help_text=_('Increase only to show a substantially new message again.'))
     title = models.CharField(_('Title'), max_length=150, blank=True)
     message = models.TextField(_('Message'))
-    cover = ManagedImageField(_('Cover'), upload_to='banners/', blank=True, max_side=COVER_MAX_SIDE,
-                              validators=[validate_banner_cover])
+    cover = ManagedImageField(_('Cover'), upload_to='banners/', blank=True, max_side=COVER_MAX_SIDE)
     cover_alt = models.CharField(_('Cover description'), max_length=200, blank=True,
                                  help_text=_('Leave empty if the image is decorative.'))
     action_label = models.CharField(_('Link text'), max_length=100, blank=True)
@@ -1593,9 +1592,12 @@ class Banner(DateTimeModel):
             errors['ends_at'] = _('The end must be after the start.')
         if self.dismissal == self.Dismissal.DAYS and not self.dismissal_days:
             errors['dismissal_days'] = _('Enter how many days the banner should remain hidden.')
-        if self.action_url and not self.action_label:
-            errors['action_label'] = _('Enter the link text.')
-        if self.action_label and not self.action_url:
+        # The forms only have the translated fields, so the errors go on those.
+        labels = {name: getattr(self, name) for name in
+                  (f'action_label_{language}' for language, _name in settings.LANGUAGES)}
+        if self.action_url:
+            errors.update({name: _('Enter the link text.') for name, label in labels.items() if not label})
+        elif any(labels.values()):
             errors['action_url'] = _('Enter the link URL.')
         if errors:
             raise ValidationError(errors)

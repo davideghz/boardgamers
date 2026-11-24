@@ -14,7 +14,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.fields import NetworkLogoImageField
-from webapp.forms import NetworkForm, NetworkLogoField
+from webapp.forms import BannerChangeListForm, BannerForm, NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, \
@@ -434,6 +434,7 @@ class FAQInline(admin.TabularInline):
 
 @admin.register(Banner)
 class BannerAdmin(TabbedTranslationAdmin):
+    form = BannerForm
     list_display = ('key', 'title', 'version', 'is_active', 'priority', 'audience', 'placement', 'starts_at', 'ends_at')
     list_editable = ('is_active', 'priority')
     list_filter = ('is_active', 'audience', 'placement', 'dismissal')
@@ -448,6 +449,9 @@ class BannerAdmin(TabbedTranslationAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return (*self.readonly_fields, 'key') if obj else self.readonly_fields
+
+    def get_changelist_form(self, request, **kwargs):
+        return super().get_changelist_form(request, **{'form': BannerChangeListForm, **kwargs})
 
     @admin.display(description=_('Cover preview'))
     def cover_preview(self, obj):

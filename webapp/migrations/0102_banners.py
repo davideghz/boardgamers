@@ -3,7 +3,6 @@
 import django.core.validators
 import webapp.fields
 import webapp.models
-import webapp.services.images
 from django.db import migrations, models
 
 
@@ -68,7 +67,6 @@ class Migration(migrations.Migration):
                         blank=True,
                         max_side=1200,
                         upload_to="banners/",
-                        validators=[webapp.services.images.validate_banner_cover],
                         verbose_name="Cover",
                     ),
                 ),
