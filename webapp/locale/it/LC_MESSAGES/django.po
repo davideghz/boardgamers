@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 14:23+0100\n"
+"POT-Creation-Date: 2026-11-24 14:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -394,9 +394,6 @@ msgstr "Socio Proprietario"
 
 msgid "Physical Location"
 msgstr "Ubicazione"
-
-msgid "Select a game"
-msgstr "Seleziona un gioco"
 
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
@@ -2587,10 +2584,8 @@ msgstr "Aggiungi data"
 msgid "Add game"
 msgstr "Aggiungi Gioco"
 
-msgid "Choose a game from the organizing library or search all games."
-msgstr ""
-"Scegli un titolo dalla libreria della sede organizzatrice oppure cerca tra "
-"tutti i giochi."
+msgid "Select a game"
+msgstr "Seleziona un gioco"
 
 msgid "Change"
 msgstr "Cambia"
@@ -5998,6 +5993,11 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Choose a game from the organizing library or search all games."
+#~ msgstr ""
+#~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "
+#~ "tra tutti i giochi."
 
 #~ msgid "My Events"
 #~ msgstr "I miei Eventi"

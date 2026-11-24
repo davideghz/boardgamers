@@ -1,6 +1,7 @@
 {% load i18n static %}
 {# BGG Game Search Modal — reusable partial. Include at the end of the content block. #}
 {# Requires window.bggSelectCallback = function(gameId, gameName) defined by the including page. #}
+{# Optional `library_games` (id, name, year_published, min_players, max_players, is_expansion) and `library_name`: a venue's games, listed before any search. #}
 
 <div id="bgg-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none">
   <div class="absolute inset-0 bg-black/60" onclick="closeBggModal()"></div>
@@ -75,6 +76,7 @@
   </div>
 </div>
 
+{% if library_games %}{{ library_games|json_script:"bgg-library-games" }}{{ library_name|json_script:"bgg-library-name" }}{% endif %}
 <script>
 (function () {
   var modal = document.getElementById('bgg-modal');
@@ -84,9 +86,13 @@
   var resultsList = document.getElementById('bgg-results-list');
   var debounceTimer = null;
   var searchToken = 0;  // increments on each new search to discard stale responses
+  var libraryEl = document.getElementById('bgg-library-games');
+  var libraryGames = libraryEl ? JSON.parse(libraryEl.textContent) : [];
+  var libraryName = libraryEl ? JSON.parse(document.getElementById('bgg-library-name').textContent) : '';
   var localGamesById = {};  // id → {min_players, max_players} for locally listed games
 
   window.openBggModal = function () {
+    showEmpty();
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     setTimeout(function () { input.focus(); }, 50);
@@ -102,7 +108,16 @@
     if (e.key === 'Escape') closeBggModal();
   });
 
-  function showEmpty()   { emptyState.classList.remove('hidden'); loading.classList.add('hidden'); resultsList.classList.add('hidden'); }
+  function showEmpty() {
+    if (libraryGames.length) {
+      // A one-character text already narrows the library, the full search needs two.
+      localGamesById = {};
+      resultsList.innerHTML = librarySection() || '<p class="text-center text-sm text-content-muted py-6">{% trans "Type at least 2 characters" %}</p>';
+      showResults();
+      return;
+    }
+    emptyState.classList.remove('hidden'); loading.classList.add('hidden'); resultsList.classList.add('hidden');
+  }
   function showLoading() { emptyState.classList.add('hidden'); loading.classList.remove('hidden'); resultsList.classList.add('hidden'); }
   function showResults() { emptyState.classList.add('hidden'); loading.classList.add('hidden'); resultsList.classList.remove('hidden'); }
 
@@ -158,10 +173,17 @@
     return html + '</div>';
   }
 
+  function librarySection() {
+    var q = input.value.trim().toLowerCase();
+    var games = libraryGames.filter(function (g) { return g.name.toLowerCase().indexOf(q) !== -1; });
+    return games.length ? sectionTitle(escHtml(libraryName)) + games.map(localRow).join('') : '';
+  }
+
   function renderLocalResults(localData) {
-    var html = '';
     localGamesById = {};
-    if (localData && localData.length) {
+    var html = librarySection();
+    localData = (localData || []).filter(function (g) { return !localGamesById[g.id]; });
+    if (localData.length) {
       html += sectionTitle('{% trans "Already on board-gamers" %}');
       localData.forEach(function (g) { html += localRow(g); });
     }

@@ -16,10 +16,6 @@
         class="max-w-xl space-y-5">
     {% csrf_token %}
 
-    {% if form.source_location_game %}
-      <p class="text-sm text-content-muted">{% trans "Choose a game from the organizing library or search all games." %}</p>
-      {% include "events/_location_event_form_field.html" with field=form.source_location_game only %}
-    {% endif %}
     {% with selected_game=form.selected_game %}
     {# ── Game picker (BGG modal) ──────────────────────────────────────── #}
     <div>
@@ -158,32 +154,17 @@
   {% endif %}
 
   {# ── BGG Import Modal ─────────────────────────────────────────────── #}
-  {% include "_bgg_game_modal.html" %}
+  {% include "_bgg_game_modal.html" with library_games=form.library_games library_name=event.organizer_location.name %}
 
 {% endblock content %}
 
 {% block extrabodyjs %}
-  {% if form.source_location_game %}{{ form.source_games|json_script:"source-games" }}{% endif %}
   <script>
-    function showGame(gameId, gameName) {
+    window.bggSelectCallback = function (gameId, gameName) {
       document.getElementById('game-input').value = gameId;
       document.getElementById('game-selected-name').textContent = gameName;
       document.getElementById('game-empty-state').style.display = 'none';
       document.getElementById('game-selected-state').style.display = '';
-    }
-    {% if form.source_location_game %}
-    // The library title and the game stay in step: the last one chosen wins.
-    const sourceSelect = document.getElementById('{{ form.source_location_game.id_for_label }}');
-    const sourceGames = JSON.parse(document.getElementById('source-games').textContent);
-    sourceSelect.addEventListener('change', () => {
-      if (sourceSelect.value) showGame(sourceGames[sourceSelect.value], sourceSelect.selectedOptions[0].textContent);
-    });
-    {% endif %}
-    window.bggSelectCallback = function (gameId, gameName) {
-      showGame(gameId, gameName);
-      {% if form.source_location_game %}
-      if (String(sourceGames[sourceSelect.value]) !== String(gameId)) sourceSelect.value = '';
-      {% endif %}
     };
   </script>
   {% if not is_new and entry %}

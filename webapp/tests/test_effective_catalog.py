@@ -51,9 +51,10 @@ class EffectiveCatalogTest(TestCase):
         self.event.venue_location = LocationFactory()
         self.event.save()
         self.assertFalse(self.event.uses_location_library)
-        form = EventGameForm({'source_location_game': self.copy.pk}, event=self.event)
+        form = EventGameForm({'game': self.game.pk}, event=self.event)
         self.assertTrue(form.is_valid(), form.errors)
         entry = form.save()
+        self.assertEqual(entry.source_location_game, self.copy)
         other = LocationGame.objects.create(location=self.event.venue_location, game=self.game)
         entry.source_location_game = other
         with self.assertRaises(ValidationError):
@@ -95,12 +96,14 @@ class EffectiveCatalogTest(TestCase):
         entry = EventGame.objects.create(event=self.event, game=self.game, source_location_game=self.copy)
         self.copy.is_archived = True
         self.copy.save(update_fields=['is_archived'])
-        data = {'game': self.game.pk, 'source_location_game': self.copy.pk}
+        data = {'game': self.game.pk}
         edit = EventGameForm(data, event=self.event, instance=entry)
         self.assertTrue(edit.is_valid(), edit.errors)
         self.assertEqual(edit.save().source_location_game, self.copy)
+        entry.delete()
         add = EventGameForm(data, event=self.event)
-        self.assertIn('source_location_game', add.errors)
+        self.assertTrue(add.is_valid(), add.errors)
+        self.assertIsNone(add.save().source_location_game)
 
     def test_combining_duplicate_games_preserves_the_selected_sources(self):
         keeper = GameFactory(name='Preferred title')
@@ -153,31 +156,34 @@ class EffectiveCatalogTest(TestCase):
         self.assertContains(page, to_bring)
         self.assertNotContains(page, at_club)
 
-    def test_the_changed_field_wins_when_editing_a_selection(self):
-        other = GameFactory()
-        other_copy = LocationGame.objects.create(location=self.club, game=other)
+    def test_the_source_follows_the_game(self):
+        outside = GameFactory()
         entry = EventGame.objects.create(event=self.event, game=self.game, source_location_game=self.copy)
-        form = EventGameForm({'game': self.game.pk, 'source_location_game': other_copy.pk},
-                             event=self.event, instance=entry)
-        self.assertTrue(form.is_valid(), form.errors)
-        form.save()
-        entry.refresh_from_db()
-        self.assertEqual((entry.game, entry.source_location_game), (other, other_copy))
-        form = EventGameForm({'game': self.game.pk, 'source_location_game': other_copy.pk},
-                             event=self.event, instance=entry)
-        self.assertTrue(form.is_valid(), form.errors)
-        form.save()
-        entry.refresh_from_db()
-        self.assertEqual((entry.game, entry.source_location_game), (self.game, None))
+        for game, source in ((outside, None), (self.game, self.copy)):
+            form = EventGameForm({'game': game.pk}, event=self.event, instance=entry)
+            self.assertTrue(form.is_valid(), form.errors)
+            form.save()
+            entry.refresh_from_db()
+            self.assertEqual((entry.game, entry.source_location_game), (game, source))
 
-    def test_mismatch_keeps_the_picked_game_in_the_form(self):
+    def test_errors_keep_the_picked_game_in_the_form(self):
         self.client.force_login(self.club.creator.user)
         picked = GameFactory(name='Picked title')
-        page = self.client.post(reverse('event-manage-game-add', args=[self.event.slug]),
-                                {'game': picked.pk, 'source_location_game': self.copy.pk})
+        EventGame.objects.create(event=self.event, game=picked)
+        page = self.client.post(reverse('event-manage-game-add', args=[self.event.slug]), {'game': picked.pk})
+        self.assertIn('game', page.context['form'].errors)
         self.assertContains(page, f'value="{picked.pk}"')
         self.assertContains(page, picked.name)
-        self.assertFalse(self.event.games.exists())
+
+    def test_the_picker_lists_the_active_titles_of_the_organizer_only(self):
+        LocationGame.objects.create(location=self.club, game=GameFactory(), is_archived=True)
+        LocationGame.objects.create(location=LocationFactory(), game=GameFactory())
+        self.assertEqual([game['id'] for game in EventGameForm(event=self.event).library_games], [self.game.pk])
+        self.client.force_login(self.club.creator.user)
+        page = self.client.get(reverse('event-manage-game-add', args=[self.event.slug]))
+        self.assertContains(page, 'id="bgg-library-games"')
+        self.event.organizer_location = None
+        self.assertEqual(EventGameForm(event=self.event).library_games, [])
 
     def test_changing_the_organizer_clears_the_sources(self):
         entry = EventGame.objects.create(event=self.event, game=self.game, source_location_game=self.copy)

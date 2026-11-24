@@ -1389,7 +1389,7 @@ class EventGameForm(ModelForm, TailwindForm):
 
     class Meta:
         model = EventGame
-        fields = ['game', 'source_location_game', 'tags', 'sponsor_locations']
+        fields = ['game', 'tags', 'sponsor_locations']
         widgets = {
             'tags': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
             'sponsor_locations': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
@@ -1401,52 +1401,39 @@ class EventGameForm(ModelForm, TailwindForm):
         self.fields['tags'].queryset = event.game_tags.all()
         self.instance.event = event
         self.fields['sponsor_locations'].queryset = event.sponsor_locations.only('id', 'name').order_by('name')
-        if event.organizer_location_id:
-            self.fields['game'].required = False
-            self.fields['source_location_game'].queryset = LocationGame.objects.filter(
-                Q(is_archived=False) | Q(pk=self.instance.source_location_game_id),
-                location_id=event.organizer_location_id,
-            ).select_related('game').order_by('game__name', 'pk')
-            self.fields['source_location_game'].label_from_instance = lambda title: title.game.name
-        else:
-            self.fields.pop('source_location_game')
-            self.instance.source_location_game = None
-
-    @property
-    def source_games(self):
-        """The game of each source title, for the page script."""
-        return dict(self.fields['source_location_game'].queryset.values_list('pk', 'game_id'))
 
     @property
     def selected_game(self):
         """The game to show in the picker, kept when the form has errors."""
-        return Game.objects.filter(pk=self['game'].value()).first() if str(self['game'].value() or '').isdigit() else None
+        value = str(self['game'].value() or '')
+        return Game.objects.filter(pk=value).first() if value.isdigit() else None
+
+    @property
+    def library_games(self):
+        """The organizing location's games, listed first in the search modal."""
+        return list(
+            Game.objects
+            .filter(location_games__location_id=self.event.organizer_location_id, location_games__is_archived=False)
+            .order_by('name', 'pk')
+            .values('id', 'name', 'year_published', 'min_players', 'max_players', 'is_expansion')
+        ) if self.event.organizer_location_id else []
+
+    def clean_game(self):
+        # `event` is not a form field, so ModelForm skips the (event, game)
+        # unique_together check: do it here.
+        game = self.cleaned_data['game']
+        if self.event.games.filter(game=game).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(_("This game is already in the library."))
+        return game
 
     def clean(self):
         data = super().clean()
-        source = data.get('source_location_game')
-        # `event` is not a form field, so ModelForm skips the (event, game)
-        # unique_together check: do it here.
         game = data.get('game')
-        field = 'game'
-        if not game:
-            if 'game' in self.errors or 'source_location_game' in self.errors:
-                return data
-            if not source:
-                self.add_error('game', _('Select a game'))
-                return data
-            game = data['game'] = source.game
-            field = 'source_location_game'
-        elif source and source.game_id != game.pk:
-            # The two fields name the same title: the one that changed wins.
-            # When both did, the model reports the mismatch.
-            if 'source_location_game' not in self.changed_data:
-                data['source_location_game'] = None
-            elif 'game' not in self.changed_data:
-                game = data['game'] = source.game
-                field = 'source_location_game'
-        if self.event.games.filter(game=game).exclude(pk=self.instance.pk).exists():
-            self.add_error(field, _('This game is already in the library.'))
+        if game:
+            # The source follows the game. A title withdrawn after it was selected stays the source.
+            titles = LocationGame.objects.filter(location_id=self.event.organizer_location_id, game=game)
+            self.instance.source_location_game = titles.filter(
+                Q(is_archived=False) | Q(pk=self.instance.source_location_game_id)).first()
         return data
 
 
