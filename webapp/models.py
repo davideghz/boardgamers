@@ -14,13 +14,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
-from django.urls import reverse
-from django.utils import timezone
+from django.urls import reverse, translate_url
+from django.utils import timezone, translation
 from django.utils.encoding import force_bytes
 from django.utils.functional import cached_property
-from django.utils.http import urlsafe_base64_encode
-from django.utils.translation import gettext_lazy as _
+from django.utils.http import urlsafe_base64_encode, url_has_allowed_host_and_scheme
+from django.utils.translation import get_language, gettext_lazy as _
 from django.utils.text import slugify
 from meta.models import ModelMeta
 from model_utils import FieldTracker
@@ -1516,6 +1517,104 @@ class TelegramSetupToken(DateTimeModel):
     def is_valid(self):
         from django.utils import timezone
         return not self.used and self.expires_at > timezone.now()
+
+
+def validate_banner_link(value):
+    if value.startswith('/') and url_has_allowed_host_and_scheme(value, allowed_hosts=set()):
+        return
+    URLValidator(schemes=['http', 'https'])(value)
+
+
+class BannerQuerySet(models.QuerySet):
+    def visible(self, *, authenticated, home, at=None):
+        at = at or timezone.now()
+        audiences = [Banner.Audience.EVERYONE,
+                     Banner.Audience.AUTHENTICATED if authenticated else Banner.Audience.ANONYMOUS]
+        placements = [Banner.Placement.SITE]
+        if home:
+            placements.append(Banner.Placement.HOME)
+        return self.filter(is_active=True, audience__in=audiences, placement__in=placements).filter(
+            models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=at),
+            models.Q(ends_at__isnull=True) | models.Q(ends_at__gt=at),
+        )
+
+
+class Banner(DateTimeModel):
+    class Audience(models.TextChoices):
+        EVERYONE = 'everyone', _('Everyone')
+        ANONYMOUS = 'anonymous', _('Anonymous visitors')
+        AUTHENTICATED = 'authenticated', _('Authenticated users')
+
+    class Placement(models.TextChoices):
+        HOME = 'home', _('Home page')
+        SITE = 'site', _('All pages')
+
+    class Dismissal(models.TextChoices):
+        PERMANENT = 'permanent', _('Permanently')
+        DAYS = 'days', _('For a number of days')
+
+    key = models.SlugField(_('Identifier'), max_length=80, unique=True)
+    version = models.PositiveIntegerField(_('Version'), default=1, validators=[MinValueValidator(1)],
+                                         help_text=_('Increase only to show a substantially new message again.'))
+    title = models.CharField(_('Title'), max_length=150, blank=True)
+    message = models.TextField(_('Message'))
+    cover = ManagedImageField(_('Cover'), upload_to='banners/', blank=True, max_side=COVER_MAX_SIDE)
+    cover_alt = models.CharField(_('Cover description'), max_length=200, blank=True,
+                                 help_text=_('Leave empty if the image is decorative.'))
+    action_label = models.CharField(_('Link text'), max_length=100, blank=True)
+    action_url = models.CharField(_('Link URL'), max_length=500, blank=True, validators=[validate_banner_link],
+                                  help_text=_('An internal path starting with / or an http(s) URL.'))
+    is_active = models.BooleanField(_('Active'), default=False, db_index=True)
+    audience = models.CharField(_('Audience'), max_length=20, choices=Audience.choices, default=Audience.EVERYONE)
+    placement = models.CharField(_('Display on'), max_length=10, choices=Placement.choices, default=Placement.HOME)
+    priority = models.PositiveIntegerField(_('Priority'), default=0, help_text=_('Higher values are shown first.'))
+    starts_at = models.DateTimeField(_('Visible from'), null=True, blank=True)
+    ends_at = models.DateTimeField(_('Visible until'), null=True, blank=True)
+    dismissal = models.CharField(_('Hide after closing'), max_length=10, choices=Dismissal.choices,
+                                 default=Dismissal.PERMANENT)
+    dismissal_days = models.PositiveIntegerField(_('Days hidden after closing'), null=True, blank=True,
+                                                 validators=[MinValueValidator(1)])
+
+    objects = BannerQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _('Banner')
+        verbose_name_plural = _('Banners')
+        ordering = ['-priority', 'pk']
+
+    def __str__(self):
+        return self.title or self.key
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
+            errors['ends_at'] = _('The end must be after the start.')
+        if self.dismissal == self.Dismissal.DAYS and not self.dismissal_days:
+            errors['dismissal_days'] = _('Enter how many days the banner should remain hidden.')
+        # The forms only have the translated fields, so the errors go on those.
+        labels = {name: getattr(self, name) for name in
+                  (f'action_label_{language}' for language, _name in settings.LANGUAGES)}
+        if self.action_url:
+            errors.update({name: _('Enter the link text.') for name, label in labels.items() if not label})
+        elif any(labels.values()):
+            errors['action_url'] = _('Enter the link URL.')
+        if errors:
+            raise ValidationError(errors)
+
+    @property
+    def action_href(self):
+        if not self.action_url:
+            return ''
+        try:
+            validate_banner_link(self.action_url)
+        except ValidationError:
+            return ''
+        if self.action_url.startswith('/'):
+            language = get_language()
+            with translation.override(settings.LANGUAGE_CODE):
+                return translate_url(self.action_url, language)
+        return self.action_url
 
 
 class FAQCategory(DateTimeModel):

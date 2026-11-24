@@ -441,6 +441,7 @@
         {# Page content #}
         <main class="flex-1">
           <div class="{% block main_container_class %}max-w-5xl mx-auto px-5 py-6{% endblock %}">
+            {% block banners %}{% include "partials/_banners.html" %}{% endblock banners %}
             {% block content %}{% endblock content %}
           </div>
         </main>
