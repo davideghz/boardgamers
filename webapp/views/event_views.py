@@ -111,6 +111,7 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
+            'can_join_event': not event.organizer_location_id or event.organizer_location.can_join_events(user_profile),
             'just_joined': is_participant and self.request.session.pop(
                 'event_just_joined', None) == event.pk,
             'needs_phone': is_participant and not user_profile.phone,
@@ -294,7 +295,7 @@ class EventListView(View):
             return set()
         user_profile = request.user.user_profile
         return set(
-            Event.objects.filter(Q(creator=user_profile) | Q(managers=user_profile))
+            Event.objects.managed_by(user_profile)
             .values_list('pk', flat=True))
 
 
@@ -583,6 +584,8 @@ class EventJoinView(LoginRequiredMixin, View):
         if event.is_concluded():
             messages.info(request, _("This event has already ended, registration is closed."))
             return redirect('event_detail', slug=slug)
+        if event.organizer_location_id and not event.organizer_location.can_join_events(user_profile):
+            raise PermissionDenied
         participant, created = EventParticipant.objects.get_or_create(
             event=event, user_profile=user_profile)
         if created:
@@ -659,7 +662,7 @@ class EventTableDetailView(BaseTableDetailView):
         can_view_player_phones = bool(
             self.request.user.is_superuser
             or (user_profile and (
-                table.author_id == user_profile.id
+                (not event.organizer_location_id and table.author_id == user_profile.id)
                 or event.can_create_table(user_profile)
             ))
         )
@@ -728,7 +731,8 @@ def event_table_update_view(request, event_slug, table_slug):
     table = get_object_or_404(Table, slug=table_slug, event=event)
     user_profile = request.user.user_profile
 
-    if not (request.user.is_superuser or table.author == user_profile or event.is_manager(user_profile)):
+    if not (request.user.is_superuser or event.is_manager(user_profile)
+            or (not event.organizer_location_id and table.author_id == user_profile.pk)):
         messages.error(request, _("You don't have permission to edit this table."), extra_tags="danger")
         return redirect('event_table_detail', event_slug=event_slug, table_slug=table_slug)
 

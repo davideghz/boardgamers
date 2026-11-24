@@ -35,7 +35,7 @@ def tables_by_location_view(request, location_slugs):
     limit = 12
     today = now().date()
     base_qs = (
-        Table.objects
+        Table.objects.public()
         .filter(location__in=locations)
         .select_related('location', 'game')
         .prefetch_related('players')

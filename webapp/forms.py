@@ -1422,4 +1422,13 @@ class GuestProfileForm(ModelForm):
 class LocationPermissionsForm(ModelForm):
     class Meta:
         model = Location
-        fields = ['table_creation_permission', 'table_join_permission']
+        fields = ['table_creation_permission', 'table_join_permission', 'event_creation_permission', 'event_join_permission']
+
+    def __init__(self, data=None, *args, **kwargs):
+        if data is not None:
+            # Table-only forms already open at deploy can still save their changes.
+            data = data.copy()
+            location = kwargs.get('instance') or Location()
+            for name in ('event_creation_permission', 'event_join_permission'):
+                data.setdefault(name, getattr(location, name))
+        super().__init__(data, *args, **kwargs)

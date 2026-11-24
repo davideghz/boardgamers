@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 11:45+0100\n"
+"POT-Creation-Date: 2026-11-24 11:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -543,6 +543,12 @@ msgstr "Solo i soci"
 
 msgid "Owners and managers only"
 msgstr "Solo owner e managers"
+
+msgid "Who can create events"
+msgstr "Chi può creare eventi"
+
+msgid "Who can join events"
+msgstr "Chi può partecipare agli eventi"
 
 msgid "Who can create tables"
 msgstr "Chi può creare i tavoli"
@@ -3781,18 +3787,15 @@ msgstr "Non trovi la tua associazione nazionale?"
 msgid "Write to us"
 msgstr "Scrivici"
 
-msgid "Control who can create and join tables at this location."
-msgstr "Decidi chi può creare e unirsi ai tavoli."
+msgid "Control who can create and join tables and events at this location."
+msgstr "Decidi chi può creare tavoli ed eventi e chi può partecipare."
 
 msgid "Membership not enabled"
 msgstr "Richieste di iscrizione non attive"
 
 msgid ""
-"Members only options are disabled because membership requests are not active "
-"for this location."
-msgstr ""
-"Le opzioni riservate ai soci sono disabilitate perché le richieste di "
-"iscrizione non sono attive per questa location."
+"Members-only table options are disabled while membership requests are closed."
+msgstr "Le opzioni «Solo i soci» per i tavoli sono disattivate quando le richieste di iscrizione sono chiuse."
 
 msgid "Activate them in the Members page."
 msgstr "Attivale dalla pagina Soci."
@@ -3802,6 +3805,12 @@ msgstr "Chi può creare i tavoli?"
 
 msgid "Who can join tables?"
 msgstr "Chi può unirsi ai tavoli?"
+
+msgid "Who can create events?"
+msgstr "Chi può creare eventi?"
+
+msgid "Who can join events?"
+msgstr "Chi può partecipare agli eventi?"
 
 msgid "Save permissions"
 msgstr "Salva permessi"

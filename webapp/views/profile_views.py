@@ -35,7 +35,7 @@ class UserProfileDetailView(DetailView):
         user_profile = self.get_object()
 
         # Sottoquery per contare le partite giocate per ogni gioco
-        played_count = Table.objects.filter(
+        played_count = Table.objects.public().filter(
             game=OuterRef('pk'),
             players=user_profile
         ).values('game').annotate(
@@ -43,7 +43,7 @@ class UserProfileDetailView(DetailView):
         ).values('count')
 
         # Sottoquery per contare le vittorie per ogni gioco
-        win_count = Table.objects.filter(
+        win_count = Table.objects.public().filter(
             game=OuterRef('pk'),
             players=user_profile,
             player__position=1
@@ -58,7 +58,7 @@ class UserProfileDetailView(DetailView):
         ).filter(play_count__gt=0).order_by('-win_count', '-play_count')
 
         context.update({
-            'tables': Table.objects.filter(players=user_profile).annotate(
+            'tables': Table.objects.public().filter(players=user_profile).annotate(
                 is_win=Exists(Player.objects.filter(table=OuterRef('pk'), user_profile=user_profile, position=1))
             ).order_by('-is_win', '-date'),
             'form': UserProfileAvatarForm(instance=user_profile),

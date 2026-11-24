@@ -229,7 +229,7 @@ class BaseTableDetailView(generic.DetailView):
 
     def get_queryset(self):
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-        return super().get_queryset().prefetch_related(comments_prefetch)
+        return super().get_queryset().visible_to(self.request.user).prefetch_related(comments_prefetch)
 
     def get_comment_redirect(self):
         raise NotImplementedError
@@ -325,7 +325,7 @@ class TableDetailView(BaseTableDetailView):
     template_name = "tables/table_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
-        table = get_object_or_404(Table.objects.select_related('event'), slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user).select_related('event'), slug=kwargs['slug'])
         if table.event_id:
             return redirect('event_table_detail', event_slug=table.event.slug, table_slug=table.slug)
         return super().dispatch(request, *args, **kwargs)
@@ -371,7 +371,7 @@ class TableDetailView(BaseTableDetailView):
 
 @login_required
 def table_players_view(request, slug):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if not can_manage_roster(request.user.user_profile, table):
         messages.error(request, "You do not have permission to manage players for this table.", extra_tags="danger")
@@ -392,7 +392,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
     """View to manually add a player to a table (author/admin only)"""
 
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
 
         if not can_manage_roster(request.user.user_profile, table):
             messages.error(request, _("You do not have permission to add players to this table."), extra_tags="danger")
@@ -432,7 +432,7 @@ class AddTablePlayerView(LoginRequiredMixin, View):
 
 @login_required
 def remove_player_view(request, slug, player_id):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
     player = get_object_or_404(Player, id=player_id, table=table)
 
     if not can_manage_roster(request.user.user_profile, table):
@@ -549,7 +549,7 @@ def table_create_view(request, location_slug):
 @only_admin_can_edit_closed_table
 @only_author_or_admin_can_edit
 def table_update_view(request, location_slug, table_slug):
-    table = get_object_or_404(Table, slug=table_slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=table_slug, location__slug=location_slug)
 
     if table.location is None:  # Controllo di sicurezza per evitare problemi
         table.location = get_object_or_404(Location, slug=location_slug)
@@ -601,7 +601,7 @@ def _next_weekly_date(table):
 
 @login_required
 def table_duplicate_view(request, slug):
-    source = get_object_or_404(Table.objects.select_related('location', 'game', 'author'), slug=slug)
+    source = get_object_or_404(Table.objects.visible_to(request.user).select_related('location', 'game', 'author'), slug=slug)
     profile = request.user.user_profile
     if not can_duplicate_table(profile, source):
         messages.error(request, _("You don't have permission to duplicate this table."), extra_tags="danger")
@@ -657,7 +657,7 @@ def table_duplicate_view(request, slug):
 @login_required
 @author_or_admin_required
 def add_external_player(request, slug, available_seats):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if request.method == "POST":
         if available_seats > 0 or table.unlimited_seats:
@@ -670,7 +670,7 @@ def add_external_player(request, slug, available_seats):
 @login_required
 @author_or_admin_required
 def remove_external_player(request, slug):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if request.method == "POST":
         if table.external_players > 0:
@@ -683,7 +683,7 @@ def remove_external_player(request, slug):
 @login_required
 @author_or_admin_required
 def clear_external_players(request, slug):
-    table = get_object_or_404(Table, slug=slug)
+    table = get_object_or_404(Table.objects.visible_to(request.user), slug=slug)
 
     if request.method == "POST":
         if table.external_players > 0:
@@ -703,8 +703,19 @@ class TableDeleteView(
     model = Table
     template_name = "tables/table_delete.html"
 
+    def get_queryset(self):
+        return super().get_queryset().visible_to(self.request.user)
+
     slug_field = "slug"
     slug_url_kwarg = "slug"
+
+    def test_func(self):
+        table = self.get_object()
+        if table.status == Table.CLOSED:
+            return False
+        if table.event_id and table.event.organizer_location_id:
+            return can_manage_roster(self.request.user.user_profile, table)
+        return super().test_func()
 
     success_message = "Table was deleted successfully"
 
@@ -739,7 +750,7 @@ def _report_table_action_error(request, error):
 
 class JoinTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=self.kwargs['slug'])
 
         try:
             result = join_table(request.user.user_profile, table)
@@ -758,7 +769,7 @@ class SaveTableResultView(LoginRequiredMixin, View):
     """JSON endpoint of the leaderboard editor: validates and stores the whole result."""
 
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=self.kwargs['slug'])
         try:
             data = json.loads(request.body)
         except (ValueError, TypeError):
@@ -776,7 +787,7 @@ class SaveTableResultView(LoginRequiredMixin, View):
 
 class LeaveTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=self.kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=self.kwargs['slug'])
 
         try:
             leave_table(request.user.user_profile, table)
@@ -788,7 +799,7 @@ class LeaveTableView(LoginRequiredMixin, View):
 
 class AddGuestToTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
         guest = get_object_or_404(
             GuestProfile, id=request.POST.get('guest_id'), owner=request.user.user_profile)
 
@@ -802,7 +813,7 @@ class AddGuestToTableView(LoginRequiredMixin, View):
 
 class RemoveGuestFromTableView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        table = get_object_or_404(Table, slug=kwargs['slug'])
+        table = get_object_or_404(Table.objects.visible_to(request.user), slug=kwargs['slug'])
         player = get_object_or_404(
             Player, id=kwargs['player_id'], table=table, guest_profile__isnull=False)
 

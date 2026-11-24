@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from webapp.emails import send_batch_notification_new_messages
-from webapp.models import Notification, NotificationType
+from webapp.models import Table, Notification, NotificationType
 from collections import defaultdict
 
 
@@ -13,6 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Recupera tutte le notifiche non inviate e non lette di tipo NEW_COMMENT
         notifications = Notification.objects.filter(
+            Table.public_condition('table__'),
             sent=False,
             is_read=False,
             notification_type=NotificationType.NEW_COMMENT

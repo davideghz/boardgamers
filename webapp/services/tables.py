@@ -89,6 +89,8 @@ def comment_badges(table, comments):
     """
     author_ids = {c.author_id for c in comments if c.comment_type == CommentType.USER and c.author_id}
     host = table.location if table.location_id else table.event if table.event_id else None
+    if table.event_id and table.event.organizer_location_id:
+        host = table.event.organizer_location
     host_ids = set()
     if host is not None:
         host_ids.add(host.creator_id)
@@ -115,6 +117,8 @@ def can_manage_roster(profile, table):
     """
     if profile is None:
         return False
+    if table.event_id and table.event.organizer_location_id:
+        return profile.user.is_superuser or table.event.is_manager(profile)
     if table.author_id == profile.id or profile.user.is_superuser:
         return True
     if table.location_id:
@@ -327,6 +331,8 @@ def _is_location_staff(profile, location):
 
 
 def _may_join_restricted_location(profile, table):
+    if table.event_id and table.event.organizer_location_id:
+        return table.event.organizer_location.can_join_events(profile)
     location = table.location
     if not location or location.table_join_permission != location.PERM_MEMBERS_ONLY:
         return True

@@ -283,7 +283,7 @@ class DuplicateTableViewTest(TestCase):
         self.assertRedirects(response, reverse('table-detail', kwargs={'slug': self.source.slug}))
 
     def test_event_tables_cannot_be_duplicated(self):
-        event = Event.objects.create(name='Con', creator=self.owner)
+        event = Event.objects.create(name='Con', creator=self.owner, status=Event.PUBLISHED)
         table = make_table(author=self.author, event=event)
         self.client.force_login(self.author.user)
 
