@@ -100,6 +100,27 @@ class EventManagerMixin(LoginRequiredMixin):
         return self._event_cache
 
 
+class EventOwnLayoutMixin:
+    """Route shared layout management through the venue after the event permission check."""
+
+    def dispatch(self, request, *args, **kwargs):
+        event = self._get_event()
+        if event.layout_mode == Event.LayoutMode.VENUE:
+            if request.method in ('GET', 'HEAD') and hasattr(self, 'get'):
+                return redirect(self.venue_management_view, slug=event.venue_location.slug)
+            if request.method == 'POST':
+                raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+
+class EventAreaManagerMixin(EventManagerMixin, EventOwnLayoutMixin):
+    venue_management_view = 'location-manage-areas'
+
+
+class EventStationManagerMixin(EventManagerMixin, EventOwnLayoutMixin):
+    venue_management_view = 'location-manage-stations'
+
+
 def _dates_with_gaps(event):
     """Sorted event dates, flagging the days that don't follow the previous one."""
     event_dates = event.sorted_dates
@@ -352,14 +373,18 @@ class EventListView(View):
             .values_list('pk', flat=True))
 
 
-def _build_program_grid(event, tables, selected_area):
+def _build_program_grid(event, tables, selected_area, *, can_manage_layout):
     """Build a station/area × time grid. Columns adapt to the most granular
     structure available: stations, else play areas, else a single 'General'
     column ("area generale" fallback)."""
     UNASSIGNED = 'none'
-    stations = list(event.effective_physical_tables().select_related('play_area'))
+    stations = event.effective_physical_tables().select_related('play_area')
+    if event.layout_mode == Event.LayoutMode.VENUE and not can_manage_layout:
+        assigned_stations = {table.physical_table_id for table in tables if table.physical_table_id}
+        stations = stations.filter(Q(is_visible=True) | Q(pk__in=assigned_stations))
     if selected_area:
-        stations = [s for s in stations if s.play_area_id == selected_area.id]
+        stations = stations.filter(play_area=selected_area)
+    stations = list(stations)
 
     if stations:
         columns = [{'key': f's{s.id}', 'label': s.name,
@@ -415,6 +440,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
 
         is_manager = bool(user_profile and event.is_manager(user_profile))
+        can_manage_layout = is_manager or self.request.user.is_superuser
         can_create_table = bool(user_profile and event.can_create_table(user_profile))
 
         # ── Date filtering ────────────────────────────────────────────────
@@ -512,9 +538,7 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         tables_qs = tables_qs.order_by('date', 'time')
 
         tables_list = list(tables_qs)
-        conflict_ids = station_conflict_ids(
-            tables_list, public_only=not (is_manager or self.request.user.is_superuser),
-        )
+        conflict_ids = station_conflict_ids(tables_list, public_only=not can_manage_layout)
         for t in tables_list:
             t.has_conflict = t.id in conflict_ids
 
@@ -531,7 +555,9 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
             }
             for day, day_tables in groupby(tables_list, key=lambda tb: tb.date)
         ]
-        grid = _build_program_grid(event, tables_list, selected_area) if view_mode == 'grid' else None
+        grid = None
+        if view_mode == 'grid':
+            grid = _build_program_grid(event, tables_list, selected_area, can_manage_layout=can_manage_layout)
 
         # ── Games present in this event (for the filter modal) ────────────
         game_ids = (
@@ -926,7 +952,7 @@ class EventManageDateDeleteView(EventManagerMixin, View):
         return redirect('event-manage-dates', slug=slug)
 
 
-class EventManageAreasView(EventManagerMixin, View):
+class EventManageAreasView(EventAreaManagerMixin, View):
     template_name = 'events/event_manage_areas.html'
 
     def get(self, request, slug):
@@ -955,14 +981,14 @@ class EventManageAreasView(EventManagerMixin, View):
         })
 
 
-class EventManageAreaDeleteView(EventManagerMixin, View):
+class EventManageAreaDeleteView(EventAreaManagerMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
         remove_layout_resource(request, event.play_areas.filter(pk=pk), _("Play area removed."))
         return redirect('event-manage-areas', slug=slug)
 
 
-class EventManageAreasReorderView(EventManagerMixin, View):
+class EventManageAreasReorderView(EventAreaManagerMixin, View):
     def post(self, request, slug):
         import json
         from django.http import JsonResponse
@@ -1175,7 +1201,7 @@ class EventManageParticipantsView(EventManagerMixin, View):
         })
 
 
-class EventManagePhysicalTablesView(EventManagerMixin, View):
+class EventManagePhysicalTablesView(EventStationManagerMixin, View):
     template_name = 'events/event_manage_physical_tables.html'
 
     def get(self, request, slug):
@@ -1204,14 +1230,14 @@ class EventManagePhysicalTablesView(EventManagerMixin, View):
         })
 
 
-class EventManagePhysicalTableDeleteView(EventManagerMixin, View):
+class EventManagePhysicalTableDeleteView(EventStationManagerMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
         remove_layout_resource(request, event.physical_tables.filter(pk=pk), _("Station removed."))
         return redirect('event-manage-stations', slug=slug)
 
 
-class EventManagePhysicalTablesReorderView(EventManagerMixin, View):
+class EventManagePhysicalTablesReorderView(EventStationManagerMixin, View):
     def post(self, request, slug):
         import json
         from django.http import JsonResponse

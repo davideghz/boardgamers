@@ -884,7 +884,7 @@ class OrganizedEventForm(EventManageDataForm):
     longitude = CoordinateField(min_value=-180, max_value=180, label=_('Longitude'))
 
     class Meta(EventManageDataForm.Meta):
-        fields = ['name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city',
+        fields = ['name', 'description', 'cover', 'venue_location', 'layout_mode', 'venue_name', 'address', 'city',
                   'latitude', 'longitude', 'phone', 'email', 'catalog_mode', 'leaderboard_enabled', 'table_booking_enabled',
                   'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
 
@@ -894,14 +894,26 @@ class OrganizedEventForm(EventManageDataForm):
         self.fields['cover'].widget.attrs = {
             'class': 'sr-only peer', 'accept': 'image/*', 'data-crop-max-side': COVER_MAX_SIDE}
         if not self.instance.pk:
-            for name in ('leaderboard_enabled', 'table_booking_enabled', 'custom_button_title',
+            for name in ('layout_mode', 'leaderboard_enabled', 'table_booking_enabled', 'custom_button_title',
                          'custom_button_subtitle', 'custom_button_url'):
                 self.fields.pop(name)
+        else:
+            self.fields['layout_mode'].required = False
+            self.fields['layout_mode'].help_text = _(
+                'The venue layout is available when the venue is the organizing location.')
         self.fields['description'].required = self.instance.is_published
 
     def clean(self):
         data = super().clean()
-        if self.instance.is_published and not data.get('venue_location'):
+        venue = data.get('venue_location')
+        if not self.instance.pk:
+            self.instance.layout_mode = (
+                Event.LayoutMode.VENUE if venue and venue.pk == self.instance.organizer_location_id
+                else Event.LayoutMode.EVENT
+            )
+        elif data.get('layout_mode') == '':
+            data['layout_mode'] = self.instance.layout_mode
+        if self.instance.is_published and not venue:
             for name in ('venue_name', 'address', 'latitude', 'longitude'):
                 if data.get(name) in (None, ''):
                     self.add_error(name, _('Required for a public venue.'))
