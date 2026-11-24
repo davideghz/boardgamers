@@ -519,6 +519,8 @@ class PhysicalTableInline(admin.TabularInline):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    # Not editable until the event pages show them.
+    exclude = ('organizer_location', 'venue_location', 'venue_name')
     list_display = ('name', 'city', 'creator', 'status', 'participant_count', 'created_at')
     list_filter = ('status', 'city')
     list_editable = ('status',)
