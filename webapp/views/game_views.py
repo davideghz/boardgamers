@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from meta.views import Meta
 
 from webapp.models import Event, Game, Location, Table
+from webapp.services.event_games import effective_catalog
 from webapp.services.game_loans import can_view_game_library, is_active_member
 
 
@@ -75,7 +76,7 @@ class GameDetailView(DetailView):
                 context['back_location'] = location
                 context['back_library_query'] = {key: params[key] for key in ('q', 'page') if key in params}
         if from_event:
-            event = Event.objects.filter(slug=from_event, games__game=game).first()
-            if event and (event.is_published or event.is_manager(profile)):
+            event = Event.objects.select_related('organizer_location').filter(slug=from_event).first()
+            if event and event.can_view_catalog(self.request.user) and effective_catalog(event).filter(game=game).exists():
                 context['back_event'] = event
         return context

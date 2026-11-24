@@ -5962,6 +5962,45 @@ msgstr "Collega account"
 #~ "Do you know your way around code and want to contribute to Board-Gamers?"
 #~ msgstr "Te ne intendi di codice e vuoi contribuire a Board-Gamers?"
 
+msgid "Automatic for the venue"
+msgstr "Automatica in base al luogo"
+
+msgid "Organizing location library"
+msgstr "Libreria della sede organizzatrice"
+
+msgid "Event selection"
+msgstr "Selezione per l'evento"
+
+msgid "Game catalog"
+msgstr "Catalogo dei giochi"
+
+msgid "Source in the organizing library"
+msgstr "Titolo nella libreria della sede organizzatrice"
+
+msgid "Choose this title from the organizing location."
+msgstr "Seleziona lo stesso titolo dalla libreria della sede organizzatrice."
+
+msgid "The event catalog uses the organizing location library."
+msgstr "Il catalogo dell'evento usa la libreria della sede organizzatrice."
+
+msgid "The event catalog uses the event selection."
+msgstr "Il catalogo dell'evento usa la selezione per l'evento."
+
+msgid "Change catalog"
+msgstr "Cambia catalogo"
+
+msgid "Visitors can browse the organizing location library from the event page."
+msgstr "I visitatori possono consultare la libreria della sede organizzatrice dalla pagina dell'evento."
+
+msgid "The event catalog stays hidden while the organizing location library is private."
+msgstr "Il catalogo dell'evento resta nascosto finché la libreria della sede organizzatrice è privata."
+
+msgid "To be brought"
+msgstr "Da portare"
+
+msgid "Choose a game from the organizing library or search all games."
+msgstr "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca tra tutti i giochi."
+
 #~ msgid "This game is archived."
 #~ msgstr "Questo gioco è archiviato."
 

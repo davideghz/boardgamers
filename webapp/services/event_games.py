@@ -8,7 +8,8 @@ from one query per relation, whatever the number of games.
 from django.db.models import Exists, Min, OuterRef, Prefetch
 from django.utils import timezone
 
-from webapp.models import EventGame, EventGameTag, Location, Table
+from webapp.models import EventGame, EventGameTag, Location, LocationGame, Table
+from webapp.services.game_loans import with_game_loan_status
 
 #: Games shown on the event page, the rest are one click away in the library.
 FEATURED_GAMES_LIMIT = 12
@@ -27,6 +28,13 @@ def library_queryset(event):
         )
         .order_by('game__name', 'pk')
     )
+
+
+def effective_catalog(event):
+    if event.uses_location_library:
+        games = LocationGame.objects.filter(location_id=event.organizer_location_id, is_archived=False)
+        return with_game_loan_status(games).select_related('game').defer('game__description').order_by('game__name', 'pk')
+    return library_queryset(event)
 
 
 def attach_booking_dates(event, entries):
@@ -51,5 +59,7 @@ def attach_booking_dates(event, entries):
 
 def featured_games(event):
     """The games to show on the event page: those with a tag flagged for it."""
+    if event.uses_location_library:
+        return attach_booking_dates(event, effective_catalog(event)[:FEATURED_GAMES_LIMIT])
     flagged = EventGameTag.objects.filter(games=OuterRef('pk'), show_on_event_page=True)
     return attach_booking_dates(event, library_queryset(event).filter(Exists(flagged))[:FEATURED_GAMES_LIMIT])

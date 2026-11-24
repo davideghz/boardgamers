@@ -31,7 +31,7 @@ from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
-from webapp.services.event_games import attach_booking_dates, featured_games, library_queryset
+from webapp.services.event_games import attach_booking_dates, effective_catalog, featured_games, library_queryset
 from webapp.views.table_views import BaseTableDetailView
 
 logger = logging.getLogger(__name__)
@@ -159,7 +159,7 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             user_profile=user_profile).exists())
         today = timezone.localdate()
         is_concluded = event.is_concluded(today)
-        games = featured_games(event) if event.enable_public_games else []
+        games = featured_games(event) if event.catalog_is_public else []
         event_dates = _dates_with_gaps(event)
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
@@ -173,7 +173,7 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'today': today,
             'is_concluded': is_concluded,
             'featured_games': games,
-            'has_library': event.enable_public_games and (bool(games) or event.games.exists()),
+            'has_library': event.catalog_is_public and (bool(games) or effective_catalog(event).exists()),
             'can_view_program': event.can_view_program(self.request.user),
             # Public link to the program: only while table booking is on.
             'program_url': (
@@ -228,7 +228,7 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
 
 class EventGamesView(EventPublicAccessMixin, DetailView):
     """Public list of the games in the event's library."""
-    model = Event
+    queryset = Event.objects.select_related('organizer_location')
     template_name = 'events/event_games.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -237,10 +237,8 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
     def get_object(self, queryset=None):
         # Until the managers publish it, only they can see it, as a preview.
         event = super().get_object(queryset)
-        if not event.enable_public_games:
-            user = self.request.user
-            if not (user.is_authenticated and (user.is_superuser or event.is_manager(user.user_profile))):
-                raise EventSectionUnavailable(event, _('Game catalog unavailable'))
+        if not event.can_view_catalog(self.request.user):
+            raise EventSectionUnavailable(event, _('Game catalog unavailable'))
         return event
 
     @staticmethod
@@ -251,14 +249,17 @@ class EventGamesView(EventPublicAccessMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
-        tags = list(event.game_tags.all())
-        sponsors = list(event.sponsor_locations.only('id', 'name').order_by('name'))
+        tags = []
+        sponsors = []
+        if not event.uses_location_library:
+            tags = list(event.game_tags.all())
+            sponsors = list(event.sponsor_locations.only('id', 'name').order_by('name'))
         selected_tag = self._selected(tags, self.request.GET.get('tag'))
         selected_sponsor = self._selected(sponsors, self.request.GET.get('sponsor'))
         q = self.request.GET.get('q', '').strip()
 
-        entries = library_queryset(event)
-        total_count = event.games.count()
+        entries = effective_catalog(event)
+        total_count = entries.count()
         if q:
             entries = entries.filter(game__name__icontains=q)
         if selected_tag:
@@ -1087,8 +1088,10 @@ class EventManageGamesToggleView(EventManagerMixin, View):
         event = self._get_event()
         event.enable_public_games = request.POST.get('enabled') == 'on'
         event.save(update_fields=['enable_public_games'])
-        if event.enable_public_games:
+        if event.catalog_is_public:
             messages.success(request, _("The game library is now visible on the event page."))
+        elif event.enable_public_games:
+            messages.info(request, _('The event catalog stays hidden while the organizing location library is private.'))
         else:
             messages.success(request, _("The game library is now hidden from the event page."))
         return redirect('event-manage-games', slug=slug)

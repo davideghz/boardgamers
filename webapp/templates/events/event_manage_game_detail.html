@@ -16,6 +16,10 @@
         class="max-w-xl space-y-5">
     {% csrf_token %}
 
+    {% if form.source_location_game %}
+      <p class="text-sm text-content-muted">{% trans "Choose a game from the organizing library or search all games." %}</p>
+      {% include "events/_location_event_form_field.html" with field=form.source_location_game only %}
+    {% endif %}
     {# ── Game picker (BGG modal) ──────────────────────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1">{% trans "Game" %}</label>

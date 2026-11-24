@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
+from django.db.models import Q
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
@@ -885,7 +886,7 @@ class OrganizedEventForm(EventManageDataForm):
 
     class Meta(EventManageDataForm.Meta):
         fields = ['name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city',
-                  'latitude', 'longitude', 'phone', 'email', 'leaderboard_enabled', 'table_booking_enabled',
+                  'latitude', 'longitude', 'phone', 'email', 'catalog_mode', 'leaderboard_enabled', 'table_booking_enabled',
                   'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
 
     def __init__(self, *args, **kwargs):
@@ -1388,7 +1389,7 @@ class EventGameForm(ModelForm, TailwindForm):
 
     class Meta:
         model = EventGame
-        fields = ['game', 'tags', 'sponsor_locations']
+        fields = ['game', 'source_location_game', 'tags', 'sponsor_locations']
         widgets = {
             'tags': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
             'sponsor_locations': CheckboxSelectMultiple(attrs={'class': _TW_CHECKBOX}),
@@ -1398,19 +1399,35 @@ class EventGameForm(ModelForm, TailwindForm):
         self.event = event
         super().__init__(*args, **kwargs)
         self.fields['tags'].queryset = event.game_tags.all()
+        self.instance.event = event
         self.fields['sponsor_locations'].queryset = event.sponsor_locations.only('id', 'name').order_by('name')
+        if event.organizer_location_id:
+            self.fields['game'].required = False
+            self.fields['source_location_game'].queryset = LocationGame.objects.filter(
+                Q(is_archived=False) | Q(pk=self.instance.source_location_game_id),
+                location_id=event.organizer_location_id,
+            ).select_related('game', 'location')
+        else:
+            self.fields.pop('source_location_game')
 
-    def clean_game(self):
+    def clean(self):
+        data = super().clean()
+        source = data.get('source_location_game')
         # `event` is not a form field, so ModelForm skips the (event, game)
         # unique_together check: do it here.
-        game = self.cleaned_data.get('game')
-        if game:
-            duplicates = EventGame.objects.filter(event=self.event, game=game)
-            if self.instance.pk:
-                duplicates = duplicates.exclude(pk=self.instance.pk)
-            if duplicates.exists():
-                raise ValidationError(_("This game is already in the library."))
-        return game
+        game = data.get('game')
+        field = 'game'
+        if not game:
+            if 'game' in self.errors or 'source_location_game' in self.errors:
+                return data
+            if not source:
+                self.add_error('game', _('Select a game'))
+                return data
+            game = data['game'] = source.game
+            field = 'source_location_game'
+        if self.event.games.filter(game=game).exclude(pk=self.instance.pk).exists():
+            self.add_error(field, _('This game is already in the library.'))
+        return data
 
 
 class _GameTagNameMixin:

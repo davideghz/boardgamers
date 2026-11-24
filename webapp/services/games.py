@@ -75,6 +75,8 @@ def merge_event_library(keeper, duplicate):
         kept = EventGame.objects.get(event_id=entry.event_id, game=keeper)
         kept.tags.add(*entry.tags.all())
         kept.sponsor_locations.add(*entry.sponsor_locations.all())
+        if not kept.source_location_game_id and entry.source_location_game_id:
+            EventGame.objects.filter(pk=kept.pk).update(source_location_game_id=entry.source_location_game_id)
         entry.delete()
         merged += 1
     moved = EventGame.objects.filter(game=duplicate).update(game=keeper)
@@ -134,6 +136,7 @@ def merge_games(keeper, duplicate, choices):
                 fields.extend(['withdrawn_on', 'withdrawal_reason', 'withdrawal_note'])
             if fields:
                 kept.save(update_fields=[*fields, 'updated_at'])
+            entry.event_selections.update(source_location_game=kept)
             entry.delete()
             library_merged += 1
         library_moved = LocationGame.objects.filter(game=duplicate).update(game=keeper)

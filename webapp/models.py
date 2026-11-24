@@ -1774,6 +1774,18 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         upload_to='event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
         verbose_name=_('Cover'))
 
+    CATALOG_LOCATION = 'location'
+    CATALOG_SELECTED = 'selected'
+    catalog_mode = models.CharField(
+        max_length=12, blank=True, default='', db_default='',
+        choices=[
+            ('', _('Automatic for the venue')),
+            (CATALOG_LOCATION, _('Organizing location library')),
+            (CATALOG_SELECTED, _('Event selection')),
+        ],
+        verbose_name=_('Game catalog'),
+    )
+
     # PROTECT also stops the deletion of the profile that created the location
     # (Location.creator cascades): reassign its events first.
     organizer_location = models.ForeignKey(
@@ -1942,6 +1954,23 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     @property
     def is_published(self):
         return self.status == self.PUBLISHED
+
+    @property
+    def uses_location_library(self):
+        return self.organizer_location_id is not None and (
+            self.catalog_mode == self.CATALOG_LOCATION or (not self.catalog_mode and self.is_at_organizer_location)
+        )
+
+    @property
+    def catalog_is_public(self):
+        return self.enable_public_games and (
+            not self.uses_location_library or self.organizer_location.enable_public_games
+        )
+
+    def can_view_catalog(self, user):
+        return (self.is_published and self.catalog_is_public) or (
+            user.is_authenticated and (user.is_superuser or self.is_manager(user.user_profile))
+        )
 
     def validate_table_date(self, date):
         if not self.dates.filter(date=date).exists():
@@ -2117,7 +2146,12 @@ class EventGameTag(DateTimeModel):
 
 
 class EventGame(DateTimeModel):
-    """A game in an event's library, optionally brought by its sponsor locations."""
+    """A selected title keeps its identity when the organizer rearranges its inventory."""
+    source_location_game = models.ForeignKey(
+        LocationGame, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='event_selections', verbose_name=_('Source in the organizing library'),
+    )
+
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='games', verbose_name=_('Event'))
     game = models.ForeignKey(
@@ -2127,6 +2161,17 @@ class EventGame(DateTimeModel):
     sponsor_locations = models.ManyToManyField(
         Location, related_name='event_games', blank=True, verbose_name=_('Sponsor locations'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
+
+    def clean(self):
+        super().clean()
+        if self.source_location_game_id and self.event_id and (
+                self.source_location_game.game_id != self.game_id or
+                self.source_location_game.location_id != self.event.organizer_location_id):
+            raise ValidationError({'source_location_game': _('Choose this title from the organizing location.')})
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.game.name} @ {self.event.name}"
