@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 12:43+0100\n"
+"POT-Creation-Date: 2026-11-24 13:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -238,6 +238,18 @@ msgstr "Un pulsante con un link deve avere un titolo."
 
 msgid "A button with a title needs a link."
 msgstr "Un pulsante con un titolo deve avere un link."
+
+msgid "Latitude"
+msgstr "Latitudine"
+
+msgid "Longitude"
+msgstr "Longitudine"
+
+msgid "Enter an external venue below"
+msgstr "Inserisci qui sotto un luogo esterno"
+
+msgid "Required for a public venue."
+msgstr "Campo obbligatorio per pubblicare il luogo."
 
 msgid "Opening time"
 msgstr "Orario di apertura"
@@ -1109,6 +1121,12 @@ msgstr "Seleziona una delle giornate dell’evento."
 
 msgid "Add at least one date"
 msgstr "Aggiungi almeno una data"
+
+msgid "Choose a venue or enter its name, address and coordinates"
+msgstr "Scegli un luogo o inserisci nome, indirizzo e coordinate"
+
+msgid "Set opening and closing times for each date"
+msgstr "Indica gli orari di apertura e chiusura di ogni giornata"
 
 msgid "Write a description"
 msgstr "Scrivi una descrizione"
@@ -2250,6 +2268,18 @@ msgstr ""
 "Clicca sul pulsante qui sotto per confermare il tuo indirizzo email e "
 "completare la configurazione del tuo account."
 
+msgid "Not assigned"
+msgstr "Da assegnare"
+
+msgid "Venue"
+msgstr "Luogo"
+
+msgid "At the organizing location"
+msgstr "In sede"
+
+msgid "External venue"
+msgstr "Fuori sede"
+
 msgid ""
 "This event is not visible to the public yet. Publish it when it's ready."
 msgstr ""
@@ -2265,18 +2295,11 @@ msgstr ""
 "Un admin ha bloccato questo evento: non è visibile al pubblico. Contattaci "
 "se pensi sia un errore."
 
-msgid "My Events"
-msgstr "I miei Eventi"
+msgid "Choose an organizing location"
+msgstr "Scegli la sede organizzatrice"
 
-msgid ""
-"The event starts as a draft: you can publish it yourself once it's ready."
-msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
-
-msgid "Cover image"
-msgstr "Immagine di copertina"
-
-msgid "We'll use this to show the location on the map."
-msgstr "Lo useremo per mostrare la location sulla mappa."
+msgid "You have no locations where you can create an event."
+msgstr "Non hai location per cui puoi creare un evento."
 
 msgid "You're attending"
 msgstr "Stai partecipando"
@@ -2493,6 +2516,12 @@ msgstr "Aggiungi categoria"
 
 msgid "General info"
 msgstr "Info generali"
+
+msgid "Cover image"
+msgstr "Immagine di copertina"
+
+msgid "We'll use this to show the location on the map."
+msgstr "Lo useremo per mostrare la location sulla mappa."
 
 msgid "Leaderboard in the event tables"
 msgstr "Classifica nei tavoli dell'evento"
@@ -2762,6 +2791,19 @@ msgstr "Aggiungi admin tavoli"
 msgid "Remove table creator?"
 msgstr "Rimuovere l'admin tavoli?"
 
+msgid "Go back to the event page for the available information."
+msgstr "Torna alla pagina dell'evento per le informazioni disponibili."
+
+msgid "Check the link or look for the event in the list of public events."
+msgstr ""
+"Controlla il link oppure cerca l'evento nell'elenco degli eventi pubblici."
+
+msgid "Back to the event"
+msgstr "Torna all'evento"
+
+msgid "View events"
+msgstr "Vedi gli eventi"
+
 msgid "Create table"
 msgstr "Crea un tavolo qui"
 
@@ -2824,9 +2866,6 @@ msgid ""
 msgstr ""
 "Gli organizzatori stanno ancora preparando il programma: torna a dare "
 "un'occhiata tra qualche giorno."
-
-msgid "Back to the event"
-msgstr "Torna all'evento"
 
 msgid "No tables match the selected filters."
 msgstr "Nessun tavolo corrisponde ai filtri selezionati."
@@ -2967,6 +3006,19 @@ msgstr "Aggiungi al Calendario"
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
 
+msgid "Create location event"
+msgstr "Crea evento"
+
+msgid ""
+"Choose a landscape image. Without a cover, the event uses the location image "
+"or the default image."
+msgstr ""
+"Scegli un’immagine orizzontale. In assenza di una copertina, l’evento usa "
+"l’immagine della location oppure quella predefinita."
+
+msgid "Choose a suggestion to fill in the city and the coordinates."
+msgstr "Scegli un suggerimento per compilare città e coordinate."
+
 #, python-format
 msgid "Library – %(name)s"
 msgstr "Ludoteca – %(name)s"
@@ -3094,6 +3146,9 @@ msgstr "Nessun tavolo passato."
 
 msgid "See all tables"
 msgstr "Vedi tutti i tavoli"
+
+msgid "Organized events"
+msgstr "Eventi organizzati"
 
 msgid "Events we take part in"
 msgstr "Eventi a cui partecipiamo"
@@ -3378,6 +3433,9 @@ msgstr ""
 
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
+
+msgid "No events yet."
+msgstr "Ancora nessun evento."
 
 msgid "Withdrawn games"
 msgstr "Giochi usciti"
@@ -5185,8 +5243,14 @@ msgstr "Non è possibile modificare tavoli chiusi."
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
-msgid "Event created as a draft. Publish it from this page when it's ready."
-msgstr "Evento creato come bozza. Pubblicalo da questa pagina quando è pronto."
+msgid "Event created as a draft."
+msgstr "Evento creato in bozza."
+
+msgid "Event unavailable"
+msgstr "Evento non disponibile"
+
+msgid "Game catalog unavailable"
+msgstr "Catalogo non disponibile"
 
 #, python-format
 msgid "Board games available at %(name)s."
@@ -5201,6 +5265,9 @@ msgstr ""
 
 msgid "General"
 msgstr "Generale"
+
+msgid "Program unavailable"
+msgstr "Programma non disponibile"
 
 msgid "This event has already ended, registration is closed."
 msgstr "Questo evento è già terminato, le iscrizioni sono chiuse."
@@ -5876,6 +5943,17 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "My Events"
+#~ msgstr "I miei Eventi"
+
+#~ msgid ""
+#~ "The event starts as a draft: you can publish it yourself once it's ready."
+#~ msgstr "L'evento nasce come bozza: potrai pubblicarlo tu quando è pronto."
+
+#~ msgid "Event created as a draft. Publish it from this page when it's ready."
+#~ msgstr ""
+#~ "Evento creato come bozza. Pubblicalo da questa pagina quando è pronto."
 
 #~ msgid "Hey!"
 #~ msgstr "Hey!"

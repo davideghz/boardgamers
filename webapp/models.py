@@ -307,13 +307,22 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         return bool(user_profile and (
             self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
 
-    def can_create_events(self, user):
+    @classmethod
+    def event_creation_locations(cls, user):
         if not user.is_authenticated:
-            return False
-        if user.is_superuser or self.is_manager(user.user_profile):
-            return True
-        return (self.event_creation_permission == self.PERM_MEMBERS_ONLY
-                and Membership.active_for(user.user_profile).filter(member__location=self).exists())
+            return cls.objects.none()
+        if user.is_superuser:
+            return cls.objects.all()
+        profile = user.user_profile
+        managed = models.Q(creator=profile) | models.Q(managers=profile)
+        member = models.Q(
+            event_creation_permission=cls.PERM_MEMBERS_ONLY,
+            pk__in=Membership.active_for(profile).values('member__location_id'),
+        )
+        return cls.objects.filter(managed | member).distinct()
+
+    def can_create_events(self, user):
+        return self.event_creation_locations(user).filter(pk=self.pk).exists()
 
     def can_join_events(self, profile):
         return bool(profile and (
@@ -1836,7 +1845,19 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def cover_url(self):
         if self.cover and hasattr(self.cover, 'url'):
             return self.cover.url
+        if self.organizer_location_id:
+            return self.organizer_location.cover_url
         return settings.STATIC_URL + settings.DEFAULT_LOCATION_COVER_URL
+
+    @property
+    def venue(self):
+        return self.venue_location or self
+
+    @property
+    def venue_label(self):
+        if self.venue_location_id:
+            return self.venue_location.name
+        return self.venue_name or self.city or self.address or ''
 
     def structured_data(self, request=None):
         """schema.org/Event JSON-LD payload for search-engine rich results, or
@@ -1932,6 +1953,12 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         missing = []
         if not self.dates.exists():
             missing.append(_('Add at least one date'))
+        if self.organizer_location_id:
+            if not self.venue_location_id and not all(
+                    value not in (None, '') for value in (self.venue_name, self.address, self.latitude, self.longitude)):
+                missing.append(_('Choose a venue or enter its name, address and coordinates'))
+            if self.dates.filter(models.Q(opening_time__isnull=True) | models.Q(closing_time__isnull=True)).exists():
+                missing.append(_('Set opening and closing times for each date'))
         if not self.description.strip():
             missing.append(_('Write a description'))
         return missing

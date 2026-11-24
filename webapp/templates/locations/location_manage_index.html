@@ -11,6 +11,8 @@
 
   <div class="max-w-xl space-y-2">
 
+    <a class="block p-4 rounded-xl border border-divider bg-surface text-sm font-bold text-content" href="{% url 'location-manage-events' location.slug %}">{% trans "Organized events" %}</a>
+
     <a href="{% url 'location-manage-data' location.slug %}"
        class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
       <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">

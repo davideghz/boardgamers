@@ -9,7 +9,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
     inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
-    ClearableFileInput, FileField
+    ClearableFileInput, FileField, DecimalField
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -862,6 +862,50 @@ class EventManageDataForm(EventForm):
         if title and not url and 'custom_button_url' not in self.errors:
             self.add_error('custom_button_url', _('A button with a title needs a link.'))
         return cleaned_data
+
+
+class CoordinateField(DecimalField):
+    """Round to 8 decimals (about a millimeter): maps give many more."""
+    def __init__(self, **kwargs):
+        super().__init__(required=False, **kwargs)
+
+    def to_python(self, value):
+        value = super().to_python(value)
+        if value is not None and value.is_finite() and value.as_tuple().exponent < -8:
+            value = round(value, 8)
+        return value
+
+    def widget_attrs(self, widget):
+        return {**super().widget_attrs(widget), 'step': 'any'}
+
+
+class OrganizedEventForm(EventManageDataForm):
+    latitude = CoordinateField(min_value=-90, max_value=90, label=_('Latitude'))
+    longitude = CoordinateField(min_value=-180, max_value=180, label=_('Longitude'))
+
+    class Meta(EventManageDataForm.Meta):
+        fields = ['name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city',
+                  'latitude', 'longitude', 'phone', 'email', 'leaderboard_enabled', 'table_booking_enabled',
+                  'custom_button_title', 'custom_button_subtitle', 'custom_button_url']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['venue_location'].empty_label = _('Enter an external venue below')
+        self.fields['cover'].widget.attrs = {
+            'class': 'sr-only peer', 'accept': 'image/*', 'data-crop-max-side': COVER_MAX_SIDE}
+        if not self.instance.pk:
+            for name in ('leaderboard_enabled', 'table_booking_enabled', 'custom_button_title',
+                         'custom_button_subtitle', 'custom_button_url'):
+                self.fields.pop(name)
+        self.fields['description'].required = self.instance.is_published
+
+    def clean(self):
+        data = super().clean()
+        if self.instance.is_published and not data.get('venue_location'):
+            for name in ('venue_name', 'address', 'latitude', 'longitude'):
+                if data.get(name) in (None, ''):
+                    self.add_error(name, _('Required for a public venue.'))
+        return data
 
 
 class EventDateForm(TailwindForm):

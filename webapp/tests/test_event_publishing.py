@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from webapp.factories import UserProfileFactory
+from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.models import Event, EventDate
 
 
@@ -29,8 +29,14 @@ class EventPublishingTest(TestCase):
         return self.event.status
 
     def test_new_event_is_a_draft_and_notifies_nobody(self):
-        response = self.client.post(reverse('event-create'), {'name': 'Big Con', 'city': 'Milano'})
+        location = LocationFactory(creator=self.owner)
+        create_url = reverse('location-event-create', args=[location.slug])
+        self.assertContains(self.client.get(reverse('event-create')), create_url)
+        response = self.client.post(create_url, {
+            'name': 'Big Con', 'venue_location': location.pk, 'date': timezone.localdate().isoformat(),
+        })
         event = Event.objects.get(name='Big Con')
+        self.assertEqual(event.organizer_location, location)
         self.assertEqual(event.status, Event.DRAFT)
         self.assertRedirects(response, reverse('event-manage', kwargs={'slug': event.slug}),
                              fetch_redirect_response=False)
