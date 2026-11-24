@@ -190,7 +190,8 @@
         {% if popular_games %}
           <div class="space-y-3">
             {% for game in popular_games %}
-              <div class="flex items-center gap-3">
+              <a href="{% url 'location-game-leaderboard' location.slug game.slug %}"
+                 class="flex items-center gap-3 rounded-lg hover:bg-surface-alt transition-colors">
                 <span class="text-sm font-bold text-content-muted w-5 text-right flex-shrink-0">{{ forloop.counter }}</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between mb-1">
@@ -208,12 +209,15 @@
                     </p>
                   {% endif %}
                 </div>
-              </div>
+              </a>
             {% endfor %}
           </div>
         {% else %}
           <p class="text-sm text-content-muted italic">{% trans "No games played at this location." %}</p>
         {% endif %}
+        <a href="{% url 'location-played-games' location.slug %}" class="mt-3 inline-block text-sm text-blue-600 font-semibold hover:underline">
+          {% trans "Games played" %} →
+        </a>
         {% else %}
         <h2 class="text-lg font-bold text-content mb-1">{% trans "Library" %}</h2>
         {% endif %}
@@ -269,29 +273,7 @@
         {% if player_stats %}
           <div class="space-y-3">
             {% for player in player_stats %}
-              <div class="flex items-center gap-3 border border-divider rounded-xl p-3 bg-surface">
-                <span class="text-sm font-bold text-content-muted w-5 text-right flex-shrink-0">{{ forloop.counter }}</span>
-                {% if player.avatar %}
-                <img loading="lazy" decoding="async" src="{{ player.avatar.url }}" alt="{{ player.nickname }}"
-                     class="w-9 h-9 rounded-full object-cover flex-shrink-0">
-                {% else %}
-                <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {{ player.nickname|slice:":1"|upper }}
-                </div>
-                {% endif %}
-                <div class="flex-1 min-w-0">
-                  <a href="{% url 'user-profile-detail' player.slug %}"
-                     class="text-sm font-semibold text-content text-decoration-none hover:text-primary transition-colors block truncate">
-                    {{ player.nickname|truncatechars:22 }}
-                  </a>
-                  <p class="text-xs text-content-muted">{{ player.play_count }} {% trans "tables" %}</p>
-                </div>
-                <div class="flex items-center gap-3 text-xs flex-shrink-0">
-                  <span class="flex items-center gap-1 font-semibold text-yellow-500">🥇 {{ player.first_place }}</span>
-                  <span class="flex items-center gap-1 font-semibold text-content-muted">🥈 {{ player.second_place }}</span>
-                  <span class="flex items-center gap-1 font-semibold text-content-muted">🥉 {{ player.third_place }}</span>
-                </div>
-              </div>
+              {% include "locations/_leaderboard_row.html" with player=player stats=player rank=forloop.counter only %}
             {% endfor %}
           </div>
         {% else %}

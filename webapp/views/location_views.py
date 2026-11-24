@@ -11,7 +11,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
-from django.db.models import Prefetch, Q, Count, Subquery, OuterRef, Max
+from django.db.models import Prefetch, Q, Count, Max
 from django.db.models.deletion import RestrictedError
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -31,7 +31,7 @@ from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManage
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
-    PhysicalTable, LocationNetwork, Network
+    PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services import game_loans
 from webapp.services.tables import reopen_location_leaderboards
@@ -187,34 +187,9 @@ class LocationDetailView(DetailView):
             comments_prefetch, players_prefetch, games_prefetch
         ).order_by('-date', '-time')
 
-        # Sottoquery per contare le partite giocate per ogni gioco nella location
-        played_count = Table.objects.filter(
-            game=OuterRef('pk'),
-            location=location
-        ).values('game').annotate(
-            count=Count('id', distinct=True)
-        ).values('count')
-
-        # # Sottoquery per trovare il giocatore con più vittorie per ogni gioco
-        # top_player = UserProfile.objects.filter(
-        #     joined_tables__game=OuterRef('pk'),
-        #     player__position=1,
-        #     joined_tables__location=location
-        # ).annotate(
-        #     win_count=Count('joined_tables', distinct=True)
-        # ).order_by('-win_count').values('nickname')[:1]
-        #
-        # # Query principale per i giochi più giocati
-        # popular_games = Game.objects.annotate(
-        #     play_count=Subquery(played_count),
-        #     top_winner=Subquery(top_player)
-        # ).filter(play_count__gt=0).order_by('-play_count')[:10]
-
         popular_games = []
         if location.show_most_played_games:
-            popular_games = Game.objects.annotate(
-                play_count=Subquery(played_count)
-            ).filter(play_count__gt=0).order_by('-play_count')[:10]
+            popular_games = _played_games(location, today)[:10]
 
             # Calcolo dei top winner con ex aequo
             winners = UserProfile.objects.filter(
@@ -1230,6 +1205,86 @@ class LocationGamesView(View):
             'meta': Meta(
                 title=_("Library – %(name)s") % {'name': location.name},
                 description=_("Board games available at %(name)s.") % {'name': location.name},
+            ),
+        })
+
+
+def _played_games(location, today):
+    """Games played at a location (past non-event tables), most played first."""
+    return Game.objects.filter(
+        created_tables__location=location,
+        created_tables__event__isnull=True,
+        created_tables__date__lte=today,
+    ).annotate(
+        play_count=Count('created_tables', distinct=True)
+    ).order_by('-play_count', 'name')
+
+
+def _game_leaderboard(location, game, today):
+    """Medal leaderboard of one game at a location: gold, silver, bronze, then most tables played.
+
+    Users and guests are ranked separately by identity; tables without a leaderboard are skipped.
+    """
+    players = Player.objects.filter(
+        table__location=location,
+        table__event__isnull=True,
+        table__game=game,
+        table__date__lte=today,
+    ).exclude(table__result_mode=ResultMode.NONE)
+    if game.default_result_mode == ResultMode.NONE:
+        players = players.exclude(table__result_mode__isnull=True)
+    rows = list(players.values('user_profile', 'guest_profile').annotate(
+        play_count=Count('table', distinct=True),
+        first_place=Count('table', filter=Q(position=1), distinct=True),
+        second_place=Count('table', filter=Q(position=2), distinct=True),
+        third_place=Count('table', filter=Q(position=3), distinct=True),
+    ).order_by('-first_place', '-second_place', '-third_place', '-play_count'))
+
+    users = UserProfile.objects.in_bulk([r['user_profile'] for r in rows if r['user_profile']])
+    guests = GuestProfile.objects.select_related('owner').in_bulk(
+        [r['guest_profile'] for r in rows if r['guest_profile']])
+    for row in rows:
+        row['user'] = users.get(row['user_profile'])
+        row['guest'] = guests.get(row['guest_profile'])
+    return [r for r in rows if r['user'] or r['guest']]
+
+
+class LocationPlayedGamesView(View):
+    """Public list of the games played at a location, each linking to its leaderboard."""
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        played_games = _played_games(location, timezone.localdate())
+        q = request.GET.get('q', '').strip()
+        if q:
+            played_games = played_games.filter(name__icontains=q)
+        page_obj = Paginator(played_games, 40).get_page(request.GET.get('page'))
+        return render(request, 'locations/location_played_games.html', {
+            'location': location,
+            'played_games': page_obj.object_list,
+            'page_obj': page_obj,
+            'q': q,
+            'meta': Meta(
+                title=_("Games played – %(name)s") % {'name': location.name},
+                description=_("Board games played at %(name)s and their leaderboards.") % {'name': location.name},
+            ),
+        })
+
+
+class LocationGameLeaderboardView(View):
+    """Public leaderboard of one game at a location."""
+
+    def get(self, request, slug, game_slug):
+        location = get_object_or_404(Location, slug=slug)
+        today = timezone.localdate()
+        game = get_object_or_404(_played_games(location, today), slug=game_slug)
+        return render(request, 'locations/location_game_leaderboard.html', {
+            'location': location,
+            'game': game,
+            'leaderboard': _game_leaderboard(location, game, today),
+            'meta': Meta(
+                title=_("%(game)s leaderboard – %(name)s") % {'game': game.name, 'name': location.name},
+                description=_("Who wins most at %(game)s at %(name)s.") % {'game': game.name, 'name': location.name},
             ),
         })
 

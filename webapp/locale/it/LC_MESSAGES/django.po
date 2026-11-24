@@ -6271,3 +6271,41 @@ msgstr "Collega account"
 #~ msgstr ""
 #~ "Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
 #~ "agli organizzatori che ci sarai."
+
+#, python-format
+msgid "%(counter)s table at this location"
+msgid_plural "%(counter)s tables at this location"
+msgstr[0] "%(counter)s tavolo in questa location"
+msgstr[1] "%(counter)s tavoli in questa location"
+
+msgid "Game details"
+msgstr "Scheda del gioco"
+
+#, python-format
+msgid "guest of %(owner)s"
+msgstr "ospite di %(owner)s"
+
+msgid "No results recorded for this game yet."
+msgstr "Nessun risultato registrato per questo gioco."
+
+#, python-format
+msgid "%(counter)s table"
+msgid_plural "%(counter)s tables"
+msgstr[0] "%(counter)s tavolo"
+msgstr[1] "%(counter)s tavoli"
+
+#, python-format
+msgid "Games played – %(name)s"
+msgstr "Giochi giocati – %(name)s"
+
+#, python-format
+msgid "Board games played at %(name)s and their leaderboards."
+msgstr "Giochi da tavolo giocati presso %(name)s e le loro classifiche."
+
+#, python-format
+msgid "%(game)s leaderboard – %(name)s"
+msgstr "Classifica di %(game)s – %(name)s"
+
+#, python-format
+msgid "Who wins most at %(game)s at %(name)s."
+msgstr "Chi vince di più a %(game)s presso %(name)s."
