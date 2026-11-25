@@ -42,7 +42,7 @@
       {% endif %}
       {% if show_appointment_context and table.event_id %}
         <span>{{ table.event.name }}{% if table.event.master_event.is_published %} · {{ table.event.master_event.name }}{% endif %}</span>
-        <span>{% trans "Organizing location" %} · {{ table.event.organizer_location.name }}</span>
+        {% if table.event.organizer_location_id %}<span>{% trans "Organizing location" %} · {{ table.event.organizer_location.name }}</span>{% endif %}
         {% if table.event.venue_label and not table.event.is_at_organizer_location %}<span>{% trans "Venue" %} · {{ table.event.venue_label }}</span>{% endif %}
       {% elif table.location %}
         <span class="flex items-center gap-0.5 truncate">

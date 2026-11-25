@@ -143,6 +143,16 @@ class AppointmentSearchTest(TestCase):
                 response = self.client.get(url, {'scope': scope, 'q': 'Casale'})
                 self.assertEqual({item['slug'] for item in response.json()['results']}, expected)
 
+    def test_tables_of_unmapped_events_do_not_show_an_empty_organizer(self):
+        legacy = Event.objects.create(name='Legacy event', status=Event.PUBLISHED)
+        EventDate.objects.create(event=legacy, date=self.last)
+        Table.objects.create(title='Legacy table', event=legacy, date=self.last)
+        with override('en'):
+            response = self.client.get(self.url, {'type': 'tables', 'q': 'Legacy'}, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertContains(response, 'Legacy table')
+        self.assertNotContains(response, 'Organizing location · <')
+        self.assertNotContains(response, 'Sede organizzatrice · <')
+
     def test_null_characters_in_the_filters_are_rejected(self):
         for name in ('q', 'location', 'organizer'):
             with self.subTest(name=name):

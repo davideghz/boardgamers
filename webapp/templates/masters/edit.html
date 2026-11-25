@@ -88,6 +88,9 @@
         {% else %}
           <p class="text-sm text-content-muted">{% translate "No events available to link." %}</p>
         {% endif %}
+        {% if not master.is_published %}
+          <p class="text-xs text-content-muted">{% translate "Until the manifestation is approved, you can only link events you manage." %}</p>
+        {% endif %}
       </section>
 
       <section id="manifestation-sponsors" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">

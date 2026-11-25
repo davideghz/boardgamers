@@ -126,8 +126,8 @@ class TableIndexView(generic.ListView):
               .annotate(distance=DbDistance('location__point', user_point)))
 
         self.tab = 'past' if self.request.GET.get('tab') == 'past' else 'upcoming'
-        self.location_slug = self.request.GET.get('location', '').strip()
-        self.q = self.request.GET.get('q', '').strip()
+        self.location_slug = self.request.GET.get('location', '').replace('\x00', '').strip()
+        self.q = self.request.GET.get('q', '').replace('\x00', '').strip()
 
         if self.location_slug:
             qs = qs.filter(location__slug=self.location_slug)
@@ -543,6 +543,7 @@ def table_create_view(request, location_slug):
         "link_formset": link_formset,
         "links_formset_open": _links_formset_open(link_formset),
         "location": location,
+        "meta": Meta(title=_("New table")),
     }
 
     return render(request, "tables/table_add_or_edit.html", context)
@@ -582,6 +583,7 @@ def table_update_view(request, location_slug, table_slug):
         "links_formset_open": _links_formset_open(link_formset),
         "location": location,
         "table": table,
+        "meta": Meta(title=_("Edit table")),
     }
     return render(request, "tables/table_add_or_edit.html", context)
 

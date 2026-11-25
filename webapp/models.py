@@ -67,6 +67,8 @@ class SlugModel(models.Model):
     slug_field_name = None
     random_string_length = 6
     regenerate_slug_on_rename = True
+    #: Slugs taken by other pages under the same URL prefix.
+    reserved_slugs = ()
 
     class Meta:
         abstract = True
@@ -91,7 +93,7 @@ class SlugModel(models.Model):
         qs = self.__class__.objects.filter(slug=base_slug)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
-        if not qs.exists():
+        if base_slug not in self.reserved_slugs and not qs.exists():
             return base_slug
         prefix = base_slug[:max_length - self.random_string_length - 1].rstrip('-')
         while True:
@@ -2297,6 +2299,7 @@ class Sponsor(DateTimeModel):
 class MasterEvent(DateTimeModel, SlugModel):
     slug_field_name = 'name'
     regenerate_slug_on_rename = False
+    reserved_slugs = ('new',)
     name = models.CharField(max_length=255, verbose_name=_('Name'))
     slug = models.SlugField(max_length=144, unique=True, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))

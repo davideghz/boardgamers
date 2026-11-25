@@ -1,4 +1,4 @@
-from datetime import time, timedelta
+from datetime import date, time, timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -115,6 +115,17 @@ class OrganizedEventFlowTest(TestCase):
         self.assertEqual(event.venue_name, 'Sala Civica')
         self.assertEqual(event.layout_mode, Event.LayoutMode.EVENT)
         self.assertContains(self.client.get(edit), 'data-venue-fields="registered" hidden disabled')
+
+    def test_management_pages_have_a_title(self):
+        event = Event.objects.create(name='Fair', organizer_location=self.club)
+        event.dates.create(date=date(2030, 5, 3))
+        self.client.force_login(self.manager.user)
+        for url in (self.create_url, reverse('event-manage', args=[event.slug]),
+                    reverse('event-manage-data', args=[event.slug]),
+                    reverse('event-table-create', args=[event.slug]),
+                    reverse('location-table-create', args=[self.club.slug])):
+            with self.subTest(url=url):
+                self.assertContains(self.client.get(url), '<title>')
 
     def test_switching_to_a_registered_venue_clears_the_manual_one(self):
         event = Event.objects.create(name='Fair', organizer_location=self.club, venue_name='Sala Civica',

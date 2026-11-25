@@ -1044,6 +1044,12 @@ def _check_location_manager(request, location):
         raise PermissionDenied(_("You don't have permission to manage this location."))
 
 
+def _check_layout_manager(request, location):
+    """Like _check_location_manager, but superusers get in too: they manage the events that use the layout."""
+    if not request.user.is_superuser:
+        _check_location_manager(request, location)
+
+
 class LocationManageNetworksView(LoginRequiredMixin, View):
     template_name = 'locations/location_manage_networks.html'
 
@@ -1660,12 +1666,12 @@ class LocationManageAreasView(LoginRequiredMixin, View):
 
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         return self._render(request, location, PlayAreaForm(location=location))
 
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         form = PlayAreaForm(request.POST, location=location)
         if form.is_valid():
             area = form.save(commit=False)
@@ -1681,7 +1687,7 @@ class LocationManageAreasView(LoginRequiredMixin, View):
 class LocationManageAreaDeleteView(LoginRequiredMixin, View):
     def post(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         remove_layout_resource(request, location.play_areas.filter(pk=pk), _("Play area removed."))
         return redirect('location-manage-areas', slug=location.slug)
 
@@ -1689,7 +1695,7 @@ class LocationManageAreaDeleteView(LoginRequiredMixin, View):
 class LocationManageAreasReorderView(LoginRequiredMixin, View):
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         try:
             data = json.loads(request.body)
             for item in data.get('areas', []):
@@ -1704,7 +1710,7 @@ class LocationManageAreasReorderView(LoginRequiredMixin, View):
 class LocationVenueLayoutRequestsView(LoginRequiredMixin, View):
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         requests = location.venue_layout_requests.select_related('organizer_location').prefetch_related('dates')
         paginator = Paginator(requests.order_by('venue_layout_approved', 'name', 'pk'), 24)
         page_obj = paginator.get_page(request.GET.get('page'))
@@ -1718,7 +1724,7 @@ class LocationVenueLayoutDecisionView(LoginRequiredMixin, View):
     @transaction.atomic
     def post(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         event = get_object_or_404(Event.objects.select_for_update(), pk=pk,
                                   venue_location=location, venue_layout_requested_from=location)
         action = request.POST.get('action')
@@ -1733,6 +1739,9 @@ class LocationVenueLayoutDecisionView(LoginRequiredMixin, View):
             event.venue_layout_approved = False
             event.venue_layout_requested_from = None
             message = _('Venue layout approval revoked.')
+        elif action in ('approve', 'decline', 'revoke'):
+            # Submitted twice, or from a stale page: the list shows the current state.
+            return redirect('location-venue-layout-requests', slug=location.slug)
         else:
             return HttpResponseBadRequest()
         try:
@@ -1758,12 +1767,12 @@ class LocationManageStationsView(LoginRequiredMixin, View):
 
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         return self._render(request, location, PhysicalTableForm(location=location))
 
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         form = PhysicalTableForm(request.POST, location=location)
         if form.is_valid():
             station = form.save(commit=False)
@@ -1790,13 +1799,13 @@ class LocationManageStationEditView(LoginRequiredMixin, View):
 
     def get(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         station = get_object_or_404(PhysicalTable, pk=pk, location=location)
         return self._render(request, location, station, PhysicalTableForm(instance=station, location=location))
 
     def post(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         station = get_object_or_404(PhysicalTable, pk=pk, location=location)
         form = PhysicalTableForm(request.POST, instance=station, location=location)
         if form.is_valid():
@@ -1809,7 +1818,7 @@ class LocationManageStationEditView(LoginRequiredMixin, View):
 class LocationManageStationDeleteView(LoginRequiredMixin, View):
     def post(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         remove_layout_resource(request, location.physical_tables.filter(pk=pk), _("Station removed."))
         return redirect('location-manage-stations', slug=location.slug)
 
@@ -1817,7 +1826,7 @@ class LocationManageStationDeleteView(LoginRequiredMixin, View):
 class LocationManageStationsReorderView(LoginRequiredMixin, View):
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         try:
             data = json.loads(request.body)
             for item in data.get('stations', []):
@@ -1843,7 +1852,7 @@ class LocationManageStationAssignmentView(LoginRequiredMixin, View):
 
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         tables = list(self._tables(location))
         conflict_ids = station_conflict_ids(tables)
         unassigned_only = request.GET.get('unassigned') == '1'
@@ -1863,7 +1872,7 @@ class LocationManageStationAssignmentView(LoginRequiredMixin, View):
 
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
-        _check_location_manager(request, location)
+        _check_layout_manager(request, location)
         table = get_object_or_404(self._tables(location), pk=request.POST.get('table'))
         station_id = request.POST.get('physical_table')
         if station_id:

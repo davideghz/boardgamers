@@ -110,6 +110,31 @@ class ExternalVenueLayoutTest(TestCase):
         self.assertEqual(self.event.layout_mode, Event.LayoutMode.EVENT)
         self.assertIsNone(self.event.venue_layout_requested_from)
 
+    def test_submitting_twice_shows_the_current_state(self):
+        self.request_layout()
+        self.request_layout()
+        self.assertEqual(self.event.venue_layout_requested_from, self.fair)
+        self.decide('approve')
+        self.decide('approve')
+        self.decide('decline')
+        self.assertTrue(self.event.venue_layout_approved)
+        self.request_layout('cancel')
+        self.assertTrue(self.event.venue_layout_approved)
+        self.assertEqual(self.client.post(reverse('event-venue-layout-request', args=[self.event.slug]),
+                                          {'action': 'other'}).status_code, 400)
+
+    def test_superusers_manage_the_venue_layout_without_managing_the_venue(self):
+        self.request_layout()
+        self.decide('approve')
+        self.choose_layout()
+        self.client.force_login(UserProfileFactory(user__is_superuser=True).user)
+        for part in ('areas', 'stations'):
+            response = self.client.get(reverse(f'event-manage-{part}', args=[self.event.slug]), follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.request['PATH_INFO'], reverse(f'location-manage-{part}', args=[self.fair.slug]))
+        self.client.force_login(UserProfileFactory().user)
+        self.assertEqual(self.client.get(reverse('location-manage-areas', args=[self.fair.slug])).status_code, 403)
+
     def test_cancel_and_decline_remove_pending_requests(self):
         self.request_layout()
         self.request_layout('cancel')
