@@ -4,8 +4,9 @@ from pathlib import Path
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 
-from webapp.models import Event, EventParticipantDate, Location, MasterEvent, Player, Sponsor
+from webapp.models import Event, EventParticipantDate, Location, MasterEvent, Player, Sponsor, UserProfile
 
 
 def valid_id(value):
@@ -78,6 +79,16 @@ def validate(row, event, masters):
         'master_event_id': master_id,
         'catalog_mode': Event.CATALOG_SELECTED,
     }
+
+
+def lost_access(event, organizer_id):
+    """The profiles that manage the event, or create its tables, only until it gets its organizer."""
+    organizer = Location.objects.get(pk=organizer_id)
+    profiles = UserProfile.objects.filter(user__is_superuser=False).exclude(pk=organizer.creator_id).exclude(
+        pk__in=organizer.managers.values('pk')).order_by('pk')
+    managers = profiles.filter(Q(pk=event.creator_id) | Q(pk__in=event.managers.values('pk')))
+    creators = profiles.filter(pk__in=event.allowed_table_creators.values('pk')).exclude(pk__in=managers.values('pk'))
+    return (('manage the event', list(managers)), ('create tables', list(creators)))
 
 
 def reconstruct_dates(event):
@@ -172,5 +183,9 @@ class Command(BaseCommand):
         for event, slug, values in changes:
             destination = f'manifestation {slug}' if slug else 'standalone'
             self.stdout.write(f'  {event.pk} ({event.slug}): {destination}, organizer #{values["organizer_location_id"]}')
+            for permission, profiles in lost_access(event, values['organizer_location_id']):
+                if profiles:
+                    names = ', '.join(f'{profile.nickname} (#{profile.pk})' for profile in profiles)
+                    self.stdout.write(f'    Can no longer {permission}: {names}')
         if unmapped:
             self.stdout.write(f'Events missing from the mapping: {unmapped}.')

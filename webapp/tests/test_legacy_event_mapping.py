@@ -100,6 +100,25 @@ class LegacyEventMappingTest(TestCase):
         self.assertEqual(attendance_by_day([self.event])[self.day], {('profile', self.owner.pk)})
         self.booking.delete()
         self.assertFalse(attendance_by_day([self.event]))
+        # Still registered: without the booking they only lose their day.
+        self.assertEqual(self.client.get(url).context['participant_count'], 2)
+
+    def test_output_lists_who_loses_access_to_the_event(self):
+        self.master.approve(self.admin)
+        creator, manager, table_creator, staff = [UserProfileFactory() for _ in range(4)]
+        self.event.creator = creator
+        self.event.save(update_fields=['creator'])
+        self.organizer.managers.add(staff)
+        self.event.managers.add(manager, staff, self.owner, self.admin.user_profile)
+        self.event.allowed_table_creators.add(table_creator, manager, staff)
+        expected = [
+            f'    Can no longer manage the event: {creator.nickname} (#{creator.pk}), {manager.nickname} (#{manager.pk})',
+            f'    Can no longer create tables: {table_creator.nickname} (#{table_creator.pk})',
+        ]
+        for flags in ((), ('--apply',)):
+            with self.subTest(flags=flags):
+                lines = self.run_mapping(*flags).splitlines()
+                self.assertEqual([line for line in lines if 'Can no longer' in line], expected)
 
     def test_validation_rejects_unapproved_calendar_or_partial_batch(self):
         with self.assertRaisesMessage(CommandError, 'admin-approved'):
