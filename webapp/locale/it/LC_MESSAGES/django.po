@@ -6878,3 +6878,20 @@ msgstr "Nessuna attività in programma."
 msgctxt "personal activities"
 msgid "Past"
 msgstr "Passate"
+
+msgid "This event is linked to the manifestation and its dates must be in the manifestation calendar."
+msgstr "Questo evento è collegato alla manifestazione e le sue giornate devono essere nel calendario della manifestazione."
+
+msgid "Unlink this event from the manifestation?"
+msgstr "Scollegare questo evento dalla manifestazione?"
+
+#, python-format
+msgid "%(name)s is back to draft."
+msgstr "%(name)s è tornata in bozza."
+
+msgid "Block"
+msgstr "Blocca"
+
+#, python-format
+msgid "%(name)s was blocked."
+msgstr "%(name)s è stata bloccata."

@@ -2374,6 +2374,20 @@ class MasterEvent(DateTimeModel, SlugModel):
         master.save(update_fields=['status', 'approved_by', 'approved_at', 'updated_at'])
         return True
 
+    @transaction.atomic
+    def withdraw(self, user, status):
+        """Hide the manifestation from the public. To be published again it needs a new approval."""
+        from django.core.exceptions import PermissionDenied
+        if not self.can_approve(user):
+            raise PermissionDenied
+        master = MasterEvent.objects.select_for_update().get(pk=self.pk)
+        if master.status == status:
+            return False
+        master.status = status
+        master.approved_by = master.approved_at = None
+        master.save(update_fields=['status', 'approved_by', 'approved_at', 'updated_at'])
+        return True
+
 
 class MasterEventDate(models.Model):
     master_event = models.ForeignKey(MasterEvent, on_delete=models.CASCADE, related_name='dates')

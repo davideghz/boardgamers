@@ -40,7 +40,7 @@ class MasterProgramTest(TestCase):
         self.assertEqual(self.event.master_event_id, self.master.pk)
         self.assertEqual(self.client.get(reverse('event-manage-data', args=[self.event.slug])).status_code, 403)
 
-        other = MasterEvent.objects.create(name='Another festival')
+        other = MasterEvent.objects.create(name='Another festival', status=Event.PUBLISHED)
         other.managers.add(self.manager)
         other_link = reverse('master-event-link', args=[other.slug])
         self.assertEqual(self.client.post(other_link, {'event': self.event.pk}).status_code, 404)
@@ -66,6 +66,41 @@ class MasterProgramTest(TestCase):
         self.client.post(self.link, {'event': own_draft.pk})
         self.assertTrue(self.master.events.filter(pk=own_draft.pk).exists())
         self.assertNotContains(self.client.get(self.master.get_absolute_url()), own_draft.name)
+
+    def test_unapproved_manifestations_only_link_the_events_of_their_managers(self):
+        MasterEvent.objects.filter(pk=self.master.pk).update(status=Event.DRAFT)
+        own = Event.objects.create(name='Own event', organizer_location=LocationFactory(creator=self.manager),
+                                   status=Event.PUBLISHED)
+        self.client.force_login(self.manager.user)
+        response = self.client.get(self.manage)
+        self.assertContains(response, own.name)
+        self.assertNotContains(response, self.event.name)
+        self.assertEqual(self.client.post(self.link, {'event': self.event.pk}).status_code, 404)
+        with self.assertRaises(ValidationError):
+            set_master(self.event, self.master, self.manager.user)
+        self.client.post(self.link, {'event': own.pk})
+        self.assertEqual(list(self.master.events.all()), [own])
+
+    def test_organizer_sees_the_manifestation_and_can_leave_it(self):
+        set_master(self.event, self.master, self.manager.user)
+        MasterEvent.objects.filter(pk=self.master.pk).update(status=Event.BLOCKED)
+        unlink = reverse('event-master-unlink', args=[self.event.slug])
+        self.client.force_login(UserProfileFactory().user)
+        self.assertEqual(self.client.post(unlink, {'master': self.master.pk}).status_code, 403)
+        self.client.force_login(self.organizer.user)
+        manage = reverse('event-manage', args=[self.event.slug])
+        self.assertContains(self.client.get(manage), self.master.name)
+        self.assertContains(self.client.get(manage), unlink)
+
+        other = MasterEvent.objects.create(name='Another festival')
+        self.client.post(unlink, {'master': other.pk})
+        self.assertTrue(self.master.events.exists())
+        self.assertRedirects(self.client.post(unlink, {'master': self.master.pk}), manage)
+        self.assertFalse(self.master.events.exists())
+        self.assertNotContains(self.client.get(manage), unlink)
+        outside = self.day + timedelta(days=1)
+        EventDate.objects.create(event=self.event, date=outside)
+        self.assertEqual(self.client.post(unlink, {'master': self.master.pk}).status_code, 302)
 
     def test_all_event_dates_must_fit_before_linking(self):
         outside = EventDate.objects.create(event=self.event, date=self.day + timedelta(days=1))
@@ -131,9 +166,9 @@ class MasterProgramTest(TestCase):
         self.assertNotContains(self.client.get(page), self.event.name)
 
     def test_public_event_does_not_disclose_unpublished_manifestation(self):
+        set_master(self.event, self.master, self.manager.user)
         self.master.status = Event.DRAFT
         self.master.save(update_fields=['status'])
-        set_master(self.event, self.master, self.manager.user)
         self.assertNotContains(self.client.get(self.event.get_absolute_url()), self.master.name)
         self.assertEqual(self.client.get(self.master.get_absolute_url()).status_code, 404)
 

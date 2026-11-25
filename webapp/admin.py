@@ -612,7 +612,7 @@ class MasterEventAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     readonly_fields = ('slug', 'status', 'approved_by', 'approved_at')
     filter_horizontal = ('managers', 'sponsors')
-    actions = ('approve_publication',)
+    actions = ('approve_publication', 'back_to_draft', 'block')
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None or obj.can_manage(request.user):
@@ -627,6 +627,18 @@ class MasterEventAdmin(admin.ModelAdmin):
                     self.message_user(request, _('%(name)s was published.') % {'name': master.name}, messages.SUCCESS)
             except ValidationError as error:
                 self.message_user(request, f"{master}: {' '.join(error.messages)}", messages.ERROR)
+
+    @admin.action(description=_('Back to draft'), permissions=['change'])
+    def back_to_draft(self, request, queryset):
+        for master in queryset:
+            if master.withdraw(request.user, Event.DRAFT):
+                self.message_user(request, _('%(name)s is back to draft.') % {'name': master.name}, messages.SUCCESS)
+
+    @admin.action(description=_('Block'), permissions=['change'])
+    def block(self, request, queryset):
+        for master in queryset:
+            if master.withdraw(request.user, Event.BLOCKED):
+                self.message_user(request, _('%(name)s was blocked.') % {'name': master.name}, messages.SUCCESS)
 
 
 @admin.register(EventGameTag)
