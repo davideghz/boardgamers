@@ -35,6 +35,7 @@ def protect_manifestation_calendar(sender, instance, origin, **kwargs):
     if direct or bulk:
         master = MasterEvent.objects.select_for_update().get(pk=instance.master_event_id)
         removed = origin.values('pk') if bulk else [instance.pk]
+        master.validate_unused_dates(master.dates.filter(pk__in=removed).values('date'))
         if master.is_published and not master.dates.exclude(pk__in=removed).exists():
             raise ValidationError(_('A published manifestation needs at least one date.'))
 

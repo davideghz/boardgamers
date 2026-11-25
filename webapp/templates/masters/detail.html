@@ -48,5 +48,42 @@
         {% endfor %}
       </ul>
     </section>
+
+    <section class="rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <h2 class="font-bold text-content">{% translate "Events" %}</h2>
+      <ul class="mt-2 divide-y divide-divider">
+        {% for event in events %}
+          <li class="py-2 text-sm">
+            <a href="{{ event.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ event.name }}</a>
+            <p class="text-content-muted">{{ event.organizer_location.name }}</p>
+          </li>
+        {% empty %}
+          <li class="py-2 text-sm text-content-muted">{% translate "No published events yet." %}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% regroup tables by date as program %}
+    <section id="manifestation-program" class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <h2 class="font-bold text-content">{% translate "Program" %}</h2>
+      {% for day in program %}
+        <section>
+          <h3 class="text-sm font-bold text-content">{{ day.grouper|date:"l j F Y" }}</h3>
+          <ul class="mt-1 divide-y divide-divider">
+            {% for table in day.list %}
+              <li class="flex items-baseline gap-3 py-2 text-sm">
+                <time class="shrink-0 tabular-nums text-content-muted">{{ table.time|time:"H:i" }}</time>
+                <div class="min-w-0 break-words">
+                  <a href="{{ table.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ table.title }}</a>
+                  <p class="text-content-muted">{{ table.event.name }} · {{ table.event.organizer_location.name }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% empty %}
+        <p class="text-sm text-content-muted">{% translate "No public sessions yet." %}</p>
+      {% endfor %}
+    </section>
   </div>
 {% endblock %}

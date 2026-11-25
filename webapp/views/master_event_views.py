@@ -15,6 +15,7 @@ from meta.views import Meta
 
 from webapp.forms import AddEventManagerForm, EventDateForm, MasterEventForm
 from webapp.models import Event, MasterEvent, MasterEventDate
+from webapp.services.master_events import linkable_events, public_children, public_program, set_master
 
 
 def managed_master(request, slug, *, lock=False):
@@ -50,6 +51,7 @@ def detail(request, slug):
         raise Http404
     return render(request, 'masters/detail.html', {
         'master': master, 'can_manage': can_manage, 'can_approve': can_approve and master.status == Event.DRAFT,
+        'events': public_children(master), 'tables': public_program(master),
         'meta': Meta(title=master.name),
     })
 
@@ -79,6 +81,9 @@ def edit(request, slug=None):
     return render(request, 'masters/edit.html', {
         'master': master, 'form': form, 'date_form': date_form,
         'manager_form': AddEventManagerForm(),
+        'linked_events': master.events.select_related('organizer_location').order_by('name', 'pk') if master.pk else (),
+        'linkable_events': linkable_events(request.user).select_related('organizer_location').order_by(
+            'name', 'pk') if master.pk else (),
         'meta': Meta(title=master.name or _('Create manifestation')),
     })
 
@@ -134,6 +139,28 @@ def managers(request, slug):
         else:
             messages.error(request, _('Select a manager'))
     return redirect('master-event-manage', slug=slug)
+
+
+@login_required
+@require_POST
+def link(request, slug):
+    master = managed_master(request, slug)
+    unlink = 'remove' in request.POST
+    try:
+        event_id = int(request.POST['remove' if unlink else 'event'])
+    except (KeyError, ValueError):
+        raise Http404
+    events = master.events.all() if unlink else linkable_events(request.user)
+    event = get_object_or_404(events, pk=event_id)
+    try:
+        set_master(event, master, request.user, unlink=unlink)
+    except (Event.DoesNotExist, MasterEvent.DoesNotExist):
+        raise Http404
+    except ValidationError as error:
+        messages.error(request, error.messages[0])
+    else:
+        messages.success(request, _('Event unlinked.') if unlink else _('Event linked.'))
+    return redirect(reverse('master-event-manage', args=[slug]) + '#manifestation-events')
 
 
 @login_required

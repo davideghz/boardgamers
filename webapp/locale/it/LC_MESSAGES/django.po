@@ -6227,6 +6227,61 @@ msgstr "Data o orari non validi."
 msgid "Keep at least one manager."
 msgstr "Mantieni almeno un gestore."
 
+msgid "A linked event needs an organizing location."
+msgstr "Un evento collegato deve avere una sede organizzatrice."
+
+msgid "Choose a date in the manifestation calendar."
+msgstr "Scegli una giornata del calendario della manifestazione."
+
+msgid "A linked event uses this date."
+msgstr "Un evento collegato usa questa giornata."
+
+msgid "The event is no longer linked to this manifestation."
+msgstr "L’evento non è più collegato a questa manifestazione."
+
+msgid "The event is no longer available to link."
+msgstr "L’evento non è più disponibile per il collegamento."
+
+#, python-format
+msgid "Add these dates to the manifestation calendar before linking the event: %(dates)s."
+msgstr "Aggiungi queste giornate al calendario della manifestazione prima di collegare l’evento: %(dates)s."
+
+msgid "Event linked."
+msgstr "Evento collegato."
+
+msgid "Event unlinked."
+msgstr "Evento scollegato."
+
+msgid "Linked events"
+msgstr "Eventi collegati"
+
+msgid "No linked events yet."
+msgstr "Non ci sono ancora eventi collegati."
+
+msgid "Unlink event"
+msgstr "Scollega evento"
+
+msgid "Event to link"
+msgstr "Evento da collegare"
+
+msgid "Select an event"
+msgstr "Seleziona un evento"
+
+msgid "Link event"
+msgstr "Collega evento"
+
+msgid "No events available to link."
+msgstr "Non ci sono eventi disponibili da collegare."
+
+msgid "No published events yet."
+msgstr "Non ci sono ancora eventi pubblicati."
+
+msgid "Program"
+msgstr "Programma"
+
+msgid "No public sessions yet."
+msgstr "Non ci sono ancora tavoli pubblici."
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "
@@ -6322,9 +6377,6 @@ msgstr "Mantieni almeno un gestore."
 
 #~ msgid "See the program"
 #~ msgstr "Vedi il programma"
-
-#~ msgid "Program"
-#~ msgstr "Programma"
 
 #~ msgid "External program link"
 #~ msgstr "Link al programma esterno"
