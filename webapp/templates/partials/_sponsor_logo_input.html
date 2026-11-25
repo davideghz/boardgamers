@@ -1,0 +1,13 @@
+{% load i18n %}
+{% if widget.is_initial %}
+  <div class="mb-2 flex flex-wrap items-center gap-3">
+    <img src="{{ widget.value.url }}" alt="" width="96" height="48" class="h-12 w-24 rounded-md border border-divider bg-white p-1 object-contain">
+    {% if not widget.required %}
+      <label class="flex items-center gap-1.5 text-xs text-content-muted" for="{{ widget.checkbox_id }}">
+        <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}{% if widget.attrs.checked %} checked{% endif %}>
+        {% translate "Remove current image" %}
+      </label>
+    {% endif %}
+  </div>
+{% endif %}
+{% include "django/forms/widgets/input.html" %}

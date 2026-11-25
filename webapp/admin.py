@@ -15,10 +15,10 @@ from django_json_widget.widgets import JSONEditorWidget
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from webapp.fields import NetworkLogoImageField
-from webapp.forms import BannerChangeListForm, BannerForm, LocationPermissionsForm, NetworkForm, NetworkLogoField
+from webapp.forms import BannerChangeListForm, BannerForm, LocationPermissionsForm, NetworkForm, NetworkLogoField, SponsorForm
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, MasterEvent, PlayArea, EventDate, PushSubscription, \
+    TelegramSetupToken, Event, MasterEvent, Sponsor, PlayArea, EventDate, PushSubscription, \
     PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services import games as game_services
 from webapp.services import profile_merge
@@ -578,14 +578,29 @@ class EventAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+@admin.register(Sponsor)
+class SponsorAdmin(admin.ModelAdmin):
+    form = SponsorForm
+    fields = ('name', 'logo', 'website', 'location')
+    list_display = ('name', 'website', 'location')
+    list_select_related = ('location',)
+    search_fields = ('name',)
+    autocomplete_fields = ('location',)
+
+
 @admin.register(MasterEvent)
 class MasterEventAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'approved_by', 'approved_at')
     list_filter = ('status',)
     search_fields = ('name',)
     readonly_fields = ('slug', 'status', 'approved_by', 'approved_at')
-    filter_horizontal = ('managers',)
+    filter_horizontal = ('managers', 'sponsors')
     actions = ('approve_publication',)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None or obj.can_manage(request.user):
+            return self.readonly_fields
+        return (*self.readonly_fields, 'managers', 'sponsors')
 
     @admin.action(description=_('Approve publication'), permissions=['change'])
     def approve_publication(self, request, queryset):

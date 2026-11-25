@@ -87,6 +87,21 @@
         {% endif %}
       </section>
 
+      <section id="manifestation-sponsors" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+        <h2 class="font-bold text-content">{% translate "Sponsors" %}</h2>
+        <ul class="divide-y divide-divider">
+          {% for sponsor in sponsors %}
+            <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+              <p class="min-w-0 break-words font-semibold text-content">{{ sponsor.name }}</p>
+              <a href="{% url 'master-sponsor-edit' master.slug sponsor.pk %}" aria-label="{% blocktranslate with name=sponsor.name %}Edit sponsor {{ name }}{% endblocktranslate %}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{% translate "Edit" %}</a>
+            </li>
+          {% empty %}
+            <li class="py-2 text-sm text-content-muted">{% translate "No sponsors yet." %}</li>
+          {% endfor %}
+        </ul>
+        <a href="{% url 'master-sponsor-add' master.slug %}" class="inline-flex rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Add sponsor" %}</a>
+      </section>
+
       <section class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
         <h2 class="font-bold text-content">{% translate "Managers" %}</h2>
         <ul class="divide-y divide-divider">

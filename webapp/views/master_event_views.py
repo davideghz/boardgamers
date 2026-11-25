@@ -13,7 +13,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods, require_POST, require_safe
 from meta.views import Meta
 
-from webapp.forms import AddEventManagerForm, EventDateForm, MasterEventForm
+from webapp.forms import AddEventManagerForm, EventDateForm, MasterEventForm, SponsorForm
 from webapp.models import Event, MasterEvent, MasterEventDate
 from webapp.services.master_events import linkable_events, public_children, public_program, set_master
 
@@ -52,6 +52,7 @@ def detail(request, slug):
     return render(request, 'masters/detail.html', {
         'master': master, 'can_manage': can_manage, 'can_approve': can_approve and master.status == Event.DRAFT,
         'events': public_children(master), 'tables': public_program(master),
+        'sponsors': master.sponsors.all(),
         'meta': Meta(title=master.name),
     })
 
@@ -81,6 +82,7 @@ def edit(request, slug=None):
     return render(request, 'masters/edit.html', {
         'master': master, 'form': form, 'date_form': date_form,
         'manager_form': AddEventManagerForm(),
+        'sponsors': master.sponsors.all() if master.pk else (),
         'linked_events': master.events.select_related('organizer_location').order_by('name', 'pk') if master.pk else (),
         'linkable_events': linkable_events(request.user).select_related('organizer_location').order_by(
             'name', 'pk') if master.pk else (),
@@ -161,6 +163,42 @@ def link(request, slug):
     else:
         messages.success(request, _('Event unlinked.') if unlink else _('Event linked.'))
     return redirect(reverse('master-event-manage', args=[slug]) + '#manifestation-events')
+
+
+@login_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
+@transaction.atomic
+def sponsors(request, slug, pk=None):
+    is_post = request.method == 'POST'
+    master = managed_master(request, slug, lock=is_post)
+    destination = reverse('master-event-manage', args=[slug]) + '#manifestation-sponsors'
+    linked_sponsors = master.sponsors.select_for_update(of=('self',)) if is_post else master.sponsors.all()
+    sponsor = get_object_or_404(linked_sponsors, pk=pk) if pk is not None else None
+    if is_post and sponsor and 'remove' in request.POST:
+        master.sponsors.remove(sponsor)
+        messages.success(request, _('Sponsor removed.'))
+        return redirect(destination)
+
+    form = SponsorForm(request.POST if is_post else None, request.FILES if is_post else None, instance=sponsor)
+    if is_post and form.is_valid():
+        if not sponsor or form.has_changed():
+            edited = form.save(commit=False)
+            if sponsor and sponsor.master_events.exclude(pk=master.pk).exists():
+                # A manager's changes apply only to this manifestation.
+                original_id = sponsor.pk
+                edited.pk = None
+                edited.save(force_insert=True)
+                master.sponsors.remove(original_id)
+            else:
+                edited.save()
+            master.sponsors.add(edited)
+            messages.success(request, _('Sponsor updated.') if sponsor else _('Sponsor added.'))
+        return redirect(destination)
+
+    title = _('Edit sponsor') if sponsor else _('Add sponsor')
+    return render(request, 'masters/sponsor.html', {
+        'master': master, 'form': form, 'sponsor': sponsor, 'title': title, 'meta': Meta(title=title),
+    })
 
 
 @login_required
