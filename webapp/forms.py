@@ -208,7 +208,10 @@ class LocationPickerWidget(SearchPickerWidget):
 
     def get_item(self, value):
         from webapp.api.search_views import location_result
-        location = Location.objects.filter(**{self.value_key: str(value).strip()}).first()
+        value = str(value).strip()
+        if '\x00' in value:  # rejected by the field, but PostgreSQL can't even compare it
+            return None
+        location = Location.objects.filter(**{self.value_key: value}).first()
         return location and location_result(location)
 
 
@@ -947,6 +950,12 @@ class EventVenueForm(ModelForm):
             elif venue.pk == self.instance.venue_location_id:
                 # Some older events use these values when their venue has no address.
                 data.update({name: getattr(self.instance, name) for name in self.manual_venue_fields})
+            else:
+                # ModelForm keeps the stored value of a field with a default that was not submitted,
+                # and Event.save() only sets the point from new coordinates.
+                self.instance.venue_name = ''
+                if hasattr(self.instance, 'point'):
+                    self.instance.point = self.instance._meta.get_field('point').get_default()
         return data
 
 

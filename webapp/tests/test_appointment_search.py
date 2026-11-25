@@ -143,6 +143,15 @@ class AppointmentSearchTest(TestCase):
                 response = self.client.get(url, {'scope': scope, 'q': 'Casale'})
                 self.assertEqual({item['slug'] for item in response.json()['results']}, expected)
 
+    def test_null_characters_in_the_filters_are_rejected(self):
+        for name in ('q', 'location', 'organizer'):
+            with self.subTest(name=name):
+                response = self.client.get(self.url, {name: 'a\x00'})
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(response.context['search_error'])
+        response = self.client.get(reverse('location-search'), {'q': 'Magno\x00'})
+        self.assertEqual([item['slug'] for item in response.json()['results']], [self.club.slug])
+
     def test_search_filters_are_translated_in_italian(self):
         with override('it'):
             response = self.client.get(reverse('appointment-search'), HTTP_ACCEPT_LANGUAGE='it')

@@ -108,7 +108,7 @@ def location_result(location):
 
 def location_search_view(request):
     """Locations by name or city, optionally scoped to a public appointment role."""
-    query = request.GET.get('q', '').strip()
+    query = request.GET.get('q', '').replace('\x00', '').strip()
     if len(query) < LOCATION_SEARCH_MIN_LENGTH:
         return JsonResponse({'results': []})
     locations = (appointment_filter_locations(request.GET.get('scope'))

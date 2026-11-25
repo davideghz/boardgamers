@@ -116,6 +116,21 @@ class OrganizedEventFlowTest(TestCase):
         self.assertEqual(event.layout_mode, Event.LayoutMode.EVENT)
         self.assertContains(self.client.get(edit), 'data-venue-fields="registered" hidden disabled')
 
+    def test_switching_to_a_registered_venue_clears_the_manual_one(self):
+        event = Event.objects.create(name='Fair', organizer_location=self.club, venue_name='Sala Civica',
+                                     address='Via Roma 1', city='Vicenza', latitude=45.54, longitude=11.52)
+        self.assertNotEqual(event.point.coords, (0, 0))
+        self.client.force_login(self.manager.user)
+        self.client.post(reverse('event-manage-data', args=[event.slug]), {
+            **self.data, 'venue_mode': 'registered', 'venue_location': self.fair.pk,
+        })
+        event.refresh_from_db()
+        self.assertEqual(event.venue_location, self.fair)
+        self.assertEqual(event.venue_name, '')
+        for name in ('address', 'city', 'latitude', 'longitude'):
+            self.assertIsNone(getattr(event, name), name)
+        self.assertEqual(event.point.coords, (0, 0))
+
     def test_coordinates_from_a_map_are_rounded(self):
         self.client.force_login(self.manager.user)
         venue = {'venue_location': '', 'venue_name': 'Sala Civica', 'address': 'Via Roma 1'}
