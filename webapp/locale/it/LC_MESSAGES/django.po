@@ -1082,6 +1082,10 @@ msgstr "Selezione per l'evento"
 msgid "Game catalog"
 msgstr "Catalogo dei giochi"
 
+#, python-format
+msgid "Game catalog – %(name)s"
+msgstr "Catalogo dei giochi – %(name)s"
+
 msgid "Organizing location"
 msgstr "Sede organizzatrice"
 

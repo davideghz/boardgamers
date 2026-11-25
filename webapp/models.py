@@ -1820,6 +1820,11 @@ class EventQuerySet(models.QuerySet):
         return self.filter(legacy_staff | models.Q(organizer_location__creator=profile)
                            | models.Q(organizer_location__managers=profile)).distinct()
 
+    def with_public_catalog(self):
+        return self.filter(enable_public_games=True).filter(
+            ~Event.location_catalog_condition() | models.Q(organizer_location__enable_public_games=True),
+        )
+
 
 class Event(DateTimeModel, ModelMeta, SlugModel):
     objects = EventQuerySet.as_manager()
@@ -2151,6 +2156,17 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def uses_location_library(self):
         return self.organizer_location_id is not None and (
             self.catalog_mode == self.CATALOG_LOCATION or (not self.catalog_mode and self.is_at_organizer_location)
+        )
+
+    @classmethod
+    def location_catalog_condition(cls, prefix=''):
+        return models.Q(**{f'{prefix}organizer_location__isnull': False}) & (
+            models.Q(**{f'{prefix}catalog_mode': cls.CATALOG_LOCATION})
+            | models.Q(**{
+                f'{prefix}catalog_mode': '',
+                f'{prefix}venue_location__isnull': False,
+                f'{prefix}venue_location': models.F(f'{prefix}organizer_location'),
+            })
         )
 
     @property

@@ -190,6 +190,7 @@ urlpatterns = [
     path("manifestations/new/", master_event_views.edit, name="master-event-create"),
     path("manifestations/<slug:slug>/", master_event_views.detail, name="master-event-detail"),
     path("manifestations/<slug:slug>/manage/", master_event_views.edit, name="master-event-manage"),
+    path("manifestations/<slug:slug>/games/", master_event_views.catalog, name="master-event-games"),
     path("manifestations/<slug:slug>/calendar/", master_event_views.calendar, name="master-event-calendar"),
     path("manifestations/<slug:slug>/managers/", master_event_views.managers, name="master-event-managers"),
     path("manifestations/<slug:slug>/events/", master_event_views.link, name="master-event-link"),
