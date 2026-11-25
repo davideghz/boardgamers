@@ -257,6 +257,7 @@ urlpatterns = [
     path("account/disconnect/<str:provider>/", profile_views.disconnect_social, name='disconnect-social'),
     path("account/events/", account_views.events, name="account-events"),
     path("account/locations/", account_views.locations, name="account-locations"),
+    path("account/activities/", account_views.activities, name="account-activities"),
     path("account/tables/", account_views.tables, name="account-tables"),
     path("account/notifications/", account_views.notifications, name="account-notifications"),
     path("account/notifications/edit", account_views.edit_notification_preferences, name="account-notifications-edit"),
