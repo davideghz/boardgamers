@@ -6359,6 +6359,9 @@ msgstr "Luogo non registrato"
 msgid "Find a venue"
 msgstr "Cerca una sede"
 
+msgid "Find an organizing location"
+msgstr "Cerca una sede organizzatrice"
+
 msgid "Choose a registered location."
 msgstr "Scegli una sede registrata."
 

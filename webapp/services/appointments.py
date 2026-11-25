@@ -1,5 +1,7 @@
 from django.core.paginator import Paginator
-from django.db.models import Exists, F, Subquery, Value
+from django.db.models import Exists, F, OuterRef, Subquery, Value
+
+from webapp.models import Event, Location, MasterEvent, Table
 
 
 SCHEDULE_FIELDS = {
@@ -7,6 +9,20 @@ SCHEDULE_FIELDS = {
     'event': ('matching_date', 'matching_time'),
     'manifestation': ('matching_date', 'matching_time'),
 }
+
+
+def appointment_filter_locations(scope):
+    locations = Location.objects.all()
+    published_events = Event.objects.filter(status=Event.PUBLISHED)
+    if scope == 'organizer':
+        return locations.filter(Exists(published_events.filter(organizer_location_id=OuterRef('pk'))))
+    if scope == 'venue':
+        return locations.filter(
+            Exists(published_events.filter(venue_location_id=OuterRef('pk')))
+            | Exists(MasterEvent.objects.filter(status=Event.PUBLISHED, venue_location_id=OuterRef('pk')))
+            | Exists(Table.objects.filter(event__isnull=True, location_id=OuterRef('pk'))),
+        )
+    return locations
 
 
 def with_matching_day(items, days, *, newest_first, undated=None):

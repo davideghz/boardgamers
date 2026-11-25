@@ -106,13 +106,14 @@ def _enhance_phone_widget(field):
 class SearchPickerWidget(Widget):
     """Picks an object through a search modal instead of a select.
 
-    Renders a hidden input holding the object id, a "select" button and a card
+    Renders a hidden input holding the selected value, a "select" button and a card
     for the current choice; static/js/search_picker.js drives the shared modal
     and queries the JSON search at `search_url` (see webapp/api/search_views.py).
     Subclasses set the search URL, the texts and how to show the current value.
     """
     template_name = 'partials/_search_picker_widget.html'
     search_url_name = None
+    value_key = 'id'
     min_length = 2
     image_class = 'rounded-lg'
     button_label = _('Select')
@@ -146,8 +147,11 @@ class SearchPickerWidget(Widget):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
+        item = self.get_item(value) if value and (self.value_key != 'id' or str(value).isdigit()) else None
         context['widget'].update({
-            'item': self.get_item(value) if value and str(value).isdigit() else None,
+            'item': item,
+            'value_key': self.value_key,
+            'selected_value': item[self.value_key] if item else '',
             'search_url': self.get_search_url(),
             'min_length': self.min_length,
             'image_class': self.image_class,
@@ -194,9 +198,17 @@ class LocationPickerWidget(SearchPickerWidget):
     placeholder = _('Search by name or city…')
     no_results_text = _('No locations found.')
 
+    def __init__(self, attrs=None, button_label=None, *, value_key='id', scope=None):
+        super().__init__(attrs, button_label)
+        self.value_key = value_key
+        self.scope = scope
+
+    def get_search_url(self):
+        return reverse(self.search_url_name, query={'scope': self.scope} if self.scope else None)
+
     def get_item(self, value):
         from webapp.api.search_views import location_result
-        location = Location.objects.filter(pk=value).first()
+        location = Location.objects.filter(**{self.value_key: str(value).strip()}).first()
         return location and location_result(location)
 
 

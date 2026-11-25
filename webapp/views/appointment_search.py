@@ -8,7 +8,8 @@ from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import View
 from meta.views import Meta
 
-from webapp.models import Event, EventDate, Location, MasterEvent, MasterEventDate, Table
+from webapp.forms import LocationPickerWidget
+from webapp.models import Event, EventDate, MasterEvent, MasterEventDate, Table
 from webapp.services.appointments import paginate_appointments, with_matching_day
 
 
@@ -23,8 +24,16 @@ SEARCH_TYPES = (
 class AppointmentSearchForm(forms.Form):
     type = forms.ChoiceField(choices=SEARCH_TYPES, required=False)
     q = forms.CharField(max_length=200, required=False)
-    location = forms.SlugField(max_length=144, required=False)
-    organizer = forms.SlugField(max_length=144, required=False)
+    location = forms.SlugField(
+        label=_('Venue'), max_length=144, required=False,
+        widget=LocationPickerWidget(button_label=_('Find a venue'), value_key='slug', scope='venue'),
+    )
+    organizer = forms.SlugField(
+        label=_('Organizing location'), max_length=144, required=False,
+        widget=LocationPickerWidget(
+            button_label=_('Find an organizing location'), value_key='slug', scope='organizer',
+        ),
+    )
     when = forms.ChoiceField(
         choices=[(key, key) for key in ('upcoming', 'today', 'weekend', 'past', 'range')], required=False,
     )
@@ -115,18 +124,6 @@ def _search_manifestations(query, venue, organizer, date_filters, newest_first):
     return with_matching_day(masters.select_related('venue_location'), days, newest_first=newest_first)
 
 
-def _filter_locations():
-    public_events = Event.objects.filter(status=Event.PUBLISHED)
-    locations = Location.objects.order_by('name', 'pk')
-    venues = locations.filter(
-        Exists(public_events.filter(venue_location_id=OuterRef('pk')))
-        | Exists(MasterEvent.objects.filter(status=Event.PUBLISHED, venue_location_id=OuterRef('pk')))
-        | Exists(Table.objects.filter(event__isnull=True, location_id=OuterRef('pk'))),
-    )
-    organizers = locations.filter(Exists(public_events.filter(organizer_location_id=OuterRef('pk'))))
-    return venues, organizers
-
-
 class AppointmentSearchView(View):
     template_name = 'search/appointments.html'
 
@@ -144,16 +141,14 @@ class AppointmentSearchView(View):
         organizer_slug = form.cleaned_data.get('organizer', '')
         date_errors = form.errors.get('date_from') or form.errors.get('date_to')
 
-        venues, organizers = _filter_locations()
         context = {
+            'search_form': form,
             'search_type': search_type,
             'search_types': SEARCH_TYPES,
             'search_params': params,
             'when': when,
             'q': request.GET.get('q', '').strip(),
             'selected_location': location_slug,
-            'venues': venues,
-            'organizers': organizers,
             'selected_organizer': organizer_slug,
             'periods': [('upcoming', _('Upcoming')), ('today', _('Today')), ('weekend', _('This weekend')),
                         ('past', _('Past')), ('range', _('Custom date range'))],

@@ -1,7 +1,7 @@
 /* Search picker: drives the .js-search-picker blocks rendered by forms.SearchPickerWidget
    (users, locations, members). One search modal is shared by every picker on the page;
    texts and the search URL come from the data-* attributes of the picker that opened it.
-   Results are {id, title, subtitle, image_url, badge} (webapp/api/search_views.py).
+   Results are {id, title, subtitle, image_url, badge}, with a slug for locations.
    While the search is empty it lists the quick picks of data-defaults-url, if any.
    data-local-items filters a json_script list instead of searching; data-submit-on-select
    submits the picker's form as soon as an item is picked. */
@@ -212,7 +212,7 @@
   }
 
   function setValue(target, item) {
-    target.querySelector('input[type=hidden]').value = item ? item.id : '';
+    target.querySelector('input[type=hidden]').value = item ? item[target.dataset.valueKey || 'id'] : '';
     target.querySelector('[data-picker-selected]').style.display = item ? '' : 'none';
     target.querySelector('[data-picker-open]').style.display = item ? 'none' : '';
     if (!item) return;
@@ -243,7 +243,10 @@
     if (!target || target.dataset.disabled) return;
     var trigger = e.target.closest('[data-picker-open]');
     if (trigger) open(target, trigger);
-    else if (e.target.closest('[data-picker-clear]')) setValue(target, null);
+    else if (e.target.closest('[data-picker-clear]')) {
+      setValue(target, null);
+      target.querySelector('[data-picker-open]').focus();
+    }
   });
 
   // A hidden input is skipped by browser validation: open the search instead of
