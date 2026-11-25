@@ -335,6 +335,14 @@ Run with `python manage.py [command-name]`
 - `populate_db`
   - **Usage**: Run this **only locally** to generate test data in your local database.
 
+- `seed_ui_personas [--reset]`
+  - Creates one demo user for each audience (newcomer, player, member, location manager and a
+    manifestation organizer who manages no location) and three locations: a shop open to everyone,
+    an association with members-only tables and one that runs its nights as events. Adds tables,
+    events, a manifestation and a pending membership. Runs only
+    with `DEBUG`. The emails are printed at the end; the password is in
+    `webapp/services/ui_personas.py`. `--reset` deletes the demo data and creates it again.
+
 - `send_test_new_table_email <recipient>`
   - Sends a test "new table" email through the SES template, to check subject/body after `setup_ses_template`.
 
