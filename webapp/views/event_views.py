@@ -33,7 +33,7 @@ from phonenumber_field.phonenumber import to_python
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
 from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
 from webapp.services.station_conflicts import station_conflict_ids
-from webapp.views.table_views import BaseTableDetailView, warn_station_conflict
+from webapp.views.table_views import BaseTableDetailView, remove_layout_resource, warn_station_conflict
 
 logger = logging.getLogger(__name__)
 
@@ -357,7 +357,7 @@ def _build_program_grid(event, tables, selected_area):
     structure available: stations, else play areas, else a single 'General'
     column ("area generale" fallback)."""
     UNASSIGNED = 'none'
-    stations = list(event.physical_tables.select_related('play_area'))
+    stations = list(event.effective_physical_tables().select_related('play_area'))
     if selected_area:
         stations = [s for s in stations if s.play_area_id == selected_area.id]
 
@@ -368,7 +368,7 @@ def _build_program_grid(event, tables, selected_area):
         def col_key(t):
             return f's{t.physical_table_id}' if t.physical_table_id else UNASSIGNED
     else:
-        areas = list(event.play_areas.all())
+        areas = list(event.effective_play_areas())
         if selected_area:
             areas = [a for a in areas if a.id == selected_area.id]
         columns = [{'key': f'a{a.id}', 'label': a.name, 'sub': ''} for a in areas]
@@ -388,7 +388,7 @@ def _build_program_grid(event, tables, selected_area):
         cells = [[] for _ in columns]
         for t in tables:
             if t.time == slot_time:
-                idx = key_index.get(col_key(t))
+                idx = key_index.get(col_key(t), key_index.get(UNASSIGNED))
                 if idx is not None:
                     cells[idx].append(t)
         rows.append({'time': slot_time, 'cells': cells})
@@ -454,13 +454,13 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
         has_past_dates = event_dates.filter(date__lt=today).exists()
 
         # ── Area filtering ────────────────────────────────────────────────
-        play_areas = event.play_areas.all()
+        play_areas = event.effective_play_areas()
         selected_area_id = self.request.GET.get('area')
         selected_area = None
         if selected_area_id:
             try:
                 selected_area = play_areas.get(id=selected_area_id)
-            except PlayArea.DoesNotExist:
+            except (PlayArea.DoesNotExist, ValueError):
                 pass
 
         # ── Game filtering ────────────────────────────────────────────────
@@ -706,8 +706,8 @@ def event_table_create_view(request, event_slug):
         initial['date'] = date_param
     if area_param := request.GET.get('area'):
         try:
-            initial['play_area'] = PlayArea.objects.get(id=area_param, event=event)
-        except PlayArea.DoesNotExist:
+            initial['play_area'] = event.effective_play_areas().get(id=area_param)
+        except (PlayArea.DoesNotExist, ValueError):
             pass
 
     if request.method == 'POST':
@@ -958,8 +958,7 @@ class EventManageAreasView(EventManagerMixin, View):
 class EventManageAreaDeleteView(EventManagerMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
-        PlayArea.objects.filter(pk=pk, event=event).delete()
-        messages.success(request, _("Play area removed."))
+        remove_layout_resource(request, event.play_areas.filter(pk=pk), _("Play area removed."))
         return redirect('event-manage-areas', slug=slug)
 
 
@@ -1208,8 +1207,7 @@ class EventManagePhysicalTablesView(EventManagerMixin, View):
 class EventManagePhysicalTableDeleteView(EventManagerMixin, View):
     def post(self, request, slug, pk):
         event = self._get_event()
-        PhysicalTable.objects.filter(pk=pk, event=event).delete()
-        messages.success(request, _("Station removed."))
+        remove_layout_resource(request, event.physical_tables.filter(pk=pk), _("Station removed."))
         return redirect('event-manage-stations', slug=slug)
 
 

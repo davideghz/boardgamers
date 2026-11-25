@@ -572,6 +572,13 @@ class TableQuerySet(models.QuerySet):
         return self.filter(Table.public_condition() | models.Q(event__in=Event.objects.managed_by(user.user_profile)))
 
 
+def clear_unreserved_layout_assignment(collector, field, sub_objs, using):
+    """Keep scheduled event assignments; release other references on deletion."""
+    scheduled = sub_objs.filter(event__isnull=False, date__gte=timezone.localdate())
+    models.RESTRICT(collector, field, scheduled, using)
+    models.SET_NULL(collector, field, sub_objs, using)
+
+
 class Table(DateTimeModel, ModelMeta, SlugModel):
     objects = TableQuerySet.as_manager()
 
@@ -643,13 +650,13 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         'Event', on_delete=models.CASCADE, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
     play_area = models.ForeignKey(
         'PlayArea',
-        on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
+        on_delete=clear_unreserved_layout_assignment, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
     category = models.ForeignKey(
         'EventTableCategory',
         on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Category'))
     physical_table = models.ForeignKey(
         'PhysicalTable',
-        on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Station'))
+        on_delete=clear_unreserved_layout_assignment, related_name='tables', null=True, blank=True, verbose_name=_('Station'))
 
     min_players = models.SmallIntegerField(null=False, blank=True, default=2, verbose_name=_('Minimum players'))
     max_players = models.SmallIntegerField(null=False, blank=True, default=5, verbose_name=_('Maximum players'))
@@ -854,6 +861,53 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
             return False
         return not Table.objects.filter(pk=self.pk, event_id=self.event_id, date=self.date).exists()
 
+    _LAYOUT_FIELDS = ('event', 'location', 'play_area', 'physical_table', 'date', 'time', 'duration')
+
+    def _placement_for_save(self, fields):
+        if fields is None or self._state.adding:
+            return self
+        placement = Table.objects.filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first()
+        if placement is None:
+            return self
+        for name in self._LAYOUT_FIELDS:
+            attribute = self._meta.get_field(name).attname
+            if name in fields or attribute in fields:
+                setattr(placement, attribute, getattr(self, attribute))
+        return placement
+
+    def _layout_assignment_changed(self):
+        if not (self.play_area_id or self.physical_table_id):
+            return False
+        if self._state.adding:
+            return True
+        assignment = {name: getattr(self, name) for name in (
+            'event_id', 'location_id', 'play_area_id', 'physical_table_id', 'date', 'time', 'duration',
+        )}
+        return not Table.objects.filter(pk=self.pk, **assignment).exists()
+
+    def _validate_layout_assignment(self, event, *, lock=False):
+        if event:
+            owner = event.layout_owner()
+        else:
+            owner = {'location_id': self.location_id} if self.location_id is not None else None
+        station = None
+        if self.physical_table_id:
+            station = PhysicalTable.objects.filter(pk=self.physical_table_id, **owner).first() if owner else None
+            if station is None:
+                raise ValidationError(_('Choose a station from this schedule’s layout.'))
+            if self.play_area_id is None:
+                self.play_area_id = station.play_area_id
+            elif self.play_area_id != station.play_area_id:
+                raise ValidationError(_('The selected station does not belong to the selected area.'))
+        if self.play_area_id:
+            areas = PlayArea.objects.select_for_update() if lock else PlayArea.objects.all()
+            if not owner or not areas.filter(pk=self.play_area_id, **owner).exists():
+                raise ValidationError(_('Choose a play area from this schedule’s layout.'))
+        # Take the area lock before the station lock, as deleting an area can update its stations.
+        if lock and station and not PhysicalTable.objects.select_for_update().filter(
+                pk=station.pk, play_area_id=station.play_area_id, **owner).exists():
+            raise ValidationError(_('The selected station changed. Choose the station again.'))
+
     def clean(self):
         super().clean()
         if self.date and self.event_id and self.event.organizer_location_id and self._event_date_changed():
@@ -861,6 +915,8 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
                 self.event.validate_table_date(self.date)
             except ValidationError as error:
                 raise ValidationError({'date': error}) from error
+        if self._layout_assignment_changed():
+            self._validate_layout_assignment(self.event if self.event_id else None)
 
     def save(self, *args, **kwargs):
         # Keep both statuses in sync with the lifecycle on every save, so that
@@ -869,13 +925,25 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
         if not getattr(self, '_skip_status_recompute', False):
             self.recompute_statuses()
         fields = kwargs.get('update_fields')
-        if (fields is None or {'event', 'event_id', 'date'}.intersection(fields)) and self._event_date_changed():
-            with transaction.atomic():
-                event = Event.objects.select_for_update().get(pk=self.event_id)
-                if event.organizer_location_id:
-                    event.validate_table_date(self.date)
-                return super().save(*args, **kwargs)
-        return super().save(*args, **kwargs)
+        if fields is not None and not {name.removesuffix('_id') for name in fields}.intersection(self._LAYOUT_FIELDS):
+            return super().save(*args, **kwargs)
+        placement = self._placement_for_save(fields)
+        date_changed = (fields is None or {'event', 'event_id', 'date'}.intersection(fields)) and placement._event_date_changed()
+        layout_changed = placement._layout_assignment_changed()
+        if not date_changed and not layout_changed:
+            return super().save(*args, **kwargs)
+        with transaction.atomic():
+            event = Event.objects.select_for_update().get(pk=placement.event_id) if placement.event_id else None
+            if date_changed and event.organizer_location_id:
+                event.validate_table_date(placement.date)
+            if layout_changed:
+                area_id = placement.play_area_id
+                placement._validate_layout_assignment(event, lock=True)
+                if area_id != placement.play_area_id:
+                    self.play_area_id = placement.play_area_id
+                    if fields is not None:
+                        kwargs['update_fields'] = {*fields, 'play_area'}
+            return super().save(*args, **kwargs)
 
     @property
     def start_datetime(self):
@@ -1786,6 +1854,15 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         verbose_name=_('Game catalog'),
     )
 
+    class LayoutMode(models.TextChoices):
+        EVENT = 'event', _('Event layout')
+        VENUE = 'venue', _('Venue layout')
+
+    layout_mode = models.CharField(
+        max_length=5, choices=LayoutMode.choices, default=LayoutMode.EVENT, db_default=LayoutMode.EVENT,
+        verbose_name=_('Play areas and stations'),
+    )
+
     # PROTECT also stops the deletion of the profile that created the location
     # (Location.creator cascades): reassign its events first.
     organizer_location = models.ForeignKey(
@@ -1933,6 +2010,52 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def is_at_organizer_location(self):
         return self.organizer_location_id is not None and self.organizer_location_id == self.venue_location_id
 
+    _LAYOUT_FIELDS = ('layout_mode', 'organizer_location', 'venue_location')
+
+    def layout_owner(self):
+        if self.layout_mode == self.LayoutMode.VENUE:
+            return {'location_id': self.venue_location_id} if self.is_at_organizer_location else None
+        return {'event_id': self.pk} if self.pk else None
+
+    def effective_play_areas(self):
+        owner = self.layout_owner()
+        return PlayArea.objects.filter(**owner) if owner else PlayArea.objects.none()
+
+    def effective_physical_tables(self):
+        owner = self.layout_owner()
+        return PhysicalTable.objects.filter(**owner) if owner else PhysicalTable.objects.none()
+
+    def _validate_layout_change(self, previous, fields=None):
+        def proposed(name):
+            source = self if fields is None or name in fields or name.removesuffix('_id') in fields else previous
+            return getattr(source, name)
+
+        mode = proposed('layout_mode')
+        organizer = proposed('organizer_location_id')
+        venue = proposed('venue_location_id')
+        if mode == self.LayoutMode.VENUE and (organizer is None or organizer != venue):
+            raise ValidationError(_('Only events held at their organizing location can use the venue layout.'))
+        if previous is None or (previous.layout_mode == mode and
+                (mode == self.LayoutMode.EVENT or previous.venue_location_id == venue)):
+            return
+
+        field, owner_id = ('location_id', venue) if mode == self.LayoutMode.VENUE else ('event_id', self.pk)
+        assigned = self.tables.filter(date__gte=timezone.localdate()).filter(
+            (models.Q(play_area__isnull=False) & ~models.Q(**{f'play_area__{field}': owner_id})) |
+            (models.Q(physical_table__isnull=False) & ~models.Q(**{f'physical_table__{field}': owner_id}))
+        ).order_by('date', 'time', 'pk')
+        titles = list(assigned.values_list('title', flat=True)[:6])
+        if titles:
+            sessions = ', '.join(titles[:5]) + (' …' if len(titles) > 5 else '')
+            raise ValidationError(_('Reassign these upcoming sessions before changing the layout: %(sessions)s') % {
+                'sessions': sessions,
+            })
+
+    def clean(self):
+        super().clean()
+        previous = Event.objects.filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first() if self.pk else None
+        self._validate_layout_change(previous)
+
     def get_absolute_url(self):
         return reverse('event_detail', kwargs={'slug': self.slug})
 
@@ -1940,9 +2063,14 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         if self.latitude and self.longitude:
             self.point = Point(float(self.longitude), float(self.latitude), srid=4326)
         with transaction.atomic():
+            update_fields = kwargs.get('update_fields')
+            if update_fields is None or {name.removesuffix('_id') for name in update_fields}.intersection(self._LAYOUT_FIELDS):
+                previous = None
+                if self.pk:
+                    previous = Event.objects.select_for_update().filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first()
+                self._validate_layout_change(previous, update_fields if previous else None)
             super().save(*args, **kwargs)
             # The sources of the selected games belong to the organizing location.
-            update_fields = kwargs.get('update_fields')
             if update_fields is None or {'organizer_location', 'organizer_location_id'} & set(update_fields):
                 stale = self.games.filter(source_location_game__isnull=False)
                 if self.organizer_location_id:
@@ -2047,11 +2175,19 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         verbose_name = _('Event')
         verbose_name_plural = _('Events')
         ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                condition=(~models.Q(layout_mode='venue') | models.Q(
+                    organizer_location__isnull=False, venue_location__isnull=False,
+                    organizer_location=models.F('venue_location'),
+                )),
+                name='event_venue_layout_requires_organizer_venue',
+            ),
+        ]
 
 
 class PlayArea(DateTimeModel):
-    """A room or zone where tables are played. Belongs to either an event or a
-    location: the two sets are independent (events don't inherit location areas)."""
+    """A room or zone where tables are played, owned by an event or a location."""
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='play_areas',
         null=True, blank=True, verbose_name=_('Event'))
@@ -2191,6 +2327,15 @@ class EventGame(DateTimeModel):
         ordering = ['game__name']
 
 
+def clear_unreserved_station_area(collector, field, sub_objs, using):
+    # Older sessions may store only the station. Protect its area in that case too.
+    sessions = Table.objects.using(using).filter(
+        physical_table__in=sub_objs, event__isnull=False, date__gte=timezone.localdate(),
+    )
+    models.RESTRICT(collector, Table._meta.get_field('physical_table'), sessions, using)
+    models.SET_NULL(collector, field, sub_objs, using)
+
+
 class PhysicalTable(DateTimeModel):
     """A physical playing station ("postazione") at an event or a location — e.g.
     Table 1, 2, 3. Belongs to exactly one of the two, like PlayArea.
@@ -2205,12 +2350,32 @@ class PhysicalTable(DateTimeModel):
         Location, on_delete=models.CASCADE, related_name='physical_tables',
         null=True, blank=True, verbose_name=_('Location'))
     play_area = models.ForeignKey(
-        PlayArea, on_delete=models.SET_NULL, related_name='physical_tables',
+        PlayArea, on_delete=clear_unreserved_station_area, related_name='physical_tables',
         null=True, blank=True, verbose_name=_('Play Area'))
     name = models.CharField(max_length=144, verbose_name=_('Name'),
                             help_text=_('On-site label, e.g. "Table 1"'))
     is_visible = models.BooleanField(default=True, verbose_name=_('Selectable by all users'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    def clean(self):
+        super().clean()
+        if self.play_area_id and (self.play_area.event_id, self.play_area.location_id) != (self.event_id, self.location_id):
+            raise ValidationError({'play_area': _('Choose a play area from this station’s layout.')})
+        if self.pk and self.tables.filter(event__isnull=False, date__gte=timezone.localdate()).exists():
+            if not PhysicalTable.objects.filter(pk=self.pk, event_id=self.event_id, location_id=self.location_id).exists():
+                raise ValidationError(_('Reassign upcoming event sessions before transferring this station.'))
+
+    def save(self, *args, **kwargs):
+        fields = kwargs.get('update_fields')
+        if self._state.adding or (fields is not None and not {'play_area', 'play_area_id'}.intersection(fields)):
+            return super().save(*args, **kwargs)
+        with transaction.atomic():
+            if self.play_area_id:
+                PlayArea.objects.select_for_update().only('pk').get(pk=self.play_area_id)
+            old_area = PhysicalTable.objects.select_for_update().values_list('play_area_id', flat=True).get(pk=self.pk)
+            super().save(*args, **kwargs)
+            if old_area != self.play_area_id:
+                self.tables.exclude(play_area_id=self.play_area_id).update(play_area_id=self.play_area_id)
 
     def __str__(self):
         owner = self.event or self.location

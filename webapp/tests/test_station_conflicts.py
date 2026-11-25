@@ -56,6 +56,8 @@ class StationConflictTest(TestCase):
             self.assertEqual(station_conflict_ids(tables), {table.pk for table in tables})
 
     def test_assignment_detects_an_overnight_session_from_another_schedule(self):
+        self.event.layout_mode = Event.LayoutMode.VENUE
+        self.event.save(update_fields=['layout_mode'])
         regular = self.table('Location game', station=None, starts=time(0, 30))
         event_table = self.table('Event game', station=self.location_station, starts=time(23, 30),
                                  day=self.previous_day, event=self.event)
@@ -76,9 +78,15 @@ class StationConflictTest(TestCase):
         self.assertNotContains(program, regular.title)
 
     def test_public_program_hides_conflicts_with_private_sessions(self):
-        self.table('Public game', station=self.event_station, starts=time(0, 30), event=self.event)
-        private_event = Event.objects.create(name='Draft event', creator=self.manager)
-        self.table('Private game', station=self.event_station, starts=time(23, 30),
+        self.event.layout_mode = Event.LayoutMode.VENUE
+        self.event.save(update_fields=['layout_mode'])
+        self.table('Public game', station=self.location_station, starts=time(0, 30), event=self.event)
+        private_event = Event.objects.create(
+            name='Draft event', creator=self.manager, organizer_location=self.location,
+            venue_location=self.location, layout_mode=Event.LayoutMode.VENUE,
+        )
+        EventDate.objects.create(event=private_event, date=self.previous_day)
+        self.table('Private game', station=self.location_station, starts=time(23, 30),
                    day=self.previous_day, event=private_event)
         program = reverse('event-program', args=[self.event.slug])
         filters = {'date': self.day.isoformat(), 'view': 'grid'}

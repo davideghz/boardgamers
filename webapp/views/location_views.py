@@ -37,7 +37,7 @@ from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import
 from webapp.services import game_loans
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import reopen_location_leaderboards
-from webapp.views.table_views import warn_station_conflict
+from webapp.views.table_views import remove_layout_resource, warn_station_conflict
 
 logger = logging.getLogger(__name__)
 
@@ -1682,8 +1682,7 @@ class LocationManageAreaDeleteView(LoginRequiredMixin, View):
     def post(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        PlayArea.objects.filter(pk=pk, location=location).delete()
-        messages.success(request, _("Play area removed."))
+        remove_layout_resource(request, location.play_areas.filter(pk=pk), _("Play area removed."))
         return redirect('location-manage-areas', slug=location.slug)
 
 
@@ -1758,9 +1757,7 @@ class LocationManageStationEditView(LoginRequiredMixin, View):
         station = get_object_or_404(PhysicalTable, pk=pk, location=location)
         form = PhysicalTableForm(request.POST, instance=station, location=location)
         if form.is_valid():
-            station = form.save()
-            # A table keeps its station only while they share the same area.
-            station.tables.exclude(play_area_id=station.play_area_id).update(play_area=station.play_area)
+            form.save()
             messages.success(request, _("Station updated."))
             return redirect('location-manage-stations', slug=location.slug)
         return self._render(request, location, station, form)
@@ -1770,8 +1767,7 @@ class LocationManageStationDeleteView(LoginRequiredMixin, View):
     def post(self, request, slug, pk):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
-        PhysicalTable.objects.filter(pk=pk, location=location).delete()
-        messages.success(request, _("Station removed."))
+        remove_layout_resource(request, location.physical_tables.filter(pk=pk), _("Station removed."))
         return redirect('location-manage-stations', slug=location.slug)
 
 

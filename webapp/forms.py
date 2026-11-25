@@ -496,8 +496,7 @@ class EventTableForm(ModelForm, TailwindForm):
                 attrs={'class': _TW_INPUT}
             )
             self.fields['date'].input_formats = ['%Y-%m-%d']
-            setup_table_station_fields(self, PlayArea.objects.filter(event=event),
-                                       PhysicalTable.objects.filter(event=event))
+            setup_table_station_fields(self, event.effective_play_areas(), event.effective_physical_tables())
             self.fields['category'].queryset = EventTableCategory.objects.filter(event=event)
         else:
             self.fields['date'].input_formats = ['%Y-%m-%d']
