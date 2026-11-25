@@ -163,16 +163,24 @@ def activities(request):
     ).order_by('name', 'pk')
 
     tables = my_tables.filter(**period)
+    # Registrations without a day nor a table: a day inferred from a cancelled booking is not a choice.
+    undated = EventParticipant.objects.filter(user_profile=profile).exclude(
+        selected_dates__inferred_from_booking=False,
+    ).exclude(Exists(my_tables.filter(event_id=OuterRef('event_id'))))
+    # They follow the event's own days: its next one, or its last one once the event is over.
+    event_days = Exists(undated.filter(event_id=OuterRef('event_id')))
+    if past:
+        event_days &= ~Exists(EventDate.objects.filter(event_id=OuterRef('event_id'), date__gte=today))
     dates = EventDate.objects.filter(event_id=OuterRef('pk'), **period).filter(
         Exists(EventParticipantDate.objects.filter(
             event_date_id=OuterRef('pk'), participant__user_profile=profile, inferred_from_booking=False,
-        )) | Exists(my_tables.filter(event_id=OuterRef('event_id'), date=OuterRef('date'))),
+        )) | Exists(my_tables.filter(event_id=OuterRef('event_id'), date=OuterRef('date'))) | event_days,
     )
-    # Show legacy registrations without dates in the upcoming tab, after dated activities.
-    undated = registrations.filter(selected_dates__isnull=True).exclude(
-        Exists(my_tables.filter(event_id=OuterRef('event_id'))),
+    # Events without any day stay in the upcoming tab, after dated activities.
+    events = with_matching_day(
+        my_events, dates, newest_first=past,
+        undated=None if past else undated.filter(event_id=OuterRef('pk'), event__dates__isnull=True),
     )
-    events = with_matching_day(my_events, dates, newest_first=past, undated=None if past else undated)
     if venue:
         tables = tables.filter(Q(location__slug=venue) | Q(event__venue_location__slug=venue))
         events = events.filter(venue_location__slug=venue)

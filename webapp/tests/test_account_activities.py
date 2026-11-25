@@ -53,6 +53,36 @@ class AccountActivitiesTest(TestCase):
         self.assertEqual(self.client.get(self.url).context['items'], [('event', legacy)])
         self.assertEqual(self.client.get(self.url, {'tab': 'past'}).context['items'], [])
 
+    def test_undated_registrations_follow_the_event_days(self):
+        def registered_event(name, *offsets):
+            event = Event.objects.create(name=name, status=Event.PUBLISHED)
+            for offset in offsets:
+                EventDate.objects.create(event=event, date=self.today + timedelta(days=offset))
+            EventParticipant.objects.create(event=event, user_profile=self.profile)
+            return event
+
+        over = registered_event('Over', -10, -9)
+        ongoing = registered_event('Ongoing', -1, 1, 2)
+        upcoming = registered_event('Upcoming', 5, 6)
+        no_days = registered_event('No days')
+        self.client.force_login(self.profile.user)
+
+        results = self.client.get(self.url).context['items']
+        self.assertEqual(results, [('event', ongoing), ('event', upcoming), ('event', no_days)])
+        self.assertEqual([item.matching_date for _, item in results],
+                         [self.today + timedelta(days=1), self.today + timedelta(days=5), None])
+        past = self.client.get(self.url, {'tab': 'past'}).context['items']
+        self.assertEqual(past, [('event', over)])
+        self.assertEqual(past[0][1].matching_date, self.today - timedelta(days=9))
+
+    def test_registration_survives_the_cancellation_of_the_booking_it_was_dated_from(self):
+        booked = EventDate.objects.create(event=self.event, date=self.today + timedelta(days=1))
+        participant = EventParticipant.objects.create(event=self.event, user_profile=self.profile)
+        EventParticipantDate.objects.create(participant=participant, event_date=booked, inferred_from_booking=True)
+        self.client.force_login(self.profile.user)
+        self.assertEqual(self.client.get(self.url).context['items'], [('event', self.event)])
+        self.assertEqual(self.client.get(self.url, {'tab': 'past'}).context['items'], [])
+
     def test_booking_does_not_duplicate_event_or_replace_explicit_attendance(self):
         booked = EventDate.objects.create(event=self.event, date=self.today, opening_time=time(14))
         selected = EventDate.objects.create(event=self.event, date=self.today + timedelta(days=2))
