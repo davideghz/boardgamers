@@ -68,9 +68,14 @@ class LegacyEventMappingTest(TestCase):
         self.assertIn('Dry run: 1 assignment', self.run_mapping('--require-complete'))
         self.event.refresh_from_db()
         self.assertIsNone(self.event.organizer_location_id)
+        with self.assertRaisesMessage(CommandError, '1 event(s) still need an organizer'):
+            call_command('audit_legacy_events', '--check-ready', stdout=StringIO())
         self.assertFalse(self.master.sponsors.exists())
         self.assertFalse(EventParticipantDate.objects.exists())
         self.assertIn('Applied: 1 assignment', self.run_mapping('--apply', '--require-complete'))
+        ready = StringIO()
+        call_command('audit_legacy_events', '--check-ready', stdout=ready)
+        self.assertEqual(ready.getvalue().strip(), 'All events have an organizer.')
         self.assertIn('0 assignment(s), 1 already assigned', self.run_mapping('--apply', '--require-complete'))
 
         self.event.refresh_from_db()

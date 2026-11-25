@@ -25,7 +25,7 @@ class OrganizedEventFlowTest(TestCase):
         response = self.client.get(self.create_url)
         self.assertContains(response, 'id_cover-preview')
         self.assertContains(response, 'aspect-ratio="1.7777777777777777"')
-        self.client.post(self.create_url, self.data)
+        self.client.post(self.create_url, {**self.data, 'organizer_location': self.fair.pk})
         event = Event.objects.get(name=self.data['name'])
         self.assertEqual((event.organizer_location, event.venue_location), (self.club, self.fair))
         self.assertEqual(event.dates.get().closing_time, time(1))
