@@ -32,7 +32,8 @@ from phonenumber_field.phonenumber import to_python
 
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
 from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
-from webapp.views.table_views import BaseTableDetailView
+from webapp.services.station_conflicts import station_conflict_ids
+from webapp.views.table_views import BaseTableDetailView, warn_station_conflict
 
 logger = logging.getLogger(__name__)
 
@@ -351,43 +352,6 @@ class EventListView(View):
             .values_list('pk', flat=True))
 
 
-def _station_conflict_ids(event, date):
-    """Ids of tables that share a physical station with another table at an
-    overlapping time on the same date (a scheduling conflict)."""
-    if not date:
-        return set()
-    day_tables = list(
-        Table.objects.filter(event=event, date=date, physical_table__isnull=False)
-        .only('id', 'date', 'time', 'duration', 'physical_table_id')
-    )
-    by_station = defaultdict(list)
-    for t in day_tables:
-        by_station[t.physical_table_id].append(t)
-    conflict_ids = set()
-    for tables in by_station.values():
-        tables.sort(key=lambda x: x.time)
-        for i in range(len(tables)):
-            for j in range(i + 1, len(tables)):
-                if tables[i].overlaps_with(tables[j]):
-                    conflict_ids.add(tables[i].id)
-                    conflict_ids.add(tables[j].id)
-    return conflict_ids
-
-
-def _warn_station_conflict(request, table):
-    """Non-blocking warning when a table shares its station with another table
-    at an overlapping time."""
-    if not table.physical_table_id:
-        return
-    others = Table.objects.filter(
-        event_id=table.event_id, date=table.date,
-        physical_table_id=table.physical_table_id,
-    ).exclude(id=table.id)
-    if any(table.overlaps_with(o) for o in others):
-        messages.warning(request, _(
-            "Warning: this station is already booked by another table at an overlapping time."))
-
-
 def _build_program_grid(event, tables, selected_area):
     """Build a station/area × time grid. Columns adapt to the most granular
     structure available: stations, else play areas, else a single 'General'
@@ -547,13 +511,10 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
 
         tables_qs = tables_qs.order_by('date', 'time')
 
-        # ── Flag scheduling conflicts (same station, overlapping time) ─────
-        if all_days:
-            conflict_ids = set().union(
-                *(_station_conflict_ids(event, d.date) for d in visible_dates))
-        else:
-            conflict_ids = _station_conflict_ids(event, selected_date)
         tables_list = list(tables_qs)
+        conflict_ids = station_conflict_ids(
+            tables_list, public_only=not (is_manager or self.request.user.is_superuser),
+        )
         for t in tables_list:
             t.has_conflict = t.id in conflict_ids
 
@@ -764,7 +725,7 @@ def event_table_create_view(request, event_slug):
                 with transaction.atomic():
                     table.players.add(user_profile)
             messages.success(request, _("Table was created successfully"))
-            _warn_station_conflict(request, table)
+            warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
         form = EventTableForm(initial=initial, event=event)
@@ -800,7 +761,7 @@ def event_table_update_view(request, event_slug, table_slug):
             form.save_m2m()
             link_formset.save()
             messages.success(request, _("Table was updated successfully"))
-            _warn_station_conflict(request, table)
+            warn_station_conflict(request, table)
             return redirect('event_table_detail', event_slug=event_slug, table_slug=table.slug)
     else:
         form = EventTableForm(instance=table, event=event)

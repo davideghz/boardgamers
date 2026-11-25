@@ -27,6 +27,7 @@ from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, Duplic
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
     GameOutcome, PlayerOutcome, ResultMode
+from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import (
     MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_comment, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
     comment_badges, duplicate_draft, duplicate_table, is_table_host, join_table,
@@ -528,6 +529,7 @@ def table_create_view(request, location_slug):
                     table.players.add(request.user.user_profile)
 
             messages.success(request, _("Table was created successfully"))
+            warn_station_conflict(request, table)
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
         if date_param := request.GET.get('date'):
@@ -567,6 +569,7 @@ def table_update_view(request, location_slug, table_slug):
             form.save_m2m()  # Per salvare correttamente i giochi
             link_formset.save()
             messages.success(request, _("Table was updated successfully"))
+            warn_station_conflict(request, table)
             return redirect(reverse("table-detail", kwargs={"slug": table.slug}))
     else:
         form = TableForm(instance=table, location=location, user=request.user)
@@ -580,6 +583,18 @@ def table_update_view(request, location_slug, table_slug):
         "table": table,
     }
     return render(request, "tables/table_add_or_edit.html", context)
+
+
+def warn_station_conflict(request, table):
+    if not table.physical_table_id:
+        return False
+    user = request.user
+    public_only = not (user.is_superuser or is_table_host(user.user_profile, table))
+    if not station_conflict_ids([table], public_only=public_only):
+        return False
+    messages.warning(request, _(
+        "Warning: this station is already booked by another table at an overlapping time."))
+    return True
 
 
 def _duplicate_link_formset(source, data=None):
