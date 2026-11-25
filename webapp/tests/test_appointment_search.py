@@ -117,3 +117,23 @@ class AppointmentSearchTest(TestCase):
             response = self.client.get(reverse('appointment-search'), HTTP_ACCEPT_LANGUAGE='it')
         self.assertContains(response, 'Tipo di risultato')
         self.assertContains(response, 'Intervallo di date')
+
+    def test_home_links_to_filtered_search_and_previews_only_upcoming_public_manifestations(self):
+        draft = MasterEvent.objects.create(name='Hidden exhibition')
+        past = MasterEvent.objects.create(name='Past exhibition', status=Event.PUBLISHED)
+        MasterEventDate.objects.create(master_event=draft, date=self.first)
+        MasterEventDate.objects.create(master_event=past, date=timezone.localdate() - timedelta(days=1))
+
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, f'href="{self.url}"', count=2)
+        for kind in ('tables', 'events', 'manifestations'):
+            self.assertContains(response, f'href="{self.url}?type={kind}"')
+        self.assertContains(response, self.master.get_absolute_url())
+        self.assertNotContains(response, draft.name)
+        self.assertNotContains(response, past.name)
+
+    def test_location_organized_events_link_uses_organizer_instead_of_venue(self):
+        response = self.client.get(reverse('location-detail', args=[self.club.slug]))
+        self.assertContains(response, f'href="{self.url}?type=events&amp;organizer={self.club.slug}"')
+        response = self.client.get(reverse('location-detail', args=[self.venue.slug]))
+        self.assertNotContains(response, f'href="{self.url}?type=events&amp;organizer={self.venue.slug}"')

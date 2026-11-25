@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
-from django.db.models import Prefetch, Count
+from django.db.models import Prefetch, Count, OuterRef
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
@@ -22,7 +22,8 @@ from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
-from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player
+from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate
+from webapp.services.appointments import with_matching_day
 from webapp.views.event_views import upcoming_events_queryset
 
 # for debug page
@@ -103,6 +104,11 @@ def homepage_view(request):
         'future_tables': future_tables,
         'past_tables': past_tables,
         'upcoming_events': upcoming_events_queryset(limit=6),
+        'upcoming_manifestations': with_matching_day(
+            MasterEvent.objects.filter(status=Event.PUBLISHED).select_related('venue_location'),
+            MasterEventDate.objects.filter(master_event_id=OuterRef('pk'), date__gte=today),
+            newest_first=False,
+        ).order_by('matching_date', 'name', 'pk')[:6],
         'nearby_locations': nearby_locations,
         'location_message': location_message,
         'login_form': CustomLoginForm(),

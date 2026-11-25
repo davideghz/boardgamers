@@ -149,6 +149,22 @@
                 </a>
               </li>
               <li>
+                <a href="{% url 'appointment-search' %}" data-label="{% translate 'Search' %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'appointment-search' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                  <span class="sidebar-text">{% translate "Search" %}</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'master-event-list' %}" data-label="{% translate 'Manifestations' %}"
+                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          {% if request.resolver_match.url_name == 'master-event-list' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
+                  <span class="sidebar-text">{% translate "Manifestations" %}</span>
+                </a>
+              </li>
+              <li>
                 <a href="{% url 'event-index' %}"
                    data-label="{% trans "Events" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
@@ -358,6 +374,14 @@
                 <a href="{% url 'location-create' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'location-create' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                   {% trans "Add location" %}
+                </a>
+                <a href="{% url 'appointment-search' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'appointment-search' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                  {% translate "Search" %}
+                </a>
+                <a href="{% url 'master-event-list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'master-event-list' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
+                  {% translate "Manifestations" %}
                 </a>
                 <a href="{% url 'event-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>

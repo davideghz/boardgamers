@@ -6826,3 +6826,6 @@ msgstr "Trova eventi, tavoli di gioco e manifestazioni su Board Gamers."
 msgctxt "appointment search result"
 msgid "Table"
 msgstr "Tavolo"
+
+msgid "See all manifestations"
+msgstr "Vedi tutte le manifestazioni"
