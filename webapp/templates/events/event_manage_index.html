@@ -88,6 +88,10 @@
 
   <div class="max-w-xl space-y-2">
 
+    {% if event.master_event %}
+      {% include "events/_event_master_link.html" %}
+    {% endif %}
+
     {% if event.has_external_venue %}
       {% include "events/_venue_layout_request.html" %}
     {% endif %}

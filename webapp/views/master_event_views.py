@@ -127,7 +127,7 @@ def edit(request, slug=None):
         'manager_form': AddEventManagerForm(),
         'sponsors': master.sponsors.all() if master.pk else (),
         'linked_events': master.events.select_related('organizer_location').order_by('name', 'pk') if master.pk else (),
-        'linkable_events': linkable_events(request.user).select_related('organizer_location').order_by(
+        'linkable_events': linkable_events(request.user, master).select_related('organizer_location').order_by(
             'name', 'pk') if master.pk else (),
         'meta': Meta(title=master.name or _('Create manifestation')),
     })
@@ -223,7 +223,7 @@ def link(request, slug):
         event_id = int(request.POST['remove' if unlink else 'event'])
     except (KeyError, ValueError):
         raise Http404
-    events = master.events.all() if unlink else linkable_events(request.user)
+    events = master.events.all() if unlink else linkable_events(request.user, master)
     event = get_object_or_404(events, pk=event_id)
     try:
         set_master(event, master, request.user, unlink=unlink)

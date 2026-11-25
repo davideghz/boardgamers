@@ -33,6 +33,7 @@ from phonenumber_field.phonenumber import to_python
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventParticipantDate, EventTableCategory, EventGame, EventGameTag
 from webapp.services.event_attendance import attendance_by_day, select_event_days
 from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
+from webapp.services.master_events import set_master
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.views.table_views import BaseTableDetailView, remove_layout_resource, warn_station_conflict
 
@@ -923,6 +924,20 @@ class EventUnpublishView(EventManagerMixin, View):
             event.status = Event.DRAFT
             event.save(update_fields=['status', 'updated_at'])
             messages.success(request, _("The event is back to draft and no longer visible to the public."))
+        return redirect('event-manage', slug=slug)
+
+
+class EventMasterUnlinkView(EventManagerMixin, View):
+    """Let the organizer take the event out of the manifestation it is linked to."""
+
+    def post(self, request, slug):
+        event = self._get_event()
+        # The page may be stale: only leave the manifestation it showed.
+        if event.master_event_id is None or request.POST.get('master') != str(event.master_event_id):
+            messages.error(request, _('The event is no longer linked to this manifestation.'))
+        else:
+            set_master(event, event.master_event, request.user, unlink=True)
+            messages.success(request, _('Event unlinked.'))
         return redirect('event-manage', slug=slug)
 
 

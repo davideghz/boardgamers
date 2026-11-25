@@ -1,13 +1,13 @@
 from datetime import date, time
 
 from django.contrib.auth.models import Permission
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.test import TestCase
 from django.urls import reverse
 
 from webapp.factories import LocationFactory, UserProfileFactory
-from webapp.models import MasterEvent, MasterEventDate
+from webapp.models import Event, MasterEvent, MasterEventDate
 from webapp.services.profile_merge import merge_accounts
 
 
@@ -120,6 +120,39 @@ class MasterEventTest(TestCase):
         self.assertTrue(master.is_published)
         self.assertEqual(master.approved_by, admin)
         self.assertIsNotNone(master.approved_at)
+
+    def test_admin_can_hide_a_published_manifestation_until_a_new_approval(self):
+        admin = UserProfileFactory(user__is_staff=True, user__is_superuser=True).user
+        master = MasterEvent.objects.create(name='Festa', description='Giochi', venue_location=LocationFactory())
+        MasterEventDate.objects.create(master_event=master, date=date(2030, 5, 3))
+        index = reverse('admin:webapp_masterevent_changelist')
+
+        def run(action):
+            self.client.force_login(admin)
+            self.client.post(index, {'action': action, '_selected_action': [master.pk]})
+            self.client.logout()
+            master.refresh_from_db()
+
+        for action, status in (('back_to_draft', Event.DRAFT), ('block', Event.BLOCKED)):
+            with self.subTest(action=action):
+                run('approve_publication')
+                self.assertTrue(master.is_published)
+                self.assertContains(self.client.get(master.get_absolute_url()), 'Festa')
+                run(action)
+                self.assertEqual(master.status, status)
+                self.assertIsNone(master.approved_by)
+                self.assertIsNone(master.approved_at)
+                self.assertEqual(self.client.get(master.get_absolute_url()).status_code, 404)
+                self.assertNotContains(self.client.get(reverse('master-event-list')), 'Festa')
+        run('approve_publication')
+        self.assertEqual(master.status, Event.BLOCKED)
+        run('back_to_draft')
+        run('approve_publication')
+        self.assertTrue(master.is_published)
+
+        reviewer = UserProfileFactory(user__is_staff=True).user
+        with self.assertRaises(PermissionDenied):
+            master.withdraw(reviewer, Event.BLOCKED)
 
     def test_edit_hours_and_guard_the_last_public_day(self):
         manager = UserProfileFactory()
