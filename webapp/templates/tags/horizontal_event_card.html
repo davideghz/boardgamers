@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<a href="{{ event.get_absolute_url }}"
+   class="flex items-center gap-3 rounded-xl border border-divider bg-surface p-3 hover:shadow-md transition-shadow">
+  <img loading="lazy" decoding="async" src="{{ event.cover_url }}" alt=""
+       class="h-20 w-20 shrink-0 rounded-xl border border-divider bg-surface-input object-cover">
+  <div class="min-w-0 flex-1 space-y-1">
+    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+      <p class="text-[10px] font-semibold uppercase tracking-wide text-content-muted">
+        <time datetime="{{ event.matching_date|date:'Y-m-d' }}{% if event.matching_time %}T{{ event.matching_time|time:'H:i' }}{% endif %}">
+          {{ event.matching_date|date:"D j M Y" }}{% if event.matching_time %} · {{ event.matching_time|time:"H:i" }}{% endif %}
+        </time>
+      </p>
+      <span class="shrink-0 rounded-full bg-surface-input px-2 py-0.5 text-[10px] font-bold text-content-muted">
+        {% trans "Event" %}
+      </span>
+    </div>
+    <p class="truncate text-sm font-bold text-content">{{ event.name }}</p>
+    <p class="text-xs text-content-muted">{% trans "Organizing location" %} · {{ event.organizer_location.name }}</p>
+    {% if event.venue_label and not event.is_at_organizer_location %}<p class="text-xs text-content-muted">{% trans "Venue" %} · {{ event.venue_label }}</p>{% endif %}
+    {% if event.master_event.is_published %}<p class="text-xs text-content-muted">{{ event.master_event.name }}</p>{% endif %}
+  </div>
+</a>

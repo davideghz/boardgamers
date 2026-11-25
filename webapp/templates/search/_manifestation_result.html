@@ -1,0 +1,9 @@
+{% load i18n %}
+<a href="{{ event.get_absolute_url }}" class="flex gap-3 items-center rounded-xl border border-divider bg-surface p-3 hover:shadow-md">
+  {% if event.venue_location %}<img loading="lazy" src="{{ event.venue_location.cover_url }}" alt="" class="h-20 w-20 shrink-0 rounded-xl border border-divider bg-surface-input object-cover">{% endif %}
+  <div class="min-w-0 space-y-1">
+    {% if event.matching_date %}<time class="text-xs text-content-muted" datetime="{{ event.matching_date|date:'Y-m-d' }}">{{ event.matching_date|date:"D j M Y" }}{% if event.matching_time %} · {{ event.matching_time|time:"H:i" }}{% endif %}</time>{% endif %}
+    <p class="text-sm font-bold text-content">{{ event.name }}</p>
+    <p class="text-xs text-content-muted">{% translate "Manifestation" %}{% if event.venue_label %} · {{ event.venue_label }}{% endif %}</p>
+  </div>
+</a>
