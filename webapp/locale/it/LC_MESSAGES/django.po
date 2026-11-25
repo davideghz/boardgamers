@@ -6320,6 +6320,33 @@ msgstr "Sponsor aggiornato."
 msgid "Sponsor removed."
 msgstr "Sponsor rimosso."
 
+msgid "Unique people expected"
+msgstr "Persone uniche previste"
+
+msgid "Expected daily attendances"
+msgstr "Presenze giornaliere previste"
+
+msgid "Your manifestation dates"
+msgstr "Le tue giornate alla manifestazione"
+
+msgid "To cancel a direct registration, uncheck its date and save."
+msgstr "Per annullare un’adesione diretta, deseleziona la giornata e salva."
+
+msgid "Save registration"
+msgstr "Salva adesione"
+
+msgid "Registration is closed."
+msgstr "Le iscrizioni sono chiuse."
+
+msgid "Manifestation registration updated."
+msgstr "Adesione alla manifestazione aggiornata."
+
+#, python-format
+msgid "%(count)s expected attendee"
+msgid_plural "%(count)s expected attendees"
+msgstr[0] "%(count)s presenza prevista"
+msgstr[1] "%(count)s presenze previste"
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

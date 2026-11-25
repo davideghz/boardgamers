@@ -2342,6 +2342,9 @@ class MasterEvent(DateTimeModel, SlugModel):
         return self.venue_location.name if self.venue_location_id else self.venue_name
 
     def validate_unused_dates(self, dates):
+        if MasterEventDateParticipant.objects.filter(
+                master_event_date__master_event=self, master_event_date__date__in=dates).exists():
+            raise ValidationError(_('This date has registrations.'))
         if self.events.filter(dates__date__in=dates).exists():
             raise ValidationError(_('A linked event uses this date.'))
 
@@ -2395,6 +2398,17 @@ class MasterEventDate(models.Model):
                 if previous.date != self.date:
                     master.validate_unused_dates([previous.date])
             return super().save(*args, **kwargs)
+
+
+class MasterEventDateParticipant(DateTimeModel):
+    master_event_date = models.ForeignKey(MasterEventDate, on_delete=models.CASCADE, related_name='participants')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='master_event_registrations')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('master_event_date', 'user_profile'),
+                                    name='master_event_participant_day_once'),
+        ]
 
 
 class PlayArea(DateTimeModel):

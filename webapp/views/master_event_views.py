@@ -9,12 +9,14 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods, require_POST, require_safe
 from meta.views import Meta
 
 from webapp.forms import AddEventManagerForm, EventDateForm, MasterEventForm, SponsorForm
-from webapp.models import Event, MasterEvent, MasterEventDate
+from webapp.models import Event, MasterEvent, MasterEventDate, MasterEventDateParticipant
+from webapp.services.event_attendance import manifestation_attendance
 from webapp.services.master_catalog import MasterCatalog
 from webapp.services.master_events import linkable_events, public_children, public_program, set_master
 
@@ -55,11 +57,28 @@ def visible_master(request, slug):
 @require_safe
 def detail(request, slug):
     master, can_manage, can_approve = visible_master(request, slug)
+    days = list(master.dates.all())
+    attendance = manifestation_attendance(master, days)
+    today = timezone.localdate()
+    registration_open = master.is_published and any(day.date >= today for day in days)
+    can_register = registration_open and request.user.is_authenticated
+    selected = set()
+    if can_register:
+        selected = set(request.user.user_profile.master_event_registrations.filter(
+            master_event_date__master_event=master, master_event_date__date__gte=today,
+        ).values_list('master_event_date_id', flat=True))
+    for day in days:
+        day.expected = len(attendance[day.date])
+        day.selectable = can_register and day.date >= today
+        day.selected = day.pk in selected
     return render(request, 'masters/detail.html', {
         'master': master, 'can_manage': can_manage, 'can_approve': can_approve and master.status == Event.DRAFT,
         'events': public_children(master), 'tables': public_program(master),
         'sponsors': master.sponsors.all(),
         'has_catalog': MasterCatalog(master).games().exists(),
+        'days': days, 'registration_open': registration_open, 'can_register': can_register,
+        'unique_people': len(set().union(*attendance.values())),
+        'person_days': sum(map(len, attendance.values())),
         'meta': Meta(title=master.name),
     })
 
@@ -117,6 +136,33 @@ def edit(request, slug=None):
 @login_required
 @require_POST
 @transaction.atomic
+def register(request, slug):
+    master = get_object_or_404(MasterEvent.objects.select_for_update(), slug=slug, status=Event.PUBLISHED)
+    destination = master.get_absolute_url() + '#manifestation-attendance'
+    eligible = set(master.dates.filter(date__gte=timezone.localdate()).values_list('pk', flat=True))
+    if not eligible:
+        messages.error(request, _('Registration is closed.'))
+        return redirect(destination)
+    try:
+        selected = {int(value) for value in request.POST.getlist('days')}
+    except ValueError:
+        selected = None
+    if selected is None or selected - eligible:
+        messages.error(request, _('Choose a date in the manifestation calendar.'))
+        return redirect(destination)
+
+    profile = request.user.user_profile
+    profile.master_event_registrations.filter(master_event_date_id__in=eligible - selected).delete()
+    MasterEventDateParticipant.objects.bulk_create([
+        MasterEventDateParticipant(user_profile=profile, master_event_date_id=pk) for pk in selected
+    ], ignore_conflicts=True)
+    messages.success(request, _('Manifestation registration updated.'))
+    return redirect(destination)
+
+
+@login_required
+@require_POST
+@transaction.atomic
 def calendar(request, slug):
     master = managed_master(request, slug, lock=True)
     if request.POST.get('remove'):
@@ -126,7 +172,8 @@ def calendar(request, slug):
             raise Http404
         day = get_object_or_404(master.dates, pk=day_id)
         try:
-            day.delete()
+            with transaction.atomic():
+                day.delete()
         except ValidationError as error:
             messages.error(request, error.messages[0])
         else:
