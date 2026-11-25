@@ -7,7 +7,7 @@ from social_django.models import UserSocialAuth
 
 from webapp.models import (
     Comment, Event, EventParticipant, EventParticipantDate, FavoriteUser, GuestProfile,
-    Location, LocationFollower, LocationGameLoan, Member, Membership, Notification,
+    Location, LocationFollower, LocationGameLoan, MasterEvent, Member, Membership, Notification,
     Player, PushSubscription, Table, UserProfile,
 )
 
@@ -99,6 +99,7 @@ def _merge_profile_data(keeper, duplicate):
         (PushSubscription, 'user_profile', 'endpoint'),
         (Location.managers.through, 'userprofile', 'location_id'),
         (Event.managers.through, 'userprofile', 'event_id'),
+        (MasterEvent.managers.through, 'userprofile', 'masterevent_id'),
         (Event.allowed_table_creators.through, 'userprofile', 'event_id'),
     ):
         existing = model.objects.filter(**{field: keeper}).values(key)

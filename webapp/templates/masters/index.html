@@ -1,0 +1,37 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags %}
+
+{% block content %}
+  <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      {% back_link 'event-index' label=_("Events") %}
+      <h1 class="text-2xl font-extrabold text-content">{% translate "Manifestations" %}</h1>
+    </div>
+    {% if user.is_authenticated %}
+      <a class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+         href="{% url 'master-event-create' %}">{% translate "Create manifestation" %}</a>
+    {% endif %}
+  </header>
+
+  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    {% for master in page_obj %}
+      <li>
+        <a href="{{ master.get_absolute_url }}" class="block h-full rounded-xl border border-divider bg-surface p-4 hover:bg-surface-alt">
+          <h2 class="break-words text-base font-bold text-content">{{ master.name }}</h2>
+          {% if not master.is_published %}
+            <p class="mt-1 text-sm font-semibold text-content-muted">{{ master.get_status_display }}</p>
+          {% endif %}
+          {% if master.venue_label %}<p class="mt-1 text-sm text-content-soft">{{ master.venue_label }}</p>{% endif %}
+          {% if master.dates.all %}
+            <p class="mt-2 text-sm text-content-muted">
+              {% for day in master.dates.all %}{{ day.date|date:"j M Y" }}{% if not forloop.last %} · {% endif %}{% endfor %}
+            </p>
+          {% endif %}
+        </a>
+      </li>
+    {% empty %}
+      <li class="text-sm text-content-muted">{% translate "No manifestations yet." %}</li>
+    {% endfor %}
+  </ul>
+  {% include "partials/_pagination.html" %}
+{% endblock %}

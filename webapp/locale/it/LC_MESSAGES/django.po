@@ -6175,6 +6175,58 @@ msgid_plural "%(n)s people expected"
 msgstr[0] "%(n)s persona attesa"
 msgstr[1] "%(n)s persone attese"
 
+msgid "Manifestation"
+msgstr "Manifestazione"
+
+msgid "Manifestations"
+msgstr "Manifestazioni"
+
+msgid "Create manifestation"
+msgstr "Crea manifestazione"
+
+msgid "View manifestation"
+msgstr "Vedi manifestazione"
+
+msgid "No manifestations yet."
+msgstr "Ancora nessuna manifestazione."
+
+msgid "Approve publication"
+msgstr "Approva la pubblicazione"
+
+#, python-format
+msgid "%(name)s was published."
+msgstr "«%(name)s» è stata pubblicata."
+
+msgid "Publication requires a description and a complete venue."
+msgstr "Per pubblicare servono una descrizione e un luogo completo."
+
+msgid "Only drafts can be approved."
+msgstr "Puoi approvare solo le manifestazioni in bozza."
+
+msgid "A published manifestation needs at least one date."
+msgstr "Una manifestazione pubblicata deve avere almeno una giornata."
+
+msgid "A date cannot be moved to another manifestation."
+msgstr "Una giornata deve restare nella sua manifestazione."
+
+msgid "Edit hours"
+msgstr "Modifica orari"
+
+msgid "Save date"
+msgstr "Salva giornata"
+
+msgid "Date saved."
+msgstr "Giornata salvata."
+
+msgid "No dates yet."
+msgstr "Ancora nessuna giornata."
+
+msgid "Invalid date or times."
+msgstr "Data o orari non validi."
+
+msgid "Keep at least one manager."
+msgstr "Mantieni almeno un gestore."
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

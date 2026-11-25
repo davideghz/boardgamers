@@ -2244,6 +2244,100 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         ]
 
 
+class MasterEvent(DateTimeModel, SlugModel):
+    slug_field_name = 'name'
+    regenerate_slug_on_rename = False
+    name = models.CharField(max_length=255, verbose_name=_('Name'))
+    slug = models.SlugField(max_length=144, unique=True, blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    venue_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='master_events_at_venue',
+                                       null=True, blank=True, verbose_name=_('Venue location'))
+    venue_name = models.CharField(max_length=255, blank=True, verbose_name=_('Venue name'))
+    address = models.CharField(max_length=255, blank=True, verbose_name=_('Address'))
+    city = models.CharField(max_length=144, blank=True, verbose_name=_('City'))
+    latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True, verbose_name=_('Latitude'),
+                                   validators=[MinValueValidator(-90), MaxValueValidator(90)])
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True, verbose_name=_('Longitude'),
+                                    validators=[MinValueValidator(-180), MaxValueValidator(180)])
+    managers = models.ManyToManyField(UserProfile, related_name='managed_master_events', blank=True)
+    status = models.CharField(max_length=20, choices=Event.STATUS_CHOICES, default=Event.DRAFT)
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False)
+    approved_at = models.DateTimeField(null=True, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = _('Manifestation')
+        verbose_name_plural = _('Manifestations')
+        ordering = ['name', 'pk']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('master-event-detail', args=[self.slug])
+
+    def can_manage(self, user):
+        return user.is_authenticated and (user.is_superuser or self.managers.filter(user=user).exists())
+
+    @staticmethod
+    def can_approve(user):
+        return user.is_staff and user.has_perm('webapp.change_masterevent')
+
+    @property
+    def is_published(self):
+        return self.status == Event.PUBLISHED
+
+    @property
+    def venue_label(self):
+        return self.venue_location.name if self.venue_location_id else self.venue_name
+
+    def clean(self):
+        super().clean()
+        if self.is_published and (not self.description.strip() or not (
+                self.venue_location_id or (self.venue_name.strip() and self.address.strip()
+                                          and self.latitude is not None and self.longitude is not None))):
+            raise ValidationError(_('Publication requires a description and a complete venue.'))
+
+    @transaction.atomic
+    def approve(self, user):
+        from django.core.exceptions import PermissionDenied
+        if not self.can_approve(user):
+            raise PermissionDenied
+        master = MasterEvent.objects.select_for_update().get(pk=self.pk)
+        if master.is_published:
+            return False
+        if master.status != Event.DRAFT:
+            raise ValidationError(_('Only drafts can be approved.'))
+        if not master.dates.exists():
+            raise ValidationError(_('Add at least one date'))
+        master.status = Event.PUBLISHED
+        master.full_clean()
+        master.approved_by = user
+        master.approved_at = timezone.now()
+        master.save(update_fields=['status', 'approved_by', 'approved_at', 'updated_at'])
+        return True
+
+
+class MasterEventDate(models.Model):
+    master_event = models.ForeignKey(MasterEvent, on_delete=models.CASCADE, related_name='dates')
+    date = models.DateField(verbose_name=_('Date'))
+    opening_time = models.TimeField(null=True, blank=True, verbose_name=_('Opening time'))
+    closing_time = models.TimeField(null=True, blank=True, verbose_name=_('Closing time'))
+
+    class Meta:
+        ordering = ['date']
+        constraints = [models.UniqueConstraint(fields=('master_event', 'date'), name='master_event_date_once')]
+
+    def __str__(self):
+        return f'{self.master_event} — {self.date}'
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            MasterEvent.objects.select_for_update().only('pk').get(pk=self.master_event_id)
+            if self.pk and MasterEventDate.objects.filter(pk=self.pk).exclude(master_event_id=self.master_event_id).exists():
+                raise ValidationError(_('A date cannot be moved to another manifestation.'))
+            return super().save(*args, **kwargs)
+
+
 class PlayArea(DateTimeModel):
     """A room or zone where tables are played, owned by an event or a location."""
     event = models.ForeignKey(

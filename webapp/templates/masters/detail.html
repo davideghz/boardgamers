@@ -1,0 +1,52 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags %}
+
+{% block content %}
+  {% back_link 'master-event-list' label=_("Manifestations") %}
+  <div class="max-w-3xl space-y-5">
+    <header>
+      <h1 class="break-words text-3xl font-extrabold text-content">{{ master.name }}</h1>
+      {% if master.venue_label %}
+        <p class="mt-1 text-sm text-content-soft">
+          {% if master.venue_location %}
+            <a href="{% url 'location-detail' master.venue_location.slug %}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ master.venue_label }}</a>
+            {% if master.venue_location.address %} · {{ master.venue_location.address }}{% endif %}
+          {% else %}
+            {{ master.venue_label }}{% if master.address %} · {{ master.address }}{% endif %}
+          {% endif %}
+        </p>
+      {% endif %}
+      {% if can_manage or can_approve or not master.is_published %}
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          {% if not master.is_published %}<span class="text-sm font-semibold text-content-muted">{{ master.get_status_display }}</span>{% endif %}
+          {% if can_manage %}
+            <a href="{% url 'master-event-manage' master.slug %}" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">
+              {% translate "Manage" %}
+            </a>
+          {% endif %}
+          {% if can_approve %}
+            <form method="post" action="{% url 'master-event-approve' master.slug %}">
+              {% csrf_token %}
+              <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Approve publication" %}</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
+    </header>
+    {% if master.description %}<div class="text-content">{{ master.description|render_markdown }}</div>{% endif %}
+
+    <section class="rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <h2 class="font-bold text-content">{% translate "Dates" %}</h2>
+      <ul class="mt-2 divide-y divide-divider">
+        {% for day in master.dates.all %}
+          <li class="flex flex-wrap items-baseline justify-between gap-x-3 py-2 text-sm">
+            <span class="font-semibold text-content">{{ day.date|date:"l j F Y" }}</span>
+            {% include "masters/_date_hours.html" with day=day only %}
+          </li>
+        {% empty %}
+          <li class="py-2 text-sm text-content-muted">{% translate "No dates yet." %}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+{% endblock %}

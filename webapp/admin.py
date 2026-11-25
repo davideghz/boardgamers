@@ -18,7 +18,7 @@ from webapp.fields import NetworkLogoImageField
 from webapp.forms import BannerChangeListForm, BannerForm, LocationPermissionsForm, NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
     Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
-    TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, \
+    TelegramSetupToken, Event, MasterEvent, PlayArea, EventDate, PushSubscription, \
     PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services import games as game_services
 from webapp.services import profile_merge
@@ -568,6 +568,25 @@ class EventAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
             _participant_count=models.Count('participants', distinct=True))
+
+
+@admin.register(MasterEvent)
+class MasterEventAdmin(admin.ModelAdmin):
+    list_display = ('name', 'status', 'approved_by', 'approved_at')
+    list_filter = ('status',)
+    search_fields = ('name',)
+    readonly_fields = ('slug', 'status', 'approved_by', 'approved_at')
+    filter_horizontal = ('managers',)
+    actions = ('approve_publication',)
+
+    @admin.action(description=_('Approve publication'), permissions=['change'])
+    def approve_publication(self, request, queryset):
+        for master in queryset:
+            try:
+                if master.approve(request.user):
+                    self.message_user(request, _('%(name)s was published.') % {'name': master.name}, messages.SUCCESS)
+            except ValidationError as error:
+                self.message_user(request, f"{master}: {' '.join(error.messages)}", messages.ERROR)
 
 
 @admin.register(EventGameTag)
