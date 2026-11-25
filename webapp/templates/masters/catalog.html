@@ -1,0 +1,62 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags %}
+
+{% block content %}
+  {% back_link 'master-event-detail' master.slug label=master.name %}
+  <h1 class="text-2xl font-extrabold text-content">{% translate "Game catalog" %}</h1>
+
+  <form method="get" role="search" class="my-4 flex max-w-xl items-center gap-2">
+    {% translate "Search by game name…" as search_label %}
+    <label class="sr-only" for="catalog-search">{{ search_label }}</label>
+    <input type="search" id="catalog-search" name="q" value="{{ q }}" placeholder="{{ search_label }}"
+           class="min-w-0 flex-1 rounded-xl border border-divider bg-surface px-3 py-2.5 text-sm text-content placeholder:text-content-muted">
+    <button type="submit" class="rounded-xl bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700">{% translate "Search" %}</button>
+  </form>
+  {% if q %}
+    <div class="mb-3 flex flex-wrap justify-between gap-2 text-xs text-content-muted">
+      <span>{% blocktranslate count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktranslate %}</span>
+      <a href="{% url 'master-event-games' master.slug %}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{% translate "Clear filters" %}</a>
+    </div>
+  {% endif %}
+
+  {% if entries %}
+    <ul class="grid items-start gap-3 sm:grid-cols-2">
+      {% for entry in entries %}
+        <li class="min-w-0 break-words rounded-xl border border-divider bg-surface p-4">
+          <div class="flex items-center gap-3">
+            {% if entry.game.image %}
+              <img src="{{ entry.game.cover_url }}" alt="" loading="lazy" class="h-12 w-12 shrink-0 rounded-md object-contain">
+            {% endif %}
+            <h2 class="min-w-0 font-bold text-content">
+              <a href="{% url 'game-detail' entry.game.slug %}" class="hover:underline">{{ entry.game.name }}</a>
+            </h2>
+          </div>
+          <ul class="mt-2 divide-y divide-divider">
+            {% for offer in entry.offers %}
+              <li class="py-2 text-sm">
+                <a href="{{ offer.event.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ offer.event.name }}</a>
+                <p class="text-content-muted">{{ offer.event.organizer_location.name }}</p>
+                {% if offer.tables %}
+                  <ul class="mt-2 space-y-1">
+                    {% for table in offer.tables %}
+                      <li>
+                        <a href="{{ table.get_absolute_url }}" class="flex flex-wrap gap-x-2 text-xs hover:underline">
+                          <span class="tabular-nums text-content-muted">{{ table.date|date:"j M Y" }} · {{ table.time|time:"H:i" }}</span>
+                          <span class="text-blue-600 dark:text-blue-400">{{ table.title }}</span>
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-content-muted">{% if q %}{% translate "No games found." %}{% else %}{% translate "No games in the library yet." %}{% endif %}</p>
+  {% endif %}
+
+  {% include "partials/_pagination.html" %}
+{% endblock %}

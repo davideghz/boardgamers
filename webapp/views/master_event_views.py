@@ -15,6 +15,7 @@ from meta.views import Meta
 
 from webapp.forms import AddEventManagerForm, EventDateForm, MasterEventForm, SponsorForm
 from webapp.models import Event, MasterEvent, MasterEventDate
+from webapp.services.master_catalog import MasterCatalog
 from webapp.services.master_events import linkable_events, public_children, public_program, set_master
 
 
@@ -42,18 +43,41 @@ def index(request):
     })
 
 
-@require_safe
-def detail(request, slug):
-    master = get_object_or_404(MasterEvent.objects.select_related('venue_location').prefetch_related('dates'), slug=slug)
+def visible_master(request, slug):
+    master = get_object_or_404(MasterEvent.objects.select_related('venue_location'), slug=slug)
     can_manage = master.can_manage(request.user)
     can_approve = MasterEvent.can_approve(request.user)
     if not (master.is_published or can_manage or can_approve):
         raise Http404
+    return master, can_manage, can_approve
+
+
+@require_safe
+def detail(request, slug):
+    master, can_manage, can_approve = visible_master(request, slug)
     return render(request, 'masters/detail.html', {
         'master': master, 'can_manage': can_manage, 'can_approve': can_approve and master.status == Event.DRAFT,
         'events': public_children(master), 'tables': public_program(master),
         'sponsors': master.sponsors.all(),
+        'has_catalog': MasterCatalog(master).games().exists(),
         'meta': Meta(title=master.name),
+    })
+
+
+@require_safe
+def catalog(request, slug):
+    master, *_permissions = visible_master(request, slug)
+    catalog = MasterCatalog(master)
+    games = catalog.games()
+    q = request.GET.get('q', '').strip()
+    if q:
+        games = games.filter(name__icontains=q)
+    paginator = Paginator(games, 24)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'masters/catalog.html', {
+        'master': master, 'entries': catalog.entries(page_obj.object_list), 'q': q,
+        'page_obj': page_obj, 'paginator': paginator, 'is_paginated': page_obj.has_other_pages(),
+        'meta': Meta(title=_('Game catalog – %(name)s') % {'name': master.name}),
     })
 
 

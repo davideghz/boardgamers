@@ -11,7 +11,7 @@ from datetime import date
 from django.db.models import Exists, Min, OuterRef, Prefetch, Q
 from django.utils import timezone
 
-from webapp.models import EventGame, Game, Location, LocationGame, Table
+from webapp.models import Event, EventGame, Game, Location, LocationGame, Table
 from webapp.services.game_loans import with_game_loan_status
 
 #: Games shown on the event page, the rest are one click away in the library.
@@ -33,20 +33,31 @@ def library_queryset(event):
     )
 
 
-def effective_catalog(event):
-    """The games of the event's catalog, by name.
+def catalog_game_sources(events):
+    """Select the inventory and event selections that make up these catalogs."""
+    archived = LocationGame.objects.filter(
+        location_id=OuterRef('event__organizer_location_id'), game_id=OuterRef('game_id'), is_archived=True,
+    )
+    scheduled = Table.objects.filter(event_id=OuterRef('event_id'), game_id=OuterRef('game_id'))
+    # Library-mode events keep a withdrawn title only when one of their tables plays it.
+    selections = EventGame.objects.filter(event__in=events).exclude(
+        Event.location_catalog_condition('event__') & Q(Exists(archived)) & ~Q(Exists(scheduled)),
+    )
+    inventory = LocationGame.objects.filter(
+        is_archived=False, location__organized_events__in=events.filter(Event.location_catalog_condition()),
+    )
+    return selections, inventory
 
-    With the organizing location's library, these are its active titles plus the
-    games selected for the event, which include those of its tables. A title
-    withdrawn from that library stays out, unless a table of the event plays it."""
-    selected = EventGame.objects.filter(event=event, game_id=OuterRef('pk'))
-    condition = Q(Exists(selected))
-    if event.uses_location_library:
-        inventory = LocationGame.objects.filter(location_id=event.organizer_location_id, game_id=OuterRef('pk'))
-        tables = Table.objects.filter(event=event, game_id=OuterRef('pk')).order_by()
-        condition &= ~Q(Exists(inventory.filter(is_archived=True))) | Q(Exists(tables))
-        condition |= Q(Exists(inventory.filter(is_archived=False)))
-    return Game.objects.filter(condition).defer('description').order_by('name', 'pk')
+
+def games_from_catalog_sources(selections, inventory):
+    return Game.objects.filter(
+        Exists(selections.filter(game_id=OuterRef('pk'))) | Exists(inventory.filter(game_id=OuterRef('pk'))),
+    ).defer('description').order_by('name', 'pk')
+
+
+def effective_catalog(event):
+    """The games of the event's catalog, by name."""
+    return games_from_catalog_sources(*catalog_game_sources(Event.objects.filter(pk=event.pk)))
 
 
 @dataclass
