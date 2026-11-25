@@ -21,17 +21,22 @@ def select_event_days(event, profile, ids):
     if not selected or selected - eligible:
         raise ValidationError(_('Choose one of the event dates.'))
     participant, created = EventParticipant.objects.get_or_create(event=event, user_profile=profile)
-    participant.selected_dates.filter(event_date_id__in=eligible - selected).delete()
+    participant.selected_dates.filter(event_date_id__in=eligible - selected, inferred_from_booking=False).delete()
     EventParticipantDate.objects.bulk_create([
         EventParticipantDate(participant=participant, event_date_id=pk) for pk in selected
     ], ignore_conflicts=True)
+    participant.selected_dates.filter(
+        event_date_id__in=selected, inferred_from_booking=True,
+    ).update(inferred_from_booking=False)
     return created
 
 
 def attendance_by_day(events, *, public=False):
     """A stable user or guest identity per day, across all the supplied events."""
     days = defaultdict(set)
-    selections = EventParticipantDate.objects.filter(participant__event__in=events).order_by().values_list(
+    selections = EventParticipantDate.objects.filter(
+        participant__event__in=events, inferred_from_booking=False,
+    ).order_by().values_list(
         'event_date__date', 'participant__user_profile_id').distinct()
     for day, person in selections:
         days[day].add(('profile', person))

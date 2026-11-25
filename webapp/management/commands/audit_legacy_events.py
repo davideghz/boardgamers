@@ -48,6 +48,7 @@ def audit_event(event):
         # Even a single sponsor is not evidence that they organized the event.
         'mapping': {'organizer_location_id': None, 'classification': None, 'master_slug': None},
         'venue': {
+            'name': event.venue_name, 'location_id': event.venue_location_id,
             'address': event.address, 'city': event.city,
             'latitude': event.latitude, 'longitude': event.longitude,
         },
@@ -85,6 +86,7 @@ class Command(BaseCommand):
     help = (
         'Audit legacy events and prepare a JSON mapping for review. All organizer and classification '
         'choices are left blank. Review each as standalone or master_child (with a master_slug). '
+        'Apply a reviewed report with map_legacy_events. '
         'Booking dates are evidence from tables, not explicit selections.'
     )
 

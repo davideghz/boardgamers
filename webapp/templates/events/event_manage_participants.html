@@ -46,7 +46,7 @@
               {% if event.organizer_location_id %}
                 <p class="mt-1 text-xs text-content-muted">
                   {% for selection in p.selected_dates.all %}
-                    {{ selection.event_date.date|date:"j M" }}{% if not forloop.last %} · {% endif %}
+                    {{ selection.event_date.date|date:"j M" }}{% if selection.inferred_from_booking %} ({% translate "From a booking" %}){% endif %}{% if not forloop.last %} · {% endif %}
                   {% empty %}
                     {% translate "No dates selected" %}
                   {% endfor %}
