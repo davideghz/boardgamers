@@ -6347,6 +6347,9 @@ msgid_plural "%(count)s expected attendees"
 msgstr[0] "%(count)s presenza prevista"
 msgstr[1] "%(count)s presenze previste"
 
+msgid "From a booking"
+msgstr "Da una prenotazione"
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

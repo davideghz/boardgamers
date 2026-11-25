@@ -74,9 +74,16 @@ def _merge_event_participations(keeper, duplicate):
             EventParticipant.objects.select_for_update().filter(user_profile=keeper)}
     incoming = EventParticipant.objects.filter(user_profile=duplicate)
     for participant in incoming.select_for_update().filter(event_id__in=kept).prefetch_related('selected_dates'):
+        target = kept[participant.event_id]
+        selections = list(participant.selected_dates.all())
+        explicit_ids = [selection.event_date_id for selection in selections if not selection.inferred_from_booking]
+        target.selected_dates.filter(event_date_id__in=explicit_ids, inferred_from_booking=True).update(
+            inferred_from_booking=False,
+        )
         EventParticipantDate.objects.bulk_create([
-            EventParticipantDate(participant=kept[participant.event_id], event_date_id=selection.event_date_id)
-            for selection in participant.selected_dates.all()
+            EventParticipantDate(participant=target, event_date_id=selection.event_date_id,
+                                 inferred_from_booking=selection.inferred_from_booking)
+            for selection in selections
         ], ignore_conflicts=True)
         participant.delete()
     incoming.update(user_profile=keeper)

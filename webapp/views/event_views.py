@@ -216,12 +216,13 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         if event.organizer_location_id:
             context['registration_dates'] = [day for day in event_dates if day.date >= today]
             context['selected_days'] = set(
-                participant.selected_dates.values_list('event_date_id', flat=True) if participant else ())
+                participant.selected_dates.filter(inferred_from_booking=False).values_list(
+                    'event_date_id', flat=True) if participant else ())
             days = attendance_by_day([event], public=not (context['is_manager'] or self.request.user.is_superuser))
             attendees = set().union(*days.values())
-            # Keep older registrations in the total without assigning them a day.
-            attendees.update(('profile', profile_id) for profile_id in event.participants.filter(
-                selected_dates__isnull=True).values_list('user_profile_id', flat=True))
+            # Keep registrations without an explicit day in the total, even when a booking suggested one.
+            attendees.update(('profile', profile_id) for profile_id in event.participants.exclude(
+                selected_dates__inferred_from_booking=False).values_list('user_profile_id', flat=True))
             context['participant_count'] = len(attendees)
         else:
             context['participant_count'] = event.participants.count()

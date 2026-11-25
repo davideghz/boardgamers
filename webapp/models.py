@@ -2651,6 +2651,7 @@ class EventParticipant(DateTimeModel):
 class EventParticipantDate(models.Model):
     participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE, related_name='selected_dates')
     event_date = models.ForeignKey(EventDate, on_delete=models.CASCADE, related_name='attendances')
+    inferred_from_booking = models.BooleanField(default=False, db_default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('participant', 'event_date'), name='event_participant_day_once')]
