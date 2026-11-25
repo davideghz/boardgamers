@@ -136,9 +136,8 @@ def notify_players_on_new_player(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Player)
 def register_event_participation_on_join(sender, instance, created, **kwargs):
-    """When a user joins a table belonging to an event, ensure they are also
-    registered as a participant of that event."""
-    if created and instance.user_profile_id and instance.table.event_id:
+    """Keep automatic event registrations for events still using the legacy flow."""
+    if created and instance.user_profile_id and instance.table.event_id and not instance.table.event.organizer_location_id:
         EventParticipant.objects.get_or_create(
             event_id=instance.table.event_id,
             user_profile_id=instance.user_profile_id,

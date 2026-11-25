@@ -30,7 +30,8 @@ from webapp.views.table_views import _links_formset_open
 from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventTableCategory, EventGame, EventGameTag
+from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventParticipantDate, EventTableCategory, EventGame, EventGameTag
+from webapp.services.event_attendance import attendance_by_day, select_event_days
 from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.views.table_views import BaseTableDetailView, remove_layout_resource, warn_station_conflict
@@ -187,8 +188,8 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         context = super().get_context_data(**kwargs)
         event = self.object
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        is_participant = bool(user_profile and event.participants.filter(
-            user_profile=user_profile).exists())
+        participant = event.participants.filter(user_profile=user_profile).first() if user_profile else None
+        is_participant = participant is not None
         today = timezone.localdate()
         is_concluded = event.is_concluded(today)
         games = featured_games(event) if event.catalog_is_public else []
@@ -200,7 +201,6 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'just_joined': is_participant and self.request.session.pop(
                 'event_just_joined', None) == event.pk,
             'needs_phone': is_participant and not user_profile.phone,
-            'participant_count': event.participants.count(),
             'event_dates': event_dates,
             'today': today,
             'is_concluded': is_concluded,
@@ -213,6 +213,18 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
                 if event.table_booking_enabled else None),
             'show_custom_button': bool(event.custom_button_title and event.custom_button_url),
         })
+        if event.organizer_location_id:
+            context['registration_dates'] = [day for day in event_dates if day.date >= today]
+            context['selected_days'] = set(
+                participant.selected_dates.values_list('event_date_id', flat=True) if participant else ())
+            days = attendance_by_day([event], public=not (context['is_manager'] or self.request.user.is_superuser))
+            attendees = set().union(*days.values())
+            # Keep older registrations in the total without assigning them a day.
+            attendees.update(('profile', profile_id) for profile_id in event.participants.filter(
+                selected_dates__isnull=True).values_list('user_profile_id', flat=True))
+            context['participant_count'] = len(attendees)
+        else:
+            context['participant_count'] = event.participants.count()
         if user_profile and event.table_booking_enabled:
             my_agenda, my_tables_overlap = self._my_tables_agenda(event, user_profile)
             context['my_tables_agenda'] = my_agenda
@@ -622,8 +634,9 @@ class EventProgramView(EventPublicAccessMixin, DetailView):
 class EventJoinView(LoginRequiredMixin, View):
     """Register the logged-in user as a participant of the event."""
 
+    @transaction.atomic
     def post(self, request, slug):
-        event = get_object_or_404(Event, slug=slug)
+        event = get_object_or_404(Event.objects.select_for_update(), slug=slug)
         user_profile = request.user.user_profile
         if not event.is_published and not (
                 request.user.is_superuser or event.is_manager(user_profile)):
@@ -633,11 +646,19 @@ class EventJoinView(LoginRequiredMixin, View):
             return redirect('event_detail', slug=slug)
         if event.organizer_location_id and not event.organizer_location.can_join_events(user_profile):
             raise PermissionDenied
-        participant, created = EventParticipant.objects.get_or_create(
-            event=event, user_profile=user_profile)
+        if event.organizer_location_id:
+            try:
+                created = select_event_days(event, user_profile, request.POST.getlist('days'))
+            except ValidationError as error:
+                messages.error(request, error.messages[0])
+                return redirect('event_detail', slug=slug)
+        else:
+            participant, created = EventParticipant.objects.get_or_create(event=event, user_profile=user_profile)
         if created:
             # Shown once by the detail page as a confirmation modal with the share CTA
             request.session['event_just_joined'] = event.pk
+        elif event.organizer_location_id:
+            messages.success(request, _('Your event dates were saved.'))
         else:
             messages.info(request, _("You are already registered for this event."))
         return redirect('event_detail', slug=slug)
@@ -646,15 +667,22 @@ class EventJoinView(LoginRequiredMixin, View):
 class EventLeaveView(LoginRequiredMixin, View):
     """Unregister the logged-in user from the event (not allowed once it ended)."""
 
+    @transaction.atomic
     def post(self, request, slug):
-        event = get_object_or_404(Event, slug=slug)
+        event = get_object_or_404(Event.objects.select_for_update(), slug=slug)
+        profile = request.user.user_profile
+        if not event.is_published and not (request.user.is_superuser or event.is_manager(profile)):
+            raise Http404
         if event.is_concluded():
             messages.info(request, _("This event has already ended, you can't leave it."))
             return redirect('event_detail', slug=slug)
         deleted, _rows = EventParticipant.objects.filter(
-            event=event, user_profile=request.user.user_profile).delete()
+            event=event, user_profile=profile).delete()
         if deleted:
-            messages.success(request, _("You are no longer attending this event."))
+            if event.organizer_location_id:
+                messages.success(request, _('Your event registration was cancelled.'))
+            else:
+                messages.success(request, _("You are no longer attending this event."))
         return redirect('event_detail', slug=slug)
 
 
@@ -1225,10 +1253,18 @@ class EventManageParticipantsView(EventManagerMixin, View):
 
     def get(self, request, slug):
         event = self._get_event()
-        participants = event.participants.select_related('user_profile__user').order_by('-created_at')
+        participants = event.participants.select_related('user_profile__user').prefetch_related(
+            Prefetch('selected_dates', queryset=EventParticipantDate.objects.select_related('event_date')
+                     .order_by('event_date__date'))
+        ).order_by('-created_at')
+        daily_counts = []
+        if event.organizer_location_id:
+            attendance = attendance_by_day([event])
+            daily_counts = [(day.date, len(attendance.get(day.date, ()))) for day in event.sorted_dates]
         return render(request, self.template_name, {
             'event': event,
             'participants': participants,
+            'daily_counts': daily_counts,
         })
 
 

@@ -2283,6 +2283,8 @@ class EventDate(DateTimeModel):
     closing_time = models.TimeField(null=True, blank=True, verbose_name=_('Closing time'))
 
     def check_removal(self, *, replacing=False, removed=None):
+        if self.attendances.exists():
+            raise ValidationError(_('This date has registrations.'))
         if self.event.tables.filter(date=self.date).exists():
             raise ValidationError(_('Move the tables scheduled on this date first.'))
         if not replacing and self.event.is_published and not self.event.dates.exclude(
@@ -2458,8 +2460,7 @@ class PhysicalTable(DateTimeModel):
 class EventParticipant(DateTimeModel):
     """A user registered to attend an event ("iscritto all'evento").
 
-    Created either via the event "Partecipa" button or automatically when a user
-    joins a table belonging to the event.
+    Explicit registrations keep their selected days. Older records may be undated.
     """
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='participants', verbose_name=_('Event'))
@@ -2475,6 +2476,23 @@ class EventParticipant(DateTimeModel):
         verbose_name_plural = _('Event Participants')
         ordering = ['-created_at']
         unique_together = [('event', 'user_profile')]
+
+
+class EventParticipantDate(models.Model):
+    participant = models.ForeignKey(EventParticipant, on_delete=models.CASCADE, related_name='selected_dates')
+    event_date = models.ForeignKey(EventDate, on_delete=models.CASCADE, related_name='attendances')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('participant', 'event_date'), name='event_participant_day_once')]
+
+    def clean(self):
+        super().clean()
+        if self.participant_id and self.event_date_id and self.participant.event_id != self.event_date.event_id:
+            raise ValidationError(_('Choose one of the event dates.'))
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
 
 
 class PushSubscription(DateTimeModel):
