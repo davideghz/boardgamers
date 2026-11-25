@@ -13,6 +13,18 @@
   </div>
 
   <div class="max-w-2xl">
+    {% if daily_counts %}
+      <dl class="mb-4 grid gap-2 sm:grid-cols-2">
+        {% for day, count in daily_counts %}
+          <div class="rounded-xl border border-divider bg-surface px-4 py-3">
+            <dt class="text-xs font-semibold text-content-muted">{{ day|date:"l j F" }}</dt>
+            <dd class="mt-1 text-sm font-bold text-content">
+              {% blocktrans count n=count %}{{ n }} person expected{% plural %}{{ n }} people expected{% endblocktrans %}
+            </dd>
+          </div>
+        {% endfor %}
+      </dl>
+    {% endif %}
     <div class="rounded-xl border border-divider bg-surface overflow-hidden">
       <ul class="divide-y divide-divider-soft">
         {% for p in participants %}
@@ -31,6 +43,15 @@
                   {% if full %}<span class="font-normal text-content-muted">· {{ full }}</span>{% endif %}
                 {% endwith %}
               </p>
+              {% if event.organizer_location_id %}
+                <p class="mt-1 text-xs text-content-muted">
+                  {% for selection in p.selected_dates.all %}
+                    {{ selection.event_date.date|date:"j M" }}{% if not forloop.last %} · {% endif %}
+                  {% empty %}
+                    {% translate "No dates selected" %}
+                  {% endfor %}
+                </p>
+              {% endif %}
               <p class="text-xs text-content-muted truncate">
                 {% if p.user_profile.user.email %}{{ p.user_profile.user.email }}{% endif %}
                 {% if p.user_profile.phone %}&nbsp;·&nbsp;{{ p.user_profile.phone }}{% endif %}

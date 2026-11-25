@@ -1,0 +1,30 @@
+{% load i18n %}
+
+<div id="event-attendance" class="scroll-mt-20">
+  {% if can_join_event and registration_dates %}
+    <form method="post" action="{% url 'event-join' event.slug %}">
+      {% csrf_token %}
+      <fieldset class="space-y-2">
+        <legend class="mb-2 text-sm font-bold text-content">{% translate "Your event dates" %}</legend>
+        {% for day in registration_dates %}
+          <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-divider px-3 py-2 text-sm text-content hover:bg-surface-alt">
+            <input class="h-4 w-4 shrink-0 accent-blue-600" type="checkbox" name="days" value="{{ day.pk }}"
+                   {% if day.pk in selected_days or registration_dates|length == 1 %}checked{% endif %}>
+            <span>{{ day.date|date:"l j F" }}</span>
+          </label>
+        {% endfor %}
+      </fieldset>
+      <button type="submit" class="mt-3 w-full rounded-full bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">
+        {% if is_participant %}{% translate "Update dates" %}{% else %}{% translate "Attend this event" %}{% endif %}
+      </button>
+    </form>
+  {% endif %}
+  {% if is_participant %}
+    <form method="post" action="{% url 'event-leave' event.slug %}" class="mt-2">
+      {% csrf_token %}
+      <button type="submit" class="w-full rounded-full border border-divider px-3 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt">
+        {% translate "Cancel event registration" %}
+      </button>
+    </form>
+  {% endif %}
+</div>

@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from social_django.models import UserSocialAuth
 
 from webapp.models import (
-    Comment, Event, EventParticipant, FavoriteUser, GuestProfile,
+    Comment, Event, EventParticipant, EventParticipantDate, FavoriteUser, GuestProfile,
     Location, LocationFollower, LocationGameLoan, Member, Membership, Notification,
     Player, PushSubscription, Table, UserProfile,
 )
@@ -69,8 +69,22 @@ def _merge_credentials(keeper, duplicate, keeper_user, duplicate_user):
     return import_email
 
 
+def _merge_event_participations(keeper, duplicate):
+    kept = {participant.event_id: participant for participant in
+            EventParticipant.objects.select_for_update().filter(user_profile=keeper)}
+    incoming = EventParticipant.objects.filter(user_profile=duplicate)
+    for participant in incoming.select_for_update().filter(event_id__in=kept).prefetch_related('selected_dates'):
+        EventParticipantDate.objects.bulk_create([
+            EventParticipantDate(participant=kept[participant.event_id], event_date_id=selection.event_date_id)
+            for selection in participant.selected_dates.all()
+        ], ignore_conflicts=True)
+        participant.delete()
+    incoming.update(user_profile=keeper)
+
+
 def _merge_profile_data(keeper, duplicate):
     _merge_players(keeper, duplicate)
+    _merge_event_participations(keeper, duplicate)
 
     for model, field in (
         (Location, 'creator'), (Event, 'creator'), (Table, 'author'), (Comment, 'author'),
@@ -82,7 +96,6 @@ def _merge_profile_data(keeper, duplicate):
 
     for model, field, key in (
         (LocationFollower, 'user_profile', 'location_id'),
-        (EventParticipant, 'user_profile', 'event_id'),
         (PushSubscription, 'user_profile', 'endpoint'),
         (Location.managers.through, 'userprofile', 'location_id'),
         (Event.managers.through, 'userprofile', 'event_id'),

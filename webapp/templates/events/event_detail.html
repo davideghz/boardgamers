@@ -65,7 +65,14 @@
         {# CTA 1 — attend (hidden once the event is over) #}
         {% if event.is_published and not is_concluded %}
           {% if user.is_authenticated %}
-            {% if is_participant %}
+            {% if event.organizer_location_id %}
+              {% if is_participant or can_join_event and registration_dates %}
+                <a href="#event-attendance"
+                   class="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-bold text-white hover:bg-blue-700">
+                  {% if is_participant %}{% translate "Your event dates" %}{% else %}{% translate "Attend this event" %}{% endif %}
+                </a>
+              {% endif %}
+            {% elif is_participant %}
               <span class="inline-flex items-center justify-center gap-2 font-bold pl-6 pr-3 py-3 rounded-full text-sm cursor-default
                            {% if event.cover or event.organizer_location.cover %}border border-divider text-content lg:bg-slate-900/70 lg:backdrop-blur-sm lg:border-white/30 lg:text-white{% else %}bg-slate-900/70 backdrop-blur-sm border border-white/30 text-white{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-green-400">
@@ -403,7 +410,9 @@
                   {% trans "Event concluded" %}
                 </div>
               {% elif user.is_authenticated %}
-                {% if is_participant %}
+                {% if event.organizer_location_id %}
+                  {% include "events/_event_attendance_form.html" %}
+                {% elif is_participant %}
                   <div class="flex items-center justify-center gap-2 w-full whitespace-nowrap rounded-full bg-green-50 border border-green-200 px-3 py-2.5 text-sm font-semibold text-green-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />

@@ -6148,6 +6148,33 @@ msgstr "Rifiuta richiesta"
 msgid "No venue layout requests."
 msgstr "Nessuna richiesta di uso degli spazi."
 
+msgid "This date has registrations."
+msgstr "Ci sono iscrizioni per questa giornata."
+
+msgid "Your event dates"
+msgstr "Le tue giornate"
+
+msgid "Update dates"
+msgstr "Aggiorna giornate"
+
+msgid "Your event dates were saved."
+msgstr "Le tue giornate sono state salvate."
+
+msgid "Cancel event registration"
+msgstr "Annulla iscrizione all’evento"
+
+msgid "Your event registration was cancelled."
+msgstr "La tua iscrizione all’evento è stata annullata."
+
+msgid "No dates selected"
+msgstr "Nessuna giornata indicata"
+
+#, python-format
+msgid "%(n)s person expected"
+msgid_plural "%(n)s people expected"
+msgstr[0] "%(n)s persona attesa"
+msgstr[1] "%(n)s persone attese"
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "
