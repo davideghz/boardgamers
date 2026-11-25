@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from webapp.models import Event, EventParticipant, EventParticipantDate, Player
+from webapp.models import Event, EventParticipant, EventParticipantDate, MasterEventDateParticipant, Player
 
 
 @transaction.atomic
@@ -31,16 +31,27 @@ def select_event_days(event, profile, ids):
 def attendance_by_day(events, *, public=False):
     """A stable user or guest identity per day, across all the supplied events."""
     days = defaultdict(set)
-    selections = EventParticipantDate.objects.filter(participant__event__in=events).values_list(
-        'event_date__date', 'participant__user_profile_id')
+    selections = EventParticipantDate.objects.filter(participant__event__in=events).order_by().values_list(
+        'event_date__date', 'participant__user_profile_id').distinct()
     for day, person in selections:
         days[day].add(('profile', person))
     players = Player.objects.filter(table__event__in=events)
     if public:
         players = players.filter(table__event__table_booking_enabled=True)
-    for day, profile, guest in players.values_list('table__date', 'user_profile_id', 'guest_profile_id'):
+    for day, profile, guest in players.order_by().values_list('table__date', 'user_profile_id', 'guest_profile_id').distinct():
         if profile:
             days[day].add(('profile', profile))
         elif guest:
             days[day].add(('guest', guest))
     return days
+
+
+def manifestation_attendance(master, calendar):
+    """Union of direct registrations and public event attendance, keyed by day."""
+    if not calendar:
+        return {}
+    days = attendance_by_day(master.events.filter(status=Event.PUBLISHED), public=True)
+    direct = MasterEventDateParticipant.objects.filter(master_event_date__master_event=master)
+    for day, profile in direct.values_list('master_event_date__date', 'user_profile_id'):
+        days[day].add(('profile', profile))
+    return {day.date: days[day.date] for day in calendar}
