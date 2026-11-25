@@ -6066,6 +6066,15 @@ msgstr "Scegli un'area di gioco appartenente alla configurazione della postazion
 msgid "Reassign upcoming event sessions before transferring this station."
 msgstr "Riassegna le sessioni future degli eventi prima di trasferire questa postazione."
 
+msgid "The venue layout is available when the venue is the organizing location."
+msgstr "Puoi usare la configurazione della sede quando l'evento si svolge nella sede organizzatrice."
+
+msgid "Venue play areas"
+msgstr "Aree di gioco della sede"
+
+msgid "Venue stations"
+msgstr "Postazioni della sede"
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

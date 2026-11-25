@@ -134,3 +134,83 @@ class EventVenueLayoutTest(TestCase):
         Table.objects.filter(pk=table.pk).update(play_area=None)
         with self.assertRaises(RestrictedError):
             self.event_area.delete()
+
+    def test_creation_chooses_layout_from_the_submitted_venue(self):
+        self.client.force_login(self.manager.user)
+        url = reverse('location-event-create', args=[self.venue.slug])
+        for venue, expected in ((self.venue.pk, Event.LayoutMode.VENUE),
+                                (self.other_venue.pk, Event.LayoutMode.EVENT),
+                                ('', Event.LayoutMode.EVENT)):
+            with self.subTest(venue=venue):
+                name = f'New event {venue or "external"}'
+                result = self.client.post(url, {
+                    'name': name, 'description': 'New games', 'venue_location': venue,
+                    'date': self.date.isoformat(), 'opening_time': '18:00', 'closing_time': '23:00',
+                })
+                self.assertEqual(result.status_code, 302)
+                self.assertEqual(Event.objects.get(name=name).layout_mode, expected)
+
+    def event_details(self, **updates):
+        return {'name': self.event.name, 'description': 'An evening of games',
+                'venue_location': self.venue.pk, 'table_booking_enabled': 'on', **updates}
+
+    def test_manager_can_choose_layout_and_open_venue_management(self):
+        self.client.force_login(self.manager.user)
+        edit = reverse('event-manage-data', args=[self.event.slug])
+        self.assertContains(self.client.get(edit), 'name="layout_mode"')
+        result = self.client.post(edit, self.event_details(layout_mode=Event.LayoutMode.VENUE))
+        manage = reverse('event-manage', args=[self.event.slug])
+        self.assertRedirects(result, manage)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.layout_mode, Event.LayoutMode.VENUE)
+        dashboard = self.client.get(manage)
+        self.assertContains(dashboard, 'Configurazione della sede')
+        for part in ('areas', 'stations'):
+            event_url = reverse(f'event-manage-{part}', args=[self.event.slug])
+            venue_url = reverse(f'location-manage-{part}', args=[self.venue.slug])
+            self.assertContains(dashboard, f'href="{venue_url}"')
+            self.assertRedirects(self.client.get(event_url), venue_url)
+            self.assertEqual(self.client.post(event_url, {'name': 'Unused resource'}).status_code, 403)
+
+    def test_edit_without_the_layout_field_keeps_the_current_mode(self):
+        self.select_venue_layout()
+        self.client.force_login(self.manager.user)
+        edit = reverse('event-manage-data', args=[self.event.slug])
+        self.assertEqual(self.client.post(edit, self.event_details()).status_code, 302)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.layout_mode, Event.LayoutMode.VENUE)
+
+    def test_manager_sees_conflicting_sessions_when_trying_to_switch_layout(self):
+        self.select_venue_layout()
+        table = self.session(physical_table=self.venue_station)
+        self.client.force_login(self.manager.user)
+        edit = reverse('event-manage-data', args=[self.event.slug])
+        response = self.client.post(edit, self.event_details(layout_mode=Event.LayoutMode.EVENT))
+        self.assertContains(response, 'Riassegna queste sessioni future')
+        self.assertContains(response, table.title)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.layout_mode, Event.LayoutMode.VENUE)
+
+    def test_regular_user_cannot_change_mode_and_external_venue_cannot_be_used(self):
+        edit = reverse('event-manage-data', args=[self.event.slug])
+        data = self.event_details(layout_mode=Event.LayoutMode.VENUE, venue_location=self.other_venue.pk)
+        self.client.force_login(UserProfileFactory(preferred_language='it').user)
+        self.assertEqual(self.client.post(edit, data).status_code, 403)
+        self.client.force_login(self.manager.user)
+        response = self.client.post(edit, data)
+        self.assertContains(response, 'Solo gli eventi che si svolgono nella sede organizzatrice')
+        self.event.refresh_from_db()
+        self.assertEqual((self.event.layout_mode, self.event.venue_location), (Event.LayoutMode.EVENT, self.venue))
+
+    def test_public_grid_skips_unused_staff_only_venue_stations(self):
+        self.select_venue_layout()
+        self.venue_station.is_visible = False
+        self.venue_station.save(update_fields=['is_visible'])
+        self.session()
+        url = reverse('event-program', args=[self.event.slug], query={'view': 'grid'})
+        self.assertNotContains(self.client.get(url), self.venue_station.name)
+        self.client.force_login(self.manager.user)
+        self.assertContains(self.client.get(url), self.venue_station.name)
+        self.client.logout()
+        self.session(physical_table=self.venue_station, time=time(21))
+        self.assertContains(self.client.get(url), self.venue_station.name)
