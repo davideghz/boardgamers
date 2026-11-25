@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if day.opening_time or day.closing_time %}
+  <span class="text-content-muted">
+    {% if day.opening_time and day.closing_time %}
+      {{ day.opening_time|time:"H:i" }}–{{ day.closing_time|time:"H:i" }}
+    {% elif day.opening_time %}
+      {% translate "Opening time" %} {{ day.opening_time|time:"H:i" }}
+    {% else %}
+      {% translate "Closing time" %} {{ day.closing_time|time:"H:i" }}
+    {% endif %}
+  </span>
+{% endif %}

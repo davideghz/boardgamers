@@ -4,7 +4,7 @@ from django.urls import path, include
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
-from .views import game_loan_views
+from .views import game_loan_views, master_event_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.location_views import FollowLocationView
 
@@ -186,6 +186,13 @@ urlpatterns = [
 
     # EVENTS
     path("events/", event_views.EventListView.as_view(), name="event-index"),
+    path("manifestations/", master_event_views.index, name="master-event-list"),
+    path("manifestations/new/", master_event_views.edit, name="master-event-create"),
+    path("manifestations/<slug:slug>/", master_event_views.detail, name="master-event-detail"),
+    path("manifestations/<slug:slug>/manage/", master_event_views.edit, name="master-event-manage"),
+    path("manifestations/<slug:slug>/calendar/", master_event_views.calendar, name="master-event-calendar"),
+    path("manifestations/<slug:slug>/managers/", master_event_views.managers, name="master-event-managers"),
+    path("manifestations/<slug:slug>/approve/", master_event_views.approve, name="master-event-approve"),
     path("events/new/", event_views.EventCreateView.as_view(), name="event-create"),
     path("events/<slug:slug>/", event_views.EventDetailView.as_view(), name="event_detail"),
     path("events/<slug:slug>/program/", event_views.EventProgramView.as_view(), name="event-program"),

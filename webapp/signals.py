@@ -6,12 +6,13 @@ from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib import messages
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _, activate
 
 from webapp.emails import send_user_email_verification_code, send_notification_new_table, \
     send_email_notification_deleted_table, send_email_notification_new_player
 from webapp.models import UserProfile, Player, Table, Notification, NotificationType, Comment, CommentType, \
-    EventParticipant, Event, EventDate, EventGame
+    EventParticipant, Event, EventDate, EventGame, MasterEvent, MasterEventDate
 
 
 @receiver(pre_delete, sender=EventDate)
@@ -25,6 +26,17 @@ def protect_event_program(sender, instance, origin, **kwargs):
                 replacing=getattr(instance, '_defer_last_date_check', False),
                 removed=removed,
             )
+
+
+@receiver(pre_delete, sender=MasterEventDate)
+def protect_manifestation_calendar(sender, instance, origin, **kwargs):
+    direct = isinstance(origin, MasterEventDate)
+    bulk = getattr(origin, 'model', None) is MasterEventDate
+    if direct or bulk:
+        master = MasterEvent.objects.select_for_update().get(pk=instance.master_event_id)
+        removed = origin.values('pk') if bulk else [instance.pk]
+        if master.is_published and not master.dates.exclude(pk__in=removed).exists():
+            raise ValidationError(_('A published manifestation needs at least one date.'))
 
 
 @receiver(user_logged_out)

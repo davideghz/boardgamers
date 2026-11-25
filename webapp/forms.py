@@ -14,7 +14,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
-from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
+from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, MasterEvent, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services.game_loans import active_members, default_loan_due_date
 from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, COVER_UPLOAD_MAX_JPEG_PIXELS, COVER_UPLOAD_MAX_PIXELS, \
     validate_network_logo
@@ -920,6 +920,19 @@ class OrganizedEventForm(EventManageDataForm):
                 if data.get(name) in (None, ''):
                     self.add_error(name, _('Required for a public venue.'))
         return data
+
+
+class MasterEventForm(ModelForm, TailwindForm):
+    latitude = CoordinateField(min_value=-90, max_value=90, label=_('Latitude'))
+    longitude = CoordinateField(min_value=-180, max_value=180, label=_('Longitude'))
+
+    class Meta:
+        model = MasterEvent
+        fields = ('name', 'description', 'venue_location', 'venue_name', 'address', 'city', 'latitude', 'longitude')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['venue_location'].empty_label = _('Enter an external venue below')
 
 
 class EventDateForm(TailwindForm):

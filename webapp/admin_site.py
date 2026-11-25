@@ -40,6 +40,7 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'Banner'),
             ('webapp', 'Game'),
             ('webapp', 'Event'),
+            ('webapp', 'MasterEvent'),
             ('webapp', 'EventParticipant'),
             ('webapp', 'EventGame'),
             ('webapp', 'EventGameTag'),
