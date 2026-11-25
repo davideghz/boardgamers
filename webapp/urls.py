@@ -4,7 +4,7 @@ from django.urls import path, include
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
 from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
-from .views import game_loan_views, master_event_views
+from .views import game_loan_views, master_event_views, appointment_search
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.location_views import FollowLocationView
 
@@ -185,6 +185,7 @@ urlpatterns = [
          name="location-table-update"),
 
     # EVENTS
+    path("search/", appointment_search.AppointmentSearchView.as_view(), name="appointment-search"),
     path("events/", event_views.EventListView.as_view(), name="event-index"),
     path("manifestations/", master_event_views.index, name="master-event-list"),
     path("manifestations/new/", master_event_views.edit, name="master-event-create"),

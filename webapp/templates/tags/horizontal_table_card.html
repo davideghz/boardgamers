@@ -13,7 +13,7 @@
     {# Date + time + status #}
     <div class="flex items-center justify-between gap-2">
       <span class="text-[10px] font-semibold text-content-muted uppercase tracking-wide">
-        {{ table.date|date:"D j M" }} · {{ table.time|time:"H:i" }}
+        {% if show_appointment_context %}{% translate "Table" context "appointment search result" %} · {{ table.date|date:"D j M Y" }}{% else %}{{ table.date|date:"D j M" }}{% endif %} · {{ table.time|time:"H:i" }}
       </span>
       <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full
         {% if table.status == 'open' %}bg-green-100 text-green-700
@@ -40,7 +40,11 @@
       {% if table.game %}
         <span class="text-blue-600 font-semibold truncate">{{ table.game }}</span>
       {% endif %}
-      {% if table.location %}
+      {% if show_appointment_context and table.event_id %}
+        <span>{{ table.event.name }}{% if table.event.master_event.is_published %} · {{ table.event.master_event.name }}{% endif %}</span>
+        <span>{% trans "Organizing location" %} · {{ table.event.organizer_location.name }}</span>
+        {% if table.event.venue_label and not table.event.is_at_organizer_location %}<span>{% trans "Venue" %} · {{ table.event.venue_label }}</span>{% endif %}
+      {% elif table.location %}
         <span class="flex items-center gap-0.5 truncate">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
           <span class="truncate">{{ table.location.name }}</span>

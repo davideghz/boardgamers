@@ -1,0 +1,97 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="max-w-2xl">
+    <h1 class="mb-6 text-2xl font-extrabold text-content">{% trans "Search" %}</h1>
+
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <nav aria-label="{% trans 'Result type' %}" class="flex flex-wrap items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+        {% for value, label in search_types %}
+          {% if value == 'all' %}
+            {% querystring search_params type=None page=None as url %}
+          {% else %}
+            {% querystring search_params type=value page=None as url %}
+          {% endif %}
+          <a href="{% url 'appointment-search' %}{% if url != '?' %}{{ url }}{% endif %}"
+             {% if search_type == value %}aria-current="true"{% endif %}
+             class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if search_type == value %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+            {{ label }}
+          </a>
+        {% endfor %}
+      </nav>
+    </div>
+
+    <form method="get" action="{% url 'appointment-search' %}" role="search"
+          class="mb-5 space-y-3">
+      {% if search_type != 'all' %}<input type="hidden" name="type" value="{{ search_type }}">{% endif %}
+      <div class="min-w-0">
+        <label for="appointment-query" class="sr-only">{% trans "Keywords" %}</label>
+        {% trans "Search by name or game…" as search_placeholder %}
+        {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="appointment-query" max_length=200 %}
+      </div>
+      <div class="grid gap-3 sm:grid-cols-3">
+        <label class="text-xs font-semibold">{% translate "Venue" %}
+          <select class="mt-1 w-full rounded-lg border border-divider bg-surface p-2 text-sm" name="location">
+            <option value="">{% translate "All locations" %}</option>
+            {% for venue in venues %}<option value="{{ venue.slug }}"{% if venue.slug == selected_location %} selected{% endif %}>{{ venue.name }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="text-xs font-semibold">{% translate "Organizing location" %}
+          <select class="mt-1 w-full rounded-lg border border-divider bg-surface p-2 text-sm" name="organizer">
+            <option value="">{% translate "All locations" %}</option>
+            {% for location in organizers %}<option value="{{ location.slug }}"{% if location.slug == selected_organizer %} selected{% endif %}>{{ location.name }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="text-xs font-semibold">{% translate "When" %}
+          <select class="mt-1 w-full rounded-lg border border-divider bg-surface p-2 text-sm" name="when" id="appointment-period">
+            {% for value, label in periods %}<option value="{{ value }}"{% if value == when %} selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="flex flex-wrap gap-3" id="appointment-range">
+        <label class="text-xs font-semibold">{% translate "Start date" %}<input class="block bg-surface border border-divider rounded-lg p-2" type="date" name="date_from" value="{{ date_from }}"></label>
+        <label class="text-xs font-semibold">{% translate "End date" %}<input class="block bg-surface border border-divider rounded-lg p-2" type="date" name="date_to" value="{{ date_to }}"></label>
+      </div>
+      <script>
+        (() => {
+          const period = document.getElementById('appointment-period');
+          const dates = document.getElementById('appointment-range');
+          const update = () => dates.classList.toggle('hidden', period.value !== 'range');
+          period.addEventListener('change', update);
+          update();
+        })();
+      </script>
+      <button type="submit" class="rounded-xl bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+        {% trans "Search" %}
+      </button>
+    </form>
+    {% if q or selected_location or selected_organizer or when != 'upcoming' or search_error or date_error %}
+      <div class="mb-3 text-right text-xs">
+        <a href="{% url 'appointment-search' %}{% if search_type != 'all' %}?type={{ search_type }}{% endif %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+      </div>
+    {% endif %}
+
+    {% if date_error or search_error %}
+      <p role="alert" class="mb-5 text-sm font-semibold text-content">{{ date_error|default:search_error }}</p>
+    {% elif items %}
+      <ul class="space-y-2">
+        {% for kind, item in items %}
+          <li>
+            {% if kind == 'table' %}
+              {% include "tags/horizontal_table_card.html" with table=item show_appointment_context=True only %}
+            {% elif kind == 'event' %}
+              {% include "tags/horizontal_event_card.html" with event=item only %}
+            {% else %}
+              {% include "search/_manifestation_result.html" with event=item only %}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      {% include "partials/_pagination.html" %}
+    {% else %}
+      <p class="py-12 text-center text-sm text-content-muted">{% trans "No results found." %}</p>
+    {% endif %}
+  </div>
+
+{% endblock %}

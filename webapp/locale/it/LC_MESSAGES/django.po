@@ -6782,3 +6782,47 @@ msgstr "Da una prenotazione"
 #~ msgstr ""
 #~ "Partecipa per riservare il tuo posto, ricevere aggiornamenti e far sapere "
 #~ "agli organizzatori che ci sarai."
+
+msgctxt "appointment search results"
+msgid "All"
+msgstr "Tutti"
+
+msgid "Result type"
+msgstr "Tipo di risultato"
+
+msgid "Keywords"
+msgstr "Parole chiave"
+
+msgid "Search by name or game…"
+msgstr "Cerca per nome o gioco…"
+
+msgid "When"
+msgstr "Quando"
+
+msgid "Enter both a start and an end date."
+msgstr "Inserisci una data di inizio e una di fine."
+
+msgid "The end date must be on or after the start date."
+msgstr "La data di fine deve essere uguale o successiva a quella di inizio."
+
+msgid "Today"
+msgstr "Oggi"
+
+msgid "This weekend"
+msgstr "Questo fine settimana"
+
+msgid "Custom date range"
+msgstr "Intervallo di date"
+
+msgid "Check the search filters and try again."
+msgstr "Controlla i filtri e riprova."
+
+msgid "Search – Board-Gamers.com"
+msgstr "Cerca – Board-Gamers.com"
+
+msgid "Find events, game tables and manifestations on Board Gamers."
+msgstr "Trova eventi, tavoli di gioco e manifestazioni su Board Gamers."
+
+msgctxt "appointment search result"
+msgid "Table"
+msgstr "Tavolo"
