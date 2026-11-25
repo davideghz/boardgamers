@@ -1,7 +1,7 @@
 /* Search picker: drives the .js-search-picker blocks rendered by forms.SearchPickerWidget
    (users, locations, members). One search modal is shared by every picker on the page;
    texts and the search URL come from the data-* attributes of the picker that opened it.
-   Results are {id, title, subtitle, image_url, badge} (webapp/api/search_views.py).
+   Results are {id, title, subtitle, image_url, badge}, with a slug for locations.
    While the search is empty it lists the quick picks of data-defaults-url, if any.
    data-local-items filters a json_script list instead of searching; data-submit-on-select
    submits the picker's form as soon as an item is picked. */
@@ -12,7 +12,7 @@
     + '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>'
     + '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
 
-  var modal, input, title, hint, body;
+  var modal, input, title, hint, body, status, closeButton, opener, previousOverflow;
   var picker = null;       // picker currently being filled
   var results = [];        // last results, indexed by the rendered rows
   var debounceTimer = null;
@@ -23,14 +23,13 @@
   }
 
   function buildModal() {
-    modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-50 items-center justify-center p-4';
-    modal.style.display = 'none';
+    modal = document.createElement('dialog');
+    modal.className = 'm-auto w-[calc(100%-2rem)] max-w-lg rounded-2xl bg-surface p-0 text-content backdrop:bg-black/60';
+    modal.setAttribute('aria-labelledby', 'search-picker-title');
     modal.innerHTML =
-      '<div class="absolute inset-0 bg-black/60" data-close></div>'
-      + '<div class="relative bg-surface rounded-2xl w-full max-w-lg mx-auto shadow-2xl flex flex-col" style="max-height:88vh">'
+      '<div class="flex flex-col max-h-[88dvh]">'
       + '  <div class="px-6 pt-6 pb-5 flex items-start justify-between gap-4">'
-      + '    <h2 data-title class="text-xl font-extrabold text-content leading-tight"></h2>'
+      + '    <h2 id="search-picker-title" class="text-xl font-extrabold text-content leading-tight"></h2>'
       + '    <button type="button" data-close class="flex-shrink-0 text-content-muted hover:text-content transition-colors bg-transparent border-0 p-0 cursor-pointer mt-0.5">'
       + '      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>'
       + '    </button>'
@@ -44,17 +43,20 @@
       + '    <p data-hint class="mt-2 px-1 text-xs text-content-muted"></p>'
       + '  </div>'
       + '  <div class="border-t border-divider"></div>'
+      + '  <p data-status role="status" class="sr-only"></p>'
       + '  <div data-body class="flex-1 overflow-y-auto px-4 py-4 min-h-[200px]"></div>'
       + '</div>';
     document.body.appendChild(modal);
 
     input = modal.querySelector('[data-input]');
-    title = modal.querySelector('[data-title]');
+    title = modal.querySelector('#search-picker-title');
     hint = modal.querySelector('[data-hint]');
     body = modal.querySelector('[data-body]');
+    status = modal.querySelector('[data-status]');
+    closeButton = modal.querySelector('[data-close]');
 
     modal.addEventListener('click', function (e) {
-      if (e.target.closest('[data-close]')) { close(); return; }
+      if (e.target === modal || e.target.closest('[data-close]')) { close(); return; }
       var row = e.target.closest('button[data-index]');
       if (row) select(results[+row.dataset.index]);
     });
@@ -65,23 +67,29 @@
         if (results.length && input.value.trim()) select(results[0]);
       }
     });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && modal.style.display !== 'none') close();
+    modal.addEventListener('cancel', function (e) {
+      e.preventDefault();
+      close();
     });
   }
 
   function message(text) {
+    status.textContent = text;
     body.innerHTML = '<div class="flex flex-col items-center justify-center py-12 gap-3 text-center">'
       + '<p class="text-sm text-content-muted">' + esc(text) + '</p></div>';
   }
 
-  function open(target) {
+  function open(target, trigger) {
     if (!modal) buildModal();
     picker = target;
+    opener = trigger || target.querySelector('[data-picker-open]');
     title.textContent = picker.dataset.title;
     input.placeholder = picker.dataset.placeholder;
+    input.setAttribute('aria-label', picker.dataset.placeholder);
+    closeButton.setAttribute('aria-label', picker.dataset.closeText);
     hint.textContent = picker.dataset.hint;
     input.value = '';
+    status.textContent = '';
     showingDefaults = false;
     if (picker.dataset.localItems) {
       searchLocal();
@@ -89,17 +97,19 @@
       loadDefaults();
       showDefaults();
     }
-    modal.style.display = 'flex';
+    previousOverflow = document.body.style.overflow;
+    modal.showModal();
     document.body.style.overflow = 'hidden';
-    setTimeout(function () { input.focus(); }, 50);
+    input.focus();
   }
 
-  function close() {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
+  function close(focusTarget) {
+    modal.close();
+    document.body.style.overflow = previousOverflow;
     clearTimeout(debounceTimer);
     searchToken++;
     picker = null;
+    (focusTarget || opener)?.focus();
   }
 
   // Appends the ids the picker must not offer (data-exclude) to a search URL.
@@ -157,6 +167,7 @@
     showingDefaults = false;
     results = data;
     if (!data.length) { message(picker.dataset.noResultsText); return; }
+    status.textContent = picker.dataset.resultsText;
     body.innerHTML = rows(data);
   }
 
@@ -182,21 +193,26 @@
       return;
     }
     showingDefaults = false;
+    results = [];
+    var token = ++searchToken;
+    status.textContent = picker.dataset.searchingText;
     body.innerHTML = '<div class="flex flex-col items-center justify-center py-12 gap-3">' + SPINNER
       + '<p class="text-sm text-content-muted">' + esc(picker.dataset.searchingText) + '</p></div>';
     debounceTimer = setTimeout(function () {
-      var token = ++searchToken;
       var url = new URL(picker.dataset.searchUrl, window.location.href);
       url.searchParams.set('q', q);
       fetch(withExclude(url.href), {credentials: 'same-origin'})
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r.ok) throw new Error();
+          return r.json();
+        })
         .then(function (data) { if (token === searchToken) render(data.results); })
-        .catch(function () { if (token === searchToken) message(picker.dataset.noResultsText); });
+        .catch(function () { if (token === searchToken) message(picker.dataset.searchErrorText); });
     }, 300);
   }
 
   function setValue(target, item) {
-    target.querySelector('input[type=hidden]').value = item ? item.id : '';
+    target.querySelector('input[type=hidden]').value = item ? item[target.dataset.valueKey || 'id'] : '';
     target.querySelector('[data-picker-selected]').style.display = item ? '' : 'none';
     target.querySelector('[data-picker-open]').style.display = item ? 'none' : '';
     if (!item) return;
@@ -219,14 +235,18 @@
       return;
     }
     setValue(target, item);
-    close();
+    close(target.querySelector('[data-picker-selected] [data-picker-open]'));
   }
 
   document.addEventListener('click', function (e) {
     var target = e.target.closest('.js-search-picker');
     if (!target || target.dataset.disabled) return;
-    if (e.target.closest('[data-picker-open]')) open(target);
-    else if (e.target.closest('[data-picker-clear]')) setValue(target, null);
+    var trigger = e.target.closest('[data-picker-open]');
+    if (trigger) open(target, trigger);
+    else if (e.target.closest('[data-picker-clear]')) {
+      setValue(target, null);
+      target.querySelector('[data-picker-open]').focus();
+    }
   });
 
   // A hidden input is skipped by browser validation: open the search instead of

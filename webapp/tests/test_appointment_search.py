@@ -112,11 +112,52 @@ class AppointmentSearchTest(TestCase):
         response = self.client.get(self.url, {'type': 'events'})
         self.assertContains(response, f'href="{self.url}"')
 
+    def test_search_pickers_restore_both_url_filters_and_preserve_them_in_links(self):
+        for i in range(15):
+            Table.objects.create(title=f'Tavolo {i}', event=self.event, date=self.last, time=time(12))
+        filters = {'location': self.venue.slug, 'organizer': self.club.slug}
+        response = self.client.get(self.url, filters)
+        self.assertContains(response, f'name="location" value="{self.venue.slug}"')
+        self.assertContains(response, f'name="organizer" value="{self.club.slug}"')
+        self.assertContains(response, 'data-value-key="slug"', count=2)
+        self.assertNotContains(response, '<select name="location"')
+        self.assertNotContains(response, '<select name="organizer"')
+        query = f'location={self.venue.slug}&amp;organizer={self.club.slug}'
+        self.assertContains(response, f'href="{self.url}?{query}&amp;type=events"')
+        self.assertContains(response, f'href="?{query}&amp;page=2"')
+
+    def test_location_picker_search_limits_suggestions_to_each_public_role(self):
+        draft = LocationFactory(city='Casale Demo')
+        Event.objects.create(name='Proposta', organizer_location=draft, venue_location=draft)
+        for location in (self.club, self.venue):
+            location.city = draft.city
+            location.save(update_fields=['city'])
+
+        url = reverse('location-search')
+        for scope, expected in (
+            ('venue', {self.venue.slug}),
+            ('organizer', {self.club.slug}),
+            ('', {self.venue.slug, self.club.slug, draft.slug}),
+        ):
+            with self.subTest(scope=scope):
+                response = self.client.get(url, {'scope': scope, 'q': 'Casale'})
+                self.assertEqual({item['slug'] for item in response.json()['results']}, expected)
+
+    def test_null_characters_in_the_filters_are_rejected(self):
+        for name in ('q', 'location', 'organizer'):
+            with self.subTest(name=name):
+                response = self.client.get(self.url, {name: 'a\x00'})
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(response.context['search_error'])
+        response = self.client.get(reverse('location-search'), {'q': 'Magno\x00'})
+        self.assertEqual([item['slug'] for item in response.json()['results']], [self.club.slug])
+
     def test_search_filters_are_translated_in_italian(self):
         with override('it'):
             response = self.client.get(reverse('appointment-search'), HTTP_ACCEPT_LANGUAGE='it')
         self.assertContains(response, 'Tipo di risultato')
         self.assertContains(response, 'Intervallo di date')
+        self.assertContains(response, 'Cerca una sede organizzatrice')
 
     def test_home_links_to_filtered_search_and_previews_only_upcoming_public_manifestations(self):
         draft = MasterEvent.objects.create(name='Hidden exhibition')

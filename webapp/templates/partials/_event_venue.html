@@ -1,0 +1,44 @@
+{% load i18n %}
+<fieldset class="space-y-4" data-event-venue>
+  <legend class="mb-2 text-sm font-bold text-content">{{ form.venue_mode.label }}</legend>
+  {% for option in form.venue_mode %}
+    <label class="flex items-center gap-2 text-sm text-content">
+      {{ option.tag }} {{ option.choice_label }}
+    </label>
+  {% endfor %}
+  {% if form.venue_mode.errors %}
+    <p id="{{ form.venue_mode.auto_id }}_error" class="text-xs text-red-500">{{ form.venue_mode.errors|join:", " }}</p>
+  {% endif %}
+
+  <fieldset class="space-y-4" data-venue-fields="registered"{% if form.venue_mode_value != 'registered' %} hidden disabled{% endif %}{% if form.venue_location.errors %} aria-describedby="{{ form.venue_location.auto_id }}_error"{% endif %}>
+    <legend class="sr-only">{% translate "Registered location" %}</legend>
+    {{ form.venue_location }}
+    {% if form.venue_location.errors %}
+      <p id="{{ form.venue_location.auto_id }}_error" class="text-xs text-red-500">{{ form.venue_location.errors|join:", " }}</p>
+    {% endif %}
+    {% if form.layout_mode %}
+      {% include "events/_location_event_form_field.html" with field=form.layout_mode only %}
+      <p id="{{ form.layout_mode.auto_id }}_helptext" class="text-xs text-content-muted">{{ form.layout_mode.help_text }}</p>
+    {% endif %}
+  </fieldset>
+
+  <fieldset class="space-y-4" data-venue-fields="manual"{% if form.venue_mode_value != 'manual' %} hidden disabled{% endif %}>
+    <legend class="sr-only">{% translate "Unregistered venue" %}</legend>
+    {% include "events/_location_event_form_field.html" with field=form.venue_name only %}
+    {% include "events/_location_event_form_field.html" with field=form.address only %}
+    {% if maps_api_key %}
+      <p class="text-xs text-content-muted">{% translate "Choose a suggestion to fill in the city and the coordinates." %}</p>
+    {% endif %}
+    {% include "events/_location_event_form_field.html" with field=form.city only %}
+    {% if maps_api_key %}
+      <div id="gmp-map" class="h-48 w-full overflow-hidden rounded-xl border border-divider"></div>
+    {% endif %}
+    <details class="rounded-lg border border-divider p-3"{% if form.latitude.errors or form.longitude.errors %} open{% endif %}>
+      <summary class="cursor-pointer text-sm font-semibold text-content">{% translate "Map coordinates" %}</summary>
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        {% include "events/_location_event_form_field.html" with field=form.latitude only %}
+        {% include "events/_location_event_form_field.html" with field=form.longitude only %}
+      </div>
+    </details>
+  </fieldset>
+</fieldset>

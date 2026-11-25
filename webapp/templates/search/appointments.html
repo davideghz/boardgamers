@@ -30,28 +30,26 @@
         {% trans "Search by name or game…" as search_placeholder %}
         {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="appointment-query" max_length=200 %}
       </div>
-      <div class="grid gap-3 sm:grid-cols-3">
-        <label class="text-xs font-semibold">{% translate "Venue" %}
-          <select class="mt-1 w-full rounded-lg border border-divider bg-surface p-2 text-sm" name="location">
-            <option value="">{% translate "All locations" %}</option>
-            {% for venue in venues %}<option value="{{ venue.slug }}"{% if venue.slug == selected_location %} selected{% endif %}>{{ venue.name }}</option>{% endfor %}
-          </select>
-        </label>
-        <label class="text-xs font-semibold">{% translate "Organizing location" %}
-          <select class="mt-1 w-full rounded-lg border border-divider bg-surface p-2 text-sm" name="organizer">
-            <option value="">{% translate "All locations" %}</option>
-            {% for location in organizers %}<option value="{{ location.slug }}"{% if location.slug == selected_organizer %} selected{% endif %}>{{ location.name }}</option>{% endfor %}
-          </select>
-        </label>
-        <label class="text-xs font-semibold">{% translate "When" %}
+      <div class="grid gap-3 sm:grid-cols-2">
+        <fieldset class="min-w-0">
+          <legend class="mb-1 text-xs font-semibold">{{ search_form.location.label }}</legend>
+          {{ search_form.location }}
+        </fieldset>
+        <fieldset class="min-w-0">
+          <legend class="mb-1 text-xs font-semibold">{{ search_form.organizer.label }}</legend>
+          {{ search_form.organizer }}
+        </fieldset>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <label class="w-full text-xs font-semibold sm:w-auto">{% translate "When" %}
           <select class="mt-1 w-full rounded-lg border border-divider bg-surface p-2 text-sm" name="when" id="appointment-period">
             {% for value, label in periods %}<option value="{{ value }}"{% if value == when %} selected{% endif %}>{{ label }}</option>{% endfor %}
           </select>
         </label>
-      </div>
-      <div class="flex flex-wrap gap-3" id="appointment-range">
-        <label class="text-xs font-semibold">{% translate "Start date" %}<input class="block bg-surface border border-divider rounded-lg p-2" type="date" name="date_from" value="{{ date_from }}"></label>
-        <label class="text-xs font-semibold">{% translate "End date" %}<input class="block bg-surface border border-divider rounded-lg p-2" type="date" name="date_to" value="{{ date_to }}"></label>
+        <div class="flex flex-wrap gap-3" id="appointment-range">
+          <label class="text-xs font-semibold">{% translate "Start date" %}<input class="block bg-surface border border-divider rounded-lg p-2" type="date" name="date_from" value="{{ date_from }}"></label>
+          <label class="text-xs font-semibold">{% translate "End date" %}<input class="block bg-surface border border-divider rounded-lg p-2" type="date" name="date_to" value="{{ date_to }}"></label>
+        </div>
       </div>
       <script>
         (() => {
@@ -94,4 +92,8 @@
     {% endif %}
   </div>
 
+{% endblock %}
+
+{% block extrabodyjs %}
+  {{ search_form.media.js }}
 {% endblock %}

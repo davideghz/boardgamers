@@ -2,11 +2,13 @@ import json
 from datetime import date, time
 from io import StringIO
 
+from django.contrib.admin import AdminSite
 from django.core.management import call_command
 from django.db.models import ProtectedError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
+from webapp.admin import EventAdmin
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.models import Event, EventDate, Table
 
@@ -72,10 +74,64 @@ class EventVenueTest(TestCase):
             with self.subTest(instance=instance), self.assertRaises(ProtectedError):
                 instance.delete()
 
-    def test_admin_edits_organizer_and_venue(self):
+    def admin_event_data(self, response, name):
+        data = {
+            'name': name, 'layout_mode': Event.LayoutMode.EVENT, 'status': Event.DRAFT,
+            'point': 'SRID=4326;POINT (0 0)',
+        }
+        for inline in response.context['inline_admin_formsets']:
+            data.update({field.html_name: field.value() for field in inline.formset.management_form})
+            for form in inline.formset.forms:
+                data.update({field.html_name: field.value() for field in form if field.value() is not None})
+        return data
+
+    def test_admin_requires_an_organizer_when_creating_an_event(self):
         self.client.force_login(UserProfileFactory(user__is_staff=True, user__is_superuser=True).user)
-        fields = self.client.get(reverse('admin:webapp_event_add')).context['adminform'].form.fields
+        url = reverse('admin:webapp_event_add')
+        response = self.client.get(url)
+        fields = response.context['adminform'].form.fields
         self.assertLessEqual({'organizer_location', 'venue_location', 'venue_name'}, set(fields))
+        self.assertTrue(fields['organizer_location'].required)
+
+        data = {**self.admin_event_data(response, 'Draft in fiera'), 'venue_location': self.venue.pk}
+        rejected = self.client.post(url, data)
+        self.assertIn('organizer_location', rejected.context['adminform'].form.errors)
+        self.assertFalse(Event.objects.exists())
+
+        saved = self.client.post(url, {**data, 'organizer_location': self.organizer.pk})
+        self.assertEqual(saved.status_code, 302)
+        event = Event.objects.get()
+        self.assertEqual((event.organizer_location, event.venue_location), (self.organizer, self.venue))
+
+    def test_admin_can_edit_unmapped_events_but_cannot_clear_assigned_organizers(self):
+        self.client.force_login(UserProfileFactory(user__is_staff=True, user__is_superuser=True).user)
+        event = Event.objects.create(name='Historical event')
+        url = reverse('admin:webapp_event_change', args=[event.pk])
+        response = self.client.get(url)
+        data = self.admin_event_data(response, 'Revised historical event')
+        self.assertFalse(response.context['adminform'].form.fields['organizer_location'].required)
+        saved = self.client.post(url, data)
+        self.assertEqual(saved.status_code, 302)
+        event.refresh_from_db()
+        self.assertEqual(event.name, data['name'])
+        self.assertIsNone(event.organizer_location_id)
+
+        self.assertEqual(self.client.post(url, {**data, 'organizer_location': self.organizer.pk}).status_code, 302)
+        rejected = self.client.post(url, {**data, 'organizer_location': ''})
+        self.assertIn('organizer_location', rejected.context['adminform'].form.errors)
+        event.refresh_from_db()
+        self.assertEqual(event.organizer_location_id, self.organizer.pk)
+
+    def test_admin_save_preserves_an_organizer_assigned_during_editing(self):
+        event = Event.objects.create(name='Historical event')
+        Event.objects.filter(pk=event.pk).update(organizer_location=self.organizer)
+        event.name = 'Revised historical event'
+
+        EventAdmin(Event, AdminSite()).save_model(RequestFactory().post('/'), event, form=None, change=True)
+
+        event.refresh_from_db()
+        self.assertEqual(event.organizer_location_id, self.organizer.pk)
+        self.assertEqual(event.name, 'Revised historical event')
 
     def test_only_unassigned_events_require_legacy_mapping(self):
         legacy = Event.objects.create(name='Edizione storica')

@@ -25,7 +25,7 @@ class OrganizedEventFlowTest(TestCase):
         response = self.client.get(self.create_url)
         self.assertContains(response, 'id_cover-preview')
         self.assertContains(response, 'aspect-ratio="1.7777777777777777"')
-        self.client.post(self.create_url, self.data)
+        self.client.post(self.create_url, {**self.data, 'organizer_location': self.fair.pk})
         event = Event.objects.get(name=self.data['name'])
         self.assertEqual((event.organizer_location, event.venue_location), (self.club, self.fair))
         self.assertEqual(event.dates.get().closing_time, time(1))
@@ -76,6 +76,60 @@ class OrganizedEventFlowTest(TestCase):
     def test_cover_editor_knows_the_maximum_side(self):
         self.client.force_login(self.manager.user)
         self.assertContains(self.client.get(self.create_url), f'data-crop-max-side="{COVER_MAX_SIDE}"')
+
+    def test_registered_venue_picker_preserves_initial_and_invalid_choices(self):
+        self.client.force_login(self.manager.user)
+        response = self.client.get(self.create_url)
+        self.assertContains(response, 'data-venue-fields="manual" hidden disabled')
+        self.assertContains(response, f'name="venue_location" value="{self.club.pk}"')
+        self.assertNotContains(response, '<select name="venue_location"')
+
+        response = self.client.post(self.create_url, {
+            **self.data, 'venue_mode': 'registered', 'venue_location': '',
+        })
+        self.assertIn('venue_location', response.context['form'].errors)
+        self.assertContains(response, 'data-venue-fields="manual" hidden disabled')
+        self.assertFalse(Event.objects.exists())
+
+        self.client.post(self.create_url, {
+            **self.data, 'venue_mode': 'registered', 'venue_name': 'Unused name', 'latitude': 'invalid',
+        })
+        event = Event.objects.get()
+        self.assertEqual(event.venue_location, self.fair)
+        self.assertEqual(event.venue_name, '')
+        self.assertIsNone(event.latitude)
+
+    def test_switching_to_a_manual_venue_selects_the_event_layout(self):
+        self.client.force_login(self.manager.user)
+        self.client.post(self.create_url, {**self.data, 'venue_location': self.club.pk})
+        event = Event.objects.get()
+        self.assertEqual(event.layout_mode, Event.LayoutMode.VENUE)
+
+        edit = reverse('event-manage-data', args=[event.slug])
+        self.client.post(edit, {
+            **self.data, 'venue_mode': 'manual', 'venue_name': 'Sala Civica',
+            'address': 'Via Roma 1', 'latitude': '45.54', 'longitude': '11.52',
+        })
+        event.refresh_from_db()
+        self.assertIsNone(event.venue_location)
+        self.assertEqual(event.venue_name, 'Sala Civica')
+        self.assertEqual(event.layout_mode, Event.LayoutMode.EVENT)
+        self.assertContains(self.client.get(edit), 'data-venue-fields="registered" hidden disabled')
+
+    def test_switching_to_a_registered_venue_clears_the_manual_one(self):
+        event = Event.objects.create(name='Fair', organizer_location=self.club, venue_name='Sala Civica',
+                                     address='Via Roma 1', city='Vicenza', latitude=45.54, longitude=11.52)
+        self.assertNotEqual(event.point.coords, (0, 0))
+        self.client.force_login(self.manager.user)
+        self.client.post(reverse('event-manage-data', args=[event.slug]), {
+            **self.data, 'venue_mode': 'registered', 'venue_location': self.fair.pk,
+        })
+        event.refresh_from_db()
+        self.assertEqual(event.venue_location, self.fair)
+        self.assertEqual(event.venue_name, '')
+        for name in ('address', 'city', 'latitude', 'longitude'):
+            self.assertIsNone(getattr(event, name), name)
+        self.assertEqual(event.point.coords, (0, 0))
 
     def test_coordinates_from_a_map_are_rounded(self):
         self.client.force_login(self.manager.user)

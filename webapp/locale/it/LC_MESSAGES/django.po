@@ -245,9 +245,6 @@ msgstr "Latitudine"
 msgid "Longitude"
 msgstr "Longitudine"
 
-msgid "Enter an external venue below"
-msgstr "Inserisci qui sotto un luogo esterno"
-
 msgid "Required for a public venue."
 msgstr "Campo obbligatorio per pubblicare il luogo."
 
@@ -6349,6 +6346,33 @@ msgstr[1] "%(count)s presenze previste"
 
 msgid "From a booking"
 msgstr "Da una prenotazione"
+
+msgid "Where does it take place?"
+msgstr "Dove si svolge?"
+
+msgid "Registered location"
+msgstr "Sede registrata su Board Gamers"
+
+msgid "Unregistered venue"
+msgstr "Luogo non registrato"
+
+msgid "Find a venue"
+msgstr "Cerca una sede"
+
+msgid "Find an organizing location"
+msgstr "Cerca una sede organizzatrice"
+
+msgid "Choose a registered location."
+msgstr "Scegli una sede registrata."
+
+msgid "Map coordinates"
+msgstr "Coordinate della mappa"
+
+msgid "Search is unavailable. Try again."
+msgstr "La ricerca non è disponibile. Riprova."
+
+msgid "Search results available"
+msgstr "Risultati di ricerca disponibili"
 
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""

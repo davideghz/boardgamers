@@ -91,9 +91,18 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
-        parser.add_argument('--output', metavar='FILE', help='Write clean JSON to this file.')
+        mode = parser.add_mutually_exclusive_group()
+        mode.add_argument('--output', metavar='FILE', help='Write clean JSON to this file.')
+        mode.add_argument('--check-ready', action='store_true', help='Fail if any event has no organizer.')
 
     def handle(self, *args, **options):
+        if options['check_ready']:
+            unassigned = Event.objects.filter(organizer_location__isnull=True).count()
+            if unassigned:
+                raise CommandError(f'{unassigned} event(s) still need an organizer.')
+            self.stdout.write('All events have an organizer.')
+            return
+
         events = [audit_event(event) for event in events_for_audit().iterator(chunk_size=100)]
         summary = {
             'event_count': len(events),

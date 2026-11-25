@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.forms import BaseInlineFormSet
+from django.forms import BaseInlineFormSet, ModelForm
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
@@ -551,8 +551,22 @@ class PhysicalTableInline(admin.TabularInline):
     fields = ('name', 'play_area', 'order')
 
 
+class EventAdminForm(ModelForm):
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'organizer_location' in self.fields:
+            self.fields['organizer_location'].required = (
+                self.instance._state.adding or self.instance.organizer_location_id is not None
+            )
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    form = EventAdminForm
     autocomplete_fields = ('organizer_location', 'venue_location')
     list_display = ('name', 'city', 'creator', 'status', 'participant_count', 'created_at')
     list_filter = ('status', 'city')
@@ -573,8 +587,11 @@ class EventAdmin(admin.ModelAdmin):
     @transaction.atomic
     def save_model(self, request, obj, form, change):
         if change:
-            # Preserve links made while the admin form was being validated.
-            obj.master_event_id = Event.objects.select_for_update().values_list('master_event_id', flat=True).get(pk=obj.pk)
+            # A legacy mapping may have run while the admin form was being validated.
+            current = Event.objects.select_for_update().only('master_event_id', 'organizer_location_id').get(pk=obj.pk)
+            obj.master_event_id = current.master_event_id
+            if obj.organizer_location_id is None:
+                obj.organizer_location_id = current.organizer_location_id
         super().save_model(request, obj, form, change)
 
 

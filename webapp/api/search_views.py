@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from webapp.forms import USER_SEARCH_MIN_LENGTH
 from webapp.models import FavoriteUser, Location, UserProfile, Member
+from webapp.services.appointments import appointment_filter_locations
 from webapp.services.game_loans import active_members
 
 #: Maximum number of results returned by every search.
@@ -106,15 +107,15 @@ def location_result(location):
 
 
 def location_search_view(request):
-    """Locations by name or city."""
-    query = request.GET.get('q', '').strip()
+    """Locations by name or city, optionally scoped to a public appointment role."""
+    query = request.GET.get('q', '').replace('\x00', '').strip()
     if len(query) < LOCATION_SEARCH_MIN_LENGTH:
         return JsonResponse({'results': []})
-    locations = (Location.objects
+    locations = (appointment_filter_locations(request.GET.get('scope'))
                  .filter(Q(name__icontains=query) | Q(city__icontains=query))
                  .annotate(rank=Case(When(name__istartswith=query, then=Value(0)),
                                      default=Value(1), output_field=IntegerField()))
-                 .order_by('rank', Lower('name'))[:SEARCH_LIMIT])
+                 .order_by('rank', Lower('name'), 'pk')[:SEARCH_LIMIT])
     return JsonResponse({'results': [location_result(location) for location in locations]})
 
 

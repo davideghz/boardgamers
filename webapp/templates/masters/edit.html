@@ -1,5 +1,5 @@
 {% extends "base_webapp.html" %}
-{% load i18n custom_tags %}
+{% load i18n custom_tags static %}
 
 {% block content %}
   {% back_link 'master-event-list' label=_("Manifestations") %}
@@ -14,7 +14,10 @@
     <form method="post" class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
       {% csrf_token %}
       {% if form.non_field_errors %}<p class="text-sm text-red-600" role="alert">{{ form.non_field_errors|join:", " }}</p>{% endif %}
-      {% for field in form %}{% include "events/_location_event_form_field.html" with field=field only %}{% endfor %}
+      {% for field in form %}
+        {% if field.name not in form.venue_fields %}{% include "events/_location_event_form_field.html" with field=field only %}{% endif %}
+      {% endfor %}
+      {% include "partials/_event_venue.html" %}
       <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Save" %}</button>
     </form>
     {% if master.pk %}
@@ -126,5 +129,7 @@
 {% endblock %}
 
 {% block extrabodyjs %}
-  {% if master.pk %}{{ manager_form.media }}{% endif %}
+  {{ form.media.js }}
+  <script src="{% static 'js/event_venue.js' %}"></script>
+  {% if maps_api_key %}{% include "partials/google-maps-form.html" %}{% endif %}
 {% endblock %}
