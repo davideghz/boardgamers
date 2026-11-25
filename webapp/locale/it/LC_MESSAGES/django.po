@@ -1096,7 +1096,7 @@ msgid "Creator"
 msgstr "Creatore"
 
 msgid "Managers"
-msgstr "Managers"
+msgstr "Gestori"
 
 msgid "Sponsor locations"
 msgstr "Sponsor"
@@ -6895,3 +6895,9 @@ msgstr "Blocca"
 #, python-format
 msgid "%(name)s was blocked."
 msgstr "%(name)s è stata bloccata."
+
+msgid "Until the manifestation is approved, you can only link events you manage."
+msgstr "Finché la manifestazione non è approvata puoi collegare solo eventi che gestisci."
+
+msgid "Optional: by default the event uses its own play areas and stations. Ask the venue only if you want to use theirs."
+msgstr "Facoltativo: di norma l’evento usa le proprie aree e postazioni. Chiedi alla sede solo se vuoi usare le sue."

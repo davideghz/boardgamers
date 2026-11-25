@@ -121,6 +121,13 @@ class AccountActivitiesTest(TestCase):
         self.assertQuerySetEqual(response.context['locations'], [self.venue])
         self.assertContains(response, table.get_absolute_url())
 
+    def test_null_characters_in_the_filters_are_ignored(self):
+        self.client.force_login(self.profile.user)
+        for url in (self.url, reverse('table-index')):
+            for name in ('q', 'location'):
+                with self.subTest(url=url, name=name):
+                    self.assertEqual(self.client.get(url, {name: 'a\x00'}).status_code, 200)
+
     def test_visible_navigation_and_pagination_keep_the_filters(self):
         for index in range(16):
             table = Table.objects.create(title=f'Selected session {index}', location=self.venue, date=self.today)

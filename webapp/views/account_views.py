@@ -147,8 +147,8 @@ def activities(request):
     past = request.GET.get('tab') == 'past'
     today = timezone.localdate()
     period = {'date__lt' if past else 'date__gte': today}
-    query = request.GET.get('q', '').strip()[:200]
-    venue = request.GET.get('location', '').strip()[:144]
+    query = request.GET.get('q', '').replace('\x00', '').strip()[:200]
+    venue = request.GET.get('location', '').replace('\x00', '').strip()[:144]
 
     my_tables = Table.objects.visible_to(user).filter(players=profile)
     registrations = EventParticipant.objects.filter(event_id=OuterRef('pk'), user_profile=profile)

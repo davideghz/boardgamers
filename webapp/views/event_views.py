@@ -67,6 +67,7 @@ def organized_event_create(request, slug):
         return redirect('location-detail', slug=slug)
     return render(request, 'events/location_event_form.html', {
         'location': location, 'form': form, 'date_form': date_form, 'can_manage_location_events': can_manage,
+        'meta': Meta(title=_('Create event')),
     })
 
 
@@ -798,6 +799,7 @@ def event_table_create_view(request, event_slug):
     return render(request, 'events/event_table_add_or_edit.html', {
         'form': form,
         'event': event,
+        'meta': Meta(title=_('New table')),
         'link_formset': link_formset,
         'links_formset_open': _links_formset_open(link_formset),
     })
@@ -835,6 +837,7 @@ def event_table_update_view(request, event_slug, table_slug):
         'form': form,
         'event': event,
         'table': table,
+        'meta': Meta(title=_('Edit table')),
         'link_formset': link_formset,
         'links_formset_open': _links_formset_open(link_formset),
     })
@@ -856,6 +859,7 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
+        context['meta'] = Meta(title=f"{_('Manage event')} – {event.name}")
         context['catalog_count'] = effective_catalog(event).count()
         context['can_manage_venue_layout'] = (
             event.layout_mode == Event.LayoutMode.VENUE and event.can_manage_venue_layout(self.request.user)
@@ -882,6 +886,9 @@ class EventVenueLayoutRequestView(EventManagerMixin, View):
         elif action == 'cancel' and event.venue_layout_requested_from_id and not event.venue_layout_approved:
             event.venue_layout_requested_from_id = None
             message = _('Layout request withdrawn.')
+        elif action in ('request', 'cancel'):
+            # Submitted twice, or from a stale page: the dashboard shows the current state.
+            return redirect('event-manage', slug=slug)
         else:
             return HttpResponseBadRequest()
         event.save(update_fields=['venue_layout_requested_from', 'updated_at'])
@@ -957,6 +964,9 @@ class EventManageDataView(EventManagerMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self._get_event()
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(meta=Meta(title=_('General info')), **kwargs)
 
     def get_success_url(self):
         messages.success(self.request, _("Event updated successfully"))

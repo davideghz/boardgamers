@@ -1017,7 +1017,7 @@ class MasterEventForm(EventVenueForm, TailwindForm):
 
 
 class EventDateForm(TailwindForm):
-    date = DateField(widget=DateInput(), input_formats=['%Y-%m-%d'])
+    date = DateField(widget=DateInput(), input_formats=['%Y-%m-%d'], label=_('Date'))
     opening_time = TimeField(widget=TimeInput(), required=False, initial=datetime.time(10, 0),
                              label=_('Opening time'))
     closing_time = TimeField(widget=TimeInput(), required=False, initial=datetime.time(21, 0),

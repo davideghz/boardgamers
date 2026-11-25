@@ -79,6 +79,11 @@ class MasterEventTest(TestCase):
         self.assertContains(self.client.get(master.get_absolute_url()), 'Fiera')
         self.assertContains(self.client.get(reverse('master-event-list')), 'Fiera')
 
+    def test_names_of_other_pages_are_not_used_as_slug(self):
+        master = MasterEvent.objects.create(name='New', status=Event.PUBLISHED)
+        self.assertNotEqual(master.slug, 'new')
+        self.assertContains(self.client.get(master.get_absolute_url()), 'New')
+
     def test_staff_permission_controls_draft_review_and_approval(self):
         master = MasterEvent.objects.create(
             name='Festival da approvare', description='Due giornate', venue_location=LocationFactory(),
