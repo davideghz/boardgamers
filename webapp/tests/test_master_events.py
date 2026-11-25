@@ -12,6 +12,36 @@ from webapp.services.profile_merge import merge_accounts
 
 
 class MasterEventTest(TestCase):
+    def test_venue_picker_switches_modes_and_restores_manual_errors(self):
+        manager = UserProfileFactory()
+        venue = LocationFactory()
+        self.client.force_login(manager.user)
+        create = reverse('master-event-create')
+        response = self.client.get(create)
+        self.assertContains(response, 'data-venue-fields="manual" hidden disabled')
+        self.assertNotContains(response, '<select name="venue_location"')
+
+        data = {'name': 'Fiera', 'description': 'Weekend', 'venue_mode': 'manual',
+                'venue_location': venue.pk, 'venue_name': 'Sala Civica', 'address': 'Via Roma 1'}
+        response = self.client.post(create, {**data, 'latitude': 'invalid'})
+        self.assertIn('latitude', response.context['form'].errors)
+        self.assertContains(response, 'data-venue-fields="registered" hidden disabled')
+        self.assertContains(response, 'value="Sala Civica"')
+        self.assertFalse(MasterEvent.objects.exists())
+
+        self.client.post(create, {**data, 'latitude': '45.54', 'longitude': '11.52'})
+        master = MasterEvent.objects.get()
+        self.assertIsNone(master.venue_location)
+        self.assertEqual(master.venue_name, 'Sala Civica')
+
+        edit = reverse('master-event-manage', args=[master.slug])
+        self.client.post(edit, {**data, 'venue_mode': 'registered', 'latitude': 'invalid'})
+        master.refresh_from_db()
+        self.assertEqual(master.venue_location, venue)
+        self.assertEqual(master.venue_name, '')
+        self.assertIsNone(master.latitude)
+        self.assertContains(self.client.get(edit), 'data-venue-fields="manual" hidden disabled')
+
     def test_draft_calendar_and_admin_approval_before_any_program(self):
         manager, stranger, admin = [UserProfileFactory() for _ in range(3)]
         admin.user.is_staff = admin.user.is_superuser = True

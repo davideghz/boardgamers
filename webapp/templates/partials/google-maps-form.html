@@ -42,6 +42,18 @@
     }
 
     async function initMap() {
+        const container = document.getElementById('gmp-map');
+        if (!container) return;
+        const manualVenue = container.closest('[data-venue-fields="manual"]');
+        if (manualVenue?.hidden) {
+            const observer = new MutationObserver(() => {
+                if (manualVenue.hidden) return;
+                observer.disconnect();
+                initMap();
+            });
+            observer.observe(manualVenue, {attributes: true, attributeFilter: ['hidden']});
+            return;
+        }
         const {Map} = google.maps;
         const {AdvancedMarkerElement} = google.maps.marker;
         const {Autocomplete} = google.maps.places;
@@ -50,8 +62,8 @@
         mapOptions.mapId = mapOptions.mapId || 'DEMO_MAP_ID';
         mapOptions.center = mapOptions.center || {lat: 37.4221, lng: -122.0841};
 
-        const map = new Map(document.getElementById('gmp-map'), mapOptions);
-        const marker = new google.maps.marker.AdvancedMarkerElement({ map });
+        const map = new Map(container, mapOptions);
+        const marker = new AdvancedMarkerElement({ map });
 
         // Controlla se i campi latitude e longitude hanno valori
         const latitudeInput = document.getElementById('id_latitude').value;

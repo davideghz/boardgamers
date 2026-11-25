@@ -10,7 +10,7 @@ from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textare
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
     inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
-    ClearableFileInput, FileField, DecimalField
+    ClearableFileInput, FileField, DecimalField, RadioSelect
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
@@ -881,10 +881,64 @@ class CoordinateField(DecimalField):
         return {**super().widget_attrs(widget), 'step': 'any'}
 
 
-class OrganizedEventForm(EventManageDataForm):
+class EventVenueForm(ModelForm):
+    """Shared venue selection for organized events and manifestations."""
+
+    REGISTERED = 'registered'
+    MANUAL = 'manual'
+    manual_venue_fields = ('venue_name', 'address', 'city', 'latitude', 'longitude')
+    venue_fields = ('venue_mode', 'venue_location', 'layout_mode', *manual_venue_fields)
+
+    venue_mode = ChoiceField(
+        label=_('Where does it take place?'),
+        choices=((REGISTERED, _('Registered location')), (MANUAL, _('Unregistered venue'))),
+        widget=RadioSelect(attrs={'class': 'h-4 w-4 shrink-0 accent-blue-600'}),
+        required=False,
+    )
     latitude = CoordinateField(min_value=-90, max_value=90, label=_('Latitude'))
     longitude = CoordinateField(min_value=-180, max_value=180, label=_('Longitude'))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['venue_location'].widget = LocationPickerWidget(button_label=_('Find a venue'))
+        if self.is_bound:
+            self.data = self.data.copy()
+            mode_key = self.add_prefix('venue_mode')
+            location_key = self.add_prefix('venue_location')
+            manual_keys = [self.add_prefix(name) for name in self.manual_venue_fields]
+            if mode_key not in self.data:
+                # Accept forms that were open before the mode control was added.
+                self.data[mode_key] = self._mode_for(self.data, location_key, manual_keys)
+            self.venue_mode_value = self.data[mode_key]
+            if self.venue_mode_value in ('', self.REGISTERED):
+                for key in manual_keys:
+                    self.data.pop(key, None)
+            if self.venue_mode_value in ('', self.MANUAL):
+                self.data.pop(location_key, None)
+        else:
+            self.venue_mode_value = self._mode_for(self.initial, 'venue_location', self.manual_venue_fields)
+            self.initial.setdefault('venue_mode', self.venue_mode_value)
+
+    def _mode_for(self, values, location_key, manual_keys):
+        if values.get(location_key):
+            return self.REGISTERED
+        if any(values.get(key) not in (None, '') for key in manual_keys):
+            return self.MANUAL
+        return ''
+
+    def clean(self):
+        data = super().clean()
+        if data.get('venue_mode') == self.REGISTERED and 'venue_location' in data:
+            venue = data['venue_location']
+            if venue is None:
+                self.add_error('venue_location', _('Choose a registered location.'))
+            elif venue.pk == self.instance.venue_location_id:
+                # Some older events use these values when their venue has no address.
+                data.update({name: getattr(self.instance, name) for name in self.manual_venue_fields})
+        return data
+
+
+class OrganizedEventForm(EventVenueForm, EventManageDataForm):
     class Meta(EventManageDataForm.Meta):
         fields = ['name', 'description', 'cover', 'venue_location', 'layout_mode', 'venue_name', 'address', 'city',
                   'latitude', 'longitude', 'phone', 'email', 'catalog_mode', 'leaderboard_enabled', 'table_booking_enabled',
@@ -892,7 +946,6 @@ class OrganizedEventForm(EventManageDataForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['venue_location'].empty_label = _('Enter an external venue below')
         self.fields['cover'].widget.attrs = {
             'class': 'sr-only peer', 'accept': 'image/*', 'data-crop-max-side': COVER_MAX_SIDE}
         if not self.instance.pk:
@@ -913,6 +966,8 @@ class OrganizedEventForm(EventManageDataForm):
                 Event.LayoutMode.VENUE if venue and venue.pk == self.instance.organizer_location_id
                 else Event.LayoutMode.EVENT
             )
+        elif data.get('venue_mode') == self.MANUAL:
+            data['layout_mode'] = Event.LayoutMode.EVENT
         elif data.get('layout_mode') == '':
             data['layout_mode'] = self.instance.layout_mode
         if self.instance.is_published and not venue:
@@ -934,17 +989,10 @@ class SponsorForm(ModelForm, TailwindForm):
         self.fields['logo'].widget.template_name = 'partials/_sponsor_logo_input.html'
 
 
-class MasterEventForm(ModelForm, TailwindForm):
-    latitude = CoordinateField(min_value=-90, max_value=90, label=_('Latitude'))
-    longitude = CoordinateField(min_value=-180, max_value=180, label=_('Longitude'))
-
+class MasterEventForm(EventVenueForm, TailwindForm):
     class Meta:
         model = MasterEvent
         fields = ('name', 'description', 'venue_location', 'venue_name', 'address', 'city', 'latitude', 'longitude')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['venue_location'].empty_label = _('Enter an external venue below')
 
 
 class EventDateForm(TailwindForm):

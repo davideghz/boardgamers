@@ -10,6 +10,9 @@
      data-hint="{{ widget.hint }}"
      data-min-length-text="{% blocktrans count count=widget.min_length %}Type at least {{ count }} character{% plural %}Type at least {{ count }} characters{% endblocktrans %}"
      data-searching-text="{% trans 'Searching...' %}"
+     data-search-error-text="{% trans 'Search is unavailable. Try again.' %}"
+     data-results-text="{% trans 'Search results available' %}"
+     data-close-text="{% trans 'Close' %}"
      data-no-results-text="{{ widget.no_results_text }}"
      data-badge-text="{{ widget.badge_text }}"
      {% if widget.defaults_url %}data-defaults-url="{{ widget.defaults_url }}" data-defaults-title="{{ widget.defaults_title }}"{% endif %}
