@@ -179,7 +179,7 @@ class EventPublicAccessMixin:
 
 class EventDetailView(EventPublicAccessMixin, DetailView):
     """Slim event landing page: intro, sponsors, contacts + CTA to the program."""
-    queryset = Event.objects.select_related('creator', 'organizer_location', 'venue_location')
+    queryset = Event.objects.select_related('creator', 'organizer_location', 'venue_location', 'master_event')
     template_name = 'events/event_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -967,15 +967,19 @@ class EventManageDatesView(EventManagerMixin, View):
         if event.organizer_location_id and event.is_published:
             form.fields['opening_time'].required = form.fields['closing_time'].required = True
         if form.is_valid():
-            EventDate.objects.update_or_create(
-                event=event, date=form.cleaned_data['date'],
-                defaults={
-                    'opening_time': form.cleaned_data['opening_time'],
-                    'closing_time': form.cleaned_data['closing_time'],
-                },
-            )
-            messages.success(request, _("Date added."))
-            return redirect('event-manage-dates', slug=slug)
+            try:
+                EventDate.objects.update_or_create(
+                    event=event, date=form.cleaned_data['date'],
+                    defaults={
+                        'opening_time': form.cleaned_data['opening_time'],
+                        'closing_time': form.cleaned_data['closing_time'],
+                    },
+                )
+            except ValidationError as error:
+                form.add_error('date', error)
+            else:
+                messages.success(request, _("Date added."))
+                return redirect('event-manage-dates', slug=slug)
         return render(request, self.template_name, {
             'event': event,
             'dates': event.dates.all(),

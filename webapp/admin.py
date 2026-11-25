@@ -515,6 +515,7 @@ class EventDateInlineFormSet(BaseInlineFormSet):
         for form in self.forms:
             data = form.cleaned_data
             if not data.get('DELETE') and data.get('date'):
+                self.instance.validate_master_day(data['date'])
                 days.append(data['date'])
             if form.instance.pk and (data.get('DELETE') or 'date' in form.changed_data):
                 old = EventDate.objects.get(pk=form.instance.pk)
@@ -558,7 +559,7 @@ class EventAdmin(admin.ModelAdmin):
     list_editable = ('status',)
     search_fields = ('name', 'city', 'creator__nickname')
     filter_horizontal = ('managers', 'sponsor_locations', 'allowed_table_creators')
-    readonly_fields = ('created_at', 'updated_at', 'venue_layout_requested_from', 'venue_layout_approved')
+    readonly_fields = ('created_at', 'updated_at', 'venue_layout_requested_from', 'venue_layout_approved', 'master_event')
     inlines = [PlayAreaInline, EventDateInline, PhysicalTableInline]
 
     @admin.display(description=_('Participants'), ordering='_participant_count')
@@ -568,6 +569,13 @@ class EventAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
             _participant_count=models.Count('participants', distinct=True))
+
+    @transaction.atomic
+    def save_model(self, request, obj, form, change):
+        if change:
+            # Preserve links made while the admin form was being validated.
+            obj.master_event_id = Event.objects.select_for_update().values_list('master_event_id', flat=True).get(pk=obj.pk)
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(MasterEvent)

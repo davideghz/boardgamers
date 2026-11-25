@@ -1863,6 +1863,11 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         verbose_name=_('Play areas and stations'),
     )
 
+    master_event = models.ForeignKey(
+        'MasterEvent', on_delete=models.SET_NULL, related_name='events', null=True, blank=True,
+        editable=False, verbose_name=_('Manifestation'),
+    )
+
     # PROTECT also stops the deletion of the profile that created the location
     # (Location.creator cascades): reassign its events first.
     organizer_location = models.ForeignKey(
@@ -2099,6 +2104,8 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
 
     def clean(self):
         super().clean()
+        if self.master_event_id and not self.organizer_location_id:
+            raise ValidationError({'organizer_location': _('A linked event needs an organizing location.')})
         previous = Event.objects.filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first() if self.pk else None
         self._clear_layout_access_on_move(previous)
         self._validate_layout_change(previous)
@@ -2160,6 +2167,11 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def validate_table_date(self, date):
         if not self.dates.filter(date=date).exists():
             raise ValidationError(_('Choose one of the event dates.'))
+
+    def validate_master_day(self, date):
+        if self.master_event_id and not MasterEventDate.objects.filter(
+                master_event_id=self.master_event_id, date=date).exists():
+            raise ValidationError(_('Choose a date in the manifestation calendar.'))
 
     def missing_publish_requirements(self):
         """What the event still lacks before it can be published: an undated event
@@ -2226,6 +2238,10 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         ordering = ['-created_at']
         constraints = [
             models.CheckConstraint(
+                condition=models.Q(master_event__isnull=True) | models.Q(organizer_location__isnull=False),
+                name='linked_event_requires_organizer',
+            ),
+            models.CheckConstraint(
                 condition=(models.Q(venue_layout_requested_from__isnull=True, venue_layout_approved=False) | (
                     models.Q(venue_layout_requested_from__isnull=False, organizer_location__isnull=False,
                              venue_location__isnull=False, venue_layout_requested_from=models.F('venue_location'))
@@ -2290,6 +2306,10 @@ class MasterEvent(DateTimeModel, SlugModel):
     def venue_label(self):
         return self.venue_location.name if self.venue_location_id else self.venue_name
 
+    def validate_unused_dates(self, dates):
+        if self.events.filter(dates__date__in=dates).exists():
+            raise ValidationError(_('A linked event uses this date.'))
+
     def clean(self):
         super().clean()
         if self.is_published and (not self.description.strip() or not (
@@ -2332,9 +2352,13 @@ class MasterEventDate(models.Model):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            MasterEvent.objects.select_for_update().only('pk').get(pk=self.master_event_id)
-            if self.pk and MasterEventDate.objects.filter(pk=self.pk).exclude(master_event_id=self.master_event_id).exists():
-                raise ValidationError(_('A date cannot be moved to another manifestation.'))
+            master = MasterEvent.objects.select_for_update().only('pk').get(pk=self.master_event_id)
+            previous = MasterEventDate.objects.only('master_event', 'date').filter(pk=self.pk).first() if self.pk else None
+            if previous:
+                if previous.master_event_id != master.pk:
+                    raise ValidationError(_('A date cannot be moved to another manifestation.'))
+                if previous.date != self.date:
+                    master.validate_unused_dates([previous.date])
             return super().save(*args, **kwargs)
 
 
@@ -2387,7 +2411,10 @@ class EventDate(DateTimeModel):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            Event.objects.select_for_update().get(pk=self.event_id)
+            event = Event.objects.select_for_update().get(pk=self.event_id)
+            if event.master_event_id:
+                MasterEvent.objects.select_for_update().only('pk').get(pk=event.master_event_id)
+                event.validate_master_day(self.date)
             if self.pk:
                 old = EventDate.objects.get(pk=self.pk)
                 if old.event_id != self.event_id:

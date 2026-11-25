@@ -46,6 +46,47 @@
         </form>
       </section>
 
+      <section id="manifestation-events" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+        <h2 class="font-bold text-content">{% translate "Linked events" %}</h2>
+        <ul class="divide-y divide-divider">
+          {% for event in linked_events %}
+            <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+              <div class="min-w-0 break-words">
+                {% if event.is_published %}
+                  <a href="{{ event.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ event.name }}</a>
+                {% else %}
+                  <p class="font-semibold text-content">{{ event.name }} · {{ event.get_status_display }}</p>
+                {% endif %}
+                <p class="text-content-muted">{{ event.organizer_location.name }}</p>
+              </div>
+              <form method="post" action="{% url 'master-event-link' master.slug %}">
+                {% csrf_token %}
+                <button type="submit" name="remove" value="{{ event.pk }}" class="font-semibold text-red-600 hover:underline dark:text-red-400">{% translate "Unlink event" %}</button>
+              </form>
+            </li>
+          {% empty %}
+            <li class="py-2 text-sm text-content-muted">{% translate "No linked events yet." %}</li>
+          {% endfor %}
+        </ul>
+        {% if linkable_events %}
+          <form method="post" action="{% url 'master-event-link' master.slug %}" class="flex flex-col items-start gap-2 sm:flex-row sm:items-end">
+            {% csrf_token %}
+            <label class="flex w-full min-w-0 flex-col gap-1 text-sm text-content-muted sm:flex-1">
+              {% translate "Event to link" %}
+              <select name="event" required class="w-full rounded-lg border border-divider bg-surface px-3 py-2 text-sm text-content">
+                <option value="" selected disabled>{% translate "Select an event" %}</option>
+                {% for event in linkable_events %}
+                  <option value="{{ event.pk }}">{{ event.name }} · {{ event.organizer_location.name }}{% if not event.is_published %} · {{ event.get_status_display }}{% endif %}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Link event" %}</button>
+          </form>
+        {% else %}
+          <p class="text-sm text-content-muted">{% translate "No events available to link." %}</p>
+        {% endif %}
+      </section>
+
       <section class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
         <h2 class="font-bold text-content">{% translate "Managers" %}</h2>
         <ul class="divide-y divide-divider">
