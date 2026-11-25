@@ -6075,6 +6075,79 @@ msgstr "Aree di gioco della sede"
 msgid "Venue stations"
 msgstr "Postazioni della sede"
 
+msgid "Layout requested from"
+msgstr "Sede destinataria della richiesta"
+
+msgid "Venue layout approved"
+msgstr "Uso degli spazi autorizzato"
+
+msgid "Layout requests must go to the event’s current external venue."
+msgstr "La richiesta deve essere inviata alla sede esterna scelta per l’evento."
+
+msgid "Venue approval requires a layout request."
+msgstr "Per autorizzare l’uso degli spazi occorre una richiesta."
+
+msgid "Choose the organizing location or get approval from the external venue to use its layout."
+msgstr "Scegli la sede organizzatrice oppure ottieni l’autorizzazione della sede esterna per usarne gli spazi."
+
+msgid "Use the venue layout for on-site events or after approval from the external venue."
+msgstr "Puoi usare la configurazione della sede per gli eventi in sede o dopo l’autorizzazione della sede esterna."
+
+msgid "Layout request sent to the venue."
+msgstr "Richiesta inviata alla sede ospitante."
+
+msgid "Layout request withdrawn."
+msgstr "Richiesta ritirata."
+
+msgid "Venue layout approved for this event."
+msgstr "Uso degli spazi autorizzato per questo evento."
+
+msgid "Venue layout request declined."
+msgstr "Richiesta di uso degli spazi rifiutata."
+
+msgid "Venue layout approval revoked."
+msgstr "Autorizzazione revocata."
+
+msgid "The organizer must reassign the upcoming sessions before you revoke access."
+msgstr "L’organizzatore deve riassegnare le sessioni future prima che tu possa revocare l’autorizzazione."
+
+msgid "Venue layout requests"
+msgstr "Richieste di uso degli spazi"
+
+msgid "The venue has approved this event’s use of its play areas and stations."
+msgstr "La sede ha autorizzato questo evento a usare le sue aree di gioco e postazioni."
+
+msgid "Choose layout"
+msgstr "Scegli configurazione"
+
+msgid "Waiting for venue approval."
+msgstr "In attesa dell’autorizzazione della sede."
+
+msgid "Withdraw request"
+msgstr "Ritira richiesta"
+
+msgid "Request venue layout"
+msgstr "Richiedi uso degli spazi"
+
+#, python-format
+msgid "Managed by %(venue)s."
+msgstr "Gestione a cura di %(venue)s."
+
+msgid "No resources available."
+msgstr "Nessuna risorsa disponibile."
+
+msgid "Revoke approval"
+msgstr "Revoca autorizzazione"
+
+msgid "Approve layout request"
+msgstr "Autorizza uso degli spazi"
+
+msgid "Decline request"
+msgstr "Rifiuta richiesta"
+
+msgid "No venue layout requests."
+msgstr "Nessuna richiesta di uso degli spazi."
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

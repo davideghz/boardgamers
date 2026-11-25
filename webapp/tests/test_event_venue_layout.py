@@ -198,7 +198,7 @@ class EventVenueLayoutTest(TestCase):
         self.assertEqual(self.client.post(edit, data).status_code, 403)
         self.client.force_login(self.manager.user)
         response = self.client.post(edit, data)
-        self.assertContains(response, 'Solo gli eventi che si svolgono nella sede organizzatrice')
+        self.assertContains(response, 'ottieni l’autorizzazione della sede esterna')
         self.event.refresh_from_db()
         self.assertEqual((self.event.layout_mode, self.event.venue_location), (Event.LayoutMode.EVENT, self.venue))
 

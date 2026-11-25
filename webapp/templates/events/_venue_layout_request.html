@@ -1,0 +1,25 @@
+{% load i18n %}
+<section class="rounded-xl border border-divider bg-surface p-4" aria-labelledby="venue-layout-heading">
+  <h2 id="venue-layout-heading" class="text-sm font-bold text-content">{% trans "Venue layout" %} · {{ event.venue_location.name }}</h2>
+  {% if event.venue_layout_approved %}
+    <p class="mt-1 text-xs text-content-muted">{% trans "The venue has approved this event’s use of its play areas and stations." %}</p>
+    <a class="mt-2 inline-block text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+       href="{% url 'event-manage-data' event.slug %}#id_layout_mode">{% trans "Choose layout" %}</a>
+  {% else %}
+    <form class="mt-2" method="post" action="{% url 'event-venue-layout-request' event.slug %}">
+      {% csrf_token %}
+      {% if event.venue_layout_requested_from_id %}
+        <p class="mb-2 text-xs text-content-muted">{% trans "Waiting for venue approval." %}</p>
+        <button type="submit" name="action" value="cancel"
+                class="rounded-full border border-divider px-4 py-2 text-xs font-semibold text-content hover:bg-surface-alt">
+          {% trans "Withdraw request" %}
+        </button>
+      {% else %}
+        <button type="submit" name="action" value="request"
+                class="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:opacity-90">
+          {% trans "Request venue layout" %}
+        </button>
+      {% endif %}
+    </form>
+  {% endif %}
+</section>
