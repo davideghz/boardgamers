@@ -41,6 +41,7 @@ class CustomAdminSite(AdminSite):
             ('webapp', 'Game'),
             ('webapp', 'Event'),
             ('webapp', 'MasterEvent'),
+            ('webapp', 'Sponsor'),
             ('webapp', 'EventParticipant'),
             ('webapp', 'EventGame'),
             ('webapp', 'EventGameTag'),

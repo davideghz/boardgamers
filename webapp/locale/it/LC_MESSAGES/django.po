@@ -6282,6 +6282,40 @@ msgstr "Programma"
 msgid "No public sessions yet."
 msgstr "Non ci sono ancora tavoli pubblici."
 
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Sponsor"
+msgstr "Sponsor"
+
+msgid "Sponsors"
+msgstr "Sponsor"
+
+msgid "Add sponsor"
+msgstr "Aggiungi sponsor"
+
+msgid "Edit sponsor"
+msgstr "Modifica sponsor"
+
+#, python-format
+msgid "Edit sponsor %(name)s"
+msgstr "Modifica sponsor %(name)s"
+
+msgid "No sponsors yet."
+msgstr "Nessuno sponsor presente."
+
+msgid "Remove sponsor"
+msgstr "Rimuovi sponsor"
+
+msgid "Sponsor added."
+msgstr "Sponsor aggiunto."
+
+msgid "Sponsor updated."
+msgstr "Sponsor aggiornato."
+
+msgid "Sponsor removed."
+msgstr "Sponsor rimosso."
+
 #~ msgid "Choose a game from the organizing library or search all games."
 #~ msgstr ""
 #~ "Scegli un titolo dalla libreria della sede organizzatrice oppure cerca "

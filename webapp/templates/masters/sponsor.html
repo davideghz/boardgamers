@@ -1,0 +1,28 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+  {% url 'master-event-manage' master.slug as manage_url %}
+  <a href="{{ manage_url }}#manifestation-sponsors" class="mb-3 inline-block text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ master.name }} · {% translate "Sponsors" %}</a>
+  <h1 class="mb-4 text-2xl font-extrabold text-content">{{ title }}</h1>
+
+  <div class="max-w-xl rounded-xl border border-divider bg-surface p-4 sm:p-5">
+    <form method="post" enctype="multipart/form-data" class="space-y-4 break-words">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<p class="text-sm text-red-600" role="alert">{{ form.non_field_errors|join:", " }}</p>{% endif %}
+      {% for field in form %}
+        <div>
+          {% include "events/_location_event_form_field.html" with field=field only %}
+          {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="mt-1 text-xs text-content-muted">{{ field.help_text }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Save" %}</button>
+    </form>
+    {% if sponsor %}
+      <form method="post" class="mt-4 border-t border-divider pt-4">
+        {% csrf_token %}
+        <button type="submit" name="remove" value="1" class="text-sm font-semibold text-red-600 hover:underline dark:text-red-400">{% translate "Remove sponsor" %}</button>
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}

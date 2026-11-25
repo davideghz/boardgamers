@@ -2260,6 +2260,24 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
         ]
 
 
+class Sponsor(DateTimeModel):
+    name = models.CharField(max_length=255, verbose_name=_('Name'))
+    logo = NetworkLogoImageField(upload_to='sponsor-logos', blank=True, verbose_name=_('Logo'))
+    website = models.URLField(blank=True, validators=[URLValidator(schemes=['http', 'https'])], verbose_name=_('Website'))
+    location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, related_name='sponsor_profiles',
+        null=True, blank=True, verbose_name=_('Location'),
+    )
+
+    class Meta:
+        ordering = ['name', 'pk']
+        verbose_name = _('Sponsor')
+        verbose_name_plural = _('Sponsors')
+
+    def __str__(self):
+        return self.name
+
+
 class MasterEvent(DateTimeModel, SlugModel):
     slug_field_name = 'name'
     regenerate_slug_on_rename = False
@@ -2276,6 +2294,7 @@ class MasterEvent(DateTimeModel, SlugModel):
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True, verbose_name=_('Longitude'),
                                     validators=[MinValueValidator(-180), MaxValueValidator(180)])
     managers = models.ManyToManyField(UserProfile, related_name='managed_master_events', blank=True)
+    sponsors = models.ManyToManyField(Sponsor, related_name='master_events', blank=True, verbose_name=_('Sponsors'))
     status = models.CharField(max_length=20, choices=Event.STATUS_CHOICES, default=Event.DRAFT)
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False)
     approved_at = models.DateTimeField(null=True, blank=True, editable=False)
