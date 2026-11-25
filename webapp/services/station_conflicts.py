@@ -26,8 +26,11 @@ def station_conflict_ids(tables, *, public_only=False):
     if public_only:
         candidates = candidates.filter(Table.public_condition())
 
+    # `game` is read by Table.tracker on every instance: deferring it costs a query per row.
+    candidates = candidates.only('date', 'time', 'duration', 'physical_table_id', 'game').order_by()
+
     conflicts = set()
-    for other in candidates.only('date', 'time', 'duration', 'physical_table_id').order_by().iterator():
+    for other in candidates.iterator():
         for table in by_station[other.physical_table_id]:
             if table.pk not in conflicts and table.pk != other.pk and table.overlaps_with(other):
                 conflicts.add(table.pk)

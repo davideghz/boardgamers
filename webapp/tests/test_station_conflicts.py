@@ -49,6 +49,12 @@ class StationConflictTest(TestCase):
 
         self.assertEqual(station_conflict_ids([early]), {early.pk})
 
+    def test_the_check_takes_a_single_query(self):
+        tables = [self.table(f'Game {i}', station=self.location_station, starts=time(20)) for i in range(5)]
+
+        with self.assertNumQueries(1):
+            self.assertEqual(station_conflict_ids(tables), {table.pk for table in tables})
+
     def test_assignment_detects_an_overnight_session_from_another_schedule(self):
         regular = self.table('Location game', station=None, starts=time(0, 30))
         event_table = self.table('Event game', station=self.location_station, starts=time(23, 30),
