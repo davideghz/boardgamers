@@ -6829,3 +6829,28 @@ msgstr "Tavolo"
 
 msgid "See all manifestations"
 msgstr "Vedi tutte le manifestazioni"
+
+msgid "My activities"
+msgstr "Le mie attività"
+
+msgid "Registration without a date"
+msgstr "Iscrizione senza data"
+
+#, python-format
+msgid "%(counter)s activity found"
+msgid_plural "%(counter)s activities found"
+msgstr[0] "%(counter)s attività trovata"
+msgstr[1] "%(counter)s attività trovate"
+
+msgid "No activities match the selected filters."
+msgstr "Nessuna attività corrisponde ai filtri selezionati."
+
+msgid "No past activities yet."
+msgstr "Nessuna attività passata."
+
+msgid "No upcoming activities."
+msgstr "Nessuna attività in programma."
+
+msgctxt "personal activities"
+msgid "Past"
+msgstr "Passate"

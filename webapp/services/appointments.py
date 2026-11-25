@@ -9,9 +9,12 @@ SCHEDULE_FIELDS = {
 }
 
 
-def with_matching_day(items, days, *, newest_first):
+def with_matching_day(items, days, *, newest_first, undated=None):
     dates = days.order_by('-date' if newest_first else 'date')
-    return items.filter(Exists(dates)).annotate(
+    matching = Exists(dates)
+    if undated is not None:
+        matching |= Exists(undated)
+    return items.filter(matching).annotate(
         matching_date=Subquery(dates.values('date')[:1]),
         matching_time=Subquery(dates.values('opening_time')[:1]),
     )

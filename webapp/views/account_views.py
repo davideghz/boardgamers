@@ -1,7 +1,8 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.contrib import messages
+from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -10,8 +11,11 @@ from meta.views import Meta
 
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
     MemberPersonalDataForm
-from webapp.models import Notification, Membership, Table, GuestProfile, Event, Member, Location
-from django.db.models import Q
+from webapp.models import (
+    Event, EventDate, EventParticipant, EventParticipantDate, GuestProfile, Location, Member, Membership,
+    Notification, Table,
+)
+from webapp.services.appointments import paginate_appointments, with_matching_day
 
 
 @login_required
@@ -130,6 +134,67 @@ def tables(request, template_name='accounts/account_tables.html'):
             title=_("My Tables - Board-Gamers.com"),
             description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),
         )
+    })
+
+
+@login_required
+def activities(request):
+    user = request.user
+    profile = user.user_profile
+    activity_type = request.GET.get('type', 'all')
+    if activity_type not in ('events', 'tables'):
+        activity_type = 'all'
+    past = request.GET.get('tab') == 'past'
+    today = timezone.localdate()
+    period = {'date__lt' if past else 'date__gte': today}
+    query = request.GET.get('q', '').strip()[:200]
+    venue = request.GET.get('location', '').strip()[:144]
+
+    my_tables = Table.objects.visible_to(user).filter(players=profile)
+    registrations = EventParticipant.objects.filter(event_id=OuterRef('pk'), user_profile=profile)
+    my_events = Event.objects.filter(Exists(registrations) | Exists(my_tables.filter(event_id=OuterRef('pk'))))
+    if not user.is_superuser:
+        my_events = my_events.filter(Q(status=Event.PUBLISHED) | Q(pk__in=Event.objects.managed_by(profile)))
+
+    locations = Location.objects.filter(
+        Q(pk__in=my_tables.order_by().values('location_id'))
+        | Q(pk__in=my_tables.order_by().values('event__venue_location_id'))
+        | Q(pk__in=my_events.order_by().values('venue_location_id')),
+    ).order_by('name', 'pk')
+
+    tables = my_tables.filter(**period)
+    dates = EventDate.objects.filter(event_id=OuterRef('pk'), **period).filter(
+        Exists(EventParticipantDate.objects.filter(
+            event_date_id=OuterRef('pk'), participant__user_profile=profile, inferred_from_booking=False,
+        )) | Exists(my_tables.filter(event_id=OuterRef('event_id'), date=OuterRef('date'))),
+    )
+    # Show legacy registrations without dates in the upcoming tab, after dated activities.
+    undated = registrations.filter(selected_dates__isnull=True).exclude(
+        Exists(my_tables.filter(event_id=OuterRef('event_id'))),
+    )
+    events = with_matching_day(my_events, dates, newest_first=past, undated=None if past else undated)
+    if venue:
+        tables = tables.filter(Q(location__slug=venue) | Q(event__venue_location__slug=venue))
+        events = events.filter(venue_location__slug=venue)
+    if query:
+        tables = tables.filter(Q(title__icontains=query) | Q(description__icontains=query)
+                               | Q(game__name__icontains=query) | Q(event__name__icontains=query))
+        events = events.filter(Q(name__icontains=query) | Q(description__icontains=query))
+
+    sources = {}
+    if activity_type != 'events':
+        sources['table'] = tables.select_related(
+            'author', 'location', 'game', 'event__venue_location', 'event__organizer_location', 'event__master_event',
+        )
+    if activity_type != 'tables':
+        sources['event'] = events.select_related('organizer_location', 'venue_location', 'master_event')
+    page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=past)
+    return render(request, 'accounts/account_activities.html', {
+        'activity_type': activity_type, 'tab': 'past' if past else 'upcoming',
+        'items': items, 'page_obj': page, 'paginator': page.paginator, 'is_paginated': page.has_other_pages(),
+        'q': query, 'selected_location': venue, 'locations': locations,
+        'has_filters': bool(query or venue),
+        'meta': Meta(title=_('My activities')),
     })
 
 
