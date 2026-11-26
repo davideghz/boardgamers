@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 15:10+0100\n"
+"POT-Creation-Date: 2026-11-26 16:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3467,6 +3467,91 @@ msgstr "Adesione in attesa"
 msgid "Request membership"
 msgstr "Diventa socio"
 
+msgid "New event"
+msgstr "Nuovo evento"
+
+msgid "View as a visitor"
+msgstr "Vedi come un visitatore"
+
+msgid "membership request"
+msgid_plural "membership requests"
+msgstr[0] "richiesta di adesione"
+msgstr[1] "richieste di adesione"
+
+msgid "layout request"
+msgid_plural "layout requests"
+msgstr[0] "richiesta di uso degli spazi"
+msgstr[1] "richieste di uso degli spazi"
+
+msgid "draft event"
+msgid_plural "draft events"
+msgstr[0] "evento in bozza"
+msgstr[1] "eventi in bozza"
+
+msgid "event without tables"
+msgid_plural "events without tables"
+msgstr[0] "evento senza tavoli"
+msgstr[1] "eventi senza tavoli"
+
+msgid "Membership request pending"
+msgstr "Richiesta di adesione in attesa"
+
+msgid "Membership request not accepted"
+msgstr "Richiesta di adesione non accolta"
+
+msgctxt "location role"
+msgid "Member"
+msgstr "Socio"
+
+#, python-format
+msgid "Active until %(date)s"
+msgstr "Attiva fino al %(date)s"
+
+msgctxt "status"
+msgid "Active"
+msgstr "Attiva"
+
+#, python-format
+msgid "Expires on %(date)s"
+msgstr "Scade il %(date)s"
+
+#, python-format
+msgid "Expired on %(date)s"
+msgstr "Scaduta il %(date)s"
+
+msgid "The managers will review it."
+msgstr "I gestori la valuteranno."
+
+msgid "Ask again"
+msgstr "Richiedi di nuovo"
+
+msgid "Renew"
+msgstr "Rinnova"
+
+msgid "At a glance"
+msgstr "In breve"
+
+#, python-format
+msgid "%(n)s upcoming table"
+msgid_plural "%(n)s upcoming tables"
+msgstr[0] "%(n)s tavolo in programma"
+msgstr[1] "%(n)s tavoli in programma"
+
+msgid "Tables for members only"
+msgstr "Tavoli riservati ai soci"
+
+msgid "Tables open to everyone"
+msgstr "Tavoli aperti a tutti"
+
+msgid "Accepts new members"
+msgstr "Accetta nuovi soci"
+
+#, python-format
+msgid "%(n)s follower"
+msgid_plural "%(n)s followers"
+msgstr[0] "%(n)s persona la segue"
+msgstr[1] "%(n)s persone la seguono"
+
 msgid "Edit location"
 msgstr "Modifica sede"
 
@@ -3511,6 +3596,12 @@ msgid "Delete the group “%(name)s”? All its reservations will be removed too
 msgstr ""
 "Eliminare il gruppo “%(name)s”? Verranno rimosse anche tutte le sue "
 "prenotazioni."
+
+msgid "You are seeing this location as a visitor does."
+msgstr "Stai vedendo la sede come la vede un visitatore."
+
+msgid "Back to your view"
+msgstr "Torna alla tua vista"
 
 msgid "Follow"
 msgstr "Segui"
@@ -5147,10 +5238,6 @@ msgctxt "location"
 msgid "Managed by you"
 msgstr "Gestita da te"
 
-msgctxt "location role"
-msgid "Member"
-msgstr "Socio"
-
 msgid "Followed"
 msgstr "Seguita"
 
@@ -5743,10 +5830,6 @@ msgstr "Passato"
 msgctxt "status"
 msgid "Pending"
 msgstr "In attesa"
-
-msgctxt "status"
-msgid "Active"
-msgstr "Attiva"
 
 msgctxt "status"
 msgid "Rejected"

@@ -143,16 +143,21 @@ class Viewer:
     # ── Activity ─────────────────────────────────────────────────────────────
 
     @cached_property
+    def upcoming_table_ids(self):
+        """The upcoming tables the user plays at."""
+        if not self.profile:
+            return frozenset()
+        tables = Table.objects.visible_to(self.user).filter(players=self.profile, date__gte=timezone.localdate())
+        return frozenset(tables.values_list('pk', flat=True))
+
+    @cached_property
     def upcoming_participations(self):
         """The upcoming tables the user plays at and the published events they joined."""
         if not self.profile:
             return Participations(frozenset(), frozenset())
-        today = timezone.localdate()
-        tables = Table.objects.visible_to(self.user).filter(players=self.profile, date__gte=today)
         events = Event.objects.filter(
-            participants__user_profile=self.profile, status=Event.PUBLISHED, dates__date__gte=today)
-        return Participations(frozenset(tables.values_list('pk', flat=True)),
-                              frozenset(events.values_list('pk', flat=True)))
+            participants__user_profile=self.profile, status=Event.PUBLISHED, dates__date__gte=timezone.localdate())
+        return Participations(self.upcoming_table_ids, frozenset(events.values_list('pk', flat=True)))
 
     @cached_property
     def manages_events(self):

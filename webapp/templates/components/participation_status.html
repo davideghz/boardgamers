@@ -1,11 +1,11 @@
 {% load i18n %}
 {% comment %}
 "You're in" for a table, "You're attending" for an event; with `leave_dialog` the leave link
-opens that confirm_dialog.
+opens that confirm_dialog. `compact` is the small version for cards.
 {% endcomment %}
 <span class="inline-flex items-center gap-2">
-  <span class="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success-soft px-3 py-1.5 text-sm font-bold text-success">
-    {% include "components/icon.html" with name="check" class="w-4 h-4" only %}
+  <span class="inline-flex items-center rounded-full border border-success/30 bg-success-soft font-bold text-success {% if compact %}gap-1 px-2 py-0.5 text-[11px]{% else %}gap-1.5 px-3 py-1.5 text-sm{% endif %}">
+    {% if compact %}{% include "components/icon.html" with name="check" class="w-3 h-3" only %}{% else %}{% include "components/icon.html" with name="check" class="w-4 h-4" only %}{% endif %}
     {% if kind == 'event' %}{% trans "You're attending" %}{% else %}{% trans "You're in" %}{% endif %}
   </span>
   {% if leave_dialog %}

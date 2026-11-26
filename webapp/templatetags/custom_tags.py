@@ -48,10 +48,12 @@ def location_card(context, location):
     }
 
 
-@register.inclusion_tag("tags/table_card.html")
-def table_card(table):
+@register.inclusion_tag("tags/table_card.html", takes_context=True)
+def table_card(context, table):
+    # Pages that pass `joined_table_ids` (the viewer's upcoming tables) mark the ones they're in
     return {
         'table': table,
+        'joined': table.pk in context.get('joined_table_ids', ()),
     }
 
 
@@ -241,8 +243,8 @@ def todo_card(url, title, count, description=None, tone="warning"):
 
 
 @register.inclusion_tag("components/participation_status.html")
-def participation_status(kind="table", leave_dialog=None):
-    return {"kind": kind, "leave_dialog": leave_dialog}
+def participation_status(kind="table", leave_dialog=None, compact=False):
+    return {"kind": kind, "leave_dialog": leave_dialog, "compact": compact}
 
 
 @register.inclusion_tag("components/confirm_dialog.html", takes_context=True)

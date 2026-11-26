@@ -1,0 +1,18 @@
+{% load i18n %}
+{# What a visitor needs to know at a glance: what is on and who may take part #}
+<ul aria-label="{% trans 'At a glance' %}" class="flex flex-wrap gap-2 text-xs font-semibold">
+  <li class="rounded-full bg-surface-input px-3 py-1 text-content-soft">
+    {% with n=future_tables|length %}{% blocktrans count n=n %}{{ n }} upcoming table{% plural %}{{ n }} upcoming tables{% endblocktrans %}{% endwith %}
+  </li>
+  <li class="rounded-full bg-surface-input px-3 py-1 text-content-soft">
+    {% if location.table_join_permission == 'members_only' %}{% trans "Tables for members only" %}{% else %}{% trans "Tables open to everyone" %}{% endif %}
+  </li>
+  {% if location.enable_membership %}
+    <li class="rounded-full bg-surface-input px-3 py-1 text-content-soft">{% trans "Accepts new members" %}</li>
+  {% endif %}
+  {% if followers_count %}
+    <li class="rounded-full bg-surface-input px-3 py-1 text-content-soft">
+      {% blocktrans count n=followers_count %}{{ n }} follower{% plural %}{{ n }} followers{% endblocktrans %}
+    </li>
+  {% endif %}
+</ul>

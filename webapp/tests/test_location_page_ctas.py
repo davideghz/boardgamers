@@ -52,7 +52,8 @@ class LocationPageCtasTest(TestCase):
         manage = f'''href="{reverse('location-manage', args=[self.data.circolo.slug])}"'''
         # Header pill for mobile, sidebar button from lg up.
         response = self.get(self.data.circolo, 'manager')
-        self.assertContains(response, manage, count=2)
+        # Once, in the manager bar at the top of the page (D3), on every screen size
+        self.assertContains(response, manage, count=1)
         self.assertNotContains(response, 'hide_membership')  # the partial's comment stays a comment
         self.assertNotContains(self.get(self.data.circolo, 'member'), manage)
 

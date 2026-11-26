@@ -1534,6 +1534,34 @@ class Membership(DateTimeModel):
     )
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
+    #: Days before the end date from which a membership can be renewed.
+    RENEWAL_WINDOW_DAYS = 30
+
+    def state(self, today=None):
+        """How the member sees it: 'active', 'expiring' (within the renewal window),
+        'expired', 'pending' or 'rejected'."""
+        if self.status in (self.PENDING, self.REJECTED, self.EXPIRED):
+            return {self.PENDING: 'pending', self.REJECTED: 'rejected', self.EXPIRED: 'expired'}[self.status]
+        if not self.end_date:
+            return 'active'
+        today = today or timezone.localdate()
+        if self.end_date < today:
+            return 'expired'
+        return 'expiring' if (self.end_date - today).days <= self.RENEWAL_WINDOW_DAYS else 'active'
+
+    @property
+    def can_renew(self):
+        return self.state() in ('expiring', 'expired')
+
+    @classmethod
+    def blocking_request(cls, profile, location):
+        """The membership that stops a new request: a pending one, or an active one not yet
+        in its renewal window. None when the user may ask (again)."""
+        memberships = cls.objects.filter(
+            member__location=location, member__user_profile=profile, status__in=[cls.PENDING, cls.ACTIVE])
+        return next((membership for membership in memberships
+                     if membership.status == cls.PENDING or not membership.can_renew), None)
+
     @classmethod
     def active_for(cls, profile):
         today = timezone.localdate()

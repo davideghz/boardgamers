@@ -128,8 +128,8 @@ A1_QUERIES = {
 }
 
 
-# D2: the manager's to-do (four counts and their locations) and the next activities (two).
-HOME_MODULES_QUERIES = 7
+# D2: the manager's to-do (one query) and the next activities (two).
+HOME_MODULES_QUERIES = 3
 
 
 class PageQueriesTest(TestCase):

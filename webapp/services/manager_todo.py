@@ -5,7 +5,8 @@ Used by the home page's to-do module; the management pages (plan G1, G2) reuse i
 """
 from collections import namedtuple
 
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, IntegerField, OuterRef, Subquery
+from django.db.models.functions import Coalesce, Lower
 from django.urls import reverse
 from django.utils import timezone
 
@@ -19,39 +20,34 @@ DRAFT_EVENTS = 'draft_events'
 EVENTS_WITHOUT_TABLES = 'events_without_tables'
 
 
+def _count(queryset, field):
+    """Rows of `queryset` pointing at the outer location through `field`, as a subquery."""
+    counted = (queryset.filter(**{field: OuterRef('pk')}).order_by().values(field)
+               .annotate(n=Count('pk', distinct=True)).values('n')[:1])
+    return Coalesce(Subquery(counted, output_field=IntegerField()), 0)
+
+
 def manager_todo(location_ids):
     """TodoItems for the locations in `location_ids`, one per location and kind, in this
-    order: membership requests, layout requests, drafts, events without tables."""
+    order: membership requests, layout requests, drafts, events without tables. One query."""
     if not location_ids:
         return []
     today = timezone.localdate()
+    upcoming = Exists(EventDate.objects.filter(event_id=OuterRef('pk'), date__gte=today))
     counts = {
-        MEMBERSHIP_REQUESTS: Membership.objects.filter(
-            member__location_id__in=location_ids, status=Membership.PENDING,
-        ).values_list('member__location_id').annotate(n=Count('pk')),
-        LAYOUT_REQUESTS: Event.objects.filter(
-            venue_layout_requested_from_id__in=location_ids, venue_layout_approved=False,
-        ).values_list('venue_layout_requested_from_id').annotate(n=Count('pk')),
-        DRAFT_EVENTS: Event.objects.filter(
-            organizer_location_id__in=location_ids, status=Event.DRAFT,
-        ).values_list('organizer_location_id').annotate(n=Count('pk')),
+        MEMBERSHIP_REQUESTS: _count(Membership.objects.filter(status=Membership.PENDING), 'member__location_id'),
+        LAYOUT_REQUESTS: _count(Event.objects.filter(venue_layout_approved=False), 'venue_layout_requested_from_id'),
+        DRAFT_EVENTS: _count(Event.objects.filter(status=Event.DRAFT), 'organizer_location_id'),
         # Only events that ask for tables: an evening without tables is a choice, not a gap.
-        EVENTS_WITHOUT_TABLES: Event.objects.filter(
-            organizer_location_id__in=location_ids, status=Event.PUBLISHED, table_booking_enabled=True,
-            tables__isnull=True,
-        ).filter(Exists(EventDate.objects.filter(event_id=OuterRef('pk'), date__gte=today)))
-        .values_list('organizer_location_id').annotate(n=Count('pk', distinct=True)),
+        EVENTS_WITHOUT_TABLES: _count(Event.objects.filter(
+            upcoming, status=Event.PUBLISHED, table_booking_enabled=True, tables__isnull=True,
+        ), 'organizer_location_id'),
     }
-    rows = [(key, location_id, n) for key, query in counts.items() for location_id, n in query if n]
-    if not rows:
-        return []
-    locations = Location.objects.in_bulk({location_id for _key, location_id, _n in rows})
+    locations = Location.objects.filter(pk__in=location_ids).annotate(**counts).order_by(Lower('name'), 'pk')
     url_names = {
         MEMBERSHIP_REQUESTS: 'location-manage-members', LAYOUT_REQUESTS: 'location-venue-layout-requests',
         DRAFT_EVENTS: 'location-manage-events', EVENTS_WITHOUT_TABLES: 'location-manage-events',
     }
-    return [
-        TodoItem(key, n, locations[location_id], reverse(url_names[key], args=[locations[location_id].slug]))
-        for key, location_id, n in sorted(rows, key=lambda row: (list(counts).index(row[0]),
-                                                                 locations[row[1]].name.lower()))
-    ]
+    items = [TodoItem(key, getattr(location, key), location, reverse(url_names[key], args=[location.slug]))
+             for location in locations for key in counts if getattr(location, key)]
+    return sorted(items, key=lambda item: list(counts).index(item.key))  # stable: by kind, then name

@@ -35,6 +35,7 @@ from webapp.models import Location, Table, UserProfile, Comment, Game, LocationF
     PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services import game_loans
+from webapp.services.manager_todo import manager_todo
 from webapp.services.viewer import get_viewer
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import reopen_location_leaderboards
@@ -136,6 +137,20 @@ def index_view(request, template_name="locations/location_index.html"):
     return render(request, template_name, context)
 
 
+def _membership_for_card(viewer, location, relation):
+    """The membership the location page shows the user: the one in force, else the pending
+    request, else the latest (expired or rejected). None for managers and visitors."""
+    if relation in ('manager', 'anonymous') or viewer.sees_as_visitor or not location.enable_membership:
+        return None
+    memberships = list(Membership.objects.filter(
+        member__location=location, member__user_profile=viewer.profile).order_by('-created_at')[:5])
+    for wanted in (('active', 'expiring'), ('pending',)):
+        found = next((membership for membership in memberships if membership.state() in wanted), None)
+        if found:
+            return found
+    return memberships[0] if memberships else None
+
+
 class LocationDetailView(DetailView):
     model = Location
     template_name = 'locations/location_detail.html'
@@ -148,9 +163,22 @@ class LocationDetailView(DetailView):
 
         # The viewer's ties and permissions here, from the request's cached facts
         viewer = get_viewer(self.request)
+        relation = viewer.relation(location)
         followers_count = location.followers.count()
         is_following = location.pk in viewer.followed_location_ids
-        table_creation = viewer.table_creation_access(location)
+        if viewer.sees_as_visitor:
+            # A manager previewing the page: show what a signed-in visitor would be offered
+            # (the actions themselves still check the real permissions).
+            def visitor_access(permission):
+                return Location.decide_access(permission, signed_in=True, is_manager=False, membership=None,
+                                              is_superuser=False)
+            table_creation = visitor_access(location.table_creation_permission)
+            table_join = visitor_access(location.table_join_permission)
+            event_creation = visitor_access(location.event_creation_permission)
+        else:
+            table_creation = viewer.table_creation_access(location)
+            table_join = viewer.table_join_access(location)
+            event_creation = viewer.event_creation_access(location)
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -224,12 +252,17 @@ class LocationDetailView(DetailView):
         context['has_pending_membership'] = table_creation.membership_pending
         context['is_active_member'] = table_creation.is_active_member
         context['table_creation'] = table_creation
-        context['table_join'] = viewer.table_join_access(location)
+        context['table_join'] = table_join
+        context['relation'] = relation
+        context['sees_as_visitor'] = viewer.sees_as_visitor
+        context['membership'] = _membership_for_card(viewer, location, relation)
+        context['location_todo'] = manager_todo({location.pk}) if relation == 'manager' else []
+        context['joined_table_ids'] = viewer.upcoming_table_ids
         context['create_table_url'] = reverse(
             'location-calendar' if location.enable_calendar else 'location-table-create', args=[location.slug])
         context['organized_events'] = location.organized_events.filter(status=Event.PUBLISHED).select_related(
             'organizer_location', 'venue_location').prefetch_related('dates').order_by('-created_at')
-        context['event_creation'] = viewer.event_creation_access(location)
+        context['event_creation'] = event_creation
         context['sponsored_events'] = (
             location.sponsored_events
             .filter(organizer_location__isnull=True, status=Event.PUBLISHED, dates__date__gte=today)
@@ -942,12 +975,8 @@ class RequestMembershipView(LoginRequiredMixin, View):
     """View for a logged-in user to request a membership for a location."""
 
     def _get_existing_membership(self, user_profile, location):
-        """Returns a blocking membership (PENDING or ACTIVE) if it exists."""
-        return Membership.objects.filter(
-            member__location=location,
-            member__user_profile=user_profile,
-            status__in=[Membership.PENDING, Membership.ACTIVE],
-        ).first()
+        """A membership that blocks the request: pending, or active and not yet renewable."""
+        return Membership.blocking_request(user_profile, location)
 
     def _build_form(self, request, location, user_profile, data=None):
         """
@@ -993,8 +1022,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
 
         if form.is_valid():
             # Check if there's already a pending or active membership
-            if member is not None and member.memberships.filter(
-                    status__in=[Membership.PENDING, Membership.ACTIVE]).exists():
+            if member is not None and self._get_existing_membership(user_profile, location):
                 messages.warning(request, _("You already have a pending or active membership for this location."))
                 return redirect('location-detail', slug=location.slug)
 

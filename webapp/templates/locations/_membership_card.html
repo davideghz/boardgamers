@@ -1,0 +1,36 @@
+{% load i18n custom_tags %}
+{% comment %}
+The user's membership at this location: its state and end date, and "Renew" from 30 days
+before the end (Membership.RENEWAL_WINDOW_DAYS) or once it has expired.
+{% endcomment %}
+{% with state=membership.state %}
+<section aria-labelledby="membership-card-title"
+         class="flex flex-wrap items-center gap-3 rounded-xl border p-4 {% if state == 'active' %}border-success/30 bg-success-soft{% elif state == 'pending' %}border-divider bg-surface{% else %}border-warning/30 bg-warning-soft{% endif %}">
+  <div class="min-w-0 flex-1">
+    <h2 id="membership-card-title" class="text-sm font-bold text-content">
+      {% if state == 'pending' %}{% trans "Membership request pending" %}
+      {% elif state == 'rejected' %}{% trans "Membership request not accepted" %}
+      {% else %}{% trans "Member" context "location role" %}{% endif %}
+    </h2>
+    <p class="mt-0.5 text-xs text-content-soft">
+      {% if state == 'active' %}
+        {% if membership.end_date %}{% blocktrans with date=membership.end_date|date:"j F Y"|lower %}Active until {{ date }}{% endblocktrans %}{% else %}{% trans "Active" context "status" %}{% endif %}
+      {% elif state == 'expiring' %}
+        {% blocktrans with date=membership.end_date|date:"j F Y"|lower %}Expires on {{ date }}{% endblocktrans %}
+      {% elif state == 'expired' %}
+        {% if membership.end_date %}{% blocktrans with date=membership.end_date|date:"j F Y"|lower %}Expired on {{ date }}{% endblocktrans %}{% else %}{% trans "Expired" %}{% endif %}
+      {% elif state == 'pending' %}
+        {% trans "The managers will review it." %}
+      {% endif %}
+    </p>
+  </div>
+  <div class="flex flex-wrap items-center gap-2">
+    {% if membership.can_renew or state == 'rejected' %}
+      {% url 'location-request-membership' location.slug as renew_url %}
+      {% if state == 'rejected' %}{% trans "Ask again" as renew_label %}{% else %}{% trans "Renew" as renew_label %}{% endif %}
+      {% button renew_label url=renew_url size="sm" %}
+    {% endif %}
+    <a href="{% url 'account-memberships' %}" class="text-xs font-semibold text-link hover:underline">{% trans "My memberships" %}</a>
+  </div>
+</section>
+{% endwith %}
