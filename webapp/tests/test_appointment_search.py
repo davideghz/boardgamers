@@ -8,6 +8,7 @@ from django.utils.translation import override
 
 from webapp.factories import GameFactory, LocationFactory
 from webapp.models import Event, EventDate, MasterEvent, MasterEventDate, Table
+from webapp.tests.test_location_table_access import italian
 
 
 class AppointmentSearchTest(TestCase):
@@ -188,3 +189,32 @@ class AppointmentSearchTest(TestCase):
         self.assertContains(response, f'href="{self.url}?type=events&amp;organizer={self.club.slug}"')
         response = self.client.get(reverse('location-detail', args=[self.venue.slug]))
         self.assertNotContains(response, f'href="{self.url}?type=events&amp;organizer={self.venue.slug}"')
+
+    def test_one_list_pattern(self):
+        """E2: header with the count, filters in one dialog/column, removable chips, result rows."""
+        params = {'type': 'events', 'q': 'Ludoteca', 'location': self.venue.slug, 'when': 'today'}
+        response = self.client.get(self.url, params)
+        self.assertEqual(response.context['paginator'].count, 0)
+        self.assertContains(response, 'id="search-filters"', count=1)
+        self.assertContains(response, italian('Filters (%(n)s)') % {'n': 2})  # the query is not a filter
+        with override('it'):
+            chips = {str(label): url for label, url in response.context['active_filters']}
+        venue = italian('Venue: %(name)s') % {'name': self.venue.name}
+        self.assertEqual(set(chips), {'«Ludoteca»', venue, italian('Today')})
+        self.assertEqual(chips[venue], '?type=events&q=Ludoteca&when=today')
+        self.assertEqual(chips[italian('Today')], f'?type=events&q=Ludoteca&location={self.venue.slug}')
+        self.assertEqual(response.context['reset_url'], '?type=events')
+
+        response = self.client.get(self.url, {'type': 'events'})
+        self.assertEqual(response.context['active_filters'], [])
+        self.assertEqual(response.context['paginator'].count, 1)
+        self.assertContains(response, self.event.get_absolute_url())
+        self.assertNotContains(response, italian('Clear all'))
+
+    def test_past_results_are_marked(self):
+        evening = Event.objects.create(name='Serata passata', organizer_location=self.club, status=Event.PUBLISHED)
+        EventDate.objects.create(event=evening, date=timezone.localdate() - timedelta(days=2), opening_time=time(20))
+        response = self.client.get(self.url, {'type': 'events', 'when': 'past'})
+        self.assertTrue(response.context['past'])
+        self.assertEqual(response.context['items'], [('event', evening)])
+        self.assertContains(response, evening.get_absolute_url())

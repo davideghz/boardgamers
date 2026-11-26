@@ -9,7 +9,7 @@ from django.views import View
 from meta.views import Meta
 
 from webapp.forms import LocationPickerWidget
-from webapp.models import Event, EventDate, MasterEvent, MasterEventDate, Table
+from webapp.models import Event, EventDate, Location, MasterEvent, MasterEventDate, Table
 from webapp.services.appointments import paginate_appointments, with_matching_day
 
 
@@ -124,6 +124,35 @@ def _search_manifestations(query, venue, organizer, date_filters, newest_first):
     return with_matching_day(masters.select_related('venue_location'), days, newest_first=newest_first)
 
 
+def _without(params, *keys):
+    """The current query string without `keys` (and the page), for a chip's remove link."""
+    remaining = params.copy()
+    for key in (*keys, 'page'):
+        remaining.pop(key, None)
+    return f'?{remaining.urlencode()}' if remaining else '?'
+
+
+def _active_filters(params, query, venue, organizer, when, period_labels):
+    """The chips of the active filters, (label, remove URL), and how many of them sit in the
+    filters panel (the keywords have their own field)."""
+    names = dict(Location.objects.filter(slug__in=[slug for slug in (venue, organizer) if slug])
+                 .values_list('slug', 'name'))
+    chips = []
+    if query:
+        chips.append((f'«{query}»', _without(params, 'q')))
+    if venue:
+        chips.append((_('Venue: %(name)s') % {'name': names.get(venue, venue)}, _without(params, 'location')))
+    if organizer:
+        chips.append((_('Organizer: %(name)s') % {'name': names.get(organizer, organizer)},
+                      _without(params, 'organizer')))
+    if when != 'upcoming':
+        label = period_labels.get(when, when)
+        if when == 'range' and params.get('date_from') and params.get('date_to'):
+            label = f"{params['date_from']} – {params['date_to']}"
+        chips.append((label, _without(params, 'when', 'date_from', 'date_to')))
+    return chips, len(chips) - bool(query)
+
+
 class AppointmentSearchView(View):
     template_name = 'search/appointments.html'
 
@@ -141,8 +170,15 @@ class AppointmentSearchView(View):
         organizer_slug = form.cleaned_data.get('organizer', '')
         date_errors = form.errors.get('date_from') or form.errors.get('date_to')
 
+        periods = [('upcoming', _('Upcoming')), ('today', _('Today')), ('weekend', _('This weekend')),
+                   ('past', _('Past')), ('range', _('Custom date range'))]
+        chips, filter_count = _active_filters(params, request.GET.get('q', '').strip(), location_slug,
+                                              organizer_slug, when, dict(periods))
         context = {
             'search_form': form,
+            'active_filters': chips,
+            'filter_count': filter_count,
+            'reset_url': f"?type={search_type}" if search_type != 'all' else '?',
             'search_type': search_type,
             'search_types': SEARCH_TYPES,
             'search_params': params,
@@ -150,14 +186,14 @@ class AppointmentSearchView(View):
             'q': request.GET.get('q', '').strip(),
             'selected_location': location_slug,
             'selected_organizer': organizer_slug,
-            'periods': [('upcoming', _('Upcoming')), ('today', _('Today')), ('weekend', _('This weekend')),
-                        ('past', _('Past')), ('range', _('Custom date range'))],
+            'periods': periods,
+            'past': when == 'past',
             'date_from': request.GET.get('date_from', ''),
             'date_to': request.GET.get('date_to', ''),
             'date_error': date_errors[0] if date_errors else '',
             'search_error': _("Check the search filters and try again.") if not valid and not date_errors else '',
             'meta': Meta(
-                title=_('Search'),
+                title=pgettext_lazy('navigation', 'Activities'),
                 description=_('Find events, game tables and manifestations on Board Gamers.'),
             ),
         }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 17:06+0100\n"
+"POT-Creation-Date: 2026-11-26 18:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4932,6 +4932,16 @@ msgstr "vittorie"
 msgid "No tables played yet."
 msgstr "Ancora nessun tavolo giocato."
 
+msgid "Apply filters"
+msgstr "Applica i filtri"
+
+#, python-format
+msgid "Filters (%(n)s)"
+msgstr "Filtri (%(n)s)"
+
+msgid "Active filters"
+msgstr "Filtri attivi"
+
 msgid "For clubs & associations"
 msgstr "Per club e associazioni"
 
@@ -5997,6 +6007,14 @@ msgstr "Inserisci una data di inizio e una di fine."
 
 msgid "The end date must be on or after the start date."
 msgstr "La data di fine deve essere uguale o successiva a quella di inizio."
+
+#, python-format
+msgid "Venue: %(name)s"
+msgstr "Luogo: %(name)s"
+
+#, python-format
+msgid "Organizer: %(name)s"
+msgstr "Sede organizzatrice: %(name)s"
 
 msgid "Today"
 msgstr "Oggi"

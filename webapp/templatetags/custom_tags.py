@@ -270,3 +270,39 @@ def in_list(value, names):
     """True when `value` is one of the comma-separated `names` (e.g. the current URL name
     against the pages a menu entry stands for)."""
     return value in [name.strip() for name in names.split(',')]
+
+
+@register.inclusion_tag("components/result_row.html")
+def appointment_row(kind, item, past=False):
+    """A table, event or manifestation (kind 'table', 'event', 'manifestation') as a result_row:
+    kicker "Type · date", title, where and who, and the state apart from the type."""
+    from django.utils import timezone
+    from django.utils.formats import date_format, time_format
+
+    def day_label(day):  # the year only when it is not this one
+        return date_format(day, 'D j M' if day.year == timezone.localdate().year else 'D j M Y')
+
+    if kind == 'table':
+        kicker = [TYPE_BADGES['table'], day_label(item.date), time_format(item.time, 'H:i')]
+        if item.event_id:
+            meta = [item.event.name, item.event.venue_label]
+        else:
+            meta = [item.location.name if item.location_id else '']
+        meta.insert(0, str(item.game) if item.game_id else '')
+        status, image = item.status, item.cover_url
+    else:
+        day = getattr(item, 'matching_date', None)
+        kicker = [TYPE_BADGES[kind], day_label(day) if day else '']
+        if getattr(item, 'matching_time', None):
+            kicker.append(time_format(item.matching_time, 'H:i'))
+        if kind == 'event':
+            meta = [item.organizer_location.name if item.organizer_location_id else '',
+                    '' if item.is_at_organizer_location else item.venue_label]
+            image = item.cover_url
+        else:
+            meta = [item.venue_label]
+            image = item.venue_location.cover_url if item.venue_location_id else None
+        status = 'past' if past else None
+    title = item.title if kind == 'table' else item.name
+    return result_row(item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
+                      meta=meta, status=status, image_url=image)

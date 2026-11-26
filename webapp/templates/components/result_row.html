@@ -6,8 +6,9 @@ from the type. The whole row is the link.
    class="group flex items-center gap-3 rounded-xl border border-divider bg-surface p-3 text-decoration-none transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
   {% if image_url %}<img loading="lazy" decoding="async" src="{{ image_url }}" alt="" class="h-16 w-16 flex-shrink-0 rounded-xl border border-divider bg-surface-input object-cover">{% endif %}
   <div class="min-w-0 flex-1 space-y-0.5">
-    <div class="flex items-center justify-between gap-2">
-      <p class="truncate text-[11px] font-semibold uppercase tracking-wide text-content-muted">{{ kicker }}</p>
+    {# The badge wraps below the kicker when both do not fit, rather than cutting the date #}
+    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+      <p class="min-w-0 max-w-full truncate text-[11px] font-semibold uppercase tracking-wide text-content-muted">{{ kicker }}</p>
       {% if status_label %}{% include "components/badge.html" with label=status_label tone=status_tone only %}{% endif %}
     </div>
     <p class="truncate text-sm font-bold text-content">{{ title }}</p>
