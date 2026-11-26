@@ -173,6 +173,16 @@ def memberships(request, template_name='accounts/account_memberships.html'):
         status__in=[Membership.EXPIRED, Membership.REJECTED]
     ).order_by('-end_date')
 
+    # Documents of each location, with the signed copy of the online ones.
+    active_memberships = list(active_memberships.prefetch_related('signed_documents'))
+    for membership in active_memberships:
+        signed_by_document = {signed.document_id: signed for signed in membership.signed_documents.all()}
+        membership.document_rows = [
+            (document, signed_by_document.get(document.pk))
+            for document in membership.member.location.membership_documents.all()
+            if document.is_active
+        ]
+
     return render(request, template_name, {
         'active_memberships': active_memberships,
         'past_memberships': past_memberships,

@@ -16,7 +16,7 @@ from modeltranslation.admin import TabbedTranslationAdmin
 from webapp.fields import NetworkLogoImageField
 from webapp.forms import BannerChangeListForm, BannerForm, NetworkForm, NetworkLogoField
 from webapp.models import UserProfile, Table, TableLink, Comment, Player, Location, Game, LocationFollower, FavoriteUser, Notification, Member, \
-    Membership, MembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
+    Membership, MembershipDocument, SignedMembershipDocument, GuestProfile, LocationGame, FAQCategory, FAQ, TelegramGroupConfig, \
     TelegramSetupToken, Event, PlayArea, EventDate, PushSubscription, \
     PhysicalTable, EventParticipant, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
 from webapp.services import games as game_services
@@ -398,9 +398,24 @@ class MembershipAdmin(admin.ModelAdmin):
 
 @admin.register(MembershipDocument)
 class MembershipDocumentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'is_active', 'created_at')
-    list_filter = ('is_active', 'location')
+    list_display = ('name', 'location', 'kind', 'is_active', 'created_at')
+    list_filter = ('kind', 'is_active', 'location')
     search_fields = ('name', 'location__name')
+
+
+@admin.register(SignedMembershipDocument)
+class SignedMembershipDocumentAdmin(admin.ModelAdmin):
+    """Read-only: a signed document is evidence, nobody edits it."""
+    list_display = ('document_name', 'member', 'signed_at', 'collected_by')
+    list_filter = ('member__location',)
+    search_fields = ('document_name', 'member__first_name', 'member__last_name', 'member__location__name')
+    raw_id_fields = ('document', 'member', 'membership', 'signed_by', 'collected_by')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(GuestProfile)

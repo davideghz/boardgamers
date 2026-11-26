@@ -8,7 +8,7 @@
     {% back_link 'location-manage-members' location.slug label=_("Members") %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Membership documents" %}</h1>
     <p class="text-sm text-content-muted mt-1">
-      {% trans "Documents your members download, print and sign — the membership form, the privacy notice, the statute. Active documents are shown to anyone requesting a membership." %}
+      {% trans "Documents your members sign — the membership form, the privacy notice, the statute. Write them here to have them signed online with a finger, or upload a file to print and sign on paper. Active documents are shown to anyone requesting a membership." %}
     </p>
   </div>
 
@@ -21,8 +21,14 @@
           <div class="flex items-start justify-between gap-3">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <a href="{{ document.file.url }}" target="_blank" rel="noopener"
-                   class="text-sm font-bold text-content hover:underline text-decoration-none">{{ document.name }}</a>
+                {% if document.is_online %}
+                  <a href="{% url 'location-membership-document-edit' location.slug document.uuid %}"
+                     class="text-sm font-bold text-content hover:underline text-decoration-none">{{ document.name }}</a>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Signed online" %}</span>
+                {% else %}
+                  <a href="{{ document.file.url }}" target="_blank" rel="noopener"
+                     class="text-sm font-bold text-content hover:underline text-decoration-none">{{ document.name }}</a>
+                {% endif %}
                 {% if document.extension %}
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{{ document.extension }}</span>
                 {% endif %}
@@ -31,17 +37,32 @@
                 {% endif %}
               </div>
               <p class="text-[11px] text-content-muted mt-0.5">
-                {% trans "Uploaded on" %} {{ document.created_at|date:"d/m/Y" }}
+                {% if document.is_online %}
+                  {% trans "Created on" %} {{ document.created_at|date:"d/m/Y" }}
+                  · {% blocktrans count counter=document.signatures.count %}{{ counter }} signature{% plural %}{{ counter }} signatures{% endblocktrans %}
+                  · <a href="{% url 'location-membership-document-preview' location.slug document.uuid %}" target="_blank" rel="noopener"
+                       class="font-semibold text-blue-600 hover:underline">{% trans "Preview PDF" %}</a>
+                {% else %}
+                  {% trans "Uploaded on" %} {{ document.created_at|date:"d/m/Y" }}
+                {% endif %}
               </p>
             </div>
 
             <div class="flex items-center gap-1 flex-shrink-0">
+              {% if document.is_online %}
+                <a href="{% url 'location-membership-document-edit' location.slug document.uuid %}"
+                   class="p-1.5 rounded-lg text-content-muted hover:text-content hover:bg-surface-alt transition-colors"
+                   aria-label="{% trans 'Edit' %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+                </a>
+              {% else %}
               <button type="button"
                       data-document-uuid="{{ document.uuid }}"
                       class="js-rename-btn p-1.5 rounded-lg text-content-muted hover:text-content hover:bg-surface-alt transition-colors"
                       aria-label="{% trans 'Rename' %}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
               </button>
+              {% endif %}
 
               <form method="post" action="{% url 'location-membership-document-action' location.slug document.uuid %}">
                 {% csrf_token %}
@@ -87,9 +108,22 @@
             </svg>
           </div>
           <p class="text-sm font-semibold text-content">{% trans "No documents yet" %}</p>
-          <p class="text-xs text-content-muted mt-1">{% trans "Upload the form your members have to sign." %}</p>
+          <p class="text-xs text-content-muted mt-1">{% trans "Write the form your members have to sign, or upload it." %}</p>
         </div>
       {% endfor %}
+    </div>
+
+    {# ── Write a document to sign online ───────────────────────────── #}
+    <div class="rounded-xl border border-divider bg-surface p-4">
+      <h2 class="text-sm font-extrabold text-content mb-1">{% trans "Write a document to sign online" %}</h2>
+      <p class="text-xs text-content-muted mb-3">
+        {% trans "Write the text and insert fields where the member's details go. Members check their details and sign with a finger on their phone, or on yours at the venue. The signed PDF is stored privately and you get an email for each signature." %}
+      </p>
+      <a href="{% url 'location-membership-document-new' location.slug %}"
+         class="w-full flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+        {% trans "Write a document" %}
+      </a>
     </div>
 
     {# ── Upload form ───────────────────────────────────────────────── #}

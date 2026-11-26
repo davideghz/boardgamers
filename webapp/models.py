@@ -30,6 +30,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from webapp.fields import ManagedImageField, NetworkLogoImageField
 from webapp.image_models import ManagedImagesModel
 from webapp.services.images import AVATAR_MAX_SIDE, COVER_MAX_SIDE
+from webapp.storage_backends import get_private_storage
 
 
 def _plain_text(markdown_text):
@@ -1151,7 +1152,7 @@ class Member(DateTimeModel):
 
     #: Personal data carried over when the same user joins another location.
     PERSONAL_DATA_FIELDS = (
-        'first_name', 'last_name', 'fiscal_code', 'email', 'phone_number',
+        'first_name', 'last_name', 'fiscal_code', 'id_document_number', 'email', 'phone_number',
         'birth_date', 'birth_place', 'nationality',
         'address', 'zip_code', 'city', 'province',
     )
@@ -1166,6 +1167,8 @@ class Member(DateTimeModel):
         max_length=16, blank=True, validators=[validate_fiscal_code],
         verbose_name=_('Fiscal Code')
     )
+    id_document_number = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Identity document number'))
     email = models.EmailField(blank=True, verbose_name=_('Email'))
     phone_number = PhoneNumberField(blank=True, region='IT', verbose_name=_('Phone Number'))
 
@@ -1290,19 +1293,34 @@ class Membership(DateTimeModel):
 
 class MembershipDocument(DateTimeModel):
     """
-    A blank document a location asks its members to print and sign (membership
-    form, privacy notice, statute...). It is downloaded as it is and holds no
-    personal data, so it lives on the public media bucket like any other file.
+    A document a location asks its members to sign (membership form, privacy
+    notice, statute...). Either an uploaded file, downloaded as it is, printed
+    and signed on paper, or a text written in the app with placeholders for the
+    member's data, signed online (see `SignedMembershipDocument`).
+
+    Neither holds personal data, so the uploaded file lives on the public media
+    bucket like any other file.
     """
+    FILE = 'file'
+    ONLINE = 'online'
+    KIND_CHOICES = [
+        (FILE, _('Uploaded file')),
+        (ONLINE, _('Signed online')),
+    ]
+
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, related_name='membership_documents',
         verbose_name=_('Location')
     )
     name = models.CharField(max_length=200, verbose_name=_('Name'))
+    kind = models.CharField(max_length=10, choices=KIND_CHOICES, default=FILE, verbose_name=_('Kind'))
     file = models.FileField(
-        upload_to='membership-documents',
+        upload_to='membership-documents', blank=True,
         verbose_name=_('File')
     )
+    #: Sanitized HTML of an online document, with `{{key}}` placeholders
+    #: (see `webapp.services.member_documents.PLACEHOLDERS`).
+    body = models.TextField(blank=True, verbose_name=_('Text'))
     is_active = models.BooleanField(default=True, verbose_name=_('Active'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
 
@@ -1319,6 +1337,64 @@ class MembershipDocument(DateTimeModel):
         """Uppercase file extension, for the badge next to the download link."""
         name = self.file.name or ''
         return name.rsplit('.', 1)[-1].upper() if '.' in name else ''
+
+    @property
+    def is_online(self):
+        return self.kind == self.ONLINE
+
+
+def signed_document_upload_to(instance, filename):
+    return f'signed-documents/{instance.member.location_id}/{instance.uuid}.pdf'
+
+
+class SignedMembershipDocument(DateTimeModel):
+    """
+    An online membership document signed by a member: the generated PDF, with
+    the data and the drawn signature in it, plus the evidence of how it was
+    signed. It holds personal data, so the PDF lives on the private bucket and
+    is only ever streamed by a view that checks permissions.
+    """
+    #: Kept when the document is deleted: the signed copy is what counts.
+    document = models.ForeignKey(
+        MembershipDocument, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='signatures', verbose_name=_('Document'))
+    document_name = models.CharField(max_length=200, verbose_name=_('Document name'))
+    member = models.ForeignKey(
+        Member, on_delete=models.CASCADE, related_name='signed_documents', verbose_name=_('Member'))
+    membership = models.ForeignKey(
+        Membership, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='signed_documents', verbose_name=_('Membership'))
+    pdf = models.FileField(
+        upload_to=signed_document_upload_to, storage=get_private_storage, verbose_name=_('PDF'))
+    #: SHA-256 of the PDF, to show later that the file was not altered.
+    sha256 = models.CharField(max_length=64, verbose_name=_('SHA-256'))
+    signed_at = models.DateTimeField(verbose_name=_('Signed at'))
+    signed_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+', verbose_name=_('Signed by account'))
+    #: The manager who handed their device to the member, when signed in person.
+    collected_by = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+', verbose_name=_('Collected by'))
+    #: What the signer chose: `consents` ([{label, accepted}]) for the yes/no
+    #: fields, `minor` ({field: value}) when a guardian signed for a minor.
+    answers = models.JSONField(default=dict, blank=True, verbose_name=_('Answers'))
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name=_('IP address'))
+    user_agent = models.CharField(max_length=300, blank=True, verbose_name=_('User agent'))
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
+
+    class Meta:
+        verbose_name = _('Signed document')
+        verbose_name_plural = _('Signed documents')
+        ordering = ['-signed_at']
+
+    def __str__(self):
+        return f"{self.document_name} – {self.member}"
+
+    @property
+    def minor_name(self):
+        minor = self.answers.get('minor') or {}
+        return f"{minor.get('first_name', '')} {minor.get('last_name', '')}".strip()
 
 
 class LocationGameTag(DateTimeModel):

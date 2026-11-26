@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 13:18+0100\n"
+"POT-Creation-Date: 2026-11-26 12:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -290,6 +290,30 @@ msgstr "Tipo di file non supportato. Carica un file PDF, DOC, DOCX o ODT."
 msgid "The file is too large (max 5 MB)."
 msgstr "Il file è troppo grande (massimo 5 MB)."
 
+msgid "Write the text of the document."
+msgstr "Scrivi il testo del documento."
+
+msgid "The text is too long."
+msgstr "Il testo è troppo lungo."
+
+msgid "I have read the document and I accept it"
+msgstr "Ho letto il documento e lo accetto"
+
+msgid "I'm signing for a minor, as parent or guardian"
+msgstr "Firmo per un minore, come genitore o tutore"
+
+msgid "Yes"
+msgstr "Sì"
+
+msgid "No"
+msgstr "No"
+
+msgid "Choose yes or no."
+msgstr "Scegli sì o no."
+
+msgid "Sign in the box before confirming."
+msgstr "Firma nel riquadro prima di confermare."
+
 msgid "Notes"
 msgstr "Note"
 
@@ -428,6 +452,9 @@ msgstr "Nuovo giocatore al tavolo"
 
 msgid "New event published"
 msgstr "Nuovo evento pubblicato"
+
+msgid "Document signed"
+msgstr "Documento firmato"
 
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
@@ -778,6 +805,9 @@ msgstr "Cognome"
 msgid "Fiscal Code"
 msgstr "Codice fiscale"
 
+msgid "Identity document number"
+msgstr "Numero documento d'identità"
+
 msgid "Email"
 msgstr "Email"
 
@@ -823,14 +853,62 @@ msgstr "Membership"
 msgid "Memberships"
 msgstr "Memberships"
 
+msgid "Uploaded file"
+msgstr "File caricato"
+
+msgid "Signed online"
+msgstr "Firma online"
+
+msgid "Kind"
+msgstr "Tipo"
+
 msgid "File"
 msgstr "File"
+
+msgid "Text"
+msgstr "Testo"
 
 msgid "Membership Document"
 msgstr "Documento di adesione"
 
 msgid "Membership Documents"
 msgstr "Documenti di adesione"
+
+msgid "Document"
+msgstr "Documento"
+
+msgid "Document name"
+msgstr "Nome del documento"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid "SHA-256"
+msgstr "SHA-256"
+
+msgid "Signed at"
+msgstr "Firmato il"
+
+msgid "Signed by account"
+msgstr "Firmato dall'account"
+
+msgid "Collected by"
+msgstr "Raccolto da"
+
+msgid "Answers"
+msgstr "Risposte"
+
+msgid "IP address"
+msgstr "Indirizzo IP"
+
+msgid "User agent"
+msgstr "User agent"
+
+msgid "Signed document"
+msgstr "Documento firmato"
+
+msgid "Signed documents"
+msgstr "Documenti firmati"
 
 msgid "Order"
 msgstr "Ordine"
@@ -1220,6 +1298,71 @@ msgstr "Il logo può misurare al massimo 2048 pixel per lato."
 
 msgid "Upload a valid PNG, JPEG or WebP logo."
 msgstr "Carica un logo PNG, JPEG o WebP valido."
+
+msgid "Association logo"
+msgstr "Logo dell'associazione"
+
+msgid "Association name"
+msgstr "Nome dell'associazione"
+
+msgid "Association address"
+msgstr "Indirizzo dell'associazione"
+
+msgid "Association city"
+msgstr "Città dell'associazione"
+
+msgid "Signing date"
+msgstr "Data della firma"
+
+msgid "On their own behalf / minor"
+msgstr "Per conto proprio / minore"
+
+msgid "Yes / No"
+msgstr "Sì / No"
+
+msgid "Signature"
+msgstr "Firma"
+
+msgid "on their own behalf"
+msgstr "per conto proprio"
+
+#, python-format
+msgid ""
+"as the holder of parental responsibility over the minor %(first_name)s "
+"%(last_name)s, born in %(birth_place)s on %(birth_date)s, living in "
+"%(address)s, %(zip_code)s %(city)s (%(province)s), fiscal code "
+"%(fiscal_code)s"
+msgstr "quale esercente la responsabilità genitoriale sul minore %(first_name)s %(last_name)s, nato/a a %(birth_place)s il %(birth_date)s, residente in %(address)s, %(zip_code)s %(city)s (%(province)s), codice fiscale %(fiscal_code)s"
+
+#, python-format
+msgid "Date: %(date)s"
+msgstr "Data: %(date)s"
+
+#, python-format
+msgid ""
+"Signed with a simple electronic signature on Board-Gamers.com by %(name)s on "
+"%(date)s at %(time)s."
+msgstr ""
+"Firmato con firma elettronica semplice su Board-Gamers.com da %(name)s il "
+"%(date)s alle %(time)s."
+
+#, python-format
+msgid "IP address: %(ip)s · Document ID: %(uuid)s"
+msgstr "Indirizzo IP: %(ip)s · ID documento: %(uuid)s"
+
+#, python-format
+msgid "Signed in person on the device of %(manager)s."
+msgstr "Firmato di persona sul dispositivo di %(manager)s."
+
+#, python-format
+msgid "Signed from the account %(nickname)s."
+msgstr "Firmato dall'account %(nickname)s."
+
+#, python-format
+msgid ""
+"Signed by a holder of parental responsibility on behalf of the minor "
+"%(name)s."
+msgstr "Firmato da un esercente la responsabilità genitoriale per conto del minore %(name)s."
 
 msgid ""
 "Only active accounts without Django admin roles or permissions can be merged."
@@ -1612,6 +1755,12 @@ msgstr "Dal"
 msgid "Documents to sign"
 msgstr "Documenti da firmare"
 
+msgid "signed, download the PDF"
+msgstr "firmato, scarica il PDF"
+
+msgid "sign online"
+msgstr "firma online"
+
 msgid "Edit my details"
 msgstr "Modifica i miei dati"
 
@@ -1867,12 +2016,6 @@ msgstr "Non verificata"
 
 msgid "Usable password"
 msgstr "Password utilizzabile"
-
-msgid "Yes"
-msgstr "Sì"
-
-msgid "No"
-msgstr "No"
 
 msgid "Social logins"
 msgstr "Accessi social"
@@ -2152,6 +2295,37 @@ msgstr "Non ancora deciso"
 
 msgid "Check other tables"
 msgstr "Trova altri tavoli"
+
+#, python-format
+msgid ""
+"%(member_name)s signed the document \"%(document_name)s\" of "
+"%(location_name)s."
+msgstr ""
+"%(member_name)s ha firmato il documento \"%(document_name)s\" di "
+"%(location_name)s."
+
+msgid "It was signed in person, on the device of another manager."
+msgstr "È stato firmato di persona, sul dispositivo di un altro gestore."
+
+msgid "Open the member page to download the signed PDF"
+msgstr "Apri la scheda del socio per scaricare il PDF firmato"
+
+msgid "A member signed a document"
+msgstr "Un socio ha firmato un documento"
+
+#, python-format
+msgid ""
+"<strong>%(member_name)s</strong> signed the document \"%(document_name)s\" "
+"of %(location_name)s."
+msgstr ""
+"<strong>%(member_name)s</strong> ha firmato il documento "
+"\"%(document_name)s\" di %(location_name)s."
+
+msgid "Open the member page to download the signed PDF."
+msgstr "Apri la scheda del socio per scaricare il PDF firmato."
+
+msgid "Open the member page"
+msgstr "Apri la scheda del socio"
 
 msgid "See table"
 msgstr "Vai al tavolo"
@@ -3641,6 +3815,44 @@ msgstr "Elimina"
 msgid "New membership"
 msgstr "Nuova membership"
 
+msgid "Signed on"
+msgstr "Firmato il"
+
+#, python-format
+msgid "in person, collected by %(manager)s"
+msgstr "di persona, raccolto da %(manager)s"
+
+msgid "online"
+msgstr "online"
+
+#, python-format
+msgid "On behalf of the minor %(name)s"
+msgstr "Per conto del minore %(name)s"
+
+msgid "Download"
+msgstr "Scarica"
+
+msgid "Delete this signed document? The PDF cannot be recovered."
+msgstr ""
+"Eliminare questo documento firmato? Il PDF non potrà essere recuperato."
+
+msgid "No signed documents yet."
+msgstr "Ancora nessun documento firmato."
+
+msgid "Collect a signature at the venue"
+msgstr "Raccogli una firma in sede"
+
+msgid ""
+"Open the document on this device and hand it to the member: they check their "
+"details and sign with a finger."
+msgstr ""
+"Apri il documento su questo dispositivo e passalo al socio: controlla i suoi "
+"dati e firma con il dito."
+
+#, python-format
+msgid "Sign \"%(name)s\""
+msgstr "Firma \"%(name)s\""
+
 msgid "Delete membership"
 msgstr "Cancella membership"
 
@@ -3699,17 +3911,174 @@ msgstr "Approva"
 msgid "Membership documents"
 msgstr "Documenti di adesione"
 
+msgid "New document to sign online"
+msgstr "Nuovo documento da firmare online"
+
 msgid ""
-"Documents your members download, print and sign — the membership form, the "
-"privacy notice, the statute. Active documents are shown to anyone requesting "
-"a membership."
+"Write the text members sign. Where a detail of the member goes, insert a "
+"field: it is filled in with their data when they sign, and the signature "
+"goes where you put it."
 msgstr ""
-"I documenti che i tuoi soci scaricano, stampano e firmano: il modulo di "
-"adesione, l'informativa privacy, lo statuto. I documenti attivi vengono "
-"mostrati a chi richiede l'iscrizione."
+"Scrivi il testo che i soci firmano. Dove va un dato del socio, inserisci un "
+"campo: viene compilato con i suoi dati al momento della firma, e la firma va "
+"dove la metti tu."
+
+#, python-format
+msgid ""
+"%(counter)s member has already signed this document: they keep the PDF of "
+"the version they signed. Changes only apply to the next signatures."
+msgid_plural ""
+"%(counter)s members have already signed this document: they keep the PDF of "
+"the version they signed. Changes only apply to the next signatures."
+msgstr[0] "%(counter)s socio ha già firmato questo documento: conserva il PDF della versione che ha firmato. Le modifiche valgono solo per le prossime firme."
+msgstr[1] "%(counter)s soci hanno già firmato questo documento: conservano il PDF della versione che hanno firmato. Le modifiche valgono solo per le prossime firme."
+
+msgid "Formatting"
+msgstr "Formattazione"
+
+msgid "Subtitle"
+msgstr "Sottotitolo"
+
+msgid "Bold"
+msgstr "Grassetto"
+
+msgid "Italic"
+msgstr "Corsivo"
+
+msgid "Underline"
+msgstr "Sottolineato"
+
+msgid "Bulleted list"
+msgstr "Elenco puntato"
+
+msgid "Numbered list"
+msgstr "Elenco numerato"
+
+msgid "Undo"
+msgstr "Annulla"
+
+msgid "Write the text of the document here…"
+msgstr "Scrivi qui il testo del documento…"
+
+msgid "Insert a field"
+msgstr "Inserisci un campo"
+
+msgid ""
+"Click where it goes in the text, then pick the field. The member is asked "
+"for each field you use."
+msgstr ""
+"Clicca nel punto del testo in cui va, poi scegli il campo. Al socio viene "
+"chiesto ogni campo che usi."
+
+msgid ""
+"Without the Signature field, the signature goes at the end of the document, "
+"with the date."
+msgstr "Senza il campo Firma, la firma va in fondo al documento, con la data."
+
+msgid ""
+"Yes / No asks the member to choose: the question is the paragraph it sits "
+"in. Use it for optional consents, like photos."
+msgstr "Sì / No chiede al socio di scegliere: la domanda è il paragrafo in cui si trova. Usalo per i consensi facoltativi, come le foto."
+
+msgid ""
+"On their own behalf / minor lets a parent or guardian sign for a minor and "
+"enter the minor's details."
+msgstr "Per conto proprio / minore permette a un genitore o tutore di firmare per un minore e inserirne i dati."
+
+msgid "The logo is the image of the location, when it has one."
+msgstr "Il logo è l'immagine della location, se ne ha una."
+
+msgid "Start from an example"
+msgstr "Parti da un esempio"
+
+msgid "Active: members are asked to sign it"
+msgstr "Attivo: viene chiesto ai soci di firmarlo"
+
+msgid "Preview PDF (saved version)"
+msgstr "Anteprima PDF (versione salvata)"
+
+msgid "MEMBERSHIP APPLICATION"
+msgstr "DOMANDA DI AMMISSIONE A SOCIO"
+
+msgid "To"
+msgstr "Spett.le"
+
+msgid ""
+"I, the undersigned [[first_name]] [[last_name]], born in [[birth_place]] on "
+"[[birth_date]], living in [[address]], [[zip_code]] [[city]] ([[province]]), "
+"fiscal code [[fiscal_code]], identity card no. [[id_document_number]], "
+"mobile [[phone_number]], email [[email]], [[minor]],"
+msgstr "Il/La sottoscritto/a [[first_name]] [[last_name]], nato/a a [[birth_place]] il [[birth_date]], residente a [[city]] CAP [[zip_code]] Prov. [[province]] Via/Piazza [[address]], Codice Fiscale [[fiscal_code]], Carta d'Identità n. [[id_document_number]], cellulare [[phone_number]], e-mail [[email]], [[minor]],"
+
+msgid "APPLY"
+msgstr "CHIEDE"
+
+msgid "to be admitted as a member of the association \"[[location_name]]\"."
+msgstr "di poter essere ammesso in qualità di socio all’Associazione “[[location_name]]”."
+
+msgid "Furthermore, I, the undersigned,"
+msgstr "Inoltre, il/la sottoscritto/a"
+
+msgid "DECLARE"
+msgstr "DICHIARA"
+
+msgid ""
+"that I have read the Statute and the Rules of the Association and that I "
+"accept them and will abide by them in every respect;"
+msgstr "di aver preso visione dello Statuto e dei Regolamenti dell'Associazione e di accettarli e rispettarli in ogni loro punto;"
+
+msgid ""
+"that I undertake to pay the yearly membership fee and the association "
+"contributions according to the chosen activity;"
+msgstr "d’impegnarsi al pagamento della quota associativa annuale e dei contributi associativi a seconda dell’attività scelta;"
+
+msgid "that I consent to the processing of my personal data by the Association, under art. 13 of Regulation (EU) 2016/679 (GDPR) and Legislative Decree no. 196/2003 as amended, and in relation to the information provided. In particular, I consent to the processing of personal data for the institutional purposes of the Association, to the extent necessary to fulfil the obligations set by the law and by the statute."
+msgstr "di acconsentire al trattamento dei dati personali da parte dell'Associazione, ai sensi dell’art. 13 del Regolamento (UE) 2016/679 (GDPR) e del D.lgs. n. 196/2003 e successive modifiche, e in relazione all'informativa fornita. In particolare si presta il consenso al trattamento dei dati personali per la realizzazione delle finalità istituzionali dell’Associazione, nella misura necessaria all’adempimento di obblighi previsti dalla legge e dalle norme statutarie."
+
+msgid "Place and date"
+msgstr "Luogo e data"
+
+msgid ""
+"I authorise photographs and/or video recordings of myself / of the minor, "
+"taken for institutional purposes only, during the activities and/or events "
+"organised by the Association."
+msgstr "Si autorizza la fotografia e/o la ripresa del sottoscritto / del minore, effettuate ai soli fini istituzionali, durante lo svolgimento delle attività e/o delle manifestazioni organizzate dall'Associazione."
+
+msgid ""
+"I consent to the processing and publication, for institutional purposes "
+"only, of videos, photographs and/or images that may reveal my identity / the "
+"identity of the minor, on the website and in the periodical of the "
+"Association and on the notice boards in its premises."
+msgstr "Si acconsente al trattamento e alla pubblicazione, per i soli fini istituzionali, di video, fotografie e/o immagini atte a rivelare l’identità del sottoscritto / del minore, sul sito web e sul periodico dell'Associazione e nelle bacheche affisse nei locali della medesima."
+
+msgid "Replace the current text with the example?"
+msgstr "Sostituire il testo attuale con l'esempio?"
+
+msgid ""
+"Documents your members sign — the membership form, the privacy notice, the "
+"statute. Write them here to have them signed online with a finger, or upload "
+"a file to print and sign on paper. Active documents are shown to anyone "
+"requesting a membership."
+msgstr ""
+"I documenti che i tuoi soci firmano: il modulo di adesione, l'informativa "
+"privacy, lo statuto. Scrivili qui per farli firmare online con il dito, "
+"oppure carica un file da stampare e firmare su carta. I documenti attivi "
+"vengono mostrati a chi richiede l'iscrizione."
 
 msgid "Hidden"
 msgstr "Nascosto"
+
+msgid "Created on"
+msgstr "Creato il"
+
+#, python-format
+msgid "%(counter)s signature"
+msgid_plural "%(counter)s signatures"
+msgstr[0] "%(counter)s firma"
+msgstr[1] "%(counter)s firme"
+
+msgid "Preview PDF"
+msgstr "Anteprima PDF"
 
 msgid "Uploaded on"
 msgstr "Caricato il"
@@ -3726,8 +4095,25 @@ msgstr "Mostra"
 msgid "No documents yet"
 msgstr "Ancora nessun documento"
 
-msgid "Upload the form your members have to sign."
-msgstr "Carica il modulo che i tuoi soci devono firmare."
+msgid "Write the form your members have to sign, or upload it."
+msgstr "Scrivi il modulo che i tuoi soci devono firmare, oppure caricalo."
+
+msgid "Write a document to sign online"
+msgstr "Scrivi un documento da firmare online"
+
+msgid ""
+"Write the text and insert fields where the member's details go. Members "
+"check their details and sign with a finger on their phone, or on yours at "
+"the venue. The signed PDF is stored privately and you get an email for each "
+"signature."
+msgstr ""
+"Scrivi il testo e inserisci i campi dove vanno i dati del socio. I soci "
+"controllano i loro dati e firmano con il dito dal loro telefono, o dal tuo "
+"in sede. Il PDF firmato viene conservato in modo riservato e ricevi un'email "
+"per ogni firma."
+
+msgid "Write a document"
+msgstr "Scrivi un documento"
 
 msgid "Upload a document"
 msgstr "Carica un documento"
@@ -3888,9 +4274,6 @@ msgstr ""
 "Genera un messaggio per condividere lo status dei tavoli su WhatsApp o altre "
 "chats."
 
-msgid "To"
-msgstr "Al"
-
 msgid "Generate"
 msgstr "Genera"
 
@@ -4049,17 +4432,65 @@ msgstr ""
 "Richiedi una membership per %(name)s. Un manager esaminerà la tua richiesta."
 
 msgid ""
-"To become a member you have to print these documents, sign them and hand "
-"them in. You can download them again later from your memberships page."
+"To become a member you have to sign these documents: the ones to sign online "
+"right after sending the request, the others printed, signed and handed in. "
+"You find them all again on your memberships page."
 msgstr ""
-"Per diventare socio devi stampare questi documenti, firmarli e consegnarli. "
-"Puoi riscaricarli più avanti dalla pagina delle tue iscrizioni."
+"Per diventare socio devi firmare questi documenti: quelli online subito dopo "
+"aver inviato la richiesta, gli altri stampati, firmati e consegnati. Li "
+"ritrovi tutti nella pagina delle tue iscrizioni."
+
+msgid "you sign it online right after the request"
+msgstr "lo firmi online subito dopo la richiesta"
 
 msgid "Send Request"
 msgstr "Invia richiesta"
 
 msgid "Back to location"
 msgstr "Torna alla location"
+
+#, python-format
+msgid "Hand this device to %(name)s"
+msgstr "Passa questo dispositivo a %(name)s"
+
+msgid ""
+"They check their details, read the document and sign in the box with a "
+"finger."
+msgstr ""
+"Controlla i suoi dati, legge il documento e firma nel riquadro con il dito."
+
+msgid "Your details"
+msgstr "I tuoi dati"
+
+msgid "They fill in the document above. Check them before signing."
+msgstr "Compilano il documento qui sopra. Controllali prima di firmare."
+
+msgid "The minor's details: they go in the document next to yours."
+msgstr "I dati del minore: vanno nel documento insieme ai tuoi."
+
+msgid "Your choices"
+msgstr "Le tue scelte"
+
+msgid "Clear"
+msgstr "Cancella"
+
+msgid "Signature box: draw your signature with a finger or the mouse"
+msgstr "Riquadro della firma: firma con il dito o con il mouse"
+
+msgid "Sign here with your finger"
+msgstr "Firma qui con il dito"
+
+msgid ""
+"Confirming creates a PDF of the document with your details and your "
+"signature, kept by the association. The date, time and IP address of the "
+"signature are recorded in it."
+msgstr ""
+"Confermando viene creato un PDF del documento con i tuoi dati e la tua "
+"firma, conservato dall'associazione. Nel PDF vengono registrati data, ora e "
+"indirizzo IP della firma."
+
+msgid "Sign the document"
+msgstr "Firma il documento"
 
 msgid "Is your club missing?"
 msgstr "Manca il tuo club?"
@@ -5047,9 +5478,6 @@ msgstr "Ancora nessun giocatore."
 msgid "Invite a gamer"
 msgstr "Invita un gamer"
 
-msgid "Clear"
-msgstr "Cancella"
-
 msgid "Remove player?"
 msgstr "Rimuovi giocatore?"
 
@@ -5497,6 +5925,9 @@ msgstr "Richiedi Membership - %(name)s"
 msgid "Membership request sent. A manager will review it."
 msgstr "Richiesta di membership inviata. Un manager la esaminerà."
 
+msgid "Now sign the membership documents."
+msgstr "Ora firma i documenti di adesione."
+
 msgid ""
 "Remember to print and sign the membership documents: you can download them "
 "from \"My memberships\"."
@@ -5633,6 +6064,36 @@ msgstr "Non ci sono tavoli in questo periodo."
 #, python-format
 msgid "Join a table: %(url)s"
 msgstr "Unisciti a un tavolo: %(url)s"
+
+#, python-format
+msgid "Document %(name)s saved."
+msgstr "Documento %(name)s salvato."
+
+#, python-format
+msgid "Sign %(document)s - %(name)s"
+msgstr "Firma %(document)s - %(name)s"
+
+msgid "This document is already signed."
+msgstr "Questo documento è già firmato."
+
+#, python-format
+msgid "Document %(name)s signed."
+msgstr "Documento %(name)s firmato."
+
+msgid "Request a membership first: you sign the documents as part of it."
+msgstr ""
+"Prima richiedi l'iscrizione: i documenti si firmano come parte della "
+"richiesta."
+
+msgid ""
+"Add a pending or active membership to this member before collecting "
+"signatures."
+msgstr ""
+"Aggiungi un'iscrizione in attesa o attiva a questo socio prima di "
+"raccogliere firme."
+
+msgid "Signed document deleted."
+msgstr "Documento firmato eliminato."
 
 #, python-format
 msgid "%(nickname)s removed from your favorites."
@@ -5892,6 +6353,30 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "Membership application"
+#~ msgstr "Domanda di ammissione a socio"
+
+#~ msgid "To the board of [[location_name]]"
+#~ msgstr "Al Consiglio Direttivo di [[location_name]]"
+
+#~ msgid "apply"
+#~ msgstr "chiede"
+
+#~ msgid "have read and accept the statute and the rules of the association;"
+#~ msgstr ""
+#~ "aver letto e di accettare lo statuto e il regolamento dell'associazione;"
+
+#~ msgid "will pay the yearly membership fee;"
+#~ msgstr "impegnarsi a versare la quota associativa annuale;"
+
+#~ msgid ""
+#~ "have received the privacy notice (EU Regulation 2016/679) and agree to "
+#~ "the processing of my data for the purposes of the association."
+#~ msgstr ""
+#~ "aver ricevuto l'informativa sul trattamento dei dati personali (Reg. UE "
+#~ "2016/679) e di acconsentire al trattamento per le finalità "
+#~ "dell'associazione."
+
 #~ msgid "Hey!"
 #~ msgstr "Hey!"
 
@@ -6132,11 +6617,6 @@ msgstr "Collega account"
 #~ msgstr "Modifica indirizzo"
 
 #, fuzzy
-#~| msgid "Edit address"
-#~ msgid "IP address"
-#~ msgstr "Modifica indirizzo"
-
-#, fuzzy
 #~| msgid "Please enter a valid phone number."
 #~ msgid "Enter a whole number."
 #~ msgstr "Inserisci un numero di telefono valido."
@@ -6260,11 +6740,6 @@ msgstr "Collega account"
 #~| msgid "Our community"
 #~ msgid "Django Community"
 #~ msgstr "La nostra community"
-
-#, fuzzy
-#~| msgid "Title"
-#~ msgid "title"
-#~ msgstr "Titolo"
 
 #, fuzzy
 #~| msgid "Set password"
