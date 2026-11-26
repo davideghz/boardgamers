@@ -30,7 +30,7 @@
         <div class="flex flex-col sm:flex-row gap-2">
           {% if tags %}
             <select name="tag" aria-label="{% trans 'Tag' %}" onchange="this.form.requestSubmit()"
-                    class="flex-1 min-w-0 px-3 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    class="flex-1 min-w-0 px-3 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus">
               <option value="">{% trans "All tags" %}</option>
               {% for tag in tags %}
                 <option value="{{ tag.pk }}"{% if selected_tag.pk == tag.pk %} selected{% endif %}>{{ tag.name }}</option>
@@ -39,7 +39,7 @@
           {% endif %}
           {% if sponsors %}
             <select name="sponsor" aria-label="{% trans 'Sponsor location' %}" onchange="this.form.requestSubmit()"
-                    class="flex-1 min-w-0 px-3 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    class="flex-1 min-w-0 px-3 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus">
               <option value="">{% trans "All locations" %}</option>
               {% for sponsor in sponsors %}
                 <option value="{{ sponsor.pk }}"{% if selected_sponsor.pk == sponsor.pk %} selected{% endif %}>{{ sponsor.name }}</option>
@@ -56,7 +56,7 @@
       <span>
         {% blocktrans count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktrans %}
       </span>
-      <a href="{% querystring q=None tag=None sponsor=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+      <a href="{% querystring q=None tag=None sponsor=None page=None %}" class="font-semibold text-link hover:underline">{% trans "Clear filters" %}</a>
     </div>
   {% endif %}
 

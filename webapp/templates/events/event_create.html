@@ -23,7 +23,7 @@
       </ul>
     {% else %}
       <p class="mb-3 text-content-muted">{% translate "You have no locations where you can create an event." %}</p>
-      <a href="{% url 'location-create' %}" class="font-semibold text-blue-600 hover:underline">{% translate "Add location" %}</a>
+      <a href="{% url 'location-create' %}" class="font-semibold text-link hover:underline">{% translate "Add location" %}</a>
     {% endif %}
   </div>
 {% endblock %}

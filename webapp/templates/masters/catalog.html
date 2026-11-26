@@ -15,7 +15,7 @@
   {% if q %}
     <div class="mb-3 flex flex-wrap justify-between gap-2 text-xs text-content-muted">
       <span>{% blocktranslate count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktranslate %}</span>
-      <a href="{% url 'master-event-games' master.slug %}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{% translate "Clear filters" %}</a>
+      <a href="{% url 'master-event-games' master.slug %}" class="font-semibold text-link hover:underline">{% translate "Clear filters" %}</a>
     </div>
   {% endif %}
 
@@ -34,7 +34,7 @@
           <ul class="mt-2 divide-y divide-divider">
             {% for offer in entry.offers %}
               <li class="py-2 text-sm">
-                <a href="{{ offer.event.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ offer.event.name }}</a>
+                <a href="{{ offer.event.get_absolute_url }}" class="font-semibold text-link hover:underline">{{ offer.event.name }}</a>
                 <p class="text-content-muted">{{ offer.event.organizer_location.name }}</p>
                 {% if offer.tables %}
                   <ul class="mt-2 space-y-1">
@@ -42,7 +42,7 @@
                       <li>
                         <a href="{{ table.get_absolute_url }}" class="flex flex-wrap gap-x-2 text-xs hover:underline">
                           <span class="tabular-nums text-content-muted">{{ table.date|date:"j M Y" }} · {{ table.time|time:"H:i" }}</span>
-                          <span class="text-blue-600 dark:text-blue-400">{{ table.title }}</span>
+                          <span class="text-link">{{ table.title }}</span>
                         </a>
                       </li>
                     {% endfor %}

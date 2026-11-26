@@ -12,20 +12,18 @@
   {# the cover is aligned right, faded into the dark blue diagonally from the left #}
   <section class="mb-8">
     {% if event.cover or event.organizer_location.cover %}
-    <div class="overflow-hidden rounded-2xl border border-divider bg-surface lg:relative lg:border-0 lg:bg-[#0f172a] lg:px-10 lg:pt-24 lg:pb-9">
+    <div class="overflow-hidden rounded-2xl border border-divider bg-surface lg:relative lg:border-0 lg:bg-slate-900 lg:px-10 lg:pt-24 lg:pb-9">
       <img src="{{ event.cover_url }}" alt=""
            class="event-hero-cover block w-full h-auto lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-3/4 lg:object-cover pointer-events-none">
-      <div class="hidden lg:block absolute inset-0 pointer-events-none"
-           style="background: linear-gradient(135deg, #0f172a 0%, #0f172a 25%, rgba(15, 23, 42, 0.92) 30%, rgba(30, 58, 95, 0.8) 50%, rgba(30, 64, 175, 0) 85%);"></div>
+      <div class="hidden lg:block absolute inset-0 pointer-events-none bg-brand-fade"></div>
       <div class="relative p-5 lg:p-0">
     {% else %}
-    <div class="rounded-2xl px-6 lg:px-10 pt-16 lg:pt-24 pb-7 lg:pb-9"
-         style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+    <div class="rounded-2xl px-6 lg:px-10 pt-16 lg:pt-24 pb-7 lg:pb-9 bg-brand-gradient">
       <div>
     {% endif %}
 
       {% if event.venue.city %}
-        <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest {% if event.cover or event.organizer_location.cover %}text-blue-600 lg:text-blue-300{% else %}text-blue-300{% endif %} mb-2 lg:mb-3">
+        <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest {% if event.cover or event.organizer_location.cover %}text-link lg:text-blue-300{% else %}text-blue-300{% endif %} mb-2 lg:mb-3">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
@@ -39,7 +37,7 @@
       {% if event_dates %}
         {# Mobile: a single date range, as on the event cards #}
         <p class="lg:hidden flex items-center gap-1.5 text-sm font-semibold {% if event.cover or event.organizer_location.cover %}text-content-muted{% else %}text-slate-200{% endif %} mb-5">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0 {% if event.cover or event.organizer_location.cover %}text-blue-500{% else %}text-blue-300{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0 {% if event.cover or event.organizer_location.cover %}text-link{% else %}text-blue-300{% endif %}">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
           </svg>
           {% if event.start_date == event.end_date %}
@@ -77,7 +75,7 @@
             {% if event.organizer_location_id %}
               {% if is_participant or event_join.allowed and registration_dates %}
                 <a href="#event-attendance"
-                   class="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-bold text-white hover:bg-blue-700">
+                   class="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-white hover:bg-primary/90">
                   {% if is_participant %}{% translate "Your event dates" %}{% else %}{% translate "Attend this event" %}{% endif %}
                 </a>
               {% endif %}
@@ -102,7 +100,7 @@
               <form method="post" action="{% url 'event-join' event.slug %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-3 rounded-full transition-colors text-sm">
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold px-6 py-3 rounded-full transition-colors text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                   </svg>
@@ -112,7 +110,7 @@
             {% endif %}
           {% else %}
             <a href="{% url 'login' %}?next={% url 'event_detail' event.slug %}"
-               class="inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-3 rounded-full transition-colors text-decoration-none text-sm">
+               class="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold px-6 py-3 rounded-full transition-colors text-decoration-none text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
               </svg>
@@ -149,7 +147,7 @@
       {% if event.master_event.is_published %}
         <p class="text-sm text-content-muted">
           {% translate "Manifestation" %} ·
-          <a class="font-semibold text-blue-600 hover:underline dark:text-blue-400" href="{{ event.master_event.get_absolute_url }}">{{ event.master_event.name }}</a>
+          <a class="font-semibold text-link hover:underline" href="{{ event.master_event.get_absolute_url }}">{{ event.master_event.name }}</a>
         </p>
       {% endif %}
       {% if event.organizer_location %}
@@ -172,7 +170,7 @@
                       fade.classList.toggle('hidden', !expanded);
                       btn.textContent = expanded ? '{% trans "Read more" %}' : '{% trans "Show less" %}';
                     "
-                    class="mt-1 text-xs font-semibold text-blue-600 hover:underline">
+                    class="mt-1 text-xs font-semibold text-link hover:underline">
               {% trans "Read more" %}
             </button>
           {% else %}
@@ -305,7 +303,7 @@
               <p class="text-sm font-semibold text-content">{% trans "You haven't joined any table yet!" %}</p>
               <p class="text-xs text-content-muted mt-1">{% trans "Browse the program and grab a seat at a table." %}</p>
               <a href="{% url 'event-program' event.slug %}"
-                 class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+                 class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-link hover:underline text-decoration-none">
                 {% trans "Bookable tables" %} →
               </a>
             </div>
@@ -319,7 +317,7 @@
             <p class="text-sm font-semibold text-content">{% trans "Log in to see your tables" %}</p>
             <p class="text-xs text-content-muted mt-1">{% trans "Sign in to keep track of the tables you join at this event." %}</p>
             <a href="{% url 'login' %}?next={% url 'event_detail' event.slug %}"
-               class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+               class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-link hover:underline text-decoration-none">
               {% trans "Log in" %} →
             </a>
           </div>
@@ -332,7 +330,7 @@
         <section>
           <div class="flex items-center justify-between gap-3 mb-3">
             <h2 class="text-lg font-bold text-content">{% trans "Featured games" %}</h2>
-            <a href="{% url 'event-games' event.slug %}" class="text-sm font-semibold text-blue-600 hover:underline text-decoration-none whitespace-nowrap">{% trans "See all" %} →</a>
+            <a href="{% url 'event-games' event.slug %}" class="text-sm font-semibold text-link hover:underline text-decoration-none whitespace-nowrap">{% trans "See all" %} →</a>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-5">
             {% for entry in featured_games %}
@@ -449,7 +447,7 @@
                   <form method="post" action="{% url 'event-join' event.slug %}">
                     {% csrf_token %}
                     <button type="submit"
-                            class="w-full flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-colors">
+                            class="w-full flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2.5 text-sm font-bold text-white hover:bg-primary/90 transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                       </svg>
@@ -459,7 +457,7 @@
                 {% endif %}
               {% else %}
                 <a href="{% url 'login' %}?next={% url 'event_detail' event.slug %}"
-                   class="w-full flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-colors text-decoration-none">
+                   class="w-full flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2.5 text-sm font-bold text-white hover:bg-primary/90 transition-colors text-decoration-none">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                   </svg>
@@ -490,7 +488,7 @@
             </a>
             {% if not event.table_booking_enabled %}
               <a href="{% url 'event-program' event.slug %}"
-                 class="block text-center text-xs font-semibold text-blue-600 hover:underline text-decoration-none">
+                 class="block text-center text-xs font-semibold text-link hover:underline text-decoration-none">
                 {% trans "Internal program (managers only)" %} →
               </a>
             {% endif %}
@@ -631,7 +629,7 @@
         <p id="joined-dialog-title" class="text-lg font-bold text-content mb-1">{% trans "You're in!" %}</p>
         <p class="text-sm text-content-muted mb-5">{% trans "Games are better with friends: invite them to join you at the event!" %}</p>
         <div class="space-y-2">
-          {% include "partials/_share_button.html" with share_title=event.name share_label=_("Share event") share_class="inline-flex items-center justify-center gap-1.5 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-full transition-colors" %}
+          {% include "partials/_share_button.html" with share_title=event.name share_label=_("Share event") share_class="inline-flex items-center justify-center gap-1.5 w-full bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2.5 rounded-full transition-colors" %}
           <button type="button"
                   class="js-close-joined w-full rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors">
             {% trans "Close" %}

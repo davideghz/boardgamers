@@ -4,7 +4,7 @@
     <dt class="text-xs font-semibold text-content-muted">{% translate "Organizing location" %}</dt>
     <dd class="mt-1 text-sm font-semibold">
       {% if event.organizer_location_id %}
-        <a class="text-blue-600 hover:underline" href="{% url 'location-detail' event.organizer_location.slug %}">{{ event.organizer_location.name }}</a>
+        <a class="text-link hover:underline" href="{% url 'location-detail' event.organizer_location.slug %}">{{ event.organizer_location.name }}</a>
       {% else %}
         {% translate "Not assigned" %}
       {% endif %}
@@ -14,7 +14,7 @@
     <dt class="text-xs font-semibold text-content-muted">{% translate "Venue" %}</dt>
     <dd class="mt-1 text-sm font-semibold">
       {% if event.venue_location_id %}
-        <a class="text-blue-600 hover:underline" href="{% url 'location-detail' event.venue_location.slug %}">{{ event.venue_label }}</a>
+        <a class="text-link hover:underline" href="{% url 'location-detail' event.venue_location.slug %}">{{ event.venue_label }}</a>
       {% else %}
         {{ event.venue_label|default:_("Not assigned") }}
       {% endif %}

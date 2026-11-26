@@ -27,7 +27,7 @@
         <div class="flex flex-col gap-y-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
           {% if day.selectable %}
             <label class="inline-flex cursor-pointer items-center gap-2 font-semibold text-content">
-              <input type="checkbox" name="days" value="{{ day.pk }}" class="h-4 w-4 shrink-0 accent-blue-600"{% if day.selected %} checked{% endif %}>
+              <input type="checkbox" name="days" value="{{ day.pk }}" class="h-4 w-4 shrink-0 accent-primary"{% if day.selected %} checked{% endif %}>
               {{ day.date|date:"l j F Y" }}
             </label>
           {% else %}
@@ -46,10 +46,10 @@
   {% if can_register %}
       </fieldset>
       <p class="text-xs text-content-muted">{% translate "To cancel a direct registration, uncheck its date and save." %}</p>
-      <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Save registration" %}</button>
+      <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Save registration" %}</button>
     </form>
   {% elif registration_open %}
-    <a class="inline-flex rounded-full border border-divider px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-surface-alt dark:text-blue-400"
+    <a class="inline-flex rounded-full border border-divider px-4 py-2 text-sm font-semibold text-link hover:bg-surface-alt"
        href="{% url 'login' %}?next={{ master.get_absolute_url|urlencode }}%23manifestation-attendance">{% translate "Log in to attend" %}</a>
   {% endif %}
 </section>

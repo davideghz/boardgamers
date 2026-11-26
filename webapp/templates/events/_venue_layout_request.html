@@ -3,7 +3,7 @@
   <h2 id="venue-layout-heading" class="text-sm font-bold text-content">{% trans "Venue layout" %} · {{ event.venue_location.name }}</h2>
   {% if event.venue_layout_approved %}
     <p class="mt-1 text-xs text-content-muted">{% trans "The venue has approved this event’s use of its play areas and stations." %}</p>
-    <a class="mt-2 inline-block text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+    <a class="mt-2 inline-block text-sm font-semibold text-link hover:underline"
        href="{% url 'event-manage-data' event.slug %}#id_layout_mode">{% trans "Choose layout" %}</a>
   {% else %}
     <form class="mt-2" method="post" action="{% url 'event-venue-layout-request' event.slug %}">

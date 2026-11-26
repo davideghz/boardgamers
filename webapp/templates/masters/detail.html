@@ -9,7 +9,7 @@
       {% if master.venue_label %}
         <p class="mt-1 text-sm text-content-soft">
           {% if master.venue_location %}
-            <a href="{% url 'location-detail' master.venue_location.slug %}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ master.venue_label }}</a>
+            <a href="{% url 'location-detail' master.venue_location.slug %}" class="font-semibold text-link hover:underline">{{ master.venue_label }}</a>
             {% if master.venue_location.address %} · {{ master.venue_location.address }}{% endif %}
           {% else %}
             {{ master.venue_label }}{% if master.address %} · {{ master.address }}{% endif %}
@@ -20,7 +20,7 @@
         <div class="mt-4 flex flex-wrap items-center gap-3">
           {% if not master.is_published %}<span class="text-sm font-semibold text-content-muted">{{ master.get_status_display }}</span>{% endif %}
           {% if has_catalog %}
-            <a href="{% url 'master-event-games' master.slug %}" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-surface-alt dark:text-blue-400">{% translate "Game catalog" %}</a>
+            <a href="{% url 'master-event-games' master.slug %}" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-link hover:bg-surface-alt">{% translate "Game catalog" %}</a>
           {% endif %}
           {% if can_manage %}
             <a href="{% url 'master-event-manage' master.slug %}" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">
@@ -30,7 +30,7 @@
           {% if can_approve %}
             <form method="post" action="{% url 'master-event-approve' master.slug %}">
               {% csrf_token %}
-              <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Approve publication" %}</button>
+              <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Approve publication" %}</button>
             </form>
           {% endif %}
         </div>
@@ -45,7 +45,7 @@
       <ul class="mt-2 divide-y divide-divider">
         {% for event in events %}
           <li class="py-2 text-sm">
-            <a href="{{ event.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ event.name }}</a>
+            <a href="{{ event.get_absolute_url }}" class="font-semibold text-link hover:underline">{{ event.name }}</a>
             <p class="text-content-muted">{{ event.organizer_location.name }}</p>
           </li>
         {% empty %}
@@ -65,7 +65,7 @@
               <li class="flex items-baseline gap-3 py-2 text-sm">
                 <time class="shrink-0 tabular-nums text-content-muted">{{ table.time|time:"H:i" }}</time>
                 <div class="min-w-0 break-words">
-                  <a href="{{ table.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ table.title }}</a>
+                  <a href="{{ table.get_absolute_url }}" class="font-semibold text-link hover:underline">{{ table.title }}</a>
                   <p class="text-content-muted">{{ table.event.name }} · {{ table.event.organizer_location.name }}</p>
                 </div>
               </li>
@@ -87,7 +87,7 @@
                 <img src="{{ sponsor.logo.url }}" alt="" loading="lazy" class="h-12 w-20 shrink-0 rounded-md bg-white p-1 object-contain">
               {% endif %}
               {% if sponsor.website %}
-                <a href="{{ sponsor.website }}" rel="sponsored noopener" class="min-w-0 break-words font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ sponsor.name }}</a>
+                <a href="{{ sponsor.website }}" rel="sponsored noopener" class="min-w-0 break-words font-semibold text-link hover:underline">{{ sponsor.name }}</a>
               {% else %}
                 <span class="min-w-0 break-words font-semibold text-content">{{ sponsor.name }}</span>
               {% endif %}
