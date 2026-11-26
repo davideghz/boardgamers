@@ -88,6 +88,7 @@ def catalog(request, slug):
 @require_http_methods(['GET', 'HEAD', 'POST'])
 @transaction.atomic
 def edit(request, slug=None):
+    """A new festival, or the data of one (master-event-manage-data)."""
     master = managed_master(request, slug, lock=request.method == 'POST') if slug else MasterEvent()
     form = MasterEventForm(request.POST if request.method == 'POST' else None, instance=master)
     if request.method == 'POST' and form.is_valid():
@@ -95,8 +96,42 @@ def edit(request, slug=None):
         if not slug:
             master.managers.add(request.user.user_profile)
         return redirect('master-event-manage', slug=master.slug)
+    return render(request, 'masters/edit.html', {
+        'master': master, 'form': form, 'meta': Meta(title=master.name or _('Create festival')),
+    })
+
+
+@login_required
+@require_safe
+def manage_index(request, slug):
+    """The festival's management panel (plan G4): approval and what is missing on top, then
+    its four pages: data, dates, linked events, sponsors and managers."""
+    master = managed_master(request, slug)
+    date_count = master.dates.count()
+    pending = []
+    if not date_count:
+        pending.append(_('Add at least one date: a festival is published with its calendar.'))
+    if not master.events.exists():
+        pending.append(_('Link the events that take place during the festival.'))
+    return render(request, 'masters/manage_index.html', {
+        'master': master, 'can_approve': MasterEvent.can_approve(request.user), 'pending': pending,
+        'date_count': date_count, 'event_count': master.events.count(),
+        'sponsor_count': master.sponsors.count(), 'manager_count': master.managers.count(),
+        'meta': Meta(title=_('Manage – %(name)s') % {'name': master.name}),
+    })
+
+
+def _manage_page(request, master, template, title, **context):
+    return render(request, template, {'master': master, 'page_title': title,
+                                      'meta': Meta(title=f'{title} – {master.name}'), **context})
+
+
+@login_required
+@require_safe
+def manage_dates(request, slug):
+    master = managed_master(request, slug)
     calendar_initial = {}
-    if slug and (selected := request.GET.get('day')):
+    if selected := request.GET.get('day'):
         try:
             day = master.dates.filter(date=date.fromisoformat(selected)).first()
         except ValueError:
@@ -106,15 +141,26 @@ def edit(request, slug=None):
     date_form = EventDateForm(initial=calendar_initial)
     if calendar_initial:
         date_form.fields['date'].widget.attrs['readonly'] = True
-    return render(request, 'masters/edit.html', {
-        'master': master, 'form': form, 'date_form': date_form,
-        'manager_form': AddEventManagerForm(),
-        'sponsors': master.sponsors.all() if master.pk else (),
-        'linked_events': master.events.select_related('organizer_location').order_by('name', 'pk') if master.pk else (),
-        'linkable_events': linkable_events(request.user, master).select_related('organizer_location').order_by(
-            'name', 'pk') if master.pk else (),
-        'meta': Meta(title=master.name or _('Create festival')),
-    })
+    return _manage_page(request, master, 'masters/manage_dates.html', _('Dates'), date_form=date_form)
+
+
+@login_required
+@require_safe
+def manage_events(request, slug):
+    master = managed_master(request, slug)
+    return _manage_page(
+        request, master, 'masters/manage_events.html', _('Linked events'),
+        linked_events=master.events.select_related('organizer_location').order_by('name', 'pk'),
+        linkable_events=linkable_events(request.user, master).select_related('organizer_location').order_by('name', 'pk'),
+    )
+
+
+@login_required
+@require_safe
+def manage_people(request, slug):
+    master = managed_master(request, slug)
+    return _manage_page(request, master, 'masters/manage_people.html', _('Sponsors and managers'),
+                        sponsors=master.sponsors.all(), manager_form=AddEventManagerForm())
 
 
 @login_required
@@ -171,7 +217,7 @@ def calendar(request, slug):
             messages.success(request, _('Date saved.'))
         else:
             messages.error(request, _('Invalid date or times.'))
-    return redirect(reverse('master-event-manage', args=[slug]) + '#master-event-dates')
+    return redirect('master-event-manage-dates', slug=slug)
 
 
 @login_required
@@ -195,7 +241,7 @@ def managers(request, slug):
             master.managers.add(form.cleaned_data['manager'])
         else:
             messages.error(request, _('Select a manager'))
-    return redirect('master-event-manage', slug=slug)
+    return redirect('master-event-manage-people', slug=slug)
 
 
 @login_required
@@ -217,7 +263,7 @@ def link(request, slug):
         messages.error(request, error.messages[0])
     else:
         messages.success(request, _('Event unlinked.') if unlink else _('Event linked.'))
-    return redirect(reverse('master-event-manage', args=[slug]) + '#master-event-events')
+    return redirect('master-event-manage-events', slug=slug)
 
 
 @login_required
@@ -226,7 +272,7 @@ def link(request, slug):
 def sponsors(request, slug, pk=None):
     is_post = request.method == 'POST'
     master = managed_master(request, slug, lock=is_post)
-    destination = reverse('master-event-manage', args=[slug]) + '#master-event-sponsors'
+    destination = reverse('master-event-manage-people', args=[slug]) + '#master-event-sponsors'
     linked_sponsors = master.sponsors.select_for_update(of=('self',)) if is_post else master.sponsors.all()
     sponsor = get_object_or_404(linked_sponsors, pk=pk) if pk is not None else None
     if is_post and sponsor and 'remove' in request.POST:

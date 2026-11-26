@@ -17,8 +17,8 @@
         </p>
       {% endif %}
       <div class="mt-4">
-        {% if can_manage %}{% url 'master-event-manage' master.slug as manage_url %}{% endif %}
-        {% action_bar master.name manage_url=manage_url %}
+        {% if can_manage %}{% url 'master-event-manage-data' master.slug as edit_url %}{% url 'master-event-manage' master.slug as manage_url %}{% endif %}
+        {% action_bar master.name edit_url=edit_url manage_url=manage_url %}
       </div>
       {% if has_catalog or can_approve or not master.is_published %}
         <div class="mt-4 flex flex-wrap items-center gap-3">

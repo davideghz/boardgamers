@@ -1,0 +1,43 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags static %}
+
+{% comment %}
+A page of the festival's management panel (plan G4, masters/manage_index.html).
+{% endcomment %}
+
+{% block content %}
+  {% url 'master-event-manage' master.slug as panel_url %}
+  {% trans "Manage" as back_label %}
+  <div class="max-w-2xl">
+    {% page_header page_title subtitle=master.name back_url=panel_url back_label=back_label %}
+    <div class="space-y-5">
+      <section id="master-event-dates" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+        <h2 class="font-bold text-content">{% translate "Dates" %}</h2>
+        <ul class="divide-y divide-divider">
+          {% for day in master.dates.all %}
+            <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+              <div class="flex flex-col gap-1">
+                <span class="font-semibold text-content">{{ day.date|date:"l j F Y" }}</span>
+                {% include "masters/_date_hours.html" with day=day only %}
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                <a class="font-semibold text-link hover:underline " href="?day={{ day.date|date:'Y-m-d' }}">{% translate "Edit hours" %}</a>
+                <form action="{% url 'master-event-calendar' master.slug %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="font-semibold text-red-600 hover:underline dark:text-red-400" name="remove" value="{{ day.pk }}">{% translate "Remove" %}</button>
+                </form>
+              </div>
+            </li>
+          {% empty %}
+            <li class="py-2 text-sm text-content-muted">{% translate "No dates yet." %}</li>
+          {% endfor %}
+        </ul>
+        <form method="post" action="{% url 'master-event-calendar' master.slug %}" class="space-y-3">
+          {% csrf_token %}
+          {% include "events/_location_event_schedule_fields.html" with schedule=date_form only %}
+          <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Save date" %}</button>
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock %}

@@ -25,7 +25,7 @@ class MasterProgramTest(TestCase):
         cls.event = Event.objects.create(name='Tournament', organizer_location=cls.club, status=Event.PUBLISHED)
         EventDate.objects.create(event=cls.event, date=cls.day)
         cls.link = reverse('master-event-link', args=[cls.master.slug])
-        cls.manage = reverse('master-event-manage', args=[cls.master.slug])
+        cls.manage = reverse('master-event-manage-events', args=[cls.master.slug])
 
     def test_link_and_unlink_are_controlled_by_the_manifestation_manager(self):
         self.client.force_login(self.organizer.user)
@@ -34,7 +34,7 @@ class MasterProgramTest(TestCase):
         self.assertEqual(self.client.get(self.link).status_code, 405)
         self.assertEqual(self.client.post(self.link, {'event': 'invalid'}).status_code, 404)
         self.assertRedirects(
-            self.client.post(self.link, {'event': self.event.pk}), self.manage + '#master-event-events',
+            self.client.post(self.link, {'event': self.event.pk}), self.manage,
         )
         self.event.refresh_from_db()
         self.assertEqual(self.event.master_event_id, self.master.pk)

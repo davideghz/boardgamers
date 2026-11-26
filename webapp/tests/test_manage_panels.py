@@ -111,3 +111,46 @@ class OrganizedEventsTest(TestCase):
         response = self.client.get(reverse('location-manage', args=[self.data.associazione.slug]))
         drafts = reverse('location-manage-events', args=[self.data.associazione.slug], query={'show': 'drafts'})
         self.assertContains(response, f'href="{drafts}"')
+
+
+class FestivalManagePanelTest(TestCase):
+    """G4: the festival's management is a panel of four pages, approval on top."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def test_panel_with_its_four_pages(self):
+        master = self.data.manifestation
+        self.client.force_login(self.data.organizer.user)
+        response = self.client.get(reverse('master-event-manage', args=[master.slug]))
+        self.assertContains(response, 'Pubblicata')
+        for name in ('master-event-manage-data', 'master-event-manage-dates', 'master-event-manage-events',
+                     'master-event-manage-people'):
+            with self.subTest(name):
+                url = reverse(name, args=[master.slug])
+                self.assertContains(response, f'href="{url}"')
+                page = self.client.get(url)
+                self.assertEqual(page.status_code, 200)
+                # Each page leads back to the panel
+                self.assertContains(page, f'href="{reverse("master-event-manage", args=[master.slug])}"')
+
+    def test_a_draft_says_what_is_missing_and_approvers_approve_here(self):
+        from webapp.factories import UserProfileFactory
+        from webapp.models import Event, MasterEvent
+
+        master = MasterEvent.objects.create(name='Fiera nuova', status=Event.DRAFT)
+        master.managers.add(self.data.organizer)
+        self.client.force_login(self.data.organizer.user)
+        response = self.client.get(reverse('master-event-manage', args=[master.slug]))
+        self.assertContains(response, italian('Waiting for approval'))
+        self.assertEqual(len(response.context['pending']), 2)  # no dates, no events
+        approve = reverse('master-event-approve', args=[master.slug])
+        self.assertNotContains(response, approve)
+
+        admin = UserProfileFactory()
+        admin.user.is_staff = admin.user.is_superuser = True
+        admin.user.save()
+        master.managers.add(admin)
+        self.client.force_login(admin.user)
+        self.assertContains(self.client.get(reverse('master-event-manage', args=[master.slug])), approve)

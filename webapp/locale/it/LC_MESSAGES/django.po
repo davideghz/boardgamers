@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 22:00+0100\n"
+"POT-Creation-Date: 2026-11-26 22:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4769,6 +4769,54 @@ msgstr ""
 "Finché la manifestazione non è approvata puoi collegare solo eventi che "
 "gestisci."
 
+msgid "Manage festival"
+msgstr "Gestisci manifestazione"
+
+msgctxt "festival"
+msgid "Published"
+msgstr "Pubblicata"
+
+msgid "Hidden by an admin"
+msgstr "Nascosta da un amministratore"
+
+msgid "Waiting for approval"
+msgstr "In attesa di approvazione"
+
+msgid "The festival is visible to everyone."
+msgstr "La manifestazione è visibile a tutti."
+
+msgid ""
+"It is not visible to the public. Contact us if you think it's a mistake."
+msgstr "Non è visibile al pubblico. Contattaci se pensi che sia un errore."
+
+msgid ""
+"Only its managers see it until an admin approves it. Until then you can only "
+"link events you manage."
+msgstr ""
+"La vedono solo i suoi gestori finché un amministratore non la approva. Fino "
+"ad allora puoi collegare solo eventi che gestisci."
+
+msgid "Festival info"
+msgstr "Dati della manifestazione"
+
+msgid "Name, description, venue and cover image"
+msgstr "Nome, descrizione, luogo e immagine di copertina"
+
+#, python-format
+msgid "%(n)s event of the locations"
+msgid_plural "%(n)s events of the locations"
+msgstr[0] "%(n)s evento delle sedi"
+msgstr[1] "%(n)s eventi delle sedi"
+
+msgid "Sponsors and managers"
+msgstr "Sponsor e gestori"
+
+#, python-format
+msgid "%(n)s sponsor"
+msgid_plural "%(n)s sponsors"
+msgstr[0] "%(n)s sponsor"
+msgstr[1] "%(n)s sponsor"
+
 #, python-format
 msgid "Edit sponsor %(name)s"
 msgstr "Modifica sponsor %(name)s"
@@ -6650,6 +6698,18 @@ msgstr "Calendario – %(name)s"
 #, python-format
 msgid "Game catalog – %(name)s"
 msgstr "Catalogo dei giochi – %(name)s"
+
+msgid "Add at least one date: a festival is published with its calendar."
+msgstr ""
+"Aggiungi almeno una giornata: una manifestazione si pubblica con il suo "
+"calendario."
+
+msgid "Link the events that take place during the festival."
+msgstr "Collega gli eventi che si svolgono durante la manifestazione."
+
+#, python-format
+msgid "Manage – %(name)s"
+msgstr "Gestione – %(name)s"
 
 msgid "Registration is closed."
 msgstr "Le iscrizioni sono chiuse."

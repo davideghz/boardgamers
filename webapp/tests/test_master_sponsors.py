@@ -31,7 +31,7 @@ class MasterSponsorTest(TestCase):
         cls.master.managers.add(cls.manager)
         cls.other.managers.add(cls.other_manager)
         cls.add = reverse('master-sponsor-add', args=[cls.master.slug])
-        cls.manage = reverse('master-event-manage', args=[cls.master.slug])
+        cls.manage = reverse('master-event-manage-people', args=[cls.master.slug])
 
     def edit_url(self, sponsor):
         return reverse('master-sponsor-edit', args=[self.master.slug, sponsor.pk])

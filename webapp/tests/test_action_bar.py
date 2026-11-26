@@ -64,5 +64,6 @@ class ActionBarTest(TestCase):
     def test_festival(self):
         master = self.data.manifestation
         url = reverse('master-event-detail', args=[master.slug])
-        self.assert_actions(url, 'organizer', manage=reverse('master-event-manage', args=[master.slug]))
+        self.assert_actions(url, 'organizer', edit=reverse('master-event-manage-data', args=[master.slug]),
+                            manage=reverse('master-event-manage', args=[master.slug]))
         self.assert_actions(url, 'player')

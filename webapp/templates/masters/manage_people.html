@@ -1,0 +1,54 @@
+{% extends "base_webapp.html" %}
+{% load i18n custom_tags static %}
+
+{% comment %}
+A page of the festival's management panel (plan G4, masters/manage_index.html).
+{% endcomment %}
+
+{% block content %}
+  {% url 'master-event-manage' master.slug as panel_url %}
+  {% trans "Manage" as back_label %}
+  <div class="max-w-2xl">
+    {% page_header page_title subtitle=master.name back_url=panel_url back_label=back_label %}
+    <div class="space-y-5">
+      <section id="master-event-sponsors" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+        <h2 class="font-bold text-content">{% translate "Sponsors" %}</h2>
+        <ul class="divide-y divide-divider">
+          {% for sponsor in sponsors %}
+            <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+              <p class="min-w-0 break-words font-semibold text-content">{{ sponsor.name }}</p>
+              <a href="{% url 'master-sponsor-edit' master.slug sponsor.pk %}" aria-label="{% blocktranslate with name=sponsor.name %}Edit sponsor {{ name }}{% endblocktranslate %}" class="font-semibold text-link hover:underline ">{% translate "Edit" %}</a>
+            </li>
+          {% empty %}
+            <li class="py-2 text-sm text-content-muted">{% translate "No sponsors yet." %}</li>
+          {% endfor %}
+        </ul>
+        <a href="{% url 'master-sponsor-add' master.slug %}" class="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Add sponsor" %}</a>
+      </section>
+
+      <section class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+        <h2 class="font-bold text-content">{% translate "Managers" %}</h2>
+        <ul class="divide-y divide-divider">
+          {% for manager in master.managers.all %}
+            <li class="flex items-center justify-between gap-2 py-2 text-sm">
+              <span class="text-content">{{ manager.nickname }}</span>
+              <form method="post" action="{% url 'master-event-managers' master.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="font-semibold text-red-600 hover:underline dark:text-red-400" name="remove" value="{{ manager.pk }}">{% translate "Remove" %}</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+        <form method="post" action="{% url 'master-event-managers' master.slug %}" class="space-y-3">
+          {% csrf_token %}
+          {{ manager_form.manager }}
+          <button type="submit" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% translate "Add manager" %}</button>
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrabodyjs %}
+  {{ manager_form.media.js }}
+{% endblock %}
