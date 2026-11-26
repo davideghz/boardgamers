@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils.html import strip_tags
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
-    ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
+    ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, RadioSelect, \
     inlineformset_factory, DateField, TimeField, Widget, Field, MultipleHiddenInput, CheckboxSelectMultiple, \
     ClearableFileInput, FileField
 from django_recaptcha.fields import ReCaptchaField
@@ -1015,7 +1015,7 @@ class AddTablePlayerForm(TailwindForm):
 
 #: Personal-data fields shared by the manager-facing and member-facing forms.
 MEMBER_PERSONAL_DATA_FIELDS = [
-    'fiscal_code', 'birth_date', 'birth_place', 'nationality',
+    'fiscal_code', 'id_document_number', 'birth_date', 'birth_place', 'nationality',
     'address', 'zip_code', 'city', 'province',
 ]
 
@@ -1149,6 +1149,9 @@ class SignMembershipDocumentForm(ModelForm, TailwindForm):
         model = Member
         fields = ['first_name', 'last_name', 'email', 'phone_number'] + MEMBER_PERSONAL_DATA_FIELDS
 
+    #: Optional even when the document uses them: not everybody has one.
+    OPTIONAL_FIELDS = ('fiscal_code', 'id_document_number')
+
     def __init__(self, *args, document, **kwargs):
         super().__init__(*args, **kwargs)
         from webapp.services import member_documents
@@ -1156,17 +1159,77 @@ class SignMembershipDocumentForm(ModelForm, TailwindForm):
         for name in list(self._meta.fields):
             if name not in used:
                 del self.fields[name]
-        # What the association asks for is required, except the fiscal code,
-        # which a member without an Italian one leaves empty.
+        # What the association asks for is required, except the identifiers a
+        # member may not have (no Italian fiscal code, no ID card at hand).
         for name in used:
-            self.fields[name].required = name != 'fiscal_code'
-        self.fields = {name: self.fields[name] for name in used + ['signature', 'accept']}
+            self.fields[name].required = name not in self.OPTIONAL_FIELDS
+        fields = {name: self.fields[name] for name in used}
+
+        # A guardian signing for a minor gives the minor's data too.
+        self.asks_minor = member_documents.MINOR in member_documents.used_placeholders(document.body)
+        if self.asks_minor:
+            fields['for_minor'] = BooleanField(
+                required=False, label=_("I'm signing for a minor, as parent or guardian"))
+            for name in member_documents.MINOR_FIELDS:
+                model_field = Member._meta.get_field(name)
+                form_field = model_field.formfield(required=False)
+                form_field.label = model_field.verbose_name
+                fields[f'minor_{name}'] = form_field
+
+        # One yes/no question per field, worded by the paragraph around it.
+        self.consent_labels = member_documents.consent_labels(document.body)
+        for index, label in enumerate(self.consent_labels):
+            fields[f'consent_{index}'] = ChoiceField(
+                label=label, choices=[('yes', _('Yes')), ('no', _('No'))], widget=RadioSelect,
+                error_messages={'required': _("Choose yes or no.")})
+
+        fields['signature'] = self.fields['signature']
+        fields['accept'] = self.fields['accept']
+        self.fields = fields
+        # Restyle the fields added after TailwindForm.__init__ ran.
+        for name, field in self.fields.items():
+            if name.startswith('minor_'):
+                widget_class = DateInput if isinstance(field, DateField) else TextInput
+                attrs = {'class': _TW_INPUT}
+                if widget_class is DateInput:
+                    field.widget = DateInput(format='%Y-%m-%d', attrs={**attrs, 'type': 'date'})
+                else:
+                    field.widget = TextInput(attrs=attrs)
+            elif name == 'for_minor':
+                field.widget.attrs['class'] = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
         if 'phone_number' in self.fields:
             _enhance_phone_widget(self.fields['phone_number'])
 
     @property
     def data_fields(self):
-        return [self[name] for name in self.fields if name not in ('signature', 'accept')]
+        return [self[name] for name in self.fields
+                if name not in ('signature', 'accept', 'for_minor')
+                and not name.startswith(('minor_', 'consent_'))]
+
+    @property
+    def minor_fields(self):
+        return [self[name] for name in self.fields if name.startswith('minor_')]
+
+    @property
+    def consent_fields(self):
+        return [self[name] for name in self.fields if name.startswith('consent_')]
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.asks_minor and cleaned.get('for_minor'):
+            for name in self.fields:
+                if name.startswith('minor_') and name != 'minor_fiscal_code' and not cleaned.get(name):
+                    self.add_error(name, _("This field is required."))
+        return cleaned
+
+    def consents(self):
+        return [self.cleaned_data[f'consent_{index}'] == 'yes' for index in range(len(self.consent_labels))]
+
+    def minor(self):
+        if not (self.asks_minor and self.cleaned_data.get('for_minor')):
+            return None
+        from webapp.services import member_documents
+        return {name: self.cleaned_data.get(f'minor_{name}') for name in member_documents.MINOR_FIELDS}
 
     def clean_signature(self):
         from webapp.services import member_documents

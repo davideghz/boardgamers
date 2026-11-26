@@ -322,3 +322,88 @@ class ManagerCollectsSignatureTest(OnlineDocumentTestCase):
         signed = SignedMembershipDocument.objects.get()
         self.assertIsNone(signed.document)
         self.assertEqual(signed.document_name, 'Modulo 2026')
+
+
+CONSENT_BODY = (
+    '<p>{{location_logo}}</p><p>Io {{first_name}} {{last_name}}, documento {{id_document_number}}, {{minor}}.</p>'
+    '<p>Autorizzo le <strong>foto</strong>. {{yes_no}}</p>'
+    '<ul><li>Pubblicazione sul sito {{yes_no}}</li></ul><p>{{signature}}</p>'
+)
+
+
+class ConsentsMinorAndLogoTest(OnlineDocumentTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.document.body = CONSENT_BODY
+        self.document.save()
+        self.member, self.membership = self._member(self.user)
+        self.sign_url = reverse('location-sign-document', args=[self.location.slug, self.document.uuid])
+        self.client.force_login(self.user.user)
+
+    def _data(self, **overrides):
+        data = {'first_name': 'Mario', 'last_name': 'Rossi', 'id_document_number': 'CA12345',
+                'consent_0': 'yes', 'consent_1': 'no', 'signature': a_signature(), 'accept': 'on'}
+        data.update(overrides)
+        return data
+
+    def test_consent_labels_come_from_the_paragraph(self):
+        self.assertEqual(member_documents.consent_labels(CONSENT_BODY),
+                         ['Autorizzo le foto.', 'Pubblicazione sul sito'])
+
+    def test_answers_are_stored_and_the_id_document_saved(self):
+        self.client.post(self.sign_url, self._data())
+        signed = SignedMembershipDocument.objects.get()
+        self.assertEqual(signed.answers, {'consents': [
+            {'label': 'Autorizzo le foto.', 'accepted': True},
+            {'label': 'Pubblicazione sul sito', 'accepted': False},
+        ]})
+        self.member.refresh_from_db()
+        self.assertEqual(self.member.id_document_number, 'CA12345')
+
+    def test_every_consent_needs_an_answer(self):
+        data = self._data()
+        del data['consent_1']
+        self.assertEqual(self.client.post(self.sign_url, data).status_code, 200)
+        self.assertFalse(SignedMembershipDocument.objects.exists())
+
+    def test_the_id_document_is_optional(self):
+        self.client.post(self.sign_url, self._data(id_document_number=''))
+        self.assertTrue(SignedMembershipDocument.objects.exists())
+
+    def test_a_guardian_must_give_the_minor_details(self):
+        response = self.client.post(self.sign_url, self._data(for_minor='on', minor_first_name='Luca'))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(SignedMembershipDocument.objects.exists())
+
+    def test_a_guardian_signs_for_a_minor(self):
+        self.client.post(self.sign_url, self._data(
+            for_minor='on', minor_first_name='Luca', minor_last_name='Rossi', minor_birth_place='Rubiera',
+            minor_birth_date='2014-05-02', minor_address='Via Terraglio 1', minor_zip_code='42048',
+            minor_city='Rubiera', minor_province='RE'))
+        signed = SignedMembershipDocument.objects.get()
+        self.assertEqual(signed.minor_name, 'Luca Rossi')
+        self.assertEqual(signed.answers['minor']['birth_date'], '02/05/2014')
+        self.assertEqual(signed.answers['minor']['fiscal_code'], '')
+        self.client.force_login(self.owner.user)
+        self.assertContains(
+            self.client.get(reverse('location-member-detail', args=[self.location.slug, self.member.uuid])),
+            'Luca Rossi')
+
+    def test_the_minor_sentence(self):
+        self.assertNotIn('Luca', member_documents.minor_sentence(None))
+        self.assertIn('Luca', member_documents.minor_sentence({'first_name': 'Luca'}))
+
+    def test_the_location_image_is_the_logo(self):
+        image = BytesIO()
+        Image.new('RGB', (300, 100), (200, 30, 30)).save(image, format='PNG')
+        self.location.cover = SimpleUploadedFile('logo.png', image.getvalue(), content_type='image/png')
+        self.location.save()
+        self.assertTrue(member_documents.logo_png(self.location).startswith(b'\x89PNG'))
+        self.assertContains(self.client.get(self.sign_url), 'class="doc-logo"')
+        self.client.post(self.sign_url, self._data())
+        self.assertTrue(SignedMembershipDocument.objects.exists())
+
+    def test_no_logo_without_an_image(self):
+        self.assertIsNone(member_documents.logo_png(self.location))
+        self.assertNotContains(self.client.get(self.sign_url), 'class="doc-logo"')

@@ -199,6 +199,15 @@ il modulo ufficiale caricato resta disponibile come alternativa.
   `h2`, `h3`, `strong`, `em`, `u`, `ul`, `ol`, `li`, `br`) con placeholder
   `{{chiave}}`. Elenco in `webapp/services/member_documents.py::PLACEHOLDERS`:
   i campi anagrafici di `Member`, `location_name`, `date`, `signature`.
+- Placeholder speciali: `location_logo` (l'immagine `cover` della location,
+  se c'è), `location_address`/`location_city`, `id_document_number` (nuovo
+  campo facoltativo di `Member`), `yes_no` (consenso Sì/No: la domanda è il
+  paragrafo che lo contiene, risposta obbligatoria, salvata in
+  `SignedMembershipDocument.answers['consents']` e mostrata nella scheda socio),
+  `minor` ("per conto proprio" oppure, se chi firma spunta "firmo per un
+  minore", la frase con i dati del minore, salvati in `answers['minor']`).
+  Il `Member` resta quello di chi firma: per un minore non si crea un socio a parte.
+- Testo di esempio: la domanda di ammissione di Herberia Arcana, resa generica.
 - Editor visuale (`contenteditable` + `execCommand`, vanilla JS): i
   placeholder sono chip non modificabili, convertiti in `{{chiave}}` al submit;
   incolla solo testo; "Parti da un esempio" carica una domanda di ammissione.

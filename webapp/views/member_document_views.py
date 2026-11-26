@@ -53,6 +53,7 @@ class OnlineMembershipDocumentEditView(LoginRequiredMixin, View):
             'form': form,
             'document': document,
             'placeholders': list(member_documents.PLACEHOLDERS.items()),
+            'action_keys': member_documents.ACTION_PLACEHOLDERS,
             'signatures_count': document.signatures.count() if document else 0,
             'meta': Meta(title=_("Membership documents %(name)s - Boardgamers.com") % {'name': location.name}),
         })
@@ -104,12 +105,24 @@ class BaseSignView(LoginRequiredMixin, View):
 
     def _render(self, request, location, member, document, form):
         values = member_documents.placeholder_values(member, location)
+        logo_url = location.cover.url if location.cover else None
         return render(request, self.template_name, {
             'location': location,
             'member': member,
             'document': document,
             'form': form,
-            'document_html': member_documents.render_html(document.body, values),
+            'document_html': member_documents.render_html(document.body, values, logo_url=logo_url),
+            # The page rewrites the minor sentence and the yes/no boxes as the form is filled.
+            'live_texts': {
+                'own': member_documents.minor_sentence(None),
+                'minor': member_documents.minor_sentence(
+                    {field: f'%({field})s' for field in member_documents.MINOR_FIELDS}),
+                'yes_no': {
+                    'none': member_documents.yes_no_text(None),
+                    'yes': member_documents.yes_no_text(True),
+                    'no': member_documents.yes_no_text(False),
+                },
+            },
             'in_person': self.in_person,
             'cancel_url': self.cancel_url(location, member),
             'meta': Meta(title=_("Sign %(document)s - %(name)s") % {
@@ -151,6 +164,7 @@ class BaseSignView(LoginRequiredMixin, View):
                 document=document, member=member, membership=membership,
                 signature_png=form.cleaned_data['signature'], request=request,
                 collected_by=request.user.user_profile if self.in_person else None,
+                consents=form.consents(), minor=form.minor(),
             )
         messages.success(request, _("Document %(name)s signed.") % {'name': document.name})
         return redirect(self.done_url(location, member, membership))

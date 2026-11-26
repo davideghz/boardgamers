@@ -1152,7 +1152,7 @@ class Member(DateTimeModel):
 
     #: Personal data carried over when the same user joins another location.
     PERSONAL_DATA_FIELDS = (
-        'first_name', 'last_name', 'fiscal_code', 'email', 'phone_number',
+        'first_name', 'last_name', 'fiscal_code', 'id_document_number', 'email', 'phone_number',
         'birth_date', 'birth_place', 'nationality',
         'address', 'zip_code', 'city', 'province',
     )
@@ -1167,6 +1167,8 @@ class Member(DateTimeModel):
         max_length=16, blank=True, validators=[validate_fiscal_code],
         verbose_name=_('Fiscal Code')
     )
+    id_document_number = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Identity document number'))
     email = models.EmailField(blank=True, verbose_name=_('Email'))
     phone_number = PhoneNumberField(blank=True, region='IT', verbose_name=_('Phone Number'))
 
@@ -1374,6 +1376,9 @@ class SignedMembershipDocument(DateTimeModel):
     collected_by = models.ForeignKey(
         UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='+', verbose_name=_('Collected by'))
+    #: What the signer chose: `consents` ([{label, accepted}]) for the yes/no
+    #: fields, `minor` ({field: value}) when a guardian signed for a minor.
+    answers = models.JSONField(default=dict, blank=True, verbose_name=_('Answers'))
     ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name=_('IP address'))
     user_agent = models.CharField(max_length=300, blank=True, verbose_name=_('User agent'))
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
@@ -1385,6 +1390,11 @@ class SignedMembershipDocument(DateTimeModel):
 
     def __str__(self):
         return f"{self.document_name} – {self.member}"
+
+    @property
+    def minor_name(self):
+        minor = self.answers.get('minor') or {}
+        return f"{minor.get('first_name', '')} {minor.get('last_name', '')}".strip()
 
 
 class LocationGameTag(DateTimeModel):

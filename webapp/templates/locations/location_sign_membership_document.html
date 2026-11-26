@@ -58,6 +58,53 @@
       </div>
     {% endif %}
 
+    {% if form.asks_minor %}
+      <div class="rounded-xl border border-divider bg-surface p-4 space-y-4">
+        <label class="flex items-start gap-2 text-sm font-semibold text-content cursor-pointer select-none">
+          {{ form.for_minor }}
+          <span>{{ form.for_minor.label }}</span>
+        </label>
+        <div id="minor-fields" class="space-y-4"{% if not form.for_minor.value %} style="display:none"{% endif %}>
+          <p class="text-xs text-content-muted">{% trans "The minor's details: they go in the document next to yours." %}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for field in form.minor_fields %}
+              <div>
+                <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                  {% if field.name == 'minor_fiscal_code' %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if form.consent_fields %}
+      <div class="rounded-xl border border-divider bg-surface p-4 space-y-4">
+        <p class="text-sm font-bold text-content">{% trans "Your choices" %}</p>
+        {% for field in form.consent_fields %}
+          <fieldset>
+            <legend class="text-xs text-content-soft mb-2">{{ field.label }}</legend>
+            <div class="flex gap-5">
+              {% for radio in field %}
+                <label class="flex items-center gap-2 text-sm font-semibold text-content cursor-pointer select-none">
+                  <input type="radio" name="{{ radio.data.name }}" value="{{ radio.data.value }}"
+                         data-consent-input="{{ forloop.parentloop.counter0 }}"
+                         class="w-4 h-4 border-divider text-blue-600 focus:ring-blue-500"
+                         {% if radio.data.selected %}checked{% endif %}>
+                  {{ radio.choice_label }}
+                </label>
+              {% endfor %}
+            </div>
+            {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+          </fieldset>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     {# ── Signature pad ─────────────────────────────────────────────────── #}
     <div class="rounded-xl border border-divider bg-surface p-4">
       <div class="flex items-center justify-between gap-3 mb-2">
@@ -102,10 +149,46 @@
 
 {% block extrabodyjs %}
   {% include "partials/intl_tel_input.html" %}
+  {{ live_texts|json_script:"live-texts" }}
   <script>
     (function () {
       var text = document.getElementById('document-text');
       var blank = '_______________';
+      var live = JSON.parse(document.getElementById('live-texts').textContent);
+      var form = document.getElementById('sign-form');
+
+      // Own behalf or a minor's: rewrite the sentence and show the minor's fields.
+      var forMinor = form.querySelector('[name="for_minor"]');
+      function updateMinor() {
+        var sentence = live.own;
+        if (forMinor && forMinor.checked) {
+          sentence = live.minor.replace(/%\((\w+)\)s/g, function (match, name) {
+            var input = form.querySelector('[name="minor_' + name + '"]');
+            return input ? formatValue(input) : blank;
+          });
+        }
+        text.querySelectorAll('[data-placeholder="minor"]').forEach(function (span) { span.textContent = sentence; });
+      }
+      if (forMinor) {
+        forMinor.addEventListener('change', function () {
+          document.getElementById('minor-fields').style.display = forMinor.checked ? '' : 'none';
+          updateMinor();
+        });
+        form.querySelectorAll('[name^="minor_"]').forEach(function (input) {
+          input.addEventListener('input', updateMinor);
+        });
+        updateMinor();
+      }
+
+      // Yes/no boxes in the text follow the radios.
+      function updateConsent(input) {
+        var span = text.querySelector('[data-consent="' + input.dataset.consentInput + '"]');
+        if (span && input.checked) span.textContent = live.yes_no[input.value];
+      }
+      form.querySelectorAll('[data-consent-input]').forEach(function (input) {
+        input.addEventListener('change', function () { updateConsent(input); });
+        updateConsent(input);
+      });
 
       // Live-fill the document while the details are typed.
       function formatValue(input) {

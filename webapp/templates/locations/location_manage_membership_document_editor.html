@@ -67,13 +67,18 @@
         <p class="text-[11px] text-content-muted mb-3">{% trans "Click where it goes in the text, then pick the field. The member is asked for each field you use." %}</p>
         <div class="flex flex-wrap gap-1.5">
           {% for key, label in placeholders %}
-            <button type="button" data-placeholder-key="{{ key }}"
-                    class="js-insert-placeholder doc-chip{% if key == 'signature' %} doc-chip-signature{% endif %} cursor-pointer border-0 hover:opacity-80">
+            <button type="button" data-placeholder-key="{{ key }}"{% if key in action_keys %} data-action{% endif %}
+                    class="js-insert-placeholder doc-chip{% if key in action_keys %} doc-chip-signature{% endif %} cursor-pointer border-0 hover:opacity-80">
               + {{ label }}
             </button>
           {% endfor %}
         </div>
-        <p class="text-[11px] text-content-muted mt-3">{% trans "Without the Signature field, the signature goes at the end of the document, with the date." %}</p>
+        <ul class="text-[11px] text-content-muted mt-3 space-y-1 list-disc pl-4">
+          <li>{% trans "Without the Signature field, the signature goes at the end of the document, with the date." %}</li>
+          <li>{% trans "Yes / No asks the member to choose: the question is the paragraph it sits in. Use it for optional consents, like photos." %}</li>
+          <li>{% trans "On their own behalf / minor lets a parent or guardian sign for a minor and enter the minor's details." %}</li>
+          <li>{% trans "The logo is the image of the location, when it has one." %}</li>
+        </ul>
         <button type="button" id="load-example"
                 class="mt-4 w-full rounded-full border border-divider px-3 py-2 text-xs font-semibold text-content-soft hover:bg-surface-alt transition-colors">
           {% trans "Start from an example" %}
@@ -103,17 +108,24 @@
 
   {# Example text. Fields are written [[key]]: {{ }} would be read by the template engine. #}
   <template id="example-text">
-    <h2>{% trans "Membership application" %}</h2>
-    <p>{% blocktrans trimmed %}To the board of [[location_name]]{% endblocktrans %}</p>
-    <p>{% blocktrans trimmed %}I, the undersigned [[first_name]] [[last_name]], born in [[birth_place]] on [[birth_date]], fiscal code [[fiscal_code]], living in [[address]], [[zip_code]] [[city]] ([[province]]), email [[email]], phone [[phone_number]],{% endblocktrans %}</p>
-    <h3>{% trans "apply" %}</h3>
-    <p>{% blocktrans trimmed %}to be admitted as a member of the association for the current year. To this end I declare that I:{% endblocktrans %}</p>
+    <p>[[location_logo]]</p>
+    <h2>{% trans "MEMBERSHIP APPLICATION" %}</h2>
+    <p>{% trans "To" %}<br>[[location_name]]<br>[[location_address]]</p>
+    <p>{% blocktrans trimmed %}I, the undersigned [[first_name]] [[last_name]], born in [[birth_place]] on [[birth_date]], living in [[address]], [[zip_code]] [[city]] ([[province]]), fiscal code [[fiscal_code]], identity card no. [[id_document_number]], mobile [[phone_number]], email [[email]], [[minor]],{% endblocktrans %}</p>
+    <h3>{% trans "APPLY" %}</h3>
+    <p>{% blocktrans trimmed %}to be admitted as a member of the association "[[location_name]]".{% endblocktrans %}</p>
+    <p>{% trans "Furthermore, I, the undersigned," %}</p>
+    <h3>{% trans "DECLARE" %}</h3>
     <ul>
-      <li>{% trans "have read and accept the statute and the rules of the association;" %}</li>
-      <li>{% trans "will pay the yearly membership fee;" %}</li>
-      <li>{% trans "have received the privacy notice (EU Regulation 2016/679) and agree to the processing of my data for the purposes of the association." %}</li>
+      <li>{% trans "that I have read the Statute and the Rules of the Association and that I accept them and will abide by them in every respect;" %}</li>
+      <li>{% trans "that I undertake to pay the yearly membership fee and the association contributions according to the chosen activity;" %}</li>
+      <li>{% trans "that I consent to the processing of my personal data by the Association, under art. 13 of Legislative Decree no. 196/2003 and in relation to the information provided. In particular, I consent to the processing of personal data for the institutional purposes of the Association, to the extent necessary to fulfil the obligations set by the law and by the statute." %}</li>
     </ul>
-    <p>[[city]], [[date]]</p>
+    <p>{% trans "Place and date" %}: [[location_city]], [[date]]</p>
+    <p>{% trans "Signature" %} [[signature]]</p>
+    <p>{% trans "I authorise photographs and/or video recordings of myself / of the minor, taken for institutional purposes only, during the activities and/or events organised by the Association." %} [[yes_no]]</p>
+    <p>{% trans "I consent to the processing and publication, for institutional purposes only, of videos, photographs and/or images that may reveal my identity / the identity of the minor, on the website and in the periodical of the Association and on the notice boards in its premises." %} [[yes_no]]</p>
+    <p>{% trans "Place and date" %}: [[location_city]], [[date]]</p>
     <p>{% trans "Signature" %} [[signature]]</p>
   </template>
 
@@ -125,9 +137,10 @@
       var form = document.getElementById('document-form');
       var editor = document.getElementById('doc-editor');
       var hidden = form.querySelector('input[name="body"]');
-      var labels = {};
+      var labels = {}, actions = {};
       document.querySelectorAll('.js-insert-placeholder').forEach(function (button) {
         labels[button.dataset.placeholderKey] = button.textContent.replace(/^\s*\+\s*/, '').trim();
+        if (button.hasAttribute('data-action')) actions[button.dataset.placeholderKey] = true;
       });
 
       function escapeHtml(text) {
@@ -136,7 +149,7 @@
         return div.innerHTML;
       }
       function chipHtml(key) {
-        return '<span class="doc-chip' + (key === 'signature' ? ' doc-chip-signature' : '') +
+        return '<span class="doc-chip' + (actions[key] ? ' doc-chip-signature' : '') +
                '" contenteditable="false" data-key="' + key + '">' + escapeHtml(labels[key]) + '</span>';
       }
       function toChips(html) {

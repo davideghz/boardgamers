@@ -185,6 +185,15 @@
                     {% trans "Signed on" %} {{ signed.signed_at|date:"d/m/Y H:i" }}
                     {% if signed.collected_by %}· {% blocktrans with manager=signed.collected_by.nickname %}in person, collected by {{ manager }}{% endblocktrans %}{% else %}· {% trans "online" %}{% endif %}
                   </p>
+                  {% if signed.minor_name %}
+                    <p class="text-[11px] text-content-soft mt-1">{% blocktrans with name=signed.minor_name %}On behalf of the minor {{ name }}{% endblocktrans %}</p>
+                  {% endif %}
+                  {% for consent in signed.answers.consents %}
+                    <p class="text-[11px] mt-1 {% if consent.accepted %}text-green-700{% else %}text-content-muted{% endif %}" title="{{ consent.label }}">
+                      <span class="font-bold">{% if consent.accepted %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</span>
+                      · {{ consent.label|truncatechars:90 }}
+                    </p>
+                  {% endfor %}
                 </div>
                 <a href="{% url 'location-member-signed-document' location.slug member.uuid signed.uuid %}" target="_blank" rel="noopener"
                    class="p-1.5 rounded-lg text-content-muted hover:text-content hover:bg-surface-alt transition-colors" aria-label="{% trans 'Download' %}">

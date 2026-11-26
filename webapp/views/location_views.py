@@ -838,7 +838,7 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
 
         writer = csv.writer(response)
         writer.writerow([
-            _('First Name'), _('Last Name'), _('Fiscal Code'), _('Email'),
+            _('First Name'), _('Last Name'), _('Fiscal Code'), _('Identity document number'), _('Email'),
             _('Phone'), _('Date of Birth'), _('Place of Birth'), _('Nationality'),
             _('Address'), _('ZIP Code'), _('City'), _('Province'),
             _('Username'), _('Membership Status'),
@@ -852,6 +852,7 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
                 member.first_name,
                 member.last_name,
                 member.fiscal_code,
+                member.id_document_number,
                 member.email,
                 member.phone_number,
                 member.birth_date.isoformat() if member.birth_date else '',
