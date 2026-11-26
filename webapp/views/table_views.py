@@ -286,6 +286,8 @@ class BaseTableDetailView(generic.DetailView):
         context.update({
             'comment_form': CommentForm(),
             'can_comment': can_comment(profile, table, is_host=self.is_table_host),
+            'is_player': bool(profile) and players.filter(user_profile=profile).exists(),
+            'login_url': f"{reverse('login')}?{urlencode({'next': self.request.path})}",
             'comments': comments,
             'available_seats': max_players - current_players,
             'available_seats_range': range(max(0, max_players - current_players)),
@@ -344,6 +346,7 @@ class TableDetailView(BaseTableDetailView):
 
         context.update({
             'table_join': table_join,
+            'join_location': table.location,
             # Mirrors the service rule, so the template never offers a control
             # the action would then refuse.
             'can_manage_roster': (

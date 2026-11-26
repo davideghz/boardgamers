@@ -1,0 +1,31 @@
+{% load i18n %}
+{% comment %}
+"Members only": whose members, and how to become one. Shared by the table pages
+(tables/_join_actions.html) and the event page. Expects location (may be None), access (a
+LocationAccess), login_url and user; `bar` draws the compact mobile version.
+{% endcomment %}
+<div class="flex {% if bar %}items-center gap-3{% else %}flex-col gap-2{% endif %}">
+  <p class="{% if bar %}flex-1 text-xs{% else %}w-full py-1 text-sm{% endif %} text-center font-semibold text-content-muted">
+    {% if location %}{% blocktrans with name=location.name %}Reserved for members of {{ name }}{% endblocktrans %}{% else %}{% trans "Table reserved for members" %}{% endif %}
+  </p>
+  <div class="flex {% if bar %}flex-shrink-0 gap-2{% else %}flex-col gap-2{% endif %}">
+    {% if not user.is_authenticated %}
+      <a href="{{ login_url }}"
+         class="inline-flex items-center justify-center gap-1.5 bg-primary text-white font-bold rounded-full hover:opacity-90 transition-opacity text-decoration-none {% if bar %}px-3 py-2 text-xs{% else %}w-full py-2.5 text-sm{% endif %}">
+        {% trans "Log in" %}
+      </a>
+    {% endif %}
+    {% if location.enable_membership %}
+      {% if access.membership_pending %}
+        <span class="inline-flex items-center justify-center gap-1.5 border border-divider text-content-muted font-semibold rounded-full cursor-not-allowed {% if bar %}px-3 py-2 text-xs{% else %}w-full py-2.5 text-sm{% endif %}">
+          {% trans "Membership pending" %}
+        </span>
+      {% else %}
+        <a href="{% url 'location-request-membership' location.slug %}"
+           class="inline-flex items-center justify-center gap-1.5 border border-divider text-content-soft font-semibold rounded-full hover:bg-surface-alt transition-colors text-decoration-none {% if bar %}px-3 py-2 text-xs{% else %}w-full py-2.5 text-sm{% endif %}">
+          {% trans "Become a member" %}
+        </a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
