@@ -1,3 +1,5 @@
+import csv
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import translation
@@ -112,10 +114,28 @@ class LocationGameTagsTest(TestCase):
         self.assertContains(self.client.get(detail), "To repair")
         self.assertEqual(self.client.get(self.add_url).status_code, 200)
 
-    def test_csv_lists_the_tags(self):
-        self.entry("Azul", self.loan, self.repair)
+    def test_csv_lists_tags_and_bgg_ids(self):
+        azul = LocationGame.objects.create(
+            location=self.location, game=GameFactory(name="Azul", bgg_code="230802"),
+        )
+        azul.tags.add(self.loan, self.repair)
+        self.entry("Local prototype")
+
         response = self.client.get(reverse('location-games-csv', kwargs=self.slug))
-        self.assertIn("On loan, To repair", response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        reader = csv.DictReader(response.content.decode('utf-8-sig').splitlines())
+        self.assertEqual(reader.fieldnames, [
+            'Game', 'Tags', 'Ownership', 'Owner Member', 'Physical Location', 'Notes', 'BGG ID',
+        ])
+        rows = {row['Game']: row for row in reader}
+        self.assertEqual(rows['Azul']['Tags'], "On loan, To repair")
+        self.assertEqual(rows['Azul']['BGG ID'], "230802")
+        self.assertEqual(rows['Local prototype']['BGG ID'], "")
+
+    def test_csv_requires_location_manager(self):
+        self.client.force_login(self.outsider.user)
+        response = self.client.get(reverse('location-games-csv', kwargs=self.slug))
+        self.assertEqual(response.status_code, 403)
 
     def test_tags_stay_out_of_the_public_library(self):
         self.entry("Azul", self.loan)

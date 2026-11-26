@@ -2066,6 +2066,7 @@ class DownloadGamesCSVView(LoginRequiredMixin, View):
         writer = csv.writer(response)
         writer.writerow([
             _('Game'), _('Tags'), _('Ownership'), _('Owner Member'), _('Physical Location'), _('Notes'),
+            _('BGG ID'),
         ])
 
         location_games = location.location_games.filter(is_archived=False).select_related('game', 'owner_member').prefetch_related('tags')
@@ -2077,6 +2078,7 @@ class DownloadGamesCSVView(LoginRequiredMixin, View):
                 str(lg.owner_member) if lg.owner_member else '',
                 lg.get_physical_location_display(),
                 lg.notes,
+                lg.game.bgg_code,
             ])
 
         return response
