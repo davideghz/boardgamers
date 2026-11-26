@@ -361,6 +361,7 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         location = self.get_object()
         context['is_owner'] = location.creator == self.request.user.user_profile
+        context['todo'] = manager_todo([location.pk])  # on top of the panel (plan G1)
         context['meta'] = Meta(
             title=_("Management – %(name)s") % {'name': location.name},
             description=_("Game nights in %(address)s") % {'address': location.address},

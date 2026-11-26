@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:48+0100\n"
+"POT-Creation-Date: 2026-11-26 21:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4111,29 +4111,14 @@ msgstr "Non riuscito"
 msgid "The import is still running. Leave anyway?"
 msgstr "L'importazione è ancora in corso. Uscire comunque?"
 
-msgid "Venue layout requests"
-msgstr "Richieste di uso degli spazi"
+msgid "Waiting for you"
+msgstr "In attesa di te"
+
+msgid "Details and visibility"
+msgstr "Dati e visibilità"
 
 msgid "Edit name, description, address and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
-
-msgid "Manage this location's affiliations with national networks"
-msgstr "Gestisci le affiliazioni nazionali di questa sede"
-
-msgid "Add, remove managers and transfer ownership"
-msgstr "Aggiungi e rimuovi gestori, trasferisci la titolarità"
-
-msgid "Manage the location's library"
-msgstr "Gestisci la ludoteca della sede"
-
-msgid "Assign stations"
-msgstr "Assegna postazioni"
-
-msgid "Assign the upcoming games to your stations"
-msgstr "Assegna le prossime partite alle tue postazioni"
-
-msgid "Manage members and memberships"
-msgstr "Gestisci soci e adesioni"
 
 msgid "Permissions"
 msgstr "Permessi"
@@ -4141,20 +4126,72 @@ msgstr "Permessi"
 msgid "Control who can create and join tables"
 msgstr "Decidi chi può creare e unirsi ai tavoli"
 
+msgid "Manage this location's affiliations with national networks"
+msgstr "Gestisci le affiliazioni nazionali di questa sede"
+
+msgctxt "navigation"
+msgid "Activities"
+msgstr "Attività"
+
+msgid "Create events, publish drafts and follow their tables"
+msgstr "Crea eventi, pubblica le bozze e segui i loro tavoli"
+
 msgid "Table summary"
 msgstr "Riepilogo tavoli"
 
 msgid "Generate a message with table status to share on chat"
 msgstr "Genera un messaggio con lo stato dei tavoli da condividere in chat"
 
+msgid "Spaces"
+msgstr "Spazi"
+
+msgid "Assign stations"
+msgstr "Assegna postazioni"
+
+msgid "Assign the upcoming games to your stations"
+msgstr "Assegna le prossime partite alle tue postazioni"
+
+msgid "Venue layout requests"
+msgstr "Richieste di uso degli spazi"
+
+msgid "Events hosted here that ask for your areas and stations"
+msgstr "Eventi ospitati qui che chiedono le tue aree e postazioni"
+
+msgid "People"
+msgstr "Persone"
+
+msgid "Manage members and memberships"
+msgstr "Gestisci soci e adesioni"
+
+msgid "Add, remove managers and transfer ownership"
+msgstr "Aggiungi e rimuovi gestori, trasferisci la titolarità"
+
+msgid "Membership forms"
+msgstr "Moduli di iscrizione"
+
+msgid "The documents members fill in and sign"
+msgstr "I documenti che i soci compilano e firmano"
+
+msgid "Manage the location's library"
+msgstr "Gestisci la ludoteca della sede"
+
+msgid "Loans"
+msgstr "Prestiti"
+
+msgid "Who has which game, and until when"
+msgstr "Chi ha quale gioco, e fino a quando"
+
+msgid "Integrations"
+msgstr "Integrazioni"
+
+msgid "Publish open tables to a Telegram group"
+msgstr "Pubblica i tavoli aperti in un gruppo Telegram"
+
 msgid "Widget"
 msgstr "Widget"
 
 msgid "Embed upcoming tables on your website"
 msgstr "Incorpora i prossimi tavoli sul tuo sito"
-
-msgid "Publish open tables to a Telegram group"
-msgstr "Pubblica i tavoli aperti in un gruppo Telegram"
 
 msgid "Transfer ownership"
 msgstr "Trasferisci la titolarità"
@@ -4855,10 +4892,6 @@ msgstr "Feed"
 
 msgid "Explore"
 msgstr "Esplora"
-
-msgctxt "navigation"
-msgid "Activities"
-msgstr "Attività"
 
 msgid "Pagination"
 msgstr "Paginazione"

@@ -2,6 +2,11 @@
 {% load custom_tags %}
 {% load i18n %}
 
+{% comment %}
+The location's management panel by task (plan G1): first what waits for an answer
+(services/manager_todo.py), then the tools grouped by what one wants to do.
+{% endcomment %}
+
 {% block content %}
 
   <div class="mb-6">
@@ -9,210 +14,92 @@
     <h1 class="text-2xl font-extrabold text-content">{% trans "Manage location" %}</h1>
   </div>
 
-  <div class="max-w-xl space-y-2">
+  <div class="max-w-xl space-y-8">
 
-    <a class="block p-4 rounded-xl border border-divider bg-surface text-sm font-bold text-content" href="{% url 'location-manage-events' location.slug %}">{% trans "Organized events" %}</a>
-    <a class="block p-4 rounded-xl border border-divider bg-surface text-sm font-bold text-content" href="{% url 'location-venue-layout-requests' location.slug %}">{% trans "Venue layout requests" %}</a>
+    {% if todo %}
+      <section aria-labelledby="todo-title">
+        <h2 id="todo-title" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Waiting for you" %}</h2>
+        <div class="space-y-2">
+          {% for item in todo %}
+            {% if item.key == 'membership_requests' %}{% blocktrans count n=item.count asvar title %}membership request{% plural %}membership requests{% endblocktrans %}
+            {% elif item.key == 'layout_requests' %}{% blocktrans count n=item.count asvar title %}layout request{% plural %}layout requests{% endblocktrans %}
+            {% elif item.key == 'draft_events' %}{% blocktrans count n=item.count asvar title %}draft event{% plural %}draft events{% endblocktrans %}
+            {% else %}{% blocktrans count n=item.count asvar title %}event without tables{% plural %}events without tables{% endblocktrans %}{% endif %}
+            {% todo_card item.url title item.count %}
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
 
-    <a href="{% url 'location-manage-data' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-        </svg>
+    <section aria-labelledby="group-data">
+      <h2 id="group-data" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Details and visibility" %}</h2>
+      <div class="space-y-2">
+        {% url 'location-manage-data' location.slug as url %}{% trans "Location info" as title %}{% trans "Edit name, description, address and cover image" as description %}
+        {% manage_tile url title description icon="map-pin" %}
+        {% url 'location-manage-permissions' location.slug as url %}{% trans "Permissions" as title %}{% trans "Control who can create and join tables" as description %}
+        {% manage_tile url title description icon="lock" %}
+        {% url 'location-manage-networks' location.slug as url %}{% trans "National affiliations" as title %}{% trans "Manage this location's affiliations with national networks" as description %}
+        {% manage_tile url title description icon="link" %}
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Location info" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Edit name, description, address and cover image" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
+    </section>
 
-    <a href="{% url 'location-manage-networks' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 0 6.364l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m16.839 1.14 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 0 6.364" transform="translate(-.5 0)"/>
-        </svg>
+    <section aria-labelledby="group-activities">
+      <h2 id="group-activities" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Activities" context "navigation" %}</h2>
+      <div class="space-y-2">
+        {% url 'location-manage-events' location.slug as url %}{% trans "Organized events" as title %}{% trans "Create events, publish drafts and follow their tables" as description %}
+        {% manage_tile url title description icon="calendar" %}
+        {% url 'location-manage-table-summary' location.slug as url %}{% trans "Table summary" as title %}{% trans "Generate a message with table status to share on chat" as description %}
+        {% manage_tile url title description icon="chat" %}
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "National affiliations" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Manage this location's affiliations with national networks" %}</p>
-      </div>
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4 text-content-muted shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5.25 15.75 12 9 18.75"/>
-      </svg>
-    </a>
+    </section>
 
-    <a href="{% url 'location-manage-managers' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-        </svg>
+    <section aria-labelledby="group-spaces">
+      <h2 id="group-spaces" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Spaces" %}</h2>
+      <div class="space-y-2">
+        {% url 'location-manage-areas' location.slug as url %}{% trans "Play areas" as title %}
+        {% blocktrans count n=location.play_areas.count asvar description %}{{ n }} area configured{% plural %}{{ n }} areas configured{% endblocktrans %}
+        {% manage_tile url title description icon="squares" %}
+        {% url 'location-manage-stations' location.slug as url %}{% trans "Stations" as title %}
+        {% blocktrans count n=location.physical_tables.count asvar description %}{{ n }} station configured{% plural %}{{ n }} stations configured{% endblocktrans %}
+        {% manage_tile url title description icon="squares" %}
+        {% url 'location-manage-station-assignment' location.slug as url %}{% trans "Assign stations" as title %}{% trans "Assign the upcoming games to your stations" as description %}
+        {% manage_tile url title description icon="check" %}
+        {% url 'location-venue-layout-requests' location.slug as url %}{% trans "Venue layout requests" as title %}{% trans "Events hosted here that ask for your areas and stations" as description %}
+        {% manage_tile url title description icon="inbox" %}
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Managers" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Add, remove managers and transfer ownership" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
+    </section>
 
-    <a href="{% url 'location-manage-games' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
-        </svg>
+    <section aria-labelledby="group-people">
+      <h2 id="group-people" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "People" %}</h2>
+      <div class="space-y-2">
+        {% url 'location-manage-members' location.slug as url %}{% trans "Members" as title %}{% trans "Manage members and memberships" as description %}
+        {% manage_tile url title description icon="users" %}
+        {% url 'location-manage-managers' location.slug as url %}{% trans "Managers" as title %}{% trans "Add, remove managers and transfer ownership" as description %}
+        {% manage_tile url title description icon="user-plus" %}
+        {% url 'location-membership-documents' location.slug as url %}{% trans "Membership forms" as title %}{% trans "The documents members fill in and sign" as description %}
+        {% manage_tile url title description icon="document" %}
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Library" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Manage the location's library" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
+    </section>
 
-    <a href="{% url 'location-manage-areas' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-        </svg>
+    <section aria-labelledby="group-library">
+      <h2 id="group-library" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Library" %}</h2>
+      <div class="space-y-2">
+        {% url 'location-manage-games' location.slug as url %}{% trans "Games" as title %}{% trans "Manage the location's library" as description %}
+        {% manage_tile url title description icon="book" %}
+        {% url 'location-manage-game-loans' location.slug as url %}{% trans "Loans" as title %}{% trans "Who has which game, and until when" as description %}
+        {% manage_tile url title description icon="arrows" %}
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Play areas" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">
-          {% blocktrans count n=location.play_areas.count %}{{ n }} area configured{% plural %}{{ n }} areas configured{% endblocktrans %}
-        </p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
+    </section>
 
-    <a href="{% url 'location-manage-stations' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0 1 12 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 1.5v-1.5m0 0c0-.621.504-1.125 1.125-1.125m0 0h7.5" />
-        </svg>
+    <section aria-labelledby="group-integrations">
+      <h2 id="group-integrations" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Integrations" %}</h2>
+      <div class="space-y-2">
+        {% url 'location-manage-telegram' location.slug as url %}{% trans "Publish open tables to a Telegram group" as description %}
+        {% manage_tile url "Telegram" description icon="send" %}
+        {% url 'location-manage-widget' location.slug as url %}{% trans "Widget" as title %}{% trans "Embed upcoming tables on your website" as description %}
+        {% manage_tile url title description icon="code" %}
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Stations" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">
-          {% blocktrans count n=location.physical_tables.count %}{{ n }} station configured{% plural %}{{ n }} stations configured{% endblocktrans %}
-        </p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
-
-    <a href="{% url 'location-manage-station-assignment' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Assign stations" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Assign the upcoming games to your stations" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
-
-    <a href="{% url 'location-manage-members' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Members" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Manage members and memberships" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
-
-    <a href="{% url 'location-manage-permissions' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Permissions" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Control who can create and join tables" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
-
-    <a href="{% url 'location-manage-table-summary' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Table summary" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Generate a message with table status to share on chat" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
-
-    <a href="{% url 'location-manage-widget' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl bg-surface-input flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-content-soft">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">{% trans "Widget" %}</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Embed upcoming tables on your website" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
-
-    <a href="{% url 'location-manage-telegram' location.slug %}"
-       class="flex items-center gap-4 p-4 rounded-xl border border-divider bg-surface hover:shadow-md hover:border-divider transition-all text-decoration-none">
-      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
-        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10">
-          <path d="M128,0C57.307,0 0,57.307 0,128C0,198.693 57.307,256 128,256C198.693,256 256,198.693 256,128C256,57.307 198.693,0 128,0Z" fill="#40B3E0"/>
-          <path d="M190.283,73.631L167.421,188.898C167.421,188.898 164.224,196.892 155.431,193.055L102.673,152.607L83.489,143.335L51.195,132.463C51.195,132.463 46.239,130.705 45.759,126.868C45.28,123.031 51.355,120.953 51.355,120.953L179.731,70.593C179.731,70.593 190.283,65.957 190.283,73.631" fill="#FFFFFF"/>
-          <path d="M98.618,187.604C98.618,187.604 97.078,187.46 95.159,181.384C93.241,175.309 83.489,143.335 83.489,143.335L161.026,94.095C161.026,94.095 165.503,91.377 165.343,94.095C165.343,94.095 166.142,94.574 163.744,96.812C161.346,99.051 102.833,151.648 102.833,151.648" fill="#D2E5F1"/>
-          <path d="M122.902,168.115L102.034,187.141C102.034,187.141 100.403,188.379 98.618,187.604L102.614,152.262" fill="#B5CFE4"/>
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold text-content">Telegram</p>
-        <p class="text-xs text-content-muted mt-0.5">{% trans "Publish open tables to a Telegram group" %}</p>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-content-muted flex-shrink-0">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-    </a>
+    </section>
 
   </div>
 
