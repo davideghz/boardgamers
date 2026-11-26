@@ -1,0 +1,21 @@
+{% extends "emails/base/base_email_html.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% trans "A member signed a document" %}
+{% endblock title %}
+
+{% block main_content %}
+    {% blocktrans %}<strong>{{ member_name }}</strong> signed the document "{{ document_name }}" of {{ location_name }}.{% endblocktrans %}<br><br>
+    {% if in_person %}{% trans "It was signed in person, on the device of another manager." %}<br><br>{% endif %}
+    {% trans "Open the member page to download the signed PDF." %}
+{% endblock main_content %}
+
+{% block cta_label %}
+  {% trans "Open the member page" %}
+{% endblock cta_label %}
+
+{% block cta_href %}
+  {{ button_href }}
+{% endblock cta_href %}

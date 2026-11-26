@@ -23,11 +23,20 @@
         <p class="text-sm font-bold text-content">{% trans "Documents to sign" %}</p>
       </div>
       <p class="text-xs text-content-muted mb-3">
-        {% trans "To become a member you have to print these documents, sign them and hand them in. You can download them again later from your memberships page." %}
+        {% trans "To become a member you have to sign these documents: the ones to sign online right after sending the request, the others printed, signed and handed in. You find them all again on your memberships page." %}
       </p>
       <ul class="space-y-1.5">
         {% for document in documents %}
           <li>
+            {% if document.is_online %}
+            <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-content">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+              </svg>
+              {{ document.name }}
+              <span class="text-[10px] font-bold text-content-muted">{% trans "you sign it online right after the request" %}</span>
+            </span>
+            {% else %}
             <a href="{{ document.file.url }}" target="_blank" rel="noopener"
                class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:underline text-decoration-none">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
@@ -36,6 +45,7 @@
               {{ document.name }}
               {% if document.extension %}<span class="text-[10px] font-bold text-content-muted">{{ document.extension }}</span>{% endif %}
             </a>
+            {% endif %}
           </li>
         {% endfor %}
       </ul>

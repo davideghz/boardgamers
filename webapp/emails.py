@@ -236,3 +236,38 @@ def send_batch_notification_new_messages(user_profile, total_unread, table_detai
         fail_silently=False,
     )
 
+
+
+def send_notification_document_signed(user_profile, signed):
+    """
+    Tells a manager of the location that a member signed an online document.
+    The email carries no personal data beyond the name: the PDF stays behind
+    the member page, which checks permissions.
+
+    :param user_profile: The UserProfile of the manager to notify.
+    :param signed: The SignedMembershipDocument just created.
+    """
+    if not user_profile.user.email:
+        return
+    member = signed.member
+    location = member.location
+    lang = user_profile.preferred_language or settings.LANGUAGE_CODE
+    context = {
+        'member_name': member.full_name,
+        'document_name': signed.document_name,
+        'location_name': location.name,
+        'in_person': signed.collected_by_id is not None,
+        'button_href': settings.DOMAIN_URL + reverse(
+            'location-member-detail', kwargs={'slug': location.slug, 'member_uuid': member.uuid}),
+    }
+    with translation.override(lang):
+        subject = f"{messages.EMAIL_SUBJECT_DOCUMENT_SIGNED}: {signed.document_name}"
+        text_content = render_to_string('emails/email_notification_document_signed.html', context=context)
+        html_content = render_to_string('emails/email_notification_document_signed_html.html', context=context)
+    send_mail(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [user_profile.user.email],
+        html_message=html_content,
+    )

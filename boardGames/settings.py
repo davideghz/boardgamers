@@ -329,8 +329,12 @@ AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
 PUBLIC_MEDIA_LOCATION = 'media'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+# Files holding personal data (signed membership documents): a bucket with
+# Block Public Access, read only through views that check permissions.
+AWS_PRIVATE_STORAGE_BUCKET_NAME = env('AWS_PRIVATE_STORAGE_BUCKET_NAME', default='boardgamers-staging-private')
 STORAGES = {
     'default': {'BACKEND': 'webapp.storage_backends.PublicMediaStorage'},
+    'private': {'BACKEND': 'webapp.storage_backends.PrivateMediaStorage'},
     'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 

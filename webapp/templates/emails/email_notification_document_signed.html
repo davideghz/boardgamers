@@ -1,0 +1,8 @@
+{% load i18n %}{% autoescape off %}
+{% blocktrans %}{{ member_name }} signed the document "{{ document_name }}" of {{ location_name }}.{% endblocktrans %}
+{% if in_person %}{% trans "It was signed in person, on the device of another manager." %}{% endif %}
+
+{% trans "Open the member page to download the signed PDF" %}: {{ button_href }}
+
+Board-Gamers.com
+{% endautoescape %}

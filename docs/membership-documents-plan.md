@@ -5,7 +5,7 @@ cartaceo. Obiettivo: i manager di una location caricano il modulo di adesione,
 il socio che invia la richiesta lo scarica, lo stampa e lo firma; il manager
 registra a mano l'avvenuta consegna.
 
-> Stato: **Fasi 1-4 implementate** (branch `membership-documents`), non ancora in produzione.
+> Stato: **Fasi 1-4 in produzione**; Fase 5 (firma online) implementata sul branch `feat/member-documents-signature`.
 
 ## Scope
 
@@ -187,6 +187,45 @@ signed_document = models.BooleanField(default=False, verbose_name=_('Signed docu
   `list_display`/`list_filter` di `Membership`.
 - i18n: `makemessages -l it --no-location -i "venv/*"` + `compilemessages`,
   commit di `.po` e `.mo`.
+
+## Fase 5 — Documenti firmati online ✅ fatta (branch `feat/member-documents-signature`)
+
+Rivede la scelta "documento scritto in-app" scartata sotto: il PDF non si
+genera con WeasyPrint ma con **ReportLab** (puro Python, niente buildpack), e
+il modulo ufficiale caricato resta disponibile come alternativa.
+
+- `MembershipDocument.kind`: `file` (caricato, si stampa e firma su carta) o
+  `online`; un documento online ha `body` (HTML sanitizzato con `nh3`: `p`,
+  `h2`, `h3`, `strong`, `em`, `u`, `ul`, `ol`, `li`, `br`) con placeholder
+  `{{chiave}}`. Elenco in `webapp/services/member_documents.py::PLACEHOLDERS`:
+  i campi anagrafici di `Member`, `location_name`, `date`, `signature`.
+- Editor visuale (`contenteditable` + `execCommand`, vanilla JS): i
+  placeholder sono chip non modificabili, convertiti in `{{chiave}}` al submit;
+  incolla solo testo; "Parti da un esempio" carica una domanda di ammissione.
+  Anteprima PDF a campi vuoti.
+- Firma: la pagina mostra il testo compilato con i dati del socio (aggiornati
+  dal vivo), chiede solo i campi usati nel testo (obbligatori, tranne il codice
+  fiscale), un canvas per la firma col dito e la spunta "ho letto e accetto".
+  Al submit, in un'unica transazione: aggiornamento del `Member`, PDF piatto
+  con firma e audit trail (firmatario, data/ora, IP, ID, account o gestore che
+  ha raccolto la firma), SHA-256 del PDF.
+- Due flussi: il socio online (subito dopo la richiesta di iscrizione, poi da
+  "Le mie iscrizioni") e **di persona**, con il gestore che passa il proprio
+  dispositivo dalla scheda del socio (funziona anche per soci senza account).
+- `SignedMembershipDocument`: PDF sul **bucket privato**
+  (`AWS_PRIVATE_STORAGE_BUCKET_NAME`, default `boardgamers-prod-private` /
+  `boardgamers-staging-private`; in locale senza S3 `private_media/`). Mai un
+  URL diretto: le view controllano i permessi e fanno streaming
+  (`Cache-Control: private, no-store`). Sopravvive all'eliminazione del
+  documento (`document_name` copiato).
+- `Membership.signed_document` si spunta da sola quando sono firmati tutti i
+  documenti online attivi e la location non chiede anche documenti cartacei.
+- Notifica: email al creatore e ai gestori (tranne chi ha raccolto la firma),
+  senza allegati né dati personali oltre al nome.
+
+Da fare prima del deploy: creare i bucket privati con Block Public Access e
+dare alle chiavi `boardgamers-s3-prod`/`-dev` i permessi
+`s3:PutObject`/`GetObject`/`DeleteObject` su `private/*`.
 
 ## Evoluzione futura: compilazione automatica
 

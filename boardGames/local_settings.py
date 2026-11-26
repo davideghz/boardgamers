@@ -12,6 +12,11 @@ if not USE_S3:
     STORAGES = {
         **STORAGES,
         'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        # Outside MEDIA_ROOT, so runserver never serves it.
+        'private': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+            'OPTIONS': {'location': os.path.join(BASE_DIR, 'private_media')},
+        },
     }
 
 # Geospatial libraries

@@ -3,7 +3,7 @@ from django.urls import path, include
 
 from .forms import CustomLoginForm
 from .sitemaps import LocationSitemap, GameSitemap, TableSitemap, StaticViewSitemap
-from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views
+from .views import table_views, auth_views, location_views, game_views, static_page_views, profile_views, account_views, event_views, pwa_views, telegram_app_views, member_document_views
 from .views import game_loan_views
 from .views.table_views import AddGuestToTableView, RemoveGuestFromTableView
 from .views.location_views import FollowLocationView
@@ -88,9 +88,27 @@ urlpatterns = [
     path("locations/<slug:slug>/manage/members/documents/",
          location_views.LocationManageMembershipDocumentsView.as_view(),
          name="location-membership-documents"),
+    path("locations/<slug:slug>/manage/members/documents/new/",
+         member_document_views.OnlineMembershipDocumentEditView.as_view(),
+         name="location-membership-document-new"),
     path("locations/<slug:slug>/manage/members/documents/<uuid:document_uuid>/",
          location_views.MembershipDocumentActionView.as_view(),
          name="location-membership-document-action"),
+    path("locations/<slug:slug>/manage/members/documents/<uuid:document_uuid>/edit/",
+         member_document_views.OnlineMembershipDocumentEditView.as_view(),
+         name="location-membership-document-edit"),
+    path("locations/<slug:slug>/manage/members/documents/<uuid:document_uuid>/preview/",
+         member_document_views.MembershipDocumentPreviewView.as_view(),
+         name="location-membership-document-preview"),
+    path("locations/<slug:slug>/manage/members/<uuid:member_uuid>/documents/<uuid:document_uuid>/sign/",
+         member_document_views.ManagerSignMembershipDocumentView.as_view(),
+         name="location-member-sign-document"),
+    path("locations/<slug:slug>/manage/members/<uuid:member_uuid>/signed/<uuid:signed_uuid>/",
+         member_document_views.SignedDocumentView.as_view(),
+         name="location-member-signed-document"),
+    path("locations/<slug:slug>/documents/<uuid:document_uuid>/sign/",
+         member_document_views.SignMembershipDocumentView.as_view(),
+         name="location-sign-document"),
     path("locations/<slug:slug>/manage/members/<uuid:member_uuid>/", location_views.MemberDetailEditView.as_view(),
          name="location-member-detail"),
     path("locations/<slug:slug>/manage/members/<uuid:member_uuid>/approve/",
@@ -240,6 +258,8 @@ urlpatterns = [
     path("account/notifications/", account_views.notifications, name="account-notifications"),
     path("account/notifications/edit", account_views.edit_notification_preferences, name="account-notifications-edit"),
     path("account/memberships/", account_views.memberships, name="account-memberships"),
+    path("account/memberships/signed/<uuid:signed_uuid>/", member_document_views.MySignedDocumentView.as_view(),
+         name="account-signed-document"),
     path("account/memberships/<uuid:member_uuid>/data/", account_views.member_data,
          name="account-member-data"),
     path("account/guests/", account_views.guests, name="account-guests"),

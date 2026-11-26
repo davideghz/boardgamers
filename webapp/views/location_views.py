@@ -34,7 +34,7 @@ from webapp.models import Location, Table, UserProfile, Comment, Game, LocationF
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
-from webapp.services import game_loans
+from webapp.services import game_loans, member_documents
 from webapp.services.tables import reopen_location_leaderboards
 
 logger = logging.getLogger(__name__)
@@ -615,6 +615,17 @@ class ToggleMembershipView(LoginRequiredMixin, View):
         return redirect('location-manage-members', slug=location.slug)
 
 
+def _member_documents_context(member):
+    """Signed documents of a member, and the online ones still to collect."""
+    membership = member_documents.signing_membership(member)
+    return {
+        'signed_documents': member.signed_documents.select_related('collected_by', 'signed_by'),
+        'documents_to_sign': member_documents.pending_online_documents(membership),
+        'has_online_documents': member.location.membership_documents.filter(
+            kind=MembershipDocument.ONLINE, is_active=True).exists(),
+    }
+
+
 class MemberDetailEditView(LoginRequiredMixin, View):
     """View to see and edit a member's details (GET+POST). Accessible to owners and managers."""
 
@@ -644,6 +655,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
             'form': form,
             'memberships': memberships,
             'membership_forms': membership_forms,
+            **_member_documents_context(member),
             'meta': Meta(
                 title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
             ),
@@ -674,6 +686,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
             'form': form,
             'memberships': memberships,
             'membership_forms': membership_forms,
+            **_member_documents_context(member),
             'meta': Meta(
                 title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
             ),
@@ -1012,12 +1025,17 @@ class RequestMembershipView(LoginRequiredMixin, View):
             member.save()
 
             # Create pending membership
-            Membership.objects.create(
+            membership = Membership.objects.create(
                 member=member,
                 status=Membership.PENDING,
                 notes=form.cleaned_data.get('notes', ''),
             )
             messages.success(request, _("Membership request sent. A manager will review it."))
+            # Documents signed online come right after the request, one by one.
+            to_sign = member_documents.pending_online_documents(membership).first()
+            if to_sign is not None:
+                messages.info(request, _("Now sign the membership documents."))
+                return redirect('location-sign-document', slug=location.slug, document_uuid=to_sign.uuid)
             if location.membership_documents.filter(is_active=True).exists():
                 messages.info(request, _(
                     "Remember to print and sign the membership documents: you can download "

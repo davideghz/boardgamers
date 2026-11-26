@@ -1,0 +1,220 @@
+{% extends "base_webapp.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-2xl">
+
+  <div class="mb-6">
+    <a href="{{ cancel_url }}" class="inline-flex items-center gap-1 text-xs font-semibold text-content-muted hover:text-content mb-2 text-decoration-none">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+      {% if in_person %}{{ member.full_name }}{% else %}{% trans "My memberships" %}{% endif %}
+    </a>
+    <h1 class="text-2xl font-extrabold text-content">{{ document.name }}</h1>
+    <p class="text-sm text-content-muted mt-1">{{ location.name }}</p>
+  </div>
+
+  {% if in_person %}
+    <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 mb-6">
+      <p class="text-sm font-bold text-amber-800">
+        {% blocktrans with name=member.full_name %}Hand this device to {{ name }}{% endblocktrans %}
+      </p>
+      <p class="text-xs text-amber-800 mt-0.5">
+        {% trans "They check their details, read the document and sign in the box with a finger." %}
+      </p>
+    </div>
+  {% endif %}
+
+  {# ── The document, with the member's data filled in ─────────────────── #}
+  <article id="document-text"
+           class="doc-text rounded-xl border border-divider bg-surface p-5 sm:p-7 mb-6 text-sm text-content leading-relaxed">
+    {{ document_html }}
+  </article>
+
+  <form method="post" id="sign-form" class="space-y-5">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <p class="text-xs text-red-500">{{ form.non_field_errors|join:", " }}</p>
+    {% endif %}
+
+    {% if form.data_fields %}
+      <div class="rounded-xl border border-divider bg-surface p-4 space-y-4">
+        <div>
+          <p class="text-sm font-bold text-content">{% trans "Your details" %}</p>
+          <p class="text-xs text-content-muted mt-0.5">{% trans "They fill in the document above. Check them before signing." %}</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {% for field in form.data_fields %}
+            <div>
+              <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
+              </label>
+              {{ field }}
+              {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {# ── Signature pad ─────────────────────────────────────────────────── #}
+    <div class="rounded-xl border border-divider bg-surface p-4">
+      <div class="flex items-center justify-between gap-3 mb-2">
+        <p class="text-sm font-bold text-content">{% trans "Signature" %}</p>
+        <button type="button" id="signature-clear"
+                class="text-xs font-semibold text-content-muted hover:text-content bg-transparent border-0 p-0 cursor-pointer">
+          {% trans "Clear" %}
+        </button>
+      </div>
+      <div class="relative rounded-lg border-2 border-dashed border-divider bg-white">
+        <canvas id="signature-pad" class="block w-full h-48 touch-none cursor-crosshair rounded-lg"
+                aria-label="{% trans 'Signature box: draw your signature with a finger or the mouse' %}"></canvas>
+        <p id="signature-hint" class="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-slate-400 select-none">
+          {% trans "Sign here with your finger" %}
+        </p>
+        <div class="pointer-events-none absolute left-6 right-6 bottom-10 border-b border-slate-300"></div>
+      </div>
+      {{ form.signature }}
+      {% if form.signature.errors %}<p class="mt-2 text-xs text-red-500">{{ form.signature.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    <div>
+      <label class="flex items-start gap-2 text-sm text-content cursor-pointer select-none">
+        {{ form.accept }}
+        <span>{{ form.accept.label }}</span>
+      </label>
+      {% if form.accept.errors %}<p class="mt-1 text-xs text-red-500">{{ form.accept.errors|join:", " }}</p>{% endif %}
+      <p class="text-[11px] text-content-muted mt-2">
+        {% trans "Confirming creates a PDF of the document with your details and your signature, kept by the association. The date, time and IP address of the signature are recorded in it." %}
+      </p>
+    </div>
+
+    <button type="submit"
+            class="w-full flex items-center justify-center gap-2 rounded-full bg-elevated px-4 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+      {% trans "Sign the document" %}
+    </button>
+  </form>
+
+</div>
+{% endblock content %}
+
+{% block extrabodyjs %}
+  {% include "partials/intl_tel_input.html" %}
+  <script>
+    (function () {
+      var text = document.getElementById('document-text');
+      var blank = '_______________';
+
+      // Live-fill the document while the details are typed.
+      function formatValue(input) {
+        var value = (input.value || '').trim();
+        if (input.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          var parts = value.split('-');
+          value = parts[2] + '/' + parts[1] + '/' + parts[0];
+        }
+        return value || blank;
+      }
+      document.querySelectorAll('#sign-form [name]').forEach(function (input) {
+        var spans = text.querySelectorAll('[data-placeholder="' + input.name + '"]');
+        if (!spans.length) return;
+        input.addEventListener('input', function () {
+          var value = formatValue(input);
+          spans.forEach(function (span) { span.textContent = value; });
+        });
+      });
+
+      // Signature pad.
+      var canvas = document.getElementById('signature-pad');
+      var hint = document.getElementById('signature-hint');
+      var hidden = document.querySelector('#sign-form input[name="signature"]');
+      var ctx = canvas.getContext('2d');
+      var drawing = false, hasStrokes = false, last = null;
+
+      function resize() {
+        var ratio = Math.min(window.devicePixelRatio || 1, 2);
+        var rect = canvas.getBoundingClientRect();
+        var snapshot = hasStrokes ? canvas.toDataURL('image/png') : null;
+        canvas.width = Math.round(rect.width * ratio);
+        canvas.height = Math.round(rect.height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#0f172a';
+        if (snapshot) {
+          var img = new Image();
+          img.onload = function () { ctx.drawImage(img, 0, 0, rect.width, rect.height); };
+          img.src = snapshot;
+        }
+      }
+
+      function point(event) {
+        var rect = canvas.getBoundingClientRect();
+        return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      }
+
+      canvas.addEventListener('pointerdown', function (event) {
+        event.preventDefault();
+        canvas.setPointerCapture(event.pointerId);
+        drawing = true;
+        last = point(event);
+        ctx.beginPath();
+        ctx.arc(last.x, last.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fill();
+        hasStrokes = true;
+        hint.classList.add('hidden');
+      });
+      canvas.addEventListener('pointermove', function (event) {
+        if (!drawing) return;
+        event.preventDefault();
+        var current = point(event);
+        var mid = { x: (last.x + current.x) / 2, y: (last.y + current.y) / 2 };
+        ctx.beginPath();
+        ctx.moveTo(last.x, last.y);
+        ctx.quadraticCurveTo(last.x, last.y, mid.x, mid.y);
+        ctx.lineTo(current.x, current.y);
+        ctx.stroke();
+        last = current;
+      });
+      function stop() {
+        if (!drawing) return;
+        drawing = false;
+        showInDocument();
+      }
+      canvas.addEventListener('pointerup', stop);
+      canvas.addEventListener('pointercancel', stop);
+
+      // Mirror the signature into the document's signature slot, if it has one.
+      function showInDocument() {
+        var url = hasStrokes ? canvas.toDataURL('image/png') : '';
+        text.querySelectorAll('[data-signature-slot]').forEach(function (slot) {
+          slot.innerHTML = '';
+          if (url) {
+            var img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            img.className = 'doc-signature-img';
+            slot.appendChild(img);
+          }
+        });
+      }
+
+      document.getElementById('signature-clear').addEventListener('click', function () {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasStrokes = false;
+        hint.classList.remove('hidden');
+        showInDocument();
+      });
+
+      document.getElementById('sign-form').addEventListener('submit', function () {
+        hidden.value = hasStrokes ? canvas.toDataURL('image/png') : '';
+      });
+
+      window.addEventListener('resize', resize);
+      resize();
+    })();
+  </script>
+{% endblock %}

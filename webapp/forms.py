@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
+from django.utils.html import strip_tags
 from django.forms import ModelForm, CharField, TextInput, PasswordInput, Textarea, \
     Select, Form, EmailInput, NumberInput, DateInput, TimeInput, FileInput, HiddenInput, CheckboxInput, \
     ModelMultipleChoiceField, EmailField, ModelChoiceField, BooleanField, URLInput, ChoiceField, \
@@ -1093,6 +1094,8 @@ class MembershipDocumentForm(ModelForm, TailwindForm):
         )
         self.fields['file'].widget.attrs['accept'] = ','.join(
             f'.{extension}' for extension in MEMBERSHIP_DOCUMENT_EXTENSIONS)
+        # Optional on the model, which online documents share.
+        self.fields['file'].required = True
 
     def clean_file(self):
         uploaded = self.cleaned_data.get('file')
@@ -1106,6 +1109,71 @@ class MembershipDocumentForm(ModelForm, TailwindForm):
         if uploaded.size > MEMBERSHIP_DOCUMENT_MAX_SIZE:
             raise ValidationError(_("The file is too large (max 5 MB)."))
         return uploaded
+
+
+class OnlineMembershipDocumentForm(ModelForm, TailwindForm):
+    """
+    Write a document members sign online. The visual editor fills the hidden
+    `body` with HTML and `{{key}}` placeholders; only its formatting survives.
+    """
+
+    class Meta:
+        model = MembershipDocument
+        fields = ['name', 'body', 'is_active']
+        widgets = {'body': HiddenInput()}
+
+    def clean_body(self):
+        from webapp.services import member_documents
+        body = member_documents.sanitize_body(self.cleaned_data.get('body'))
+        if not strip_tags(body).strip():
+            raise ValidationError(_("Write the text of the document."))
+        if len(body) > member_documents.BODY_MAX_LENGTH:
+            raise ValidationError(_("The text is too long."))
+        return body
+
+    def save(self, commit=True):
+        self.instance.kind = MembershipDocument.ONLINE
+        return super().save(commit)
+
+
+class SignMembershipDocumentForm(ModelForm, TailwindForm):
+    """
+    The member's data an online document asks for, the drawn signature and the
+    acceptance of the text. Saving it updates the member record, like the
+    membership request form does.
+    """
+    signature = CharField(widget=HiddenInput(), required=False)
+    accept = BooleanField(label=_('I have read the document and I accept it'))
+
+    class Meta:
+        model = Member
+        fields = ['first_name', 'last_name', 'email', 'phone_number'] + MEMBER_PERSONAL_DATA_FIELDS
+
+    def __init__(self, *args, document, **kwargs):
+        super().__init__(*args, **kwargs)
+        from webapp.services import member_documents
+        used = member_documents.member_fields_for(document)
+        for name in list(self._meta.fields):
+            if name not in used:
+                del self.fields[name]
+        # What the association asks for is required, except the fiscal code,
+        # which a member without an Italian one leaves empty.
+        for name in used:
+            self.fields[name].required = name != 'fiscal_code'
+        self.fields = {name: self.fields[name] for name in used + ['signature', 'accept']}
+        if 'phone_number' in self.fields:
+            _enhance_phone_widget(self.fields['phone_number'])
+
+    @property
+    def data_fields(self):
+        return [self[name] for name in self.fields if name not in ('signature', 'accept')]
+
+    def clean_signature(self):
+        from webapp.services import member_documents
+        try:
+            return member_documents.decode_signature(self.cleaned_data.get('signature'))
+        except ValueError:
+            raise ValidationError(_("Sign in the box before confirming."))
 
 
 class MembershipRequestForm(MemberPersonalDataForm):
