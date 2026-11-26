@@ -80,12 +80,12 @@
     {% if not user.is_authenticated %}
       <p class="text-xs text-content-muted mb-3">
         <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
-        {% trans "to see near tables." %}
+        {% trans "to see nearby locations." %}
       </p>
     {% elif location_message %}
       <p class="text-xs text-content-muted mb-3">
         <a href="{% url 'user-profile-edit' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Set your address" %}</a>
-        {% trans "to see near tables." %}
+        {% trans "to see nearby locations." %}
       </p>
     {% else %}
       <p class="text-xs text-content-muted mb-3">
@@ -121,7 +121,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {% for location in nearby_locations %}
           {% location_card location %}
-          {% if forloop.last %}{% include "partials/_add_location_card.html" %}{% endif %}
+          {% if forloop.last and not manages_locations %}{% include "partials/_add_location_card.html" %}{% endif %}
         {% empty %}
           <div class="col-span-full rounded-xl border border-divider bg-surface px-6 py-12 text-center">
             {% if network_unavailable %}
@@ -157,7 +157,7 @@
   </section>
 
   {# ── Add location CTA ─────────────────────────────────────────────── #}
-  {% if nearby_locations %}
+  {% if nearby_locations and not manages_locations %}
     {% include "partials/_add_location_cta.html" %}
   {% endif %}
 
