@@ -1,6 +1,8 @@
 import logging
+import re
 import time
 import requests
+from django.db import connection, transaction
 from django.db.models import Q
 from xml.etree import ElementTree
 from webapp.services.images import COVER_MAX_SIDE, shrink_content_file
@@ -8,6 +10,14 @@ from webapp.services.images import COVER_MAX_SIDE, shrink_content_file
 logger = logging.getLogger(__name__)
 
 BGG_API_BASE = 'https://boardgamegeek.com/xmlapi2'
+BGG_ID_PATTERN = re.compile(r'[0-9]{1,20}')
+
+
+def normalize_bgg_id(value):
+    code = str(value).strip()
+    if BGG_ID_PATTERN.fullmatch(code):
+        return code.lstrip('0') or None
+    return None
 
 
 def _get(url, params, timeout=10, max_retries=3):
@@ -37,7 +47,8 @@ ALLOWED_TYPES = {'boardgame', 'rpgitem'}
 BGG_TYPES = ','.join(sorted(ALLOWED_TYPES))
 # /search with type=boardgame already returns expansions, typed as boardgame;
 # /thing types them as boardgameexpansion, so they must be allowed explicitly.
-THING_TYPES = ','.join(sorted(ALLOWED_TYPES | {'boardgameexpansion'}))
+ALLOWED_THING_TYPES = ALLOWED_TYPES | {'boardgameexpansion'}
+THING_TYPES = ','.join(sorted(ALLOWED_THING_TYPES))
 
 
 def search_bgg(query):
@@ -327,8 +338,15 @@ def _create_game(data):
         bgg_imported=True,
         is_expansion=data['is_expansion'],
     )
-    game.slug = game.create_unique_slug()
-    game.save()
+    with transaction.atomic():
+        # Concurrent imports can fetch the same ID before either has saved it.
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))', [f'bgg-game:{bgg_id}'])
+        existing = Game.objects.filter(bgg_code=bgg_id).order_by('pk').first()
+        if existing:
+            return existing
+        game.slug = game.create_unique_slug()
+        game.save()
 
     if data['image_url']:
         try:
@@ -384,7 +402,9 @@ def import_games_from_bgg(items):
         else:
             missing.append(bgg_id)
 
+    if not missing:
+        return games
     for bgg_id, data in fetch_bgg_things(missing).items():
-        if data['name']:
+        if data['name'] and data['bgg_type'] in ALLOWED_THING_TYPES:
             games[bgg_id] = _create_game(data)
     return games

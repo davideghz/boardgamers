@@ -392,6 +392,15 @@ msgstr "I soci con tessera valida possono registrare autonomamente il ritiro."
 msgid "Only members with a valid membership at this location see the nickname."
 msgstr "Il nickname è visibile ai soci con tessera valida per questa sede."
 
+msgid "CSV file"
+msgstr "File CSV"
+
+msgid "The CSV file must be 5 MB or smaller."
+msgstr "Il file CSV deve essere al massimo di 5 MB."
+
+msgid "Save the CSV file with UTF-8 encoding and try again."
+msgstr "Salva il file CSV con codifica UTF-8 e riprova."
+
 msgid "Tag for the imported games"
 msgstr "Tag per i giochi importati"
 
@@ -1257,6 +1266,18 @@ msgstr "Questa è già la tua email."
 
 msgid "Error. Invalid verification code."
 msgstr "Errore. Codice di verifica non valido."
+
+#, python-format
+msgid "The CSV could not be read. Check the format near line %(line)s."
+msgstr ""
+"Impossibile leggere il CSV. Controlla il formato vicino alla riga %(line)s."
+
+msgid "The CSV must contain a column named BGG ID or ID BGG."
+msgstr "Il CSV deve contenere una colonna chiamata ID BGG o BGG ID."
+
+#, python-format
+msgid "The CSV has more than %(max)s rows. Split it into smaller files."
+msgstr "Il CSV ha più di %(max)s righe. Dividilo in file più piccoli."
 
 msgid ""
 "Ask a manager to record this loan. Your account is linked to more than one "
@@ -3194,6 +3215,10 @@ msgstr "Filtra…"
 msgid "Filter"
 msgstr "Filtra"
 
+#, python-format
+msgid "BGG #%(id)s"
+msgstr "BGG #%(id)s"
+
 msgid "Already in the library"
 msgstr "Già in ludoteca"
 
@@ -3652,6 +3677,9 @@ msgstr "Scarica CSV"
 msgid "Import from BoardGameGeek"
 msgstr "Importa da BoardGameGeek"
 
+msgid "Import from CSV"
+msgstr "Importa da CSV"
+
 msgid "No withdrawn games yet."
 msgstr "Nessun gioco uscito dalla ludoteca."
 
@@ -3661,12 +3689,29 @@ msgstr "Oppure importa una collezione da BoardGameGeek."
 msgid "Only managers see them: they don't appear on the public library."
 msgstr "Li vedono solo i gestori: non compaiono nella ludoteca pubblica."
 
+msgid "Upload a library export or a UTF-8 CSV with a BGG ID column."
+msgstr "Carica un export della ludoteca o un CSV UTF-8 con la colonna ID BGG."
+
 msgid ""
 "Add to the library the games a BoardGameGeek user marks as owned. The "
 "collection must be public."
 msgstr ""
 "Aggiungi alla ludoteca i giochi che un utente di BoardGameGeek segna come "
 "posseduti. La collezione deve essere pubblica."
+
+msgid "Preview import"
+msgstr "Mostra anteprima"
+
+#, python-format
+msgid "Missing BGG ID on CSV lines %(lines)s."
+msgstr "ID BGG mancante nelle righe %(lines)s del CSV."
+
+#, python-format
+msgid "Invalid BGG ID on CSV lines %(lines)s."
+msgstr "ID BGG non valido nelle righe %(lines)s del CSV."
+
+msgid "The CSV contains no valid BGG IDs."
+msgstr "Il CSV non contiene ID BGG validi."
 
 msgid "BoardGameGeek username"
 msgstr "Username BoardGameGeek"
@@ -6034,10 +6079,6 @@ msgstr "Aggiungi Gioco - %(name)s"
 msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
 
-#, python-format
-msgid "Import from BGG – %(name)s"
-msgstr "Importa da BGG – %(name)s"
-
 msgid "This entry has changed. Reload it before saving."
 msgstr "Questa voce è stata modificata. Ricaricala prima di salvare."
 
@@ -6115,6 +6156,9 @@ msgstr "Non ci sono tavoli in questo periodo."
 #, python-format
 msgid "Join a table: %(url)s"
 msgstr "Unisciti a un tavolo: %(url)s"
+
+msgid "BGG ID"
+msgstr "ID BGG"
 
 #, python-format
 msgid "Document %(name)s saved."
@@ -6403,6 +6447,10 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#, python-format
+#~ msgid "Import from BGG – %(name)s"
+#~ msgstr "Importa da BGG – %(name)s"
 
 #~ msgid "Membership application"
 #~ msgstr "Domanda di ammissione a socio"
