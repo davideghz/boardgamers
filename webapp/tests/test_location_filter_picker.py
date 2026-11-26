@@ -31,7 +31,7 @@ class LocationFilterPickerTest(TestCase):
 
     def test_my_tables_filters_the_locations_of_the_users_tables(self):
         self.client.force_login(self.profile.user)
-        response = self.client.get(reverse('account-tables'))
+        response = self.client.get(reverse('account-tables'), follow=True)
 
         self.assertContains(response, 'data-local-items="location-filter-items"')
         self.assertEqual([item['slug'] for item in response.context['location_filter_items']], [self.location.slug])

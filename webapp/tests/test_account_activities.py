@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.models import Event, EventDate, EventParticipant, EventParticipantDate, Player, Table
+from webapp.tests.test_location_table_access import italian
 
 
 class AccountActivitiesTest(TestCase):
@@ -29,17 +30,18 @@ class AccountActivitiesTest(TestCase):
         EventParticipantDate.objects.create(participant=participant, event_date=selected)
         past = Table.objects.create(event=self.event, date=first, time=time(19))
         Player.objects.create(table=past, user_profile=self.profile)
-        Table.objects.create(location=self.club, author=self.profile, date=self.today)
+        # Created without a seat: still the user's, since My tables lives here (E5)
+        created = Table.objects.create(location=self.club, author=self.profile, date=self.today)
         self.client.force_login(self.profile.user)
         upcoming = self.client.get(self.url).context['items']
-        self.assertEqual(upcoming, [('event', self.event)])
-        self.assertEqual(upcoming[0][1].matching_date, later)
+        self.assertEqual(upcoming, [('table', created), ('event', self.event)])
+        self.assertEqual(upcoming[1][1].matching_date, later)
         self.assertEqual(self.client.get(self.url, {'tab': 'past'}).context['items'],
                          [('table', past), ('event', self.event)])
-        self.assertEqual(self.client.get(self.url, {'location': self.club.slug}).context['items'], [])
-        self.assertEqual(self.client.get(self.url, {'location': self.venue.slug}).context['items'], upcoming)
+        self.assertEqual(self.client.get(self.url, {'location': self.club.slug}).context['items'], [('table', created)])
+        self.assertEqual(self.client.get(self.url, {'location': self.venue.slug}).context['items'], upcoming[1:])
         participant.delete()
-        self.assertEqual(self.client.get(self.url).context['items'], [])
+        self.assertEqual(self.client.get(self.url).context['items'], [('table', created)])
         self.assertEqual(self.client.get(self.url, {'tab': 'past', 'type': 'events'}).context['items'],
                          [('event', self.event)])
 
@@ -142,3 +144,43 @@ class AccountActivitiesTest(TestCase):
         self.assertEqual(len(second.context['items']), 1)
         self.assertTrue(set(first.context['items']).isdisjoint(second.context['items']))
         self.assertContains(first, f'type=tables&amp;location={self.venue.slug}&amp;q=Selected&amp;page=2')
+
+
+class MyTablesInMyActivitiesTest(TestCase):
+    """E5: My tables is the "Organized by me" view of My activities, with row actions."""
+
+    def setUp(self):
+        self.profile = UserProfileFactory()
+        self.other = UserProfileFactory()
+        self.club = LocationFactory(name='Circolo')
+        today = timezone.localdate()
+        self.created = Table.objects.create(title='Creato da me', location=self.club, author=self.profile,
+                                            date=today + timedelta(days=1), time=time(21))
+        self.joined = Table.objects.create(title='Mi siedo', location=self.club, author=self.other,
+                                           date=today + timedelta(days=2), time=time(21))
+        Player.objects.create(table=self.joined, user_profile=self.profile)
+        self.url = reverse('account-activities')
+        self.client.force_login(self.profile.user)
+
+    def test_account_tables_redirects_keeping_its_filters(self):
+        response = self.client.get(reverse('account-tables'), {'tab': 'past', 'q': 'Azul', 'location': 'circolo'})
+        self.assertRedirects(
+            response, f'{self.url}?type=tables&role=organizer&tab=past&q=Azul&location=circolo',
+            fetch_redirect_response=False)
+
+    def test_organized_by_me(self):
+        response = self.client.get(self.url, {'role': 'organizer'})
+        self.assertEqual(response.context['items'], [('table', self.created)])
+        self.assertContains(response, 'name="role" value="organizer" checked')
+        self.assertIn((italian('Organized by me'), '?'), [(str(label), url) for label, url in response.context['active_filters']])
+
+        everything = self.client.get(self.url).context['items']
+        self.assertEqual(everything, [('table', self.created), ('table', self.joined)])
+
+    def test_created_tables_offer_edit_and_duplicate_and_seats_say_youre_in(self):
+        response = self.client.get(self.url)
+        edit = reverse('location-table-update', args=[self.club.slug, self.created.slug])
+        self.assertContains(response, f'href="{edit}"')
+        self.assertContains(response, f'href="{reverse("table-duplicate", args=[self.created.slug])}"')
+        self.assertNotContains(response, reverse('table-duplicate', args=[self.joined.slug]))
+        self.assertContains(response, italian("You're in"), count=1)  # the joined table only

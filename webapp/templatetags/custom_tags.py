@@ -4,7 +4,7 @@ import nh3
 from django import template
 from django.urls import translate_url, reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language, pgettext_lazy
+from django.utils.translation import get_language, gettext_lazy as _, pgettext_lazy
 from urllib.parse import urlencode
 
 register = template.Library()
@@ -226,10 +226,13 @@ def empty_state(message, detail=None, action_label=None, action_url=None, action
 
 
 @register.inclusion_tag("components/result_row.html")
-def result_row(url, kicker, title, meta=(), status=None, image_url=None):
+def result_row(url, kicker, title, meta=(), status=None, image_url=None, participation=None, actions=()):
+    """`participation`: 'table' or 'event' adds the compact "You're in" / "You're attending";
+    `actions`: (label, url, icon) links under the row, outside its main link."""
     status_label, status_tone = STATUS_BADGES.get(status, (status, "neutral")) if status else (None, None)
     return {"url": url, "kicker": kicker, "title": title, "meta": [line for line in meta if line],
-            "status_label": status_label, "status_tone": status_tone, "image_url": image_url}
+            "status_label": status_label, "status_tone": status_tone, "image_url": image_url,
+            "participation": participation, "actions": actions}
 
 
 @register.inclusion_tag("components/manage_tile.html")
@@ -272,10 +275,13 @@ def in_list(value, names):
     return value in [name.strip() for name in names.split(',')]
 
 
-@register.inclusion_tag("components/result_row.html")
-def appointment_row(kind, item, past=False, status=None):
+@register.inclusion_tag("components/result_row.html", takes_context=True)
+def appointment_row(context, kind, item, past=False, status=None, mine=False):
     """A table, event or manifestation (kind 'table', 'event', 'manifestation') as a result_row:
-    kicker "Type · date", title, where and who, and the state apart from the type."""
+    kicker "Type · date", title, where and who, and the state apart from the type.
+
+    `mine` (My activities): upcoming rows say whether the user plays or attends, read from the
+    `playing` / `attending` annotations, and the tables the user created offer edit and duplicate."""
     from django.utils import timezone
     from django.utils.formats import date_format, time_format
 
@@ -304,5 +310,16 @@ def appointment_row(kind, item, past=False, status=None):
             image = item.venue_location.cover_url if item.venue_location_id else None
         status = status or ('past' if past else None)
     title = item.title if kind == 'table' else item.name
+    participation, actions = None, []
+    if mine:
+        if not past and getattr(item, 'playing' if kind == 'table' else 'attending', False):
+            participation = kind
+        user = context.get('user')
+        if kind == 'table' and not item.event_id and user and item.author_id == getattr(
+                getattr(user, 'user_profile', None), 'id', None):
+            if item.status != item.CLOSED and item.location_id:
+                actions.append((_('Edit'), reverse('location-table-update', args=[item.location.slug, item.slug]),
+                                'pencil'))
+            actions.append((_('Duplicate'), reverse('table-duplicate', args=[item.slug]), 'copy'))
     return result_row(item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
-                      meta=meta, status=status, image_url=image)
+                      meta=meta, status=status, image_url=image, participation=participation, actions=actions)

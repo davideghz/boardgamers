@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -14,7 +15,7 @@ from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, Guest
     MemberPersonalDataForm, location_filter_picker
 from webapp.models import (
     Event, EventDate, EventParticipant, EventParticipantDate, GuestProfile, Location, Member, Membership,
-    Notification, Table,
+    Notification, Player, Table,
 )
 from webapp.services.appointments import paginate_appointments, with_matching_day
 from webapp.services.viewer import get_viewer
@@ -100,52 +101,15 @@ def locations(request, template_name='accounts/account_locations.html'):
 
 
 @login_required
-def tables(request, template_name='accounts/account_tables.html'):
-    user_profile = request.user.user_profile
-    base_qs = (
-        Table.objects.visible_to(request.user)
-        .filter(Q(author=user_profile) | Q(players=user_profile))
-        .distinct()
-    )
-    # Locations of the user's tables: the only ones worth offering in the filter.
-    my_locations = list(Location.objects.filter(tables__in=base_qs).distinct().order_by('name'))
-
-    tab = 'past' if request.GET.get('tab') == 'past' else 'upcoming'
-    q = request.GET.get('q', '').strip()
-    location_slug = request.GET.get('location', '').strip()
-
-    qs = base_qs.select_related('author', 'location', 'game')
-    if location_slug:
-        qs = qs.filter(location__slug=location_slug)
-    if q:
-        qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q) | Q(game__name__icontains=q))
-    today = timezone.localdate()
-    if tab == 'past':
-        qs = qs.filter(date__lt=today).order_by('-date', '-time')
-    else:
-        qs = qs.filter(date__gte=today).order_by('date', 'time')
-
-    paginator = Paginator(qs, 15)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, template_name, {
-        'tables': page_obj.object_list,
-        'paginator': paginator,
-        'page_obj': page_obj,
-        'is_paginated': page_obj.has_other_pages(),
-        'tab': tab,
-        'q': q,
-        'selected_location': location_slug,
-        'selected_location_obj': next((loc for loc in my_locations if loc.slug == location_slug), None),
-        # The filter offers only the locations of the user's tables, filtered in the browser
-        'location_filter_items': [location_result(location) for location in my_locations],
-        'location_picker': my_locations and location_filter_picker(location_slug, local_items_id='location-filter-items'),
-        'has_filters': bool(q or location_slug),
-        'meta': Meta(
-            title=_("My Tables"),
-            description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),
-        )
-    })
+def tables(request):
+    """My tables became a view of My activities (plan E5): the tables the user organizes."""
+    query = {'type': 'tables', 'role': 'organizer'}
+    if request.GET.get('tab') == 'past':
+        query['tab'] = 'past'
+    for key in ('q', 'location'):
+        if request.GET.get(key):
+            query[key] = request.GET[key]
+    return redirect(reverse('account-activities', query=query))
 
 
 @login_required
@@ -156,14 +120,18 @@ def activities(request):
     if activity_type not in ('events', 'tables'):
         activity_type = 'all'
     past = request.GET.get('tab') == 'past'
+    organizer = request.GET.get('role') == 'organizer'
     today = timezone.localdate()
     period = {'date__lt' if past else 'date__gte': today}
     query = request.GET.get('q', '').replace('\x00', '').strip()[:200]
     venue = request.GET.get('location', '').replace('\x00', '').strip()[:144]
 
-    my_tables = Table.objects.visible_to(user).filter(players=profile)
+    # The tables the user plays at or created (My tables lives here now, plan E5)
+    playing = Exists(Player.objects.filter(table_id=OuterRef('pk'), user_profile=profile))
+    my_tables = Table.objects.visible_to(user).filter(playing | Q(author=profile))
     registrations = EventParticipant.objects.filter(event_id=OuterRef('pk'), user_profile=profile)
-    my_events = Event.objects.filter(Exists(registrations) | Exists(my_tables.filter(event_id=OuterRef('pk'))))
+    attending = Exists(registrations) | Exists(my_tables.filter(event_id=OuterRef('pk')))
+    my_events = Event.objects.filter(attending)
     if not user.is_superuser:
         my_events = my_events.filter(Q(status=Event.PUBLISHED) | Q(pk__in=Event.objects.managed_by(profile)))
 
@@ -192,6 +160,13 @@ def activities(request):
         my_events, dates, newest_first=past,
         undated=None if past else undated.filter(event_id=OuterRef('pk'), event__dates__isnull=True),
     )
+    if organizer:
+        # Organized by me: the tables I created, the events I run
+        tables = tables.filter(author=profile)
+        events = with_matching_day(
+            Event.objects.filter(pk__in=Event.objects.managed_by(profile).values('pk')),
+            EventDate.objects.filter(event_id=OuterRef('pk'), **period), newest_first=past,
+        )
     if venue:
         tables = tables.filter(Q(location__slug=venue) | Q(event__venue_location__slug=venue))
         events = events.filter(venue_location__slug=venue)
@@ -202,21 +177,41 @@ def activities(request):
 
     sources = {}
     if activity_type != 'events':
-        sources['table'] = tables.select_related(
+        sources['table'] = tables.annotate(playing=playing).select_related(
             'author', 'location', 'game', 'event__venue_location', 'event__organizer_location', 'event__master_event',
         )
     if activity_type != 'tables':
-        sources['event'] = events.select_related('organizer_location', 'venue_location', 'master_event')
+        sources['event'] = events.annotate(attending=attending).select_related(
+            'organizer_location', 'venue_location', 'master_event')
     page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=past)
+
+    # The active filters as chips (the list pattern of Search, plan E2)
+    params = request.GET.copy()
+    params.pop('page', None)
+
+    def without(*keys):
+        remaining = params.copy()
+        for key in keys:
+            remaining.pop(key, None)
+        return f'?{remaining.urlencode()}' if remaining else '?'
+
+    active_filters = []
+    if query:
+        active_filters.append((f'«{query}»', without('q')))
+    if venue:
+        name = next((location.name for location in locations if location.slug == venue), venue)
+        active_filters.append((_('Venue: %(name)s') % {'name': name}, without('location')))
+    if organizer:
+        active_filters.append((_('Organized by me'), without('role')))
     return render(request, 'accounts/account_activities.html', {
-        'activity_type': activity_type, 'tab': 'past' if past else 'upcoming',
-        # Every row is the user's: upcoming ones carry the same participation badge as their pages
-        'show_participation': not past,
+        'activity_type': activity_type, 'tab': 'past' if past else 'upcoming', 'past': past, 'organizer': organizer,
         'items': items, 'page_obj': page, 'paginator': page.paginator, 'is_paginated': page.has_other_pages(),
         'q': query, 'selected_location': venue,
         'location_filter_items': [location_result(location) for location in locations],
         'location_picker': location_filter_picker(venue, local_items_id='location-filter-items'),
-        'has_filters': bool(query or venue),
+        'active_filters': active_filters,
+        'reset_url': without('q', 'location', 'role'),
+        'has_filters': bool(active_filters),
         'meta': Meta(title=_('My activities')),
     })
 

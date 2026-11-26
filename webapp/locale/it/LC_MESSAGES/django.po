@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 19:20+0100\n"
+"POT-Creation-Date: 2026-11-26 19:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1605,11 +1605,11 @@ msgstr "Nessun altro gioco trovato su BoardGameGeek"
 msgid "Import failed. Please try again."
 msgstr "Importazione fallita. Riprova."
 
-msgid "Account"
-msgstr "Account"
-
 msgid "My activities"
 msgstr "Le mie attività"
+
+msgid "Account"
+msgstr "Account"
 
 msgid "Result type"
 msgstr "Tipo di risultato"
@@ -1637,17 +1637,20 @@ msgstr "Parole chiave"
 msgid "Search by name or game…"
 msgstr "Cerca per nome o gioco…"
 
+msgid "Organized by me"
+msgstr "Organizzati da me"
+
 msgid "Search"
 msgstr "Cerca"
 
-#, python-format
-msgid "%(counter)s activity found"
-msgid_plural "%(counter)s activities found"
-msgstr[0] "%(counter)s attività trovata"
-msgstr[1] "%(counter)s attività trovate"
+msgid "Active filters"
+msgstr "Filtri attivi"
 
-msgid "Clear filters"
-msgstr "Rimuovi filtri"
+msgid "Remove filter"
+msgstr "Rimuovi filtro"
+
+msgid "Clear all"
+msgstr "Rimuovi tutti"
 
 msgid "No activities match the selected filters."
 msgstr "Nessuna attività corrisponde ai filtri selezionati."
@@ -2007,33 +2010,6 @@ msgstr ""
 
 msgid "This browser doesn't support push notifications."
 msgstr "Questo browser non supporta le notifiche push."
-
-msgid "My tables"
-msgstr "I miei tavoli"
-
-msgid "Past"
-msgstr "Passati"
-
-msgid "Search by title, game or description…"
-msgstr "Cerca per titolo, gioco o descrizione…"
-
-#, python-format
-msgid "%(counter)s table found"
-msgid_plural "%(counter)s tables found"
-msgstr[0] "%(counter)s tavolo trovato"
-msgstr[1] "%(counter)s tavoli trovati"
-
-msgid "No tables for the selected filters."
-msgstr "Non ci sono tavoli per i filtri selezionati."
-
-msgid "No past tables yet."
-msgstr "Ancora nessun tavolo passato."
-
-msgid "No upcoming tables."
-msgstr "Nessun tavolo in programma."
-
-msgid "Join or create a table to get started."
-msgstr "Unisciti o crea un tavolo per iniziare."
 
 msgid "Home"
 msgstr "Home"
@@ -2594,9 +2570,6 @@ msgstr "Scollega"
 msgid "Unlink event"
 msgstr "Scollega evento"
 
-msgid "Remove filter"
-msgstr "Rimuovi filtro"
-
 msgid ""
 "This event is not visible to the public yet. Publish it when it's ready."
 msgstr ""
@@ -2778,6 +2751,9 @@ msgid "%(counter)s game found"
 msgid_plural "%(counter)s games found"
 msgstr[0] "%(counter)s gioco trovato"
 msgstr[1] "%(counter)s giochi trovati"
+
+msgid "Clear filters"
+msgstr "Rimuovi filtri"
 
 msgid "No games found."
 msgstr "Nessun gioco trovato."
@@ -3198,9 +3174,6 @@ msgstr "Griglia"
 
 msgid "Filters"
 msgstr "Filtri"
-
-msgid "Clear all"
-msgstr "Rimuovi tutti"
 
 msgid ""
 "Some tables share a station at overlapping times. Conflicting tables are "
@@ -3635,8 +3608,14 @@ msgstr "Accedi per seguire"
 msgid "Tables at this location"
 msgstr "Tavoli in questa sede"
 
+msgid "Past"
+msgstr "Passati"
+
 msgid "Only members of this location can join its tables."
 msgstr "Ai tavoli di questa sede possono partecipare solo i soci."
+
+msgid "No upcoming tables."
+msgstr "Nessun tavolo in programma."
 
 msgid ""
 "Your membership request is pending: once it is approved you can propose "
@@ -3827,9 +3806,6 @@ msgstr "Tutte le associazioni nazionali"
 
 msgid "Affiliation unavailable"
 msgstr "Affiliazione non disponibile"
-
-msgid "Active filters"
-msgstr "Filtri attivi"
 
 msgid "Official website"
 msgstr "Sito ufficiale"
@@ -5243,6 +5219,9 @@ msgstr "Trova dove giocare"
 msgid "No past tables from the locations you follow."
 msgstr "Nessun tavolo passato nelle sedi che segui."
 
+msgid "No past tables yet."
+msgstr "Ancora nessun tavolo passato."
+
 msgid "Upcoming events"
 msgstr "Prossimi eventi"
 
@@ -5915,15 +5894,9 @@ msgstr ""
 "Gestisci le tue sedi: creane di nuove, modifica i dati e gestisci i tuoi "
 "tavoli di gioco."
 
-msgid "My Tables"
-msgstr "I miei tavoli"
-
-msgid ""
-"Manage your game tables: create new games, edit existing tables and view "
-"your statistics."
-msgstr ""
-"Gestisci i tuoi tavoli di gioco: crea nuove partite, modifica i tavoli "
-"esistenti e visualizza le tue statistiche."
+#, python-format
+msgid "Venue: %(name)s"
+msgstr "Luogo: %(name)s"
 
 msgid ""
 "View your notifications: new tables, comments, invitations and community "
@@ -5984,10 +5957,6 @@ msgstr "Inserisci una data di inizio e una di fine."
 
 msgid "The end date must be on or after the start date."
 msgstr "La data di fine deve essere uguale o successiva a quella di inizio."
-
-#, python-format
-msgid "Venue: %(name)s"
-msgstr "Luogo: %(name)s"
 
 #, python-format
 msgid "Organizer: %(name)s"
@@ -6834,6 +6803,40 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#, python-format
+#~ msgid "%(counter)s activity found"
+#~ msgid_plural "%(counter)s activities found"
+#~ msgstr[0] "%(counter)s attività trovata"
+#~ msgstr[1] "%(counter)s attività trovate"
+
+#~ msgid "My tables"
+#~ msgstr "I miei tavoli"
+
+#~ msgid "Search by title, game or description…"
+#~ msgstr "Cerca per titolo, gioco o descrizione…"
+
+#, python-format
+#~ msgid "%(counter)s table found"
+#~ msgid_plural "%(counter)s tables found"
+#~ msgstr[0] "%(counter)s tavolo trovato"
+#~ msgstr[1] "%(counter)s tavoli trovati"
+
+#~ msgid "No tables for the selected filters."
+#~ msgstr "Non ci sono tavoli per i filtri selezionati."
+
+#~ msgid "Join or create a table to get started."
+#~ msgstr "Unisciti o crea un tavolo per iniziare."
+
+#~ msgid "My Tables"
+#~ msgstr "I miei tavoli"
+
+#~ msgid ""
+#~ "Manage your game tables: create new games, edit existing tables and view "
+#~ "your statistics."
+#~ msgstr ""
+#~ "Gestisci i tuoi tavoli di gioco: crea nuove partite, modifica i tavoli "
+#~ "esistenti e visualizza le tue statistiche."
 
 #~ msgid "Tables near to"
 #~ msgstr "Tavoli vicini a"

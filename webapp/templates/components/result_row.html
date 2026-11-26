@@ -1,9 +1,12 @@
+{% load custom_tags %}
 {% comment %}
 One row of a result list: kicker "Type · date", title, meta lines, and the state badge apart
-from the type. The whole row is the link.
+from the type. The whole row is the link; `actions` (label, url, icon) sit under it as links
+of their own, `participation` ('table' or 'event') adds the compact "You're in".
 {% endcomment %}
+{% if actions %}<div class="rounded-xl border border-divider bg-surface transition-shadow hover:shadow-md">{% endif %}
 <a href="{{ url }}"
-   class="group flex items-center gap-3 rounded-xl border border-divider bg-surface p-3 text-decoration-none transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+   class="group flex items-center gap-3 rounded-xl p-3 text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus{% if not actions %} border border-divider bg-surface transition-shadow hover:shadow-md{% endif %}">
   {% if image_url %}<img loading="lazy" decoding="async" src="{{ image_url }}" alt="" class="h-16 w-16 flex-shrink-0 rounded-xl border border-divider bg-surface-input object-cover">{% endif %}
   <div class="min-w-0 flex-1 space-y-0.5">
     {# The badge wraps below the kicker when both do not fit, rather than cutting the date #}
@@ -12,7 +15,22 @@ from the type. The whole row is the link.
       {% if status_label %}{% include "components/badge.html" with label=status_label tone=status_tone only %}{% endif %}
     </div>
     <p class="truncate text-sm font-bold text-content">{{ title }}</p>
+    {% if participation %}<div>{% participation_status participation compact=True %}</div>{% endif %}
     {% for line in meta %}<p class="truncate text-xs text-content-muted">{{ line }}</p>{% endfor %}
   </div>
   {% include "components/icon.html" with name="chevron-right" class="w-4 h-4 text-content-muted" only %}
 </a>
+{% if actions %}
+  <ul class="flex flex-wrap gap-1 border-t border-divider-soft px-2 py-1.5">
+    {% for label, action_url, icon in actions %}
+      <li>
+        <a href="{{ action_url }}"
+           class="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-content-soft hover:bg-surface-alt hover:text-content text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+          {% include "components/icon.html" with name=icon class="w-3.5 h-3.5" only %}
+          {{ label }}<span class="sr-only"> · {{ title }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

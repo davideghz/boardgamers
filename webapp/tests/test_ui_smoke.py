@@ -45,7 +45,7 @@ class UiSmokeTest(TestCase):
             'activities': reverse('account-activities'),
             'my_events': reverse('account-events'),
             'my_locations': reverse('account-locations'),
-            'my_tables': reverse('account-tables'),
+            'my_tables': reverse('account-activities') + '?type=tables&role=organizer',  # account-tables redirects here
             'memberships': reverse('account-memberships'),
             'notifications': reverse('account-notifications'),
             'guests': reverse('account-guests'),
