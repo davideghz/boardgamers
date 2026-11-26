@@ -429,6 +429,22 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         )
         return cls.objects.filter(managed | member).distinct()
 
+    @classmethod
+    def table_creation_locations(cls, user):
+        """The locations where `user` may create tables: the queryset form of
+        `table_creation_access` (plan F2's location chooser)."""
+        if not user.is_authenticated:
+            return cls.objects.none()
+        if user.is_superuser:
+            return cls.objects.all()
+        profile = user.user_profile
+        managed = models.Q(creator=profile) | models.Q(managers=profile)
+        member = models.Q(
+            table_creation_permission=cls.PERM_MEMBERS_ONLY,
+            pk__in=Membership.active_for(profile).values('member__location_id'),
+        )
+        return cls.objects.filter(managed | member | models.Q(table_creation_permission=cls.PERM_ANYONE)).distinct()
+
     def can_create_events(self, user):
         return self.event_creation_access(user.user_profile if user.is_authenticated else None).allowed
 
@@ -684,6 +700,7 @@ def clear_unreserved_layout_assignment(collector, field, sub_objs, using):
 
 class Table(DateTimeModel, ModelMeta, SlugModel):
     objects = TableQuerySet.as_manager()
+    reserved_slugs = ('new',)  # /tables/new/ is "New table" (plan F2)
 
     @classmethod
     def public_condition(cls, prefix=''):

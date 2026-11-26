@@ -55,7 +55,7 @@
         <p class="text-sm text-content-muted">
           {% trans "No upcoming tables right now." %}
           {% if user.is_authenticated %}
-            <a href="{% url 'locations-index' %}?new_table=1" class="font-semibold text-link hover:underline">{% trans "Create a table" %}</a>
+            <a href="{% url 'table-new' %}" class="font-semibold text-link hover:underline">{% trans "Create a table" %}</a>
           {% else %}
             <a href="{% url 'locations-index' %}" class="font-semibold text-link hover:underline">{% trans "Find a place to play" %}</a>
           {% endif %}

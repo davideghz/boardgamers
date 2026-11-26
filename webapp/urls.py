@@ -29,6 +29,7 @@ urlpatterns = [
 
     # TABLE
     path("tables/", appointment_search.AppointmentSearchView.as_view(preset="tables"), name="table-index"),
+    path("tables/new/", table_views.table_new_view, name="table-new"),
     path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
     path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
     path("tables/<slug:slug>/duplicate/", table_views.table_duplicate_view, name="table-duplicate"),

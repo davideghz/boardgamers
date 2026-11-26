@@ -123,4 +123,4 @@ class HomeByPersonaTest(TestCase):
         Table.objects.filter(date__gte=timezone.localdate()).delete()
 
         self.assertContains(self.get(), italian('Find a place to play'))
-        self.assertContains(self.get('newcomer'), f"{reverse('locations-index')}?new_table=1")
+        self.assertContains(self.get('newcomer'), f'href="{reverse("table-new")}"')

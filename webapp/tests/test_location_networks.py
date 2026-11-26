@@ -228,7 +228,7 @@ class LocationNetworksTest(TestCase):
         without_coordinates = LocationFactory(name='No coordinates', latitude=None, longitude=None)
         LocationNetwork.objects.create(location=without_coordinates, network=self.network)
         self.client.force_login(self.owner.user)
-        response = self.client.get(self.index_url, {'network': self.network.slug, 'new_table': '1', 'view': 'map'})
+        response = self.client.get(self.index_url, {'network': self.network.slug, 'view': 'map'})
 
         self.assertEqual(response.context['nearby_locations'][0], self.location)
         self.assertCountEqual(response.context['nearby_locations'], [self.location, without_coordinates])
@@ -239,7 +239,6 @@ class LocationNetworksTest(TestCase):
         }])
         self.assertContains(response, 'id="network-filter"')
         self.assertContains(response, f'value="{self.network.slug}" selected')
-        self.assertContains(response, 'name="new_table" value="1"')
         self.assertContains(response, 'id="locations-list" hidden')
         self.assertContains(response, 'TdG Vicenza')
         self.assertNotContains(response, self.other_location.name)

@@ -67,6 +67,8 @@ def _location_map_data(locations):
 
 
 def index_view(request, template_name="locations/location_index.html"):
+    if request.GET.get('new_table'):
+        return redirect('table-new')  # the old "New table" entry point (plan F2)
     user_location = None
     user_created_locations = None
     location_message = None
@@ -114,8 +116,6 @@ def index_view(request, template_name="locations/location_index.html"):
 
     map_selected = request.GET.get('view') == 'map'
     kept = {'view': 'map'} if map_selected else {}
-    if request.GET.get('new_table'):
-        kept['new_table'] = request.GET['new_table']
     # The active filters as chips (plan E4), each one removable on its own
     active_filters = []
     if query:

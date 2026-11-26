@@ -321,7 +321,8 @@ def create_menu(context, menu_id, location=None, primary=False, trigger_id=None,
                 icon_class=None):
     """The "+ Create" menu (plan F1) with only the entries the viewer may use.
 
-    Site-wide: a table (anonymous users go through the login first), an event where the user
+    Site-wide: a table (anonymous users go through the login first; on a location's or an
+    event's pages, there), an event where the user
     may create one, a manifestation when signed in, a location for who doesn't run one yet.
     With `location`: a table and, if allowed, an event at that location."""
     from urllib.parse import urlencode
@@ -337,7 +338,14 @@ def create_menu(context, menu_id, location=None, primary=False, trigger_id=None,
             items.append({'label': pgettext_lazy('create menu', 'Event'), 'hint': _('One or more days of play here'), 'icon': 'calendar',
                           'url': reverse('location-event-create', args=[location.slug])})
     else:
-        table_url = f"{reverse('locations-index')}?new_table=1"
+        # On a location's or an event's pages the table goes there (table_new_view checks it)
+        match = context['request'].resolver_match
+        table_query = {}
+        if match and match.url_name in ('location-detail', 'location-calendar'):
+            table_query['location'] = match.kwargs.get('slug')
+        elif match and match.url_name in ('event_detail', 'event-program'):
+            table_query['event'] = match.kwargs.get('slug')
+        table_url = reverse('table-new', query=table_query or None)
         if not viewer.is_authenticated:
             table_url = f"{reverse('login')}?{urlencode({'next': table_url})}"
         items.append({'label': pgettext_lazy('create menu', 'Table'), 'hint': _('A game night at a location'), 'icon': 'bolt',

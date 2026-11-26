@@ -10,6 +10,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models.deletion import RestrictedError
 from django.db.models import Prefetch, Q
+from django.db.models.functions import Lower
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,9 +21,10 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CommentForm, AddTablePlayerForm
+from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CommentForm, AddTablePlayerForm, \
+    CreatableLocationPickerWidget
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, TableLink, Comment, Player, UserProfile, Location, CommentType, GuestProfile, LocationAccess, \
+from webapp.models import Event, Table, TableLink, Comment, Player, UserProfile, Location, CommentType, GuestProfile, LocationAccess, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.viewer import get_viewer
@@ -386,6 +388,38 @@ def _table_creation_refusal(request, location):
         messages.error(request, _("Only members can create tables here."), extra_tags="danger")
         return redirect("location-detail", location.slug)
     return None
+
+
+@login_required
+def table_new_view(request):
+    """"New table" (plan F2): straight to the table form when the location is known, from
+    the context (?location=, ?event=, with an optional ?date=) or because it is the only one
+    the user may use; otherwise a chooser of the locations where they may create tables."""
+    profile = request.user.user_profile
+    date_query = {'date': request.GET['date']} if request.GET.get('date') else None
+    creatable = Location.table_creation_locations(request.user)
+
+    if event_slug := request.GET.get('event', '').replace('\x00', ''):
+        event = Event.objects.filter(slug=event_slug).first()
+        if event and event.can_create_table(profile):
+            return redirect(reverse('event-table-create', args=[event.slug], query=date_query))
+    if location_slug := request.GET.get('location', '').replace('\x00', ''):
+        location = creatable.filter(slug=location_slug).first()
+        if location:
+            return redirect(reverse('location-table-create', args=[location.slug], query=date_query))
+
+    first_two = list(creatable.order_by('pk')[:2])
+    if len(first_two) == 1:
+        return redirect(reverse('location-table-create', args=[first_two[0].slug], query=date_query))
+
+    viewer = get_viewer(request)
+    yours = list(creatable.filter(pk__in=viewer.own_location_ids).order_by(Lower('name'), 'pk'))
+    picker = CreatableLocationPickerWidget().render('location', '')
+    return render(request, 'tables/table_new.html', {
+        'has_choices': bool(first_two), 'your_locations': yours, 'picker': picker,
+        'date': request.GET.get('date', ''),
+        'meta': Meta(title=_('New table')),
+    })
 
 
 @login_required

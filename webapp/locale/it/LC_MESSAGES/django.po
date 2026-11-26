@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:17+0100\n"
+"POT-Creation-Date: 2026-11-26 21:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -159,6 +159,15 @@ msgstr "Nessuna sede trovata."
 
 msgid "Suggested locations"
 msgstr "Sedi suggerite"
+
+msgid "Search another location"
+msgstr "Cerca un'altra sede"
+
+msgid "Where do you play?"
+msgstr "Dove si gioca?"
+
+msgid "Your locations"
+msgstr "Le tue sedi"
 
 msgid "All locations"
 msgstr "Tutte le sedi"
@@ -3793,12 +3802,6 @@ msgstr "Consegnato il %(loan_date)s · Rientro previsto il %(due_date)s"
 msgid "Borrowed by %(nickname)s"
 msgstr "In prestito a %(nickname)s"
 
-msgid "Pick the location where you want to create the table."
-msgstr "Scegli la sede in cui vuoi creare il tavolo."
-
-msgid "Can't find it? Add it"
-msgstr "Non la trovi? Aggiungila"
-
 msgid "Name or city"
 msgstr "Nome o città"
 
@@ -3810,9 +3813,6 @@ msgstr "Affiliazione non disponibile"
 
 msgid "Official website"
 msgstr "Sito ufficiale"
-
-msgid "Your locations"
-msgstr "Le tue sedi"
 
 msgid "Login"
 msgstr "Login"
@@ -5772,6 +5772,24 @@ msgstr "fa"
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
+msgid "Pick the location where the table is played."
+msgstr "Scegli la sede dove si gioca."
+
+msgid "You can't propose tables at any location yet."
+msgstr "Non puoi ancora proporre tavoli in nessuna sede."
+
+msgid "Follow a location open to everyone, or add your own."
+msgstr "Cerca una sede aperta a tutti, oppure aggiungi la tua."
+
+msgid "Find a location"
+msgstr "Trova una sede"
+
+msgid "Somewhere else"
+msgstr "Altrove"
+
+msgid "Find the location"
+msgstr "Cerca la sede"
+
 msgid "Manage players"
 msgstr "Gestisci giocatori"
 
@@ -6829,6 +6847,9 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "Can't find it? Add it"
+#~ msgstr "Non la trovi? Aggiungila"
+
 #~ msgid "New event"
 #~ msgstr "Nuovo evento"
 
@@ -6921,14 +6942,8 @@ msgstr "Collega account"
 #~ msgid "No upcoming tables for %(location_name)s."
 #~ msgstr "Nessun tavolo in programma per %(location_name)s."
 
-#~ msgid "You don't follow any location yet."
-#~ msgstr "Non segui ancora nessuna sede."
-
 #~ msgid "Explore locations"
 #~ msgstr "Scopri dove giocare"
-
-#~ msgid "Search for a location"
-#~ msgstr "Cerca una sede"
 
 #~ msgid "Locations of your tables"
 #~ msgstr "Sedi dei tuoi tavoli"

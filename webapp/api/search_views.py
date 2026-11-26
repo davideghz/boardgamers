@@ -11,6 +11,7 @@ from webapp.forms import USER_SEARCH_MIN_LENGTH
 from webapp.models import FavoriteUser, Location, Member, Membership, UserProfile
 from webapp.services.appointments import appointment_filter_locations
 from webapp.services.game_loans import active_members
+from webapp.services.viewer import get_viewer
 
 #: Maximum number of results returned by every search.
 SEARCH_LIMIT = 12
@@ -169,3 +170,25 @@ def member_search_view(request, slug):
                .select_related('user_profile')
                .order_by(Lower('last_name'), Lower('first_name'))[:SEARCH_LIMIT])
     return JsonResponse({'results': [member_result(member) for member in members]})
+
+
+def creatable_location_search_view(request):
+    """The locations where the user may create tables (`?for=tables`, the default) or events
+    (`?for=events`), by name or city; `suggested=1` lists the user's own ones among them."""
+    if request.GET.get('for') == 'events':
+        locations = Location.event_creation_locations(request.user)
+    else:
+        locations = Location.table_creation_locations(request.user)
+    if request.GET.get('suggested'):
+        own = get_viewer(request).own_location_ids
+        locations = locations.filter(pk__in=own).order_by(Lower('name'), 'pk')[:SEARCH_LIMIT]
+        return JsonResponse({'results': [location_result(location) for location in locations]})
+    query = request.GET.get('q', '').replace('\x00', '').strip()
+    if len(query) < LOCATION_SEARCH_MIN_LENGTH:
+        return JsonResponse({'results': []})
+    locations = (Location.objects.filter(pk__in=locations.values('pk'))
+                 .filter(Q(name__icontains=query) | Q(city__icontains=query))
+                 .annotate(rank=Case(When(name__istartswith=query, then=Value(0)),
+                                     default=Value(1), output_field=IntegerField()))
+                 .order_by('rank', Lower('name'), 'pk')[:SEARCH_LIMIT])
+    return JsonResponse({'results': [location_result(location) for location in locations]})

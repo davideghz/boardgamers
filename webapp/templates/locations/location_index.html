@@ -9,19 +9,9 @@
   {% trans "Locations" context "navigation" as page_title %}
   {% page_header page_title count=nearby_locations|length action_label=add_location_label action_url=location_create_url %}
 
-  {# Reached from the "New table" CTA: tables are created from a location page #}
-  {% if request.GET.new_table %}
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-content">
-      <p class="flex-1">{% trans "Pick the location where you want to create the table." %}</p>
-      <a href="{% url 'location-create' %}" class="font-semibold text-link hover:underline">
-        {% trans "Can't find it? Add it" %} →
-      </a>
-    </div>
-  {% endif %}
 
   {# ── Search: name or city, and the national network ─────────────────── #}
   <form method="get" action="{% url 'locations-index' %}" role="search" class="mb-4 flex flex-wrap items-center gap-2">
-    {% if request.GET.new_table %}<input type="hidden" name="new_table" value="{{ request.GET.new_table }}">{% endif %}
     <input type="hidden" name="view" id="locations-view-field" value="{% if map_selected %}map{% endif %}">
     <div class="min-w-0 flex-1{% if networks or network_unavailable %} basis-full sm:basis-0{% endif %}">
       <label for="locations-query" class="sr-only">{% trans "Name or city" %}</label>

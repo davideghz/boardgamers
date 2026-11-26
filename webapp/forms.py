@@ -231,6 +231,24 @@ class LocationPickerWidget(SearchPickerWidget):
         return location and location_result(location)
 
 
+class CreatableLocationPickerWidget(LocationPickerWidget):
+    """Picks a location where the user may create tables (plan F2): the search and the quick
+    picks come from api/locations/creatable/, and picking it opens the table form."""
+    search_url_name = 'location-creatable'
+    submit_on_select = True
+
+    def __init__(self, attrs=None, button_label=None):
+        super().__init__(attrs, button_label or _('Search another location'), value_key='slug', suggested=True)
+        self.dialog_title = _('Where do you play?')
+        self.defaults_title = _('Your locations')
+
+    def get_search_url(self):
+        return reverse(self.search_url_name)
+
+    def get_defaults_url(self):
+        return reverse(self.search_url_name, query={'suggested': '1'})
+
+
 def location_filter_picker(value, *, local_items_id='', suggested=False):
     """The location filter of a list page (?location=<slug>): the shared search picker,
     applied as soon as a location is picked or cleared. With `local_items_id` it filters a

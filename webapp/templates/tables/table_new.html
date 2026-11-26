@@ -1,0 +1,51 @@
+{% extends "base_webapp.html" %}
+{% load i18n static custom_tags %}
+
+{% comment %}
+"New table" (plan F2): where the table is played. The user's own locations come first as
+links; any other location where they may create tables is one search away (the shared
+search picker dialog). table_new_view skips this page when the location is already known.
+{% endcomment %}
+
+{% block content %}
+  <div class="max-w-xl">
+    {% trans "New table" as page_title %}
+    {% if has_choices %}
+      {% trans "Pick the location where the table is played." as page_subtitle %}
+    {% endif %}
+    {% page_header page_title subtitle=page_subtitle %}
+
+    {% if not has_choices %}
+      {% trans "You can't propose tables at any location yet." as empty_message %}
+      {% trans "Follow a location open to everyone, or add your own." as empty_detail %}
+      {% url 'locations-index' as locations_url %}
+      {% trans "Find a location" as find_label %}
+      {% empty_state empty_message detail=empty_detail action_label=find_label action_url=locations_url icon="map-pin" %}
+    {% else %}
+      {% if your_locations %}
+        <section aria-labelledby="your-locations-title" class="mb-6">
+          <h2 id="your-locations-title" class="mb-2 text-sm font-bold text-content">{% trans "Your locations" %}</h2>
+          <ul class="space-y-2">
+            {% for location in your_locations %}
+              <li>
+                {% url 'location-table-create' location.slug as create_url %}
+                {% if date %}{% with create_url|add:"?date="|add:date as dated_url %}{% result_row dated_url location.city|default:"" location.name image_url=location.cover_url %}{% endwith %}
+                {% else %}{% result_row create_url location.city|default:"" location.name image_url=location.cover_url %}{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
+      <form method="get" action="{% url 'table-new' %}">
+        {% if date %}<input type="hidden" name="date" value="{{ date }}">{% endif %}
+        <p class="mb-2 text-sm font-bold text-content">{% if your_locations %}{% trans "Somewhere else" %}{% else %}{% trans "Find the location" %}{% endif %}</p>
+        {{ picker }}
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extrabodyjs %}
+  <script src="{% static 'js/search_picker.js' %}" defer></script>
+{% endblock %}

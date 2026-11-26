@@ -56,11 +56,11 @@ class NavigationTest(TestCase):
         html = self.get(reverse('about'), persona).content.decode()
         start = html.index('id="sidebar-cta-menu"')
         menu = html[start:html.index('</div>', start)]
-        return [url for url in (reverse('locations-index') + '?new_table=1', reverse('event-create'),
+        return [url for url in (reverse('table-new'), reverse('event-create'),
                                 reverse('master-event-create'), reverse('location-create')) if url in menu]
 
     def test_create_menu_entries_by_profile(self):
-        table = reverse('locations-index') + '?new_table=1'
+        table = reverse('table-new')
         cases = {
             None: [reverse('location-create')],  # the table goes through the login, below
             'newcomer': [table, reverse('master-event-create'), reverse('location-create')],
@@ -72,7 +72,7 @@ class NavigationTest(TestCase):
             with self.subTest(persona or 'anonymous'):
                 self.assertEqual(self.create_entries(persona), expected)
         anonymous = self.get(reverse('about')).content.decode()
-        self.assertIn(f'{reverse("login")}?next=%2Flocations%2F%3Fnew_table%3D1', anonymous)
+        self.assertIn(f'{reverse("login")}?next=%2Ftables%2Fnew%2F', anonymous)
 
     def test_the_location_bar_creates_here(self):
         circolo = self.data.circolo
