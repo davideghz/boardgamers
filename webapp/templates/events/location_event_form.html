@@ -26,9 +26,7 @@
 
   <form method="post" enctype="multipart/form-data" class="max-w-xl space-y-5">
     {% csrf_token %}
-    {% if form.non_field_errors %}
-      <p class="text-sm text-red-500" role="alert">{{ form.non_field_errors|join:", " }}</p>
-    {% endif %}
+    {% error_summary form %}
     {% include "events/_location_event_form_field.html" with field=form.name only %}
     {% include "events/_location_event_form_field.html" with field=form.description only %}
     <div>

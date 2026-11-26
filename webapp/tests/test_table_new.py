@@ -35,7 +35,7 @@ class TableNewTest(TestCase):
         response = self.client.get(self.url)
         self.assertFalse(response.context['has_choices'])
         self.assertContains(response, italian("You can't propose tables at any location yet."))
-        self.assertNotContains(response, 'js-search-picker')
+        self.assertNotContains(response, 'data-submit-on-select')
 
     def test_one_location_skips_the_choice(self):
         LocationFactory(table_creation_permission=MANAGERS_ONLY)

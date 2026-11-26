@@ -350,6 +350,23 @@
       setTimeout(() => { label.textContent = original; }, 2000);
     };
 
+    // ── Form errors (components/error_summary.html): the summary takes the focus, its
+    // links move it to their field (a search picker's button when the field is hidden)
+    const errorSummary = document.querySelector('[data-error-summary]');
+    if (errorSummary) {
+      errorSummary.focus();
+      errorSummary.addEventListener('click', event => {
+        const link = event.target.closest('[data-error-link]');
+        const field = link && document.getElementById(link.hash.slice(1));
+        if (!field) return;
+        event.preventDefault();
+        const target = field.type === 'hidden'
+          ? field.closest('.js-search-picker')?.querySelector('[data-picker-open]') : field;
+        (target || field).scrollIntoView({block: 'center'});
+        (target || field).focus({preventScroll: true});
+      });
+    }
+
     // ── Popover menus ("+ Create", the action bar's "More") ───────────────
     // A popover opens in the middle of the screen: place it under its button, or above it
     // when there is no room below. Toggle events don't bubble, hence the capture.

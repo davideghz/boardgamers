@@ -44,6 +44,7 @@
 
   <form method="post" action="{% url 'location-request-membership' location.slug %}" class="space-y-5">
     {% csrf_token %}
+    {% error_summary form %}
 
     {% include "partials/_member_form_fields.html" %}
 

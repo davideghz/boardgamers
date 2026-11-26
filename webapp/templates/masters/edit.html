@@ -13,7 +13,7 @@
   <div class="max-w-2xl space-y-5">
     <form method="post" class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
       {% csrf_token %}
-      {% if form.non_field_errors %}<p class="text-sm text-red-600" role="alert">{{ form.non_field_errors|join:", " }}</p>{% endif %}
+      {% error_summary form %}
       {% for field in form %}
         {% if field.name not in form.venue_fields %}{% include "events/_location_event_form_field.html" with field=field only %}{% endif %}
       {% endfor %}

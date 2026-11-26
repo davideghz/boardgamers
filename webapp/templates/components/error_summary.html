@@ -1,0 +1,18 @@
+{% load i18n %}
+{% comment %}
+What to fix, at the top of a form sent with errors (plan F4, after GOV.UK's error summary):
+it takes the focus on load (base_webapp.html) and each entry leads to its field.
+{% endcomment %}
+{% if errors %}
+  <div id="error-summary" tabindex="-1" role="alert" aria-labelledby="error-summary-title" data-error-summary
+       class="rounded-xl border-2 border-danger bg-danger-soft p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+    <h2 id="error-summary-title" class="text-sm font-bold text-danger">
+      {% blocktrans count n=errors|length %}There is a problem to fix{% plural %}There are {{ n }} problems to fix{% endblocktrans %}
+    </h2>
+    <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-content">
+      {% for message, anchor in errors %}
+        <li>{% if anchor %}<a href="#{{ anchor }}" data-error-link class="font-semibold text-danger underline">{{ message }}</a>{% else %}{{ message }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

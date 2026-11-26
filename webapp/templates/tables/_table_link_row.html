@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n custom_tags %}
 {% comment %}
 One editable link row (label + url) for the TableLink inline formset.
 Included both for server-rendered rows and, with lf=empty_form, inside the
@@ -13,14 +13,14 @@ JS-cloned template when adding a new row.
           {% trans "Label" %} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ lf.label }}
-        {% if lf.label.errors %}<p class="mt-1 text-xs text-red-500">{{ lf.label.errors|join:", " }}</p>{% endif %}
+        {% field_errors lf.label %}
       </div>
       <div>
         <label class="block text-[11px] font-semibold text-content-muted mb-1" for="{{ lf.url.id_for_label }}">
           {% trans "URL" %}
         </label>
         {{ lf.url }}
-        {% if lf.url.errors %}<p class="mt-1 text-xs text-red-500">{{ lf.url.errors|join:", " }}</p>{% endif %}
+        {% field_errors lf.url %}
       </div>
     </div>
     <button type="button" class="link-remove text-content-muted hover:text-red-500 transition-colors bg-transparent border-0 p-1 cursor-pointer flex-shrink-0"

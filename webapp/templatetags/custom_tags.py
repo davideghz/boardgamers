@@ -368,3 +368,31 @@ def action_bar(share_title, edit_url=None, manage_url=None, duplicate_url=None):
     """The detail pages' Edit, Manage and More (Duplicate, Share) in one place (plan F3)."""
     return {'share_title': share_title, 'edit_url': edit_url, 'manage_url': manage_url,
             'duplicate_url': duplicate_url}
+
+
+@register.inclusion_tag("components/field_errors.html")
+def field_errors(field):
+    return {'field': field}
+
+
+@register.inclusion_tag("components/error_summary.html")
+def error_summary(*forms):
+    """Every error of `forms` (forms or formsets), each with the id of its field when it has
+    one: (message, anchor). Non-field errors come first, without a link."""
+    errors = []
+    for form in forms:
+        if form is None or form == '':
+            continue
+        if hasattr(form, 'non_form_errors'):  # a formset
+            errors += [(str(message), None) for message in form.non_form_errors()]
+            members = [member for member in form.forms if member.has_changed() or member.errors]
+        else:
+            members = [form]
+        for member in members:
+            errors += [(str(message), None) for message in member.non_field_errors()]
+            for field in member:
+                if field.is_hidden and not field.errors:
+                    continue
+                for message in field.errors:
+                    errors.append((f'{field.label}: {message}' if field.label else str(message), field.auto_id))
+    return {'errors': errors}

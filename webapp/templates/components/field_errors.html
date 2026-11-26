@@ -1,0 +1,5 @@
+{% comment %}
+A field's errors under it. The id is the one Django's aria-describedby already points to
+(with aria-invalid="true" on the widget), so screen readers read it with the field (plan F4).
+{% endcomment %}
+{% if field.errors %}<p id="{{ field.auto_id }}_error" class="mt-1 flex items-start gap-1 text-xs font-semibold text-danger">{% include "components/icon.html" with name="exclamation" class="mt-px h-3.5 w-3.5" only %}<span>{{ field.errors|join:" " }}</span></p>{% endif %}

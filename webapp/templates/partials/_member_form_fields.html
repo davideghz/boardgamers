@@ -3,7 +3,7 @@ Renders a member form: the identifying fields first, then the personal data an
 association needs on its membership form, collapsed unless already filled in.
 Expects `form` to be a MemberForm / MemberPersonalDataForm.
 {% endcomment %}
-{% load i18n %}
+{% load i18n custom_tags %}
 
 {% for field in form.main_fields %}
   {% if not field.is_hidden %}
@@ -13,7 +13,7 @@ Expects `form` to be a MemberForm / MemberPersonalDataForm.
         {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
       </label>
       {{ field }}
-      {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+      {% field_errors field %}
     </div>
   {% endif %}
 {% endfor %}
@@ -40,7 +40,7 @@ Expects `form` to be a MemberForm / MemberPersonalDataForm.
           {% if not field.field.required %}<span class="font-normal text-content-muted">({% trans "optional" %})</span>{% endif %}
         </label>
         {{ field }}
-        {% if field.errors %}<p class="mt-1 text-xs text-red-500">{{ field.errors|join:", " }}</p>{% endif %}
+        {% field_errors field %}
       </div>
     {% endfor %}
   </div>

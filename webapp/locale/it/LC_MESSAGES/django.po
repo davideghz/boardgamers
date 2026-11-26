@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:43+0100\n"
+"POT-Creation-Date: 2026-11-26 21:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2361,6 +2361,12 @@ msgstr "Diventa socio"
 
 msgid "Only owners and managers can create tables here."
 msgstr "Solo i gestori possono creare tavoli qui."
+
+#, python-format
+msgid "There is a problem to fix"
+msgid_plural "There are %(n)s problems to fix"
+msgstr[0] "C’è un problema da correggere"
+msgstr[1] "Ci sono %(n)s problemi da correggere"
 
 msgid "You're in!"
 msgstr "Ci sei!"

@@ -11,6 +11,7 @@
 
   <form enctype="multipart/form-data" action="" method="post" class="max-w-xl space-y-5">
     {% csrf_token %}
+    {% error_summary form %}
     {{ form.city }}
     {{ form.latitude }}
     {{ form.longitude }}
@@ -19,14 +20,14 @@
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
       {{ form.name }}
-      {% if form.name.errors %}<p class="mt-1 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.name %}
     </div>
 
     {# ── Description ─────────────────────────────────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
       {{ form.description }}
-      {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.description %}
     </div>
 
     {# ── Cover image ─────────────────────────────────────────────────── #}
@@ -40,7 +41,7 @@
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
       {{ form.address }}
       <p class="mt-1 text-[11px] text-content-muted">{% trans "We'll use this to show the location on the map." %}</p>
-      {% if form.address.errors %}<p class="mt-1 text-xs text-red-500">{{ form.address.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.address %}
     </div>
 
     {# ── Map ─────────────────────────────────────────────────────────── #}
@@ -52,7 +53,7 @@
         {{ form.website.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
       </label>
       {{ form.website }}
-      {% if form.website.errors %}<p class="mt-1 text-xs text-red-500">{{ form.website.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.website %}
     </div>
 
     <div class="space-y-4">
@@ -61,14 +62,14 @@
           {{ form.facebook_url.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.facebook_url }}
-        {% if form.facebook_url.errors %}<p id="{{ form.facebook_url.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ form.facebook_url.errors|join:", " }}</p>{% endif %}
+        {% field_errors form.facebook_url %}
       </div>
       <div>
         <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.instagram_url.id_for_label }}">
           {{ form.instagram_url.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.instagram_url }}
-        {% if form.instagram_url.errors %}<p id="{{ form.instagram_url.auto_id }}_error" class="mt-1 text-xs text-red-500">{{ form.instagram_url.errors|join:", " }}</p>{% endif %}
+        {% field_errors form.instagram_url %}
       </div>
     </div>
 
@@ -84,7 +85,7 @@
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.default_table_time.id_for_label }}">{{ form.default_table_time.label }}</label>
       {{ form.default_table_time }}
       <p class="mt-1 text-[11px] text-content-muted">{% trans "Used as the default start time when creating a new table here. You can still pick a different time for each table." %}</p>
-      {% if form.default_table_time.errors %}<p class="mt-1 text-xs text-red-500">{{ form.default_table_time.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.default_table_time %}
     </div>
 
     {# ── Leaderboard edit window ─────────────────────────────────────── #}
@@ -92,7 +93,7 @@
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.leaderboard_edit_days.id_for_label }}">{{ form.leaderboard_edit_days.label }}</label>
       {{ form.leaderboard_edit_days }}
       <p class="mt-1 text-[11px] text-content-muted">{% trans "How many days after the start of a table its players can still fill in the leaderboard (from 2 to 30)." %}</p>
-      {% if form.leaderboard_edit_days.errors %}<p class="mt-1 text-xs text-red-500">{{ form.leaderboard_edit_days.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.leaderboard_edit_days %}
     </div>
 
     {# ── Show tables in homepage toggle ──────────────────────────────── #}

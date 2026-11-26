@@ -1,5 +1,5 @@
 {% extends "base_webapp.html" %}
-{% load i18n static %}
+{% load i18n static custom_tags %}
 
 {% block style %}{% endblock style %}
 
@@ -25,9 +25,7 @@
 
   <form action="" method="post" enctype="multipart/form-data" class="max-w-xl space-y-5">
     {% csrf_token %}
-    {% if form.non_field_errors %}
-      <p class="text-sm text-red-500" role="alert">{{ form.non_field_errors|join:", " }}</p>
-    {% endif %}
+    {% error_summary form link_formset %}
     {{ form.location }}
 
     {# ── Location display ───────────────────────────────────────────── #}
@@ -50,12 +48,12 @@
         <div>
           <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
           {{ form.date }}
-          {% if form.date.errors %}<p class="mt-1 text-xs text-red-500">{{ form.date.errors|join:", " }}</p>{% endif %}
+          {% field_errors form.date %}
         </div>
         <div>
           <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
           {{ form.time }}
-          {% if form.time.errors %}<p class="mt-1 text-xs text-red-500">{{ form.time.errors|join:", " }}</p>{% endif %}
+          {% field_errors form.time %}
         </div>
       </div>
     </div>
@@ -104,7 +102,7 @@
           {{ form.play_area.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.play_area }}
-        {% if form.play_area.errors %}<p class="mt-1 text-xs text-red-500">{{ form.play_area.errors|join:", " }}</p>{% endif %}
+        {% field_errors form.play_area %}
       </div>
     {% endif %}
 
@@ -115,7 +113,7 @@
           {{ form.physical_table.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
         </label>
         {{ form.physical_table }}
-        {% if form.physical_table.errors %}<p class="mt-1 text-xs text-red-500">{{ form.physical_table.errors|join:", " }}</p>{% endif %}
+        {% field_errors form.physical_table %}
       </div>
     {% endif %}
     {% if form.staff_assigned_station %}
@@ -135,14 +133,14 @@
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
       {{ form.title }}
-      {% if form.title.errors %}<p class="mt-1 text-xs text-red-500">{{ form.title.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.title %}
     </div>
 
     {# ── Description ─────────────────────────────────────────────────── #}
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
       {{ form.description }}
-      {% if form.description.errors %}<p class="mt-1 text-xs text-red-500">{{ form.description.errors|join:", " }}</p>{% endif %}
+      {% field_errors form.description %}
     </div>
 
     {# ── Game ────────────────────────────────────────────────────────── #}
@@ -218,12 +216,12 @@
         <div>
           <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.min_players.id_for_label }}">{{ form.min_players.label }}</label>
           {{ form.min_players }}
-          {% if form.min_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.min_players.errors|join:", " }}</p>{% endif %}
+          {% field_errors form.min_players %}
         </div>
         <div>
           <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.max_players.id_for_label }}">{{ form.max_players.label }}</label>
           {{ form.max_players }}
-          {% if form.max_players.errors %}<p class="mt-1 text-xs text-red-500">{{ form.max_players.errors|join:", " }}</p>{% endif %}
+          {% field_errors form.max_players %}
         </div>
       </div>
       <p id="players-hint" class="mt-2 text-[11px] text-content-muted" style="display:none"></p>
