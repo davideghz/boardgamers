@@ -5,7 +5,7 @@
 {% block content %}
 
   <div class="mb-6">
-    {% back_link 'account-locations' label=_("Locations") %}
+    {% back_link 'account-locations' label=_("My Locations") %}
     <h1 class="text-2xl font-extrabold text-content">
       {% if form.instance.pk %}{% trans "Edit location" %}{% else %}{% trans "New location" %}{% endif %}
     </h1>

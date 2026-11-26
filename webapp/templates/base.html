@@ -22,6 +22,8 @@
   </script>
 
   <!-- SEO -->
+  {# Views set the page title alone (META_USE_TITLE_TAG is off): the site name is added here. #}
+  <title>{% if meta.title %}{{ meta.title }} – {% endif %}Board-Gamers.com</title>
   {% include 'meta/meta.html' %}
   <link rel="canonical" href="{% canonical_url %}">
 

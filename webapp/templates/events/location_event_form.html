@@ -5,7 +5,7 @@
   <div class="mb-6">
     {% if date_form %}
       {% if can_manage_location_events %}
-        {% back_link 'location-manage-events' location.slug label=_("Events") %}
+        {% back_link 'location-manage-events' location.slug label=_("Organized events") %}
         {% url 'location-manage-events' location.slug as cancel_url %}
       {% else %}
         {% back_link 'location-detail' location.slug label=location.name %}
@@ -14,7 +14,7 @@
       <h1 class="text-2xl font-extrabold text-content">{% trans "Create location event" %}</h1>
       {% trans "Create event" as submit_label %}
     {% else %}
-      {% back_link 'event-manage' event.slug label=event.name %}
+      {% back_link 'event-manage' event.slug label=_("Manage") %}
       {% url 'event-manage' event.slug as cancel_url %}
       <h1 class="text-2xl font-extrabold text-content">{% trans "General info" %}</h1>
       {% trans "Save changes" as submit_label %}

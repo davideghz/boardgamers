@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="mb-6">
-    {% back_link 'event-manage' event.slug label=event.name %}
+    {% back_link 'event-manage' event.slug label=_("Manage") %}
     <h1 class="text-2xl font-extrabold text-content">{{ heading }}</h1>
     <p class="mt-1 text-sm text-content-muted">{% blocktrans with venue=event.venue_location.name %}Managed by {{ venue }}.{% endblocktrans %}</p>
   </div>

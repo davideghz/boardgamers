@@ -79,6 +79,7 @@ def location_manage_events(request, slug):
     events = location.organized_events.select_related('venue_location', 'organizer_location').prefetch_related('dates')
     return render(request, 'locations/location_manage_events.html', {
         'location': location, 'events': events.order_by('-created_at'), 'can_create': location.can_create_events(request.user),
+        'meta': Meta(title=_('Organized events – %(name)s') % {'name': location.name}),
     })
 
 
@@ -385,6 +386,7 @@ class EventListView(View):
             'has_past_events': past_events.exists(),
             'show_past': show_past,
             'today': today,
+            'meta': Meta(title=_('Events')),
         }
         return render(request, self.template_name, context)
 

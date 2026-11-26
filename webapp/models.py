@@ -168,7 +168,7 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_title(self):
-        return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+        return self.name
 
     def get_meta_description(self):
         return _plain_text(self.description)
@@ -335,7 +335,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         ))
 
     def get_meta_title(self):
-        return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+        return self.name
 
     def get_meta_description(self):
         return _("Game nights in %(address)s") % {'address': self.address}
@@ -508,7 +508,7 @@ class UserProfile(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_title(self):
-        return _("%(nickname)s - Board-Gamers.com") % {'nickname': self.nickname}
+        return self.nickname
 
     def get_meta_description(self):
         return _("Profile of %(nickname)s on Board-Gamers.com") % {'nickname': self.nickname}
@@ -993,12 +993,12 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
 
     def get_meta_title(self):
         if self.game:
-            return _("%(game)s - %(date)s - Board-Gamers.com") % {
+            return _("%(game)s – %(date)s") % {
                 'game': self.game.name,
                 'date': self.date.strftime('%d/%m/%Y')
             }
         else:
-            return _("%(title)s - %(date)s - Board-Gamers.com") % {
+            return _("%(title)s – %(date)s") % {
                 'title': self.title,
                 'date': self.date.strftime('%d/%m/%Y')
             }
@@ -1939,7 +1939,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     }
 
     def get_meta_title(self):
-        return _("%(name)s - Board-Gamers.com") % {'name': self.name}
+        return self.name
 
     def get_meta_description(self):
         description = _plain_text(self.description)

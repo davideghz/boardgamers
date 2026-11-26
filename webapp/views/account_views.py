@@ -26,7 +26,7 @@ def index(request, template_name='accounts/account_index.html'):
         'user': user,
         'manages_events': Event.objects.managed_by(user.user_profile).exists(),
         'meta': Meta(
-            title=_("My Account - Board-Gamers.com"),
+            title=_("My Account"),
             description=_("Manage your profile: view your activities, notifications and settings."),
         )
     })
@@ -47,7 +47,7 @@ def events(request, template_name='accounts/account_events.html'):
         'managed_events': managed_events,
         'participating_events': participating_events,
         'meta': Meta(
-            title=_("My Events - Board-Gamers.com"),
+            title=_("My Events"),
             description=_("Manage the events you created or coordinate."),
         )
     })
@@ -62,7 +62,7 @@ def edit_profile(request, template_name='accounts/account_edit_profile.html'):
         'user': user,
         'form': form,
         'meta': Meta(
-            title=_("Edit Profile - Board-Gamers.com"),
+            title=_("Edit Profile"),
             description=_("Edit your profile: update photo, bio and game preferences."),
         )
     })
@@ -84,7 +84,7 @@ def locations(request, template_name='accounts/account_locations.html'):
         'owned_locations': owned_locations,
         'managed_locations': managed_locations,
         'meta': Meta(
-            title=_("My Locations - Board-Gamers.com"),
+            title=_("My Locations"),
             description=_("Manage your locations: create new locations, edit data and manage your game tables."),
         )
     })
@@ -131,7 +131,7 @@ def tables(request, template_name='accounts/account_tables.html'):
         'location_picker_sections': [(_("Locations of your tables"), my_locations)] if my_locations else [],
         'has_filters': bool(q or location_slug),
         'meta': Meta(
-            title=_("My Tables - Board-Gamers.com"),
+            title=_("My Tables"),
             description=_("Manage your game tables: create new games, edit existing tables and view your statistics."),
         )
     })
@@ -226,7 +226,7 @@ def notifications(request, template_name='accounts/account_notifications.html'):
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
         'meta': Meta(
-            title=_("Notifications - Board-Gamers.com"),
+            title=_("Notifications"),
             description=_("View your notifications: new tables, comments, invitations and community updates."),
         )
     })
@@ -250,7 +250,7 @@ def memberships(request, template_name='accounts/account_memberships.html'):
         'active_memberships': active_memberships,
         'past_memberships': past_memberships,
         'meta': Meta(
-            title=_("My Memberships - Board-Gamers.com"),
+            title=_("My Memberships"),
             description=_("View your active and past memberships."),
         )
     })
@@ -281,7 +281,7 @@ def member_data(request, member_uuid):
         'location': member.location,
         'form': form,
         'meta': Meta(
-            title=_("My details - %(name)s") % {'name': member.location.name},
+            title=_("My details – %(name)s") % {'name': member.location.name},
         ),
     })
 
@@ -304,7 +304,7 @@ def edit_notification_preferences(request):
         'form': form,
         'has_email': has_email,
         'meta': Meta(
-            title=_("Notification Preferences - Board-Gamers.com"),
+            title=_("Notification Preferences"),
             description=_("Configure your notification preferences: choose which updates to receive and how."),
         )
     })

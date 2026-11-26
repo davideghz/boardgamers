@@ -10,12 +10,10 @@ from webapp.services.ui_personas import PERSONAS, seed_ui_personas
 
 TITLE_RE = re.compile(r'<title>(.*?)</title>', re.S)
 
-# Pages that render without a <title> today. A2 empties this list.
-UNTITLED_PAGES = {'calendar', 'events', 'organized_events'}
 
 
 class UiSmokeTest(TestCase):
-    """The main pages render for every audience of the UI, each with a page title."""
+    """The main pages render for every audience of the UI, each with its own page title."""
 
     @classmethod
     def setUpTestData(cls):
@@ -73,10 +71,10 @@ class UiSmokeTest(TestCase):
     def _assert_renders(self, page, url):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        if page in UNTITLED_PAGES:
-            return
+        # base.html adds the site name: the view must set the page part.
+        self.assertTrue(response.context['meta'] and response.context['meta'].title, 'no page title')
         match = TITLE_RE.search(response.content.decode())
-        self.assertTrue(match and match.group(1).strip(), 'empty <title>')
+        self.assertTrue(match.group(1).endswith(' – Board-Gamers.com'), match.group(1))
 
     def test_public_pages_render_for_every_audience(self):
         for persona in ('anonymous', *PERSONAS):
@@ -104,6 +102,14 @@ class UiSmokeTest(TestCase):
             self._login(owner)
             with self.subTest(persona=owner, page=page):
                 self._assert_renders(page, url)
+
+    def test_back_links_name_their_destination(self):
+        data = self.data
+        manage = reverse('location-manage', kwargs={'slug': data.associazione.slug})
+        self._login('manager')
+        response = self.client.get(reverse('location-manage-events', kwargs={'slug': data.associazione.slug}))
+        self.assertRegex(response.content.decode(), rf'href="{manage}"[^>]*aria-label="[^"]*Gestione"')
+        self.assertContains(self.client.get(self._pages()['negozio']), 'aria-label="Torna a Dove giocare"')
 
     def test_manage_pages_are_closed_to_everyone_else(self):
         for persona in ('anonymous', *PERSONAS):

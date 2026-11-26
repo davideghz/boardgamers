@@ -148,7 +148,7 @@ class AdminProfileMergeTests(TestCase):
         preview = self.client.get(self.url, self.ids)
         for text in (
             'Unisci account', 'Password utilizzabile', 'Ultimo accesso', 'Tavoli creati',
-            'Location create', 'keeper-telegram', 'duplicate-telegram', 'duplicate-google',
+            'Sedi create', 'keeper-telegram', 'duplicate-telegram', 'duplicate-google',
             'Entrambi gli account hanno accessi con questi provider: telegram',
         ):
             self.assertContains(preview, text)

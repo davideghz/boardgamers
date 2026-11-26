@@ -6,7 +6,8 @@
 {% block content %}
 
   {# ── BACK LINK ────────────────────────────────────────────────────── #}
-  <div class="mb-4">{% back_link 'locations-index' label=_("Locations") %}</div>
+  {% translate "Locations" context "navigation" as locations_label %}
+  <div class="mb-4">{% back_link 'locations-index' label=locations_label %}</div>
 
   {# ── PAGE HEADER ──────────────────────────────────────────────────── #}
   <div class="flex items-center gap-4 mb-8">
