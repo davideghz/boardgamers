@@ -12,9 +12,9 @@ def site_banners(request):
     match = request.resolver_match
     if not match or match.namespace == 'admin':
         return {}
-    return {'site_banners': Banner.objects.visible(
-        authenticated=request.user.is_authenticated, home=match.url_name == 'home',
-    )[:20]}
+    from webapp.services.viewer import get_viewer
+    return {'site_banners': SimpleLazyObject(
+        lambda: Banner.objects.visible(get_viewer(request), home=match.url_name == 'home')[:20])}
 
 
 def telegram_config(request):

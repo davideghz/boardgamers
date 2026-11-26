@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
@@ -18,6 +19,9 @@ from webapp.factories import GameFactory, UserProfileFactory
 from webapp.forms import BannerForm
 from webapp.models import Banner
 from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES
+from webapp.services.viewer import Viewer
+
+VISITOR = Viewer(AnonymousUser())
 from webapp.tests.test_managed_images import upload
 
 
@@ -70,14 +74,14 @@ class BannerTest(TestCase):
         self.banner.starts_at = now
         self.banner.ends_at = now + timedelta(hours=1)
         self.banner.save()
-        visible = lambda at: Banner.objects.visible(authenticated=False, home=True, at=at).filter(pk=self.banner.pk).exists()
+        visible = lambda at: self.banner in Banner.objects.visible(VISITOR, home=True, at=at)
         self.assertFalse(visible(now - timedelta(seconds=1)))
         self.assertTrue(visible(now))
         self.assertFalse(visible(self.banner.ends_at))
 
     def test_priority_orders_candidates(self):
         high = Banner.objects.create(key='urgent', message='Urgent', is_active=True, priority=100)
-        self.assertEqual(list(Banner.objects.visible(authenticated=False, home=True)), [high, self.banner])
+        self.assertEqual(Banner.objects.visible(VISITOR, home=True), [high, self.banner])
 
     def test_content_is_translated_and_internal_link_follows_language(self):
         self.banner.message_en = 'English message'
@@ -306,3 +310,48 @@ class BannerCoverTest(TestCase):
             self.assertEqual(image.format, 'PNG')
             self.assertEqual(image.size, (1200, 900))
             self.assertEqual(image.getpixel((500, 500))[3], 128)
+
+
+class BannerAudiencesTest(TestCase):
+    """The targeted audiences, decided from the viewer's activity and roles (D5)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from webapp.services.ui_personas import seed_ui_personas
+        Banner.objects.update(is_active=False)
+        cls.data = seed_ui_personas()
+        for audience in Banner.Audience.values:
+            Banner.objects.create(key=audience.replace('_', '-'), message=audience, is_active=True, audience=audience)
+
+    def audiences(self, persona=None):
+        viewer = Viewer(self.data.profile(persona).user if persona else AnonymousUser())
+        return {banner.audience for banner in Banner.objects.visible(viewer, home=True)}
+
+    def test_each_audience(self):
+        A = Banner.Audience
+        expected = {
+            None: {A.EVERYONE, A.ANONYMOUS},
+            'newcomer': {A.EVERYONE, A.AUTHENTICATED, A.NO_ACTIVITY},
+            'player': {A.EVERYONE, A.AUTHENTICATED, A.ACTIVE_PLAYERS},
+            'member': {A.EVERYONE, A.AUTHENTICATED, A.ACTIVE_PLAYERS, A.MEMBERS},
+            'manager': {A.EVERYONE, A.AUTHENTICATED, A.ACTIVE_PLAYERS, A.MANAGERS},
+            'organizer': {A.EVERYONE, A.AUTHENTICATED, A.NO_ACTIVITY},
+        }
+        for persona, audiences in expected.items():
+            with self.subTest(persona or 'anonymous'):
+                self.assertEqual(self.audiences(persona), audiences)
+
+    def test_targeted_audiences_cost_nothing_without_their_banners(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        Banner.objects.filter(audience__in=Banner.TARGETED_AUDIENCES).update(is_active=False)
+        viewer = Viewer(self.data.member.user)
+        with CaptureQueriesContext(connection) as ctx:
+            Banner.objects.visible(viewer, home=True)
+        self.assertEqual(len(ctx), 1)
+
+    def test_the_page_shows_the_targeted_banner(self):
+        self.client.force_login(self.data.manager.user)
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'data-banner-key="managers"')
+        self.assertNotContains(response, 'data-banner-key="no-activity"')

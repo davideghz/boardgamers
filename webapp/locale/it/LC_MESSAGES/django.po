@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 16:49+0100\n"
+"POT-Creation-Date: 2026-11-26 17:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1014,6 +1014,15 @@ msgstr "Visitatori anonimi"
 msgid "Authenticated users"
 msgstr "Utenti autenticati"
 
+msgid "Active players"
+msgstr "Giocatori attivi"
+
+msgid "Location managers"
+msgstr "Gestori di sedi"
+
+msgid "Users without activity"
+msgstr "Utenti senza attività"
+
 msgid "Home page"
 msgstr "Home page"
 
@@ -1059,6 +1068,9 @@ msgstr "Un percorso interno che inizia con / oppure un indirizzo http(s)."
 
 msgid "Audience"
 msgstr "Destinatari"
+
+msgid "Active players: signed-in users with an upcoming table or event. Members: with a membership in force at some location. Location managers: owners and managers of a location. Users without activity: signed in, but never joined a table or an event."
+msgstr "Giocatori attivi: utenti collegati con un tavolo o un evento in programma. Soci: con un'adesione in corso in qualche sede. Gestori di sedi: titolari e gestori di una sede. Utenti senza attività: collegati, ma mai iscritti a un tavolo o a un evento."
 
 msgid "Display on"
 msgstr "Mostra in"

@@ -1818,17 +1818,39 @@ def validate_banner_link(value):
 
 
 class BannerQuerySet(models.QuerySet):
-    def visible(self, *, authenticated, home, at=None):
+    def visible(self, viewer, *, home, at=None):
+        """The banners `viewer` (services.viewer.Viewer) should see now, highest priority first,
+        as a list. One query; the viewer's facts are read only for the audiences that have a
+        banner right now, so pages without targeted banners pay nothing for them."""
         at = at or timezone.now()
-        audiences = [Banner.Audience.EVERYONE,
-                     Banner.Audience.AUTHENTICATED if authenticated else Banner.Audience.ANONYMOUS]
+        Audience = Banner.Audience
+        if viewer.is_authenticated:
+            audiences = [Audience.EVERYONE, Audience.AUTHENTICATED, *Banner.TARGETED_AUDIENCES]
+        else:
+            audiences = [Audience.EVERYONE, Audience.ANONYMOUS]
         placements = [Banner.Placement.SITE]
         if home:
             placements.append(Banner.Placement.HOME)
-        return self.filter(is_active=True, audience__in=audiences, placement__in=placements).filter(
+        candidates = self.filter(is_active=True, audience__in=audiences, placement__in=placements).filter(
             models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=at),
             models.Q(ends_at__isnull=True) | models.Q(ends_at__gt=at),
         )
+        in_audience = {
+            Audience.ACTIVE_PLAYERS: lambda: any(viewer.upcoming_participations),
+            Audience.MEMBERS: lambda: bool(viewer.member_location_ids),
+            Audience.MANAGERS: lambda: bool(viewer.managed_location_ids),
+            Audience.NO_ACTIVITY: lambda: not viewer.has_activity,
+        }
+        answers = {}
+
+        def shown(banner):
+            if banner.audience not in in_audience:
+                return True
+            if banner.audience not in answers:
+                answers[banner.audience] = in_audience[banner.audience]()
+            return answers[banner.audience]
+
+        return [banner for banner in candidates if shown(banner)]
 
 
 class Banner(DateTimeModel):
@@ -1836,6 +1858,13 @@ class Banner(DateTimeModel):
         EVERYONE = 'everyone', _('Everyone')
         ANONYMOUS = 'anonymous', _('Anonymous visitors')
         AUTHENTICATED = 'authenticated', _('Authenticated users')
+        ACTIVE_PLAYERS = 'active_players', _('Active players')
+        MEMBERS = 'members', _('Members')
+        MANAGERS = 'managers', _('Location managers')
+        NO_ACTIVITY = 'no_activity', _('Users without activity')
+
+    #: Signed-in audiences decided from the user's activity and roles (see BannerQuerySet.visible).
+    TARGETED_AUDIENCES = (Audience.ACTIVE_PLAYERS, Audience.MEMBERS, Audience.MANAGERS, Audience.NO_ACTIVITY)
 
     class Placement(models.TextChoices):
         HOME = 'home', _('Home page')
@@ -1857,7 +1886,11 @@ class Banner(DateTimeModel):
     action_url = models.CharField(_('Link URL'), max_length=500, blank=True, validators=[validate_banner_link],
                                   help_text=_('An internal path starting with / or an http(s) URL.'))
     is_active = models.BooleanField(_('Active'), default=False, db_index=True)
-    audience = models.CharField(_('Audience'), max_length=20, choices=Audience.choices, default=Audience.EVERYONE)
+    audience = models.CharField(
+        _('Audience'), max_length=20, choices=Audience.choices, default=Audience.EVERYONE,
+        help_text=_('Active players: signed-in users with an upcoming table or event. Members: with a '
+                    'membership in force at some location. Location managers: owners and managers of a '
+                    'location. Users without activity: signed in, but never joined a table or an event.'))
     placement = models.CharField(_('Display on'), max_length=10, choices=Placement.choices, default=Placement.HOME)
     priority = models.PositiveIntegerField(_('Priority'), default=0, help_text=_('Higher values are shown first.'))
     starts_at = models.DateTimeField(_('Visible from'), null=True, blank=True)
