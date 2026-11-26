@@ -320,6 +320,6 @@ def appointment_row(context, kind, item, past=False, status=None, mine=False):
             if item.status != item.CLOSED and item.location_id:
                 actions.append((_('Edit'), reverse('location-table-update', args=[item.location.slug, item.slug]),
                                 'pencil'))
-            actions.append((_('Duplicate'), reverse('table-duplicate', args=[item.slug]), 'copy'))
+            actions.append((_('Duplicate table'), reverse('table-duplicate', args=[item.slug]), 'copy'))
     return result_row(item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
                       meta=meta, status=status, image_url=image, participation=participation, actions=actions)
