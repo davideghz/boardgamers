@@ -28,12 +28,13 @@ from meta.views import Meta
 
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
-    PhysicalTableForm, LocationGameTagForm, LocationGameWithdrawalForm, BGGCollectionImportForm, AddLocationNetworkForm, LocationNetworkForm
+    PhysicalTableForm, LocationGameTagForm, LocationGameWithdrawalForm, BGGCollectionImportForm, AddLocationNetworkForm, \
+    LocationNetworkForm, LocationGamesCSVImportForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
-from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
+from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg, normalize_bgg_id
 from webapp.services import game_loans, member_documents
 from webapp.services.tables import reopen_location_leaderboards
 
@@ -1401,9 +1402,14 @@ class LocationGameDetailView(LoginRequiredMixin, View):
 BGG_IMPORT_BATCH_SIZE = 10  # games per request: keeps BGG calls and cover downloads under the Heroku timeout
 
 
-def _bgg_library_statuses(location, items):
+def _bgg_library_statuses(location, items, *, match_by_name):
     by_code, by_name = {}, {}
-    library = location.location_games.order_by('is_archived').values_list('game__bgg_code', 'game__name', 'is_archived')
+    matching = Q(game__bgg_code__in=[item['bgg_id'] for item in items])
+    if match_by_name:
+        matching |= Q(game__bgg_code__isnull=True) | Q(game__bgg_code='')
+    library = location.location_games.filter(matching).order_by('is_archived').values_list(
+        'game__bgg_code', 'game__name', 'is_archived',
+    )
     for code, name, is_archived in library:
         status = 'archived' if is_archived else 'in_library'
         if code:
@@ -1420,6 +1426,9 @@ class LocationGamesBGGImportView(LoginRequiredMixin, View):
     """Preview the games a BGG user owns and pick the ones to add to the library.
     The import itself runs in batches through LocationGamesBGGImportBatchView."""
     template_name = 'locations/location_manage_games_bgg_import.html'
+    match_by_name = True
+    batch_url_name = 'location-games-bgg-import-batch'
+    page_title = _("Import from BoardGameGeek")
 
     def get(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
@@ -1431,21 +1440,26 @@ class LocationGamesBGGImportView(LoginRequiredMixin, View):
                 items = fetch_bgg_collection(username)
             except BGGCollectionError as e:
                 error = e.code
+        return self.render_preview(request, location, items, username=username, error=error)
+
+    def render_preview(self, request, location, items, **context):
         if items:
-            statuses = _bgg_library_statuses(location, items)
-            known_codes = set(Game.objects.filter(bgg_code__in=[i['bgg_id'] for i in items])
-                              .values_list('bgg_code', flat=True))
+            statuses = _bgg_library_statuses(location, items, match_by_name=self.match_by_name)
+            known_games = {game['bgg_code']: game for game in Game.objects.filter(
+                bgg_code__in=statuses,
+            ).order_by('-pk').values('bgg_code', 'name', 'year_published', 'is_expansion')}
             for item in items:
                 bgg_id = item['bgg_id']
                 status = statuses[bgg_id]
-                item['status'] = status or ('known' if bgg_id in known_codes else 'new')
+                if not self.match_by_name and bgg_id in known_games:
+                    item.update(known_games[bgg_id])
+                item['status'] = status or ('known' if bgg_id in known_games else 'new')
                 item['can_import'] = status is None
-        games = [i for i in items or [] if not i['is_expansion']]
-        expansions = [i for i in items or [] if i['is_expansion']]
+        games = [i for i in items or [] if not i.get('is_expansion')]
+        expansions = [i for i in items or [] if i.get('is_expansion')]
         return render(request, self.template_name, {
             'location': location,
-            'username': username,
-            'error': error,
+            'page_title': self.page_title,
             'loaded': items is not None,
             'games': games,
             'expansions': expansions,
@@ -1453,29 +1467,70 @@ class LocationGamesBGGImportView(LoginRequiredMixin, View):
             'form': BGGCollectionImportForm(location=location),
             'tags': location.game_tags.all(),
             'batch_size': BGG_IMPORT_BATCH_SIZE,
-            'meta': Meta(title=_("Import from BGG – %(name)s") % {'name': location.name}),
+            'batch_url': reverse(self.batch_url_name, args=[location.slug]),
+            'meta': Meta(title=f'{self.page_title} – {location.name}'),
+            **context,
         })
+
+
+class LocationGamesCSVImportView(LocationGamesBGGImportView):
+    match_by_name = False
+    batch_url_name = 'location-games-csv-import-batch'
+    page_title = _("Import from CSV")
+
+    def get(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        return self.render_preview(request, location, None, csv_form=LocationGamesCSVImportForm())
+
+    def post(self, request, slug):
+        location = get_object_or_404(Location, slug=slug)
+        _check_location_manager(request, location)
+        form = LocationGamesCSVImportForm(request.POST, request.FILES)
+        if not form.is_valid():
+            return self.render_preview(request, location, None, csv_form=form)
+        items, missing_lines, invalid_lines = form.cleaned_data['csv_file']
+        return self.render_preview(request, location, items, csv_form=form,
+                                   missing_lines=missing_lines, invalid_lines=invalid_lines,
+                                   missing_lines_text=_csv_line_list(missing_lines),
+                                   invalid_lines_text=_csv_line_list(invalid_lines))
+
+
+CSV_REPORTED_LINES = 20
+
+
+def _csv_line_list(lines):
+    text = ', '.join(str(line) for line in lines[:CSV_REPORTED_LINES])
+    return f'{text}, …' if len(lines) > CSV_REPORTED_LINES else text
 
 
 class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
     """Add a batch of BGG games to the library. POST: the BGGCollectionImportForm
     fields plus `items`, a JSON list of {bgg_id, name}. Games already in the
     library are left untouched."""
+    match_by_name = True
 
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         _check_location_manager(request, location)
         form = BGGCollectionImportForm(request.POST, location=location)
         try:
-            items = json.loads(request.POST.get('items', ''))
-            items = [{'bgg_id': str(int(i['bgg_id'])), 'name': str(i.get('name', ''))[:255]} for i in items]
-        except (ValueError, TypeError, KeyError):
-            items = None
-        if not form.is_valid() or not items or len(items) > BGG_IMPORT_BATCH_SIZE:
+            payload = json.loads(request.POST.get('items', ''))
+        except ValueError:
+            payload = None
+        if not isinstance(payload, list) or not 0 < len(payload) <= BGG_IMPORT_BATCH_SIZE or not form.is_valid():
             return JsonResponse({'error': 'invalid'}, status=400)
+        items_by_code = {}
+        for item in payload:
+            code = normalize_bgg_id(item.get('bgg_id')) if isinstance(item, dict) else None
+            if code is None:
+                return JsonResponse({'error': 'invalid'}, status=400)
+            name = str(item.get('name') or '')[:255] if self.match_by_name else ''
+            items_by_code.setdefault(code, {'bgg_id': code, 'name': name})
+        items = list(items_by_code.values())
 
-        statuses = _bgg_library_statuses(location, items)
-        eligible = [item for item in items if statuses[item['bgg_id']] != 'archived']
+        statuses = _bgg_library_statuses(location, items, match_by_name=self.match_by_name)
+        eligible = [item for item in items if statuses[item['bgg_id']] is None]
         try:
             games = import_games_from_bgg(eligible) if eligible else {}
         except Exception as e:
@@ -1483,37 +1538,40 @@ class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
             return JsonResponse({'error': 'bgg'}, status=502)
 
         data = form.cleaned_data
-        tag = None
-        if eligible and data['tag_name']:
-            tag = location.game_tags.filter(name__iexact=data['tag_name']).first()
-            if tag is None:
-                order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
-                tag = LocationGameTag.objects.create(location=location, name=data['tag_name'], order=order)
-
         added, skipped, archived, failed = [], [], [], []
-        for item in items:
-            bgg_id = item['bgg_id']
-            if statuses[bgg_id] == 'archived':
-                archived.append(bgg_id)
-                continue
-            game = games.get(bgg_id)
-            if game is None:
-                failed.append(bgg_id)
-                continue
-            entry, created = LocationGame.objects.get_or_create(
-                location=location, game=game, defaults={
-                    'ownership': data['ownership'],
-                    'owner_member': data['owner_member'],
-                    'physical_location': data['physical_location'],
-                })
-            if created:
-                if tag:
-                    entry.tags.add(tag)
-                added.append(bgg_id)
-            elif entry.is_archived:
-                archived.append(bgg_id)
-            else:
-                skipped.append(bgg_id)
+        with transaction.atomic():
+            # Recheck after fetching from BGG in case another batch added these IDs.
+            Location.objects.select_for_update(no_key=True).only('pk').get(pk=location.pk)
+            current_statuses = _bgg_library_statuses(location, items, match_by_name=self.match_by_name)
+            new_entries = []
+            for bgg_id in items_by_code:
+                status = current_statuses[bgg_id] or statuses[bgg_id]
+                game = games.get(bgg_id)
+                if status == 'archived':
+                    archived.append(bgg_id)
+                elif status == 'in_library':
+                    skipped.append(bgg_id)
+                elif game is None:
+                    failed.append(bgg_id)
+                else:
+                    entry, created = LocationGame.objects.get_or_create(location=location, game=game, defaults={
+                        'ownership': data['ownership'],
+                        'owner_member': data['owner_member'],
+                        'physical_location': data['physical_location'],
+                    })
+                    if created:
+                        new_entries.append(entry)
+                        added.append(bgg_id)
+                    elif entry.is_archived:
+                        archived.append(bgg_id)
+                    else:
+                        skipped.append(bgg_id)
+            if new_entries and data['tag_name']:
+                tag = location.game_tags.filter(name__iexact=data['tag_name']).first()
+                if tag is None:
+                    order = (location.game_tags.aggregate(m=Max('order'))['m'] or 0) + 1
+                    tag = LocationGameTag.objects.create(location=location, name=data['tag_name'], order=order)
+                tag.games.add(*new_entries)
         return JsonResponse({'added': added, 'skipped': skipped, 'archived': archived, 'failed': failed})
 
 

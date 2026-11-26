@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 12:31+0100\n"
+"POT-Creation-Date: 2026-11-26 18:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -392,6 +392,15 @@ msgstr "I soci con tessera valida possono registrare autonomamente il ritiro."
 msgid "Only members with a valid membership at this location see the nickname."
 msgstr "Il nickname è visibile ai soci con tessera valida per questa sede."
 
+msgid "CSV file"
+msgstr "File CSV"
+
+msgid "The CSV file must be 5 MB or smaller."
+msgstr "Il file CSV deve essere al massimo di 5 MB."
+
+msgid "Save the CSV file with UTF-8 encoding and try again."
+msgstr "Salva il file CSV con codifica UTF-8 e riprova."
+
 msgid "Tag for the imported games"
 msgstr "Tag per i giochi importati"
 
@@ -403,9 +412,6 @@ msgstr "Socio Proprietario"
 
 msgid "Physical Location"
 msgstr "Ubicazione"
-
-msgid "BGG ID"
-msgstr "ID BGG"
 
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
@@ -1261,6 +1267,18 @@ msgstr "Questa è già la tua email."
 msgid "Error. Invalid verification code."
 msgstr "Errore. Codice di verifica non valido."
 
+#, python-format
+msgid "The CSV could not be read. Check the format near line %(line)s."
+msgstr ""
+"Impossibile leggere il CSV. Controlla il formato vicino alla riga %(line)s."
+
+msgid "The CSV must contain a column named BGG ID or ID BGG."
+msgstr "Il CSV deve contenere una colonna chiamata ID BGG o BGG ID."
+
+#, python-format
+msgid "The CSV has more than %(max)s rows. Split it into smaller files."
+msgstr "Il CSV ha più di %(max)s righe. Dividilo in file più piccoli."
+
 msgid ""
 "Ask a manager to record this loan. Your account is linked to more than one "
 "active member record."
@@ -1335,7 +1353,11 @@ msgid ""
 "%(last_name)s, born in %(birth_place)s on %(birth_date)s, living in "
 "%(address)s, %(zip_code)s %(city)s (%(province)s), fiscal code "
 "%(fiscal_code)s"
-msgstr "quale esercente la responsabilità genitoriale sul minore %(first_name)s %(last_name)s, nato/a a %(birth_place)s il %(birth_date)s, residente in %(address)s, %(zip_code)s %(city)s (%(province)s), codice fiscale %(fiscal_code)s"
+msgstr ""
+"quale esercente la responsabilità genitoriale sul minore %(first_name)s "
+"%(last_name)s, nato/a a %(birth_place)s il %(birth_date)s, residente in "
+"%(address)s, %(zip_code)s %(city)s (%(province)s), codice fiscale "
+"%(fiscal_code)s"
 
 #, python-format
 msgid "Date: %(date)s"
@@ -1365,7 +1387,9 @@ msgstr "Firmato dall'account %(nickname)s."
 msgid ""
 "Signed by a holder of parental responsibility on behalf of the minor "
 "%(name)s."
-msgstr "Firmato da un esercente la responsabilità genitoriale per conto del minore %(name)s."
+msgstr ""
+"Firmato da un esercente la responsabilità genitoriale per conto del minore "
+"%(name)s."
 
 msgid ""
 "Only active accounts without Django admin roles or permissions can be merged."
@@ -3191,6 +3215,10 @@ msgstr "Filtra…"
 msgid "Filter"
 msgstr "Filtra"
 
+#, python-format
+msgid "BGG #%(id)s"
+msgstr "BGG #%(id)s"
+
 msgid "Already in the library"
 msgstr "Già in ludoteca"
 
@@ -3649,6 +3677,9 @@ msgstr "Scarica CSV"
 msgid "Import from BoardGameGeek"
 msgstr "Importa da BoardGameGeek"
 
+msgid "Import from CSV"
+msgstr "Importa da CSV"
+
 msgid "No withdrawn games yet."
 msgstr "Nessun gioco uscito dalla ludoteca."
 
@@ -3658,12 +3689,29 @@ msgstr "Oppure importa una collezione da BoardGameGeek."
 msgid "Only managers see them: they don't appear on the public library."
 msgstr "Li vedono solo i gestori: non compaiono nella ludoteca pubblica."
 
+msgid "Upload a library export or a UTF-8 CSV with a BGG ID column."
+msgstr "Carica un export della ludoteca o un CSV UTF-8 con la colonna ID BGG."
+
 msgid ""
 "Add to the library the games a BoardGameGeek user marks as owned. The "
 "collection must be public."
 msgstr ""
 "Aggiungi alla ludoteca i giochi che un utente di BoardGameGeek segna come "
 "posseduti. La collezione deve essere pubblica."
+
+msgid "Preview import"
+msgstr "Mostra anteprima"
+
+#, python-format
+msgid "Missing BGG ID on CSV lines %(lines)s."
+msgstr "ID BGG mancante nelle righe %(lines)s del CSV."
+
+#, python-format
+msgid "Invalid BGG ID on CSV lines %(lines)s."
+msgstr "ID BGG non valido nelle righe %(lines)s del CSV."
+
+msgid "The CSV contains no valid BGG IDs."
+msgstr "Il CSV non contiene ID BGG validi."
 
 msgid "BoardGameGeek username"
 msgstr "Username BoardGameGeek"
@@ -3933,8 +3981,12 @@ msgid ""
 msgid_plural ""
 "%(counter)s members have already signed this document: they keep the PDF of "
 "the version they signed. Changes only apply to the next signatures."
-msgstr[0] "%(counter)s socio ha già firmato questo documento: conserva il PDF della versione che ha firmato. Le modifiche valgono solo per le prossime firme."
-msgstr[1] "%(counter)s soci hanno già firmato questo documento: conservano il PDF della versione che hanno firmato. Le modifiche valgono solo per le prossime firme."
+msgstr[0] ""
+"%(counter)s socio ha già firmato questo documento: conserva il PDF della "
+"versione che ha firmato. Le modifiche valgono solo per le prossime firme."
+msgstr[1] ""
+"%(counter)s soci hanno già firmato questo documento: conservano il PDF della "
+"versione che hanno firmato. Le modifiche valgono solo per le prossime firme."
 
 msgid "Formatting"
 msgstr "Formattazione"
@@ -3981,12 +4033,16 @@ msgstr "Senza il campo Firma, la firma va in fondo al documento, con la data."
 msgid ""
 "Yes / No asks the member to choose: the question is the paragraph it sits "
 "in. Use it for optional consents, like photos."
-msgstr "Sì / No chiede al socio di scegliere: la domanda è il paragrafo in cui si trova. Usalo per i consensi facoltativi, come le foto."
+msgstr ""
+"Sì / No chiede al socio di scegliere: la domanda è il paragrafo in cui si "
+"trova. Usalo per i consensi facoltativi, come le foto."
 
 msgid ""
 "On their own behalf / minor lets a parent or guardian sign for a minor and "
 "enter the minor's details."
-msgstr "Per conto proprio / minore permette a un genitore o tutore di firmare per un minore e inserirne i dati."
+msgstr ""
+"Per conto proprio / minore permette a un genitore o tutore di firmare per un "
+"minore e inserirne i dati."
 
 msgid "The logo is the image of the location, when it has one."
 msgstr "Il logo è l'immagine della location, se ne ha una."
@@ -4011,13 +4067,20 @@ msgid ""
 "[[birth_date]], living in [[address]], [[zip_code]] [[city]] ([[province]]), "
 "fiscal code [[fiscal_code]], identity card no. [[id_document_number]], "
 "mobile [[phone_number]], email [[email]], [[minor]],"
-msgstr "Il/La sottoscritto/a [[first_name]] [[last_name]], nato/a a [[birth_place]] il [[birth_date]], residente a [[city]] CAP [[zip_code]] Prov. [[province]] Via/Piazza [[address]], Codice Fiscale [[fiscal_code]], Carta d'Identità n. [[id_document_number]], cellulare [[phone_number]], e-mail [[email]], [[minor]],"
+msgstr ""
+"Il/La sottoscritto/a [[first_name]] [[last_name]], nato/a a [[birth_place]] "
+"il [[birth_date]], residente a [[city]] CAP [[zip_code]] Prov. [[province]] "
+"Via/Piazza [[address]], Codice Fiscale [[fiscal_code]], Carta d'Identità n. "
+"[[id_document_number]], cellulare [[phone_number]], e-mail [[email]], "
+"[[minor]],"
 
 msgid "APPLY"
 msgstr "CHIEDE"
 
 msgid "to be admitted as a member of the association \"[[location_name]]\"."
-msgstr "di poter essere ammesso in qualità di socio all’Associazione “[[location_name]]”."
+msgstr ""
+"di poter essere ammesso in qualità di socio all’Associazione "
+"“[[location_name]]”."
 
 msgid "Furthermore, I, the undersigned,"
 msgstr "Inoltre, il/la sottoscritto/a"
@@ -4028,15 +4091,32 @@ msgstr "DICHIARA"
 msgid ""
 "that I have read the Statute and the Rules of the Association and that I "
 "accept them and will abide by them in every respect;"
-msgstr "di aver preso visione dello Statuto e dei Regolamenti dell'Associazione e di accettarli e rispettarli in ogni loro punto;"
+msgstr ""
+"di aver preso visione dello Statuto e dei Regolamenti dell'Associazione e di "
+"accettarli e rispettarli in ogni loro punto;"
 
 msgid ""
 "that I undertake to pay the yearly membership fee and the association "
 "contributions according to the chosen activity;"
-msgstr "d’impegnarsi al pagamento della quota associativa annuale e dei contributi associativi a seconda dell’attività scelta;"
+msgstr ""
+"d’impegnarsi al pagamento della quota associativa annuale e dei contributi "
+"associativi a seconda dell’attività scelta;"
 
-msgid "that I consent to the processing of my personal data by the Association, under art. 13 of Regulation (EU) 2016/679 (GDPR) and Legislative Decree no. 196/2003 as amended, and in relation to the information provided. In particular, I consent to the processing of personal data for the institutional purposes of the Association, to the extent necessary to fulfil the obligations set by the law and by the statute."
-msgstr "di acconsentire al trattamento dei dati personali da parte dell'Associazione, ai sensi dell’art. 13 del Regolamento (UE) 2016/679 (GDPR) e del D.lgs. n. 196/2003 e successive modifiche, e in relazione all'informativa fornita. In particolare si presta il consenso al trattamento dei dati personali per la realizzazione delle finalità istituzionali dell’Associazione, nella misura necessaria all’adempimento di obblighi previsti dalla legge e dalle norme statutarie."
+msgid ""
+"that I consent to the processing of my personal data by the Association, "
+"under art. 13 of Regulation (EU) 2016/679 (GDPR) and Legislative Decree no. "
+"196/2003 as amended, and in relation to the information provided. In "
+"particular, I consent to the processing of personal data for the "
+"institutional purposes of the Association, to the extent necessary to fulfil "
+"the obligations set by the law and by the statute."
+msgstr ""
+"di acconsentire al trattamento dei dati personali da parte "
+"dell'Associazione, ai sensi dell’art. 13 del Regolamento (UE) 2016/679 "
+"(GDPR) e del D.lgs. n. 196/2003 e successive modifiche, e in relazione "
+"all'informativa fornita. In particolare si presta il consenso al trattamento "
+"dei dati personali per la realizzazione delle finalità istituzionali "
+"dell’Associazione, nella misura necessaria all’adempimento di obblighi "
+"previsti dalla legge e dalle norme statutarie."
 
 msgid "Place and date"
 msgstr "Luogo e data"
@@ -4045,14 +4125,21 @@ msgid ""
 "I authorise photographs and/or video recordings of myself / of the minor, "
 "taken for institutional purposes only, during the activities and/or events "
 "organised by the Association."
-msgstr "Si autorizza la fotografia e/o la ripresa del sottoscritto / del minore, effettuate ai soli fini istituzionali, durante lo svolgimento delle attività e/o delle manifestazioni organizzate dall'Associazione."
+msgstr ""
+"Si autorizza la fotografia e/o la ripresa del sottoscritto / del minore, "
+"effettuate ai soli fini istituzionali, durante lo svolgimento delle attività "
+"e/o delle manifestazioni organizzate dall'Associazione."
 
 msgid ""
 "I consent to the processing and publication, for institutional purposes "
 "only, of videos, photographs and/or images that may reveal my identity / the "
 "identity of the minor, on the website and in the periodical of the "
 "Association and on the notice boards in its premises."
-msgstr "Si acconsente al trattamento e alla pubblicazione, per i soli fini istituzionali, di video, fotografie e/o immagini atte a rivelare l’identità del sottoscritto / del minore, sul sito web e sul periodico dell'Associazione e nelle bacheche affisse nei locali della medesima."
+msgstr ""
+"Si acconsente al trattamento e alla pubblicazione, per i soli fini "
+"istituzionali, di video, fotografie e/o immagini atte a rivelare l’identità "
+"del sottoscritto / del minore, sul sito web e sul periodico "
+"dell'Associazione e nelle bacheche affisse nei locali della medesima."
 
 msgid "Replace the current text with the example?"
 msgstr "Sostituire il testo attuale con l'esempio?"
@@ -5986,10 +6073,6 @@ msgstr "Aggiungi Gioco - %(name)s"
 msgid "Game updated successfully."
 msgstr "Gioco aggiornato con successo."
 
-#, python-format
-msgid "Import from BGG – %(name)s"
-msgstr "Importa da BGG – %(name)s"
-
 msgid "This entry has changed. Reload it before saving."
 msgstr "Questa voce è stata modificata. Ricaricala prima di salvare."
 
@@ -6067,6 +6150,9 @@ msgstr "Non ci sono tavoli in questo periodo."
 #, python-format
 msgid "Join a table: %(url)s"
 msgstr "Unisciti a un tavolo: %(url)s"
+
+msgid "BGG ID"
+msgstr "ID BGG"
 
 #, python-format
 msgid "Document %(name)s saved."
@@ -6355,6 +6441,10 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#, python-format
+#~ msgid "Import from BGG – %(name)s"
+#~ msgstr "Importa da BGG – %(name)s"
 
 #~ msgid "Membership application"
 #~ msgstr "Domanda di ammissione a socio"
