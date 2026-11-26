@@ -5,6 +5,11 @@ from .settings import *
 
 print('dentro local_settings.py')
 
+# Absolute URLs (default covers, links in emails) follow SITE_DOMAIN, like the meta tags: a dev
+# server on another port sets it in its environment, e.g. SITE_DOMAIN=127.0.0.1:8139.
+DOMAIN = SITE_DOMAIN
+DOMAIN_URL = DOMAIN_PROTOCOL + "://" + DOMAIN
+
 USE_S3 = env.bool('USE_S3', default=False)
 if not USE_S3:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
