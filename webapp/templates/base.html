@@ -61,7 +61,14 @@
         extend: {
           fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
           colors: {
-            primary:  { DEFAULT: '#2563eb', foreground: '#fff' },
+            // Accents by role. Channel vars ("R G B") so opacity modifiers like
+            // bg-primary/10 keep working; the -soft washes are plain colors.
+            primary:  { DEFAULT: 'rgb(var(--primary) / <alpha-value>)', foreground: 'rgb(var(--primary-fg) / <alpha-value>)' },
+            link:     'rgb(var(--link) / <alpha-value>)',
+            danger:   { DEFAULT: 'rgb(var(--danger) / <alpha-value>)', soft: 'var(--danger-soft)' },
+            success:  { DEFAULT: 'rgb(var(--success) / <alpha-value>)', soft: 'var(--success-soft)' },
+            warning:  { DEFAULT: 'rgb(var(--warning) / <alpha-value>)', soft: 'var(--warning-soft)' },
+            focus:    'rgb(var(--focus) / <alpha-value>)',
             muted:    { DEFAULT: '#f1f5f9', foreground: '#64748b' },
             rating:   '#eab308',
             // ── Semantic, theme-aware tokens (CSS-var backed) ──────────────
@@ -101,6 +108,17 @@
       --text:       #0f172a;   /* primary text               (was text-slate-900) */
       --text-2:     #475569;   /* secondary text             (was text-slate-600) */
       --text-muted: #64748b;   /* muted text                 (was text-slate-500) */
+      /* Accents by role, as "R G B" channels (see the Tailwind config) */
+      --primary:      37 99 235;    /* filled buttons    blue-600  */
+      --primary-fg:   255 255 255;  /* text on primary             */
+      --link:         37 99 235;    /* links             blue-600  */
+      --danger:       185 28 28;    /* destructive       red-700   */
+      --danger-soft:  #fef2f2;      /*                   red-50    */
+      --success:      21 128 61;    /* confirmations     green-700 */
+      --success-soft: #f0fdf4;      /*                   green-50  */
+      --warning:      180 83 9;     /* attention         amber-700 */
+      --warning-soft: #fffbeb;      /*                   amber-50  */
+      --focus:        59 130 246;   /* focus rings       blue-500  */
     }
     .dark {
       color-scheme: dark;
@@ -114,6 +132,18 @@
       --text:       #f1f5f9;
       --text-2:     #cbd5e1;
       --text-muted: #94a3b8;
+      /* Filled colors keep their light value (white text stays readable on them);
+         text colors lighten to the values the html.dark overrides below use. */
+      --primary:      37 99 235;
+      --primary-fg:   255 255 255;
+      --link:         96 165 250;   /* blue-400  */
+      --danger:       248 113 113;  /* red-400   */
+      --danger-soft:  rgba(239,68,68,.13);
+      --success:      74 222 128;   /* green-400 */
+      --success-soft: rgba(34,197,94,.13);
+      --warning:      251 191 36;   /* amber-400 */
+      --warning-soft: rgba(245,158,11,.13);
+      --focus:        96 165 250;
     }
     body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
     /* Accent wash (light blue→purple) for "about"/CTA cards — theme-aware */
@@ -197,7 +227,9 @@
        Raw accent utilities are kept in the markup; here we retune them for
        a dark ground without per-element dark: variants. `html.dark` raises
        specificity so these win over the plain utilities (and any dark:).
-       Light -200/-300 accent text (on dark/coloured fills) is left as-is. */
+       Light -200/-300 accent text (on dark/coloured fills) is left as-is.
+       The role tokens (text-link, text-danger, …) already carry these values;
+       these overrides go once C3 has moved the templates onto them. */
     /* Accent TEXT: lighten dark shades to reach AA contrast on dark surfaces */
     html.dark .text-blue-500, html.dark .text-blue-600, html.dark .text-blue-700, html.dark .text-blue-800,
     html.dark .hover\:text-blue-600:hover, html.dark .hover\:text-blue-700:hover, html.dark .hover\:text-blue-800:hover { color: #60a5fa; }

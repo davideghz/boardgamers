@@ -13,11 +13,11 @@
   {# ── Tabs ─────────────────────────────────────────────────────────── #}
   <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5 w-fit mb-4">
     <a href="{% querystring tab=None page=None %}"
-       class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-decoration-none {% if tab == 'upcoming' %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-muted hover:text-content{% endif %}">
+       class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-decoration-none {% if tab == 'upcoming' %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-soft hover:text-content{% endif %}">
       {% trans "Upcoming" %}
     </a>
     <a href="{% querystring tab='past' page=None %}"
-       class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-decoration-none {% if tab == 'past' %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-muted hover:text-content{% endif %}">
+       class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-decoration-none {% if tab == 'past' %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-soft hover:text-content{% endif %}">
       {% trans "Past" %}
     </a>
   </div>

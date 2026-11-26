@@ -65,13 +65,13 @@
         <button id="btn-loc-list"
                 type="button" aria-controls="locations-list" aria-pressed="{% if map_selected %}false{% else %}true{% endif %}"
                 onclick="showLocTab('list')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all {% if map_selected %}bg-transparent text-content-muted hover:text-content{% else %}bg-surface text-content shadow-sm{% endif %}">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all {% if map_selected %}bg-transparent text-content-soft hover:text-content{% else %}bg-surface text-content shadow-sm{% endif %}">
           {% trans "List" %}
         </button>
         <button id="btn-loc-map"
                 type="button" aria-controls="locations-map-container" aria-pressed="{% if map_selected %}true{% else %}false{% endif %}"
                 onclick="showLocTab('map')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all {% if map_selected %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-muted hover:text-content{% endif %}">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all {% if map_selected %}bg-surface text-content shadow-sm{% else %}bg-transparent text-content-soft hover:text-content{% endif %}">
           {% trans "Map" %}
         </button>
       </div>
@@ -170,7 +170,7 @@
     const locationsMapData = JSON.parse(document.getElementById('location-map-data').textContent);
 
     const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
-    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
+    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content';
 
     function showLocTab(tab) {
       const isList = tab === 'list';

@@ -132,7 +132,7 @@
         </button>
         <button id="btn-past"
                 onclick="showTab('past')"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content">
           {% trans "Past" %}
         </button>
       </div>
@@ -257,7 +257,7 @@
           </button>
           <button id="btn-loc-map"
                   onclick="showLocTab('map')"
-                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
+                  class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content">
             {% trans "Map" %}
           </button>
         </div>
@@ -356,7 +356,7 @@
       document.getElementById('tab-past').style.display    = isUpcoming ? 'none' : '';
 
       const btnActive   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
-      const btnInactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
+      const btnInactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content';
       document.getElementById('btn-upcoming').className = isUpcoming ? btnActive : btnInactive;
       document.getElementById('btn-past').className     = isUpcoming ? btnInactive : btnActive;
     }
@@ -373,7 +373,7 @@
 
     // ── Locations toggle ─────────────────────────────────────────────────
     const LOC_ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
-    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
+    const LOC_INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content';
 
     function showLocTab(tab) {
       const isList = tab === 'list';

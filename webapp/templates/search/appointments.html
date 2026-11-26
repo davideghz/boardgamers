@@ -15,7 +15,7 @@
           {% endif %}
           <a href="{% url 'appointment-search' %}{% if url != '?' %}{{ url }}{% endif %}"
              {% if search_type == value %}aria-current="true"{% endif %}
-             class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if search_type == value %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+             class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if search_type == value %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
             {{ label }}
           </a>
         {% endfor %}

@@ -38,7 +38,7 @@
           {% trans "Normal" %}
         </button>
         <button id="btn-res-mode" type="button" onclick="setResMode(true)"
-                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
+                class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content">
           {% trans "Reservations" %}
         </button>
       </div>
@@ -225,7 +225,7 @@
 
   // ── Scroll arrows ────────────────────────────────────────────────────
   const ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
-  const INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
+  const INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content';
 
   window.scrollCal = function (dir) {
     document.getElementById('cal-grid').scrollBy({ left: dir * 300, behavior: 'smooth' });

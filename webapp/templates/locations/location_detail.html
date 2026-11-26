@@ -149,7 +149,7 @@
                 {% trans "Upcoming" %}
               </button>
               <button id="btn-past" onclick="showTab('past')"
-                      class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content">
+                      class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content">
                 {% trans "Past" %}
               </button>
             </div>
@@ -579,7 +579,7 @@
       document.getElementById('tab-upcoming').style.display = isUpcoming ? '' : 'none';
       document.getElementById('tab-past').style.display    = isUpcoming ? 'none' : '';
       const active   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
-      const inactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-muted hover:text-content';
+      const inactive = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content';
       document.getElementById('btn-upcoming').className = isUpcoming ? active : inactive;
       document.getElementById('btn-past').className     = isUpcoming ? inactive : active;
       // Keep "See all tables" pointing at the tab being viewed

@@ -12,17 +12,17 @@
       <nav aria-label="{% trans 'Result type' %}" class="flex items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
         <a href="{% querystring type=None page=None %}"
            {% if activity_type == 'all' %}aria-current="true"{% endif %}
-           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'all' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'all' %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
           {% translate "All" context "appointment search results" %}
         </a>
         <a href="{% querystring type='events' page=None %}"
            {% if activity_type == 'events' %}aria-current="true"{% endif %}
-           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'events' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'events' %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
           {% trans "Events" %}
         </a>
         <a href="{% querystring type='tables' page=None %}"
            {% if activity_type == 'tables' %}aria-current="true"{% endif %}
-           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'tables' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'tables' %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
           {% trans "Tables" %}
         </a>
       </nav>
@@ -30,12 +30,12 @@
       <nav aria-label="{% trans 'When' %}" class="ml-auto flex items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
         <a href="{% querystring tab=None page=None %}"
            {% if tab == 'upcoming' %}aria-current="true"{% endif %}
-           class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if tab == 'upcoming' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+           class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if tab == 'upcoming' %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
           {% trans "Upcoming" %}
         </a>
         <a href="{% querystring tab='past' page=None %}"
            {% if tab == 'past' %}aria-current="true"{% endif %}
-           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if tab == 'past' %}bg-surface text-content shadow-sm{% else %}text-content-muted hover:text-content{% endif %}">
+           class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if tab == 'past' %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
           {% translate "Past" context "personal activities" %}
         </a>
       </nav>
