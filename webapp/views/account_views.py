@@ -17,26 +17,23 @@ from webapp.models import (
     Notification, Table,
 )
 from webapp.services.appointments import paginate_appointments, with_matching_day
+from webapp.services.viewer import get_viewer
 
 
 @login_required
 def index(request, template_name='accounts/account_index.html'):
     user = request.user
-    profile = user.user_profile
-    today = timezone.localdate()
-    upcoming_tables = Table.objects.visible_to(user).filter(players=profile, date__gte=today).count()
-    upcoming_events = Event.objects.filter(
-        participants__user_profile=profile, status=Event.PUBLISHED, dates__date__gte=today,
-    ).distinct().count()
+    viewer = get_viewer(request)
+    upcoming = viewer.upcoming_participations
 
     return render(request, template_name, {
         'user': user,
         # Counters on the entries, and the entries only some users need
-        'upcoming_activities_count': upcoming_tables + upcoming_events,
-        'active_memberships_count': Membership.active_for(profile).count(),
-        'managed_locations_count': Location.managed_by(profile).count(),
-        'organizes_tables': Table.objects.filter(author=profile).exists(),
-        'manages_events': Event.objects.managed_by(profile).exists(),
+        'upcoming_activities_count': len(upcoming.table_ids) + len(upcoming.event_ids),
+        'active_memberships_count': len(viewer.member_location_ids),
+        'managed_locations_count': len(viewer.managed_location_ids),
+        'organizes_tables': Table.objects.filter(author=viewer.profile).exists(),
+        'manages_events': viewer.manages_events,
         'meta': Meta(
             title=_("My Account"),
             description=_("Manage your profile: view your activities, notifications and settings."),

@@ -249,3 +249,10 @@ def participation_status(kind="table", leave_dialog=None):
 def confirm_dialog(context, dialog_id, title, action_url, confirm_label, message=None, danger=True):
     return {"dialog_id": dialog_id, "title": title, "action_url": action_url, "confirm_label": confirm_label,
             "message": message, "danger": danger, "csrf_token": context.get("csrf_token")}
+
+
+@register.simple_tag(takes_context=True)
+def location_relation(context, location):
+    """The viewer's relation to `location`: manager, member, pending, follower, visitor or
+    anonymous (see services/viewer.py). Usage: {% location_relation location as rel %}."""
+    return context['viewer'].relation(location)

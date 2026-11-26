@@ -27,6 +27,7 @@ from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTA
 from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate, \
     Membership, LocationAccess
 from webapp.services.appointments import with_matching_day
+from webapp.services.viewer import get_viewer
 from webapp.templatetags.custom_tags import STATUS_BADGES
 from webapp.views.event_views import upcoming_events_queryset
 
@@ -41,12 +42,13 @@ def homepage_view(request):
     user_created_locations = None
     user_created_locations_ids = []
 
+    viewer = get_viewer(request)
     if request.user.is_authenticated:
         user_created_locations = request.user.user_profile.locations.all()
-        user_created_locations_ids = user_created_locations.values_list('id', flat=True) if user_created_locations else []
+        user_created_locations_ids = viewer.created_location_ids
+        profile = request.user.user_profile
         try:
-            profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
-            if profile and profile.latitude and profile.longitude:
+            if profile.latitude and profile.longitude:
                 user_location = Point(float(profile.longitude), float(profile.latitude), srid=4326)
         except (TypeError, ValueError):
             pass
@@ -85,15 +87,10 @@ def homepage_view(request):
 
     followed_future_tables = []
     followed_past_tables = []
-    followed_location_ids = set()
+    followed_location_ids = viewer.followed_location_ids
     # The user's own locations: followed, run, or joined as a member.
-    my_location_ids = set()
+    my_location_ids = viewer.own_location_ids
     if request.user.is_authenticated:
-        user_profile = request.user.user_profile
-        followed_location_ids = set(user_profile.followed_locations.values_list('location_id', flat=True))
-        my_location_ids = followed_location_ids | set(
-            Location.managed_by(user_profile).values_list('id', flat=True)) | set(
-            Membership.active_for(user_profile).values_list('member__location_id', flat=True))
         if my_location_ids:
             followed_future_tables = (
                 Table.objects
@@ -143,23 +140,18 @@ def homepage_view(request):
     # they manage, the ones where they are members, then the ones they follow.
     # Each comes with the user's role.
     quick_locations = []
-    if request.user.is_authenticated:
-        user_profile = request.user.user_profile
-        created = list(Location.objects.filter(creator=user_profile).order_by('name'))
-        managed = list(user_profile.managed_locations.exclude(
-            id__in=[location.id for location in created]).order_by('name'))
-        member_of = list(Location.objects.filter(
-            id__in=Membership.active_for(user_profile).values('member__location_id'),
-        ).exclude(id__in=[location.id for location in created + managed]).order_by('name'))
-        followed = Location.objects.filter(id__in=context['followed_location_ids']).exclude(
-            id__in=[location.id for location in created + managed + member_of]).order_by('name')
-        quick_locations = (
-            [(location, 'creator') for location in created]
-            + [(location, 'manager') for location in managed]
-            + [(location, 'member') for location in member_of]
-            + [(location, None) for location in followed]
-        )
-        context['manages_locations'] = bool(created or managed)
+    if my_location_ids:
+        def role(location):
+            if location.creator_id == viewer.profile.pk:
+                return 'creator'
+            if location.pk in viewer.managed_location_ids:
+                return 'manager'
+            return 'member' if location.pk in viewer.member_location_ids else None
+        roles = ['creator', 'manager', 'member', None]
+        quick_locations = sorted(  # by role, then by name (sorted() keeps the query's order)
+            ((location, role(location)) for location in Location.objects.filter(pk__in=my_location_ids).order_by('name')),
+            key=lambda item: roles.index(item[1]))
+    context['manages_locations'] = bool(viewer.managed_location_ids)
     context['quick_locations'] = quick_locations
     return render(request, "staticpages/home.html", context)
 

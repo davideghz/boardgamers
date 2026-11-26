@@ -35,6 +35,7 @@ from webapp.models import Location, Table, UserProfile, Comment, Game, LocationF
     PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
 from webapp.services.bgg import BGGCollectionError, fetch_bgg_collection, import_games_from_bgg
 from webapp.services import game_loans
+from webapp.services.viewer import get_viewer
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import reopen_location_leaderboards
 from webapp.views.table_views import remove_layout_resource, warn_station_conflict
@@ -85,7 +86,7 @@ def index_view(request, template_name="locations/location_index.html"):
     if request.user.is_authenticated:
         if not network_slug:
             user_created_locations = request.user.user_profile.locations.all()
-        followed_location_ids = set(request.user.user_profile.followed_locations.values_list('location_id', flat=True))
+        followed_location_ids = get_viewer(request).followed_location_ids
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
             if profile and profile.latitude and profile.longitude:
@@ -124,8 +125,7 @@ def index_view(request, template_name="locations/location_index.html"):
         'map_locations': _location_map_data(nearby_locations),
         'map_selected': map_selected,
         # Who already runs a location doesn't need the invitation to add one.
-        'manages_locations': (request.user.is_authenticated
-                              and Location.managed_by(request.user.user_profile).exists()),
+        'manages_locations': bool(get_viewer(request).managed_location_ids),
         'meta': Meta(
             title=(selected_network.name
                    if selected_network else _("Game Locations")),
@@ -146,12 +146,11 @@ class LocationDetailView(DetailView):
         today = timezone.localdate()
         location = self.object
 
-        # Check if user is following location
-        user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        # The viewer's ties and permissions here, from the request's cached facts
+        viewer = get_viewer(self.request)
         followers_count = location.followers.count()
-        is_following = bool(user_profile) and LocationFollower.objects.filter(
-            user_profile=user_profile, location=location).exists()
-        table_creation = location.table_creation_access(user_profile)
+        is_following = location.pk in viewer.followed_location_ids
+        table_creation = viewer.table_creation_access(location)
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -215,7 +214,7 @@ class LocationDetailView(DetailView):
         context['has_library_games'] = location.location_games.filter(is_archived=False).exists()
         context['can_view_game_library'] = context['has_library_games'] and (
             location.enable_public_games or game_loans.can_view_game_library(
-                location, is_member=game_loans.is_active_member(location, user_profile),
+                location, is_member=table_creation.is_active_member,
             )
         )
         context['player_stats'] = player_stats
@@ -225,12 +224,12 @@ class LocationDetailView(DetailView):
         context['has_pending_membership'] = table_creation.membership_pending
         context['is_active_member'] = table_creation.is_active_member
         context['table_creation'] = table_creation
-        context['table_join'] = location.table_join_access(user_profile)
+        context['table_join'] = viewer.table_join_access(location)
         context['create_table_url'] = reverse(
             'location-calendar' if location.enable_calendar else 'location-table-create', args=[location.slug])
         context['organized_events'] = location.organized_events.filter(status=Event.PUBLISHED).select_related(
             'organizer_location', 'venue_location').prefetch_related('dates').order_by('-created_at')
-        context['event_creation'] = location.event_creation_access(user_profile)
+        context['event_creation'] = viewer.event_creation_access(location)
         context['sponsored_events'] = (
             location.sponsored_events
             .filter(organizer_location__isnull=True, status=Event.PUBLISHED, dates__date__gte=today)

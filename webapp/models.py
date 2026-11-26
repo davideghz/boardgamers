@@ -383,12 +383,23 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     def _access(self, user_profile, permission):
         if user_profile and self.is_manager(user_profile):
             return LocationAccess(is_manager=True)
-        membership = self.membership_status(user_profile)
-        if permission == self.PERM_ANYONE:
-            reason = None if user_profile else LocationAccess.LOGIN
-        elif user_profile and user_profile.user.is_superuser:
+        return self.decide_access(
+            permission, signed_in=bool(user_profile), is_manager=False,
+            membership=self.membership_status(user_profile),
+            is_superuser=bool(user_profile and user_profile.user.is_superuser),
+        )
+
+    @classmethod
+    def decide_access(cls, permission, *, signed_in, is_manager, membership, is_superuser):
+        """The rule behind every *_access method, from facts the caller already has
+        (the request's Viewer reads them from its cached sets, without queries)."""
+        if is_manager:
+            return LocationAccess(is_manager=True)
+        if permission == cls.PERM_ANYONE:
+            reason = None if signed_in else LocationAccess.LOGIN
+        elif is_superuser:
             reason = None
-        elif permission == self.PERM_MEMBERS_ONLY:
+        elif permission == cls.PERM_MEMBERS_ONLY:
             reason = {
                 Membership.ACTIVE: None,
                 Membership.PENDING: LocationAccess.MEMBERSHIP_PENDING,

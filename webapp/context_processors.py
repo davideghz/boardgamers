@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.functional import SimpleLazyObject
 
 from webapp.models import Banner, Notification, Table
 
@@ -53,3 +54,9 @@ def unread_notifications_count(request):
         except Exception:
             pass
     return {'unread_notifications_count': 0}
+
+
+def viewer(request):
+    """The request's Viewer (services/viewer.py), built only if a template reads it."""
+    from webapp.services.viewer import get_viewer
+    return {'viewer': SimpleLazyObject(lambda: get_viewer(request))}

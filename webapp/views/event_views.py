@@ -358,6 +358,7 @@ def upcoming_events_queryset(limit=None, managed_event_ids=()):
             date_count=Count('dates'),
         )
         .filter(Q(next_date__isnull=False) | Q(status=Event.DRAFT, date_count=0))
+        .select_related('organizer_location', 'venue_location')  # read by every event card
         .prefetch_related('dates')
         .order_by(F('next_date').asc(nulls_last=True), 'name')
     )

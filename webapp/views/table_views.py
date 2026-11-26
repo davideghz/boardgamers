@@ -30,6 +30,7 @@ from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, LocationAccess, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.station_conflicts import station_conflict_ids
+from webapp.services.viewer import get_viewer
 from webapp.services.tables import (
     MAX_TABLE_DUPLICATES, TableActionError, add_guest, can_comment, can_duplicate_table, can_edit_leaderboard, can_manage_roster,
     comment_badges, duplicate_draft, duplicate_table, is_table_host, join_table,
@@ -319,8 +320,7 @@ class TableDetailView(BaseTableDetailView):
         context = super().get_context_data(**kwargs)
         table = self.object
 
-        profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        table_join = table.location.table_join_access(profile) if table.location else LocationAccess()
+        table_join = get_viewer(self.request).table_join_access(table.location) if table.location else LocationAccess()
 
         context.update({
             'table_join': table_join,
