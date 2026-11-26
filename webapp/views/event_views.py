@@ -365,45 +365,6 @@ def upcoming_events_queryset(limit=None, managed_event_ids=()):
     return qs[:limit] if limit else qs
 
 
-class EventListView(View):
-    """Public index of upcoming (and, optionally, past) published events, plus
-    the drafts the user manages."""
-    template_name = 'events/event_list.html'
-
-    def get(self, request, *args, **kwargs):
-        today = timezone.localdate()
-        show_past = request.GET.get('past') == '1'
-        past_events = (
-            Event.objects.filter(status=Event.PUBLISHED)
-            .exclude(dates__date__gte=today)
-            .filter(dates__isnull=False)
-            .annotate(last_date=Max('dates__date'))
-            .prefetch_related('dates')
-            .order_by('-last_date')
-            .distinct()
-        )
-        managed_event_ids = self._managed_event_ids(request)
-        context = {
-            'managed_event_ids': managed_event_ids,
-            'upcoming_events': upcoming_events_queryset(managed_event_ids=managed_event_ids),
-            'past_events': past_events if show_past else past_events[:6],
-            'has_past_events': past_events.exists(),
-            'show_past': show_past,
-            'today': today,
-            'meta': Meta(title=_('Events')),
-        }
-        return render(request, self.template_name, context)
-
-    @staticmethod
-    def _managed_event_ids(request):
-        if not request.user.is_authenticated:
-            return set()
-        user_profile = request.user.user_profile
-        return set(
-            Event.objects.managed_by(user_profile)
-            .values_list('pk', flat=True))
-
-
 def _build_program_grid(event, tables, selected_area, *, user):
     """Build a station/area × time grid. Columns adapt to the most granular
     structure available: stations, else play areas, else a single 'General'

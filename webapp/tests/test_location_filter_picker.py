@@ -21,14 +21,12 @@ class LocationFilterPickerTest(TestCase):
             date=timezone.localdate() + datetime.timedelta(days=2), time=datetime.time(21))
         Player.objects.create(table=cls.table, user_profile=cls.profile)
 
-    def test_tables_index_offers_suggestions_and_applies_on_pick(self):
+    def test_tables_index_restores_the_location_in_the_search_picker(self):
         response = self.client.get(reverse('table-index'), {'location': self.location.slug})
 
         self.assertContains(response, 'class="js-search-picker"')
-        self.assertContains(response, 'data-submit-on-select="1"')
         self.assertContains(response, 'data-value-key="slug"')
         self.assertContains(response, f'value="{self.location.slug}"')
-        self.assertContains(response, reverse('location-search') + '?suggested=1')
         self.assertNotContains(response, 'location-filter-modal')
 
     def test_my_tables_filters_the_locations_of_the_users_tables(self):

@@ -219,9 +219,9 @@
 
         {% if future_tables or past_tables %}
           <div class="mt-3">
-            <a id="see-all-tables" href="{% url 'table-index' %}?location={{ location.slug }}"
-               data-upcoming-href="{% url 'table-index' %}?location={{ location.slug }}"
-               data-past-href="{% url 'table-index' %}?tab=past&location={{ location.slug }}"
+            <a id="see-all-tables" href="{% url 'table-index' %}?at={{ location.slug|urlencode }}"
+               data-upcoming-href="{% url 'table-index' %}?at={{ location.slug|urlencode }}"
+               data-past-href="{% url 'table-index' %}?when=past&amp;at={{ location.slug|urlencode }}"
                class="text-sm text-link font-semibold hover:underline">
               {% trans "See all tables" %} →
             </a>
@@ -236,7 +236,7 @@
             <h2 class="text-lg font-bold text-content">{% trans "Organized events" %}</h2>
             {% if organized_events %}
               <a class="text-sm text-link font-semibold hover:underline"
-                 href="{% url 'appointment-search' %}?type=events&amp;organizer={{ location.slug|urlencode }}">{% trans "See all events" %} →</a>
+                 href="{% url 'event-index' %}?at={{ location.slug|urlencode }}">{% trans "See all events" %} →</a>
             {% endif %}
           </div>
           {% if event_creation.allowed %}

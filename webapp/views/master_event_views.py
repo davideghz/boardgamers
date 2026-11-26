@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -30,21 +29,6 @@ def managed_master(request, slug, *, lock=False):
 
 
 @require_safe
-def index(request):
-    masters = MasterEvent.objects.select_related('venue_location').prefetch_related('dates')
-    if not MasterEvent.can_approve(request.user):
-        visible = Q(status=Event.PUBLISHED)
-        if request.user.is_authenticated:
-            visible |= Q(managers__user=request.user)
-        masters = masters.filter(visible).distinct()
-    paginator = Paginator(masters, 24)
-    page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'masters/index.html', {
-        'page_obj': page_obj, 'paginator': paginator, 'is_paginated': page_obj.has_other_pages(),
-        'meta': Meta(title=_('Manifestations')),
-    })
-
-
 def visible_master(request, slug):
     master = get_object_or_404(MasterEvent.objects.select_related('venue_location'), slug=slug)
     can_manage = master.can_manage(request.user)

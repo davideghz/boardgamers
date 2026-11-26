@@ -2,33 +2,35 @@
 {% load i18n custom_tags %}
 
 {% comment %}
-The list pattern (plan E2), top to bottom: header with the count, the type control, the keywords
+The list pattern (plan E2), also behind /tables/, /events/ and /manifestations/ (E3), top to bottom: header with the count, the type control, the keywords
 and "Filters (n)", the active filters as removable chips, then the results. One form holds it
 all; the filters panel is a <dialog> below lg and a sidebar column from lg up (same markup).
 {% endcomment %}
 
 {% block content %}
-  {% trans "Activities" context "navigation" as page_title %}
-  {% page_header page_title count=paginator.count %}
+  {% if preset == 'events' %}
+    {% url 'event-create' as create_url %}{% trans "Create event" as create_label %}
+  {% elif preset == 'manifestations' and user.is_authenticated %}
+    {% url 'master-event-create' as create_url %}{% trans "Create manifestation" as create_label %}
+  {% endif %}
+  {% page_header page_title count=paginator.count action_label=create_label action_url=create_url %}
 
+  {# Each type has its own address: /tables/, /events/, /manifestations/ (plan E3) #}
   <nav aria-label="{% trans 'Result type' %}" class="mb-4 flex w-fit flex-wrap items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
-    {% for value, label in search_types %}
-      {% if value == 'all' %}
-        {% querystring search_params type=None page=None as url %}
-      {% else %}
-        {% querystring search_params type=value page=None as url %}
-      {% endif %}
-      <a href="{% url 'appointment-search' %}{% if url != '?' %}{{ url }}{% endif %}"
-         {% if search_type == value %}aria-current="true"{% endif %}
+    {% querystring search_params type=None page=None as query %}
+    {% for value, label, base_url in search_types %}
+      <a href="{{ base_url }}{% if query != '?' %}{{ query }}{% endif %}"
+         {% if search_type == value %}aria-current="page"{% endif %}
          class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if search_type == value %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
         {{ label }}
       </a>
     {% endfor %}
   </nav>
 
-  <form method="get" action="{% url 'appointment-search' %}" role="search"
+  <form method="get" action="{{ request.path }}" role="search"
         class="lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start lg:gap-8">
-    {% if search_type != 'all' %}<input type="hidden" name="type" value="{{ search_type }}">{% endif %}
+    {% if search_type != 'all' and not preset %}<input type="hidden" name="type" value="{{ search_type }}">{% endif %}
+    {% if selected_at %}<input type="hidden" name="at" value="{{ selected_at }}">{% endif %}
 
     {# ── Filters: a dialog below lg, a column from lg up ──────────────── #}
     <dialog id="search-filters" aria-labelledby="search-filters-title"
@@ -99,16 +101,28 @@ all; the filters panel is a <dialog> below lg and a sidebar column from lg up (s
       <div class="mt-4">
         {% if date_error or search_error %}
           <p role="alert" class="text-sm font-semibold text-content">{{ date_error|default:search_error }}</p>
-        {% elif items %}
-          <ul class="space-y-2">
-            {% for kind, item in items %}
-              <li>{% appointment_row kind item past=past %}</li>
-            {% endfor %}
-          </ul>
-          {% include "partials/_pagination.html" %}
         {% else %}
-          {% trans "No results found." as no_results %}
-          {% empty_state no_results icon="calendar" %}
+          {% if drafts %}
+            <section aria-labelledby="search-drafts-title" class="mb-6">
+              <h2 id="search-drafts-title" class="mb-2 text-sm font-bold text-content">{% trans "Your drafts" %}</h2>
+              <ul class="space-y-2">
+                {% for kind, item in drafts %}
+                  <li>{% appointment_row kind item status=item.status %}</li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endif %}
+          {% if items %}
+            <ul class="space-y-2">
+              {% for kind, item in items %}
+                <li>{% appointment_row kind item past=past %}</li>
+              {% endfor %}
+            </ul>
+            {% include "partials/_pagination.html" %}
+          {% else %}
+            {% trans "No results found." as no_results %}
+            {% empty_state no_results icon="calendar" %}
+          {% endif %}
         {% endif %}
       </div>
     </div>

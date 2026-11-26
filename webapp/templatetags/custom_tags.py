@@ -273,7 +273,7 @@ def in_list(value, names):
 
 
 @register.inclusion_tag("components/result_row.html")
-def appointment_row(kind, item, past=False):
+def appointment_row(kind, item, past=False, status=None):
     """A table, event or manifestation (kind 'table', 'event', 'manifestation') as a result_row:
     kicker "Type · date", title, where and who, and the state apart from the type."""
     from django.utils import timezone
@@ -302,7 +302,7 @@ def appointment_row(kind, item, past=False):
         else:
             meta = [item.venue_label]
             image = item.venue_location.cover_url if item.venue_location_id else None
-        status = 'past' if past else None
+        status = status or ('past' if past else None)
     title = item.title if kind == 'table' else item.name
     return result_row(item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
                       meta=meta, status=status, image_url=image)

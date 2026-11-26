@@ -10,9 +10,8 @@ from webapp.models import Event, EventDate
 
 
 class EventListManageGearTest(TestCase):
-    """On the events page, cards of events the user created or manages carry a
-    gear linking to the management page; their drafts are listed among
-    the upcoming ones, for them only."""
+    """On the events page (the search preset), the drafts of the events the user
+    created or manages are listed apart from the results, for them only."""
 
     def setUp(self):
         self.user_profile = UserProfileFactory()
@@ -29,24 +28,13 @@ class EventListManageGearTest(TestCase):
         for event in (self.owned, self.managed, self.foreign, self.pending):
             EventDate.objects.create(event=event, date=future)
 
-    def _manage_url(self, event):
-        return reverse('event-manage', kwargs={'slug': event.slug})
-
-    def test_gear_only_on_managed_events(self):
-        self.client.force_login(self.user_profile.user)
-        response = self.client.get(reverse('event-index'))
-        self.assertContains(response, self._manage_url(self.owned))
-        self.assertContains(response, self._manage_url(self.managed))
-        self.assertNotContains(response, self._manage_url(self.foreign))
-
     def test_managed_drafts_are_listed_with_their_status(self):
         undated = Event.objects.create(name="Undated con", slug="undated-con", creator=self.user_profile)
         self.client.force_login(self.user_profile.user)
         response = self.client.get(reverse('event-index'))
-        upcoming = list(response.context['upcoming_events'])
-        self.assertIn(self.pending, upcoming)
-        self.assertEqual(upcoming[-1], undated)
-        self.assertContains(response, self._manage_url(self.pending))
+        self.assertEqual({item for _, item in response.context['drafts']}, {self.pending, undated})
+        self.assertNotIn(('event', self.pending), response.context['items'])
+        self.assertContains(response, self.pending.get_absolute_url())
         self.assertContains(response, "Bozza")
 
     def test_drafts_stay_hidden_from_others(self):
@@ -65,10 +53,6 @@ class EventListManageGearTest(TestCase):
         self.client.force_login(self.user_profile.user)
         response = self.client.get(reverse('event-index'))
         self.assertNotContains(response, "Pending con")
-
-    def test_no_gear_for_anonymous(self):
-        response = self.client.get(reverse('event-index'))
-        self.assertNotContains(response, self._manage_url(self.owned))
 
 
 class AccountEventsFirstDateTest(TestCase):
@@ -95,9 +79,10 @@ class EventCardEndedBadgeTest(TestCase):
         self.assertContains(response, event.name)
         self.assertNotContains(response, "Concluso")
 
-    def test_past_event_card_says_ended(self):
+    def test_past_events_are_marked(self):
         event = Event.objects.create(name="Old con", slug="old-con", status=Event.PUBLISHED)
         EventDate.objects.create(event=event, date=timezone.localdate() - datetime.timedelta(days=3))
-        response = self.client.get(reverse('event-index'))
-        self.assertContains(response, "Concluso")
-        self.assertNotContains(response, "Vecchi")
+        self.assertNotContains(self.client.get(reverse('event-index')), event.name)
+        response = self.client.get(reverse('event-index'), {'past': '1'})  # the old parameter still works
+        self.assertContains(response, event.name)
+        self.assertContains(response, "Passato")

@@ -8,6 +8,10 @@ from webapp.factories import LocationFactory, TableFactory, UserProfileFactory
 from webapp.models import Event, LocationFollower
 
 
+def tables(response):
+    return [item for kind, item in response.context['items'] if kind == 'table']
+
+
 class TableLocationVisibilityTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -26,8 +30,8 @@ class TableLocationVisibilityTest(TestCase):
         url = reverse('table-index')
         for tab, table in [('upcoming', self.upcoming), ('past', self.past)]:
             with self.subTest(tab=tab):
-                response = self.client.get(url, {'tab': tab})
-                self.assertEqual(list(response.context['tables']), [table])
+                response = self.client.get(url, {'tab': tab})  # the old parameter still works
+                self.assertEqual(tables(response), [table])
 
         home = self.client.get(reverse('home'))
         self.assertNotIn(self.upcoming, home.context['future_tables'])
@@ -49,13 +53,18 @@ class TableLocationVisibilityTest(TestCase):
             with self.subTest(tab=tab, view='index'):
                 response = self.client.get(
                     reverse('table-index'), {'location': self.location.slug, 'tab': tab})
-                self.assertEqual(list(response.context['tables']), expected)
+                self.assertEqual(tables(response), expected)
 
-    def test_event_tables_stay_outside_the_index(self):
-        event = Event.objects.create(name='Event', creator=self.profile, status=Event.DRAFT)
-        TableFactory(author=self.profile, location=None, event=event, date=self.upcoming.date)
+    def test_tables_of_published_events_are_in_the_index(self):
+        draft = Event.objects.create(name='Draft', creator=self.profile, status=Event.DRAFT)
+        TableFactory(author=self.profile, location=None, event=draft, date=self.upcoming.date)
         response = self.client.get(reverse('table-index'))
-        self.assertEqual(list(response.context['tables']), [self.upcoming])
+        self.assertEqual(tables(response), [self.upcoming])
+
+        draft.status = Event.PUBLISHED
+        draft.save()
+        response = self.client.get(reverse('table-index'))
+        self.assertEqual(len(tables(response)), 2)
 
     def test_location_search_includes_locations_outside_feed_and_without_tables(self):
         response = self.client.get(reverse('location-search'), {'q': 'Club', 'tables': '1'})
@@ -75,15 +84,13 @@ class TableLocationVisibilityTest(TestCase):
             {self.location.slug, self.empty_location.slug, followed.slug},
         )
 
-    def test_selecting_an_empty_location_names_it_in_the_message(self):
-        for tab, message in [
-            ('upcoming', 'Nessun tavolo in programma per Club senza tavoli.'),
-            ('past', 'Nessun tavolo passato per Club senza tavoli.'),
-        ]:
+    def test_selecting_an_empty_location_names_it_among_the_filters(self):
+        for tab in ('upcoming', 'past'):
             with self.subTest(tab=tab), translation.override('it'):
                 response = self.client.get(
                     reverse('table-index'), {'location': self.empty_location.slug, 'tab': tab},
                     headers={'Accept-Language': 'it'},
                 )
-                self.assertContains(response, message)
-                self.assertEqual(list(response.context['tables']), [])
+                self.assertContains(response, 'Luogo: Club senza tavoli')
+                self.assertContains(response, 'Nessun risultato.')
+                self.assertEqual(tables(response), [])

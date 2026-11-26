@@ -4,11 +4,7 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
-from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
-from django.contrib.gis.db.models.functions import Distance as DbDistance
-from geoip2.errors import AddressNotFoundError
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
@@ -24,10 +20,9 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm, \
-    location_filter_picker
+from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, LocationAccess, \
+from webapp.models import Table, TableLink, Comment, Player, UserProfile, Location, CommentType, GuestProfile, LocationAccess, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.viewer import get_viewer
@@ -70,70 +65,6 @@ class IsNotClosedMixin(UserPassesTestMixin):
         if obj and obj.status == self.closed_status:
             raise PermissionDenied("Non è possibile eliminare un tavolo chiuso.")
         return super().handle_no_permission()
-
-
-class TableIndexView(generic.ListView):
-    template_name = "tables/table_index.html"
-    context_object_name = "tables"
-    paginate_by = 15
-
-    def get_queryset(self):
-        g = GeoIP2()
-        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            user_ip = x_forwarded_for.split(',')[0]
-        else:
-            user_ip = self.request.META.get('REMOTE_ADDR')
-        if user_ip == '127.0.0.1':
-            user_ip = '93.66.88.167'
-        try:
-            user_point = g.geos(user_ip)
-        except (AddressNotFoundError, GeoIP2Exception, ValueError):
-            # IP not in the GeoIP database (e.g. datacenter/bot) or malformed:
-            # fall back to a default point so table ordering by distance still works.
-            user_point = Point(9.19, 45.46, srid=4326)
-
-        today = timezone.localdate()
-        comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
-        players_prefetch = Prefetch('player_set', queryset=Player.objects.select_related('user_profile__user', 'guest_profile'))
-        games_prefetch = Prefetch('game', queryset=Game.objects.all())
-
-        qs = (Table.objects
-              .filter(event__isnull=True)
-              .select_related('author', 'author__user', 'location')
-              .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-              .annotate(distance=DbDistance('location__point', user_point)))
-
-        self.tab = 'past' if self.request.GET.get('tab') == 'past' else 'upcoming'
-        self.location_slug = self.request.GET.get('location', '').replace('\x00', '').strip()
-        self.q = self.request.GET.get('q', '').replace('\x00', '').strip()
-
-        if self.location_slug:
-            qs = qs.filter(location__slug=self.location_slug)
-        if self.q:
-            qs = qs.filter(Q(title__icontains=self.q) | Q(description__icontains=self.q))
-
-        if self.tab == 'past':
-            secondary_order = '-time' if self.location_slug else 'distance'
-            return qs.filter(date__lt=today).order_by('-date', secondary_order)
-        secondary_order = 'time' if self.location_slug else 'distance'
-        return qs.filter(date__gte=today).order_by('date', secondary_order)
-
-    def get_context_data(self, **kwargs):
-        context = super(TableIndexView, self).get_context_data(**kwargs)
-        context['tab'] = self.tab
-        context['q'] = self.q
-        context['selected_location'] = self.location_slug
-        context['selected_location_obj'] = (
-            Location.objects.filter(slug=self.location_slug).first() if self.location_slug else None)
-        context['location_picker'] = location_filter_picker(self.location_slug, suggested=True)
-        context['has_filters'] = bool(self.q or self.location_slug)
-        context['login_form'] = CustomLoginForm()
-        context['meta'] = Meta(
-            title=_("Game Tables"),
-            description=_("Discover all available game tables and join the game!"),
-        )
-        return context
 
 
 def _leaderboard_context(table, players, profile, can_edit):

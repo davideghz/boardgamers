@@ -3,6 +3,7 @@ from datetime import timedelta
 from django import forms
 from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import View
@@ -34,6 +35,7 @@ class AppointmentSearchForm(forms.Form):
             button_label=_('Find an organizing location'), value_key='slug', scope='organizer',
         ),
     )
+    at = forms.SlugField(max_length=144, required=False)  # venue or organizer: the location page's links
     when = forms.ChoiceField(
         choices=[(key, key) for key in ('upcoming', 'today', 'weekend', 'past', 'range')], required=False,
     )
@@ -69,7 +71,7 @@ def _date_filters(when, today, start, end):
     return {'date__gte': today}
 
 
-def _search_tables(query, venue, organizer, date_filters):
+def _search_tables(query, venue, organizer, at, date_filters):
     tables = Table.objects.public().filter(**date_filters)
     if query:
         tables = tables.filter(
@@ -81,12 +83,15 @@ def _search_tables(query, venue, organizer, date_filters):
         tables = tables.filter(Q(event__isnull=True, location__slug=venue) | Q(event__venue_location__slug=venue))
     if organizer:
         tables = tables.filter(event__organizer_location__slug=organizer)
+    if at:
+        tables = tables.filter(Q(event__isnull=True, location__slug=at) | Q(event__venue_location__slug=at)
+                               | Q(event__organizer_location__slug=at))
     return tables.select_related(
         'location', 'game', 'event__venue_location', 'event__organizer_location', 'event__master_event',
     )
 
 
-def _search_events(query, venue, organizer, date_filters, newest_first):
+def _search_events(query, venue, organizer, at, date_filters, newest_first):
     events = Event.objects.filter(status=Event.PUBLISHED)
     if query:
         events = events.filter(
@@ -99,6 +104,8 @@ def _search_events(query, venue, organizer, date_filters, newest_first):
         events = events.filter(venue_location__slug=venue)
     if organizer:
         events = events.filter(organizer_location__slug=organizer)
+    if at:
+        events = events.filter(Q(venue_location__slug=at) | Q(organizer_location__slug=at))
     return with_matching_day(
         events.select_related('organizer_location', 'venue_location', 'master_event'),
         EventDate.objects.filter(event_id=OuterRef('pk'), **date_filters),
@@ -106,7 +113,15 @@ def _search_events(query, venue, organizer, date_filters, newest_first):
     )
 
 
-def _search_manifestations(query, venue, organizer, date_filters, newest_first):
+def _organized_that_day(organizer):
+    """A manifestation day on which a published event of `organizer` takes place."""
+    return Exists(EventDate.objects.filter(
+        event__master_event_id=OuterRef('master_event_id'), date=OuterRef('date'),
+        event__status=Event.PUBLISHED, event__organizer_location__slug=organizer,
+    ))
+
+
+def _search_manifestations(query, venue, organizer, at, date_filters, newest_first):
     masters = MasterEvent.objects.filter(status=Event.PUBLISHED)
     if query:
         masters = masters.filter(
@@ -117,10 +132,9 @@ def _search_manifestations(query, venue, organizer, date_filters, newest_first):
         masters = masters.filter(venue_location__slug=venue)
     days = MasterEventDate.objects.filter(master_event_id=OuterRef('pk'), **date_filters)
     if organizer:
-        days = days.filter(Exists(EventDate.objects.filter(
-            event__master_event_id=OuterRef('master_event_id'), date=OuterRef('date'),
-            event__status=Event.PUBLISHED, event__organizer_location__slug=organizer,
-        )))
+        days = days.filter(_organized_that_day(organizer))
+    if at:
+        days = days.filter(Q(master_event__venue_location__slug=at) | _organized_that_day(at))
     return with_matching_day(masters.select_related('venue_location'), days, newest_first=newest_first)
 
 
@@ -132,70 +146,108 @@ def _without(params, *keys):
     return f'?{remaining.urlencode()}' if remaining else '?'
 
 
-def _active_filters(params, query, venue, organizer, when, period_labels):
+def _active_filters(params, query, places, when, period_labels):
     """The chips of the active filters, (label, remove URL), and how many of them sit in the
-    filters panel (the keywords have their own field)."""
-    names = dict(Location.objects.filter(slug__in=[slug for slug in (venue, organizer) if slug])
+    filters panel (the keywords have their own field; "at" comes only from links)."""
+    names = dict(Location.objects.filter(slug__in=[slug for slug in places.values() if slug])
                  .values_list('slug', 'name'))
+    labels = {'location': _('Venue: %(name)s'), 'organizer': _('Organizer: %(name)s'), 'at': _('At: %(name)s')}
     chips = []
     if query:
         chips.append((f'«{query}»', _without(params, 'q')))
-    if venue:
-        chips.append((_('Venue: %(name)s') % {'name': names.get(venue, venue)}, _without(params, 'location')))
-    if organizer:
-        chips.append((_('Organizer: %(name)s') % {'name': names.get(organizer, organizer)},
-                      _without(params, 'organizer')))
+    for key, slug in places.items():
+        if slug:
+            chips.append((labels[key] % {'name': names.get(slug, slug)}, _without(params, key)))
     if when != 'upcoming':
         label = period_labels.get(when, when)
         if when == 'range' and params.get('date_from') and params.get('date_to'):
             label = f"{params['date_from']} – {params['date_to']}"
         chips.append((label, _without(params, 'when', 'date_from', 'date_to')))
-    return chips, len(chips) - bool(query)
+    return chips, len(chips) - bool(query) - bool(places['at'])
+
+
+def _legacy_params(params):
+    """The filters of the old /tables/ and /events/ lists, in the search's terms."""
+    tab, past = params.pop('tab', [''])[-1], params.pop('past', [''])[-1]
+    if tab == 'past' or past == '1':
+        params.setdefault('when', 'past')
+    return params
+
+
+def _drafts(user, search_type):
+    """Events or manifestations not yet published that `user` may see: the old lists showed
+    them to their managers, the search keeps them apart from the results."""
+    if not user.is_authenticated:
+        return []
+    if search_type == 'events':
+        drafts = Event.objects.managed_by(user.user_profile).filter(status=Event.DRAFT)
+        return [('event', event) for event in drafts.select_related('organizer_location', 'venue_location')]
+    if search_type == 'manifestations':
+        drafts = MasterEvent.objects.exclude(status=Event.PUBLISHED).select_related('venue_location')
+        if not MasterEvent.can_approve(user):
+            drafts = drafts.filter(managers__user=user).distinct()
+        return [('manifestation', master) for master in drafts]
+    return []
+
+
+#: The old lists, now the search with the type preset: (URL name, title, description).
+PRESETS = {
+    'tables': ('table-index', _('Game Tables'), _('Discover all available game tables and join the game!')),
+    'events': ('event-index', _('Events'), _('Conventions, tournaments and game days near you.')),
+    'manifestations': ('master-event-list', _('Manifestations'), _('Fairs and festivals that gather several events.')),
+}
 
 
 class AppointmentSearchView(View):
     template_name = 'search/appointments.html'
+    #: 'tables', 'events' or 'manifestations' for /tables/, /events/ and /manifestations/
+    preset = None
 
     def get(self, request):
         params = request.GET.copy()
+        if self.preset:
+            params = _legacy_params(params)
+            params.pop('type', None)
         if params.get('when') != 'range':
             params.pop('date_from', None)
             params.pop('date_to', None)
         form = AppointmentSearchForm(params)
         valid = form.is_valid()
-        search_type = form.cleaned_data.get('type') or 'all'
+        search_type = self.preset or form.cleaned_data.get('type') or 'all'
         when = form.cleaned_data.get('when') or 'upcoming'
         query = form.cleaned_data.get('q', '')
-        location_slug = form.cleaned_data.get('location', '')
-        organizer_slug = form.cleaned_data.get('organizer', '')
+        places = {key: form.cleaned_data.get(key, '') for key in ('location', 'organizer', 'at')}
         date_errors = form.errors.get('date_from') or form.errors.get('date_to')
 
         periods = [('upcoming', _('Upcoming')), ('today', _('Today')), ('weekend', _('This weekend')),
                    ('past', _('Past')), ('range', _('Custom date range'))]
-        chips, filter_count = _active_filters(params, request.GET.get('q', '').strip(), location_slug,
-                                              organizer_slug, when, dict(periods))
+        chips, filter_count = _active_filters(params, request.GET.get('q', '').strip(), places, when, dict(periods))
+        if self.preset:
+            title, description = PRESETS[self.preset][1:]
+        else:
+            title = pgettext_lazy('navigation', 'Activities')
+            description = _('Find events, game tables and manifestations on Board Gamers.')
         context = {
             'search_form': form,
             'active_filters': chips,
             'filter_count': filter_count,
-            'reset_url': f"?type={search_type}" if search_type != 'all' else '?',
+            'reset_url': f"?type={search_type}" if search_type != 'all' and not self.preset else '?',
             'search_type': search_type,
-            'search_types': SEARCH_TYPES,
+            'search_types': [(value, label, reverse(PRESETS[value][0]) if value in PRESETS
+                              else reverse('appointment-search')) for value, label in SEARCH_TYPES],
             'search_params': params,
+            'preset': self.preset,
+            'page_title': dict(SEARCH_TYPES)[self.preset] if self.preset else title,  # as the type control
             'when': when,
             'q': request.GET.get('q', '').strip(),
-            'selected_location': location_slug,
-            'selected_organizer': organizer_slug,
+            'selected_at': places['at'],
             'periods': periods,
             'past': when == 'past',
             'date_from': request.GET.get('date_from', ''),
             'date_to': request.GET.get('date_to', ''),
             'date_error': date_errors[0] if date_errors else '',
             'search_error': _("Check the search filters and try again.") if not valid and not date_errors else '',
-            'meta': Meta(
-                title=pgettext_lazy('navigation', 'Activities'),
-                description=_('Find events, game tables and manifestations on Board Gamers.'),
-            ),
+            'meta': Meta(title=title, description=description),
         }
         if valid:
             date_filters = _date_filters(
@@ -204,13 +256,13 @@ class AppointmentSearchView(View):
             newest_first = when == 'past'
             sources = {}
             if search_type in ('all', 'tables'):
-                sources['table'] = _search_tables(query, location_slug, organizer_slug, date_filters)
+                sources['table'] = _search_tables(query, *places.values(), date_filters)
             if search_type in ('all', 'events'):
-                sources['event'] = _search_events(query, location_slug, organizer_slug, date_filters, newest_first)
+                sources['event'] = _search_events(query, *places.values(), date_filters, newest_first)
             if search_type in ('all', 'manifestations'):
-                sources['manifestation'] = _search_manifestations(
-                    query, location_slug, organizer_slug, date_filters, newest_first,
-                )
+                sources['manifestation'] = _search_manifestations(query, *places.values(), date_filters, newest_first)
             page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=newest_first)
             context.update(items=items, page_obj=page, paginator=page.paginator, is_paginated=page.has_other_pages())
+            if page.number == 1:
+                context['drafts'] = _drafts(request.user, search_type)
         return render(request, self.template_name, context)

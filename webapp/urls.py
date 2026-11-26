@@ -28,7 +28,7 @@ urlpatterns = [
     path("select-language", static_page_views.select_language, name="select-language"),
 
     # TABLE
-    path("tables/", table_views.TableIndexView.as_view(), name="table-index"),
+    path("tables/", appointment_search.AppointmentSearchView.as_view(preset="tables"), name="table-index"),
     path("tables/<slug:slug>/", table_views.TableDetailView.as_view(), name="table-detail"),
     path("tables/<slug:slug>/delete/", table_views.TableDeleteView.as_view(), name="table-delete"),
     path("tables/<slug:slug>/duplicate/", table_views.table_duplicate_view, name="table-duplicate"),
@@ -186,8 +186,9 @@ urlpatterns = [
 
     # EVENTS
     path("search/", appointment_search.AppointmentSearchView.as_view(), name="appointment-search"),
-    path("events/", event_views.EventListView.as_view(), name="event-index"),
-    path("manifestations/", master_event_views.index, name="master-event-list"),
+    path("events/", appointment_search.AppointmentSearchView.as_view(preset="events"), name="event-index"),
+    path("manifestations/", appointment_search.AppointmentSearchView.as_view(preset="manifestations"),
+         name="master-event-list"),
     path("manifestations/new/", master_event_views.edit, name="master-event-create"),
     path("manifestations/<slug:slug>/", master_event_views.detail, name="master-event-detail"),
     path("manifestations/<slug:slug>/manage/", master_event_views.edit, name="master-event-manage"),

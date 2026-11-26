@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import override
 
-from webapp.factories import GameFactory, LocationFactory
+from webapp.factories import GameFactory, LocationFactory, UserProfileFactory
 from webapp.models import Event, EventDate, MasterEvent, MasterEventDate, Table
 from webapp.tests.test_location_table_access import italian
 
@@ -109,7 +109,7 @@ class AppointmentSearchTest(TestCase):
     def test_tabs_reset_page_and_keep_filters(self):
         response = self.client.get(self.url, {'type': 'events', 'q': 'Ludoteca', 'page': 2})
         self.assertContains(response, f'href="{self.url}?q=Ludoteca"')
-        self.assertContains(response, f'href="{self.url}?type=tables&amp;q=Ludoteca"')
+        self.assertContains(response, f'href="{reverse("table-index")}?q=Ludoteca"')
         response = self.client.get(self.url, {'type': 'events'})
         self.assertContains(response, f'href="{self.url}"')
 
@@ -124,7 +124,7 @@ class AppointmentSearchTest(TestCase):
         self.assertNotContains(response, '<select name="location"')
         self.assertNotContains(response, '<select name="organizer"')
         query = f'location={self.venue.slug}&amp;organizer={self.club.slug}'
-        self.assertContains(response, f'href="{self.url}?{query}&amp;type=events"')
+        self.assertContains(response, f'href="{reverse("event-index")}?{query}"')
         self.assertContains(response, f'href="?{query}&amp;page=2"')
 
     def test_location_picker_search_limits_suggestions_to_each_public_role(self):
@@ -178,17 +178,17 @@ class AppointmentSearchTest(TestCase):
 
         response = self.client.get(reverse('home'))
         self.assertContains(response, f'href="{self.url}"', count=2)
-        for kind in ('tables', 'events', 'manifestations'):
-            self.assertContains(response, f'href="{self.url}?type={kind}"')
+        for name in ('table-index', 'event-index', 'master-event-list'):
+            self.assertContains(response, f'href="{reverse(name)}"')
         self.assertContains(response, self.master.get_absolute_url())
         self.assertNotContains(response, draft.name)
         self.assertNotContains(response, past.name)
 
-    def test_location_organized_events_link_uses_organizer_instead_of_venue(self):
-        response = self.client.get(reverse('location-detail', args=[self.club.slug]))
-        self.assertContains(response, f'href="{self.url}?type=events&amp;organizer={self.club.slug}"')
+    def test_location_organized_events_link_to_the_events_at_the_location(self):
+        events = f'href="{reverse("event-index")}?at={self.club.slug}"'
+        self.assertContains(self.client.get(reverse('location-detail', args=[self.club.slug])), events)
         response = self.client.get(reverse('location-detail', args=[self.venue.slug]))
-        self.assertNotContains(response, f'href="{self.url}?type=events&amp;organizer={self.venue.slug}"')
+        self.assertNotContains(response, f'href="{reverse("event-index")}?at={self.venue.slug}"')
 
     def test_one_list_pattern(self):
         """E2: header with the count, filters in one dialog/column, removable chips, result rows."""
@@ -218,3 +218,71 @@ class AppointmentSearchTest(TestCase):
         self.assertTrue(response.context['past'])
         self.assertEqual(response.context['items'], [('event', evening)])
         self.assertContains(response, evening.get_absolute_url())
+
+
+class PresetListsTest(TestCase):
+    """E3: /tables/, /events/ and /manifestations/ are the search with the type preset."""
+
+    setUp = AppointmentSearchTest.setUp
+
+    def get(self, name, params=None):
+        response = self.client.get(reverse(name), params)
+        self.assertEqual(response.status_code, 200)  # no redirect: links and SEO stay
+        return response
+
+    def test_the_three_old_urls_render_the_search(self):
+        for name, search_type, kind, item in (
+            ('table-index', 'tables', 'table', self.table),
+            ('event-index', 'events', 'event', self.event),
+            ('master-event-list', 'manifestations', 'manifestation', self.master),
+        ):
+            with self.subTest(name):
+                response = self.get(name, {'type': 'all'})  # the preset wins
+                self.assertEqual(response.context['search_type'], search_type)
+                self.assertEqual(response.context['items'], [(kind, item)])
+                self.assertContains(response, f'action="{reverse(name)}"')
+                self.assertNotContains(response, 'name="type"')
+                self.assertRegex(response.content.decode(), rf'href="{reverse(name)}"\s+aria-current="page"')
+
+    def test_old_parameters_are_translated(self):
+        past = Table.objects.create(title='Vecchio', location=self.club, date=timezone.localdate() - timedelta(days=4))
+        for params in ({'tab': 'past'}, {'past': '1'}):
+            with self.subTest(params):
+                response = self.get('table-index', {**params, 'location': self.club.slug})
+                self.assertEqual(response.context['when'], 'past')
+                self.assertEqual(response.context['items'], [('table', past)])
+
+    def test_at_matches_venue_or_organizer(self):
+        other = LocationFactory(name='Altro club')
+        elsewhere = Event.objects.create(name='Trasferta', organizer_location=other, venue_location=self.club,
+                                         status=Event.PUBLISHED)
+        EventDate.objects.create(event=elsewhere, date=self.first)
+        standalone = Table.objects.create(title='Serata', location=self.club, date=self.first, time=time(21))
+
+        response = self.get('event-index', {'at': self.club.slug})
+        self.assertEqual({item for _, item in response.context['items']}, {self.event, elsewhere})
+        self.assertContains(response, f'<input type="hidden" name="at" value="{self.club.slug}">')
+        self.assertEqual(response.context['filter_count'], 0)
+        self.assertIn(italian('At: %(name)s') % {'name': self.club.name},
+                      [str(label) for label, _ in response.context['active_filters']])
+
+        tables = {item for _, item in self.get('table-index', {'at': self.club.slug}).context['items']}
+        self.assertEqual(tables, {self.table, standalone})  # the event's table: organized here
+        masters = self.get('master-event-list', {'at': self.club.slug}).context['items']
+        self.assertEqual(masters, [('manifestation', self.master)])  # the event is part of it
+        self.assertEqual(self.get('master-event-list', {'at': other.slug}).context['items'], [])
+
+    def test_manifestation_drafts_for_their_managers_and_the_approvers(self):
+        draft = MasterEvent.objects.create(name='Bozza di fiera')
+        manager = UserProfileFactory()
+        draft.managers.add(manager)
+        self.assertNotContains(self.get('master-event-list'), draft.name)
+
+        self.client.force_login(UserProfileFactory().user)
+        self.assertEqual(self.get('master-event-list').context['drafts'], [])
+
+        self.client.force_login(manager.user)
+        response = self.get('master-event-list')
+        self.assertEqual(response.context['drafts'], [('manifestation', draft)])
+        self.assertContains(response, draft.get_absolute_url())
+        self.assertContains(response, reverse('master-event-create'))
