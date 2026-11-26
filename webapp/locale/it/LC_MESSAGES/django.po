@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:52+0100\n"
+"POT-Creation-Date: 2026-11-26 21:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3041,20 +3041,33 @@ msgstr[1] "%(n)s tavoli sono in programma."
 msgid "Unpublish"
 msgstr "Ritira la pubblicazione"
 
+msgid "Details and publication"
+msgstr "Dati e pubblicazione"
+
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
 
-#, python-format
-msgid "%(n)s person registered"
-msgid_plural "%(n)s people registered"
-msgstr[0] "%(n)s persona iscritta"
-msgstr[1] "%(n)s persone iscritte"
+msgid "Dates and program"
+msgstr "Date e programma"
 
 #, python-format
 msgid "%(n)s date configured"
 msgid_plural "%(n)s dates configured"
 msgstr[0] "%(n)s data gestita"
 msgstr[1] "%(n)s date gestite"
+
+msgid "Program"
+msgstr "Programma"
+
+msgid "The tables by day, area and time"
+msgstr "I tavoli per giorno, area e orario"
+
+msgid "Spaces"
+msgstr "Spazi"
+
+#, python-format
+msgid "Managed by %(name)s"
+msgstr "Gestito da %(name)s"
 
 msgid "Venue play areas"
 msgstr "Aree di gioco della sede"
@@ -3065,18 +3078,6 @@ msgid_plural "%(n)s areas configured"
 msgstr[0] "%(n)s area gestita"
 msgstr[1] "%(n)s aree gestite"
 
-#, python-format
-msgid "%(n)s category configured"
-msgid_plural "%(n)s categories configured"
-msgstr[0] "%(n)s categoria configurata"
-msgstr[1] "%(n)s categorie configurate"
-
-#, python-format
-msgid "%(n)s game in the library"
-msgid_plural "%(n)s games in the library"
-msgstr[0] "%(n)s gioco in ludoteca"
-msgstr[1] "%(n)s giochi in ludoteca"
-
 msgid "Venue stations"
 msgstr "Postazioni della sede"
 
@@ -3085,6 +3086,21 @@ msgid "%(n)s station configured"
 msgid_plural "%(n)s stations configured"
 msgstr[0] "%(n)s postazione configurata"
 msgstr[1] "%(n)s postazioni configurate"
+
+#, python-format
+msgid "%(n)s category configured"
+msgid_plural "%(n)s categories configured"
+msgstr[0] "%(n)s categoria configurata"
+msgstr[1] "%(n)s categorie configurate"
+
+msgid "Participants and staff"
+msgstr "Partecipanti e staff"
+
+#, python-format
+msgid "%(n)s person registered"
+msgid_plural "%(n)s people registered"
+msgstr[0] "%(n)s persona iscritta"
+msgstr[1] "%(n)s persone iscritte"
 
 #, python-format
 msgid "%(n)s manager"
@@ -3106,6 +3122,12 @@ msgid "%(n)s location"
 msgid_plural "%(n)s locations"
 msgstr[0] "%(n)s sede"
 msgstr[1] "%(n)s sedi"
+
+#, python-format
+msgid "%(n)s game in the library"
+msgid_plural "%(n)s games in the library"
+msgstr[0] "%(n)s gioco in ludoteca"
+msgstr[1] "%(n)s giochi in ludoteca"
 
 msgid "Locations"
 msgstr "Sedi"
@@ -4142,9 +4164,6 @@ msgstr "Riepilogo tavoli"
 msgid "Generate a message with table status to share on chat"
 msgstr "Genera un messaggio con lo stato dei tavoli da condividere in chat"
 
-msgid "Spaces"
-msgstr "Spazi"
-
 msgid "Assign stations"
 msgstr "Assegna postazioni"
 
@@ -4702,9 +4721,6 @@ msgstr "Manifestazioni"
 
 msgid "No published events yet."
 msgstr "Non ci sono ancora eventi pubblicati."
-
-msgid "Program"
-msgstr "Programma"
 
 msgid "No public sessions yet."
 msgstr "Non ci sono ancora tavoli pubblici."

@@ -42,3 +42,37 @@ class LocationManagePanelTest(TestCase):
         # The member's pending renewal of the seed is waiting here
         self.assertEqual([item.key for item in self.response.context['todo']], ['membership_requests'])
         self.assertContains(self.response, italian('Waiting for you'))
+
+
+class EventManagePanelTest(TestCase):
+    """G2: the event's panel with the same groups, the program within reach, and the hosting
+    location's spaces marked as such."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def panel(self):
+        self.client.force_login(self.data.manager.user)
+        return self.client.get(reverse('event-manage', args=[self.data.event.slug]))
+
+    def test_every_management_page_is_reachable(self):
+        response, slug = self.panel(), self.data.event.slug
+        posted = {'event-manage', 'event-manage-publish', 'event-manage-unpublish', 'event-manage-areas-reorder',
+                  'event-manage-categories-reorder', 'event-manage-games-toggle', 'event-manage-game-add',
+                  'event-manage-game-tag-add', 'event-manage-game-tags-reorder', 'event-manage-stations-reorder'}
+        # Staff and sponsors belong to the organizing location when there is one
+        by_location = {'event-manage-managers', 'event-manage-table-creators', 'event-manage-locations'}
+        for name in sorted(set(page_names('event-manage')) - posted - by_location) + ['event-program']:
+            with self.subTest(name):
+                self.assertContains(response, f'href="{reverse(name, args=[slug])}"')
+        for group in ('Details and publication', 'Dates and program', 'Spaces', 'Participants and staff'):
+            self.assertContains(response, italian(group))
+
+    def test_the_hosting_locations_spaces_say_whose_they_are(self):
+        event = self.data.event
+        type(event).objects.filter(pk=event.pk).update(layout_mode='venue')
+        response = self.panel()
+        managed_by = italian('Managed by %(name)s') % {'name': event.venue_location.name}
+        self.assertContains(response, managed_by, count=2)
+        self.assertContains(response, f'href="{reverse("location-manage-areas", args=[event.venue_location.slug])}"')
