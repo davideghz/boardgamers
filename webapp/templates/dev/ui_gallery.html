@@ -1,0 +1,18 @@
+{% extends "base_webapp.html" %}
+{% comment %}Developer page (DEBUG only): its texts are not translated on purpose.{% endcomment %}
+
+{% block content %}
+  <h1 class="text-2xl font-extrabold text-content">UI components</h1>
+  <p class="mt-1 mb-6 text-sm text-content-muted">
+    Partials in <code>templates/components/</code>, tags in <code>custom_tags.py</code>.
+    Buttons are <code>rounded-full</code>; cards and fields <code>rounded-xl</code>. Left: light theme. Right: dark theme.
+  </p>
+  <div class="grid gap-6 xl:grid-cols-2">
+    <section class="min-w-0 rounded-2xl border border-divider bg-background p-4 sm:p-6" style="color-scheme: light">
+      {% include "dev/_ui_gallery_items.html" with theme="light" %}
+    </section>
+    <section class="dark min-w-0 rounded-2xl border border-divider bg-background p-4 text-content sm:p-6" style="color-scheme: dark">
+      {% include "dev/_ui_gallery_items.html" with theme="dark" %}
+    </section>
+  </div>
+{% endblock content %}

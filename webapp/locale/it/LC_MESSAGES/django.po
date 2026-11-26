@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 11:24+0100\n"
+"POT-Creation-Date: 2026-11-26 12:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2315,6 +2315,27 @@ msgstr "Contatti"
 msgid "Press"
 msgstr "Press"
 
+msgid "Your membership request is pending."
+msgstr "La tua richiesta di adesione è in attesa."
+
+msgid "Become a member"
+msgstr "Diventa socio"
+
+msgid "Only owners and managers can create tables here."
+msgstr "Solo i gestori possono creare tavoli qui."
+
+msgid "You're attending"
+msgstr "Stai partecipando"
+
+msgid "You're in"
+msgstr "Sei iscritto"
+
+msgid "Leave the event"
+msgstr "Non partecipare più"
+
+msgid "Leave the table"
+msgstr "Lascia il tavolo"
+
 msgid "You can manage your email notification preferences in your profile"
 msgstr "Puoi gestire le tue preferenze di notifica email nel tuo profilo"
 
@@ -2578,12 +2599,6 @@ msgstr "Non ci sono sedi in cui puoi creare un evento."
 #, python-format
 msgid "Reserved for members of %(name)s"
 msgstr "Riservato ai soci di %(name)s"
-
-msgid "You're attending"
-msgstr "Stai partecipando"
-
-msgid "Leave the event"
-msgstr "Non partecipare più"
 
 msgid "Log in to attend"
 msgstr "Accedi per partecipare"
@@ -3512,12 +3527,6 @@ msgstr "Vedi tutti gli eventi"
 msgid "Only members can propose events here."
 msgstr "Qui solo i soci possono proporre eventi."
 
-msgid "Your membership request is pending."
-msgstr "La tua richiesta di adesione è in attesa."
-
-msgid "Become a member"
-msgstr "Diventa socio"
-
 msgid "Events we take part in"
 msgstr "Eventi a cui partecipiamo"
 
@@ -3559,9 +3568,6 @@ msgstr "Non seguire più"
 
 msgid "Create table here"
 msgstr "Crea un tavolo qui"
-
-msgid "Only owners and managers can create tables here."
-msgstr "Solo i gestori possono creare tavoli qui."
 
 msgid "Opening hours"
 msgstr "Orari apertura"
@@ -5268,14 +5274,8 @@ msgstr "%(min)s–%(max)s giocatori"
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
 
-msgid "You're in"
-msgstr "Sei iscritto"
-
 msgid "Leave"
 msgstr "Esci"
-
-msgid "Leave the table"
-msgstr "Lascia il tavolo"
 
 msgid "Login to join table"
 msgstr "Accedi per unirti al tavolo"
@@ -5646,6 +5646,74 @@ msgstr "Tavolo"
 
 msgid "Created by you"
 msgstr "Creati da te"
+
+msgctxt "status"
+msgid "Draft"
+msgstr "Bozza"
+
+msgctxt "status"
+msgid "Published"
+msgstr "Pubblicato"
+
+msgctxt "status"
+msgid "Upcoming"
+msgstr "In programma"
+
+msgctxt "status"
+msgid "Open"
+msgstr "Aperto"
+
+msgctxt "status"
+msgid "Ongoing"
+msgstr "In corso"
+
+msgctxt "status"
+msgid "Full"
+msgstr "Completo"
+
+msgctxt "status"
+msgid "Closed"
+msgstr "Chiuso"
+
+msgctxt "status"
+msgid "Past"
+msgstr "Passato"
+
+msgctxt "status"
+msgid "Pending"
+msgstr "In attesa"
+
+msgctxt "status"
+msgid "Active"
+msgstr "Attiva"
+
+msgctxt "status"
+msgid "Rejected"
+msgstr "Rifiutata"
+
+msgctxt "appointment type"
+msgid "Table"
+msgstr "Tavolo"
+
+msgctxt "appointment type"
+msgid "Event"
+msgstr "Evento"
+
+msgctxt "appointment type"
+msgid "Manifestation"
+msgstr "Manifestazione"
+
+msgctxt "location role"
+msgid "Owner"
+msgstr "Titolare"
+
+msgctxt "location role"
+msgid "Manager"
+msgstr "Gestore"
+
+msgctxt "location role"
+msgid "Organizer"
+msgstr "Organizzatore"
 
 msgid "My Account"
 msgstr "Il mio account"

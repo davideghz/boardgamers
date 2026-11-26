@@ -1,0 +1,19 @@
+{% load i18n %}
+{% comment %}
+Top of a page: optional back link, title with an optional count, subtitle and one main action.
+{% endcomment %}
+<div class="mb-6">
+  {% if back_url %}{% include "partials/_back_link.html" with url=back_url label=back_label only %}{% endif %}
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h1 class="flex flex-wrap items-center gap-2 text-2xl font-extrabold text-content break-words">
+        {{ title }}
+        {% if count is not None %}<span class="rounded-full bg-surface-input px-2.5 py-0.5 text-sm font-bold text-content-soft">{{ count }}</span>{% endif %}
+      </h1>
+      {% if subtitle %}<p class="mt-1 text-sm text-content-muted">{{ subtitle }}</p>{% endif %}
+    </div>
+    {% if action_url %}
+      {% include "components/button.html" with label=action_label url=action_url icon=action_icon size="md" only %}
+    {% endif %}
+  </div>
+</div>

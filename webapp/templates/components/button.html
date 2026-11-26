@@ -1,0 +1,14 @@
+{% comment %}
+Button: a link when `url` is given, else a <button>. variant: primary · secondary · danger;
+size: md · sm. Buttons are always rounded-full (cards and fields are rounded-xl).
+{% endcomment %}
+{% if url %}<a href="{{ url }}"{% else %}<button type="{{ type|default:'submit' }}"{% if disabled %} disabled{% endif %}{% endif %}
+   class="inline-flex items-center justify-center gap-1.5 rounded-full font-bold transition-colors text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40
+          {% if size == 'sm' %}px-3 py-1.5 text-xs{% else %}px-5 py-2.5 text-sm{% endif %}
+          {% if variant == 'secondary' %}border border-divider bg-surface text-content-soft hover:bg-surface-alt hover:text-content
+          {% elif variant == 'danger' %}bg-danger-fill text-white hover:bg-danger-fill/90
+          {% else %}bg-primary text-primary-foreground hover:bg-primary/90{% endif %}
+          {% if full %}w-full{% endif %} {{ extra_class }}">
+  {% if icon %}{% include "components/icon.html" with name=icon class="w-4 h-4" only %}{% endif %}
+  {{ label }}
+{% if url %}</a>{% else %}</button>{% endif %}

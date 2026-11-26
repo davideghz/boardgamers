@@ -301,6 +301,7 @@ urlpatterns = [
 
     # DEBUGGING UTILS
     path('test/debug', static_page_views.debug, name='debug'),
+    path('dev/ui/', static_page_views.ui_gallery, name='dev-ui'),
     path('test/widget', static_page_views.test_widget, name='test_widget'),
     path('test/telegram-login', static_page_views.test_telegram_login, name='test_telegram_login'),
     path('telegram/app/', telegram_app_views.miniapp, name='telegram-miniapp'),

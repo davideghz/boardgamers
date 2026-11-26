@@ -1,0 +1,24 @@
+{% load i18n %}
+{% comment %}
+Nothing to show, and what the viewer can do about it. With `access` (a LocationAccess) and
+`location`, a refused action becomes its way forward: log in, become a member, or wait.
+{% endcomment %}
+<div class="rounded-xl border border-dashed border-divider px-4 py-8 text-center">
+  {% if icon %}<div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-surface-input text-content-muted">{% include "components/icon.html" with name=icon class="w-5 h-5" only %}</div>{% endif %}
+  <p class="text-sm font-semibold text-content">{{ message }}</p>
+  {% if detail %}<p class="mt-1 text-xs text-content-muted">{{ detail }}</p>{% endif %}
+  <div class="mt-4 flex flex-wrap justify-center gap-2">
+    {% if access and not access.allowed and not access.needs_login %}
+      {% if access.membership_pending %}
+        <p class="text-xs text-content-muted">{% trans "Your membership request is pending." %}</p>
+      {% elif access.needs_membership and location.enable_membership %}
+        {% url 'location-request-membership' location.slug as membership_url %}
+        {% include "components/button.html" with label=_("Become a member") url=membership_url variant="secondary" size="sm" icon="user-plus" only %}
+      {% elif access.managers_only %}
+        <p class="text-xs text-content-muted">{% trans "Only owners and managers can create tables here." %}</p>
+      {% endif %}
+    {% elif action_url %}
+      {% include "components/button.html" with label=action_label url=action_url size="sm" icon=action_icon only %}
+    {% endif %}
+  </div>
+</div>

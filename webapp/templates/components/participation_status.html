@@ -1,0 +1,17 @@
+{% load i18n %}
+{% comment %}
+"You're in" for a table, "You're attending" for an event; with `leave_dialog` the leave link
+opens that confirm_dialog.
+{% endcomment %}
+<span class="inline-flex items-center gap-2">
+  <span class="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success-soft px-3 py-1.5 text-sm font-bold text-success">
+    {% include "components/icon.html" with name="check" class="w-4 h-4" only %}
+    {% if kind == 'event' %}{% trans "You're attending" %}{% else %}{% trans "You're in" %}{% endif %}
+  </span>
+  {% if leave_dialog %}
+    <button type="button" onclick="document.getElementById('{{ leave_dialog }}').showModal()"
+            class="rounded-full px-2 py-1 text-xs font-semibold text-danger hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+      {% if kind == 'event' %}{% trans "Leave the event" %}{% else %}{% trans "Leave the table" %}{% endif %}
+    </button>
+  {% endif %}
+</span>

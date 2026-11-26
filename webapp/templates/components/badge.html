@@ -1,0 +1,11 @@
+{% comment %}
+Small label. tone: neutral · info · success · warning · danger, all filled;
+outline is for types (Tavolo, Evento, Manifestazione), so a type never looks like a state.
+{% endcomment %}
+<span class="inline-flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold leading-4
+             {% if tone == 'outline' %}border border-divider text-content-soft
+             {% elif tone == 'info' %}bg-primary/10 text-link
+             {% elif tone == 'success' %}bg-success-soft text-success
+             {% elif tone == 'warning' %}bg-warning-soft text-warning
+             {% elif tone == 'danger' %}bg-danger-soft text-danger
+             {% else %}bg-surface-input text-content-soft{% endif %}">{{ label }}</span>

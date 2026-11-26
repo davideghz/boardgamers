@@ -1,0 +1,22 @@
+{% load i18n %}
+{% comment %}
+A confirmation before a POST: open it with document.getElementById(dialog_id).showModal().
+Cancel uses formmethod="dialog", so it closes without JavaScript or sending the form.
+{% endcomment %}
+<dialog id="{{ dialog_id }}" aria-labelledby="{{ dialog_id }}-title"
+        class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-divider bg-surface p-5 text-content shadow-xl backdrop:bg-black/60">
+  <form method="post" action="{{ action_url }}">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <h2 id="{{ dialog_id }}-title" class="text-lg font-bold">{{ title }}</h2>
+    {% if message %}<p class="mt-1 text-sm text-content-muted">{{ message }}</p>{% endif %}
+    <div class="mt-5 flex flex-wrap justify-end gap-2">
+      <button type="submit" formmethod="dialog" formnovalidate autofocus
+              class="rounded-full px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">{% trans "Cancel" %}</button>
+      {% if danger %}
+        {% include "components/button.html" with label=confirm_label type="submit" variant="danger" size="md" only %}
+      {% else %}
+        {% include "components/button.html" with label=confirm_label type="submit" size="md" only %}
+      {% endif %}
+    </div>
+  </form>
+</dialog>

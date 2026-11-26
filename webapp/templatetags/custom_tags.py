@@ -4,7 +4,7 @@ import nh3
 from django import template
 from django.urls import translate_url, reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language
+from django.utils.translation import get_language, pgettext_lazy
 from urllib.parse import urlencode
 
 register = template.Library()
@@ -143,3 +143,109 @@ def social_auth_url(context, backend):
     params = {'lang': current_lang}
     
     return f"{base_url}?{urlencode(params)}"
+
+
+# ── Components ────────────────────────────────────────────────────────────────
+# One look per element, shared by every page; /dev/ui/ shows them all (DEBUG only).
+
+@register.inclusion_tag("components/button.html")
+def button(label, url=None, variant="primary", size="md", type="submit", icon=None, full=False,
+           disabled=False, extra_class=""):
+    return {"label": label, "url": url, "variant": variant, "size": size, "type": type, "icon": icon,
+            "full": full, "disabled": disabled, "extra_class": extra_class}
+
+
+@register.inclusion_tag("components/icon.html")
+def icon(name, css_class="w-4 h-4"):
+    return {"name": name, "class": css_class}
+
+
+@register.inclusion_tag("components/badge.html")
+def badge(label, tone="neutral"):
+    return {"label": label, "tone": tone}
+
+
+# State words follow docs/ui-glossary.md; a state is always filled, a type always outlined.
+STATUS_BADGES = {
+    "draft": (pgettext_lazy("status", "Draft"), "warning"),
+    "published": (pgettext_lazy("status", "Published"), "success"),
+    "upcoming": (pgettext_lazy("status", "Upcoming"), "info"),
+    "open": (pgettext_lazy("status", "Open"), "success"),
+    "ongoing": (pgettext_lazy("status", "Ongoing"), "info"),
+    "full": (pgettext_lazy("status", "Full"), "warning"),
+    "closed": (pgettext_lazy("status", "Closed"), "neutral"),
+    "past": (pgettext_lazy("status", "Past"), "neutral"),
+    "pending": (pgettext_lazy("status", "Pending"), "warning"),
+    "active": (pgettext_lazy("status", "Active"), "success"),
+    "rejected": (pgettext_lazy("status", "Rejected"), "danger"),
+}
+TYPE_BADGES = {
+    "table": pgettext_lazy("appointment type", "Table"),
+    "event": pgettext_lazy("appointment type", "Event"),
+    "manifestation": pgettext_lazy("appointment type", "Manifestation"),
+}
+ROLE_BADGES = {
+    "creator": (pgettext_lazy("location role", "Owner"), "info"),
+    "manager": (pgettext_lazy("location role", "Manager"), "info"),
+    "member": (pgettext_lazy("location role", "Member"), "success"),
+    "organizer": (pgettext_lazy("location role", "Organizer"), "outline"),
+}
+
+
+@register.inclusion_tag("components/badge.html")
+def status_badge(status):
+    label, tone = STATUS_BADGES.get(status, (status, "neutral"))
+    return {"label": label, "tone": tone}
+
+
+@register.inclusion_tag("components/badge.html")
+def type_badge(kind):
+    return {"label": TYPE_BADGES.get(kind, kind), "tone": "outline"}
+
+
+@register.inclusion_tag("components/role_badge.html")
+def role_badge(role):
+    label, tone = ROLE_BADGES.get(role, (role, "neutral"))
+    return {"label": label, "tone": tone}
+
+
+@register.inclusion_tag("components/page_header.html")
+def page_header(title, count=None, subtitle=None, action_label=None, action_url=None, action_icon="plus",
+                back_url=None, back_label=""):
+    return {"title": title, "count": count, "subtitle": subtitle, "action_label": action_label,
+            "action_url": action_url, "action_icon": action_icon, "back_url": back_url, "back_label": back_label}
+
+
+@register.inclusion_tag("components/empty_state.html")
+def empty_state(message, detail=None, action_label=None, action_url=None, action_icon="plus", icon=None,
+                access=None, location=None):
+    return {"message": message, "detail": detail, "action_label": action_label, "action_url": action_url,
+            "action_icon": action_icon, "icon": icon, "access": access, "location": location}
+
+
+@register.inclusion_tag("components/result_row.html")
+def result_row(url, kicker, title, meta=(), status=None, image_url=None):
+    status_label, status_tone = STATUS_BADGES.get(status, (status, "neutral")) if status else (None, None)
+    return {"url": url, "kicker": kicker, "title": title, "meta": [line for line in meta if line],
+            "status_label": status_label, "status_tone": status_tone, "image_url": image_url}
+
+
+@register.inclusion_tag("components/manage_tile.html")
+def manage_tile(url, title, description=None, icon=None, count=None):
+    return {"url": url, "title": title, "description": description, "icon": icon, "count": count}
+
+
+@register.inclusion_tag("components/todo_card.html")
+def todo_card(url, title, count, description=None, tone="warning"):
+    return {"url": url, "title": title, "count": count, "description": description, "tone": tone}
+
+
+@register.inclusion_tag("components/participation_status.html")
+def participation_status(kind="table", leave_dialog=None):
+    return {"kind": kind, "leave_dialog": leave_dialog}
+
+
+@register.inclusion_tag("components/confirm_dialog.html", takes_context=True)
+def confirm_dialog(context, dialog_id, title, action_url, confirm_label, message=None, danger=True):
+    return {"dialog_id": dialog_id, "title": title, "action_url": action_url, "confirm_label": confirm_label,
+            "message": message, "danger": danger, "csrf_token": context.get("csrf_token")}

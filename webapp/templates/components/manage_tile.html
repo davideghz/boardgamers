@@ -1,0 +1,15 @@
+{% comment %}
+An entry of a management index: icon, title, one line of description and an optional counter.
+{% endcomment %}
+<a href="{{ url }}"
+   class="group flex items-center gap-4 rounded-xl border border-divider bg-surface p-4 text-decoration-none transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+  <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-surface-input text-content-muted transition-colors group-hover:bg-elevated group-hover:text-white">
+    {% include "components/icon.html" with name=icon|default:"cog" class="w-5 h-5" only %}
+  </span>
+  <span class="min-w-0 flex-1">
+    <span class="block text-sm font-bold text-content">{{ title }}</span>
+    {% if description %}<span class="mt-0.5 block truncate text-xs text-content-muted">{{ description }}</span>{% endif %}
+  </span>
+  {% if count is not None %}<span class="flex-shrink-0 rounded-full bg-surface-input px-2.5 py-1 text-xs font-semibold text-content-soft">{{ count }}</span>{% endif %}
+  {% include "components/icon.html" with name="chevron-right" class="w-4 h-4 text-content-muted" only %}
+</a>

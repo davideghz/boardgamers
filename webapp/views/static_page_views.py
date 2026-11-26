@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 
 from django.contrib import messages
 from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
@@ -7,6 +8,7 @@ from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
 from django.db.models import Prefetch, Count, OuterRef
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
@@ -23,8 +25,9 @@ from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
 from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate, \
-    Membership
+    Membership, LocationAccess
 from webapp.services.appointments import with_matching_day
+from webapp.templatetags.custom_tags import STATUS_BADGES
 from webapp.views.event_views import upcoming_events_queryset
 
 # for debug page
@@ -337,6 +340,28 @@ def select_language(request):
 
     return render(request, "staticpages/select_language.html", {
         "languages": languages,
+    })
+
+
+def ui_gallery(request):
+    """Every UI component, in the light and the dark theme side by side. DEBUG only."""
+    if not settings.DEBUG:
+        raise Http404
+    sample_location = SimpleNamespace(slug='demo', enable_membership=True)
+    return render(request, 'dev/ui_gallery.html', {
+        'sample_location': sample_location,
+        'access_samples': [
+            ('allowed', LocationAccess()),
+            ('members only', LocationAccess(LocationAccess.MEMBERS_ONLY)),
+            ('membership pending', LocationAccess(LocationAccess.MEMBERSHIP_PENDING, membership=Membership.PENDING)),
+            ('managers only', LocationAccess(LocationAccess.MANAGERS_ONLY)),
+        ],
+        'statuses': list(STATUS_BADGES),
+        'sample_table_meta': ['Circolo Demo', 'Organized by demo_socio'],
+        'sample_event_meta': ['Fiera Demo'],
+        'icon_names': ['chevron-right', 'plus', 'check', 'bolt', 'clock', 'exclamation', 'map-pin', 'calendar',
+                       'lock', 'user-plus', 'users', 'cog'],
+        'meta': Meta(title='UI components'),
     })
 
 

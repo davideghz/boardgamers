@@ -1,0 +1,83 @@
+{% load custom_tags %}
+{% comment %}The components, rendered once per theme by dev/ui_gallery.html.{% endcomment %}
+<div class="space-y-8">
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">button</h2>
+    <div class="flex flex-wrap items-center gap-2">
+      {% button "Primary" url="#" icon="plus" %}
+      {% button "Secondary" url="#" variant="secondary" %}
+      {% button "Danger" variant="danger" type="button" %}
+      {% button "Disabled" disabled=True type="button" %}
+    </div>
+    <div class="mt-2 flex flex-wrap items-center gap-2">
+      {% button "Small" url="#" size="sm" icon="calendar" %}
+      {% button "Small secondary" url="#" variant="secondary" size="sm" %}
+    </div>
+    <div class="mt-2 max-w-xs">{% button "Full width" url="#" full=True icon="user-plus" %}</div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">status_badge · type_badge · role_badge · badge</h2>
+    <div class="flex flex-wrap gap-1.5">{% for status in statuses %}{% status_badge status %}{% endfor %}</div>
+    <div class="mt-2 flex flex-wrap gap-1.5">{% type_badge "table" %}{% type_badge "event" %}{% type_badge "manifestation" %}</div>
+    <div class="mt-2 flex flex-wrap gap-1.5">{% role_badge "creator" %}{% role_badge "manager" %}{% role_badge "member" %}{% role_badge "organizer" %}</div>
+    <div class="mt-2 flex flex-wrap gap-1.5">{% badge "neutral" %}{% badge "info" "info" %}{% badge "success" "success" %}{% badge "warning" "warning" %}{% badge "danger" "danger" %}{% badge "outline" "outline" %}</div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">page_header</h2>
+    <div class="rounded-xl border border-dashed border-divider p-4">
+      {% page_header "Organized events" count=12 subtitle="Events of Circolo Demo" action_label="New event" action_url="#" back_url="#" back_label="Manage" %}
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">empty_state</h2>
+    <div class="grid gap-3 sm:grid-cols-2">
+      {% empty_state "No upcoming tables." detail="Create the first one." action_label="Create a table" action_url="#" icon="calendar" %}
+      {% for label, access in access_samples %}
+        {% if not forloop.first %}{% empty_state "No upcoming tables." detail=label access=access location=sample_location icon="lock" %}{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">result_row</h2>
+    <div class="space-y-2">
+      {% result_row "#" "Table · Sat 28 Nov · 21:00" "Terraforming Mars" meta=sample_table_meta status="open" %}
+      {% result_row "#" "Event · 26–27 Dec" "Associazione Demo in fiera" meta=sample_event_meta status="draft" %}
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">manage_tile · todo_card</h2>
+    <div class="grid gap-2 sm:grid-cols-2">
+      {% manage_tile "#" "Stations" description="4 stations configured" icon="bolt" count=4 %}
+      {% manage_tile "#" "Members" description="Member registry and requests" icon="users" %}
+      {% todo_card "#" "Membership requests" 2 description="Waiting for your approval" %}
+      {% todo_card "#" "Events without tables" 1 tone="info" %}
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">participation_status · confirm_dialog</h2>
+    <div class="flex flex-wrap items-center gap-3">
+      {% with dialog_id="demo-leave-"|add:theme %}
+        {% participation_status "table" leave_dialog=dialog_id %}
+        {% confirm_dialog dialog_id "Leave this table?" "#" "Leave the table" message="Your seat goes back to the other players." %}
+      {% endwith %}
+      {% participation_status "event" %}
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">icon</h2>
+    <div class="flex flex-wrap gap-3 text-content-soft">
+      {% for name in icon_names %}
+        <span class="inline-flex items-center gap-1 text-xs">{% icon name %}{{ name }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>

@@ -65,7 +65,7 @@
             // bg-primary/10 keep working; the -soft washes are plain colors.
             primary:  { DEFAULT: 'rgb(var(--primary) / <alpha-value>)', foreground: 'rgb(var(--primary-fg) / <alpha-value>)' },
             link:     'rgb(var(--link) / <alpha-value>)',
-            danger:   { DEFAULT: 'rgb(var(--danger) / <alpha-value>)', soft: 'var(--danger-soft)' },
+            danger:   { DEFAULT: 'rgb(var(--danger) / <alpha-value>)', soft: 'var(--danger-soft)', fill: 'rgb(var(--danger-fill) / <alpha-value>)' },
             success:  { DEFAULT: 'rgb(var(--success) / <alpha-value>)', soft: 'var(--success-soft)' },
             warning:  { DEFAULT: 'rgb(var(--warning) / <alpha-value>)', soft: 'var(--warning-soft)' },
             focus:    'rgb(var(--focus) / <alpha-value>)',
@@ -114,6 +114,7 @@
       --link:         37 99 235;    /* links             blue-600  */
       --danger:       185 28 28;    /* destructive       red-700   */
       --danger-soft:  #fef2f2;      /*                   red-50    */
+      --danger-fill:  185 28 28;    /* destructive button, white text */
       --success:      21 128 61;    /* confirmations     green-700 */
       --success-soft: #f0fdf4;      /*                   green-50  */
       --warning:      180 83 9;     /* attention         amber-700 */
@@ -139,6 +140,7 @@
       --link:         96 165 250;   /* blue-400  */
       --danger:       248 113 113;  /* red-400   */
       --danger-soft:  rgba(239,68,68,.13);
+      --danger-fill:  220 38 38;    /* red-600: white text stays readable */
       --success:      74 222 128;   /* green-400 */
       --success-soft: rgba(34,197,94,.13);
       --warning:      251 191 36;   /* amber-400 */
