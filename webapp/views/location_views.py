@@ -11,7 +11,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
-from django.db.models import Exists, Prefetch, Q, Count, OuterRef, Max
+from django.db.models import Exists, Prefetch, Q, Count, OuterRef, Max, Subquery
 from django.db.models.deletion import RestrictedError
 from django.db.models.functions import Coalesce
 from django.http import Http404, HttpResponse, JsonResponse
@@ -550,12 +550,32 @@ class TransferOwnershipView(LoginRequiredMixin, View):
 
 # ---- Member Management Views ----
 
+def _members_needing_signed_document(members):
+    """
+    Database version of `Member.needs_signed_document`, so the filter works
+    across pages: the current membership (the active one, else the latest) is
+    pending or active and its signed form is still missing.
+    """
+    memberships = Membership.objects.filter(member=OuterRef('pk')).order_by('-created_at')
+    current = Coalesce(
+        Subquery(memberships.filter(
+            status=Membership.ACTIVE, end_date__gte=date.today()).values('pk')[:1]),
+        Subquery(memberships.values('pk')[:1]),
+    )
+    return members.annotate(current_membership_pk=current).filter(Exists(Membership.objects.filter(
+        pk=OuterRef('current_membership_pk'),
+        status__in=(Membership.PENDING, Membership.ACTIVE),
+        signed_document=False,
+    )))
+
+
 class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
     """View to list and manage members of a location (accessible to owners and managers)"""
     model = Location
     template_name = 'locations/location_manage_members.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+    paginate_by = 50
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -571,10 +591,34 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         location = self.get_object()
-        members = location.members.prefetch_related('memberships').all()
-        context['members'] = members
         # Only nag about signed forms when the location actually publishes some.
-        context['has_documents'] = location.membership_documents.filter(is_active=True).exists()
+        has_documents = location.membership_documents.filter(is_active=True).exists()
+        q = self.request.GET.get('q', '').strip()
+        only_unsigned = has_documents and self.request.GET.get('unsigned') == '1'
+
+        members = location.members.prefetch_related('memberships')
+        # Every word must match one of the fields, so "mario rossi" finds Mario Rossi.
+        for term in q.split():
+            members = members.filter(
+                Q(first_name__icontains=term) | Q(last_name__icontains=term)
+                | Q(user_profile__nickname__icontains=term) | Q(email__icontains=term)
+                | Q(fiscal_code__icontains=term) | Q(phone_number__icontains=term))
+        if only_unsigned:
+            members = _members_needing_signed_document(members)
+
+        paginator = Paginator(members.order_by('last_name', 'first_name', 'pk'), self.paginate_by)
+        page_obj = paginator.get_page(self.request.GET.get('page'))
+        context.update({
+            'members': page_obj,
+            'paginator': paginator,
+            'page_obj': page_obj,
+            'is_paginated': page_obj.has_other_pages(),
+            'q': q,
+            'only_unsigned': only_unsigned,
+            'is_filtered': bool(q or only_unsigned),
+            'has_members': location.members.exists(),
+            'has_documents': has_documents,
+        })
         context['is_owner'] = location.creator == self.request.user.user_profile
         context['meta'] = Meta(
             title=_("Members %(name)s - Boardgamers.com") % {'name': location.name},

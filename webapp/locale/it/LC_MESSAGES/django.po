@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 18:00+0100\n"
+"POT-Creation-Date: 2026-11-26 18:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3936,6 +3936,12 @@ msgstr "Cerca per nome, email, codice…"
 
 msgid "Only members without a signed form"
 msgstr "Solo soci senza modulo firmato"
+
+#, python-format
+msgid "%(counter)s member found"
+msgid_plural "%(counter)s members found"
+msgstr[0] "%(counter)s socio trovato"
+msgstr[1] "%(counter)s soci trovati"
 
 msgid "No membership"
 msgstr "Nessuna membership"

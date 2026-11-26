@@ -222,7 +222,6 @@ class SignedDocumentFlagTest(TestCase):
 
     def test_the_list_only_nags_when_documents_exist(self):
         list_url = reverse('location-manage-members', kwargs={'slug': self.location.slug})
-        # The id also appears in the page script; the input itself does not.
         self.assertNotContains(self.client.get(list_url), 'id="member-unsigned-filter"')
 
         MembershipDocument.objects.create(
@@ -230,7 +229,7 @@ class SignedDocumentFlagTest(TestCase):
             file='membership-documents/modulo.pdf')
         response = self.client.get(list_url)
         self.assertContains(response, 'id="member-unsigned-filter"')
-        self.assertContains(response, 'data-signed="0"')
+        self.assertContains(response, _('Signed form missing'))
 
     def test_csv_reports_the_flag(self):
         self.membership.signed_document = True
