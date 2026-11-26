@@ -13,7 +13,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models.deletion import RestrictedError
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Prefetch, Q
 from django.forms import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -24,7 +24,8 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from django.views import generic, View
 from meta.views import Meta
 
-from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm
+from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm, \
+    location_filter_picker
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
 from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, LocationAccess, \
     GameOutcome, PlayerOutcome, ResultMode
@@ -68,29 +69,6 @@ class IsNotClosedMixin(UserPassesTestMixin):
         if obj and obj.status == self.closed_status:
             raise PermissionDenied("Non è possibile eliminare un tavolo chiuso.")
         return super().handle_no_permission()
-
-
-def _location_picker_sections(request):
-    """Default cards for the location filter modal: the user's own and followed
-    locations, falling back to the busiest ones (anonymous visitors included)."""
-    if request.user.is_authenticated:
-        profile = request.user.user_profile
-        own = list(Location.objects
-                   .filter(Q(creator=profile) | Q(managers=profile))
-                   .distinct().order_by('name'))
-        followed = list(Location.objects
-                        .filter(followers__user_profile=profile)
-                        .exclude(id__in=[location.id for location in own])
-                        .distinct().order_by('name'))
-        sections = [(title, locations) for title, locations in
-                    [(_("Your locations"), own), (_("Followed locations"), followed)] if locations]
-        if sections:
-            return sections
-    popular = list(Location.objects
-                   .annotate(tables_count=Count('tables'))
-                   .filter(tables_count__gt=0)
-                   .order_by('-tables_count', 'name')[:6])
-    return [(_("Most active locations"), popular)] if popular else []
 
 
 class TableIndexView(generic.ListView):
@@ -147,7 +125,7 @@ class TableIndexView(generic.ListView):
         context['selected_location'] = self.location_slug
         context['selected_location_obj'] = (
             Location.objects.filter(slug=self.location_slug).first() if self.location_slug else None)
-        context['location_picker_sections'] = _location_picker_sections(self.request)
+        context['location_picker'] = location_filter_picker(self.location_slug, suggested=True)
         context['has_filters'] = bool(self.q or self.location_slug)
         context['login_form'] = CustomLoginForm()
         context['meta'] = Meta(

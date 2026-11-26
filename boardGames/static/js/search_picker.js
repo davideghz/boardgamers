@@ -228,7 +228,7 @@
     var target = picker;
     if (target.dataset.submitOnSelect) {
       // e.g. the guest picker: picking is the action, submit the form right away
-      target.querySelector('input[type=hidden]').value = item.id;
+      target.querySelector('input[type=hidden]').value = item[target.dataset.valueKey || 'id'];
       target.querySelectorAll('[data-picker-open]').forEach(function (b) { b.disabled = true; });
       close();
       target.closest('form').requestSubmit();
@@ -245,7 +245,8 @@
     if (trigger) open(target, trigger);
     else if (e.target.closest('[data-picker-clear]')) {
       setValue(target, null);
-      target.querySelector('[data-picker-open]').focus();
+      if (target.dataset.submitOnSelect) target.closest('form').requestSubmit();  // e.g. a list filter
+      else target.querySelector('[data-picker-open]').focus();
     }
   });
 

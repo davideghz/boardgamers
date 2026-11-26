@@ -1,5 +1,5 @@
 {% extends "base_webapp.html" %}
-{% load i18n custom_tags %}
+{% load i18n static custom_tags %}
 
 {% block content %}
   <div class="max-w-2xl">
@@ -47,15 +47,8 @@
       <label for="activity-query" class="sr-only">{% trans "Keywords" %}</label>
       {% trans "Search by name or game…" as search_placeholder %}
       {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="activity-query" max_length=200 %}
-      {% if locations %}
-        <label class="text-xs font-semibold sm:max-w-[12rem]">{% translate "Venue" %}
-          <select class="mt-1 w-full rounded-xl border border-divider bg-surface px-3 py-2.5 text-sm" name="location">
-            <option value="">{% translate "All locations" %}</option>
-            {% for location in locations %}
-              <option value="{{ location.slug }}"{% if location.slug == selected_location %} selected{% endif %}>{{ location.name }}</option>
-            {% endfor %}
-          </select>
-        </label>
+      {% if location_filter_items %}
+        <div class="sm:w-60">{{ location_picker }}</div>
       {% endif %}
       <button type="submit" class="rounded-xl bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
         {% translate "Search" %}
@@ -98,4 +91,8 @@
     {% include "partials/_pagination.html" %}
   </div>
 
+{% if location_filter_items %}
+  {{ location_filter_items|json_script:"location-filter-items" }}
+  <script src="{% static 'js/search_picker.js' %}" defer></script>
+{% endif %}
 {% endblock content %}

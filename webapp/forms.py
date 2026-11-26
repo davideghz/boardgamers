@@ -123,6 +123,12 @@ class SearchPickerWidget(Widget):
     badge_text = ''
     #: Title of the quick picks listed while the search is empty (see get_defaults_url).
     defaults_title = ''
+    #: Title of the search dialog; the button label when empty.
+    dialog_title = ''
+    #: Picking is the action: the form is sent as soon as an item is picked or cleared.
+    submit_on_select = False
+    #: Id of a json_script list filtered in the browser instead of the search URL.
+    local_items_id = ''
 
     class Media:
         js = ('js/search_picker.js',)
@@ -156,6 +162,9 @@ class SearchPickerWidget(Widget):
             'min_length': self.min_length,
             'image_class': self.image_class,
             'button_label': self.button_label,
+            'dialog_title': self.dialog_title or self.button_label,
+            'submit_on_select': self.submit_on_select,
+            'local_items_id': self.local_items_id,
             'placeholder': self.placeholder,
             'hint': self.hint,
             'no_results_text': self.no_results_text,
@@ -198,13 +207,20 @@ class LocationPickerWidget(SearchPickerWidget):
     placeholder = _('Search by name or city…')
     no_results_text = _('No locations found.')
 
-    def __init__(self, attrs=None, button_label=None, *, value_key='id', scope=None):
+    def __init__(self, attrs=None, button_label=None, *, value_key='id', scope=None, suggested=False):
         super().__init__(attrs, button_label)
         self.value_key = value_key
         self.scope = scope
+        #: List the user's locations (or the busiest ones) while the search is empty.
+        self.suggested = suggested
+        if suggested:
+            self.defaults_title = _('Suggested locations')
 
     def get_search_url(self):
         return reverse(self.search_url_name, query={'scope': self.scope} if self.scope else None)
+
+    def get_defaults_url(self):
+        return reverse(self.search_url_name, query={'suggested': '1'}) if self.suggested else None
 
     def get_item(self, value):
         from webapp.api.search_views import location_result
@@ -213,6 +229,17 @@ class LocationPickerWidget(SearchPickerWidget):
             return None
         location = Location.objects.filter(**{self.value_key: value}).first()
         return location and location_result(location)
+
+
+def location_filter_picker(value, *, local_items_id='', suggested=False):
+    """The location filter of a list page (?location=<slug>): the shared search picker,
+    applied as soon as a location is picked or cleared. With `local_items_id` it filters a
+    json_script list of location results instead of searching every location."""
+    widget = LocationPickerWidget(button_label=_('All locations'), value_key='slug', suggested=suggested)
+    widget.dialog_title = _('Filter by location')
+    widget.submit_on_select = True
+    widget.local_items_id = local_items_id
+    return widget.render('location', value or '')
 
 
 class MemberPickerWidget(SearchPickerWidget):

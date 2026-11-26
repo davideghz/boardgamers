@@ -1,14 +1,14 @@
-"""JSON searches behind the search pickers (forms.SearchPickerWidget) and the
-location filter modal. Each result carries `id`, `title`, `subtitle` and
+"""JSON searches behind the search pickers (forms.SearchPickerWidget), the location
+filters of the list pages included. Each result carries `id`, `title`, `subtitle` and
 `image_url`, the fields static/js/search_picker.js renders."""
 from django.conf import settings
-from django.db.models import Q, Case, When, Value, IntegerField, Exists, OuterRef
+from django.db.models import Q, Case, Count, When, Value, IntegerField, Exists, OuterRef
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from webapp.forms import USER_SEARCH_MIN_LENGTH
-from webapp.models import FavoriteUser, Location, UserProfile, Member
+from webapp.models import FavoriteUser, Location, Member, Membership, UserProfile
 from webapp.services.appointments import appointment_filter_locations
 from webapp.services.game_loans import active_members
 
@@ -106,8 +106,28 @@ def location_result(location):
     }
 
 
+def suggested_locations(user):
+    """Quick picks of the location filters: the user's own locations (run, joined as a
+    member or followed), else the busiest ones, anonymous visitors included."""
+    if user.is_authenticated:
+        profile = user.user_profile
+        own = (Location.objects
+               .filter(Q(creator=profile) | Q(managers=profile) | Q(followers__user_profile=profile)
+                       | Q(pk__in=Membership.active_for(profile).values('member__location_id')))
+               .distinct().order_by(Lower('name'), 'pk'))
+        if own.exists():
+            return own[:SEARCH_LIMIT]
+    return (Location.objects
+            .annotate(tables_count=Count('tables'))
+            .filter(tables_count__gt=0)
+            .order_by('-tables_count', Lower('name'))[:6])
+
+
 def location_search_view(request):
-    """Locations by name or city, optionally scoped to a public appointment role."""
+    """Locations by name or city, optionally scoped to a public appointment role.
+    With `suggested=1` it returns the quick picks instead of searching."""
+    if request.GET.get('suggested'):
+        return JsonResponse({'results': [location_result(location) for location in suggested_locations(request.user)]})
     query = request.GET.get('q', '').replace('\x00', '').strip()
     if len(query) < LOCATION_SEARCH_MIN_LENGTH:
         return JsonResponse({'results': []})

@@ -6,7 +6,7 @@
      data-min-length="{{ widget.min_length }}"
      data-required="{{ widget.required|yesno:'1,' }}"
      data-image-class="{{ widget.image_class }}"
-     data-title="{{ widget.button_label }}"
+     data-title="{{ widget.dialog_title }}"
      data-placeholder="{{ widget.placeholder }}"
      data-hint="{{ widget.hint }}"
      data-min-length-text="{% blocktrans count count=widget.min_length %}Type at least {{ count }} character{% plural %}Type at least {{ count }} characters{% endblocktrans %}"
@@ -18,6 +18,8 @@
      data-badge-text="{{ widget.badge_text }}"
      {% if widget.defaults_url %}data-defaults-url="{{ widget.defaults_url }}" data-defaults-title="{{ widget.defaults_title }}"{% endif %}
      {% if widget.exclude %}data-exclude="{{ widget.exclude }}"{% endif %}
+     {% if widget.submit_on_select %}data-submit-on-select="1"{% endif %}
+     {% if widget.local_items_id %}data-local-items="{{ widget.local_items_id }}"{% endif %}
      {% if widget.attrs.disabled %}data-disabled="1"{% endif %}>
   <input type="hidden" name="{{ widget.name }}" value="{{ widget.selected_value }}"{% include "django/forms/widgets/attrs.html" %}>
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 13:18+0100\n"
+"POT-Creation-Date: 2026-11-26 13:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -156,6 +156,15 @@ msgstr "Cerca per nome o città…"
 
 msgid "No locations found."
 msgstr "Nessuna sede trovata."
+
+msgid "Suggested locations"
+msgstr "Sedi suggerite"
+
+msgid "All locations"
+msgstr "Tutte le sedi"
+
+msgid "Filter by location"
+msgstr "Filtra per sede"
 
 msgid "Select a member"
 msgstr "Seleziona un socio"
@@ -1609,12 +1618,6 @@ msgstr "Parole chiave"
 msgid "Search by name or game…"
 msgstr "Cerca per nome o gioco…"
 
-msgid "Venue"
-msgstr "Luogo"
-
-msgid "All locations"
-msgstr "Tutte le sedi"
-
 msgid "Search"
 msgstr "Cerca"
 
@@ -1994,9 +1997,6 @@ msgstr "Passati"
 
 msgid "Search by title, game or description…"
 msgstr "Cerca per titolo, gioco o descrizione…"
-
-msgid "Remove filter"
-msgstr "Rimuovi filtro"
 
 #, python-format
 msgid "%(counter)s table found"
@@ -2542,6 +2542,9 @@ msgstr "Annulla iscrizione all’evento"
 msgid "Not assigned"
 msgstr "Da assegnare"
 
+msgid "Venue"
+msgstr "Luogo"
+
 msgid "At the organizing location"
 msgstr "In sede"
 
@@ -2563,6 +2566,9 @@ msgstr "Scollega"
 
 msgid "Unlink event"
 msgstr "Scollega evento"
+
+msgid "Remove filter"
+msgstr "Rimuovi filtro"
 
 msgid ""
 "This event is not visible to the public yet. Publish it when it's ready."
@@ -3502,7 +3508,9 @@ msgstr "Eliminare il gruppo “%(name)s”?"
 
 #, python-format
 msgid "Delete the group “%(name)s”? All its reservations will be removed too."
-msgstr "Eliminare il gruppo “%(name)s”? Verranno rimosse anche tutte le sue prenotazioni."
+msgstr ""
+"Eliminare il gruppo “%(name)s”? Verranno rimosse anche tutte le sue "
+"prenotazioni."
 
 msgid "Follow"
 msgstr "Segui"
@@ -5307,12 +5315,6 @@ msgstr "Vuoi lasciare il tavolo?"
 msgid "Your seat goes back to the other players."
 msgstr "Il tuo posto torna libero per gli altri giocatori."
 
-msgid "Filter by location"
-msgstr "Filtra per sede"
-
-msgid "Search for a location"
-msgstr "Cerca una sede"
-
 msgid "Comments"
 msgstr "Commenti"
 
@@ -5762,9 +5764,6 @@ msgid ""
 msgstr ""
 "Gestisci le tue sedi: creane di nuove, modifica i dati e gestisci i tuoi "
 "tavoli di gioco."
-
-msgid "Locations of your tables"
-msgstr "Sedi dei tuoi tavoli"
 
 msgid "My Tables"
 msgstr "I miei tavoli"
@@ -6554,12 +6553,6 @@ msgstr "Sfondo del tema scuro"
 msgid "Logos, colors and information for writing about Board-Gamers.com."
 msgstr "Loghi, colori e informazioni per scrivere di Board-Gamers.com."
 
-msgid "Followed locations"
-msgstr "Sedi seguite"
-
-msgid "Most active locations"
-msgstr "Sedi più attive"
-
 msgid "Game Tables"
 msgstr "Tavoli di gioco"
 
@@ -6662,6 +6655,18 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Search for a location"
+#~ msgstr "Cerca una sede"
+
+#~ msgid "Locations of your tables"
+#~ msgstr "Sedi dei tuoi tavoli"
+
+#~ msgid "Followed locations"
+#~ msgstr "Sedi seguite"
+
+#~ msgid "Most active locations"
+#~ msgstr "Sedi più attive"
 
 #~ msgid "No open tables from the locations you follow."
 #~ msgstr "Nessun tavolo aperto nelle sedi che segui."

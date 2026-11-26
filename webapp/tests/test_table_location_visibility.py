@@ -69,10 +69,10 @@ class TableLocationVisibilityTest(TestCase):
         LocationFollower.objects.create(user_profile=self.profile, location=followed)
         self.client.force_login(self.profile.user)
 
-        response = self.client.get(reverse('table-index'))
+        response = self.client.get(reverse('location-search'), {'suggested': '1'})
         self.assertEqual(
-            [locations for _, locations in response.context['location_picker_sections']],
-            [[self.location, self.empty_location], [followed]],
+            {result['slug'] for result in response.json()['results']},
+            {self.location.slug, self.empty_location.slug, followed.slug},
         )
 
     def test_selecting_an_empty_location_names_it_in_the_message(self):

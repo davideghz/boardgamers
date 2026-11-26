@@ -112,13 +112,13 @@ class AccountActivitiesTest(TestCase):
         self.client.force_login(self.profile.user)
         response = self.client.get(self.url)
         self.assertEqual(response.context['items'], [])
-        self.assertQuerySetEqual(response.context['locations'], [])
+        self.assertEqual(response.context['location_filter_items'], [])
         self.assertNotContains(response, table.title)
 
         self.client.force_login(other.user)
         response = self.client.get(self.url, {'type': 'tables', 'q': 'booking'})
         self.assertEqual(response.context['items'], [('table', table)])
-        self.assertQuerySetEqual(response.context['locations'], [self.venue])
+        self.assertEqual([item['slug'] for item in response.context['location_filter_items']], [self.venue.slug])
         self.assertContains(response, table.get_absolute_url())
 
     def test_null_characters_in_the_filters_are_ignored(self):

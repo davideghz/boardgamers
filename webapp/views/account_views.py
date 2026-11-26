@@ -9,8 +9,9 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
+from webapp.api.search_views import location_result
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
-    MemberPersonalDataForm
+    MemberPersonalDataForm, location_filter_picker
 from webapp.models import (
     Event, EventDate, EventParticipant, EventParticipantDate, GuestProfile, Location, Member, Membership,
     Notification, Table,
@@ -139,7 +140,9 @@ def tables(request, template_name='accounts/account_tables.html'):
         'q': q,
         'selected_location': location_slug,
         'selected_location_obj': next((loc for loc in my_locations if loc.slug == location_slug), None),
-        'location_picker_sections': [(_("Locations of your tables"), my_locations)] if my_locations else [],
+        # The filter offers only the locations of the user's tables, filtered in the browser
+        'location_filter_items': [location_result(location) for location in my_locations],
+        'location_picker': my_locations and location_filter_picker(location_slug, local_items_id='location-filter-items'),
         'has_filters': bool(q or location_slug),
         'meta': Meta(
             title=_("My Tables"),
@@ -211,7 +214,9 @@ def activities(request):
     return render(request, 'accounts/account_activities.html', {
         'activity_type': activity_type, 'tab': 'past' if past else 'upcoming',
         'items': items, 'page_obj': page, 'paginator': page.paginator, 'is_paginated': page.has_other_pages(),
-        'q': query, 'selected_location': venue, 'locations': locations,
+        'q': query, 'selected_location': venue,
+        'location_filter_items': [location_result(location) for location in locations],
+        'location_picker': location_filter_picker(venue, local_items_id='location-filter-items'),
         'has_filters': bool(query or venue),
         'meta': Meta(title=_('My activities')),
     })
