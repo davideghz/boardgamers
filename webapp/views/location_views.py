@@ -123,6 +123,9 @@ def index_view(request, template_name="locations/location_index.html"):
         'reset_network_url': reverse('locations-index', query=reset_query),
         'map_locations': _location_map_data(nearby_locations),
         'map_selected': map_selected,
+        # Who already runs a location doesn't need the invitation to add one.
+        'manages_locations': (request.user.is_authenticated
+                              and Location.managed_by(request.user.user_profile).exists()),
         'meta': Meta(
             title=(selected_network.name
                    if selected_network else _("Game Locations")),
