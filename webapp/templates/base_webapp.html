@@ -139,11 +139,11 @@
             <ul class="flex flex-col gap-0.5 list-none">
               <li>
                 <a href="{% url 'locations-index' %}"
-                   data-label="{% trans "Locations" %}"
+                   data-label="{% trans "Locations" context "navigation" %}"
                    class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
                           {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                  <span class="sidebar-text">{% trans "Locations" %}</span>
+                  <span class="sidebar-text">{% trans "Locations" context "navigation" %}</span>
                 </a>
               </li>
               <li>
@@ -380,7 +380,7 @@
               <div class="flex flex-col gap-0.5">
                 <a href="{% url 'locations-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                  {% trans "Locations" %}
+                  {% trans "Locations" context "navigation" %}
                 </a>
                 <a href="{% url 'location-create' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'location-create' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>

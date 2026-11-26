@@ -37,7 +37,7 @@ class SignupView(generic.CreateView, RedirectURLMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['meta'] = Meta(
-            title=_("Register - Board-Gamers.com"),
+            title=_("Register"),
             description=_("Join the community to find game tables nd meet other players."),
         )
         return context
@@ -60,7 +60,7 @@ class CustomLoginView(LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['meta'] = Meta(
-            title=_("Login - Board-Gamers.com"),
+            title=_("Login"),
             description=_("Access your account to manage your game tables and profile."),
         )
         return context

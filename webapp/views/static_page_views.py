@@ -118,7 +118,7 @@ def homepage_view(request):
         'followed_location_ids': followed_location_ids,
         'today': today,
         'meta': Meta(
-            title=_("Find Board Game Tables Near You - Board-Gamers.com"),
+            title=_("Find Board Game Tables Near You"),
             description=_("Discover board game tables near you, create new games and meet other players."),
         )
     }
@@ -145,7 +145,7 @@ def homepage_view(request):
 def privacy(request, template_name="staticpages/privacy.html"):
     return render(request, template_name, {
         'meta': Meta(
-            title=_("Privacy Policy - Board-Gamers.com"),
+            title=_("Privacy Policy"),
             description=_("Read our privacy policy: how we collect, use and protect your personal data."),
         )
     })
@@ -154,7 +154,7 @@ def privacy(request, template_name="staticpages/privacy.html"):
 def terms(request, template_name="staticpages/terms.html"):
     return render(request, template_name, {
         'meta': Meta(
-            title=_("Terms of Service - Board-Gamers.com"),
+            title=_("Terms of Service"),
             description=_("Read our terms of service: rules, responsibilities and platform usage conditions."),
         )
     })
@@ -191,7 +191,7 @@ def contacts(request):
     return render(request, 'staticpages/contacts.html', {
         'form': form,
         'meta': Meta(
-            title=_("Contacts - Board-Gamers.com"),
+            title=_("Contacts"),
             description=_("Contact the boardgamers team: reports, suggestions or questions about the platform."),
         )
     })
@@ -228,7 +228,7 @@ def about(request):
         'faq_jsonld': faq_jsonld,
         'about_stats': about_stats,
         'meta': Meta(
-            title=_("About Board-Gamers.com - For Clubs & Associations"),
+            title=_("About – For Clubs & Associations"),
             description=_("Discover why board game clubs and associations choose Board-Gamers.com: free forever, open source, member management, tables, rankings and more."),
         )
     })
@@ -280,7 +280,7 @@ def press(request):
             'players': UserProfile.objects.count(),
         },
         'meta': Meta(
-            title=_("Press kit - Board-Gamers.com"),
+            title=_("Press kit"),
             description=_("Logos, colors and information for writing about Board-Gamers.com."),
         ),
     })

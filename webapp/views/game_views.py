@@ -31,7 +31,7 @@ class GameListView(ListView):
         context = super().get_context_data(**kwargs)
         context['q'] = self.q
         context['meta'] = Meta(
-            title=_("Board Games - Board-Gamers.com"),
+            title=_("Board Games"),
             description=_("Discover all available board games and create new game tables!"),
         )
         return context

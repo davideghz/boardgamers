@@ -157,7 +157,7 @@ class AppointmentSearchView(View):
             'date_error': date_errors[0] if date_errors else '',
             'search_error': _("Check the search filters and try again.") if not valid and not date_errors else '',
             'meta': Meta(
-                title=_('Search – Board-Gamers.com'),
+                title=_('Search'),
                 description=_('Find events, game tables and manifestations on Board Gamers.'),
             ),
         }

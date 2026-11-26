@@ -124,8 +124,8 @@ def index_view(request, template_name="locations/location_index.html"):
         'map_locations': _location_map_data(nearby_locations),
         'map_selected': map_selected,
         'meta': Meta(
-            title=(_("%(name)s - Board-Gamers.com") % {'name': selected_network.name}
-                   if selected_network else _("Game Locations - Board-Gamers.com")),
+            title=(selected_network.name
+                   if selected_network else _("Game Locations")),
             description=_("Discover all board game locations near you. Find the perfect place for your next game!"),
         )
     }
@@ -325,7 +325,7 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
         location = self.get_object()
         context['is_owner'] = location.creator == self.request.user.user_profile
         context['meta'] = Meta(
-            title=_("Management %(name)s - Boardgamers.com") % {'name': location.name},
+            title=_("Management – %(name)s") % {'name': location.name},
             description=_("Game nights in %(address)s") % {'address': location.address},
         )
         return context
@@ -358,7 +358,7 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
         context['add_manager_form'] = AddLocationManagerForm()
         context['transfer_ownership_form'] = TransferOwnershipForm()
         context['meta'] = Meta(
-            title=_("Managers %(name)s - Boardgamers.com") % {'name': location.name},
+            title=_("Managers – %(name)s") % {'name': location.name},
             description=_("Manage managers of %(name)s location: add, remove and transfer ownership.") % {'name': location.name},
         )
         return context
@@ -396,7 +396,7 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
         context = super().get_context_data(**kwargs)
         location = self.get_object()
         context['meta'] = Meta(
-            title=_("Edit %(name)s - Boardgamers.com") % {'name': location.name},
+            title=_("Edit – %(name)s") % {'name': location.name},
             description=_("Game nights in %(address)s") % {'address': location.address},
         )
         return context
@@ -581,7 +581,7 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
         context['has_documents'] = location.membership_documents.filter(is_active=True).exists()
         context['is_owner'] = location.creator == self.request.user.user_profile
         context['meta'] = Meta(
-            title=_("Members %(name)s - Boardgamers.com") % {'name': location.name},
+            title=_("Members – %(name)s") % {'name': location.name},
             description=_("Manage members of %(name)s location.") % {'name': location.name},
         )
         return context
@@ -650,7 +650,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
             'memberships': memberships,
             'membership_forms': membership_forms,
             'meta': Meta(
-                title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
+                title=_("Member – %(name)s") % {'name': member.full_name},
             ),
         })
 
@@ -680,7 +680,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
             'memberships': memberships,
             'membership_forms': membership_forms,
             'meta': Meta(
-                title=_("Member %(name)s - Boardgamers.com") % {'name': member.full_name},
+                title=_("Member – %(name)s") % {'name': member.full_name},
             ),
         })
 
@@ -704,7 +704,7 @@ class AddMemberView(LoginRequiredMixin, View):
             'form': form,
             'is_new': True,
             'meta': Meta(
-                title=_("Add Member - %(name)s") % {'name': location.name},
+                title=_("Add Member – %(name)s") % {'name': location.name},
             ),
         })
 
@@ -725,7 +725,7 @@ class AddMemberView(LoginRequiredMixin, View):
             'form': form,
             'is_new': True,
             'meta': Meta(
-                title=_("Add Member - %(name)s") % {'name': location.name},
+                title=_("Add Member – %(name)s") % {'name': location.name},
             ),
         })
 
@@ -892,7 +892,7 @@ class LocationManageMembershipDocumentsView(LoginRequiredMixin, View):
             'documents': location.membership_documents.all(),
             'form': form,
             'meta': Meta(
-                title=_("Membership documents %(name)s - Boardgamers.com") % {'name': location.name},
+                title=_("Membership documents – %(name)s") % {'name': location.name},
             ),
         })
 
@@ -991,7 +991,7 @@ class RequestMembershipView(LoginRequiredMixin, View):
             'form': form,
             'documents': location.membership_documents.filter(is_active=True),
             'meta': Meta(
-                title=_("Request Membership - %(name)s") % {'name': location.name},
+                title=_("Request Membership – %(name)s") % {'name': location.name},
             ),
         })
 
@@ -2193,4 +2193,5 @@ class LocationCalendarView(View):
             'rows': rows,
             'today': today,
             'is_manager': is_manager,
+            'meta': Meta(title=_('Calendar – %(name)s') % {'name': location.name}),
         })

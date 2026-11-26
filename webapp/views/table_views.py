@@ -151,7 +151,7 @@ class TableIndexView(generic.ListView):
         context['has_filters'] = bool(self.q or self.location_slug)
         context['login_form'] = CustomLoginForm()
         context['meta'] = Meta(
-            title=_("Game Tables - Board-Gamers.com"),
+            title=_("Game Tables"),
             description=_("Discover all available game tables and join the game!"),
         )
         return context
