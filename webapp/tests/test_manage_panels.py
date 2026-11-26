@@ -76,3 +76,38 @@ class EventManagePanelTest(TestCase):
         managed_by = italian('Managed by %(name)s') % {'name': event.venue_location.name}
         self.assertContains(response, managed_by, count=2)
         self.assertContains(response, f'href="{reverse("location-manage-areas", args=[event.venue_location.slug])}"')
+
+
+class OrganizedEventsTest(TestCase):
+    """G3: the organized events as result rows, by drafts, upcoming and past."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def events(self, show=None):
+        self.client.force_login(self.data.manager.user)
+        url = reverse('location-manage-events', args=[self.data.associazione.slug])
+        response = self.client.get(url, {'show': show} if show else None)
+        self.assertEqual(response.status_code, 200)
+        return response, [event.name for event in response.context['events']]
+
+    def test_three_tabs(self):
+        response, upcoming = self.events()
+        self.assertIn(self.data.night.name, upcoming)
+        self.assertNotIn(self.data.draft_event.name, upcoming)
+        self.assertNotIn('Serata Demo passata', upcoming)
+        self.assertContains(response, f'href="{reverse("location-event-create", args=[self.data.associazione.slug])}"')
+        # Rows lead to the event's management
+        self.assertContains(response, f'href="{reverse("event-manage", args=[self.data.night.slug])}"')
+
+        response, drafts = self.events('drafts')
+        self.assertEqual(drafts, [self.data.draft_event.name])
+        self.assertContains(response, italian('Draft'))
+        self.assertEqual(self.events('past')[1], ['Serata Demo passata'])
+
+    def test_the_draft_to_do_opens_the_drafts(self):
+        self.client.force_login(self.data.manager.user)
+        response = self.client.get(reverse('location-manage', args=[self.data.associazione.slug]))
+        drafts = reverse('location-manage-events', args=[self.data.associazione.slug], query={'show': 'drafts'})
+        self.assertContains(response, f'href="{drafts}"')

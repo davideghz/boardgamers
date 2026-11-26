@@ -48,6 +48,8 @@ def manager_todo(location_ids):
         MEMBERSHIP_REQUESTS: 'location-manage-members', LAYOUT_REQUESTS: 'location-venue-layout-requests',
         DRAFT_EVENTS: 'location-manage-events', EVENTS_WITHOUT_TABLES: 'location-manage-events',
     }
-    items = [TodoItem(key, getattr(location, key), location, reverse(url_names[key], args=[location.slug]))
+    queries = {DRAFT_EVENTS: {'show': 'drafts'}}  # the drafts tab of the organized events (plan G3)
+    items = [TodoItem(key, getattr(location, key), location,
+                      reverse(url_names[key], args=[location.slug], query=queries.get(key)))
              for location in locations for key in counts if getattr(location, key)]
     return sorted(items, key=lambda item: list(counts).index(item.key))  # stable: by kind, then name

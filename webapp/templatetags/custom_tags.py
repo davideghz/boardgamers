@@ -171,6 +171,7 @@ STATUS_BADGES = {
     "pending": (pgettext_lazy("status", "Pending"), "warning"),
     "active": (pgettext_lazy("status", "Active"), "success"),
     "rejected": (pgettext_lazy("status", "Rejected"), "danger"),
+    "blocked": (pgettext_lazy("status", "Blocked"), "danger"),
 }
 TYPE_BADGES = {
     "table": pgettext_lazy("appointment type", "Table"),
@@ -267,12 +268,13 @@ def in_list(value, names):
 
 
 @register.inclusion_tag("components/result_row.html", takes_context=True)
-def appointment_row(context, kind, item, past=False, status=None, mine=False):
+def appointment_row(context, kind, item, past=False, status=None, mine=False, url=None):
     """A table, event or manifestation (kind 'table', 'event', 'manifestation') as a result_row:
     kicker "Type · date", title, where and who, and the state apart from the type.
 
     `mine` (My activities): upcoming rows say whether the user plays or attends, read from the
-    `playing` / `attending` annotations, and the tables the user created offer edit and duplicate."""
+    `playing` / `attending` annotations, and the tables the user created offer edit and duplicate.
+    `url` replaces the item's page (e.g. its management page)."""
     from django.utils import timezone
     from django.utils.formats import date_format, time_format
 
@@ -312,7 +314,7 @@ def appointment_row(context, kind, item, past=False, status=None, mine=False):
                 actions.append((_('Edit'), reverse('location-table-update', args=[item.location.slug, item.slug]),
                                 'pencil'))
             actions.append((_('Duplicate table'), reverse('table-duplicate', args=[item.slug]), 'copy'))
-    return result_row(item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
+    return result_row(url or item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
                       meta=meta, status=status, image_url=image, participation=participation, actions=actions)
 
 

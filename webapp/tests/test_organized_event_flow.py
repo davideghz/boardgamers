@@ -32,7 +32,8 @@ class OrganizedEventFlowTest(TestCase):
         manage = self.client.get(reverse('event-manage', args=[event.slug]))
         self.assertContains(manage, reverse('location-detail', args=[self.club.slug]))
         self.assertContains(manage, reverse('location-detail', args=[self.fair.slug]))
-        self.assertContains(self.client.get(reverse('location-manage-events', args=[self.club.slug])), event.name)
+        drafts = self.client.get(reverse('location-manage-events', args=[self.club.slug]), {'show': 'drafts'})
+        self.assertContains(drafts, event.name)
         self.client.post(reverse('event-manage-dates', args=[event.slug]), {
             'date': self.day + timedelta(days=2), 'opening_time': '10:00', 'closing_time': '18:00'})
         self.client.post(reverse('event-manage-publish', args=[event.slug]))

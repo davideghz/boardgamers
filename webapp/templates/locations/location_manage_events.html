@@ -1,11 +1,44 @@
 {% extends "base_webapp.html" %}
 {% load i18n custom_tags %}
+
+{% comment %}
+The events a location organizes (plan G3): drafts, upcoming or past, as result rows that lead
+to each event's management.
+{% endcomment %}
+
 {% block content %}
-  {% back_link 'location-manage' location.slug label=_("Manage") %}
-  <h1 class="text-2xl font-extrabold text-content mb-4">{% translate "Organized events" %}</h1>
-  {% if can_create %}<a href="{% url 'location-event-create' location.slug %}" class="text-link font-semibold">{% translate "Create event" %}</a>{% endif %}
-  <ul class="mt-4 grid gap-3 sm:grid-cols-2">
-    {% for event in events %}<li><a class="block rounded-xl bg-surface p-4 border border-divider" href="{% url 'event-manage' event.slug %}">{{ event.name }} · {{ event.get_status_display }}</a></li>
-    {% empty %}<li class="text-content-muted">{% translate "No events yet." %}</li>{% endfor %}
-  </ul>
+  <div class="max-w-2xl">
+    {% url 'location-manage' location.slug as manage_url %}
+    {% trans "Organized events" as page_title %}
+    {% if can_create %}{% url 'location-event-create' location.slug as create_url %}{% trans "Create event" as create_label %}{% endif %}
+    {% page_header page_title count=events|length action_label=create_label action_url=create_url back_url=manage_url back_label=_("Manage") %}
+
+    <nav aria-label="{% trans 'Which events' %}" class="mb-4 flex w-fit items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+      {% for value, label in tabs %}
+        <a href="{% if value == 'upcoming' %}?{% else %}?show={{ value }}{% endif %}"
+           {% if show == value %}aria-current="page"{% endif %}
+           class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if show == value %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
+          {{ label }}{% if value == 'drafts' and draft_count %}<span class="rounded-full bg-warning-soft px-1.5 text-[11px] font-bold text-warning">{{ draft_count }}</span>{% endif %}
+        </a>
+      {% endfor %}
+    </nav>
+
+    {% if events %}
+      <ul class="space-y-2">
+        {% for event in events %}
+          {% url 'event-manage' event.slug as event_manage_url %}
+          <li>
+            {% if show == 'drafts' %}{% appointment_row "event" event status="draft" url=event_manage_url %}
+            {% elif event.status == 'blocked' %}{% appointment_row "event" event status="blocked" url=event_manage_url %}
+            {% else %}{% appointment_row "event" event past=past url=event_manage_url %}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      {% if show == 'drafts' %}{% trans "No drafts." as empty_message %}
+      {% elif show == 'past' %}{% trans "No past events yet." as empty_message %}
+      {% else %}{% trans "No upcoming events." as empty_message %}{% endif %}
+      {% empty_state empty_message icon="calendar" %}
+    {% endif %}
+  </div>
 {% endblock %}

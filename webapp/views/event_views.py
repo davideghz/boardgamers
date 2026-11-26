@@ -10,14 +10,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import Count, F, Max, Min, Prefetch, Q
+from django.db.models import Count, Exists, F, Max, Min, OuterRef, Prefetch, Q, Subquery
 from django.core.paginator import Paginator
 from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import View
 from django.views.generic import DetailView, UpdateView
 
@@ -32,6 +32,7 @@ from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
 from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventParticipantDate, EventTableCategory, EventGame, EventGameTag, LocationAccess
+from webapp.services.appointments import with_matching_day
 from webapp.services.event_attendance import attendance_by_day, select_event_days
 from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
 from webapp.services.master_events import set_master
@@ -77,9 +78,29 @@ def location_manage_events(request, slug):
     location = get_object_or_404(Location, slug=slug)
     if not (request.user.is_superuser or location.is_manager(request.user.user_profile)):
         raise PermissionDenied
-    events = location.organized_events.select_related('venue_location', 'organizer_location').prefetch_related('dates')
+    # Drafts, upcoming or past (plan G3): each listed by its next day, or its last one when over
+    show = request.GET.get('show')
+    if show not in ('drafts', 'past'):
+        show = 'upcoming'
+    today = timezone.localdate()
+    events = location.organized_events.select_related('venue_location', 'organizer_location')
+    upcoming_days = EventDate.objects.filter(event_id=OuterRef('pk'), date__gte=today)
+    drafts = events.filter(status=Event.DRAFT)
+    if show == 'drafts':
+        events = drafts.annotate(matching_date=Subquery(upcoming_days.order_by('date').values('date')[:1]))
+        events = events.order_by(F('matching_date').asc(nulls_last=True), '-created_at')
+    elif show == 'past':
+        events = with_matching_day(
+            events.exclude(status=Event.DRAFT).exclude(Exists(upcoming_days)),
+            EventDate.objects.filter(event_id=OuterRef('pk'), date__lt=today), newest_first=True,
+        ).order_by('-matching_date')
+    else:
+        events = with_matching_day(events.exclude(status=Event.DRAFT), upcoming_days, newest_first=False)
+        events = events.order_by('matching_date', 'matching_time')
     return render(request, 'locations/location_manage_events.html', {
-        'location': location, 'events': events.order_by('-created_at'), 'can_create': location.can_create_events(request.user),
+        'location': location, 'events': events, 'show': show, 'past': show == 'past', 'draft_count': drafts.count(),
+        'tabs': [('drafts', _('Drafts')), ('upcoming', _('Upcoming')), ('past', pgettext_lazy('events', 'Past'))],
+        'can_create': location.can_create_events(request.user),
         'meta': Meta(title=_('Organized events – %(name)s') % {'name': location.name}),
     })
 

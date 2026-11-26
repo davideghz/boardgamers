@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:54+0100\n"
+"POT-Creation-Date: 2026-11-26 22:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3966,8 +3966,17 @@ msgstr ""
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
 
-msgid "No events yet."
-msgstr "Ancora nessun evento."
+msgid "Which events"
+msgstr "Quali eventi"
+
+msgid "No drafts."
+msgstr "Nessuna bozza."
+
+msgid "No past events yet."
+msgstr "Ancora nessun evento passato."
+
+msgid "No upcoming events."
+msgstr "Nessun evento in programma."
 
 msgid "Withdrawn games"
 msgstr "Giochi usciti"
@@ -5916,6 +5925,10 @@ msgctxt "status"
 msgid "Rejected"
 msgstr "Rifiutata"
 
+msgctxt "status"
+msgid "Blocked"
+msgstr "Bloccato"
+
 msgctxt "appointment type"
 msgid "Table"
 msgstr "Tavolo"
@@ -6123,6 +6136,13 @@ msgstr "Non hai il permesso di modificare questo tavolo."
 
 msgid "Event created as a draft."
 msgstr "Evento creato in bozza."
+
+msgid "Drafts"
+msgstr "Bozze"
+
+msgctxt "events"
+msgid "Past"
+msgstr "Passati"
 
 #, python-format
 msgid "Organized events – %(name)s"
