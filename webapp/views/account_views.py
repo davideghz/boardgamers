@@ -21,10 +21,21 @@ from webapp.services.appointments import paginate_appointments, with_matching_da
 @login_required
 def index(request, template_name='accounts/account_index.html'):
     user = request.user
+    profile = user.user_profile
+    today = timezone.localdate()
+    upcoming_tables = Table.objects.visible_to(user).filter(players=profile, date__gte=today).count()
+    upcoming_events = Event.objects.filter(
+        participants__user_profile=profile, status=Event.PUBLISHED, dates__date__gte=today,
+    ).distinct().count()
 
     return render(request, template_name, {
         'user': user,
-        'manages_events': Event.objects.managed_by(user.user_profile).exists(),
+        # Counters on the entries, and the entries only some users need
+        'upcoming_activities_count': upcoming_tables + upcoming_events,
+        'active_memberships_count': Membership.active_for(profile).count(),
+        'managed_locations_count': Location.managed_by(profile).count(),
+        'organizes_tables': Table.objects.filter(author=profile).exists(),
+        'manages_events': Event.objects.managed_by(profile).exists(),
         'meta': Meta(
             title=_("My Account"),
             description=_("Manage your profile: view your activities, notifications and settings."),
