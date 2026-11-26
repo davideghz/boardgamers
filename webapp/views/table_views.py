@@ -26,7 +26,7 @@ from meta.views import Meta
 
 from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, TableAccess, \
+from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, LocationAccess, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import (
@@ -340,7 +340,7 @@ class TableDetailView(BaseTableDetailView):
         table = self.object
 
         profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        table_join = table.location.table_join_access(profile) if table.location else TableAccess()
+        table_join = table.location.table_join_access(profile) if table.location else LocationAccess()
 
         context.update({
             'table_join': table_join,

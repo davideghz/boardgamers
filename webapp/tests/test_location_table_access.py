@@ -6,11 +6,11 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext
 
 from webapp.factories import LocationFactory, SuperUserProfileFactory, UserProfileFactory
-from webapp.models import Location, Member, Membership, TableAccess, Table
+from webapp.models import Location, LocationAccess, Member, Membership, Table
 
 ANYONE, MEMBERS, MANAGERS = Location.PERM_ANYONE, Location.PERM_MEMBERS_ONLY, Location.PERM_MANAGERS_ONLY
-LOGIN, MEMBERS_ONLY = TableAccess.LOGIN, TableAccess.MEMBERS_ONLY
-PENDING, MANAGERS_ONLY = TableAccess.MEMBERSHIP_PENDING, TableAccess.MANAGERS_ONLY
+LOGIN, MEMBERS_ONLY = LocationAccess.LOGIN, LocationAccess.MEMBERS_ONLY
+PENDING, MANAGERS_ONLY = LocationAccess.MEMBERSHIP_PENDING, LocationAccess.MANAGERS_ONLY
 
 # The refusal reason for each profile under each permission; None means allowed.
 EXPECTED = {

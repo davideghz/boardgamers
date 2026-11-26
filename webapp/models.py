@@ -189,8 +189,9 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
 
 
 @dataclass(frozen=True)
-class TableAccess:
-    """Whether a user may create or join tables at a location and, if not, why.
+class LocationAccess:
+    """Whether a user may act at a location, such as creating or joining its tables,
+    and, if not, why.
 
     Built by `Location.table_creation_access` and `Location.table_join_access`,
     which also report what they looked up, so callers don't query it again.
@@ -364,7 +365,7 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
             return Membership.PENDING
         return None
 
-    # Who may create or join tables here: a `TableAccess`; `user_profile` is None for visitors.
+    # Who may create or join tables here: a `LocationAccess`; `user_profile` is None for visitors.
     def table_creation_access(self, user_profile):
         return self._table_access(user_profile, self.table_creation_permission)
 
@@ -373,20 +374,20 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
 
     def _table_access(self, user_profile, permission):
         if user_profile and self.is_manager(user_profile):
-            return TableAccess(is_manager=True)
+            return LocationAccess(is_manager=True)
         membership = self.membership_status(user_profile)
         if permission == self.PERM_ANYONE:
-            reason = None if user_profile else TableAccess.LOGIN
+            reason = None if user_profile else LocationAccess.LOGIN
         elif user_profile and user_profile.user.is_superuser:
             reason = None
         elif permission == self.PERM_MEMBERS_ONLY:
             reason = {
                 Membership.ACTIVE: None,
-                Membership.PENDING: TableAccess.MEMBERSHIP_PENDING,
-            }.get(membership, TableAccess.MEMBERS_ONLY)
+                Membership.PENDING: LocationAccess.MEMBERSHIP_PENDING,
+            }.get(membership, LocationAccess.MEMBERS_ONLY)
         else:
-            reason = TableAccess.MANAGERS_ONLY
-        return TableAccess(reason, membership=membership)
+            reason = LocationAccess.MANAGERS_ONLY
+        return LocationAccess(reason, membership=membership)
 
     @classmethod
     def event_creation_locations(cls, user):
