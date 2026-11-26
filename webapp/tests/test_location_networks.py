@@ -267,7 +267,8 @@ class LocationNetworksTest(TestCase):
         self.federludo.save(update_fields=['logo', 'website'])
 
         response = self.client.get(self.index_url, {'network': self.federludo.slug})
-        self.assertContains(response, '<h1 class="text-2xl font-extrabold text-content">FederLudo</h1>', html=True)
+        self.assertContains(response, '<h2 class="text-base font-bold text-content">FederLudo</h2>', html=True)
+        self.assertIn('Associazione nazionale: FederLudo', [str(label) for label, _ in response.context['active_filters']])
         self.assertContains(response, f'src="{self.federludo.logo.url}"')
         self.assertContains(response, f'href="{self.federludo.website}"')
         self.assertFalse(response.context['nearby_locations'])
@@ -332,7 +333,7 @@ class LocationNetworksTest(TestCase):
         response = self.client.get(self.index_url, {'network': self.network.slug})
         self.assertFalse(response.context['network_unavailable'])
         self.assertFalse(response.context['nearby_locations'])
-        self.assertContains(response, 'data-reset-network')
+        self.assertEqual(response.context['active_filters'][0][1], self.index_url)  # the chip clears the filter
 
         Network.objects.all().update(is_active=False)
         self.client.force_login(self.manager.user)

@@ -75,7 +75,10 @@ def index_view(request, template_name="locations/location_index.html"):
     network_slug = request.GET.get('network', '')
     selected_network = next((network for network in networks if network.slug == network_slug), None)
     network_unavailable = bool(network_slug and not selected_network)
+    query = request.GET.get('q', '').replace('\x00', '').strip()[:100]
     nearby_locations = Location.objects.all()
+    if query:
+        nearby_locations = nearby_locations.filter(Q(name__icontains=query) | Q(city__icontains=query))
     if selected_network:
         # A network can be archived after the filter options have been loaded.
         nearby_locations = nearby_locations.filter(
@@ -85,7 +88,7 @@ def index_view(request, template_name="locations/location_index.html"):
         nearby_locations = nearby_locations.none()
 
     if request.user.is_authenticated:
-        if not network_slug:
+        if not network_slug and not query:
             user_created_locations = request.user.user_profile.locations.all()
         followed_location_ids = get_viewer(request).followed_location_ids
         try:
@@ -110,9 +113,19 @@ def index_view(request, template_name="locations/location_index.html"):
             user_created_locations = user_created_locations.prefetch_related(affiliations)
 
     map_selected = request.GET.get('view') == 'map'
-    reset_query = {'view': 'map'} if map_selected else {}
+    kept = {'view': 'map'} if map_selected else {}
     if request.GET.get('new_table'):
-        reset_query['new_table'] = request.GET['new_table']
+        kept['new_table'] = request.GET['new_table']
+    # The active filters as chips (plan E4), each one removable on its own
+    active_filters = []
+    if query:
+        active_filters.append(
+            (f'«{query}»', reverse('locations-index', query={**kept, **({'network': network_slug} if network_slug else {})})))
+    if network_slug:
+        label = selected_network.name if selected_network else _('Affiliation unavailable')
+        active_filters.append((_('Network: %(name)s') % {'name': label},
+                               reverse('locations-index', query={**kept, **({'q': query} if query else {})})))
+    map_locations = _location_map_data(nearby_locations)
 
     context = {
         'nearby_locations': nearby_locations,
@@ -122,8 +135,10 @@ def index_view(request, template_name="locations/location_index.html"):
         'networks': networks,
         'selected_network': selected_network,
         'network_unavailable': network_unavailable,
-        'reset_network_url': reverse('locations-index', query=reset_query),
-        'map_locations': _location_map_data(nearby_locations),
+        'q': query,
+        'active_filters': active_filters,
+        'reset_url': reverse('locations-index', query=kept),
+        'map_locations': map_locations,
         'map_selected': map_selected,
         # Who already runs a location doesn't need the invitation to add one.
         'manages_locations': bool(get_viewer(request).managed_location_ids),

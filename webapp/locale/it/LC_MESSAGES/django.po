@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 18:43+0100\n"
+"POT-Creation-Date: 2026-11-26 19:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1435,7 +1435,9 @@ msgstr "L’evento non è più disponibile per il collegamento."
 #, python-format
 msgid ""
 "Add these dates to the festival calendar before linking the event: %(dates)s."
-msgstr "Aggiungi queste giornate al calendario della manifestazione prima di collegare l’evento: %(dates)s."
+msgstr ""
+"Aggiungi queste giornate al calendario della manifestazione prima di "
+"collegare l’evento: %(dates)s."
 
 msgid ""
 "Only active accounts without Django admin roles or permissions can be merged."
@@ -2579,7 +2581,9 @@ msgstr "Manifestazione"
 msgid ""
 "This event is linked to the festival and its dates must be in the festival "
 "calendar."
-msgstr "Questo evento è collegato alla manifestazione e le sue giornate devono essere nel calendario della manifestazione."
+msgstr ""
+"Questo evento è collegato alla manifestazione e le sue giornate devono "
+"essere nel calendario della manifestazione."
 
 msgid "Unlink this event from the festival?"
 msgstr "Scollegare questo evento dalla manifestazione?"
@@ -3809,30 +3813,29 @@ msgstr "Consegnato il %(loan_date)s · Rientro previsto il %(due_date)s"
 msgid "Borrowed by %(nickname)s"
 msgstr "In prestito a %(nickname)s"
 
-msgid "Official website"
-msgstr "Sito ufficiale"
-
-msgid ""
-"Discover all board game locations near you. Find the perfect place for your "
-"next game!"
-msgstr ""
-"Scopri dove giocare a giochi da tavolo vicino a te. Trova il posto giusto "
-"per la tua prossima partita!"
-
 msgid "Pick the location where you want to create the table."
 msgstr "Scegli la sede in cui vuoi creare il tavolo."
 
 msgid "Can't find it? Add it"
 msgstr "Non la trovi? Aggiungila"
 
+msgid "Name or city"
+msgstr "Nome o città"
+
+msgid "All networks"
+msgstr "Tutte le associazioni nazionali"
+
+msgid "Affiliation unavailable"
+msgstr "Affiliazione non disponibile"
+
+msgid "Active filters"
+msgstr "Filtri attivi"
+
+msgid "Official website"
+msgstr "Sito ufficiale"
+
 msgid "Your locations"
 msgstr "Le tue sedi"
-
-msgid "List"
-msgstr "Lista"
-
-msgid "Map"
-msgstr "Mappa"
 
 msgid "Login"
 msgstr "Login"
@@ -3843,26 +3846,26 @@ msgstr "per vedere le sedi vicine."
 msgid "Set your address"
 msgstr "Inserisci un indirizzo"
 
-msgid "Tables near to"
-msgstr "Tavoli vicini a"
+msgid "Locations near to"
+msgstr "Sedi vicine a"
 
 msgid "Edit address"
 msgstr "Modifica indirizzo"
 
-msgid "All"
-msgstr "Tutte"
+msgid "List"
+msgstr "Lista"
 
-msgid "Affiliation unavailable"
-msgstr "Affiliazione non disponibile"
-
-msgid "Apply filter"
-msgstr "Applica filtro"
-
-msgid "Clear filter"
-msgstr "Azzera filtro"
+msgid "Map"
+msgstr "Mappa"
 
 msgid "This national affiliation is unavailable."
 msgstr "Questa affiliazione nazionale non è disponibile."
+
+msgid "No locations match your search."
+msgstr "Nessuna sede corrisponde alla ricerca."
+
+msgid "Is it missing? Add it."
+msgstr "Manca? Aggiungila tu."
 
 msgid "No locations match this affiliation."
 msgstr "Nessuna sede corrisponde a questa affiliazione."
@@ -4406,6 +4409,9 @@ msgstr ""
 msgid "Create stations"
 msgstr "Crea postazioni"
 
+msgid "All"
+msgstr "Tutte"
+
 msgid "Without station"
 msgstr "Senza postazione"
 
@@ -4696,7 +4702,9 @@ msgid "No events available to link."
 msgstr "Non ci sono eventi disponibili da collegare."
 
 msgid "Until the festival is approved, you can only link events you manage."
-msgstr "Finché la manifestazione non è approvata puoi collegare solo eventi che gestisci."
+msgstr ""
+"Finché la manifestazione non è approvata puoi collegare solo eventi che "
+"gestisci."
 
 #, python-format
 msgid "Edit sponsor %(name)s"
@@ -4918,9 +4926,6 @@ msgstr "Applica i filtri"
 #, python-format
 msgid "Filters (%(n)s)"
 msgstr "Filtri (%(n)s)"
-
-msgid "Active filters"
-msgstr "Filtri attivi"
 
 msgid "Your drafts"
 msgstr "Le tue bozze"
@@ -5246,9 +5251,6 @@ msgstr "Vedi tutte le manifestazioni"
 
 msgid "See all game clubs"
 msgstr "Vedi tutti i club di gioco"
-
-msgid "Locations near to"
-msgstr "Sedi vicine a"
 
 msgid "Get started"
 msgstr "Per iniziare"
@@ -6250,8 +6252,19 @@ msgid "Discover all available board games and create new game tables!"
 msgstr ""
 "Scopri tutti i giochi da tavolo disponibili e crea nuovi tavoli di gioco!"
 
+#, python-format
+msgid "Network: %(name)s"
+msgstr "Associazione nazionale: %(name)s"
+
 msgid "Game Locations"
 msgstr "Dove giocare"
+
+msgid ""
+"Discover all board game locations near you. Find the perfect place for your "
+"next game!"
+msgstr ""
+"Scopri dove giocare a giochi da tavolo vicino a te. Trova il posto giusto "
+"per la tua prossima partita!"
 
 msgid "Location was created successfully"
 msgstr "Sede creata"
@@ -6821,6 +6834,15 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Tables near to"
+#~ msgstr "Tavoli vicini a"
+
+#~ msgid "Apply filter"
+#~ msgstr "Applica filtro"
+
+#~ msgid "Clear filter"
+#~ msgstr "Azzera filtro"
 
 #~ msgid "A published manifestation needs at least one date."
 #~ msgstr "Una manifestazione pubblicata deve avere almeno una giornata."
