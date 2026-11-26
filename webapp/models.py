@@ -3,6 +3,7 @@ import string
 import uuid
 import random
 import datetime
+from dataclasses import dataclass
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
@@ -187,6 +188,49 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
         ordering = ['name']
 
 
+@dataclass(frozen=True)
+class LocationAccess:
+    """Whether a user may act at a location, such as creating or joining its tables,
+    and, if not, why.
+
+    Built by `Location.table_creation_access` and `Location.table_join_access`,
+    which also report what they looked up, so callers don't query it again.
+    """
+    LOGIN = 'login'
+    MEMBERS_ONLY = 'members_only'
+    MEMBERSHIP_PENDING = 'membership_pending'
+    MANAGERS_ONLY = 'managers_only'
+
+    reason: str | None = None
+    is_manager: bool = False
+    #: `Membership.ACTIVE`, `Membership.PENDING` or None; None for managers.
+    membership: str | None = None
+
+    @property
+    def allowed(self):
+        return self.reason is None
+
+    @property
+    def needs_login(self):
+        return self.reason == self.LOGIN
+
+    @property
+    def needs_membership(self):
+        return self.reason in (self.MEMBERS_ONLY, self.MEMBERSHIP_PENDING)
+
+    @property
+    def membership_pending(self):
+        return self.membership == Membership.PENDING
+
+    @property
+    def managers_only(self):
+        return self.reason == self.MANAGERS_ONLY
+
+    @property
+    def is_active_member(self):
+        return self.membership == Membership.ACTIVE
+
+
 class Location(DateTimeModel, ModelMeta, SlugModel):
     # How long after a table's start its leaderboard stays editable (days).
     # Event tables always use the default.
@@ -308,6 +352,42 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     def is_manager(self, user_profile):
         return bool(user_profile and (
             self.creator_id == user_profile.pk or self.managers.filter(pk=user_profile.pk).exists()))
+
+    def membership_status(self, user_profile):
+        """`Membership.ACTIVE` while a membership covers today, else `Membership.PENDING`
+        for a request awaiting approval, else None."""
+        if not user_profile:
+            return None
+        if Membership.active_for(user_profile).filter(member__location=self).exists():
+            return Membership.ACTIVE
+        if Membership.objects.filter(
+                member__location=self, member__user_profile=user_profile, status=Membership.PENDING).exists():
+            return Membership.PENDING
+        return None
+
+    # Who may create or join tables here: a `LocationAccess`; `user_profile` is None for visitors.
+    def table_creation_access(self, user_profile):
+        return self._table_access(user_profile, self.table_creation_permission)
+
+    def table_join_access(self, user_profile):
+        return self._table_access(user_profile, self.table_join_permission)
+
+    def _table_access(self, user_profile, permission):
+        if user_profile and self.is_manager(user_profile):
+            return LocationAccess(is_manager=True)
+        membership = self.membership_status(user_profile)
+        if permission == self.PERM_ANYONE:
+            reason = None if user_profile else LocationAccess.LOGIN
+        elif user_profile and user_profile.user.is_superuser:
+            reason = None
+        elif permission == self.PERM_MEMBERS_ONLY:
+            reason = {
+                Membership.ACTIVE: None,
+                Membership.PENDING: LocationAccess.MEMBERSHIP_PENDING,
+            }.get(membership, LocationAccess.MEMBERS_ONLY)
+        else:
+            reason = LocationAccess.MANAGERS_ONLY
+        return LocationAccess(reason, membership=membership)
 
     @classmethod
     def event_creation_locations(cls, user):

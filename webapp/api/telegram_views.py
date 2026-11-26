@@ -24,8 +24,7 @@ logger = logging.getLogger(__name__)
 def _is_location_manager(user, location):
     if not user.is_authenticated:
         return False
-    profile = user.user_profile
-    return location.creator == profile or profile in location.managers.all()
+    return location.is_manager(user.user_profile)
 
 
 # ── Webhook ───────────────────────────────────────────────────────────────────

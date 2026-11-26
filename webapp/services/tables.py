@@ -17,7 +17,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from webapp.models import (
-    Comment, CommentType, GameOutcome, Location, Membership, Notification, NotificationType, Player, ResultMode,
+    Comment, CommentType, GameOutcome, Location, Notification, NotificationType, Player, ResultMode,
     Table, TableLink,
 )
 
@@ -43,15 +43,7 @@ TableActionWarning = namedtuple('TableActionWarning', 'code message')
 JoinResult = namedtuple('JoinResult', 'player warnings')
 
 
-# ── Membership ────────────────────────────────────────────────────────────────
-
-def is_active_member(profile, location):
-    return Membership.objects.filter(
-        member__location=location,
-        member__user_profile=profile,
-        status=Membership.ACTIVE,
-    ).exists()
-
+# ── Permissions ───────────────────────────────────────────────────────────────
 
 def is_table_host(profile, table):
     """The managers of the table's location, or of its event."""
@@ -122,9 +114,7 @@ def can_manage_roster(profile, table):
     if table.author_id == profile.id or profile.user.is_superuser:
         return True
     if table.location_id:
-        location = table.location
-        return (location.creator_id == profile.id
-                or location.managers.filter(id=profile.id).exists())
+        return table.location.is_manager(profile)
     if table.event_id:
         return table.event.is_manager(profile)
     return False
@@ -322,23 +312,10 @@ def can_edit_leaderboard(profile, table):
             or can_manage_roster(profile, table))
 
 
-def _is_location_staff(profile, location):
-    return (
-        location.creator == profile
-        or profile in location.managers.all()
-        or profile.user.is_superuser
-    )
-
-
 def _may_join_restricted_location(profile, table):
     if table.event_id and table.event.organizer_location_id:
         return table.event.organizer_location.can_join_events(profile)
-    location = table.location
-    if not location or location.table_join_permission != location.PERM_MEMBERS_ONLY:
-        return True
-    if _is_location_staff(profile, location):
-        return True
-    return is_active_member(profile, location)
+    return not table.location or table.location.table_join_access(profile).allowed
 
 
 def _has_overlapping_table(profile, table):

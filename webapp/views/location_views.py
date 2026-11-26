@@ -145,27 +145,10 @@ class LocationDetailView(DetailView):
 
         # Check if user is following location
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
-        is_following = False
-        is_manager = False
         followers_count = location.followers.count()
-
-        has_pending_membership = False
-        is_active_member = False
-        if user_profile:
-            is_following = LocationFollower.objects.filter(user_profile=user_profile, location=location).exists()
-            is_manager = location.creator == user_profile or user_profile in location.managers.all()
-            if not is_manager:
-                has_pending_membership = Membership.objects.filter(
-                    member__location=location,
-                    member__user_profile=user_profile,
-                    status=Membership.PENDING,
-                ).exists()
-                if not has_pending_membership:
-                    is_active_member = Membership.objects.filter(
-                        member__location=location,
-                        member__user_profile=user_profile,
-                        status=Membership.ACTIVE,
-                    ).exists()
+        is_following = bool(user_profile) and LocationFollower.objects.filter(
+            user_profile=user_profile, location=location).exists()
+        table_creation = location.table_creation_access(user_profile)
 
         # Prefetching per ottimizzare le query
         comments_prefetch = Prefetch('comments', queryset=Comment.objects.select_related('author', 'author__user'))
@@ -234,10 +217,11 @@ class LocationDetailView(DetailView):
         )
         context['player_stats'] = player_stats
         context['is_following'] = is_following
-        context['is_manager'] = is_manager
+        context['is_manager'] = table_creation.is_manager
         context['followers_count'] = followers_count
-        context['has_pending_membership'] = has_pending_membership
-        context['is_active_member'] = is_active_member
+        context['has_pending_membership'] = table_creation.membership_pending
+        context['is_active_member'] = table_creation.is_active_member
+        context['table_creation'] = table_creation
         context['organized_events'] = location.organized_events.filter(status=Event.PUBLISHED).select_related(
             'organizer_location', 'venue_location').prefetch_related('dates').order_by('-created_at')
         context['can_create_events'] = location.can_create_events(self.request.user)
@@ -287,7 +271,7 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, generic.Update
             return super().dispatch(request, *args, **kwargs)
         location = self.get_object()
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied("You don't have permission to edit this location.")
         return super().dispatch(request, *args, **kwargs)
 
@@ -316,7 +300,7 @@ class LocationManageIndexView(LoginRequiredMixin, generic.DetailView):
         location = self.get_object()
         user_profile = request.user.user_profile
         # Check if user is owner or manager
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied("You don't have permission to manage this location.")
         return response
 
@@ -346,7 +330,7 @@ class LocationManageManagersView(LoginRequiredMixin, generic.DetailView):
         location = self.get_object()
         user_profile = request.user.user_profile
         # Check if user is owner or manager
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied("You don't have permission to manage this location.")
         return response
 
@@ -376,7 +360,7 @@ class LocationManageDataView(LoginRequiredMixin, SuccessMessageMixin, generic.Up
             return super().dispatch(request, *args, **kwargs)
         location = self.get_object()
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied("You don't have permission to edit this location.")
         return super().dispatch(request, *args, **kwargs)
 
@@ -414,7 +398,7 @@ class LocationManagePermissionsView(LoginRequiredMixin, SuccessMessageMixin, gen
             return super().dispatch(request, *args, **kwargs)
         location = self.get_object()
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
@@ -456,7 +440,7 @@ class AddLocationManagerView(LoginRequiredMixin, View):
         user_profile = request.user.user_profile
 
         # Allow owner and managers to add managers
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied("You don't have permission to add managers.")
 
         # Get the manager to add from POST data
@@ -491,7 +475,7 @@ class RemoveLocationManagerView(LoginRequiredMixin, View):
         manager_id = kwargs.get('manager_id')
 
         # Allow owner and managers to remove managers
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied("You don't have permission to remove managers.")
 
         try:
@@ -568,7 +552,7 @@ class LocationManageMembersView(LoginRequiredMixin, generic.DetailView):
 
         location = self.get_object()
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
         return response
 
@@ -597,7 +581,7 @@ class ToggleMembershipView(LoginRequiredMixin, View):
     def post(self, request, slug):
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
 
         location.enable_membership = request.POST.get('enabled') == 'on'
@@ -625,7 +609,7 @@ class MemberDetailEditView(LoginRequiredMixin, View):
 
     def _check_permission(self, request, location):
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
 
     def get(self, request, slug, member_uuid):
@@ -690,7 +674,7 @@ class AddMemberView(LoginRequiredMixin, View):
 
     def _check_permission(self, request, location):
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
 
     def get(self, request, slug):
@@ -737,7 +721,7 @@ class ApproveMembershipView(LoginRequiredMixin, View):
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
 
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage memberships."))
 
         member = get_object_or_404(Member, uuid=member_uuid, location=location)
@@ -778,7 +762,7 @@ class EditMembershipView(LoginRequiredMixin, View):
     def post(self, request, slug, member_uuid, membership_uuid):
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage memberships."))
         member = get_object_or_404(Member, uuid=member_uuid, location=location)
         membership = get_object_or_404(Membership, uuid=membership_uuid, member=member)
@@ -806,7 +790,7 @@ class AddMembershipView(LoginRequiredMixin, View):
     def post(self, request, slug, member_uuid):
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage memberships."))
         member = get_object_or_404(Member, uuid=member_uuid, location=location)
         Membership.objects.create(member=member, status=Membership.PENDING)
@@ -821,7 +805,7 @@ class DownloadMembersCSVView(LoginRequiredMixin, View):
         import csv
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
 
         response = HttpResponse(content_type='text/csv; charset=utf-8')
@@ -869,7 +853,7 @@ class DeleteMembershipView(LoginRequiredMixin, View):
     def post(self, request, slug, member_uuid, membership_uuid):
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage memberships."))
         member = get_object_or_404(Member, uuid=member_uuid, location=location)
         membership = get_object_or_404(Membership, uuid=membership_uuid, member=member)
@@ -883,7 +867,7 @@ class LocationManageMembershipDocumentsView(LoginRequiredMixin, View):
 
     def _check_permission(self, request, location):
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
 
     def _render(self, request, location, form):
@@ -920,7 +904,7 @@ class MembershipDocumentActionView(LoginRequiredMixin, View):
     def post(self, request, slug, document_uuid):
         location = get_object_or_404(Location, slug=slug)
         user_profile = request.user.user_profile
-        if location.creator != user_profile and user_profile not in location.managers.all():
+        if not location.is_manager(user_profile):
             raise PermissionDenied(_("You don't have permission to manage this location."))
         document = get_object_or_404(MembershipDocument, uuid=document_uuid, location=location)
 
@@ -2179,13 +2163,7 @@ class LocationCalendarView(View):
                 })
             rows.append({'table': pt, 'cells': cells})
 
-        is_manager = False
-        if request.user.is_authenticated:
-            try:
-                up = request.user.user_profile
-                is_manager = location.creator == up or up in location.managers.all()
-            except Exception:
-                pass
+        is_manager = request.user.is_authenticated and location.is_manager(request.user.user_profile)
 
         return render(request, self.template_name, {
             'location': location,
