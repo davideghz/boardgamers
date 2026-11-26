@@ -9,7 +9,7 @@
   <img loading="lazy" decoding="async" src="{{ player.avatar.url }}" alt="{{ player.nickname }}"
        class="w-9 h-9 rounded-full object-cover flex-shrink-0">
   {% else %}
-  <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+  <div class="w-9 h-9 rounded-full bg-primary/10 text-link flex items-center justify-center text-xs font-bold flex-shrink-0">
     {{ player.nickname|slice:":1"|upper }}
   </div>
   {% endif %}

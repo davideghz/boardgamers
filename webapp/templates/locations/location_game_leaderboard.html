@@ -14,7 +14,7 @@
         <h1 class="text-2xl font-extrabold text-content truncate">{{ game.name }}</h1>
         <p class="text-sm text-content-muted">
           {% blocktrans count counter=game.play_count %}{{ counter }} table at this location{% plural %}{{ counter }} tables at this location{% endblocktrans %}
-          · <a href="{% url 'game-detail' game.slug %}" class="text-blue-600 hover:underline">{% trans "Game details" %}</a>
+          · <a href="{% url 'game-detail' game.slug %}" class="text-link hover:underline">{% trans "Game details" %}</a>
         </p>
       </div>
     </div>

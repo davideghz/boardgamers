@@ -103,13 +103,13 @@
             {% endif %}
             <span class="block text-[10px] font-medium text-content-muted">{{ dh.date|date:"D" }}</span>
             {% if dh.is_today %}
-              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-sm font-extrabold leading-none">{{ dh.date|date:"j" }}</span>
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-extrabold leading-none">{{ dh.date|date:"j" }}</span>
             {% else %}
               <span class="block text-sm font-extrabold leading-tight {% if dh.is_weekend %}text-content-muted{% else %}text-content{% endif %}">{{ dh.date|date:"j" }}</span>
             {% endif %}
             <div class="h-4 mt-1 flex items-center justify-center">
               {% if dh.sessions %}
-                <span class="text-[9px] font-bold bg-blue-100 dark:bg-blue-500/25 text-blue-600 dark:text-blue-300 rounded-full px-1.5 py-px leading-none">{{ dh.sessions|length }}</span>
+                <span class="text-[9px] font-bold bg-primary/15 text-link rounded-full px-1.5 py-px leading-none">{{ dh.sessions|length }}</span>
               {% endif %}
             </div>
           </th>
@@ -144,11 +144,11 @@
                   {% for session in cell.sessions %}
                   <a href="{% url 'table-detail' session.slug %}"
                      class="session-card flex-1 flex flex-col justify-center px-1.5 py-1 rounded
-                            bg-blue-500 hover:bg-blue-600 transition-colors text-decoration-none min-h-[1.75rem]">
+                            bg-primary hover:bg-primary/90 transition-colors text-decoration-none min-h-[1.75rem]">
                     <span class="block text-[11px] font-bold text-white leading-tight truncate">
                       {{ session.game.name|default:session.title|truncatechars:12 }}
                     </span>
-                    <span class="block text-[10px] text-blue-200 leading-tight">{{ session.time|time:"H:i" }}</span>
+                    <span class="block text-[10px] text-primary-foreground/80 leading-tight">{{ session.time|time:"H:i" }}</span>
                   </a>
                   {% endfor %}
                 </div>
@@ -156,7 +156,7 @@
               <div class="flex justify-end pr-1 pb-1 mt-auto pt-0.5">
                 <a href="{% url 'location-table-create' location.slug %}?date={{ cell.date|date:'Y-m-d' }}"
                    class="add-session-btn flex items-center justify-center w-5 h-5 rounded
-                          text-content-muted hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/20 transition-colors"
+                          text-content-muted hover:text-link hover:bg-primary/10 transition-colors"
                    title="{% trans 'Add session' %}">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

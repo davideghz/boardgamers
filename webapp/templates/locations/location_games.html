@@ -30,7 +30,7 @@
       <span>
         {% blocktrans count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktrans %}
       </span>
-      <a href="{% querystring q=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+      <a href="{% querystring q=None page=None %}" class="font-semibold text-link hover:underline">{% trans "Clear filters" %}</a>
     </div>
   {% endif %}
 

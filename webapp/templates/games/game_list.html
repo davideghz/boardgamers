@@ -25,7 +25,7 @@
       <span>
         {% blocktrans count counter=paginator.count %}{{ counter }} game found{% plural %}{{ counter }} games found{% endblocktrans %}
       </span>
-      <a href="{% querystring q=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+      <a href="{% querystring q=None page=None %}" class="font-semibold text-link hover:underline">{% trans "Clear filters" %}</a>
     </div>
   {% endif %}
 
@@ -41,7 +41,7 @@
           {% endif %}
         </div>
         <div class="pt-2 px-0.5 flex flex-col gap-1 min-w-0">
-          <p class="text-sm font-bold text-content leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">{{ game.name }}</p>
+          <p class="text-sm font-bold text-content leading-snug line-clamp-2 group-hover:text-link transition-colors">{{ game.name }}</p>
           <div class="flex items-center gap-3 text-xs text-content-muted">
             <span class="flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">

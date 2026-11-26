@@ -43,7 +43,7 @@
       {# ── Follow box (top — only when not following; managers already get the location in their quick links) ── #}
       {% if not is_following and not is_manager %}
       {% with follow_requested=request.GET.follow %}
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border rounded-xl bg-surface px-5 py-4 {% if follow_requested and user.is_authenticated %}border-blue-500 ring-2 ring-blue-500/30{% else %}border-divider{% endif %}">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border rounded-xl bg-surface px-5 py-4 {% if follow_requested and user.is_authenticated %}border-primary ring-2 ring-primary/30{% else %}border-divider{% endif %}">
         <div>
           <p class="text-sm font-semibold text-content">{% trans "Follow" %} {{ location.name }}</p>
           {% if user.is_authenticated %}
@@ -97,7 +97,7 @@
                       fade.classList.toggle('hidden', !expanded);
                       btn.textContent = expanded ? '{% trans "Read more" %}' : '{% trans "Show less" %}';
                     "
-                    class="mt-1 text-xs font-semibold text-blue-600 hover:underline">
+                    class="mt-1 text-xs font-semibold text-link hover:underline">
               {% trans "Read more" %}
             </button>
           {% else %}
@@ -170,11 +170,11 @@
             <div class="rounded-xl border border-dashed border-divider px-4 py-6 text-center">
               <p class="text-sm text-content-muted">{% trans "No upcoming tables." %}</p>
               {% if table_creation.allowed or table_creation.needs_login %}
-                <a href="{{ create_table_url }}" class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">{% trans "Create the first table" %} →</a>
+                <a href="{{ create_table_url }}" class="mt-2 inline-block text-sm font-semibold text-link hover:underline">{% trans "Create the first table" %} →</a>
               {% elif table_creation.membership_pending %}
                 <p class="mt-1 text-xs text-content-muted">{% trans "Your membership request is pending: once it is approved you can propose tables here." %}</p>
               {% elif table_creation.needs_membership and location.enable_membership %}
-                <a href="{% url 'location-request-membership' location.slug %}" class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">{% trans "Become a member to propose tables" %} →</a>
+                <a href="{% url 'location-request-membership' location.slug %}" class="mt-2 inline-block text-sm font-semibold text-link hover:underline">{% trans "Become a member to propose tables" %} →</a>
               {% elif table_creation.needs_membership %}
                 <p class="mt-1 text-xs text-content-muted">{% trans "Only members can create tables here." %}</p>
               {% endif %}
@@ -199,7 +199,7 @@
             <a id="see-all-tables" href="{% url 'table-index' %}?location={{ location.slug }}"
                data-upcoming-href="{% url 'table-index' %}?location={{ location.slug }}"
                data-past-href="{% url 'table-index' %}?tab=past&location={{ location.slug }}"
-               class="text-sm text-blue-600 font-semibold hover:underline">
+               class="text-sm text-link font-semibold hover:underline">
               {% trans "See all tables" %} →
             </a>
           </div>
@@ -212,17 +212,17 @@
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 class="text-lg font-bold text-content">{% trans "Organized events" %}</h2>
             {% if organized_events %}
-              <a class="text-sm text-blue-600 font-semibold hover:underline"
+              <a class="text-sm text-link font-semibold hover:underline"
                  href="{% url 'appointment-search' %}?type=events&amp;organizer={{ location.slug|urlencode }}">{% trans "See all events" %} →</a>
             {% endif %}
           </div>
           {% if event_creation.allowed %}
-            <a class="text-blue-600 font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>
+            <a class="text-link font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>
           {% elif event_creation.needs_membership %}
             <p class="mb-3 text-sm text-content-muted">
               {% trans "Only members can propose events here." %}
               {% if event_creation.membership_pending %}{% trans "Your membership request is pending." %}
-              {% elif location.enable_membership %}<a class="font-semibold text-blue-600 hover:underline" href="{% url 'location-request-membership' location.slug %}">{% trans "Become a member" %}</a>{% endif %}
+              {% elif location.enable_membership %}<a class="font-semibold text-link hover:underline" href="{% url 'location-request-membership' location.slug %}">{% trans "Become a member" %}</a>{% endif %}
             </p>
           {% endif %}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -264,7 +264,7 @@
                     <span class="text-xs text-content-muted">{% blocktrans count counter=game.play_count %}{{ counter }} table{% plural %}{{ counter }} tables{% endblocktrans %}</span>
                   </div>
                   <div class="relative w-full overflow-hidden rounded-full bg-surface-input h-2">
-                    <div class="h-full bg-blue-500 rounded-full transition-all"
+                    <div class="h-full bg-primary rounded-full transition-all"
                          style="width:{% widthratio game.play_count popular_games.0.play_count 100 %}%"></div>
                   </div>
                   {% if game.top_winners %}
@@ -280,7 +280,7 @@
         {% else %}
           <p class="text-sm text-content-muted italic">{% trans "No games played at this location." %}</p>
         {% endif %}
-        <a href="{% url 'location-played-games' location.slug %}" class="mt-3 inline-block text-sm text-blue-600 font-semibold hover:underline">
+        <a href="{% url 'location-played-games' location.slug %}" class="mt-3 inline-block text-sm text-link font-semibold hover:underline">
           {% trans "Games played" %} →
         </a>
         {% else %}
@@ -288,13 +288,13 @@
         {% endif %}
         {% if can_view_game_library %}
           <div class="mt-3">
-            <a href="{% url 'location-games' location.slug %}" class="text-sm text-blue-600 font-semibold hover:underline">
+            <a href="{% url 'location-games' location.slug %}" class="text-sm text-link font-semibold hover:underline">
               {% trans "View library" %} →
             </a>
           </div>
         {% elif not has_library_games and is_manager %}
           <div class="mt-3">
-            <a href="{% url 'location-manage-games' location.slug %}" class="text-sm text-blue-600 font-semibold hover:underline">
+            <a href="{% url 'location-manage-games' location.slug %}" class="text-sm text-link font-semibold hover:underline">
               {% trans "Add your games to the library" %} →
             </a>
           </div>
@@ -310,14 +310,14 @@
           {% trans "Stats" %}
         </h2>
         <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl p-4 text-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+          <div class="rounded-xl p-4 text-center bg-brand-gradient">
             <div class="flex justify-center mb-2">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-300"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
             </div>
             <p class="text-2xl font-extrabold text-white">{{ total_gamers_count }}</p>
             <p class="text-xs text-blue-200 mt-0.5">{% trans "Total gamers" %}</p>
           </div>
-          <div class="rounded-xl p-4 text-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+          <div class="rounded-xl p-4 text-center bg-brand-gradient">
             <div class="flex justify-center mb-2">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-300"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
             </div>
@@ -438,7 +438,7 @@
                 const isOpen = d && d.is_open !== false;
                 const row = document.createElement('div');
                 row.className = 'flex items-baseline justify-between py-1.5 px-2 text-xs gap-2 text-content';
-                if (i < 6) row.style.borderBottom = '1px solid #f1f5f9';
+                if (i < 6) row.style.borderBottom = '1px solid var(--border-2)';
                 let slotsHtml = '';
                 if (!isOpen) {
                   slotsHtml = `<span class="text-content-muted">${CLOSED}</span>`;
