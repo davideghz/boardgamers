@@ -28,8 +28,8 @@
                 data-guest-id="{{ guest.id }}">
             {% csrf_token %}
             <input type="text" name="name" value="{{ guest.name }}" maxlength="100" required
-                   class="flex-1 rounded-lg border border-blue-400 px-2 py-1 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-            <button type="submit" class="text-blue-500 hover:text-blue-700 transition-colors" title="{% trans 'Save' %}">
+                   class="flex-1 rounded-lg border border-primary/60 px-2 py-1 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20">
+            <button type="submit" class="text-link hover:text-link transition-colors" title="{% trans 'Save' %}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </button>
             <button type="button" class="text-content-muted hover:text-content-muted transition-colors guest-cancel-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Cancel' %}">
@@ -39,7 +39,7 @@
 
           {# ── Actions (edit + delete) ── #}
           <div class="flex items-center gap-2 guest-actions" data-guest-id="{{ guest.id }}">
-            <button type="button" class="text-content-muted hover:text-blue-400 transition-colors guest-edit-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Edit guest' %}">
+            <button type="button" class="text-content-muted hover:text-link transition-colors guest-edit-btn" data-guest-id="{{ guest.id }}" title="{% trans 'Edit guest' %}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
             </button>
             <form method="post" action="{% url 'account-guest-delete' guest.id %}">

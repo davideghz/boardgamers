@@ -72,7 +72,7 @@
                 id="rename-{{ document.uuid }}" class="hidden mt-3 flex gap-2">
             {% csrf_token %}
             <input type="text" name="name" value="{{ document.name }}" maxlength="200" required
-                   class="flex-1 rounded-xl border border-divider px-4 py-2.5 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
+                   class="flex-1 rounded-xl border border-divider px-4 py-2.5 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus bg-surface transition-colors">
             <button type="submit"
                     class="rounded-full bg-elevated px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
               {% trans "Save" %}

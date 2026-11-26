@@ -68,7 +68,7 @@
                  name="username"
                  value="{{ form.username.value|default:'' }}"
                  autocomplete="username"
-                 class="w-full rounded-xl border {% if form.username.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
+                 class="w-full rounded-xl border {% if form.username.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-focus/20 focus:border-focus{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
           {% if form.username.errors %}<p class="mt-1 text-xs text-red-500">{{ form.username.errors|join:", " }}</p>{% endif %}
         </div>
 
@@ -76,13 +76,13 @@
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="text-xs font-semibold text-content-soft" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
-            <a href="{% url 'custom_password_reset' %}" class="text-xs text-blue-600 hover:underline">{% trans "Forgot password?" %}</a>
+            <a href="{% url 'custom_password_reset' %}" class="text-xs text-link hover:underline">{% trans "Forgot password?" %}</a>
           </div>
           <input type="password"
                  id="{{ form.password.id_for_label }}"
                  name="password"
                  autocomplete="current-password"
-                 class="w-full rounded-xl border {% if form.password.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
+                 class="w-full rounded-xl border {% if form.password.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-focus/20 focus:border-focus{% endif %} px-4 py-3 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 bg-surface transition-colors">
           {% if form.password.errors %}<p class="mt-1 text-xs text-red-500">{{ form.password.errors|join:", " }}</p>{% endif %}
         </div>
 
@@ -94,7 +94,7 @@
 
       <p class="text-center text-xs text-content-muted mt-6">
         {% trans "Don't have an account?" %}
-        <a href="{% url 'signup' %}" class="text-blue-600 font-semibold hover:underline">{% trans "Create one" %}</a>
+        <a href="{% url 'signup' %}" class="text-link font-semibold hover:underline">{% trans "Create one" %}</a>
       </p>
 
     </div>

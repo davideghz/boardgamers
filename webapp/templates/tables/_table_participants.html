@@ -33,10 +33,10 @@
              class="flex items-center gap-3 flex-1 min-w-0 text-decoration-none">
             {% if player_obj.user_profile.avatar %}
               <img src="{{ player_obj.user_profile.avatar_url }}" alt="{{ player_obj.user_profile.nickname }}"
-                   class="w-9 h-9 rounded-full object-cover flex-shrink-0 {% if player_obj.user_profile == table.author %}ring-2 ring-blue-400{% endif %}">
+                   class="w-9 h-9 rounded-full object-cover flex-shrink-0 {% if player_obj.user_profile == table.author %}ring-2 ring-focus{% endif %}">
             {% else %}
               <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                          {% if player_obj.user_profile == table.author %}bg-blue-100 text-blue-700
+ {% if player_obj.user_profile == table.author %}bg-primary/15 text-link
                           {% else %}bg-surface-input text-content-soft{% endif %}">
                 {{ player_obj.user_profile.nickname|slice:":2"|upper }}
               </div>
@@ -52,7 +52,7 @@
           </a>
           {% if can_view_player_phones and player_obj.user_profile.phone %}
             <a href="tel:{{ player_obj.user_profile.phone.as_e164 }}"
-               class="flex-shrink-0 w-8 h-8 rounded-full border border-divider flex items-center justify-center text-content-muted hover:text-blue-600 hover:border-blue-300 transition-colors"
+               class="flex-shrink-0 w-8 h-8 rounded-full border border-divider flex items-center justify-center text-content-muted hover:text-link hover:border-primary/40 transition-colors"
                title="{% trans 'Call' %} {{ player_obj.user_profile.nickname }}">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
             </a>
@@ -81,7 +81,7 @@
                  data-no-results-text="{% trans 'No guests found.' %}">
               <input type="hidden" name="guest_id">
               <button type="button" data-picker-open
-                      class="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-content-soft border-2 border-dashed border-divider px-3 py-2 rounded-xl bg-transparent hover:border-blue-400 hover:text-blue-600 transition-colors cursor-pointer">
+                      class="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-content-soft border-2 border-dashed border-divider px-3 py-2 rounded-xl bg-transparent hover:border-primary/60 hover:text-link transition-colors cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 {% trans "Add guest" %}
               </button>
@@ -91,12 +91,12 @@
         {% elif user_has_guests %}
           <p class="text-xs text-content-muted italic">
             {% trans "All your guests are already at the table." %}
-            <a href="{% url 'account-guests' %}" class="text-blue-600 hover:underline">{% trans "Manage guests" %}</a>
+            <a href="{% url 'account-guests' %}" class="text-link hover:underline">{% trans "Manage guests" %}</a>
           </p>
         {% else %}
           <p class="text-xs text-content-muted italic">
             {% trans "You have no guests yet." %}
-            <a href="{% url 'account-guests' %}" class="text-blue-600 hover:underline">{% trans "Manage guests" %}</a>
+            <a href="{% url 'account-guests' %}" class="text-link hover:underline">{% trans "Manage guests" %}</a>
           </p>
         {% endif %}
       </div>

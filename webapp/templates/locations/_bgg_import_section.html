@@ -7,20 +7,20 @@
   <div class="flex items-center justify-between gap-3 mb-2">
     <label class="flex items-center gap-2 text-sm font-bold text-content cursor-pointer">
       <input type="checkbox" data-section-toggle="{{ title|slugify }}"
-             class="w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500">
+             class="w-4 h-4 rounded border-divider text-link focus:ring-focus">
       {{ title }} <span class="font-normal text-content-muted">({{ items|length }})</span>
     </label>
     {% if items|length > 10 %}
       <input type="search" data-section-filter="{{ title|slugify }}" autocomplete="off"
              placeholder="{% trans 'Filter…' %}" aria-label="{% trans 'Filter' %}"
-             class="w-40 px-3 py-1.5 text-sm text-content bg-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-content-muted">
+             class="w-40 px-3 py-1.5 text-sm text-content bg-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus placeholder:text-content-muted">
     {% endif %}
   </div>
   <div class="rounded-xl border border-divider bg-surface divide-y divide-divider-soft overflow-hidden">
     {% for item in items %}
       <label class="flex items-center gap-3 px-3 py-2 {% if item.can_import %}cursor-pointer hover:bg-surface-alt transition-colors{% else %}opacity-60 cursor-default{% endif %}"
              data-row="{{ title|slugify }}" data-search="{{ item.name|lower }}">
-        <input type="checkbox" class="bgg-item w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500 flex-shrink-0"
+        <input type="checkbox" class="bgg-item w-4 h-4 rounded border-divider text-link focus:ring-focus flex-shrink-0"
                value="{{ item.bgg_id }}" data-name="{{ item.name }}" data-section="{{ title|slugify }}"
                {% if item.can_import %}checked{% else %}disabled{% endif %}>
         <div class="w-9 h-9 rounded-lg bg-surface-input flex-shrink-0 overflow-hidden">
@@ -35,7 +35,7 @@
         {% elif item.status == 'archived' %}
           <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Withdrawn" %}</span>
         {% elif item.status == 'known' %}
-          <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "On Board Gamers" %}</span>
+          <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-link">{% trans "On Board Gamers" %}</span>
         {% else %}
           <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{% translate "New" context "game imported from BGG" %}</span>
         {% endif %}

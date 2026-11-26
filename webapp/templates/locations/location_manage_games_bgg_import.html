@@ -17,7 +17,7 @@
     <label for="bgg-username" class="sr-only">{% trans "BoardGameGeek username" %}</label>
     <input id="bgg-username" type="text" name="username" value="{{ username }}" required maxlength="64"
            autocomplete="off" placeholder="{% trans 'BoardGameGeek username' %}"
-           class="flex-1 min-w-0 px-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
+           class="flex-1 min-w-0 px-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus transition-colors placeholder:text-content-muted">
     <button type="submit" onclick="this.disabled=true;this.form.submit();this.textContent='{% trans "Loading…"|escapejs %}'"
             class="bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors whitespace-nowrap">
       {% trans "Load collection" %}
@@ -89,7 +89,7 @@
 
       <div id="bgg-progress" class="hidden space-y-2">
         <div class="h-2 rounded-full bg-surface-input overflow-hidden">
-          <div id="bgg-progress-bar" class="h-full bg-blue-500 transition-all" style="width: 0%"></div>
+          <div id="bgg-progress-bar" class="h-full bg-primary transition-all" style="width: 0%"></div>
         </div>
         <p id="bgg-progress-text" class="text-xs text-content-soft"></p>
       </div>

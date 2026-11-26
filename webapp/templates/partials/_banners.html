@@ -16,7 +16,7 @@
               {% if banner.title %}<p class="font-semibold mb-1">{{ banner.title }}</p>{% endif %}
               <p class="whitespace-pre-line break-words">{{ banner.message }}</p>
               {% if banner.action_href and banner.action_label %}
-                <a href="{{ banner.action_href }}" class="inline-block mt-2 text-blue-600 font-semibold hover:underline">{{ banner.action_label }}</a>
+                <a href="{{ banner.action_href }}" class="inline-block mt-2 text-link font-semibold hover:underline">{{ banner.action_label }}</a>
               {% endif %}
             </div>
             <button type="button" data-banner-close aria-label="{% trans 'Close' %}"

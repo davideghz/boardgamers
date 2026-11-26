@@ -28,7 +28,7 @@
     {% csrf_token %}
     <label for="public-games-enabled"
            class="flex items-start justify-between gap-4 p-4 rounded-xl border cursor-pointer transition-colors
-                  {% if location.enable_public_games %}border-green-200 bg-green-50{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
+ {% if location.enable_public_games %}border-green-200 bg-green-50{% else %}border-divider bg-surface hover:bg-surface-alt{% endif %}">
       <div>
         <p class="text-sm font-semibold text-content">
           {% trans "Public library" %}
@@ -41,7 +41,7 @@
         <p class="text-xs text-content-muted mt-0.5">
           {% if location.enable_public_games %}
             {% trans "Visitors can browse your games from the location page. Owners, members and notes stay private." %}
-            <a href="{% url 'location-games' location.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "View public page" %} →</a>
+            <a href="{% url 'location-games' location.slug %}" class="text-link font-semibold hover:underline">{% trans "View public page" %} →</a>
           {% else %}
             {% trans "Turn this on to show the list of your games on the location page. Owners, members and notes stay private." %}
           {% endif %}
@@ -52,7 +52,7 @@
                class="sr-only peer" onchange="this.form.submit()"
                {% if location.enable_public_games %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
-                    peer-checked:bg-blue-500
+ peer-checked:bg-primary
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
                     after:bg-surface after:rounded-full after:h-5 after:w-5
                     after:transition-all after:shadow-sm
@@ -60,7 +60,7 @@
       </div>
     </label>
     <noscript>
-      <button type="submit" class="mt-2 text-sm font-semibold text-blue-600 hover:underline">{% trans "Save" %}</button>
+      <button type="submit" class="mt-2 text-sm font-semibold text-link hover:underline">{% trans "Save" %}</button>
     </noscript>
   </form>
   {% endif %}
@@ -77,7 +77,7 @@
           </svg>
           <input id="game-search" type="search" autocomplete="off"
                  placeholder="{% trans 'Search by game, member or tag…' %}"
-                 class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors placeholder:text-content-muted">
+                 class="w-full pl-9 pr-4 py-2.5 text-sm text-content bg-surface border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus transition-colors placeholder:text-content-muted">
         </div>
         {% if not show_archived %}
         <a href="{% url 'location-add-game' location.slug %}"
@@ -123,7 +123,7 @@
               <div class="flex items-center gap-2 flex-wrap">
                 <p class="text-sm font-bold text-content truncate">{{ lg.game.name }}</p>
                 {% if lg.ownership == 'location' %}
-                  <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Location" %}</span>
+                  <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-link">{% trans "Location" %}</span>
                 {% else %}
                   <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{% trans "Member" %}</span>
                 {% endif %}
@@ -168,7 +168,7 @@
             <p class="text-sm font-semibold text-content">{% trans "No games yet" %}</p>
             <p class="text-xs text-content-muted mt-1 mb-4">
               {% trans "Add the first game to the library." %}
-              <a href="{% url 'location-games-bgg-import' location.slug %}" class="text-blue-600 font-semibold hover:underline">{% trans "Or import a collection from BoardGameGeek." %}</a>
+              <a href="{% url 'location-games-bgg-import' location.slug %}" class="text-link font-semibold hover:underline">{% trans "Or import a collection from BoardGameGeek." %}</a>
             </p>
             <a href="{% url 'location-add-game' location.slug %}"
                class="flex items-center gap-1.5 bg-elevated text-white text-sm font-bold px-4 py-2.5 rounded-full hover:bg-slate-700 transition-colors text-decoration-none">

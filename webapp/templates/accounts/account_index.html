@@ -17,7 +17,7 @@
       <h1 class="text-2xl font-extrabold text-content truncate">{{ user.user_profile.nickname }}</h1>
       <p class="text-sm text-content-muted truncate">{{ user.email }}</p>
       <a href="{% url 'user-profile-detail' user.user_profile.slug %}"
-         class="text-xs text-blue-600 hover:underline">{% trans "See public profile" %} →</a>
+         class="text-xs text-link hover:underline">{% trans "See public profile" %} →</a>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
   {% if not managed_locations_count %}
     <p class="mt-8 text-sm text-content-muted">
       {% trans "Do you run a club, an association or a game shop?" %}
-      <a href="{% url 'location-create' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Add your location" %}</a>
+      <a href="{% url 'location-create' %}" class="font-semibold text-link hover:underline">{% trans "Add your location" %}</a>
     </p>
   {% endif %}
 

@@ -3,7 +3,7 @@
   <h2 id="event-master-heading" class="break-words text-sm font-bold text-content">
     {% translate "Manifestation" %} ·
     {% if event.master_event.is_published %}
-      <a class="text-blue-600 dark:text-blue-400 hover:underline" href="{{ event.master_event.get_absolute_url }}">{{ event.master_event.name }}</a>
+      <a class="text-link hover:underline" href="{{ event.master_event.get_absolute_url }}">{{ event.master_event.name }}</a>
     {% else %}
       {{ event.master_event.name }} ({{ event.master_event.get_status_display }})
     {% endif %}

@@ -109,7 +109,7 @@
                class="sr-only peer"
                {% if form.show_tables_in_homepage.value %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
-                    peer-checked:bg-blue-500
+ peer-checked:bg-primary
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
                     after:bg-surface after:rounded-full after:h-5 after:w-5
                     after:transition-all after:shadow-sm
@@ -131,7 +131,7 @@
                class="sr-only peer"
                {% if form.show_most_played_games.value %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
-                    peer-checked:bg-blue-500
+ peer-checked:bg-primary
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
                     after:bg-surface after:rounded-full after:h-5 after:w-5
                     after:transition-all after:shadow-sm
@@ -153,7 +153,7 @@
                class="sr-only peer"
                {% if form.show_stats.value %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
-                    peer-checked:bg-blue-500 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2
+ peer-checked:bg-primary peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
                     after:bg-surface after:rounded-full after:h-5 after:w-5
                     after:transition-all after:shadow-sm
@@ -175,7 +175,7 @@
                class="sr-only peer"
                {% if form.show_top_gamers.value %}checked{% endif %}>
         <div class="w-11 h-6 rounded-full bg-surface-input
-                    peer-checked:bg-blue-500
+ peer-checked:bg-primary
                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
                     after:bg-surface after:rounded-full after:h-5 after:w-5
                     after:transition-all after:shadow-sm
@@ -230,10 +230,10 @@
       row.className = 'slot-row flex items-center gap-2 mt-2';
       row.innerHTML = `
         <input type="time" value="${open}" data-role="open"
-               class="flex-1 rounded-lg border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="flex-1 rounded-lg border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus">
         <span class="text-content-muted text-sm">–</span>
         <input type="time" value="${close}" data-role="close"
-               class="flex-1 rounded-lg border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="flex-1 rounded-lg border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus">
         <button type="button" class="remove-slot flex-shrink-0 text-content-muted hover:text-red-400 transition-colors" aria-label="{% trans "Remove"|escapejs %}">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
         </button>`;
@@ -259,7 +259,7 @@
           <div class="relative">
             <input type="checkbox" class="sr-only peer day-closed" ${isOpen ? '' : 'checked'}>
             <div class="w-9 h-5 rounded-full bg-surface-input
-                        peer-checked:bg-slate-400
+ peer-checked:bg-slate-400
                         after:content-[''] after:absolute after:top-0.5 after:left-0.5
                         after:bg-surface after:rounded-full after:h-4 after:w-4
                         after:transition-all after:shadow-sm
@@ -279,7 +279,7 @@
 
       const addBtn = document.createElement('button');
       addBtn.type = 'button';
-      addBtn.className = 'mt-2 text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors';
+      addBtn.className = 'mt-2 text-xs text-link hover:text-link font-medium transition-colors';
       addBtn.textContent = ADD_SLOT_LABEL;
       addBtn.addEventListener('click', function () {
         body.insertBefore(buildSlotRow(dayIndex, '', ''), addBtn);

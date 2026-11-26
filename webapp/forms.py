@@ -84,7 +84,7 @@ class CustomCheckboxInputWidget(CheckboxInput):
 _TW_INPUT = (
     'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content '
     'placeholder:text-content-muted focus:outline-none focus:ring-2 '
-    'focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors'
+    'focus:ring-focus/20 focus:border-focus bg-surface transition-colors'
 )
 _TW_INPUT_ERR = (
     'w-full rounded-xl border border-red-400 px-4 py-3 text-sm text-content '
@@ -287,7 +287,7 @@ class TailwindForm(Form):
             elif isinstance(w, Textarea):
                 field.widget = Textarea(attrs={'class': f'{css} resize-none', 'rows': 4})
             elif isinstance(w, CheckboxInput):
-                field.widget.attrs['class'] = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
+                field.widget.attrs['class'] = 'w-4 h-4 rounded border-divider text-link focus:ring-focus'
             elif isinstance(w, (TextInput, EmailInput, URLInput, NumberInput)):
                 field.widget.attrs['class'] = css
             elif isinstance(w, Select):
@@ -402,7 +402,7 @@ class TableForm(ModelForm, TailwindForm):
         if 'date' in self.fields:  # not on TableDuplicateForm
             self.fields['date'].input_formats = ['%Y-%m-%d']
         self.fields['unlimited_seats'].widget.attrs.update({
-            'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
+            'class': 'w-4 h-4 rounded border-divider text-link cursor-pointer'})
         # Only the location's own play areas and stations can be picked
         # (TableDuplicateForm has neither field: copies keep the source's).
         if 'play_area' not in self.fields:
@@ -552,7 +552,7 @@ class EventTableForm(ModelForm, TailwindForm):
         self.fields['category'].required = False
         self.fields['category'].empty_label = _('No category')
         self.fields['unlimited_seats'].widget.attrs.update({
-            'class': 'w-4 h-4 rounded border-divider text-blue-600 cursor-pointer'})
+            'class': 'w-4 h-4 rounded border-divider text-link cursor-pointer'})
 
     def clean_date(self):
         date = self.cleaned_data['date']
@@ -934,7 +934,7 @@ class EventVenueForm(ModelForm):
     venue_mode = ChoiceField(
         label=_('Where does it take place?'),
         choices=((REGISTERED, _('Registered location')), (MANUAL, _('Unregistered venue'))),
-        widget=RadioSelect(attrs={'class': 'h-4 w-4 shrink-0 accent-blue-600'}),
+        widget=RadioSelect(attrs={'class': 'h-4 w-4 shrink-0 accent-primary'}),
         required=False,
     )
     latitude = CoordinateField(min_value=-90, max_value=90, label=_('Latitude'))
@@ -1369,12 +1369,12 @@ class MembershipEditForm(TailwindForm):
 
 _TW_SELECT = (
     'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content '
-    'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 '
+    'focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus '
     'bg-surface transition-colors'
 )
 
 
-_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500'
+_TW_CHECKBOX = 'w-4 h-4 rounded border-divider text-link focus:ring-focus'
 
 
 class LocationGameForm(ModelForm, TailwindForm):
@@ -1618,7 +1618,7 @@ class GuestProfileForm(ModelForm):
     name = CharField(
         widget=TextInput(attrs={
             'placeholder': _("Guest name"),
-            'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors',
+            'class': 'w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus bg-surface transition-colors',
         }),
         label=_("Name"),
         max_length=100,

@@ -11,7 +11,7 @@ the list and never needs to know the rule.
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="repeat-start">{% trans "First date" %}</label>
       <input type="date" name="repeat_start" id="repeat-start" value="{{ repeat_start }}" min="{{ today|date:'Y-m-d' }}"
-             class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
+             class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus bg-surface transition-colors">
     </div>
     <div>
       <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.time.id_for_label }}">{{ form.time.label }}</label>
@@ -24,7 +24,7 @@ the list and never needs to know the rule.
     <div class="col-span-2">
       <label class="block text-xs font-semibold text-content-soft mb-1" for="repeat-freq">{% trans "Repeat" %}</label>
       <select name="repeat_freq" id="repeat-freq"
-              class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
+              class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus bg-surface transition-colors">
         <option value="once"{% if repeat_freq == 'once' %} selected{% endif %}>{% trans "Does not repeat" %}</option>
         <option value="weekly"{% if repeat_freq == 'weekly' %} selected{% endif %}>{% trans "Every week" %}</option>
         <option value="biweekly"{% if repeat_freq == 'biweekly' %} selected{% endif %}>{% trans "Every 2 weeks" %}</option>
@@ -35,7 +35,7 @@ the list and never needs to know the rule.
     <div id="repeat-count-wrap">
       <label class="block text-xs font-semibold text-content-soft mb-1" for="repeat-count">{% trans "Occurrences" %}</label>
       <input type="number" name="repeat_count" id="repeat-count" value="{{ repeat_count }}" min="1" max="{{ max_duplicates }}"
-             class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
+             class="w-full rounded-xl border border-divider px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus bg-surface transition-colors">
     </div>
   </div>
 
@@ -45,7 +45,7 @@ the list and never needs to know the rule.
     <ul id="dates-list" class="space-y-1.5"></ul>
     <div class="flex gap-2 mt-3">
       <input type="date" id="extra-date" min="{{ today|date:'Y-m-d' }}" aria-label="{% trans "Add a date" %}"
-             class="flex-1 min-w-0 rounded-xl border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface transition-colors">
+             class="flex-1 min-w-0 rounded-xl border border-divider px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus bg-surface transition-colors">
       <button type="button" id="extra-date-add"
               class="flex-shrink-0 rounded-xl border border-divider px-3 py-2 text-sm font-semibold text-content hover:bg-surface transition-colors bg-transparent cursor-pointer">
         {% trans "Add date" %}
@@ -161,7 +161,7 @@ the list and never needs to know the rule.
         var li = document.createElement('li');
         li.className = 'flex items-center gap-2 text-sm' + (past ? ' text-content-muted line-through' : ' text-content');
         li.innerHTML = '<label class="flex items-center gap-2 cursor-pointer select-none">' +
-          '<input type="checkbox" name="dates" class="w-4 h-4 rounded border-divider text-blue-600 cursor-pointer">' +
+          '<input type="checkbox" name="dates" class="w-4 h-4 rounded border-divider text-link cursor-pointer">' +
           '<span></span></label>';
         var box = li.querySelector('input');
         box.value = d;

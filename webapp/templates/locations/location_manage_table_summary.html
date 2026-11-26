@@ -18,16 +18,16 @@
         <div class="flex-1 min-w-[140px]">
           <label for="date_from" class="block text-xs font-semibold text-content mb-1">{% trans "From" %}</label>
           <input type="date" id="date_from" name="date_from" value="{{ date_from }}"
-                 class="w-full rounded-lg border border-divider text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 class="w-full rounded-lg border border-divider text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-focus">
         </div>
         <div class="flex-1 min-w-[140px]">
           <label for="date_to" class="block text-xs font-semibold text-content mb-1">{% trans "To" %}</label>
           <input type="date" id="date_to" name="date_to" value="{{ date_to }}"
-                 class="w-full rounded-lg border border-divider text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 class="w-full rounded-lg border border-divider text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-focus">
         </div>
         <div class="flex-shrink-0">
           <button type="submit"
-                  class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
+                  class="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-colors">
             {% trans "Generate" %}
           </button>
         </div>
@@ -35,22 +35,22 @@
       <div class="flex flex-wrap gap-x-6 gap-y-2 pt-1">
         <label class="flex items-center gap-2 text-sm text-content cursor-pointer select-none">
           <input type="checkbox" name="show_full" {% if show_full %}checked{% endif %}
-                 class="rounded border-divider text-blue-600 focus:ring-blue-500">
+                 class="rounded border-divider text-link focus:ring-focus">
           {% trans "Show full tables" %}
         </label>
         <label class="flex items-center gap-2 text-sm text-content cursor-pointer select-none">
           <input type="checkbox" name="show_closed" {% if show_closed %}checked{% endif %}
-                 class="rounded border-divider text-blue-600 focus:ring-blue-500">
+                 class="rounded border-divider text-link focus:ring-focus">
           {% trans "Show closed tables" %}
         </label>
         <label class="flex items-center gap-2 text-sm text-content cursor-pointer select-none">
           <input type="checkbox" name="show_names" {% if show_names %}checked{% endif %}
-                 class="rounded border-divider text-blue-600 focus:ring-blue-500">
+                 class="rounded border-divider text-link focus:ring-focus">
           {% trans "Show player names" %}
         </label>
         <label class="flex items-center gap-2 text-sm text-content cursor-pointer select-none">
           <input type="checkbox" name="show_links" {% if show_links %}checked{% endif %}
-                 class="rounded border-divider text-blue-600 focus:ring-blue-500">
+                 class="rounded border-divider text-link focus:ring-focus">
           {% trans "Show table links" %}
         </label>
       </div>
@@ -66,7 +66,7 @@
         </button>
       </div>
       <textarea id="message-text" readonly rows="12"
-                class="w-full rounded-lg border border-divider bg-surface-alt text-sm text-content px-3 py-2.5 font-mono resize-y focus:outline-none focus:ring-2 focus:ring-blue-500">{{ message_text }}</textarea>
+                class="w-full rounded-lg border border-divider bg-surface-alt text-sm text-content px-3 py-2.5 font-mono resize-y focus:outline-none focus:ring-2 focus:ring-focus">{{ message_text }}</textarea>
     </div>
 
   </div>

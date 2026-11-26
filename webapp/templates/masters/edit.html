@@ -6,7 +6,7 @@
   <header class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
     <h1 class="break-words text-2xl font-extrabold text-content">{% if master.pk %}{{ master.name }}{% else %}{% translate "Create manifestation" %}{% endif %}</h1>
     {% if master.pk %}
-      <a class="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400" href="{{ master.get_absolute_url }}">{% translate "View manifestation" %}</a>
+      <a class="text-sm font-semibold text-link hover:underline " href="{{ master.get_absolute_url }}">{% translate "View manifestation" %}</a>
     {% endif %}
   </header>
 
@@ -18,7 +18,7 @@
         {% if field.name not in form.venue_fields %}{% include "events/_location_event_form_field.html" with field=field only %}{% endif %}
       {% endfor %}
       {% include "partials/_event_venue.html" %}
-      <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Save" %}</button>
+      <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Save" %}</button>
     </form>
     {% if master.pk %}
       <section id="manifestation-dates" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
@@ -31,7 +31,7 @@
                 {% include "masters/_date_hours.html" with day=day only %}
               </div>
               <div class="flex flex-wrap items-center gap-3">
-                <a class="font-semibold text-blue-600 hover:underline dark:text-blue-400" href="?day={{ day.date|date:'Y-m-d' }}#manifestation-dates">{% translate "Edit hours" %}</a>
+                <a class="font-semibold text-link hover:underline " href="?day={{ day.date|date:'Y-m-d' }}#manifestation-dates">{% translate "Edit hours" %}</a>
                 <form action="{% url 'master-event-calendar' master.slug %}" method="post">
                   {% csrf_token %}
                   <button type="submit" class="font-semibold text-red-600 hover:underline dark:text-red-400" name="remove" value="{{ day.pk }}">{% translate "Remove" %}</button>
@@ -45,7 +45,7 @@
         <form method="post" action="{% url 'master-event-calendar' master.slug %}" class="space-y-3">
           {% csrf_token %}
           {% include "events/_location_event_schedule_fields.html" with schedule=date_form only %}
-          <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Save date" %}</button>
+          <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Save date" %}</button>
         </form>
       </section>
 
@@ -56,7 +56,7 @@
             <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
               <div class="min-w-0 break-words">
                 {% if event.is_published %}
-                  <a href="{{ event.get_absolute_url }}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{{ event.name }}</a>
+                  <a href="{{ event.get_absolute_url }}" class="font-semibold text-link hover:underline ">{{ event.name }}</a>
                 {% else %}
                   <p class="font-semibold text-content">{{ event.name }} · {{ event.get_status_display }}</p>
                 {% endif %}
@@ -83,7 +83,7 @@
                 {% endfor %}
               </select>
             </label>
-            <button type="submit" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Link event" %}</button>
+            <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Link event" %}</button>
           </form>
         {% else %}
           <p class="text-sm text-content-muted">{% translate "No events available to link." %}</p>
@@ -99,13 +99,13 @@
           {% for sponsor in sponsors %}
             <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
               <p class="min-w-0 break-words font-semibold text-content">{{ sponsor.name }}</p>
-              <a href="{% url 'master-sponsor-edit' master.slug sponsor.pk %}" aria-label="{% blocktranslate with name=sponsor.name %}Edit sponsor {{ name }}{% endblocktranslate %}" class="font-semibold text-blue-600 hover:underline dark:text-blue-400">{% translate "Edit" %}</a>
+              <a href="{% url 'master-sponsor-edit' master.slug sponsor.pk %}" aria-label="{% blocktranslate with name=sponsor.name %}Edit sponsor {{ name }}{% endblocktranslate %}" class="font-semibold text-link hover:underline ">{% translate "Edit" %}</a>
             </li>
           {% empty %}
             <li class="py-2 text-sm text-content-muted">{% translate "No sponsors yet." %}</li>
           {% endfor %}
         </ul>
-        <a href="{% url 'master-sponsor-add' master.slug %}" class="inline-flex rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">{% translate "Add sponsor" %}</a>
+        <a href="{% url 'master-sponsor-add' master.slug %}" class="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Add sponsor" %}</a>
       </section>
 
       <section class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">

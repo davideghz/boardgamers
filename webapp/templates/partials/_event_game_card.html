@@ -18,7 +18,7 @@
   </div>
   <div class="pt-2 px-0.5 flex flex-col gap-1 min-w-0">
     <a href="{{ game_url }}?from_event={{ event.slug }}"
-       class="text-sm font-bold text-content leading-snug line-clamp-2 hover:text-blue-600 text-decoration-none">{{ game.name }}</a>
+       class="text-sm font-bold text-content leading-snug line-clamp-2 hover:text-link text-decoration-none">{{ game.name }}</a>
     {% if game.min_players or game.min_playtime %}
       <div class="flex items-center gap-3 text-xs text-content-muted">
         {% if game.min_players %}
@@ -48,7 +48,7 @@
         <li class="sr-only">{% trans "Where to find it:" %}</li>
         {% for location in entry.sponsor_locations %}
           <li class="flex items-center gap-1 min-w-0" title="{{ location.name }}">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-blue-600" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0 text-link" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
             <span class="truncate">{{ location.name }}</span>
           </li>
         {% endfor %}
@@ -58,7 +58,7 @@
       <div class="text-xs">
         {% if entry.first_table_date %}
           <a href="{% url 'event-program' event.slug %}?game={{ entry.game_id }}&amp;date={{ entry.first_table_date|date:'Y-m-d' }}"
-             class="font-semibold text-blue-600 hover:underline text-decoration-none whitespace-nowrap">{% trans "See the tables" %} →</a>
+             class="font-semibold text-link hover:underline text-decoration-none whitespace-nowrap">{% trans "See the tables" %} →</a>
         {% else %}
           <span class="text-content-muted">{% trans "Reservation not needed" %}</span>
         {% endif %}

@@ -34,7 +34,7 @@
         <input id="bgg-search-input" type="text" autocomplete="off"
                placeholder="{% trans "Search for a game..." %}"
                class="w-full pl-10 pr-4 py-3 rounded-xl border border-divider bg-surface text-sm text-content placeholder:text-content-muted
-                      focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+ focus:outline-none focus:ring-2 focus:ring-focus/20 focus:border-focus transition-colors">
       </div>
     </div>
 
@@ -54,7 +54,7 @@
 
       {# Loading state #}
       <div id="bgg-loading" class="hidden flex flex-col items-center justify-center py-14 gap-3">
-        <svg class="animate-spin w-7 h-7 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin w-7 h-7 text-link" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
         </svg>
@@ -150,7 +150,7 @@
       + '</button>';
   }
 
-  var spinnerSvg = '<svg class="animate-spin w-4 h-4 text-blue-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+  var spinnerSvg = '<svg class="animate-spin w-4 h-4 text-link flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
 
   function localRow(g) {
     localGamesById[g.id] = {min_players: g.min_players, max_players: g.max_players};
@@ -163,11 +163,11 @@
     var html = '<div id="bgg-external" class="mt-4">';
     if (hasLocal) {
       html += '<p class="text-center text-xs text-content-muted py-2">{% trans "Not finding it?" %} '
-        + '<button type="button" onclick="bggSearchExternal()" class="font-semibold text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer">{% trans "Search on BoardGameGeek" %}</button></p>';
+        + '<button type="button" onclick="bggSearchExternal()" class="font-semibold text-link hover:underline bg-transparent border-0 p-0 cursor-pointer">{% trans "Search on BoardGameGeek" %}</button></p>';
     } else {
       html += '<div class="flex flex-col items-center gap-3 py-8">'
         + '<p class="text-sm text-content-muted">{% trans "No games found on board-gamers" %}</p>'
-        + '<button type="button" onclick="bggSearchExternal()" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 border-0 cursor-pointer transition-colors">{% trans "Search on BoardGameGeek" %}</button>'
+        + '<button type="button" onclick="bggSearchExternal()" class="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold px-4 py-2.5 border-0 cursor-pointer transition-colors">{% trans "Search on BoardGameGeek" %}</button>'
         + '</div>';
     }
     return html + '</div>';

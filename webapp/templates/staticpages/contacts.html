@@ -19,7 +19,7 @@
              id="{{ form.name.id_for_label }}"
              name="name"
              value="{{ form.name.value|default:'' }}"
-             class="w-full rounded-xl border {% if form.name.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors">
+             class="w-full rounded-xl border {% if form.name.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-focus/20 focus:border-focus{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors">
       {% if form.name.errors %}<p class="mt-1 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
     </div>
 
@@ -30,7 +30,7 @@
              id="{{ form.email.id_for_label }}"
              name="email"
              value="{{ form.email.value|default:'' }}"
-             class="w-full rounded-xl border {% if form.email.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors">
+             class="w-full rounded-xl border {% if form.email.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-focus/20 focus:border-focus{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors">
       {% if form.email.errors %}<p class="mt-1 text-xs text-red-500">{{ form.email.errors|join:", " }}</p>{% endif %}
     </div>
 
@@ -40,7 +40,7 @@
       <textarea id="{{ form.message.id_for_label }}"
                 name="message"
                 rows="5"
-                class="w-full rounded-xl border {% if form.message.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-blue-500/20 focus:border-blue-500{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors resize-none">{{ form.message.value|default:'' }}</textarea>
+                class="w-full rounded-xl border {% if form.message.errors %}border-red-400 focus:ring-red-400/20 focus:border-red-400{% else %}border-divider focus:ring-focus/20 focus:border-focus{% endif %} px-4 py-3 text-sm text-content focus:outline-none focus:ring-2 bg-surface transition-colors resize-none">{{ form.message.value|default:'' }}</textarea>
       {% if form.message.errors %}<p class="mt-1 text-xs text-red-500">{{ form.message.errors|join:", " }}</p>{% endif %}
     </div>
 

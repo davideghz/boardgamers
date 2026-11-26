@@ -47,7 +47,7 @@
                 </svg>
               </button>
             {% else %}
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{% trans "Manager" %}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-link">{% trans "Manager" %}</span>
             {% endif %}
           </li>
         {% empty %}
@@ -82,7 +82,7 @@
           <div>{{ transfer_ownership_form.new_owner }}</div>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" name="add_as_manager" id="id_add_as_manager"
-                   class="w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500">
+                   class="w-4 h-4 rounded border-divider text-link focus:ring-focus">
             <span class="text-xs text-amber-800">{% trans "Add me as manager after transfer" %}</span>
           </label>
           <button type="button" id="js-transfer-btn"

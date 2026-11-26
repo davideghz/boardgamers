@@ -59,7 +59,7 @@
           {% endfor %}
           {% if form.non_field_errors %}<div class="text-red-600 dark:text-red-400">{{ form.non_field_errors }}</div>{% endif %}
         </div>
-        <button type="submit" class="rounded-full bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">
+        <button type="submit" class="rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">
           {% if affiliation %}{% trans "Save changes" %}{% else %}{% trans "Add affiliation" %}{% endif %}
         </button>
       </form>
