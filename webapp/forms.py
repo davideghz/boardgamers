@@ -15,6 +15,7 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox, ReCaptchaV2Invisible
 
 from webapp.models import Table, TableLink, UserProfile, Comment, Player, Location, GuestProfile, Member, Membership, MembershipDocument, Game, LocationGame, PlayArea, Event, EventDate, PhysicalTable, EventTableCategory, EventGame, EventGameTag, LocationGameTag, LocationNetwork, Network, Banner
+from webapp.services.game_library_csv import read_game_library_csv
 from webapp.services.game_loans import active_members, default_loan_due_date
 from webapp.services.images import COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, COVER_UPLOAD_MAX_JPEG_PIXELS, COVER_UPLOAD_MAX_PIXELS, \
     validate_network_logo
@@ -1426,8 +1427,26 @@ class LocationGameLoanSettingsForm(ModelForm, TailwindForm):
         }
 
 
+class LocationGamesCSVImportForm(TailwindForm):
+    csv_file = FileField(label=_('CSV file'), widget=FileInput(attrs={
+        'accept': '.csv,text/csv',
+        'class': 'block w-full text-sm text-content-soft file:mr-3 file:rounded-lg file:border-0 '
+                 'file:bg-surface-input file:px-3 file:py-2 file:font-semibold file:text-content',
+    }))
+
+    def clean_csv_file(self):
+        upload = self.cleaned_data['csv_file']
+        if upload.size > 5 * 1024 * 1024:
+            raise ValidationError(_("The CSV file must be 5 MB or smaller."))
+        try:
+            text = upload.read().decode('utf-8-sig')
+        except UnicodeDecodeError as error:
+            raise ValidationError(_("Save the CSV file with UTF-8 encoding and try again.")) from error
+        return read_game_library_csv(text)
+
+
 class BGGCollectionImportForm(TailwindForm):
-    """Options applied to every game imported from a BGG collection."""
+    """Options applied to every game added by a library import."""
     tag_name = CharField(
         max_length=64, required=False, label=_('Tag for the imported games'),
         widget=TextInput(attrs={'list': 'location-game-tags', 'autocomplete': 'off'}))

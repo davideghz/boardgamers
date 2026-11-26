@@ -407,6 +407,42 @@ msgstr "Ubicazione"
 msgid "BGG ID"
 msgstr "ID BGG"
 
+msgid "Import from CSV"
+msgstr "Importa da CSV"
+
+msgid "CSV file"
+msgstr "File CSV"
+
+msgid "Upload a library export or a UTF-8 CSV with a BGG ID column."
+msgstr "Carica un export della ludoteca o un CSV UTF-8 con la colonna ID BGG."
+
+msgid "Preview import"
+msgstr "Mostra anteprima"
+
+#, python-format
+msgid "Missing BGG ID on CSV lines %(lines)s."
+msgstr "ID BGG mancante nelle righe %(lines)s del CSV."
+
+#, python-format
+msgid "Invalid BGG ID on CSV lines %(lines)s."
+msgstr "ID BGG non valido nelle righe %(lines)s del CSV."
+
+msgid "The CSV contains no valid BGG IDs."
+msgstr "Il CSV non contiene ID BGG validi."
+
+msgid "The CSV must contain a column named BGG ID or ID BGG."
+msgstr "Il CSV deve contenere una colonna chiamata ID BGG o BGG ID."
+
+#, python-format
+msgid "The CSV could not be read. Check the format near line %(line)s."
+msgstr "Impossibile leggere il CSV. Controlla il formato vicino alla riga %(line)s."
+
+msgid "The CSV file must be 5 MB or smaller."
+msgstr "Il file CSV deve essere al massimo di 5 MB."
+
+msgid "Save the CSV file with UTF-8 encoding and try again."
+msgstr "Salva il file CSV con codifica UTF-8 e riprova."
+
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
 

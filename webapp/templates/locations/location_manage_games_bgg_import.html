@@ -6,13 +6,42 @@
 
   <div class="mb-6">
     {% back_link 'location-manage-games' location.slug label=_("Library") %}
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Import from BoardGameGeek" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{{ page_title }}</h1>
     <p class="text-sm text-content-muted mt-1">
-      {% trans "Add to the library the games a BoardGameGeek user marks as owned. The collection must be public." %}
+      {% if csv_form %}
+        {% trans "Upload a library export or a UTF-8 CSV with a BGG ID column." %}
+      {% else %}
+        {% trans "Add to the library the games a BoardGameGeek user marks as owned. The collection must be public." %}
+      {% endif %}
     </p>
   </div>
 
-  {# ── Step 1: BGG username ────────────────────────────────────────────── #}
+  {% if csv_form %}
+  <form method="post" enctype="multipart/form-data" class="flex flex-wrap items-end gap-2 mb-4 max-w-xl">
+    {% csrf_token %}
+    <div class="min-w-0 flex-1">
+      <label for="{{ csv_form.csv_file.id_for_label }}" class="block text-sm font-semibold text-content-soft mb-1">
+        {{ csv_form.csv_file.label }}
+      </label>
+      {{ csv_form.csv_file }}
+      {% if csv_form.csv_file.errors %}
+        <div class="mt-1 text-sm text-red-700" role="alert">{{ csv_form.csv_file.errors }}</div>
+      {% endif %}
+    </div>
+    <button type="submit" class="bg-elevated text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-slate-700">
+      {% trans "Preview import" %}
+    </button>
+  </form>
+  {% if missing_lines or invalid_lines %}
+    <div class="mb-6 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 break-words">
+      {% if missing_lines %}<p>{% blocktrans with lines=missing_lines|join:", " %}Missing BGG ID on CSV lines {{ lines }}.{% endblocktrans %}</p>{% endif %}
+      {% if invalid_lines %}<p>{% blocktrans with lines=invalid_lines|join:", " %}Invalid BGG ID on CSV lines {{ lines }}.{% endblocktrans %}</p>{% endif %}
+    </div>
+  {% endif %}
+  {% if loaded and not games and not expansions %}
+    <p class="mb-6 text-sm text-content-muted">{% trans "The CSV contains no valid BGG IDs." %}</p>
+  {% endif %}
+  {% else %}
   <form method="get" class="flex gap-2 mb-4 max-w-xl">
     <label for="bgg-username" class="sr-only">{% trans "BoardGameGeek username" %}</label>
     <input id="bgg-username" type="text" name="username" value="{{ username }}" required maxlength="64"
@@ -42,6 +71,7 @@
       {% blocktrans %}«{{ username }}» has no owned games, or the collection is private.{% endblocktrans %}
     </p>
   {% endif %}
+  {% endif %}
 
   {% if games or expansions %}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -60,7 +90,7 @@
 
     {# ── Options and progress ────────────────────────────────────────── #}
     <aside class="order-first lg:order-last lg:sticky lg:top-6 rounded-xl border border-divider bg-surface p-4 space-y-4">
-      <form id="bgg-import-options" class="space-y-4" onsubmit="return false">
+      <form id="bgg-import-options" data-batch-url="{{ batch_url }}" class="space-y-4" onsubmit="return false">
         <div>
           <label class="block text-xs font-semibold text-content-soft mb-1" for="{{ form.tag_name.id_for_label }}">
             {{ form.tag_name.label }} <span class="font-normal text-content-muted">({% trans "optional" %})</span>
@@ -114,7 +144,8 @@
   <script>
     (function () {
       const BATCH_SIZE = {{ batch_size }};
-      const BATCH_URL = '{% url "location-games-bgg-import-batch" location.slug %}';
+      const optionsForm = document.getElementById('bgg-import-options');
+      const BATCH_URL = optionsForm.dataset.batchUrl;
       const MSG = {
         progress: '{% trans "Imported %(done)s of %(total)s…"|escapejs %}',
         done: '{% trans "Done: %(added)s added, %(skipped)s already in the library, %(archived)s withdrawn, %(failed)s failed."|escapejs %}',
@@ -199,7 +230,7 @@
         running = true;
         startBtn.disabled = true;
         // Read before disabling the fields: disabled fields are left out of FormData.
-        const options = Array.from(new FormData(document.getElementById('bgg-import-options')).entries());
+        const options = Array.from(new FormData(optionsForm).entries());
         document.querySelectorAll('#bgg-import-options input, #bgg-import-options select, #bgg-import-options button, .bgg-item, [data-section-toggle]')
           .forEach(el => { el.disabled = true; });
         const progress = document.getElementById('bgg-progress');
