@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:12+0100\n"
+"POT-Creation-Date: 2026-11-26 21:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2316,6 +2316,10 @@ msgstr "Contatti"
 msgid "Press"
 msgstr "Press"
 
+msgctxt "create menu"
+msgid "Create"
+msgstr "Crea"
+
 msgid "Your membership request is pending."
 msgstr "La tua richiesta di adesione è in attesa."
 
@@ -3451,9 +3455,6 @@ msgstr "Adesione in attesa"
 
 msgid "Request membership"
 msgstr "Diventa socio"
-
-msgid "New event"
-msgstr "Nuovo evento"
 
 msgid "View as a visitor"
 msgstr "Vedi come un visitatore"
@@ -5857,6 +5858,40 @@ msgctxt "location role"
 msgid "Organizer"
 msgstr "Organizzatore"
 
+msgctxt "create menu"
+msgid "Table"
+msgstr "Tavolo"
+
+msgid "A game night here"
+msgstr "Una serata di gioco qui"
+
+msgctxt "create menu"
+msgid "Event"
+msgstr "Evento"
+
+msgid "One or more days of play here"
+msgstr "Uno o più giorni di gioco qui"
+
+msgid "A game night at a location"
+msgstr "Una serata di gioco in una sede"
+
+msgid "One or more days of play at a location"
+msgstr "Uno o più giorni di gioco in una sede"
+
+msgctxt "create menu"
+msgid "Festival"
+msgstr "Manifestazione"
+
+msgid "Gathers the events of several locations"
+msgstr "Raccoglie gli eventi di più sedi"
+
+msgctxt "create menu"
+msgid "Location"
+msgstr "Sede"
+
+msgid "A club, a game library or a shop"
+msgstr "Un circolo, una ludoteca o un negozio"
+
 msgid "My Account"
 msgstr "Il mio account"
 
@@ -6793,6 +6828,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "New event"
+#~ msgstr "Nuovo evento"
 
 #~ msgid "Registration without a date"
 #~ msgstr "Iscrizione senza data"

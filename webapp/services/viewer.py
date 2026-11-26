@@ -38,7 +38,7 @@ class Viewer:
     def _ties(self):
         """Every location the user has a tie with, and which ties, in one query."""
         empty = {'created': frozenset(), 'managed': frozenset(), 'member': frozenset(),
-                 'pending': frozenset(), 'followed': frozenset()}
+                 'pending': frozenset(), 'followed': frozenset(), 'event_creation': frozenset()}
         if not self.profile:
             return empty
         profile = self.profile
@@ -51,13 +51,17 @@ class Viewer:
                 .annotate(is_manager=managed, is_member=member, is_pending=pending, is_followed=followed)
                 .filter(Q(creator=profile) | Q(is_manager=True) | Q(is_member=True)
                         | Q(is_pending=True) | Q(is_followed=True))
-                .values_list('pk', 'creator_id', 'is_manager', 'is_member', 'is_pending', 'is_followed'))
+                .values_list('pk', 'creator_id', 'is_manager', 'is_member', 'is_pending', 'is_followed',
+                             'event_creation_permission'))
         ties = {key: set() for key in empty}
-        for pk, creator_id, is_manager, is_member, is_pending, is_followed in rows:
+        for pk, creator_id, is_manager, is_member, is_pending, is_followed, event_permission in rows:
             if creator_id == profile.pk:
                 ties['created'].add(pk)
-            for key, flag in (('managed', is_manager or creator_id == profile.pk), ('member', is_member),
-                              ('pending', is_pending), ('followed', is_followed)):
+            runs = is_manager or creator_id == profile.pk
+            # As Location.event_creation_locations: who runs it, or members where members may
+            event_creation = runs or (is_member and event_permission == Location.PERM_MEMBERS_ONLY)
+            for key, flag in (('managed', runs), ('member', is_member), ('pending', is_pending),
+                              ('followed', is_followed), ('event_creation', event_creation)):
                 if flag:
                     ties[key].add(pk)
         return {key: frozenset(ids) for key, ids in ties.items()}
@@ -84,6 +88,11 @@ class Viewer:
     @property
     def followed_location_ids(self):
         return self._ties['followed']
+
+    @property
+    def can_create_events(self):
+        """Location.event_creation_locations(user) is not empty, without a query of its own."""
+        return bool(self.profile) and (self.user.is_superuser or bool(self._ties['event_creation']))
 
     @property
     def own_location_ids(self):

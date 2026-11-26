@@ -314,3 +314,42 @@ def appointment_row(context, kind, item, past=False, status=None, mine=False):
             actions.append((_('Duplicate table'), reverse('table-duplicate', args=[item.slug]), 'copy'))
     return result_row(item.get_absolute_url(), ' · '.join(str(part) for part in kicker if part), title,
                       meta=meta, status=status, image_url=image, participation=participation, actions=actions)
+
+
+@register.inclusion_tag("components/create_menu.html", takes_context=True)
+def create_menu(context, menu_id, location=None, primary=False, trigger_id=None, secondary_class="",
+                icon_class=None):
+    """The "+ Create" menu (plan F1) with only the entries the viewer may use.
+
+    Site-wide: a table (anonymous users go through the login first), an event where the user
+    may create one, a manifestation when signed in, a location for who doesn't run one yet.
+    With `location`: a table and, if allowed, an event at that location."""
+    from urllib.parse import urlencode
+
+    from webapp.services.viewer import get_viewer
+
+    viewer = get_viewer(context['request'])
+    items = []
+    if location is not None:
+        items.append({'label': pgettext_lazy('create menu', 'Table'), 'hint': _('A game night here'), 'icon': 'bolt',
+                      'url': reverse('location-table-create', args=[location.slug])})
+        if viewer.event_creation_access(location).allowed:
+            items.append({'label': pgettext_lazy('create menu', 'Event'), 'hint': _('One or more days of play here'), 'icon': 'calendar',
+                          'url': reverse('location-event-create', args=[location.slug])})
+    else:
+        table_url = f"{reverse('locations-index')}?new_table=1"
+        if not viewer.is_authenticated:
+            table_url = f"{reverse('login')}?{urlencode({'next': table_url})}"
+        items.append({'label': pgettext_lazy('create menu', 'Table'), 'hint': _('A game night at a location'), 'icon': 'bolt',
+                      'url': table_url})
+        if viewer.can_create_events:
+            items.append({'label': pgettext_lazy('create menu', 'Event'), 'hint': _('One or more days of play at a location'),
+                          'icon': 'calendar', 'url': reverse('event-create')})
+        if viewer.is_authenticated:
+            items.append({'label': pgettext_lazy('create menu', 'Festival'), 'hint': _('Gathers the events of several locations'),
+                          'icon': 'users', 'url': reverse('master-event-create')})
+        if not viewer.managed_location_ids:
+            items.append({'label': pgettext_lazy('create menu', 'Location'), 'hint': _('A club, a game library or a shop'),
+                          'icon': 'map-pin', 'url': reverse('location-create')})
+    return {'menu_id': menu_id, 'items': items, 'primary': primary, 'trigger_id': trigger_id,
+            'secondary_class': secondary_class, 'icon_class': icon_class}

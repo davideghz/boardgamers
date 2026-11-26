@@ -1,7 +1,7 @@
 {% load i18n custom_tags %}
 {% comment %}
-Top of the location page for its managers: the way to manage it and to create events (tables
-have their own button, in the sidebar and the mobile bar), what waits for them here
+Top of the location page for its managers: the way to manage it, "+ Create" for a table or an
+event here (plan F1), what waits for them here
 (services/manager_todo.py) and a preview of the page as a visitor sees it.
 {% endcomment %}
 <section aria-label="{% trans 'Manage location' %}" class="rounded-xl border border-primary/30 bg-primary/10 p-4">
@@ -9,11 +9,7 @@ have their own button, in the sidebar and the mobile bar), what waits for them h
     {% url 'location-manage' location.slug as manage_url %}
     {% trans "Manage location" as manage_label %}
     {% button manage_label url=manage_url size="sm" icon="cog" %}
-    {% if event_creation.allowed %}
-      {% url 'location-event-create' location.slug as event_url %}
-      {% trans "New event" as event_label %}
-      {% button event_label url=event_url variant="secondary" size="sm" icon="plus" %}
-    {% endif %}
+    {% create_menu menu_id="location-create-menu" location=location secondary_class="inline-flex items-center gap-1.5 rounded-full border border-divider bg-surface px-3 py-1.5 text-xs font-semibold text-content-soft hover:bg-surface-alt hover:text-content" icon_class="w-3.5 h-3.5" %}
     <a href="?as=visitor" class="ml-auto text-xs font-semibold text-link hover:underline">{% trans "View as a visitor" %}</a>
   </div>
   {% if location_todo %}

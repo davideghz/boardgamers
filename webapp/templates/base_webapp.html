@@ -336,6 +336,22 @@
       });
     })();
 
+    // ── "+ Create" menus (components/create_menu.html) ────────────────
+    // A popover opens in the middle of the screen: place it under its button, or above it
+    // when there is no room below. Toggle events don't bubble, hence the capture.
+    document.addEventListener('toggle', event => {
+      const menu = event.target;
+      if (event.newState !== 'open' || !menu.matches || !menu.matches('[data-create-menu]')) return;
+      const trigger = document.querySelector(`[popovertarget="${menu.id}"]`);
+      if (!trigger) return;
+      const box = trigger.getBoundingClientRect();
+      const left = Math.min(Math.max(8, box.left), window.innerWidth - menu.offsetWidth - 8);
+      let top = box.bottom + 6;
+      if (top + menu.offsetHeight > window.innerHeight - 8) top = Math.max(8, box.top - menu.offsetHeight - 6);
+      menu.style.left = `${left}px`;
+      menu.style.top = `${top}px`;
+    }, true);
+
     // ── Desktop sidebar collapse ───────────────────────────────────────
     const toggleBtn   = document.getElementById('sidebar-toggle');
     const STORAGE_KEY = 'bgSidebarCollapsed';
@@ -381,7 +397,8 @@
     }
     if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeMobileSidebar();
+      // An open "+ Create" menu takes this Escape for itself: the drawer stays open.
+      if (event.key === 'Escape' && !document.querySelector('[data-create-menu]:popover-open')) closeMobileSidebar();
     });
   </script>
 

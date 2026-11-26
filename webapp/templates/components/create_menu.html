@@ -1,0 +1,28 @@
+{% load i18n %}
+{% comment %}
+"+ Create" (plan F1): one button, a popover with only what the user may create. The script in
+base_webapp.html places it under its button; Esc and a click elsewhere close it, and focus goes
+back to the button. `primary` is the filled main button, otherwise a navigation-style entry.
+{% endcomment %}
+<button type="button" popovertarget="{{ menu_id }}"{% if trigger_id %} id="{{ trigger_id }}"{% endif %} data-label="{% trans 'Create' context 'create menu' %}"
+        class="{% if primary %}w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700{% else %}{{ secondary_class }}{% endif %} transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+  {% include "components/icon.html" with name="plus" class=icon_class|default:"w-4 h-4" only %}
+  <span class="sidebar-text">{% trans "Create" context "create menu" %}</span>
+</button>
+<div id="{{ menu_id }}" popover data-create-menu aria-label="{% trans 'Create' context 'create menu' %}"
+     class="w-72 max-w-[calc(100vw-1rem)] rounded-xl border border-divider bg-surface p-1.5 text-content shadow-xl"
+     style="position: fixed; inset: auto; margin: 0;">
+  <ul class="list-none">
+    {% for item in items %}
+      <li>
+        <a href="{{ item.url }}" class="flex items-start gap-3 rounded-lg px-3 py-2 text-decoration-none hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+          <span class="mt-0.5 text-content-muted">{% include "components/icon.html" with name=item.icon class="w-5 h-5" only %}</span>
+          <span class="min-w-0">
+            <span class="block text-sm font-semibold text-content">{{ item.label }}</span>
+            <span class="block text-xs text-content-muted">{{ item.hint }}</span>
+          </span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

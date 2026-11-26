@@ -41,13 +41,45 @@ class NavigationTest(TestCase):
             self.assertNotIn(f'href="{url}"', menu)
 
     def test_main_button_by_profile(self):
-        find = f'{reverse("appointment-search")}?type=tables'
-        create = f'{reverse("locations-index")}?new_table=1'
+        find = f'id="sidebar-cta" href="{reverse("appointment-search")}?type=tables"'
+        create = 'popovertarget="sidebar-cta-menu" id="sidebar-cta"'
         for persona, expected in ((None, find), ('newcomer', find), ('player', create), ('member', create),
                                   ('manager', create)):
             with self.subTest(persona or 'anonymous'):
                 response = self.get(reverse('about'), persona)
-                self.assertContains(response, f'id="sidebar-cta" href="{expected}"')
+                self.assertContains(response, expected)
+                # "+ Create" for everyone: the main button, or the entry under "Find a table"
+                self.assertContains(response, 'popovertarget="sidebar-cta-menu"', count=1)
+                self.assertContains(response, 'popovertarget="drawer-cta-menu"', count=1)
+
+    def create_entries(self, persona):
+        html = self.get(reverse('about'), persona).content.decode()
+        start = html.index('id="sidebar-cta-menu"')
+        menu = html[start:html.index('</div>', start)]
+        return [url for url in (reverse('locations-index') + '?new_table=1', reverse('event-create'),
+                                reverse('master-event-create'), reverse('location-create')) if url in menu]
+
+    def test_create_menu_entries_by_profile(self):
+        table = reverse('locations-index') + '?new_table=1'
+        cases = {
+            None: [reverse('location-create')],  # the table goes through the login, below
+            'newcomer': [table, reverse('master-event-create'), reverse('location-create')],
+            # the club lets its members create events
+            'member': [table, reverse('event-create'), reverse('master-event-create'), reverse('location-create')],
+            'manager': [table, reverse('event-create'), reverse('master-event-create')],
+        }
+        for persona, expected in cases.items():
+            with self.subTest(persona or 'anonymous'):
+                self.assertEqual(self.create_entries(persona), expected)
+        anonymous = self.get(reverse('about')).content.decode()
+        self.assertIn(f'{reverse("login")}?next=%2Flocations%2F%3Fnew_table%3D1', anonymous)
+
+    def test_the_location_bar_creates_here(self):
+        circolo = self.data.circolo
+        response = self.get(reverse('location-detail', args=[circolo.slug]), 'manager')
+        self.assertContains(response, 'popovertarget="location-create-menu"')
+        self.assertContains(response, reverse('location-table-create', args=[circolo.slug]))
+        self.assertContains(response, reverse('location-event-create', args=[circolo.slug]))
 
     def test_current_page(self):
         cases = {

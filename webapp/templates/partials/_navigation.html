@@ -3,24 +3,22 @@
 The site navigation, shared by the desktop sidebar and the mobile drawer (base_webapp.html).
 `cta_id` names the main button in the sidebar, whose collapsed layout targets it.
 
-Main button: "Find a table" for visitors and for users with no tie to a location yet,
-"New table" for the others. Feed: Home, My activities. Explore: Activities (search), Locations,
-Games. Events, manifestations and tables are kinds of activity (Search's type filter).
+Main button: "Find a table" for visitors and for users with no tie to a location yet, with
+"+ Create" under it; "+ Create" itself for the others (plan F1). Feed: Home, My activities.
+Explore: Activities (search), Locations, Games. Events, festivals and tables are kinds of
+activity (Search's type filter).
 {% endcomment %}
 {% with url_name=request.resolver_match.url_name %}
-<div class="mb-1">
+<div class="mb-1 flex flex-col gap-1">
   {% if viewer.own_location_ids %}
-    <a {% if cta_id %}id="{{ cta_id }}" {% endif %}href="{% url 'locations-index' %}?new_table=1" data-label="{% trans "New table" %}"
-       class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
-      {% icon "plus" "w-4 h-4" %}
-      <span class="sidebar-text">{% trans "New table" %}</span>
-    </a>
+    {% create_menu menu_id=cta_id|default:"drawer-cta"|add:"-menu" primary=True trigger_id=cta_id %}
   {% else %}
     <a {% if cta_id %}id="{{ cta_id }}" {% endif %}href="{% url 'appointment-search' %}?type=tables" data-label="{% trans "Find a table" %}"
        class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
       <span class="sidebar-text">{% trans "Find a table" %}</span>
     </a>
+    {% create_menu menu_id=cta_id|default:"drawer-cta"|add:"-menu" secondary_class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-content-soft hover:bg-surface-input hover:text-content" icon_class="w-5 h-5" %}
   {% endif %}
 </div>
 
