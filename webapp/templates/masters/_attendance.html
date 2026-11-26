@@ -1,5 +1,5 @@
 {% load i18n %}
-<section id="manifestation-attendance" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+<section id="master-event-attendance" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
   <h2 class="font-bold text-content">{% translate "Dates" %}</h2>
 
   {% if days %}
@@ -19,7 +19,7 @@
     <form method="post" action="{% url 'master-event-register' master.slug %}" class="space-y-3">
       {% csrf_token %}
       <fieldset>
-        <legend class="text-sm font-semibold text-content">{% translate "Your manifestation dates" %}</legend>
+        <legend class="text-sm font-semibold text-content">{% translate "Your festival dates" %}</legend>
   {% endif %}
   <ul class="divide-y divide-divider">
     {% for day in days %}
@@ -50,6 +50,6 @@
     </form>
   {% elif registration_open %}
     <a class="inline-flex rounded-full border border-divider px-4 py-2 text-sm font-semibold text-link hover:bg-surface-alt"
-       href="{% url 'login' %}?next={{ master.get_absolute_url|urlencode }}%23manifestation-attendance">{% translate "Log in to attend" %}</a>
+       href="{% url 'login' %}?next={{ master.get_absolute_url|urlencode }}%23master-event-attendance">{% translate "Log in to attend" %}</a>
   {% endif %}
 </section>

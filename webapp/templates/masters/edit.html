@@ -2,11 +2,11 @@
 {% load i18n custom_tags static %}
 
 {% block content %}
-  {% back_link 'master-event-list' label=_("Manifestations") %}
+  {% back_link 'master-event-list' label=_("Festivals") %}
   <header class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-    <h1 class="break-words text-2xl font-extrabold text-content">{% if master.pk %}{{ master.name }}{% else %}{% translate "Create manifestation" %}{% endif %}</h1>
+    <h1 class="break-words text-2xl font-extrabold text-content">{% if master.pk %}{{ master.name }}{% else %}{% translate "Create festival" %}{% endif %}</h1>
     {% if master.pk %}
-      <a class="text-sm font-semibold text-link hover:underline " href="{{ master.get_absolute_url }}">{% translate "View manifestation" %}</a>
+      <a class="text-sm font-semibold text-link hover:underline " href="{{ master.get_absolute_url }}">{% translate "View festival" %}</a>
     {% endif %}
   </header>
 
@@ -21,7 +21,7 @@
       <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Save" %}</button>
     </form>
     {% if master.pk %}
-      <section id="manifestation-dates" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <section id="master-event-dates" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
         <h2 class="font-bold text-content">{% translate "Dates" %}</h2>
         <ul class="divide-y divide-divider">
           {% for day in master.dates.all %}
@@ -31,7 +31,7 @@
                 {% include "masters/_date_hours.html" with day=day only %}
               </div>
               <div class="flex flex-wrap items-center gap-3">
-                <a class="font-semibold text-link hover:underline " href="?day={{ day.date|date:'Y-m-d' }}#manifestation-dates">{% translate "Edit hours" %}</a>
+                <a class="font-semibold text-link hover:underline " href="?day={{ day.date|date:'Y-m-d' }}#master-event-dates">{% translate "Edit hours" %}</a>
                 <form action="{% url 'master-event-calendar' master.slug %}" method="post">
                   {% csrf_token %}
                   <button type="submit" class="font-semibold text-red-600 hover:underline dark:text-red-400" name="remove" value="{{ day.pk }}">{% translate "Remove" %}</button>
@@ -49,7 +49,7 @@
         </form>
       </section>
 
-      <section id="manifestation-events" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <section id="master-event-events" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
         <h2 class="font-bold text-content">{% translate "Linked events" %}</h2>
         <ul class="divide-y divide-divider">
           {% for event in linked_events %}
@@ -89,11 +89,11 @@
           <p class="text-sm text-content-muted">{% translate "No events available to link." %}</p>
         {% endif %}
         {% if not master.is_published %}
-          <p class="text-xs text-content-muted">{% translate "Until the manifestation is approved, you can only link events you manage." %}</p>
+          <p class="text-xs text-content-muted">{% translate "Until the festival is approved, you can only link events you manage." %}</p>
         {% endif %}
       </section>
 
-      <section id="manifestation-sponsors" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <section id="master-event-sponsors" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
         <h2 class="font-bold text-content">{% translate "Sponsors" %}</h2>
         <ul class="divide-y divide-divider">
           {% for sponsor in sponsors %}

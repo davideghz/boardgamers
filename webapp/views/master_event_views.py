@@ -113,7 +113,7 @@ def edit(request, slug=None):
         'linked_events': master.events.select_related('organizer_location').order_by('name', 'pk') if master.pk else (),
         'linkable_events': linkable_events(request.user, master).select_related('organizer_location').order_by(
             'name', 'pk') if master.pk else (),
-        'meta': Meta(title=master.name or _('Create manifestation')),
+        'meta': Meta(title=master.name or _('Create festival')),
     })
 
 
@@ -122,7 +122,7 @@ def edit(request, slug=None):
 @transaction.atomic
 def register(request, slug):
     master = get_object_or_404(MasterEvent.objects.select_for_update(), slug=slug, status=Event.PUBLISHED)
-    destination = master.get_absolute_url() + '#manifestation-attendance'
+    destination = master.get_absolute_url() + '#master-event-attendance'
     eligible = set(master.dates.filter(date__gte=timezone.localdate()).values_list('pk', flat=True))
     if not eligible:
         messages.error(request, _('Registration is closed.'))
@@ -132,7 +132,7 @@ def register(request, slug):
     except ValueError:
         selected = None
     if selected is None or selected - eligible:
-        messages.error(request, _('Choose a date in the manifestation calendar.'))
+        messages.error(request, _('Choose a date in the festival calendar.'))
         return redirect(destination)
 
     profile = request.user.user_profile
@@ -140,7 +140,7 @@ def register(request, slug):
     MasterEventDateParticipant.objects.bulk_create([
         MasterEventDateParticipant(user_profile=profile, master_event_date_id=pk) for pk in selected
     ], ignore_conflicts=True)
-    messages.success(request, _('Manifestation registration updated.'))
+    messages.success(request, _('Festival registration updated.'))
     return redirect(destination)
 
 
@@ -171,7 +171,7 @@ def calendar(request, slug):
             messages.success(request, _('Date saved.'))
         else:
             messages.error(request, _('Invalid date or times.'))
-    return redirect(reverse('master-event-manage', args=[slug]) + '#manifestation-dates')
+    return redirect(reverse('master-event-manage', args=[slug]) + '#master-event-dates')
 
 
 @login_required
@@ -217,7 +217,7 @@ def link(request, slug):
         messages.error(request, error.messages[0])
     else:
         messages.success(request, _('Event unlinked.') if unlink else _('Event linked.'))
-    return redirect(reverse('master-event-manage', args=[slug]) + '#manifestation-events')
+    return redirect(reverse('master-event-manage', args=[slug]) + '#master-event-events')
 
 
 @login_required
@@ -226,7 +226,7 @@ def link(request, slug):
 def sponsors(request, slug, pk=None):
     is_post = request.method == 'POST'
     master = managed_master(request, slug, lock=is_post)
-    destination = reverse('master-event-manage', args=[slug]) + '#manifestation-sponsors'
+    destination = reverse('master-event-manage', args=[slug]) + '#master-event-sponsors'
     linked_sponsors = master.sponsors.select_for_update(of=('self',)) if is_post else master.sponsors.all()
     sponsor = get_object_or_404(linked_sponsors, pk=pk) if pk is not None else None
     if is_post and sponsor and 'remove' in request.POST:

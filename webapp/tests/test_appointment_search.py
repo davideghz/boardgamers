@@ -40,7 +40,7 @@ class AppointmentSearchTest(TestCase):
         ])
         self.assertEqual(self.results({**params, 'location': self.club.slug}), [])
         self.assertContains(self.client.get(self.url, params), self.table.get_absolute_url())
-        self.assertEqual(self.results({**params, 'type': 'manifestations'}), [('manifestation', self.master)])
+        self.assertEqual(self.results({**params, 'type': 'master-events'}), [('manifestation', self.master)])
 
     def test_filters_actual_days_and_hides_drafts_and_disabled_program(self):
         day = self.first + timedelta(days=1)
@@ -76,7 +76,7 @@ class AppointmentSearchTest(TestCase):
 
     def test_manifestation_organizer_filter_matches_only_its_event_days(self):
         self.event.dates.filter(date=self.first).delete()
-        filters = {'type': 'manifestations', 'organizer': self.club.slug, 'when': 'range'}
+        filters = {'type': 'master-events', 'organizer': self.club.slug, 'when': 'range'}
         self.assertEqual(self.results({**filters, 'date_from': self.first, 'date_to': self.first}), [])
         self.assertEqual(self.results({**filters, 'date_from': self.last, 'date_to': self.last}), [
             ('manifestation', self.master),
@@ -221,7 +221,7 @@ class AppointmentSearchTest(TestCase):
 
 
 class PresetListsTest(TestCase):
-    """E3: /tables/, /events/ and /manifestations/ are the search with the type preset."""
+    """E3: /tables/, /events/ and /master-events/ are the search with the type preset."""
 
     setUp = AppointmentSearchTest.setUp
 
@@ -234,7 +234,7 @@ class PresetListsTest(TestCase):
         for name, search_type, kind, item in (
             ('table-index', 'tables', 'table', self.table),
             ('event-index', 'events', 'event', self.event),
-            ('master-event-list', 'manifestations', 'manifestation', self.master),
+            ('master-event-list', 'master-events', 'manifestation', self.master),
         ):
             with self.subTest(name):
                 response = self.get(name, {'type': 'all'})  # the preset wins

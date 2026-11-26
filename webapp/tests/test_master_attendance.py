@@ -44,7 +44,7 @@ class MasterAttendanceTest(TestCase):
         requested = [self.first.pk, self.second.pk, self.second.pk]
         for _ in range(2):
             self.assertRedirects(self.client.post(self.url, {'days': requested}),
-                                 self.detail + '#manifestation-attendance')
+                                 self.detail + '#master-event-attendance')
         registrations = self.first_person.master_event_registrations
         original = {past.pk, foreign_day.pk, self.first.pk, self.second.pk}
         self.assertEqual(set(registrations.values_list('master_event_date_id', flat=True)), original)

@@ -18,7 +18,7 @@ SEARCH_TYPES = (
     ('all', pgettext_lazy('appointment search results', 'All')),
     ('events', _('Events')),
     ('tables', _('Tables')),
-    ('manifestations', _('Manifestations')),
+    ('master-events', _('Festivals')),
 )
 
 
@@ -182,7 +182,7 @@ def _drafts(user, search_type):
     if search_type == 'events':
         drafts = Event.objects.managed_by(user.user_profile).filter(status=Event.DRAFT)
         return [('event', event) for event in drafts.select_related('organizer_location', 'venue_location')]
-    if search_type == 'manifestations':
+    if search_type == 'master-events':
         drafts = MasterEvent.objects.exclude(status=Event.PUBLISHED).select_related('venue_location')
         if not MasterEvent.can_approve(user):
             drafts = drafts.filter(managers__user=user).distinct()
@@ -194,13 +194,13 @@ def _drafts(user, search_type):
 PRESETS = {
     'tables': ('table-index', _('Game Tables'), _('Discover all available game tables and join the game!')),
     'events': ('event-index', _('Events'), _('Conventions, tournaments and game days near you.')),
-    'manifestations': ('master-event-list', _('Manifestations'), _('Fairs and festivals that gather several events.')),
+    'master-events': ('master-event-list', _('Festivals'), _('Fairs and festivals that gather several events.')),
 }
 
 
 class AppointmentSearchView(View):
     template_name = 'search/appointments.html'
-    #: 'tables', 'events' or 'manifestations' for /tables/, /events/ and /manifestations/
+    #: 'tables', 'events' or 'master-events' for /tables/, /events/ and /master-events/
     preset = None
 
     def get(self, request):
@@ -226,7 +226,7 @@ class AppointmentSearchView(View):
             title, description = PRESETS[self.preset][1:]
         else:
             title = pgettext_lazy('navigation', 'Activities')
-            description = _('Find events, game tables and manifestations on Board Gamers.')
+            description = _('Find events, game tables and festivals on Board Gamers.')
         context = {
             'search_form': form,
             'active_filters': chips,
@@ -259,7 +259,7 @@ class AppointmentSearchView(View):
                 sources['table'] = _search_tables(query, *places.values(), date_filters)
             if search_type in ('all', 'events'):
                 sources['event'] = _search_events(query, *places.values(), date_filters, newest_first)
-            if search_type in ('all', 'manifestations'):
+            if search_type in ('all', 'master-events'):
                 sources['manifestation'] = _search_manifestations(query, *places.values(), date_filters, newest_first)
             page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=newest_first)
             context.update(items=items, page_obj=page, paginator=page.paginator, is_paginated=page.has_other_pages())

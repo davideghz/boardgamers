@@ -34,7 +34,7 @@ class MasterProgramTest(TestCase):
         self.assertEqual(self.client.get(self.link).status_code, 405)
         self.assertEqual(self.client.post(self.link, {'event': 'invalid'}).status_code, 404)
         self.assertRedirects(
-            self.client.post(self.link, {'event': self.event.pk}), self.manage + '#manifestation-events',
+            self.client.post(self.link, {'event': self.event.pk}), self.manage + '#master-event-events',
         )
         self.event.refresh_from_db()
         self.assertEqual(self.event.master_event_id, self.master.pk)
@@ -108,7 +108,7 @@ class MasterProgramTest(TestCase):
         with self.settings(LANGUAGE_CODE='en'):
             self.client.cookies['django_language'] = 'en'
             response = self.client.post(self.link, {'event': self.event.pk}, follow=True)
-            self.assertContains(response, 'Add these dates to the manifestation calendar before linking the event')
+            self.assertContains(response, 'Add these dates to the festival calendar before linking the event')
         self.assertFalse(self.master.events.exists())
         MasterEventDate.objects.create(master_event=self.master, date=outside.date)
         self.client.post(self.link, {'event': self.event.pk})

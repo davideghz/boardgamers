@@ -912,7 +912,7 @@ class EventMasterUnlinkView(EventManagerMixin, View):
         event = self._get_event()
         # The page may be stale: only leave the manifestation it showed.
         if event.master_event_id is None or request.POST.get('master') != str(event.master_event_id):
-            messages.error(request, _('The event is no longer linked to this manifestation.'))
+            messages.error(request, _('The event is no longer linked to this festival.'))
         else:
             set_master(event, event.master_event, request.user, unlink=True)
             messages.success(request, _('Event unlinked.'))

@@ -3,7 +3,7 @@
 
 {% block content %}
   {% url 'master-event-manage' master.slug as manage_url %}
-  <a href="{{ manage_url }}#manifestation-sponsors" class="mb-3 inline-block text-sm font-semibold text-link hover:underline ">{{ master.name }} · {% translate "Sponsors" %}</a>
+  <a href="{{ manage_url }}#master-event-sponsors" class="mb-3 inline-block text-sm font-semibold text-link hover:underline ">{{ master.name }} · {% translate "Sponsors" %}</a>
   <h1 class="mb-4 text-2xl font-extrabold text-content">{{ title }}</h1>
 
   <div class="max-w-xl rounded-xl border border-divider bg-surface p-4 sm:p-5">

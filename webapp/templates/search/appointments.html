@@ -2,7 +2,7 @@
 {% load i18n custom_tags %}
 
 {% comment %}
-The list pattern (plan E2), also behind /tables/, /events/ and /manifestations/ (E3), top to bottom: header with the count, the type control, the keywords
+The list pattern (plan E2), also behind /tables/, /events/ and /master-events/ (E3), top to bottom: header with the count, the type control, the keywords
 and "Filters (n)", the active filters as removable chips, then the results. One form holds it
 all; the filters panel is a <dialog> below lg and a sidebar column from lg up (same markup).
 {% endcomment %}
@@ -10,12 +10,12 @@ all; the filters panel is a <dialog> below lg and a sidebar column from lg up (s
 {% block content %}
   {% if preset == 'events' %}
     {% url 'event-create' as create_url %}{% trans "Create event" as create_label %}
-  {% elif preset == 'manifestations' and user.is_authenticated %}
-    {% url 'master-event-create' as create_url %}{% trans "Create manifestation" as create_label %}
+  {% elif preset == 'master-events' and user.is_authenticated %}
+    {% url 'master-event-create' as create_url %}{% trans "Create festival" as create_label %}
   {% endif %}
   {% page_header page_title count=paginator.count action_label=create_label action_url=create_url %}
 
-  {# Each type has its own address: /tables/, /events/, /manifestations/ (plan E3) #}
+  {# Each type has its own address: /tables/, /events/, /master-events/ (plan E3) #}
   <nav aria-label="{% trans 'Result type' %}" class="mb-4 flex w-fit flex-wrap items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
     {% querystring search_params type=None page=None as query %}
     {% for value, label, base_url in search_types %}

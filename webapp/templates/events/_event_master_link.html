@@ -1,15 +1,15 @@
 {% load i18n %}
 <section class="rounded-xl border border-divider bg-surface p-4" aria-labelledby="event-master-heading">
   <h2 id="event-master-heading" class="break-words text-sm font-bold text-content">
-    {% translate "Manifestation" %} ·
+    {% translate "Festival" %} ·
     {% if event.master_event.is_published %}
       <a class="text-link hover:underline" href="{{ event.master_event.get_absolute_url }}">{{ event.master_event.name }}</a>
     {% else %}
       {{ event.master_event.name }} ({{ event.master_event.get_status_display }})
     {% endif %}
   </h2>
-  <p class="mt-1 text-xs text-content-muted">{% translate "This event is linked to the manifestation and its dates must be in the manifestation calendar." %}</p>
-  {% translate "Unlink this event from the manifestation?" as confirm_unlink %}
+  <p class="mt-1 text-xs text-content-muted">{% translate "This event is linked to the festival and its dates must be in the festival calendar." %}</p>
+  {% translate "Unlink this event from the festival?" as confirm_unlink %}
   <form class="mt-2" method="post" action="{% url 'event-master-unlink' event.slug %}" data-confirm="{{ confirm_unlink }}" data-confirm-label="{% translate "Unlink" %}">
     {% csrf_token %}
     <input type="hidden" name="master" value="{{ event.master_event_id }}">

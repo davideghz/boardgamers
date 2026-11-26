@@ -184,7 +184,7 @@ STATUS_BADGES = {
 TYPE_BADGES = {
     "table": pgettext_lazy("appointment type", "Table"),
     "event": pgettext_lazy("appointment type", "Event"),
-    "manifestation": pgettext_lazy("appointment type", "Manifestation"),
+    "manifestation": pgettext_lazy("appointment type", "Festival"),
 }
 ROLE_BADGES = {
     "creator": (pgettext_lazy("location role", "Owner"), "info"),

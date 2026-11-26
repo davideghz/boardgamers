@@ -2351,7 +2351,7 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
     def validate_master_day(self, date):
         if self.master_event_id and not MasterEventDate.objects.filter(
                 master_event_id=self.master_event_id, date=date).exists():
-            raise ValidationError(_('Choose a date in the manifestation calendar.'))
+            raise ValidationError(_('Choose a date in the festival calendar.'))
 
     def missing_publish_requirements(self):
         """What the event still lacks before it can be published: an undated event
@@ -2573,7 +2573,7 @@ class MasterEventDate(models.Model):
             previous = MasterEventDate.objects.only('master_event', 'date').filter(pk=self.pk).first() if self.pk else None
             if previous:
                 if previous.master_event_id != master.pk:
-                    raise ValidationError(_('A date cannot be moved to another manifestation.'))
+                    raise ValidationError(_('A date cannot be moved to another festival.'))
                 if previous.date != self.date:
                     master.validate_unused_dates([previous.date])
             return super().save(*args, **kwargs)

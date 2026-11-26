@@ -40,7 +40,7 @@ class MasterSponsorTest(TestCase):
         self.client.force_login(self.manager.user)
         self.assertRedirects(self.client.post(self.add, {
             'name': 'Independent Publisher', 'website': 'https://example.org/publisher', 'logo': png_logo(),
-        }), self.manage + '#manifestation-sponsors')
+        }), self.manage + '#master-event-sponsors')
         sponsor = self.master.sponsors.get()
         self.assertIsNone(sponsor.location_id)
         with sponsor.logo.open() as logo, Image.open(logo) as image:

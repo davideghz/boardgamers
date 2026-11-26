@@ -2,7 +2,7 @@
 {% load i18n custom_tags %}
 
 {% block content %}
-  {% back_link 'master-event-list' label=_("Manifestations") %}
+  {% back_link 'master-event-list' label=_("Festivals") %}
   <div class="max-w-3xl space-y-5">
     <header>
       <h1 class="break-words text-3xl font-extrabold text-content">{{ master.name }}</h1>
@@ -55,7 +55,7 @@
     </section>
 
     {% regroup tables by date as program %}
-    <section id="manifestation-program" class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+    <section id="master-event-program" class="space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
       <h2 class="font-bold text-content">{% translate "Program" %}</h2>
       {% for day in program %}
         <section>
@@ -78,7 +78,7 @@
     </section>
 
     {% if sponsors %}
-      <section id="manifestation-sponsors" class="scroll-mt-16 rounded-xl border border-divider bg-surface p-4 sm:p-5">
+      <section id="master-event-sponsors" class="scroll-mt-16 rounded-xl border border-divider bg-surface p-4 sm:p-5">
         <h2 class="font-bold text-content">{% translate "Sponsors" %}</h2>
         <ul class="mt-3 grid gap-2 sm:grid-cols-2">
           {% for sponsor in sponsors %}
