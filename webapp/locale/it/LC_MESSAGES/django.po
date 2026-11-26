@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 10:59+0100\n"
+"POT-Creation-Date: 2026-11-26 11:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2551,6 +2551,10 @@ msgstr "Scegli la sede organizzatrice"
 msgid "You have no locations where you can create an event."
 msgstr "Non ci sono sedi in cui puoi creare un evento."
 
+#, python-format
+msgid "Reserved for members of %(name)s"
+msgstr "Riservato ai soci di %(name)s"
+
 msgid "You're attending"
 msgstr "Stai partecipando"
 
@@ -3281,18 +3285,6 @@ msgstr "posti disponibili"
 
 msgid "Table is full"
 msgstr "Tavolo completo"
-
-msgid "Leave this Table"
-msgstr "Abbandona questo tavolo"
-
-msgid "Join this table"
-msgstr "Unisciti a questo tavolo"
-
-msgid "Login to join table"
-msgstr "Accedi per unirti al tavolo"
-
-msgid "This table is closed"
-msgstr "Questo tavolo è chiuso"
 
 msgid "Add to Calendar"
 msgstr "Aggiungi al Calendario"
@@ -4684,6 +4676,9 @@ msgstr ""
 "Questi dati finiscono sul modulo di adesione dell'associazione. Lascia vuoto "
 "il codice fiscale se non ne hai uno italiano."
 
+msgid "Table reserved for members"
+msgstr "Tavolo riservato ai soci"
+
 msgid "Pagination"
 msgstr "Paginazione"
 
@@ -5026,8 +5021,10 @@ msgstr "sedi"
 msgid "to see their open tables here."
 msgstr "per vedere i loro tavoli."
 
-msgid "Your locations have no upcoming tables: here are the ones from all locations."
-msgstr "Le tue sedi non hanno tavoli in programma: ecco quelli di tutte le sedi."
+msgid ""
+"Your locations have no upcoming tables: here are the ones from all locations."
+msgstr ""
+"Le tue sedi non hanno tavoli in programma: ecco quelli di tutte le sedi."
 
 msgid "Follow more locations"
 msgstr "Segui altre sedi"
@@ -5243,6 +5240,30 @@ msgstr[1] "%(counter)s giocatori"
 #, python-format
 msgid "%(min)s–%(max)s players"
 msgstr "%(min)s–%(max)s giocatori"
+
+msgid "This table is closed"
+msgstr "Questo tavolo è chiuso"
+
+msgid "You're in"
+msgstr "Sei iscritto"
+
+msgid "Leave"
+msgstr "Esci"
+
+msgid "Leave the table"
+msgstr "Lascia il tavolo"
+
+msgid "Login to join table"
+msgstr "Accedi per unirti al tavolo"
+
+msgid "Join this table"
+msgstr "Unisciti a questo tavolo"
+
+msgid "Leave this table?"
+msgstr "Vuoi lasciare il tavolo?"
+
+msgid "Your seat goes back to the other players."
+msgstr "Il tuo posto torna libero per gli altri giocatori."
 
 msgid "Filter by location"
 msgstr "Filtra per sede"
@@ -5555,9 +5576,6 @@ msgstr "Creato"
 
 msgid "ago"
 msgstr "fa"
-
-msgid "Table reserved for members"
-msgstr "Tavolo riservato ai soci"
 
 msgid "Edit table info"
 msgstr "Modifica tavolo"
@@ -6515,9 +6533,6 @@ msgstr "Apri su Board-Gamers"
 
 msgid "Join"
 msgstr "Partecipa"
-
-msgid "Leave"
-msgstr "Esci"
 
 msgid "One moment…"
 msgstr "Un attimo…"

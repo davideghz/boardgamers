@@ -3,6 +3,7 @@ import json
 import logging
 from collections import defaultdict
 from itertools import groupby
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -202,6 +203,7 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'is_participant': is_participant,
             'event_join': (event.organizer_location.event_join_access(user_profile)
                            if event.organizer_location_id else LocationAccess()),
+            'login_url': f"{reverse('login')}?{urlencode({'next': self.request.path})}",
             'just_joined': is_participant and self.request.session.pop(
                 'event_just_joined', None) == event.pk,
             'needs_phone': is_participant and not user_profile.phone,
@@ -747,8 +749,12 @@ class EventTableDetailView(BaseTableDetailView):
                 or event.can_create_table(user_profile)
             ))
         )
+        # Who may join is the organizing location's rule for its events
+        organizer = event.organizer_location
         context.update({
             'event': event,
+            'table_join': organizer.event_join_access(user_profile) if organizer else LocationAccess(),
+            'join_location': organizer,
             'is_event_manager': self.is_table_host,  # an event table: its host is the event
             'can_view_player_phones': can_view_player_phones,
         })
