@@ -29,6 +29,7 @@
       {% endif %}
       <p class="text-sm font-bold text-content truncate">{{ table.title }}</p>
     </div>
+    {% if show_participation %}<div>{% participation_status compact=True %}</div>{% endif %}
 
     {# Game + location + time #}
     <div class="flex flex-col gap-0.5 text-xs text-content-muted">

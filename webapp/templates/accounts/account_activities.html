@@ -71,7 +71,7 @@
             {% if kind == 'table' %}
               {% include "tags/horizontal_table_card.html" with table=activity show_appointment_context=True show_author_icon=True %}
             {% else %}
-              {% include "tags/horizontal_event_card.html" with event=activity only %}
+              {% include "tags/horizontal_event_card.html" with event=activity show_participation=show_participation only %}
             {% endif %}
           </li>
         {% endfor %}

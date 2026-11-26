@@ -210,6 +210,8 @@ def activities(request):
     page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=past)
     return render(request, 'accounts/account_activities.html', {
         'activity_type': activity_type, 'tab': 'past' if past else 'upcoming',
+        # Every row is the user's: upcoming ones carry the same participation badge as their pages
+        'show_participation': not past,
         'items': items, 'page_obj': page, 'paginator': page.paginator, 'is_paginated': page.has_other_pages(),
         'q': query, 'selected_location': venue,
         'location_filter_items': [location_result(location) for location in locations],

@@ -73,6 +73,7 @@
             </span>
           {% elif user.is_authenticated %}
             {% if event.organizer_location_id %}
+              {% if is_participant %}{% participation_status "event" %}{% endif %}
               {% if is_participant or event_join.allowed and registration_dates %}
                 <a href="#event-attendance"
                    class="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-white hover:bg-primary/90">
@@ -80,22 +81,7 @@
                 </a>
               {% endif %}
             {% elif is_participant %}
-              <span class="inline-flex items-center justify-center gap-2 font-bold pl-6 pr-3 py-3 rounded-full text-sm cursor-default
- {% if event.cover or event.organizer_location.cover %}border border-divider text-content lg:bg-slate-900/70 lg:backdrop-blur-sm lg:border-white/30 lg:text-white{% else %}bg-slate-900/70 backdrop-blur-sm border border-white/30 text-white{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-green-400">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-                {% trans "You're attending" %}
-                <form method="post" action="{% url 'event-leave' event.slug %}" class="flex">
-                  {% csrf_token %}
-                  <button type="submit" title="{% trans "Leave the event" %}" aria-label="{% trans "Leave the event" %}"
-                          class="flex items-center justify-center w-5 h-5 rounded-full hover:bg-white/20 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-2.5 h-2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </form>
-              </span>
+              {% participation_status "event" leave_dialog="leave-event-dialog" %}
             {% elif event_join.allowed %}
               <form method="post" action="{% url 'event-join' event.slug %}">
                 {% csrf_token %}
@@ -428,21 +414,7 @@
                 {% if event.organizer_location_id %}
                   {% include "events/_event_attendance_form.html" %}
                 {% elif is_participant %}
-                  <div class="flex items-center justify-center gap-2 w-full whitespace-nowrap rounded-full bg-green-50 border border-green-200 px-3 py-2.5 text-sm font-semibold text-green-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                    {% trans "You're attending" %}
-                    <form method="post" action="{% url 'event-leave' event.slug %}" class="flex">
-                      {% csrf_token %}
-                      <button type="submit" title="{% trans "Leave the event" %}" aria-label="{% trans "Leave the event" %}"
-                              class="flex items-center justify-center w-5 h-5 rounded-full hover:bg-green-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-2.5 h-2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                      </button>
-                    </form>
-                  </div>
+                  <div class="flex justify-center">{% participation_status "event" leave_dialog="leave-event-dialog" %}</div>
                 {% elif event_join.allowed %}
                   <form method="post" action="{% url 'event-join' event.slug %}">
                     {% csrf_token %}
@@ -615,28 +587,16 @@
 
   </div>{# /grid #}
 
-  {# ── JOINED CONFIRMATION MODAL ────────────────────────────────────── #}
+  {# ── JOINED CONFIRMATION ──────────────────────────────────────────── #}
   {% if just_joined %}
-    <div id="joined-dialog" class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true" aria-labelledby="joined-dialog-title">
-      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm js-close-joined"></div>
-      <div class="relative bg-surface rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
-        <div class="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-          </svg>
-        </div>
-        <p id="joined-dialog-title" class="text-lg font-bold text-content mb-1">{% trans "You're in!" %}</p>
-        <p class="text-sm text-content-muted mb-5">{% trans "Games are better with friends: invite them to join you at the event!" %}</p>
-        <div class="space-y-2">
-          {% include "partials/_share_button.html" with share_title=event.name share_label=_("Share event") share_class="inline-flex items-center justify-center gap-1.5 w-full bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2.5 rounded-full transition-colors" %}
-          <button type="button"
-                  class="js-close-joined w-full rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors">
-            {% trans "Close" %}
-          </button>
-        </div>
-      </div>
-    </div>
+    {% trans "Games are better with friends: invite them to join you at the event!" as joined_message %}
+    {% joined_dialog event.name joined_message share_label=_("Share event") %}
+  {% endif %}
+  {% if is_participant and not event.organizer_location_id and not is_concluded %}
+    {% url 'event-leave' event.slug as leave_url %}
+    {% trans "Leave the event?" as leave_title %}
+    {% trans "Leave the event" as leave_label %}
+    {% confirm_dialog "leave-event-dialog" leave_title leave_url leave_label %}
   {% endif %}
 
 {% endblock %}
@@ -655,13 +615,6 @@
 
 {% block extrabodyjs %}
   {% if needs_phone %}{% include "partials/intl_tel_input.html" %}{% endif %}
-  {% if just_joined %}
-    <script>
-      document.querySelectorAll('.js-close-joined').forEach(el => {
-        el.addEventListener('click', () => document.getElementById('joined-dialog').remove());
-      });
-    </script>
-  {% endif %}
 {% endblock %}
 
 {% block jsonld %}

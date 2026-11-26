@@ -287,6 +287,10 @@
   </div>
 
   {% if is_player %}{% include "tables/_leave_dialog.html" %}{% endif %}
+  {% if just_joined and is_player %}
+    {% trans "Games are better with friends: invite them to the table!" as joined_message %}
+    {% joined_dialog table.title joined_message %}
+  {% endif %}
 
 {% endblock content %}
 

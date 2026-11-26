@@ -258,3 +258,8 @@ def location_relation(context, location):
     """The viewer's relation to `location`: manager, member, pending, follower, visitor or
     anonymous (see services/viewer.py). Usage: {% location_relation location as rel %}."""
     return context['viewer'].relation(location)
+
+
+@register.inclusion_tag("components/joined_dialog.html")
+def joined_dialog(share_title, message, share_label=None):
+    return {"share_title": share_title, "message": message, "share_label": share_label}

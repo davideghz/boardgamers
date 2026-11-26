@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 16:25+0100\n"
+"POT-Creation-Date: 2026-11-26 16:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2334,6 +2334,12 @@ msgstr "Diventa socio"
 msgid "Only owners and managers can create tables here."
 msgstr "Solo i gestori possono creare tavoli qui."
 
+msgid "You're in!"
+msgstr "Ci sei!"
+
+msgid "Close"
+msgstr "Chiudi"
+
 msgid "You're attending"
 msgstr "Stai partecipando"
 
@@ -2536,6 +2542,9 @@ msgstr "Aggiorna giornate"
 msgid "Attend this event"
 msgstr "Partecipa all’evento"
 
+msgid "Leave the event?"
+msgstr "Vuoi lasciare l'evento?"
+
 msgid "Cancel event registration"
 msgstr "Annulla iscrizione all’evento"
 
@@ -2721,15 +2730,9 @@ msgstr "Come arrivare"
 msgid "Map not available"
 msgstr "Mappa non disponibile"
 
-msgid "You're in!"
-msgstr "Ci sei!"
-
 msgid "Games are better with friends: invite them to join you at the event!"
 msgstr ""
 "Si gioca meglio in compagnia: invita i tuoi amici a partecipare all'evento!"
-
-msgid "Close"
-msgstr "Chiudi"
 
 msgid "Library"
 msgstr "Ludoteca"
@@ -3349,6 +3352,9 @@ msgstr "Aggiungi al Calendario"
 
 msgid "Invite/Remove Gamers"
 msgstr "Invita/Rimuovi Gamers"
+
+msgid "Games are better with friends: invite them to the table!"
+msgstr "Si gioca meglio in compagnia: invita i tuoi amici al tavolo!"
 
 #, python-format
 msgid "Managed by %(venue)s."

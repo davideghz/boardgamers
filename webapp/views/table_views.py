@@ -266,6 +266,7 @@ class BaseTableDetailView(generic.DetailView):
             'comment_form': CommentForm(),
             'can_comment': can_comment(profile, table, is_host=self.is_table_host),
             'is_player': bool(profile) and players.filter(user_profile=profile).exists(),
+            'just_joined': self.request.session.pop('table_just_joined', None) == table.pk,
             'login_url': f"{reverse('login')}?{urlencode({'next': self.request.path})}",
             'comments': comments,
             'available_seats': max_players - current_players,
@@ -746,7 +747,8 @@ class JoinTableView(LoginRequiredMixin, View):
             _report_table_action_error(request, error)
             return redirect('table-detail', slug=self.kwargs['slug'])
 
-        messages.success(request, 'Table joined!')
+        # Shown once by the table page as the "You're in!" dialog, with the share button
+        request.session['table_just_joined'] = table.pk
         for warning in result.warnings:
             messages.warning(request, warning.message)
 

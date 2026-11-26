@@ -1,0 +1,22 @@
+{% load i18n %}
+{% comment %}
+"You're in!", shown once right after joining a table or an event: a share button to bring
+friends along, and Close. It opens on load; Escape and Close dismiss it.
+{% endcomment %}
+<dialog id="joined-dialog" aria-labelledby="joined-dialog-title"
+        class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-divider bg-surface p-6 text-center text-content shadow-xl backdrop:bg-black/50">
+  <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success-soft text-success">
+    {% include "components/icon.html" with name="check" class="w-6 h-6" only %}
+  </div>
+  <h2 id="joined-dialog-title" class="mb-1 text-lg font-bold">{% trans "You're in!" %}</h2>
+  <p class="mb-5 text-sm text-content-muted">{{ message }}</p>
+  <div class="space-y-2">
+    {% include "partials/_share_button.html" with share_title=share_title share_label=share_label share_class="inline-flex items-center justify-center gap-1.5 w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold py-2.5 rounded-full transition-colors" %}
+    <form method="dialog">
+      <button class="w-full rounded-full border border-divider px-4 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+        {% trans "Close" %}
+      </button>
+    </form>
+  </div>
+</dialog>
+<script>document.getElementById('joined-dialog').showModal();</script>

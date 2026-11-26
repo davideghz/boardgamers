@@ -1,6 +1,7 @@
-{% load i18n %}
+{% load i18n custom_tags %}
 
 <div id="event-attendance" class="scroll-mt-20">
+  {% if is_participant %}<div class="mb-3 flex justify-center">{% participation_status "event" %}</div>{% endif %}
   {% if event_join.allowed and registration_dates %}
     <form method="post" action="{% url 'event-join' event.slug %}">
       {% csrf_token %}
@@ -20,7 +21,8 @@
     </form>
   {% endif %}
   {% if is_participant %}
-    <form method="post" action="{% url 'event-leave' event.slug %}" class="mt-2">
+    <form method="post" action="{% url 'event-leave' event.slug %}" class="mt-2"
+          data-confirm="{% trans "Leave the event?" %}" data-confirm-label="{% trans "Leave the event" %}">
       {% csrf_token %}
       <button type="submit" class="w-full rounded-full border border-divider px-3 py-2.5 text-sm font-semibold text-content hover:bg-surface-alt">
         {% translate "Cancel event registration" %}
