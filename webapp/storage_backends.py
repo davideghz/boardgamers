@@ -20,7 +20,9 @@ class PrivateMediaStorage(S3Boto3Storage):
     bucket_name = settings.AWS_PRIVATE_STORAGE_BUCKET_NAME
     location = 'private'
     file_overwrite = False
-    default_acl = 'private'
+    # New buckets have ACLs disabled (Object Ownership: bucket owner enforced):
+    # send no ACL at all, privacy comes from Block Public Access.
+    default_acl = None
     querystring_auth = True
     custom_domain = None
     object_parameters = {'CacheControl': 'private, no-store'}
