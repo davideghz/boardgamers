@@ -230,7 +230,7 @@
       </section>
 
       {# ── Eventi organizzati ───────────────────────────── #}
-      {% if organized_events or event_creation.allowed %}
+      {% if organized_events or event_creation.allowed or event_creation.needs_membership %}
         <section>
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 class="text-lg font-bold text-content">{% trans "Organized events" %}</h2>

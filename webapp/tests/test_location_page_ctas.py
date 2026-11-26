@@ -120,3 +120,30 @@ class MembersOnlyEmptyStateTest(TestCase):
         self.assertContains(
             response, italian('Your membership request is pending: once it is approved you can propose tables here.'))
         self.assertNotContains(response, italian('Become a member to propose tables'))
+
+
+class MembersOnlyEventsWithoutEventsTest(TestCase):
+    """The events note shows even before the location has organized any event."""
+
+    def setUp(self):
+        self.location = LocationFactory(
+            creator=UserProfileFactory(), enable_membership=True,
+            event_creation_permission=Location.PERM_MEMBERS_ONLY)
+        self.profile = UserProfileFactory()
+        self.client.force_login(self.profile.user)
+        self.url = reverse('location-detail', args=[self.location.slug])
+
+    def test_non_members_are_told_who_can_propose_events(self):
+        response = self.client.get(self.url)
+
+        self.assertContains(response, italian('Only members can propose events here.'))
+        self.assertContains(response, reverse('location-request-membership', args=[self.location.slug]))
+        self.assertNotContains(response, reverse('location-event-create', args=[self.location.slug]))
+
+    def test_pending_members_are_told_to_wait(self):
+        add_membership(self.location, self.profile, Membership.PENDING)
+
+        response = self.client.get(self.url)
+
+        self.assertContains(response, italian('Only members can propose events here.'))
+        self.assertContains(response, italian('Your membership request is pending.'))
