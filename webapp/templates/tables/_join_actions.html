@@ -1,0 +1,57 @@
+{% load i18n %}
+{% comment %}
+What the viewer can do about joining a table: the sidebar card and the mobile bar share it.
+Expects table, table_join (a LocationAccess), join_location (the location whose members may
+join, or None), is_player, available_seats and login_url; `bar` draws the compact mobile version.
+Leaving opens #leave-table-dialog (tables/_leave_dialog.html), included once by the page.
+{% endcomment %}
+{% if not table.is_session_active %}
+  <button disabled
+          class="w-full flex items-center justify-center bg-surface-input text-content-muted rounded-full {% if bar %}py-3{% else %}py-2.5{% endif %} text-sm font-bold cursor-not-allowed">
+    {% trans "This table is closed" %}
+  </button>
+
+{% elif is_player %}
+  <div class="flex {% if bar %}items-center gap-2{% else %}flex-col gap-2{% endif %}">
+    <span class="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-full border border-green-200 bg-green-50 font-bold text-green-700 {% if bar %}px-3 py-2 text-xs{% else %}w-full py-2 text-sm{% endif %}">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+      {% trans "You're in" %}
+    </span>
+    <a href="{{ table.google_calendar_url }}" target="_blank" rel="noopener noreferrer"
+       class="inline-flex flex-1 items-center justify-center gap-1.5 bg-primary text-white text-sm font-bold rounded-full hover:opacity-90 transition-opacity text-decoration-none {% if bar %}py-2.5{% else %}w-full py-2.5{% endif %}">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+      {% trans "Add to Calendar" %}
+    </a>
+    {% if bar %}
+      <button type="button" onclick="document.getElementById('leave-table-dialog').showModal()"
+              class="flex-shrink-0 px-2 py-2 text-xs font-semibold text-red-600 hover:underline">
+        {% trans "Leave" %}
+      </button>
+    {% else %}
+      <button type="button" onclick="document.getElementById('leave-table-dialog').showModal()"
+              class="self-center px-2 py-1 text-xs font-semibold text-red-600 hover:underline">
+        {% trans "Leave the table" %}
+      </button>
+    {% endif %}
+  </div>
+
+{% elif table_join.needs_membership %}
+  {% include "partials/_members_only_notice.html" with location=join_location access=table_join %}
+
+{% elif not user.is_authenticated %}
+  <a href="{{ login_url }}"
+     class="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-full {% if bar %}py-3{% else %}py-2.5{% endif %} text-sm font-bold hover:opacity-90 transition-opacity text-decoration-none">
+    {% trans "Login to join table" %}
+  </a>
+
+{% else %}
+  <form method="post" action="{% url 'join_table' table.slug %}">
+    {% csrf_token %}
+    <button type="submit"
+            {% if not table.unlimited_seats and available_seats <= 0 %}disabled{% endif %}
+            class="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-full {% if bar %}py-3{% else %}py-2.5{% endif %} text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
+      {% if not table.unlimited_seats and available_seats <= 0 %}{% trans "Table is full" %}{% else %}{% trans "Join this table" %}{% endif %}
+    </button>
+  </form>
+{% endif %}

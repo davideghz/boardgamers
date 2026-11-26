@@ -25,6 +25,12 @@
           {% if location.address %}&nbsp;·&nbsp;{{ location.address }}{% endif %}
         </p>
       {% endif %}
+      {# On mobile the sidebar comes last: its manage and membership actions move here #}
+      {% if is_manager or location.enable_membership and not table_creation.needs_membership %}
+        <div class="mt-3 flex flex-wrap gap-2 lg:hidden">
+          {% include "locations/_location_actions.html" with location=location is_manager=is_manager is_active_member=is_active_member has_pending_membership=has_pending_membership compact=True hide_membership=table_creation.needs_membership only %}
+        </div>
+      {% endif %}
     </div>
   </div>
 
@@ -34,17 +40,23 @@
     {# ── MAIN COLUMN (2/3) ──────────────────────────────── #}
     <div class="lg:col-span-2 space-y-8">
 
-      {# ── Follow box (top — only when not following) ──── #}
-      {% if user.is_authenticated and not is_following %}
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-divider rounded-xl bg-surface px-5 py-4">
+      {# ── Follow box (top — only when not following; managers already get the location in their quick links) ── #}
+      {% if not is_following and not is_manager %}
+      {% with follow_requested=request.GET.follow %}
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border rounded-xl bg-surface px-5 py-4 {% if follow_requested and user.is_authenticated %}border-blue-500 ring-2 ring-blue-500/30{% else %}border-divider{% endif %}">
         <div>
           <p class="text-sm font-semibold text-content">{% trans "Follow" %} {{ location.name }}</p>
-          <p class="text-xs text-content-muted">{% trans "See new tables from this location on your homepage." %}</p>
+          {% if user.is_authenticated %}
+            <p class="text-xs text-content-muted">{% trans "See new tables from this location on your homepage." %}</p>
+          {% else %}
+            <p class="text-xs text-content-muted">{% trans "Get notified when a new table opens here and find it on your home page." %}</p>
+          {% endif %}
         </div>
         <div class="flex items-center gap-3 sm:flex-shrink-0">
+          {% if user.is_authenticated %}
           <form method="post" action="{% url 'follow-location' slug=location.slug %}" class="w-full sm:w-auto">
             {% csrf_token %}
-            <button type="submit"
+            <button type="submit"{% if follow_requested %} autofocus{% endif %}
                     class="w-full sm:w-auto flex items-center justify-center gap-1.5 border rounded-full px-3 py-2.5 text-sm font-semibold transition-colors border-divider text-content-soft hover:bg-surface-alt">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
@@ -52,8 +64,19 @@
               {% trans "Follow" %}
             </button>
           </form>
+          {% else %}
+          {# Following is a POST: after logging in the visitor lands back here, with the box highlighted #}
+          <a href="{% url 'login' %}?next={{ request.path|urlencode }}%3Ffollow%3D1"
+             class="w-full sm:w-auto flex items-center justify-center gap-1.5 border rounded-full px-3 py-2.5 text-sm font-semibold transition-colors border-divider text-content-soft hover:bg-surface-alt text-decoration-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+            </svg>
+            {% trans "Log in to follow" %}
+          </a>
+          {% endif %}
         </div>
       </div>
+      {% endwith %}
       {% endif %}
 
       {# ── Informazioni ────────────────────────────────── #}
@@ -132,6 +155,9 @@
             </div>
           </div>
         </div>
+        {% if table_join.needs_membership %}
+          <p class="-mt-2 mb-4 text-xs text-content-muted">{% trans "Only members of this location can join its tables." %}</p>
+        {% endif %}
 
         <div id="tab-upcoming">
           {% if future_tables %}
@@ -141,7 +167,18 @@
               </div>
             </div>
           {% else %}
-            <p class="text-sm text-content-muted italic">{% trans "No upcoming tables — why not create one?" %}</p>
+            <div class="rounded-xl border border-dashed border-divider px-4 py-6 text-center">
+              <p class="text-sm text-content-muted">{% trans "No upcoming tables." %}</p>
+              {% if table_creation.allowed or table_creation.needs_login %}
+                <a href="{{ create_table_url }}" class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">{% trans "Create the first table" %} →</a>
+              {% elif table_creation.membership_pending %}
+                <p class="mt-1 text-xs text-content-muted">{% trans "Your membership request is pending: once it is approved you can propose tables here." %}</p>
+              {% elif table_creation.needs_membership and location.enable_membership %}
+                <a href="{% url 'location-request-membership' location.slug %}" class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">{% trans "Become a member to propose tables" %} →</a>
+              {% elif table_creation.needs_membership %}
+                <p class="mt-1 text-xs text-content-muted">{% trans "Only members can create tables here." %}</p>
+              {% endif %}
+            </div>
           {% endif %}
         </div>
 
@@ -179,7 +216,15 @@
                  href="{% url 'appointment-search' %}?type=events&amp;organizer={{ location.slug|urlencode }}">{% trans "See all events" %} →</a>
             {% endif %}
           </div>
-          {% if event_creation.allowed %}<a class="text-blue-600 font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>{% endif %}
+          {% if event_creation.allowed %}
+            <a class="text-blue-600 font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>
+          {% elif event_creation.needs_membership %}
+            <p class="mb-3 text-sm text-content-muted">
+              {% trans "Only members can propose events here." %}
+              {% if event_creation.membership_pending %}{% trans "Your membership request is pending." %}
+              {% elif location.enable_membership %}<a class="font-semibold text-blue-600 hover:underline" href="{% url 'location-request-membership' location.slug %}">{% trans "Become a member" %}</a>{% endif %}
+            </p>
+          {% endif %}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {% for event in organized_events %}{% event_card event today %}{% endfor %}
           </div>
@@ -338,9 +383,10 @@
 
         <div class="p-5 space-y-5">
 
+        <div class="hidden lg:block space-y-5">
         {# CTA: create table #}
         {% if table_creation.allowed or table_creation.needs_login %}
-          <a href="{% if location.enable_calendar %}{% url 'location-calendar' location.slug %}{% else %}{% url 'location-table-create' location.slug %}{% endif %}"
+          <a href="{{ create_table_url }}"
              class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
             {% trans "Create table here" %}
@@ -357,37 +403,12 @@
 
         {# Actions: manage / membership / follow #}
         <div class="flex flex-col gap-2">
-          {% if is_manager %}
-            <a href="{% url 'location-manage' location.slug %}"
-               class="flex items-center justify-center gap-1.5 border border-divider rounded-full px-3 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors text-decoration-none">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-              {% trans "Manage location" %}
-            </a>
-          {% elif location.enable_membership %}
-            {% if is_active_member %}
-              <a href="{% url 'account-memberships' %}"
-                 class="flex items-center justify-center gap-1.5 border border-green-200 rounded-full px-3 py-2.5 text-sm font-semibold text-green-700 hover:bg-green-50 transition-colors text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.745 3.745 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.745 3.745 0 0 1 3.296-1.043A3.745 3.745 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.745 3.745 0 0 1 3.296 1.043 3.745 3.745 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" /></svg>
-                {% trans "My membership" %}
-              </a>
-            {% elif has_pending_membership %}
-              <a href="{% url 'account-memberships' %}"
-                 class="flex items-center justify-center gap-1.5 border border-divider rounded-full px-3 py-2.5 text-sm font-semibold text-content-muted hover:bg-surface-alt transition-colors text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                {% trans "Membership pending" %}
-              </a>
-            {% else %}
-              <a href="{% url 'location-request-membership' location.slug %}"
-                 class="flex items-center justify-center gap-1.5 border border-divider rounded-full px-3 py-2.5 text-sm font-semibold text-content-soft hover:bg-surface-alt transition-colors text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
-                {% trans "Request membership" %}
-              </a>
-            {% endif %}
-          {% endif %}
+          {% include "locations/_location_actions.html" with location=location is_manager=is_manager is_active_member=is_active_member has_pending_membership=has_pending_membership only %}
 
         </div>
 
         <hr class="border-divider-soft">
+        </div>
 
         {# Opening hours #}
         {% if location.opening_hours %}
@@ -518,9 +539,11 @@
   </div>{# /grid #}
 
   {# ── Mobile sticky CTA ────────────────────────────────────────────── #}
+  {% if table_creation.allowed or table_creation.needs_login or table_creation.needs_membership and location.enable_membership %}
+  <div class="lg:hidden h-24" aria-hidden="true"></div>
   <div class="lg:hidden fixed bottom-0 left-0 md:left-[var(--sidebar-width)] right-0 z-30 bg-surface border-t border-divider px-4 py-3">
     {% if table_creation.allowed or table_creation.needs_login %}
-      <a href="{% if location.enable_calendar %}{% url 'location-calendar' location.slug %}{% else %}{% url 'location-table-create' location.slug %}{% endif %}"
+      <a href="{{ create_table_url }}"
          class="w-full flex items-center justify-center gap-2 bg-elevated text-white rounded-full py-3 text-sm font-bold hover:bg-slate-700 transition-colors text-decoration-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
         {% trans "Create table here" %}
@@ -542,10 +565,9 @@
           </a>
         {% endif %}
       {% endif %}
-    {% elif table_creation.managers_only %}
-      <p class="w-full text-center text-xs text-content-muted py-2">{% trans "Only owners and managers can create tables here." %}</p>
     {% endif %}
   </div>
+  {% endif %}
 
 {% endblock content %}
 

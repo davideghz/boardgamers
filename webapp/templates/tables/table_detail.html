@@ -217,65 +217,16 @@
           </div>
 
           {# Join / Leave / Closed #}
-          {% if table.is_session_active %}
-            {% if user.is_authenticated %}
-              {% if user.user_profile in table.players.all %}
-                <form method="post" action="{% url 'leave_table' table.slug %}">
-                  {% csrf_token %}
-                  <button type="submit"
-                          class="w-full inline-flex items-center justify-center gap-1.5 border border-red-200 text-red-600 text-sm font-bold py-2.5 rounded-full hover:bg-red-50 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
-                    {% trans "Leave this Table" %}
-                  </button>
-                </form>
-              {% elif table_join.needs_membership %}
-                <p class="w-full text-center text-sm font-semibold text-content-muted py-1">
-                  {% trans "Table reserved for members" %}
-                </p>
-                {% if table.location.enable_membership %}
-                  {% if table_join.membership_pending %}
-                    <span class="w-full inline-flex items-center justify-center gap-1.5 border border-divider text-content-muted text-sm font-semibold py-2.5 rounded-full cursor-not-allowed">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                      {% trans "Membership pending" %}
-                    </span>
-                  {% else %}
-                    <a href="{% url 'location-request-membership' table.location.slug %}"
-                       class="w-full inline-flex items-center justify-center gap-1.5 border border-divider text-content-soft text-sm font-semibold py-2.5 rounded-full hover:bg-surface-alt transition-colors text-decoration-none">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
-                      {% trans "Become a member" %}
-                    </a>
-                  {% endif %}
-                {% endif %}
-              {% else %}
-                <form method="post" action="{% url 'join_table' table.slug %}">
-                  {% csrf_token %}
-                  <button type="submit"
-                          {% if not table.unlimited_seats and available_seats <= 0 %}disabled{% endif %}
-                          class="w-full inline-flex items-center justify-center gap-1.5 bg-primary text-white text-sm font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
-                    {% if not table.unlimited_seats and available_seats <= 0 %}{% trans "Table is full" %}{% else %}{% trans "Join this table" %}{% endif %}
-                  </button>
-                </form>
-              {% endif %}
-            {% else %}
-              <a href="{% url 'login' %}?next={% url 'table-detail' slug=table.slug %}"
-                 class="block w-full text-center bg-primary text-white text-sm font-bold py-2.5 rounded-full hover:opacity-90 transition-opacity">
-                {% trans "Login to join table" %}
-              </a>
-            {% endif %}
-          {% else %}
-            <button disabled
-                    class="w-full bg-surface-input text-content-muted text-sm font-bold py-2.5 rounded-full cursor-not-allowed">
-              {% trans "This table is closed" %}
-            </button>
-          {% endif %}
+          {% include "tables/_join_actions.html" with bar=False %}
 
-          {# Add to calendar #}
-          <a href="{{ table.google_calendar_url }}" target="_blank" rel="noopener noreferrer"
-             class="inline-flex items-center justify-center gap-1.5 w-full border border-divider text-content-soft text-sm font-semibold py-2.5 rounded-full hover:bg-surface-alt transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /></svg>
-            {% trans "Add to Calendar" %}
-          </a>
+          {% if not is_player %}{# players get it as their main action above #}
+            {# Add to calendar #}
+            <a href="{{ table.google_calendar_url }}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center justify-center gap-1.5 w-full border border-divider text-content-soft text-sm font-semibold py-2.5 rounded-full hover:bg-surface-alt transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /></svg>
+              {% trans "Add to Calendar" %}
+            </a>
+          {% endif %}
 
           {# Share #}
           {% include "partials/_share_button.html" with share_title=table.title %}
@@ -332,57 +283,10 @@
 
   {# ── Mobile sticky CTA ────────────────────────────────────────────── #}
   <div class="lg:hidden fixed bottom-0 left-0 md:left-[var(--sidebar-width)] right-0 z-30 bg-surface border-t border-divider px-4 py-3">
-    {% if table.is_session_active %}
-      {% if user.is_authenticated %}
-        {% if user.user_profile in table.players.all %}
-          <form method="post" action="{% url 'leave_table' table.slug %}">
-            {% csrf_token %}
-            <button type="submit"
-                    class="w-full flex items-center justify-center gap-2 border border-red-200 text-red-600 rounded-full py-3 text-sm font-bold hover:bg-red-50 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
-              {% trans "Leave this Table" %}
-            </button>
-          </form>
-        {% elif table_join.needs_membership %}
-          <div class="flex items-center gap-3">
-            <p class="flex-1 text-center text-xs font-semibold text-content-muted">
-              {% trans "Table reserved for members" %}
-            </p>
-            {% if table.location.enable_membership and not table_join.membership_pending %}
-              <a href="{% url 'location-request-membership' table.location.slug %}"
-                 class="flex-shrink-0 inline-flex items-center gap-1.5 border border-divider text-content-soft text-xs font-semibold px-3 py-2 rounded-full hover:bg-surface-alt transition-colors text-decoration-none">
-                {% trans "Become a member" %}
-              </a>
-            {% elif table.location.enable_membership and table_join.membership_pending %}
-              <span class="flex-shrink-0 inline-flex items-center gap-1.5 border border-divider text-content-muted text-xs font-semibold px-3 py-2 rounded-full cursor-not-allowed">
-                {% trans "Membership pending" %}
-              </span>
-            {% endif %}
-          </div>
-        {% else %}
-          <form method="post" action="{% url 'join_table' table.slug %}">
-            {% csrf_token %}
-            <button type="submit"
-                    {% if not table.unlimited_seats and available_seats <= 0 %}disabled{% endif %}
-                    class="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-full py-3 text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg>
-              {% if not table.unlimited_seats and available_seats <= 0 %}{% trans "Table is full" %}{% else %}{% trans "Join this table" %}{% endif %}
-            </button>
-          </form>
-        {% endif %}
-      {% else %}
-        <a href="{% url 'login' %}?next={% url 'table-detail' slug=table.slug %}"
-           class="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-full py-3 text-sm font-bold hover:opacity-90 transition-opacity text-decoration-none">
-          {% trans "Login to join table" %}
-        </a>
-      {% endif %}
-    {% else %}
-      <button disabled
-              class="w-full flex items-center justify-center bg-surface-input text-content-muted rounded-full py-3 text-sm font-bold cursor-not-allowed">
-        {% trans "This table is closed" %}
-      </button>
-    {% endif %}
+    {% include "tables/_join_actions.html" with bar=True %}
   </div>
+
+  {% if is_player %}{% include "tables/_leave_dialog.html" %}{% endif %}
 
 {% endblock content %}
 

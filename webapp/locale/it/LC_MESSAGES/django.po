@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 07:35+0100\n"
+"POT-Creation-Date: 2026-11-26 11:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1778,17 +1778,11 @@ msgstr "Vedi profilo pubblico"
 msgid "Edit your personal and account information"
 msgstr "Modifica le informazioni personali e dell'account"
 
-msgid "Manage locations"
-msgstr "Gestisci le sedi"
-
-msgid "Edit the information of your locations and create new ones"
-msgstr "Modifica le informazioni delle tue sedi e creane di nuove"
-
-msgid "Manage tables"
-msgstr "Gestisci tavoli"
-
-msgid "Edit the information of the tables you organized"
-msgstr "Modifica le informazioni dei tavoli che hai organizzato"
+#, python-format
+msgid "%(n)s upcoming"
+msgid_plural "%(n)s upcoming"
+msgstr[0] "%(n)s in programma"
+msgstr[1] "%(n)s in programma"
 
 msgid "My memberships"
 msgstr "Le mie adesioni"
@@ -1796,11 +1790,32 @@ msgstr "Le mie adesioni"
 msgid "View your active and past memberships at locations"
 msgstr "Consulta le tue adesioni attive e passate"
 
-msgid "Change password"
-msgstr "Reimposta la password"
+#, python-format
+msgid "%(n)s active"
+msgid_plural "%(n)s active"
+msgstr[0] "%(n)s attiva"
+msgstr[1] "%(n)s attive"
 
-msgid "Update your login password"
-msgstr "Reimposta la tua password"
+msgid "Management"
+msgstr "Gestione"
+
+msgid "Manage locations"
+msgstr "Gestisci le sedi"
+
+msgid "Edit the information of your locations and create new ones"
+msgstr "Modifica le informazioni delle tue sedi e creane di nuove"
+
+msgid "Manage the events you created or coordinate"
+msgstr "Gestisci gli eventi che hai creato o che coordini"
+
+msgid "Manage tables"
+msgstr "Gestisci tavoli"
+
+msgid "Edit the information of the tables you organized"
+msgstr "Modifica le informazioni dei tavoli che hai organizzato"
+
+msgid "Settings"
+msgstr "Impostazioni"
 
 msgid "My guests"
 msgstr "I miei ospiti"
@@ -1808,14 +1823,23 @@ msgstr "I miei ospiti"
 msgid "Manage the guest identities you can bring to tables"
 msgstr "Gestisci gli ospiti che puoi portare ai tavoli"
 
-msgid "Manage the events you created or coordinate"
-msgstr "Gestisci gli eventi che hai creato o che coordini"
-
 msgid "Notification preferences"
 msgstr "Gestione notifiche"
 
 msgid "Choose notification preferences and how you want to be contacted"
 msgstr "Scegli le preferenze di notifica e come desideri essere contattato"
+
+msgid "Change password"
+msgstr "Reimposta la password"
+
+msgid "Update your login password"
+msgstr "Reimposta la tua password"
+
+msgid "Do you run a club, an association or a game shop?"
+msgstr "Gestisci un club, un'associazione o un negozio di giochi?"
+
+msgid "Add your location"
+msgstr "Aggiungi la tua sede"
 
 msgid "My Locations"
 msgstr "Le mie sedi"
@@ -1977,7 +2001,7 @@ msgid "No past tables yet."
 msgstr "Ancora nessun tavolo passato."
 
 msgid "No upcoming tables."
-msgstr "Non ci sono nuovi tavoli."
+msgstr "Nessun tavolo in programma."
 
 msgid "Join or create a table to get started."
 msgstr "Unisciti o crea un tavolo per iniziare."
@@ -2551,6 +2575,10 @@ msgstr "Scegli la sede organizzatrice"
 msgid "You have no locations where you can create an event."
 msgstr "Non ci sono sedi in cui puoi creare un evento."
 
+#, python-format
+msgid "Reserved for members of %(name)s"
+msgstr "Riservato ai soci di %(name)s"
+
 msgid "You're attending"
 msgstr "Stai partecipando"
 
@@ -3002,8 +3030,8 @@ msgstr[1] "%(n)s postazioni configurate"
 #, python-format
 msgid "%(n)s manager"
 msgid_plural "%(n)s managers"
-msgstr[0] "%(n)s manager"
-msgstr[1] "%(n)s managers"
+msgstr[0] "%(n)s gestore"
+msgstr[1] "%(n)s gestori"
 
 msgid "Table creators"
 msgstr "Admin tavoli"
@@ -3017,8 +3045,8 @@ msgstr[1] "%(n)s admin tavoli"
 #, python-format
 msgid "%(n)s location"
 msgid_plural "%(n)s locations"
-msgstr[0] "%(n)s Location"
-msgstr[1] "%(n)s Locations"
+msgstr[0] "%(n)s sede"
+msgstr[1] "%(n)s sedi"
 
 msgid "Locations"
 msgstr "Sedi"
@@ -3282,18 +3310,6 @@ msgstr "posti disponibili"
 msgid "Table is full"
 msgstr "Tavolo completo"
 
-msgid "Leave this Table"
-msgstr "Abbandona questo tavolo"
-
-msgid "Join this table"
-msgstr "Unisciti a questo tavolo"
-
-msgid "Login to join table"
-msgstr "Accedi per unirti al tavolo"
-
-msgid "This table is closed"
-msgstr "Questo tavolo è chiuso"
-
 msgid "Add to Calendar"
 msgstr "Aggiungi al Calendario"
 
@@ -3405,6 +3421,18 @@ msgid_plural "%(counter)s tables"
 msgstr[0] "%(counter)s tavolo"
 msgstr[1] "%(counter)s tavoli"
 
+msgid "Manage location"
+msgstr "Gestisci sede"
+
+msgid "My membership"
+msgstr "La mia adesione"
+
+msgid "Membership pending"
+msgstr "Adesione in attesa"
+
+msgid "Request membership"
+msgstr "Diventa socio"
+
 msgid "Edit location"
 msgstr "Modifica sede"
 
@@ -3446,11 +3474,31 @@ msgstr "Segui"
 msgid "See new tables from this location on your homepage."
 msgstr "Vedi i nuovi tavoli di questa sede nella tua home."
 
+msgid "Get notified when a new table opens here and find it on your home page."
+msgstr ""
+"Ricevi un avviso quando si apre un nuovo tavolo e lo trovi nella tua home."
+
+msgid "Log in to follow"
+msgstr "Accedi per seguire"
+
 msgid "Tables at this location"
 msgstr "Tavoli in questa sede"
 
-msgid "No upcoming tables — why not create one?"
-msgstr "Nessun tavolo in programma — perché non crearne uno?"
+msgid "Only members of this location can join its tables."
+msgstr "Ai tavoli di questa sede possono partecipare solo i soci."
+
+msgid ""
+"Your membership request is pending: once it is approved you can propose "
+"tables here."
+msgstr ""
+"La tua richiesta di adesione è in attesa: quando sarà approvata potrai "
+"proporre tavoli qui."
+
+msgid "Become a member to propose tables"
+msgstr "Diventa socio per proporre tavoli"
+
+msgid "Only members can create tables here."
+msgstr "Solo i soci possono creare un tavolo."
 
 msgid "No past tables."
 msgstr "Nessun tavolo passato."
@@ -3460,6 +3508,15 @@ msgstr "Vedi tutti i tavoli"
 
 msgid "See all events"
 msgstr "Vedi tutti gli eventi"
+
+msgid "Only members can propose events here."
+msgstr "Qui solo i soci possono proporre eventi."
+
+msgid "Your membership request is pending."
+msgstr "La tua richiesta di adesione è in attesa."
+
+msgid "Become a member"
+msgstr "Diventa socio"
 
 msgid "Events we take part in"
 msgstr "Eventi a cui partecipiamo"
@@ -3503,23 +3560,8 @@ msgstr "Non seguire più"
 msgid "Create table here"
 msgstr "Crea un tavolo qui"
 
-msgid "Only members can create tables here."
-msgstr "Solo i soci possono creare un tavolo."
-
 msgid "Only owners and managers can create tables here."
 msgstr "Solo i gestori possono creare tavoli qui."
-
-msgid "Manage location"
-msgstr "Gestisci sede"
-
-msgid "My membership"
-msgstr "La mia adesione"
-
-msgid "Membership pending"
-msgstr "Adesione in attesa"
-
-msgid "Request membership"
-msgstr "Diventa socio"
 
 msgid "Opening hours"
 msgstr "Orari apertura"
@@ -3551,8 +3593,8 @@ msgstr "Affiliazioni dichiarate da questa sede."
 #, python-format
 msgid "%(counter)s table at this location"
 msgid_plural "%(counter)s tables at this location"
-msgstr[0] "%(counter)s tavolo in questa location"
-msgstr[1] "%(counter)s tavoli in questa location"
+msgstr[0] "%(counter)s tavolo in questa sede"
+msgstr[1] "%(counter)s tavoli in questa sede"
 
 msgid "Game details"
 msgstr "Scheda del gioco"
@@ -3657,8 +3699,8 @@ msgstr "Mappa"
 msgid "Login"
 msgstr "Login"
 
-msgid "to see near tables."
-msgstr "per vedere i tavoli vicini"
+msgid "to see nearby locations."
+msgstr "per vedere le sedi vicine."
 
 msgid "Set your address"
 msgstr "Inserisci un indirizzo"
@@ -4658,6 +4700,9 @@ msgstr ""
 "Questi dati finiscono sul modulo di adesione dell'associazione. Lascia vuoto "
 "il codice fiscale se non ne hai uno italiano."
 
+msgid "Table reserved for members"
+msgstr "Tavolo riservato ai soci"
+
 msgid "Pagination"
 msgstr "Paginazione"
 
@@ -4934,6 +4979,10 @@ msgctxt "location"
 msgid "Managed by you"
 msgstr "Gestita da te"
 
+msgctxt "location role"
+msgid "Member"
+msgstr "Socio"
+
 msgid "Followed"
 msgstr "Seguita"
 
@@ -4996,14 +5045,32 @@ msgstr "sedi"
 msgid "to see their open tables here."
 msgstr "per vedere i loro tavoli."
 
-msgid "No open tables from the locations you follow."
-msgstr "Nessun tavolo aperto nelle sedi che segui."
+msgid ""
+"Your locations have no upcoming tables: here are the ones from all locations."
+msgstr ""
+"Le tue sedi non hanno tavoli in programma: ecco quelli di tutte le sedi."
 
-msgid "to see their tables here."
-msgstr "per vedere i loro tavoli."
+msgid "Follow more locations"
+msgstr "Segui altre sedi"
 
-msgid "No open tables right now — why not create one?"
-msgstr "Nessun tavolo aperto al momento — perché non crearne uno?"
+msgid ""
+"Upcoming tables from all locations. Follow a location to see its tables here "
+"first."
+msgstr ""
+"Tavoli in programma in tutte le sedi. Segui una sede per vedere qui per "
+"primi i suoi tavoli."
+
+msgid "Find locations to follow"
+msgstr "Trova sedi da seguire"
+
+msgid "No upcoming tables right now."
+msgstr "Al momento non ci sono tavoli in programma."
+
+msgid "Create a table"
+msgstr "Crea un tavolo"
+
+msgid "Find a place to play"
+msgstr "Trova dove giocare"
 
 msgid "No past tables from the locations you follow."
 msgstr "Nessun tavolo passato nelle sedi che segui."
@@ -5197,6 +5264,30 @@ msgstr[1] "%(counter)s giocatori"
 #, python-format
 msgid "%(min)s–%(max)s players"
 msgstr "%(min)s–%(max)s giocatori"
+
+msgid "This table is closed"
+msgstr "Questo tavolo è chiuso"
+
+msgid "You're in"
+msgstr "Sei iscritto"
+
+msgid "Leave"
+msgstr "Esci"
+
+msgid "Leave the table"
+msgstr "Lascia il tavolo"
+
+msgid "Login to join table"
+msgstr "Accedi per unirti al tavolo"
+
+msgid "Join this table"
+msgstr "Unisciti a questo tavolo"
+
+msgid "Leave this table?"
+msgstr "Vuoi lasciare il tavolo?"
+
+msgid "Your seat goes back to the other players."
+msgstr "Il tuo posto torna libero per gli altri giocatori."
 
 msgid "Filter by location"
 msgstr "Filtra per sede"
@@ -5509,12 +5600,6 @@ msgstr "Creato"
 
 msgid "ago"
 msgstr "fa"
-
-msgid "Table reserved for members"
-msgstr "Tavolo riservato ai soci"
-
-msgid "Become a member"
-msgstr "Diventa socio"
 
 msgid "Edit table info"
 msgstr "Modifica tavolo"
@@ -5935,6 +6020,14 @@ msgstr "Modifica – %(name)s"
 
 msgid "Permissions updated successfully"
 msgstr "Permessi aggiornati con successo"
+
+#, python-format
+msgid "You are now following %(name)s."
+msgstr "Hai iniziato a seguire %(name)s."
+
+#, python-format
+msgid "You no longer follow %(name)s."
+msgstr "Hai smesso di seguire %(name)s."
 
 msgid "You don't have permission to manage this location."
 msgstr "Non hai il permesso di gestire questa sede."
@@ -6462,14 +6555,8 @@ msgstr "1 iscritto altrove"
 msgid "Open on Board-Gamers"
 msgstr "Apri su Board-Gamers"
 
-msgid "Create a table"
-msgstr "Crea un tavolo"
-
 msgid "Join"
 msgstr "Partecipa"
-
-msgid "Leave"
-msgstr "Esci"
 
 msgid "One moment…"
 msgstr "Un attimo…"
@@ -6486,6 +6573,18 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "No open tables from the locations you follow."
+#~ msgstr "Nessun tavolo aperto nelle sedi che segui."
+
+#~ msgid "to see their tables here."
+#~ msgstr "per vedere i loro tavoli."
+
+#~ msgid "No open tables right now — why not create one?"
+#~ msgstr "Nessun tavolo aperto al momento — perché non crearne uno?"
+
+#~ msgid "No upcoming tables — why not create one?"
+#~ msgstr "Nessun tavolo in programma — perché non crearne uno?"
 
 #, python-format
 #~ msgid "%(name)s - Board-Gamers.com"
@@ -6691,9 +6790,6 @@ msgstr "Collega account"
 
 #~ msgid "Browse the schedule by time, area and game"
 #~ msgstr "Sfoglia il programma per orario, area e gioco"
-
-#~ msgid "Add your location"
-#~ msgstr "Aggiungi la tua location"
 
 #~ msgid ""
 #~ "The library is public. Games with a tag flagged for the event page are "

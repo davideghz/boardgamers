@@ -398,6 +398,11 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         return LocationAccess(reason, membership=membership)
 
     @classmethod
+    def managed_by(cls, user_profile):
+        """The locations `user_profile` created or manages."""
+        return cls.objects.filter(models.Q(creator=user_profile) | models.Q(managers=user_profile)).distinct()
+
+    @classmethod
     def event_creation_locations(cls, user):
         """The locations where `user` may create events: the queryset form of
         `event_creation_access`, for pickers."""
