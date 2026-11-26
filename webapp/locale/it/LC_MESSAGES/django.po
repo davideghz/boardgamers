@@ -404,6 +404,9 @@ msgstr "Socio Proprietario"
 msgid "Physical Location"
 msgstr "Ubicazione"
 
+msgid "BGG ID"
+msgstr "ID BGG"
+
 msgid "A tag with this name already exists."
 msgstr "Esiste già un tag con questo nome."
 
