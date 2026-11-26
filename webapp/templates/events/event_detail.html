@@ -66,7 +66,7 @@
         {% if event.is_published and not is_concluded %}
           {% if user.is_authenticated %}
             {% if event.organizer_location_id %}
-              {% if is_participant or can_join_event and registration_dates %}
+              {% if is_participant or event_join.allowed and registration_dates %}
                 <a href="#event-attendance"
                    class="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-bold text-white hover:bg-blue-700">
                   {% if is_participant %}{% translate "Your event dates" %}{% else %}{% translate "Attend this event" %}{% endif %}
@@ -89,7 +89,7 @@
                   </button>
                 </form>
               </span>
-            {% elif can_join_event %}
+            {% elif event_join.allowed %}
               <form method="post" action="{% url 'event-join' event.slug %}">
                 {% csrf_token %}
                 <button type="submit"
@@ -434,7 +434,7 @@
                       </button>
                     </form>
                   </div>
-                {% elif can_join_event %}
+                {% elif event_join.allowed %}
                   <form method="post" action="{% url 'event-join' event.slug %}">
                     {% csrf_token %}
                     <button type="submit"

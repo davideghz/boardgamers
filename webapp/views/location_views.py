@@ -224,7 +224,7 @@ class LocationDetailView(DetailView):
         context['table_creation'] = table_creation
         context['organized_events'] = location.organized_events.filter(status=Event.PUBLISHED).select_related(
             'organizer_location', 'venue_location').prefetch_related('dates').order_by('-created_at')
-        context['can_create_events'] = location.can_create_events(self.request.user)
+        context['event_creation'] = location.event_creation_access(user_profile)
         context['sponsored_events'] = (
             location.sponsored_events
             .filter(organizer_location__isnull=True, status=Event.PUBLISHED, dates__date__gte=today)

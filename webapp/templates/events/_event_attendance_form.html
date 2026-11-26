@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div id="event-attendance" class="scroll-mt-20">
-  {% if can_join_event and registration_dates %}
+  {% if event_join.allowed and registration_dates %}
     <form method="post" action="{% url 'event-join' event.slug %}">
       {% csrf_token %}
       <fieldset class="space-y-2">

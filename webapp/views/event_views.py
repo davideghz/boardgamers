@@ -30,7 +30,7 @@ from webapp.views.table_views import _links_formset_open
 from meta.views import Meta
 from phonenumber_field.phonenumber import to_python
 
-from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventParticipantDate, EventTableCategory, EventGame, EventGameTag
+from webapp.models import Event, Table, Player, Game, PlayArea, EventDate, Location, PhysicalTable, EventParticipant, EventParticipantDate, EventTableCategory, EventGame, EventGameTag, LocationAccess
 from webapp.services.event_attendance import attendance_by_day, select_event_days
 from webapp.services.event_games import catalog_entries, effective_catalog, featured_games, library_queryset
 from webapp.services.master_events import set_master
@@ -200,7 +200,8 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         context.update({
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
-            'can_join_event': not event.organizer_location_id or event.organizer_location.can_join_events(user_profile),
+            'event_join': (event.organizer_location.event_join_access(user_profile)
+                           if event.organizer_location_id else LocationAccess()),
             'just_joined': is_participant and self.request.session.pop(
                 'event_just_joined', None) == event.pk,
             'needs_phone': is_participant and not user_profile.phone,
