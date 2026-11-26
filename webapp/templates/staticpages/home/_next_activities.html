@@ -1,0 +1,15 @@
+{% load i18n custom_tags %}
+{# The user's next tables and events, at most three #}
+<section aria-labelledby="home-next">
+  <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+    <h2 id="home-next" class="text-lg font-bold text-content">{% trans "Your next activities" %}</h2>
+    {% if more_activities %}
+      <a href="{% url 'account-activities' %}" class="text-sm font-semibold text-link hover:underline">{% trans "See all" %} →</a>
+    {% endif %}
+  </div>
+  <div class="space-y-2">
+    {% for activity in next_activities %}
+      {% result_row activity.url activity.kicker activity.title meta=activity.meta status=activity.status %}
+    {% endfor %}
+  </div>
+</section>

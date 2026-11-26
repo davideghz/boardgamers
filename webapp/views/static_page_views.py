@@ -1,3 +1,4 @@
+import datetime
 import json
 from types import SimpleNamespace
 
@@ -7,11 +8,12 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
-from django.db.models import Prefetch, Count, OuterRef
+from django.db.models import Count, Min, OuterRef, Prefetch, Q
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
+from django.utils.formats import date_format, time_format
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import get_language_info, gettext, gettext_lazy as _
 
@@ -27,8 +29,9 @@ from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTA
 from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate, \
     Membership, LocationAccess
 from webapp.services.appointments import with_matching_day
+from webapp.services.manager_todo import manager_todo
 from webapp.services.viewer import get_viewer
-from webapp.templatetags.custom_tags import STATUS_BADGES
+from webapp.templatetags.custom_tags import STATUS_BADGES, TYPE_BADGES
 from webapp.views.event_views import upcoming_events_queryset
 
 # for debug page
@@ -140,20 +143,68 @@ def homepage_view(request):
     # they manage, the ones where they are members, then the ones they follow.
     # Each comes with the user's role.
     quick_locations = []
-    if my_location_ids:
+    quick_location_ids = my_location_ids | viewer.pending_location_ids
+    if quick_location_ids:
         def role(location):
             if location.creator_id == viewer.profile.pk:
                 return 'creator'
             if location.pk in viewer.managed_location_ids:
                 return 'manager'
-            return 'member' if location.pk in viewer.member_location_ids else None
-        roles = ['creator', 'manager', 'member', None]
+            if location.pk in viewer.member_location_ids:
+                return 'member'
+            return 'pending' if location.pk in viewer.pending_location_ids else None
+        roles = ['creator', 'manager', 'member', 'pending', None]
         quick_locations = sorted(  # by role, then by name (sorted() keeps the query's order)
-            ((location, role(location)) for location in Location.objects.filter(pk__in=my_location_ids).order_by('name')),
+            ((location, role(location)) for location in Location.objects.filter(pk__in=quick_location_ids).order_by('name')),
             key=lambda item: roles.index(item[1]))
     context['manages_locations'] = bool(viewer.managed_location_ids)
     context['quick_locations'] = quick_locations
+    if viewer.is_authenticated:
+        context.update(_home_modules(viewer, today))
     return render(request, "staticpages/home.html", context)
+
+
+def _home_modules(viewer, today):
+    """The signed-in home's own modules, from the request's Viewer: what waits for a manager,
+    the next activities, and the first steps of a new account."""
+    # The same tables and events as Viewer.upcoming_participations, fetched whole
+    activities = []
+    for table in (Table.objects.visible_to(viewer.user).filter(players=viewer.profile, date__gte=today)
+                  .select_related('location', 'event')):
+        activities.append((table.date, table.time, {
+            'url': table.get_absolute_url(),
+            'kicker': f"{TYPE_BADGES['table']} · {date_format(table.date, 'D j M')} · {time_format(table.time, 'H:i')}",
+            'title': table.title,
+            'meta': [table.location.name if table.location_id else table.event.name],
+            'status': table.status,
+        }))
+    events = (Event.objects.filter(participants__user_profile=viewer.profile, status=Event.PUBLISHED)
+              .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)))
+              .filter(next_date__isnull=False)
+              .select_related('organizer_location', 'venue_location'))
+    for event in events:
+        activities.append((event.next_date, None, {
+            'url': event.get_absolute_url(),
+            'kicker': f"{TYPE_BADGES['event']} · {date_format(event.next_date, 'D j M')}",
+            'title': event.name,
+            'meta': [event.venue_label],
+            'status': 'upcoming',
+        }))
+    activities.sort(key=lambda item: (item[0], item[1] or datetime.time.min))
+
+    profile = viewer.profile
+    steps = [
+        ('city', bool(profile.city or profile.address), reverse('user-profile-edit')),
+        ('follow', bool(viewer.own_location_ids), reverse('locations-index')),
+        ('join', viewer.has_activity, reverse('appointment-search') + '?type=tables'),
+    ]
+    show_steps = not viewer.managed_location_ids and not all(done for _key, done, _url in steps)
+    return {
+        'todo_items': manager_todo(viewer.managed_location_ids),
+        'next_activities': [activity for _date, _time, activity in activities[:3]],
+        'more_activities': len(activities) > 3,
+        'getting_started': steps if show_steps else None,
+    }
 
 
 def privacy(request, template_name="staticpages/privacy.html"):

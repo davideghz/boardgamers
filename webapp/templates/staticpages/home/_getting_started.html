@@ -1,0 +1,23 @@
+{% load i18n custom_tags %}
+{# First steps of a new account, read from its data: it goes away once all three are done #}
+<section aria-labelledby="home-start" class="rounded-xl border border-divider bg-surface p-4 sm:p-5">
+  <h2 id="home-start" class="text-lg font-bold text-content">{% trans "Get started" %}</h2>
+  <p class="mt-1 text-sm text-content-muted">{% trans "Three steps to find your next game night." %}</p>
+  <ol class="mt-4 space-y-2">
+    {% for key, done, url in getting_started %}
+      <li class="flex items-center gap-3">
+        <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold {% if done %}bg-success-soft text-success{% else %}bg-surface-input text-content-soft{% endif %}">
+          {% if done %}{% icon "check" "w-4 h-4" %}<span class="sr-only">{% trans "Done" %}</span>{% else %}{{ forloop.counter }}{% endif %}
+        </span>
+        {% if key == 'city' %}{% trans "Set your city, to see what is near you" as step %}
+        {% elif key == 'follow' %}{% trans "Follow a location you like" as step %}
+        {% else %}{% trans "Join your first table" as step %}{% endif %}
+        {% if done %}
+          <span class="text-sm text-content-muted line-through">{{ step }}</span>
+        {% else %}
+          <a href="{{ url }}" class="text-sm font-semibold text-link hover:underline">{{ step }} →</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</section>

@@ -156,9 +156,11 @@ def seed_ui_personas():
 
     event = _event('Evento Demo', negozio, manager, [today + timedelta(days=14)], venue_location=negozio)
     nights = [today + timedelta(days=days) for days in (2, 9, 16)]
-    night = _event('Serata Demo', associazione, manager, nights, venue_location=associazione)
+    # The association's weekly evenings run without tables: no table booking.
+    night = _event('Serata Demo', associazione, manager, nights, venue_location=associazione,
+                   table_booking_enabled=False)
     _event('Serata Demo passata', associazione, manager, [today - timedelta(days=12)],
-           venue_location=associazione)
+           venue_location=associazione, table_booking_enabled=False)
     draft_event = _event('Proposta del socio', associazione, member, [today + timedelta(days=23)],
                          status=Event.DRAFT, venue_location=associazione)
 

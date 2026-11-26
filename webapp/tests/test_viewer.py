@@ -119,13 +119,17 @@ class ViewerActivityTest(TestCase):
 
 
 # Queries of each page in A1 (before the UI plan), measured on the demo data: D1 must not
-# exceed them.
+# exceed them. The home page has its own modules since D2: HOME_MODULES_QUERIES on top.
 A1_QUERIES = {
     ('anonymous', 'home'): 17, ('newcomer', 'home'): 21, ('player', 'home'): 28, ('member', 'home'): 26,
     ('manager', 'home'): 21, ('anonymous', 'circolo'): 16, ('newcomer', 'circolo'): 26,
     ('player', 'circolo'): 25, ('member', 'circolo'): 26, ('manager', 'circolo'): 23,
     ('manager', 'associazione'): 22, ('member', 'associazione'): 25,
 }
+
+
+# D2: the manager's to-do (four counts and their locations) and the next activities (two).
+HOME_MODULES_QUERIES = 7
 
 
 class PageQueriesTest(TestCase):
@@ -145,7 +149,7 @@ class PageQueriesTest(TestCase):
                 self.client.get(urls[page])  # the first request warms per-process caches
                 with CaptureQueriesContext(connection) as ctx:
                     self.client.get(urls[page])
-                self.assertLessEqual(len(ctx), budget)
+                self.assertLessEqual(len(ctx), budget + (HOME_MODULES_QUERIES if page == 'home' else 0))
 
 
 class SuperuserAccessTest(TestCase):

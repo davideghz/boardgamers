@@ -110,7 +110,8 @@ class HomeByPersonaTest(TestCase):
     def test_add_location_invites_skip_who_runs_one(self):
         cta = italian('Have a location to add?')
         self.assertContains(self.get('newcomer'), cta)
-        self.assertContains(self.get(), cta)
+        # Visitors get the invitation once, in the hero ("Bring your club here")
+        self.assertNotContains(self.get(), cta)
         self.assertNotContains(self.get('manager'), cta)
         self.client.force_login(self.data.manager.user)
         self.assertNotContains(self.client.get(reverse('locations-index')), cta)

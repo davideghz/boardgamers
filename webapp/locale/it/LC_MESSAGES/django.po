@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 13:47+0100\n"
+"POT-Creation-Date: 2026-11-26 15:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5003,27 +5003,6 @@ msgstr "Invia messaggio"
 msgid "Join us on Telegram"
 msgstr "Unisciti a noi su Telegram"
 
-msgctxt "location"
-msgid "Created by you"
-msgstr "Creata da te"
-
-msgctxt "location"
-msgid "Managed by you"
-msgstr "Gestita da te"
-
-msgctxt "location role"
-msgid "Member"
-msgstr "Socio"
-
-msgid "Followed"
-msgstr "Seguita"
-
-msgid "You don't follow any location yet."
-msgstr "Non segui ancora nessuna sede."
-
-msgid "Explore locations"
-msgstr "Scopri dove giocare"
-
 msgid "For board game clubs and associations"
 msgstr "Per APS e club di giochi da tavolo"
 
@@ -5064,6 +5043,32 @@ msgstr "Tieni viva la community"
 msgid "Telegram bot, rankings and your schedule on your website."
 msgstr ""
 "Bot Telegram, classifiche e il calendario sul sito della tua associazione."
+
+msgid "The project"
+msgstr "Il progetto"
+
+msgid "About Board-Gamers.com"
+msgstr "Informazioni su Board-Gamers.com"
+
+msgid ""
+"Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of "
+"a group of board game enthusiasts."
+msgstr ""
+"Board-Gamers.com è un progetto OPEN e NO-PROFIT nato dalla passione di un "
+"gruppo di appassionati di giochi da tavolo."
+
+msgid ""
+"Our goal is to make it easier to meet up and play in person, supporting "
+"cultural associations and local game shops."
+msgstr ""
+"Il nostro obiettivo è rendere più facile incontrarsi per giocare dal vivo, "
+"supportando associazioni culturali e ludoteche locali."
+
+msgid "Join free"
+msgstr "Iscriviti gratis"
+
+msgid "Discover more"
+msgstr "Più info"
 
 msgid "to see tables from locations you follow."
 msgstr "per vedere i tavoli delle sedi che segui."
@@ -5116,31 +5121,64 @@ msgstr "Sedi vicine a"
 msgid "See all game clubs"
 msgstr "Vedi tutti i club di gioco"
 
-msgid "The project"
-msgstr "Il progetto"
+msgid "Get started"
+msgstr "Per iniziare"
 
-msgid "About Board-Gamers.com"
-msgstr "Informazioni su Board-Gamers.com"
+msgid "Three steps to find your next game night."
+msgstr "Tre passi per trovare la tua prossima serata di gioco."
 
-msgid ""
-"Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of "
-"a group of board game enthusiasts."
-msgstr ""
-"Board-Gamers.com è un progetto OPEN e NO-PROFIT nato dalla passione di un "
-"gruppo di appassionati di giochi da tavolo."
+msgid "Done"
+msgstr "Fatto"
 
-msgid ""
-"Our goal is to make it easier to meet up and play in person, supporting "
-"cultural associations and local game shops."
-msgstr ""
-"Il nostro obiettivo è rendere più facile incontrarsi per giocare dal vivo, "
-"supportando associazioni culturali e ludoteche locali."
+msgid "Set your city, to see what is near you"
+msgstr "Imposta la tua città, per vedere cosa c'è vicino a te"
 
-msgid "Join free"
-msgstr "Iscriviti gratis"
+msgid "Follow a location you like"
+msgstr "Segui una sede che ti piace"
 
-msgid "Discover more"
-msgstr "Più info"
+msgid "Join your first table"
+msgstr "Iscriviti al tuo primo tavolo"
+
+msgctxt "location"
+msgid "Created by you"
+msgstr "Creata da te"
+
+msgctxt "location"
+msgid "Managed by you"
+msgstr "Gestita da te"
+
+msgctxt "location role"
+msgid "Member"
+msgstr "Socio"
+
+msgid "Followed"
+msgstr "Seguita"
+
+msgid "Your next activities"
+msgstr "Le tue prossime attività"
+
+msgid "To do"
+msgstr "Da fare"
+
+msgid "Membership request to review"
+msgid_plural "Membership requests to review"
+msgstr[0] "Richiesta di adesione da valutare"
+msgstr[1] "Richieste di adesione da valutare"
+
+msgid "Venue layout request"
+msgid_plural "Venue layout requests"
+msgstr[0] "Richiesta di uso degli spazi"
+msgstr[1] "Richieste di uso degli spazi"
+
+msgid "Draft event to publish"
+msgid_plural "Draft events to publish"
+msgstr[0] "Evento in bozza da pubblicare"
+msgstr[1] "Eventi in bozza da pubblicare"
+
+msgid "Event without tables"
+msgid_plural "Events without tables"
+msgstr[0] "Evento senza tavoli"
+msgstr[1] "Eventi senza tavoli"
 
 msgid "Press kit"
 msgstr "Kit per la stampa"
@@ -6656,14 +6694,17 @@ msgstr ""
 msgid "Connect account"
 msgstr "Collega account"
 
+#~ msgid "You don't follow any location yet."
+#~ msgstr "Non segui ancora nessuna sede."
+
+#~ msgid "Explore locations"
+#~ msgstr "Scopri dove giocare"
+
 #~ msgid "Search for a location"
 #~ msgstr "Cerca una sede"
 
 #~ msgid "Locations of your tables"
 #~ msgstr "Sedi dei tuoi tavoli"
-
-#~ msgid "Followed locations"
-#~ msgstr "Sedi seguite"
 
 #~ msgid "Most active locations"
 #~ msgstr "Sedi più attive"
@@ -6942,9 +6983,6 @@ msgstr "Collega account"
 
 #~ msgid "Upcoming Tables"
 #~ msgstr "Prossimi Tavoli"
-
-#~ msgid "Find your next game night"
-#~ msgstr "Trova la tua prossima serata di gioco"
 
 #~ msgid "Member Code"
 #~ msgstr "Codice Fiscale"

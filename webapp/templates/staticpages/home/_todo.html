@@ -1,0 +1,19 @@
+{% load i18n custom_tags %}
+{# What waits for the manager, per location (services/manager_todo.py) #}
+<section aria-labelledby="home-todo">
+  <h2 id="home-todo" class="mb-3 text-lg font-bold text-content">{% trans "To do" %}</h2>
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    {% for item in todo_items %}
+      {% if item.key == 'membership_requests' %}
+        {% blocktrans count n=item.count asvar title %}Membership request to review{% plural %}Membership requests to review{% endblocktrans %}
+      {% elif item.key == 'layout_requests' %}
+        {% blocktrans count n=item.count asvar title %}Venue layout request{% plural %}Venue layout requests{% endblocktrans %}
+      {% elif item.key == 'draft_events' %}
+        {% blocktrans count n=item.count asvar title %}Draft event to publish{% plural %}Draft events to publish{% endblocktrans %}
+      {% else %}
+        {% blocktrans count n=item.count asvar title %}Event without tables{% plural %}Events without tables{% endblocktrans %}
+      {% endif %}
+      {% todo_card item.url title item.count description=item.location.name %}
+    {% endfor %}
+  </div>
+</section>
