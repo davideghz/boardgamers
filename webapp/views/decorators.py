@@ -44,9 +44,7 @@ def only_author_or_admin_can_edit(view_func):
         is_admin = request.user.is_staff
         is_location_manager = False
         if request.user.is_authenticated and table.location_id:
-            up = request.user.user_profile
-            loc = table.location
-            is_location_manager = loc.creator_id == up.id or loc.managers.filter(id=up.id).exists()
+            is_location_manager = table.location.is_manager(request.user.user_profile)
         if not (is_author or is_admin or is_location_manager):
             messages.error(request, _("You don't have permission to edit this table."), extra_tags="danger")
             return redirect("table-detail", slug=table_slug)

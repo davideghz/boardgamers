@@ -26,7 +26,7 @@ from meta.views import Meta
 
 from webapp.forms import TableForm, TableLinkFormSet, TableDuplicateForm, DuplicateTableLinkForm, CustomLoginForm, CommentForm, AddTablePlayerForm
 from webapp.messages import MSG_VERIFY_EMAIL_BEFORE_PROCEEDING
-from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, Membership, \
+from webapp.models import Table, TableLink, Comment, Player, UserProfile, Game, Location, CommentType, GuestProfile, TableAccess, \
     GameOutcome, PlayerOutcome, ResultMode
 from webapp.services.station_conflicts import station_conflict_ids
 from webapp.services.tables import (
@@ -46,7 +46,7 @@ class IsAuthorOrAdminTestMixin(UserPassesTestMixin):
         location = getattr(obj, 'location', None)
         if location and user.is_authenticated:
             up = user.user_profile
-            if location.creator_id == up.id or location.managers.filter(id=up.id).exists():
+            if location.is_manager(up):
                 return True
         return False
 
@@ -339,28 +339,11 @@ class TableDetailView(BaseTableDetailView):
         context = super().get_context_data(**kwargs)
         table = self.object
 
-        is_active_member = False
-        has_pending_membership = False
-        is_location_manager = self.is_table_host  # a location table: its host is the location
-        if self.request.user.is_authenticated and table.location:
-            up = self.request.user.user_profile
-            loc = table.location
-            if not is_location_manager:
-                has_pending_membership = Membership.objects.filter(
-                    member__location=loc,
-                    member__user_profile=up,
-                    status=Membership.PENDING,
-                ).exists()
-                is_active_member = Membership.objects.filter(
-                    member__location=loc,
-                    member__user_profile=up,
-                    status=Membership.ACTIVE,
-                ).exists()
+        profile = self.request.user.user_profile if self.request.user.is_authenticated else None
+        table_join = table.location.table_join_access(profile) if table.location else TableAccess()
 
         context.update({
-            'is_active_member': is_active_member,
-            'has_pending_membership': has_pending_membership,
-            'is_location_manager': is_location_manager,
+            'table_join': table_join,
             # Mirrors the service rule, so the template never offers a control
             # the action would then refuse.
             'can_manage_roster': (
@@ -482,23 +465,13 @@ def _table_creation_refusal(request, location):
         messages.error(request, MSG_VERIFY_EMAIL_BEFORE_PROCEEDING, extra_tags="danger")
         return redirect("location-detail", location.slug)
 
-    user_profile = request.user.user_profile
-    is_manager = location.creator == user_profile or user_profile in location.managers.all()
-    if not is_manager and not request.user.is_superuser:
-        perm = location.table_creation_permission
-        if perm == location.PERM_MANAGERS_ONLY:
-            messages.error(request, _("Only owners and managers can create tables here."), extra_tags="danger")
-            return redirect("location-detail", location.slug)
-        elif perm == location.PERM_MEMBERS_ONLY:
-            from webapp.models import Membership
-            is_member = Membership.objects.filter(
-                member__location=location,
-                member__user_profile=user_profile,
-                status=Membership.ACTIVE,
-            ).exists()
-            if not is_member:
-                messages.error(request, _("Only members can create tables here."), extra_tags="danger")
-                return redirect("location-detail", location.slug)
+    access = location.table_creation_access(request.user.user_profile)
+    if access.managers_only:
+        messages.error(request, _("Only owners and managers can create tables here."), extra_tags="danger")
+        return redirect("location-detail", location.slug)
+    if access.needs_membership:
+        messages.error(request, _("Only members can create tables here."), extra_tags="danger")
+        return redirect("location-detail", location.slug)
     return None
 
 
