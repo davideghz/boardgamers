@@ -10,7 +10,7 @@
   <div class="mb-4">{% back_link 'locations-index' label=locations_label %}</div>
 
   {# ── PAGE HEADER ──────────────────────────────────────────────────── #}
-  <div class="flex items-center gap-4 mb-8">
+  <div class="flex items-center gap-4 mb-4">
     {% if location.cover_url %}
       <div class="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-divider bg-surface-input">
         <img src="{{ location.cover_url }}" alt="{{ location.name }}" class="w-full h-full object-cover">
@@ -32,6 +32,14 @@
         </div>
       {% endif %}
     </div>
+  </div>
+
+  {# ── Actions (plan F3) ────────────────────────────────────────────── #}
+  <div class="mb-8">
+    {% if is_manager and not sees_as_visitor %}
+      {% url 'location-manage-data' location.slug as edit_url %}{% url 'location-manage' location.slug as manage_url %}
+    {% endif %}
+    {% action_bar location.name edit_url=edit_url manage_url=manage_url %}
   </div>
 
   {# ── 3-COLUMN GRID ────────────────────────────────────────────────── #}

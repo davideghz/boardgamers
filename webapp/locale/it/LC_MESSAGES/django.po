@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 21:26+0100\n"
+"POT-Creation-Date: 2026-11-26 21:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2325,6 +2325,30 @@ msgstr "Contatti"
 msgid "Press"
 msgstr "Press"
 
+msgid "Page actions"
+msgstr "Azioni della pagina"
+
+msgid "Edit"
+msgstr "Modifica"
+
+msgctxt "page actions"
+msgid "Manage"
+msgstr "Gestisci"
+
+msgctxt "page actions"
+msgid "More"
+msgstr "Altro"
+
+msgctxt "page actions"
+msgid "Duplicate"
+msgstr "Duplica"
+
+msgid "Link copied!"
+msgstr "Link Copiato!"
+
+msgid "Share"
+msgstr "Condividi"
+
 msgctxt "create menu"
 msgid "Create"
 msgstr "Crea"
@@ -2713,12 +2737,6 @@ msgid_plural "%(n)s people attending"
 msgstr[0] "%(n)s persona partecipa"
 msgstr[1] "%(n)s persone partecipano"
 
-msgid "Share event"
-msgstr "Condividi evento"
-
-msgid "Manage event"
-msgstr "Gestisci evento"
-
 msgid "Internal program (managers only)"
 msgstr "Programma interno (solo gestori)"
 
@@ -2737,6 +2755,9 @@ msgstr "Mappa non disponibile"
 msgid "Games are better with friends: invite them to join you at the event!"
 msgstr ""
 "Si gioca meglio in compagnia: invita i tuoi amici a partecipare all'evento!"
+
+msgid "Share event"
+msgstr "Condividi evento"
 
 msgid "Library"
 msgstr "Ludoteca"
@@ -2972,6 +2993,9 @@ msgstr "Ancora nessun gioco"
 
 msgid "Add the first game to the library."
 msgstr "Aggiungi il primo gioco alla ludoteca."
+
+msgid "Manage event"
+msgstr "Gestisci evento"
 
 msgid ""
 "Only the managers can see this event. Publish it to make it visible to "
@@ -3338,9 +3362,6 @@ msgstr "Tavolo completo"
 
 msgid "Add to Calendar"
 msgstr "Aggiungi al Calendario"
-
-msgid "Invite/Remove Gamers"
-msgstr "Invita/Rimuovi Gamers"
 
 msgid "Games are better with friends: invite them to the table!"
 msgstr "Si gioca meglio in compagnia: invita i tuoi amici al tavolo!"
@@ -4169,9 +4190,6 @@ msgstr "al"
 msgid "Approved by"
 msgstr "Approvato da"
 
-msgid "Edit"
-msgstr "Modifica"
-
 msgid "New membership"
 msgstr "Nuova adesione"
 
@@ -4860,12 +4878,6 @@ msgstr "La ricerca non è disponibile. Riprova."
 
 msgid "Search results available"
 msgstr "Risultati di ricerca disponibili"
-
-msgid "Link copied!"
-msgstr "Link Copiato!"
-
-msgid "Share"
-msgstr "Condividi"
 
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
@@ -5768,9 +5780,6 @@ msgstr "Creato"
 
 msgid "ago"
 msgstr "fa"
-
-msgid "Edit table info"
-msgstr "Modifica tavolo"
 
 msgid "Pick the location where the table is played."
 msgstr "Scegli la sede dove si gioca."
@@ -6846,6 +6855,12 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Invite/Remove Gamers"
+#~ msgstr "Invita/Rimuovi Gamers"
+
+#~ msgid "Edit table info"
+#~ msgstr "Modifica tavolo"
 
 #~ msgid "Can't find it? Add it"
 #~ msgstr "Non la trovi? Aggiungila"

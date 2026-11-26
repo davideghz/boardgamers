@@ -336,12 +336,26 @@
       });
     })();
 
-    // ── "+ Create" menus (components/create_menu.html) ────────────────
+    // ── Share: the native share sheet where available, else copy the link ──
+    window.bgShare = function (button) {
+      const url = window.location.href.split('?')[0];
+      if (navigator.share) {
+        navigator.share({title: button.dataset.shareTitle, url: url}).catch(() => {});
+        return;
+      }
+      navigator.clipboard.writeText(url);
+      const label = button.querySelector('span');
+      const original = label.textContent;
+      label.textContent = button.dataset.copiedLabel;
+      setTimeout(() => { label.textContent = original; }, 2000);
+    };
+
+    // ── Popover menus ("+ Create", the action bar's "More") ───────────────
     // A popover opens in the middle of the screen: place it under its button, or above it
     // when there is no room below. Toggle events don't bubble, hence the capture.
     document.addEventListener('toggle', event => {
       const menu = event.target;
-      if (event.newState !== 'open' || !menu.matches || !menu.matches('[data-create-menu]')) return;
+      if (event.newState !== 'open' || !menu.matches || !menu.matches('[data-popover-menu]')) return;
       const trigger = document.querySelector(`[popovertarget="${menu.id}"]`);
       if (!trigger) return;
       const box = trigger.getBoundingClientRect();
@@ -397,8 +411,8 @@
     }
     if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
     document.addEventListener('keydown', function (event) {
-      // An open "+ Create" menu takes this Escape for itself: the drawer stays open.
-      if (event.key === 'Escape' && !document.querySelector('[data-create-menu]:popover-open')) closeMobileSidebar();
+      // An open popover menu takes this Escape for itself: the drawer stays open.
+      if (event.key === 'Escape' && !document.querySelector('[data-popover-menu]:popover-open')) closeMobileSidebar();
     });
   </script>
 

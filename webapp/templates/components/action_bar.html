@@ -1,0 +1,34 @@
+{% load i18n %}
+{% comment %}
+The actions of a detail page, in the same place on every one (plan F3): "Edit" straight to the
+data form, "Manage", and Share, in a "More" menu with Duplicate when there is one. The page's
+main action (join, create a table here, attend) keeps its place: the side column on desktop,
+the one fixed bar on phones.
+{% endcomment %}
+{% with pill="inline-flex items-center gap-1.5 rounded-full border border-divider bg-surface px-3 py-1.5 text-xs font-semibold text-content-soft hover:bg-surface-alt hover:text-content text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" item="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-content hover:bg-surface-alt text-decoration-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" %}
+<div role="group" aria-label="{% trans 'Page actions' %}" class="flex flex-wrap items-center gap-2" data-action-bar>
+  {% if edit_url %}
+    <a href="{{ edit_url }}" class="{{ pill }}">{% include "components/icon.html" with name="pencil" class="w-3.5 h-3.5" only %}{% trans "Edit" %}</a>
+  {% endif %}
+  {% if manage_url %}
+    <a href="{{ manage_url }}" class="{{ pill }}">{% include "components/icon.html" with name="cog" class="w-3.5 h-3.5" only %}{% trans "Manage" context "page actions" %}</a>
+  {% endif %}
+  {% if duplicate_url %}
+    <button type="button" popovertarget="page-actions-more" class="{{ pill }}">
+      {% include "components/icon.html" with name="ellipsis" class="w-3.5 h-3.5" only %}{% trans "More" context "page actions" %}
+    </button>
+    <div id="page-actions-more" popover data-popover-menu aria-label="{% trans 'More' context 'page actions' %}"
+         class="w-56 rounded-xl border border-divider bg-surface p-1.5 text-content shadow-xl"
+         style="position: fixed; inset: auto; margin: 0;">
+      <a href="{{ duplicate_url }}" class="{{ item }}">{% include "components/icon.html" with name="copy" class="w-4 h-4" only %}{% trans "Duplicate" context "page actions" %}</a>
+      <button type="button" onclick="bgShare(this)" data-share-title="{{ share_title }}" data-copied-label="{% trans 'Link copied!' %}" class="{{ item }}">
+        {% include "components/icon.html" with name="share" class="w-4 h-4" only %}<span>{% trans "Share" %}</span>
+      </button>
+    </div>
+  {% else %}
+    <button type="button" onclick="bgShare(this)" data-share-title="{{ share_title }}" data-copied-label="{% trans 'Link copied!' %}" class="{{ pill }}">
+      {% include "components/icon.html" with name="share" class="w-3.5 h-3.5" only %}<span>{% trans "Share" %}</span>
+    </button>
+  {% endif %}
+</div>
+{% endwith %}

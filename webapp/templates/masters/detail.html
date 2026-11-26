@@ -16,16 +16,15 @@
           {% endif %}
         </p>
       {% endif %}
-      {% if has_catalog or can_manage or can_approve or not master.is_published %}
+      <div class="mt-4">
+        {% if can_manage %}{% url 'master-event-manage' master.slug as manage_url %}{% endif %}
+        {% action_bar master.name manage_url=manage_url %}
+      </div>
+      {% if has_catalog or can_approve or not master.is_published %}
         <div class="mt-4 flex flex-wrap items-center gap-3">
           {% if not master.is_published %}<span class="text-sm font-semibold text-content-muted">{{ master.get_status_display }}</span>{% endif %}
           {% if has_catalog %}
             <a href="{% url 'master-event-games' master.slug %}" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-link hover:bg-surface-alt">{% translate "Game catalog" %}</a>
-          {% endif %}
-          {% if can_manage %}
-            <a href="{% url 'master-event-manage' master.slug %}" class="rounded-full border border-divider px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">
-              {% translate "Manage" %}
-            </a>
           {% endif %}
           {% if can_approve %}
             <form method="post" action="{% url 'master-event-approve' master.slug %}">

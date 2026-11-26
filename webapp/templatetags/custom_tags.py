@@ -361,3 +361,10 @@ def create_menu(context, menu_id, location=None, primary=False, trigger_id=None,
                           'icon': 'map-pin', 'url': reverse('location-create')})
     return {'menu_id': menu_id, 'items': items, 'primary': primary, 'trigger_id': trigger_id,
             'secondary_class': secondary_class, 'icon_class': icon_class}
+
+
+@register.inclusion_tag("components/action_bar.html")
+def action_bar(share_title, edit_url=None, manage_url=None, duplicate_url=None):
+    """The detail pages' Edit, Manage and More (Duplicate, Share) in one place (plan F3)."""
+    return {'share_title': share_title, 'edit_url': edit_url, 'manage_url': manage_url,
+            'duplicate_url': duplicate_url}

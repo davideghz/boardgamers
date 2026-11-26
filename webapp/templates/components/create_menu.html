@@ -9,7 +9,7 @@ back to the button. `primary` is the filled main button, otherwise a navigation-
   {% include "components/icon.html" with name="plus" class=icon_class|default:"w-4 h-4" only %}
   <span class="sidebar-text">{% trans "Create" context "create menu" %}</span>
 </button>
-<div id="{{ menu_id }}" popover data-create-menu aria-label="{% trans 'Create' context 'create menu' %}"
+<div id="{{ menu_id }}" popover data-popover-menu aria-label="{% trans 'Create' context 'create menu' %}"
      class="w-72 max-w-[calc(100vw-1rem)] rounded-xl border border-divider bg-surface p-1.5 text-content shadow-xl"
      style="position: fixed; inset: auto; margin: 0;">
   <ul class="list-none">
