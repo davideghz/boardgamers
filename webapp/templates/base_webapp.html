@@ -86,135 +86,7 @@
         {# Content #}
         <div id="sidebar-content" class="flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden px-3 pb-3">
 
-          {# CTA #}
-          <div class="mb-1">
-            <a id="sidebar-cta" href="{% url 'locations-index' %}?new_table=1" data-label="{% trans "New table" %}"
-               class="w-full flex items-center justify-center gap-1.5 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-              <span class="sidebar-text">{% trans "New table" %}</span>
-            </a>
-          </div>
-
-          {# Feed group #}
-          <div>
-            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-content-muted font-semibold">
-              {% trans "Feed" %}
-            </div>
-            <ul class="flex flex-col gap-0.5 list-none">
-              <li>
-                <a href="{% url 'home' %}"
-                   data-label="Home"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'home' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
-                  <span class="sidebar-text">{% trans "Home" %}</span>
-                </a>
-              </li>
-              {% if user.is_authenticated %}
-                <li>
-                  <a href="{% url 'account-activities' %}" data-label="{% translate 'My activities' %}"
-                     class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'account-activities' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25m10.5-2.25v2.25M3 9h18M4.5 5.25h15A1.5 1.5 0 0 1 21 6.75v12a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.75v-12a1.5 1.5 0 0 1 1.5-1.5ZM8.25 14.25l2.25 2.25 4.5-4.5" /></svg>
-                    <span class="sidebar-text">{% translate "My activities" %}</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'account-tables' %}"
-                     data-label="{% trans "My tables" %}"
-                     class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                            {% if request.resolver_match.url_name == 'account-tables' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-                    <span class="sidebar-text">{% trans "My tables" %}</span>
-                  </a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
-
-          {# Esplora group #}
-          <div>
-            <div class="sidebar-text flex h-8 items-center px-2 text-[11px] uppercase tracking-wider text-content-muted font-semibold">
-              {% trans "Explore" %}
-            </div>
-            <ul class="flex flex-col gap-0.5 list-none">
-              <li>
-                <a href="{% url 'locations-index' %}"
-                   data-label="{% trans "Locations" context "navigation" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                  <span class="sidebar-text">{% trans "Locations" context "navigation" %}</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'location-create' %}"
-                   data-label="{% trans "Add location" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'location-create' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                  <span class="sidebar-text">{% trans "Add location" %}</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'appointment-search' %}" data-label="{% translate 'Search' %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'appointment-search' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-                  <span class="sidebar-text">{% translate "Search" %}</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'master-event-list' %}" data-label="{% translate 'Manifestations' %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'master-event-list' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
-                  <span class="sidebar-text">{% translate "Manifestations" %}</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'event-index' %}"
-                   data-label="{% trans "Events" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
-                  <span class="sidebar-text">{% trans "Events" %}</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'game-list' %}"
-                   data-label="{% trans "Games" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" /></svg>
-                  <span class="sidebar-text">{% trans "Games" %}</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'table-index' %}"
-                   data-label="{% trans "Tables" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'table-index' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-                  <span class="sidebar-text">{% trans "Tables" %}</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {# About group #}
-          <div>
-            <ul class="flex flex-col gap-0.5 list-none">
-              <li>
-                <a href="{% url 'about' %}"
-                   data-label="{% trans "About" %}"
-                   class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          {% if request.resolver_match.url_name == 'about' %}bg-surface-input text-content font-semibold{% else %}text-content-muted hover:bg-surface-input hover:text-content{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
-                  <span class="sidebar-text">{% trans "About" %}</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+          {% include "partials/_navigation.html" with cta_id="sidebar-cta" %}
 
         </div>
 
@@ -307,7 +179,8 @@
 
         {# Mobile topbar #}
         <div class="md:hidden flex items-center gap-3 px-4 py-3 border-b border-divider bg-surface sticky top-0 z-40">
-          <button id="mobile-menu-btn" class="p-2 rounded-md text-content-muted hover:bg-surface-input transition-colors">
+          <button id="mobile-menu-btn" type="button" aria-label="{% trans 'Open the menu' %}" aria-controls="mobile-drawer" aria-expanded="false"
+                  class="p-2 rounded-md text-content-muted hover:bg-surface-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
           </button>
           <a href="{% url 'home' %}" class="flex items-center gap-1.5 font-extrabold text-content text-base">
@@ -332,7 +205,8 @@
         <div id="mobile-overlay" class="hidden md:hidden fixed inset-0 z-40 bg-black/40" onclick="closeMobileSidebar()"></div>
 
         {# Mobile drawer #}
-        <div id="mobile-drawer"
+        {# Closed, it is `inert`: off screen and out of the tab order #}
+        <div id="mobile-drawer" inert aria-label="{% trans 'Menu' %}"
              class="md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-surface border-r border-divider flex flex-col"
              style="transform:translateX(-100%); transition:transform .2s ease">
           <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
@@ -340,78 +214,14 @@
               <img src="{% static 'images/logo/board-gamers-mark.svg' %}" alt="" width="24" height="24" class="w-6 h-6 flex-shrink-0">
               Board Gamers
             </a>
-            <button onclick="closeMobileSidebar()" class="p-2 rounded-md text-content-muted hover:bg-surface-input">
+            <button type="button" onclick="closeMobileSidebar()" aria-label="{% trans 'Close the menu' %}"
+                    class="p-2 rounded-md text-content-muted hover:bg-surface-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
             </button>
           </div>
           <div class="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-4">
 
-            {# CTA #}
-            <a href="{% url 'locations-index' %}?new_table=1"
-               class="w-full flex items-center justify-center gap-2 bg-elevated text-white rounded-full px-3 py-2.5 text-sm font-bold hover:bg-slate-700 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-              {% trans "New table" %}
-            </a>
-
-            {# Feed #}
-            <div>
-              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-content-muted font-semibold">{% trans "Feed" %}</p>
-              <div class="flex flex-col gap-0.5">
-                <a href="{% url 'home' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'home' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
-                  {% trans "Home" %}
-                </a>
-                {% if user.is_authenticated %}
-                  <a href="{% url 'account-activities' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'account-activities' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25m10.5-2.25v2.25M3 9h18M4.5 5.25h15A1.5 1.5 0 0 1 21 6.75v12a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.75v-12a1.5 1.5 0 0 1 1.5-1.5ZM8.25 14.25l2.25 2.25 4.5-4.5" /></svg>
-                    {% translate "My activities" %}
-                  </a>
-                  <a href="{% url 'account-tables' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'account-tables' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-                    {% trans "My tables" %}
-                  </a>
-                {% endif %}
-              </div>
-            </div>
-
-            {# Explore #}
-            <div>
-              <p class="px-2 mb-1 text-[11px] uppercase tracking-wider text-content-muted font-semibold">{% trans "Explore" %}</p>
-              <div class="flex flex-col gap-0.5">
-                <a href="{% url 'locations-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'locations-index' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                  {% trans "Locations" context "navigation" %}
-                </a>
-                <a href="{% url 'location-create' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'location-create' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                  {% trans "Add location" %}
-                </a>
-                <a href="{% url 'appointment-search' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'appointment-search' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-                  {% translate "Search" %}
-                </a>
-                <a href="{% url 'master-event-list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'master-event-list' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
-                  {% translate "Manifestations" %}
-                </a>
-                <a href="{% url 'event-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'event-index' or request.resolver_match.url_name == 'event_detail' or request.resolver_match.url_name == 'event-program' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" /></svg>
-                  {% trans "Events" %}
-                </a>
-                <a href="{% url 'game-list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'game-list' or request.resolver_match.url_name == 'game-detail' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" /></svg>
-                  {% trans "Games" %}
-                </a>
-                <a href="{% url 'table-index' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'table-index' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-                  {% trans "Tables" %}
-                </a>
-                <a href="{% url 'about' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'about' %}bg-surface-input text-content font-semibold{% else %}text-content-soft hover:bg-surface-input{% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
-                  {% trans "About" %}
-                </a>
-              </div>
-            </div>
+            {% include "partials/_navigation.html" %}
 
           </div>
           <div class="border-t border-divider px-3 py-4 flex flex-col gap-1">
@@ -552,14 +362,27 @@
     const mobileBtn     = document.getElementById('mobile-menu-btn');
 
     function openMobileSidebar() {
+      mobileDrawer.inert = false;
       mobileDrawer.style.transform = 'translateX(0)';
       mobileOverlay.classList.remove('hidden');
+      if (mobileBtn) mobileBtn.setAttribute('aria-expanded', 'true');
+      const current = mobileDrawer.querySelector('[aria-current="page"]') || mobileDrawer.querySelector('nav a');
+      if (current) current.focus();
     }
     function closeMobileSidebar() {
+      if (mobileDrawer.inert) return;
+      mobileDrawer.inert = true;
       mobileDrawer.style.transform = 'translateX(-100%)';
       mobileOverlay.classList.add('hidden');
+      if (mobileBtn) {
+        mobileBtn.setAttribute('aria-expanded', 'false');
+        mobileBtn.focus();
+      }
     }
     if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeMobileSidebar();
+    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/embla-carousel@8/embla-carousel.umd.js"></script>

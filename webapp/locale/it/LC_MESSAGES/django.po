@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 17:00+0100\n"
+"POT-Creation-Date: 2026-11-26 17:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1069,8 +1069,16 @@ msgstr "Un percorso interno che inizia con / oppure un indirizzo http(s)."
 msgid "Audience"
 msgstr "Destinatari"
 
-msgid "Active players: signed-in users with an upcoming table or event. Members: with a membership in force at some location. Location managers: owners and managers of a location. Users without activity: signed in, but never joined a table or an event."
-msgstr "Giocatori attivi: utenti collegati con un tavolo o un evento in programma. Soci: con un'adesione in corso in qualche sede. Gestori di sedi: titolari e gestori di una sede. Utenti senza attività: collegati, ma mai iscritti a un tavolo o a un evento."
+msgid ""
+"Active players: signed-in users with an upcoming table or event. Members: "
+"with a membership in force at some location. Location managers: owners and "
+"managers of a location. Users without activity: signed in, but never joined "
+"a table or an event."
+msgstr ""
+"Giocatori attivi: utenti collegati con un tavolo o un evento in programma. "
+"Soci: con un'adesione in corso in qualche sede. Gestori di sedi: titolari e "
+"gestori di una sede. Utenti senza attività: collegati, ma mai iscritti a un "
+"tavolo o a un evento."
 
 msgid "Display on"
 msgstr "Mostra in"
@@ -2291,22 +2299,6 @@ msgstr "Hai già un account?"
 msgid "Toggle sidebar"
 msgstr "Apri o chiudi la barra laterale"
 
-msgid "Feed"
-msgstr "Feed"
-
-msgid "Explore"
-msgstr "Esplora"
-
-msgctxt "navigation"
-msgid "Locations"
-msgstr "Dove giocare"
-
-msgid "Games"
-msgstr "Giochi"
-
-msgid "About"
-msgstr "Informazioni"
-
 msgid "Logout"
 msgstr "Esci"
 
@@ -2324,6 +2316,18 @@ msgstr "Modalità chiara"
 
 msgid "Language"
 msgstr "Lingua"
+
+msgid "Open the menu"
+msgstr "Apri il menu"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Close the menu"
+msgstr "Chiudi il menu"
+
+msgid "About"
+msgstr "Informazioni"
 
 msgid "Privacy"
 msgstr "Privacy"
@@ -3392,6 +3396,9 @@ msgstr ""
 msgid "Library – %(name)s"
 msgstr "Ludoteca – %(name)s"
 
+msgid "Games"
+msgstr "Giochi"
+
 msgid "Game info"
 msgstr "Info sul gioco"
 
@@ -3614,6 +3621,10 @@ msgid "Delete the group “%(name)s”? All its reservations will be removed too
 msgstr ""
 "Eliminare il gruppo “%(name)s”? Verranno rimosse anche tutte le sue "
 "prenotazioni."
+
+msgctxt "navigation"
+msgid "Locations"
+msgstr "Dove giocare"
 
 msgid "You are seeing this location as a visitor does."
 msgstr "Stai vedendo la sede come la vede un visitatore."
@@ -4844,6 +4855,22 @@ msgstr ""
 msgid "Table reserved for members"
 msgstr "Tavolo riservato ai soci"
 
+msgid "Find a table"
+msgstr "Trova un tavolo"
+
+msgid "Main menu"
+msgstr "Menu principale"
+
+msgid "Feed"
+msgstr "Feed"
+
+msgid "Explore"
+msgstr "Esplora"
+
+msgctxt "navigation"
+msgid "Activities"
+msgstr "Attività"
+
 msgid "Pagination"
 msgstr "Paginazione"
 
@@ -5127,9 +5154,6 @@ msgstr ""
 
 msgid "Bring your club here"
 msgstr "Porta qui la tua associazione"
-
-msgid "Find a table"
-msgstr "Trova un tavolo"
 
 msgid "Discover the tools for clubs"
 msgstr "Scopri gli strumenti per le associazioni"

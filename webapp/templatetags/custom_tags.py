@@ -263,3 +263,10 @@ def location_relation(context, location):
 @register.inclusion_tag("components/joined_dialog.html")
 def joined_dialog(share_title, message, share_label=None):
     return {"share_title": share_title, "message": message, "share_label": share_label}
+
+
+@register.filter
+def in_list(value, names):
+    """True when `value` is one of the comma-separated `names` (e.g. the current URL name
+    against the pages a menu entry stands for)."""
+    return value in [name.strip() for name in names.split(',')]
