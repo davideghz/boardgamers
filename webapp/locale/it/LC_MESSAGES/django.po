@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 19:37+0100\n"
+"POT-Creation-Date: 2026-11-26 21:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5793,16 +5793,6 @@ msgctxt "event"
 msgid "Ended"
 msgstr "Concluso"
 
-msgid "Registration without a date"
-msgstr "Iscrizione senza data"
-
-msgctxt "appointment search result"
-msgid "Table"
-msgstr "Tavolo"
-
-msgid "Created by you"
-msgstr "Creati da te"
-
 msgctxt "status"
 msgid "Draft"
 msgstr "Bozza"
@@ -6803,6 +6793,16 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Registration without a date"
+#~ msgstr "Iscrizione senza data"
+
+#~ msgctxt "appointment search result"
+#~ msgid "Table"
+#~ msgstr "Tavolo"
+
+#~ msgid "Created by you"
+#~ msgstr "Creati da te"
 
 #, python-format
 #~ msgid "%(counter)s activity found"

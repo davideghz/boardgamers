@@ -53,7 +53,7 @@
         {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="activity-query" max_length=200 %}
       </div>
       {% if location_filter_items %}
-        <div class="min-w-0 flex-1 sm:w-60 sm:flex-none">{{ location_picker }}</div>
+        <div class="min-w-0 basis-full sm:basis-auto sm:w-60 sm:flex-none">{{ location_picker }}</div>
       {% endif %}
       <label class="inline-flex items-center gap-2 rounded-xl border border-divider bg-surface px-3 py-2.5 text-sm font-semibold text-content">
         <input type="checkbox" name="role" value="organizer"{% if organizer %} checked{% endif %} class="h-4 w-4 rounded border-divider accent-primary">
