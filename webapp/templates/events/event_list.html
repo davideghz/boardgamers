@@ -7,7 +7,7 @@
   {# ── PAGE HEADER ─────────────────────────────────────────────────── #}
   <div class="mb-6 flex items-start justify-between gap-3">
     <div>
-      <a class="text-blue-600 text-sm" href="{% url 'master-event-list' %}">{% translate "Manifestations" %}</a>
+      <a class="text-link text-sm" href="{% url 'master-event-list' %}">{% translate "Manifestations" %}</a>
       <h1 class="text-2xl font-extrabold text-content">{% trans "Events" %}</h1>
       <p class="text-sm text-content-muted mt-1">{% trans "Conventions, tournaments and game days near you." %}</p>
     </div>
@@ -46,7 +46,7 @@
 
       {% if not show_past %}
         <div class="mt-3">
-          <a href="?past=1" class="text-sm text-blue-600 font-semibold hover:underline">
+          <a href="?past=1" class="text-sm text-link font-semibold hover:underline">
             {% trans "See all past events" %} →
           </a>
         </div>

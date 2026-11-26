@@ -42,7 +42,7 @@
       {% else %}
         <p class="text-sm text-content-muted">
           {% trans "You don't follow any location yet." %}
-          <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Explore locations" %}</a>
+          <a href="{% url 'locations-index' %}" class="font-semibold text-link hover:underline">{% trans "Explore locations" %}</a>
         </p>
       {% endif %}
     </div>
@@ -50,8 +50,7 @@
   {% else %}
 
     {# ── HERO (anonymous): positioning for clubs + live agenda ──────── #}
-    <div class="mb-8 rounded-2xl text-white overflow-hidden"
-         style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);">
+    <div class="mb-8 rounded-2xl text-white overflow-hidden bg-brand-gradient">
       <div class="grid lg:grid-cols-5 gap-6 p-5 md:p-8">
 
         <div class="lg:col-span-3 flex flex-col justify-center">
@@ -66,7 +65,7 @@
           </p>
           <div class="flex flex-wrap items-center gap-3 mb-3">
             <a href="{% url 'signup' %}?next={% url 'location-create' %}"
-               class="flex items-center gap-1.5 bg-white text-slate-900 text-sm font-bold px-5 py-3 rounded-full hover:bg-blue-50 transition-colors text-decoration-none">
+               class="flex items-center gap-1.5 bg-white text-slate-900 text-sm font-bold px-5 py-3 rounded-full hover:bg-primary/10 transition-colors text-decoration-none">
               {% trans "Bring your club here" %}
             </a>
             <a href="{% url 'table-index' %}"
@@ -141,18 +140,18 @@
     {# Subtitle message — mirrors Locations section style #}
     <p class="text-xs text-content-muted mb-4">
       {% if not user.is_authenticated %}
-        <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
+        <a href="{% url 'login' %}" class="font-semibold text-link hover:underline">{% trans "Login" %}</a>
         {% trans "to see tables from locations you follow." %}
       {% elif shows_my_tables %}
         {% trans "Follow new" %}
-        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
+        <a href="{% url 'locations-index' %}" class="font-semibold text-link hover:underline">{% trans "locations" %}</a>
         {% trans "to see their open tables here." %}
       {% elif has_my_locations %}
         {% trans "Your locations have no upcoming tables: here are the ones from all locations." %}
-        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Follow more locations" %}</a>
+        <a href="{% url 'locations-index' %}" class="font-semibold text-link hover:underline">{% trans "Follow more locations" %}</a>
       {% else %}
         {% trans "Upcoming tables from all locations. Follow a location to see its tables here first." %}
-        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Find locations to follow" %}</a>
+        <a href="{% url 'locations-index' %}" class="font-semibold text-link hover:underline">{% trans "Find locations to follow" %}</a>
       {% endif %}
     </p>
 
@@ -170,9 +169,9 @@
         <p class="text-sm text-content-muted">
           {% trans "No upcoming tables right now." %}
           {% if user.is_authenticated %}
-            <a href="{% url 'locations-index' %}?new_table=1" class="font-semibold text-blue-600 hover:underline">{% trans "Create a table" %}</a>
+            <a href="{% url 'locations-index' %}?new_table=1" class="font-semibold text-link hover:underline">{% trans "Create a table" %}</a>
           {% else %}
-            <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Find a place to play" %}</a>
+            <a href="{% url 'locations-index' %}" class="font-semibold text-link hover:underline">{% trans "Find a place to play" %}</a>
           {% endif %}
         </p>
       {% endif %}
@@ -196,7 +195,7 @@
     </div>
 
     <div class="mt-3">
-      <a href="{% url 'appointment-search' %}?type=tables" class="text-sm text-blue-600 font-semibold hover:underline">
+      <a href="{% url 'appointment-search' %}?type=tables" class="text-sm text-link font-semibold hover:underline">
         {% trans "See all tables" %} →
       </a>
     </div>
@@ -208,7 +207,7 @@
     <section class="mb-10">
       <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
         <h2 class="text-lg font-bold text-content">{% trans "Upcoming events" %}</h2>
-        <a href="{% url 'appointment-search' %}?type=events" class="text-sm text-blue-600 font-semibold hover:underline">
+        <a href="{% url 'appointment-search' %}?type=events" class="text-sm text-link font-semibold hover:underline">
           {% trans "See all events" %} →
         </a>
       </div>
@@ -224,7 +223,7 @@
     <section class="mb-10">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
         <h2 class="text-lg font-bold text-content">{% translate "Manifestations" %}</h2>
-        <a class="text-sm text-blue-600 font-semibold hover:underline" href="{% url 'appointment-search' %}?type=manifestations">
+        <a class="text-sm text-link font-semibold hover:underline" href="{% url 'appointment-search' %}?type=manifestations">
           {% translate "See all manifestations" %} →
         </a>
       </div>
@@ -244,7 +243,7 @@
       <div class="flex items-center justify-between mb-1 gap-3 flex-wrap">
         <div class="flex items-center gap-3">
           <h2 class="text-lg font-bold text-content">{% trans "Locations" context "navigation" %}</h2>
-          <a href="{% url 'location-create' %}" class="flex items-center gap-1 text-sm text-blue-600 font-semibold hover:underline">
+          <a href="{% url 'location-create' %}" class="flex items-center gap-1 text-sm text-link font-semibold hover:underline">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
             {% trans "Add" %}
           </a>
@@ -265,19 +264,19 @@
 
       {% if not user.is_authenticated %}
         <p class="text-xs text-content-muted mb-4">
-          <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
+          <a href="{% url 'login' %}" class="font-semibold text-link hover:underline">{% trans "Login" %}</a>
           {% trans "to see nearby locations." %}
         </p>
       {% elif location_message %}
         <p class="text-xs text-content-muted mb-4">
-          <a href="{% url 'user-profile-edit' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Set your address" %}</a>
+          <a href="{% url 'user-profile-edit' %}" class="font-semibold text-link hover:underline">{% trans "Set your address" %}</a>
           {% trans "to see nearby locations." %}
         </p>
       {% else %}
         <p class="text-xs text-content-muted mb-4">
           {% trans "Locations near to" %} <strong>{{ user.user_profile.city|default:user.user_profile.address }}</strong>
           &nbsp;·&nbsp;
-          <a href="{% url 'user-profile-edit' %}" class="text-blue-600 hover:underline">{% trans "Edit address" %}</a>
+          <a href="{% url 'user-profile-edit' %}" class="text-link hover:underline">{% trans "Edit address" %}</a>
         </p>
       {% endif %}
 
@@ -300,7 +299,7 @@
       </div>
 
       <div class="mt-3">
-        <a href="{% url 'locations-index' %}" class="text-sm text-blue-600 font-semibold hover:underline">
+        <a href="{% url 'locations-index' %}" class="text-sm text-link font-semibold hover:underline">
           {% trans "See all game clubs" %} →
         </a>
       </div>
@@ -320,7 +319,7 @@
   {# ── ABOUT ───────────────────────────────────────── #}
   <section>
     <div class="rounded-2xl p-6 md:p-8 accent-wash">
-      <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-2">{% trans "The project" %}</p>
+      <p class="text-xs font-bold uppercase tracking-widest text-link mb-2">{% trans "The project" %}</p>
       <h2 class="text-xl font-bold text-content mb-3">{% trans "About Board-Gamers.com" %}</h2>
       <p class="text-sm text-content-muted max-w-lg mb-2">
         {% trans "Board-Gamers.com is an OPEN and NON-PROFIT project born from the passion of a group of board game enthusiasts." %}

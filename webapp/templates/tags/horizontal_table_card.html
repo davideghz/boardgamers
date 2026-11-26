@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n custom_tags %}
 <a href="{% if table.event %}{% url 'event_table_detail' event_slug=table.event.slug table_slug=table.slug %}{% else %}{% url 'table-detail' slug=table.slug %}{% endif %}"
    class="group flex items-center rounded-xl border border-divider bg-surface overflow-hidden hover:shadow-md hover:border-divider transition-all text-decoration-none py-3">
 
@@ -15,19 +15,14 @@
       <span class="text-[10px] font-semibold text-content-muted uppercase tracking-wide">
         {% if show_appointment_context %}{% translate "Table" context "appointment search result" %} · {{ table.date|date:"D j M Y" }}{% else %}{{ table.date|date:"D j M" }}{% endif %} · {{ table.time|time:"H:i" }}
       </span>
-      <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full
-        {% if table.status == 'open' %}bg-green-100 text-green-700
-        {% elif table.status == 'ongoing' %}bg-blue-100 text-blue-700
-        {% else %}bg-surface-input text-content-muted{% endif %}">
-        {{ table.get_status_display }}
-      </span>
+      {% status_badge table.status %}
     </div>
 
     {# Title #}
     <div class="flex items-center gap-1.5 min-w-0">
       {% if show_author_icon and table.author == user.user_profile %}
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="w-3.5 h-3.5 flex-shrink-0 text-blue-500"
+             class="w-3.5 h-3.5 flex-shrink-0 text-link"
              title="{% trans 'Created by you' %}">
           <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
         </svg>
@@ -38,7 +33,7 @@
     {# Game + location + time #}
     <div class="flex flex-col gap-0.5 text-xs text-content-muted">
       {% if table.game %}
-        <span class="text-blue-600 font-semibold truncate">{{ table.game }}</span>
+        <span class="text-link font-semibold truncate">{{ table.game }}</span>
       {% endif %}
       {% if show_appointment_context and table.event_id %}
         <span>{{ table.event.name }}{% if table.event.master_event.is_published %} · {{ table.event.master_event.name }}{% endif %}</span>

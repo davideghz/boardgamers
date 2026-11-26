@@ -40,7 +40,7 @@
       <span>
         {% blocktrans count counter=paginator.count %}{{ counter }} table found{% plural %}{{ counter }} tables found{% endblocktrans %}
       </span>
-      <a href="{% querystring q=None location=None page=None %}" class="font-semibold text-blue-600 hover:underline">{% trans "Clear filters" %}</a>
+      <a href="{% querystring q=None location=None page=None %}" class="font-semibold text-link hover:underline">{% trans "Clear filters" %}</a>
     </div>
   {% endif %}
 

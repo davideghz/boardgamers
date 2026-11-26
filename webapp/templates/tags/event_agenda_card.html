@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n custom_tags %}
 
 <a href="{% url 'event_table_detail' event_slug=table.event.slug table_slug=table.slug %}"
    class="group flex items-stretch gap-3 rounded-xl border border-divider bg-surface hover:shadow-sm hover:border-divider transition-all overflow-hidden">
@@ -23,12 +23,7 @@
       <h3 class="flex-1 min-w-0 font-bold text-sm text-content leading-snug truncate">
         {% if table.title %}{{ table.title }}{% elif table.game %}{{ table.game }}{% else %}{% trans "Game TBD" %}{% endif %}
       </h3>
-      <span class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full
-                   {% if table.status == 'open' %}bg-green-100 text-green-700
-                   {% elif table.status == 'ongoing' %}bg-orange-100 text-orange-700
-                   {% else %}bg-surface-input text-content-muted{% endif %}">
-        {{ table.get_status_display }}
-      </span>
+      {% status_badge table.status %}
     </div>
 
     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-content-muted">
@@ -64,7 +59,7 @@
       </span>
       {# Category #}
       {% if table.category %}
-        <span class="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{{ table.category.name }}</span>
+        <span class="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-primary/10 text-link">{{ table.category.name }}</span>
       {% endif %}
       {# Station conflict #}
       {% if table.has_conflict %}
