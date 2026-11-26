@@ -42,7 +42,9 @@ def add_membership(location, profile, status, **dates):
     return Membership.objects.create(member=member, status=status, **dates)
 
 
-class TableAccessTest(TestCase):
+class AccessMatrixMixin:
+    """One location and a profile for each relation to it, shared with the event tests."""
+
     @classmethod
     def setUpTestData(cls):
         cls.location = LocationFactory(creator=UserProfileFactory())
@@ -73,6 +75,8 @@ class TableAccessTest(TestCase):
                     self.assertEqual(access.reason, expected)
                     self.assertEqual(access.allowed, expected is None)
 
+
+class TableAccessTest(AccessMatrixMixin, TestCase):
     def test_table_creation(self):
         self.assert_matrix('table_creation_permission', 'table_creation_access', [ANYONE, MEMBERS, MANAGERS])
 

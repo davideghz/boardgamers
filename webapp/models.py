@@ -190,11 +190,12 @@ class Game(DateTimeModel, ModelMeta, SlugModel):
 
 @dataclass(frozen=True)
 class LocationAccess:
-    """Whether a user may act at a location, such as creating or joining its tables,
+    """Whether a user may create or join the tables or the events of a location
     and, if not, why.
 
-    Built by `Location.table_creation_access` and `Location.table_join_access`,
-    which also report what they looked up, so callers don't query it again.
+    Built by `Location.table_creation_access`, `table_join_access`,
+    `event_creation_access` and `event_join_access`, which also report what they
+    looked up, so callers don't query it again.
     """
     LOGIN = 'login'
     MEMBERS_ONLY = 'members_only'
@@ -365,14 +366,21 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
             return Membership.PENDING
         return None
 
-    # Who may create or join tables here: a `LocationAccess`; `user_profile` is None for visitors.
+    # Who may create or join tables and events here: a `LocationAccess`;
+    # `user_profile` is None for visitors.
     def table_creation_access(self, user_profile):
-        return self._table_access(user_profile, self.table_creation_permission)
+        return self._access(user_profile, self.table_creation_permission)
 
     def table_join_access(self, user_profile):
-        return self._table_access(user_profile, self.table_join_permission)
+        return self._access(user_profile, self.table_join_permission)
 
-    def _table_access(self, user_profile, permission):
+    def event_creation_access(self, user_profile):
+        return self._access(user_profile, self.event_creation_permission)
+
+    def event_join_access(self, user_profile):
+        return self._access(user_profile, self.event_join_permission)
+
+    def _access(self, user_profile, permission):
         if user_profile and self.is_manager(user_profile):
             return LocationAccess(is_manager=True)
         membership = self.membership_status(user_profile)
@@ -391,6 +399,8 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
 
     @classmethod
     def event_creation_locations(cls, user):
+        """The locations where `user` may create events: the queryset form of
+        `event_creation_access`, for pickers."""
         if not user.is_authenticated:
             return cls.objects.none()
         if user.is_superuser:
@@ -404,15 +414,10 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
         return cls.objects.filter(managed | member).distinct()
 
     def can_create_events(self, user):
-        return self.event_creation_locations(user).filter(pk=self.pk).exists()
+        return self.event_creation_access(user.user_profile if user.is_authenticated else None).allowed
 
     def can_join_events(self, profile):
-        return bool(profile and (
-            self.event_join_permission == self.PERM_ANYONE
-            or profile.user.is_superuser
-            or self.is_manager(profile)
-            or Membership.active_for(profile).filter(member__location=self).exists()
-        ))
+        return self.event_join_access(profile).allowed
 
     def get_meta_title(self):
         return self.name

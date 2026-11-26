@@ -170,7 +170,7 @@
       </section>
 
       {# ── Eventi organizzati ───────────────────────────── #}
-      {% if organized_events or can_create_events %}
+      {% if organized_events or event_creation.allowed %}
         <section>
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 class="text-lg font-bold text-content">{% trans "Organized events" %}</h2>
@@ -179,7 +179,7 @@
                  href="{% url 'appointment-search' %}?type=events&amp;organizer={{ location.slug|urlencode }}">{% trans "See all events" %} →</a>
             {% endif %}
           </div>
-          {% if can_create_events %}<a class="text-blue-600 font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>{% endif %}
+          {% if event_creation.allowed %}<a class="text-blue-600 font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>{% endif %}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {% for event in organized_events %}{% event_card event today %}{% endfor %}
           </div>
