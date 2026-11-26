@@ -303,7 +303,7 @@ class ImportViewsTest(TestCase):
         self.assertEqual(self.batch(items).json(), {
             'added': [], 'skipped': ['230802'], 'archived': ['13'], 'failed': [],
         })
-        fetch_things.assert_called_once_with([])
+        fetch_things.assert_not_called()
         self.assertEqual(self.location.location_games.count(), 4)
 
     @patch('webapp.views.location_views.import_games_from_bgg')

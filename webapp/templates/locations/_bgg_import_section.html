@@ -19,7 +19,7 @@
   <div class="rounded-xl border border-divider bg-surface divide-y divide-divider-soft overflow-hidden">
     {% for item in items %}
       <label class="flex items-center gap-3 px-3 py-2 {% if item.can_import %}cursor-pointer hover:bg-surface-alt transition-colors{% else %}opacity-60 cursor-default{% endif %}"
-             data-row="{{ title|slugify }}" data-search="{{ item.name|lower }}">
+             data-row="{{ title|slugify }}" data-search="{{ item.name|lower }}{% if csv_form %} {{ item.bgg_id }}{% endif %}">
         <input type="checkbox" class="bgg-item w-4 h-4 rounded border-divider text-blue-600 focus:ring-blue-500 flex-shrink-0"
                value="{{ item.bgg_id }}" data-name="{{ item.name }}" data-section="{{ title|slugify }}"
                {% if item.can_import %}checked{% else %}disabled{% endif %}>
@@ -27,8 +27,14 @@
           {% if item.thumbnail %}<img src="{{ item.thumbnail }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover">{% endif %}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-content truncate">{{ item.name }}</p>
-          {% if item.year_published %}<p class="text-[11px] text-content-muted">{{ item.year_published }}</p>{% endif %}
+          <p class="text-sm font-semibold text-content truncate">
+            {% if item.name %}{{ item.name }}{% elif csv_form %}{% blocktrans with id=item.bgg_id %}BGG #{{ id }}{% endblocktrans %}{% endif %}
+          </p>
+          {% if csv_form and item.name %}
+            <p class="text-[11px] text-content-muted">{% blocktrans with id=item.bgg_id %}BGG #{{ id }}{% endblocktrans %}{% if item.year_published %} · {{ item.year_published }}{% endif %}</p>
+          {% elif item.year_published %}
+            <p class="text-[11px] text-content-muted">{{ item.year_published }}</p>
+          {% endif %}
         </div>
         {% if item.status == 'in_library' %}
           <span data-status class="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-input text-content-muted">{% trans "Already in the library" %}</span>
