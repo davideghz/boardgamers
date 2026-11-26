@@ -28,10 +28,10 @@
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-content truncate">
-            {% if item.name %}{{ item.name }}{% elif csv_form %}BGG #{{ item.bgg_id }}{% endif %}
+            {% if item.name %}{{ item.name }}{% elif csv_form %}{% blocktrans with id=item.bgg_id %}BGG #{{ id }}{% endblocktrans %}{% endif %}
           </p>
           {% if csv_form and item.name %}
-            <p class="text-[11px] text-content-muted">BGG #{{ item.bgg_id }}{% if item.year_published %} · {{ item.year_published }}{% endif %}</p>
+            <p class="text-[11px] text-content-muted">{% blocktrans with id=item.bgg_id %}BGG #{{ id }}{% endblocktrans %}{% if item.year_published %} · {{ item.year_published }}{% endif %}</p>
           {% elif item.year_published %}
             <p class="text-[11px] text-content-muted">{{ item.year_published }}</p>
           {% endif %}

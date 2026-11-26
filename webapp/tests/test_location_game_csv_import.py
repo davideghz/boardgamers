@@ -121,6 +121,23 @@ class LocationGameCSVImportTest(TestCase):
         self.assertEqual(response.context['invalid_lines'], [6, 7])
         headerless = self.upload(b'13\n822\n')
         self.assertEqual([i['bgg_id'] for i in headerless.context['games']], ['13', '822'])
+        invalid_first = self.upload(b'\n0\n13\n')
+        self.assertEqual([i['bgg_id'] for i in invalid_first.context['games']], ['13'])
+        self.assertEqual(invalid_first.context['invalid_lines'], [2])
+
+    def test_reports_malformed_headers_and_truncates_long_line_lists(self):
+        malformed = self.upload(b'"BGG ID"x,Game\n13,Catan\n')
+        self.assertContains(malformed, 'Impossibile leggere il CSV')
+        many_missing = self.upload(b'BGG ID\n' + b',\n' * 25 + b'13\n')
+        self.assertEqual(len(many_missing.context['missing_lines']), 25)
+        self.assertContains(many_missing, 'righe 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, … del CSV')
+
+    @patch('webapp.services.game_library_csv.MAX_CSV_RECORDS', 3)
+    def test_rejects_files_with_too_many_rows(self):
+        self.assertEqual(len(self.upload(b'BGG ID\n1\n2\n3\n').context['games']), 3)
+        preview = self.upload(b'BGG ID\n1\n2\n3\n4\n')
+        self.assertIn('csv_file', preview.context['csv_form'].errors)
+        self.assertContains(preview, 'più di 3 righe')
 
     def test_rejects_files_without_id_column_and_invalid_batches(self):
         for content in (b'Game,Notes\nCatan,none\n', b'BGG ID\n\xff', b'BGG ID\n"unterminated'):

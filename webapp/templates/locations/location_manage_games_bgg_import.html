@@ -34,8 +34,8 @@
   </form>
   {% if missing_lines or invalid_lines %}
     <div class="mb-6 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 break-words">
-      {% if missing_lines %}<p>{% blocktrans with lines=missing_lines|join:", " %}Missing BGG ID on CSV lines {{ lines }}.{% endblocktrans %}</p>{% endif %}
-      {% if invalid_lines %}<p>{% blocktrans with lines=invalid_lines|join:", " %}Invalid BGG ID on CSV lines {{ lines }}.{% endblocktrans %}</p>{% endif %}
+      {% if missing_lines %}<p>{% blocktrans with lines=missing_lines_text %}Missing BGG ID on CSV lines {{ lines }}.{% endblocktrans %}</p>{% endif %}
+      {% if invalid_lines %}<p>{% blocktrans with lines=invalid_lines_text %}Invalid BGG ID on CSV lines {{ lines }}.{% endblocktrans %}</p>{% endif %}
     </div>
   {% endif %}
   {% if loaded and not games and not expansions %}

@@ -1491,7 +1491,17 @@ class LocationGamesCSVImportView(LocationGamesBGGImportView):
             return self.render_preview(request, location, None, csv_form=form)
         items, missing_lines, invalid_lines = form.cleaned_data['csv_file']
         return self.render_preview(request, location, items, csv_form=form,
-                                   missing_lines=missing_lines, invalid_lines=invalid_lines)
+                                   missing_lines=missing_lines, invalid_lines=invalid_lines,
+                                   missing_lines_text=_csv_line_list(missing_lines),
+                                   invalid_lines_text=_csv_line_list(invalid_lines))
+
+
+CSV_REPORTED_LINES = 20
+
+
+def _csv_line_list(lines):
+    text = ', '.join(str(line) for line in lines[:CSV_REPORTED_LINES])
+    return f'{text}, …' if len(lines) > CSV_REPORTED_LINES else text
 
 
 class LocationGamesBGGImportBatchView(LoginRequiredMixin, View):
