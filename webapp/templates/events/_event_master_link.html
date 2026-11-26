@@ -10,7 +10,7 @@
   </h2>
   <p class="mt-1 text-xs text-content-muted">{% translate "This event is linked to the manifestation and its dates must be in the manifestation calendar." %}</p>
   {% translate "Unlink this event from the manifestation?" as confirm_unlink %}
-  <form class="mt-2" method="post" action="{% url 'event-master-unlink' event.slug %}" onsubmit="return confirm('{{ confirm_unlink|escapejs }}')">
+  <form class="mt-2" method="post" action="{% url 'event-master-unlink' event.slug %}" data-confirm="{{ confirm_unlink }}" data-confirm-label="{% translate "Unlink" %}">
     {% csrf_token %}
     <input type="hidden" name="master" value="{{ event.master_event_id }}">
     <button type="submit" class="rounded-full border border-divider px-4 py-2 text-xs font-semibold text-content hover:bg-surface-alt">

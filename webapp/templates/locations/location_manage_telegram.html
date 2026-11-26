@@ -55,7 +55,7 @@
                 {% endif %}
               </span>
               <form method="post" action="{% url 'telegram-disconnect-group' location.slug cfg.id %}" class="ml-auto"
-                    onsubmit="return confirm('{% trans "Disconnect this group?" %}')">
+                    data-confirm="{% trans "Disconnect this group?" %}" data-confirm-label="{% trans "Disconnect" %}">
                 {% csrf_token %}
                 <button type="submit" class="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">
                   {% trans "Disconnect" %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 12:57+0100\n"
+"POT-Creation-Date: 2026-11-26 13:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1669,6 +1669,9 @@ msgstr "Cambia avatar"
 msgid "Remove your profile picture?"
 msgstr "Vuoi rimuovere l'immagine del profilo?"
 
+msgid "Remove"
+msgstr "Rimuovi"
+
 msgid "Remove picture"
 msgstr "Rimuovi immagine"
 
@@ -1762,6 +1765,13 @@ msgstr "Modifica ospite"
 
 msgid "Delete guest"
 msgstr "Elimina ospite"
+
+#, python-format
+msgid "Delete the guest %(name)s?"
+msgstr "Eliminare l'ospite %(name)s?"
+
+msgid "Delete"
+msgstr "Elimina"
 
 msgid "No guests yet."
 msgstr "Ancora nessun ospite."
@@ -2548,6 +2558,9 @@ msgstr ""
 msgid "Unlink this event from the manifestation?"
 msgstr "Scollegare questo evento dalla manifestazione?"
 
+msgid "Unlink"
+msgstr "Scollega"
+
 msgid "Unlink event"
 msgstr "Scollega evento"
 
@@ -2893,9 +2906,6 @@ msgstr "Rimuovi gioco"
 msgid "Remove «%(name)s» from the library?"
 msgstr "Rimuovere «%(name)s» dalla ludoteca?"
 
-msgid "Remove"
-msgstr "Rimuovi"
-
 msgid "Public library"
 msgstr "Ludoteca pubblica"
 
@@ -2996,6 +3006,9 @@ msgid "%(n)s table is scheduled."
 msgid_plural "%(n)s tables are scheduled."
 msgstr[0] "%(n)s tavolo è in programma."
 msgstr[1] "%(n)s tavoli sono in programma."
+
+msgid "Unpublish"
+msgstr "Ritira la pubblicazione"
 
 msgid "Edit name, description, city and cover image"
 msgstr "Modifica nome, descrizione, indirizzo e immagine di copertina"
@@ -3482,6 +3495,14 @@ msgstr "Aggiungi gruppo"
 
 msgid "Add session"
 msgstr "Aggiungi sessione"
+
+#, python-format
+msgid "Delete the group “%(name)s”?"
+msgstr "Eliminare il gruppo “%(name)s”?"
+
+#, python-format
+msgid "Delete the group “%(name)s”? All its reservations will be removed too."
+msgstr "Eliminare il gruppo “%(name)s”? Verranno rimosse anche tutte le sue prenotazioni."
 
 msgid "Follow"
 msgstr "Segui"
@@ -4059,9 +4080,6 @@ msgstr "Approvato da"
 
 msgid "Edit"
 msgstr "Modifica"
-
-msgid "Delete"
-msgstr "Elimina"
 
 msgid "New membership"
 msgstr "Nuova adesione"
@@ -5493,6 +5511,9 @@ msgstr "Qualcosa è andato storto, riprova."
 
 msgid "Changing the mode clears the saved leaderboard. Continue?"
 msgstr "Cambiare modalità azzera la classifica compilata. Continuare?"
+
+msgid "Change mode"
+msgstr "Cambia modalità"
 
 msgid "Want to report a mistake or a better suggested mode for this game?"
 msgstr ""

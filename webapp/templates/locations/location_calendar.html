@@ -225,6 +225,12 @@
 
   // ── Scroll arrows ────────────────────────────────────────────────────
   const ACTIVE   = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-surface text-content shadow-sm';
+  // __NAME__ is replaced by the group's name in deleteGroup()
+  {% blocktrans asvar delete_group with name="__NAME__" %}Delete the group “{{ name }}”?{% endblocktrans %}
+  {% blocktrans asvar delete_group_reservations with name="__NAME__" %}Delete the group “{{ name }}”? All its reservations will be removed too.{% endblocktrans %}
+  const CONFIRM_DELETE_GROUP = '{{ delete_group|escapejs }}';
+  const CONFIRM_DELETE_GROUP_WITH_RESERVATIONS = '{{ delete_group_reservations|escapejs }}';
+  const CONFIRM_DELETE_LABEL = '{% trans "Delete"|escapejs %}';
   const INACTIVE = 'px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-transparent text-content-soft hover:text-content';
 
   window.scrollCal = function (dir) {
@@ -259,14 +265,12 @@
     renderGroupButtons();
   }
 
-  function deleteGroup(id) {
+  async function deleteGroup(id) {
     const g = groups.find(function (g) { return g.id === id; });
     if (!g) return;
     const hasReservations = Object.values(reservations).some(function (r) { return r.groupId === id; });
-    const msg = hasReservations
-      ? 'Eliminare il gruppo "' + g.name + '"? Verranno rimosse anche tutte le sue prenotazioni.'
-      : 'Eliminare il gruppo "' + g.name + '"?';
-    if (!confirm(msg)) return;
+    const msg = (hasReservations ? CONFIRM_DELETE_GROUP_WITH_RESERVATIONS : CONFIRM_DELETE_GROUP).replace('__NAME__', g.name);
+    if (!(await window.confirmDialog(msg, {label: CONFIRM_DELETE_LABEL}))) return;
     groups = groups.filter(function (g) { return g.id !== id; });
     saveGroups();
     Object.keys(reservations).forEach(function (key) {

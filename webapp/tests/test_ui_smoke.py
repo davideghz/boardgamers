@@ -44,6 +44,13 @@ class UiSmokeTest(TestCase):
             'account': reverse('account-index'),
             'activities': reverse('account-activities'),
             'my_events': reverse('account-events'),
+            'my_locations': reverse('account-locations'),
+            'my_tables': reverse('account-tables'),
+            'memberships': reverse('account-memberships'),
+            'notifications': reverse('account-notifications'),
+            'guests': reverse('account-guests'),
+            'edit_profile': reverse('user-profile-edit'),
+            'notification_preferences': reverse('account-notifications-edit'),
         }
 
     def _manage_pages(self):

@@ -329,6 +329,7 @@ def guests(request, template_name='accounts/account_guests.html'):
     return render(request, template_name, {
         'guests': guest_list,
         'form': form,
+        'meta': Meta(title=_("My guests")),
     })
 
 

@@ -65,7 +65,7 @@
         {% blocktrans asvar confirm_participants count n=participant_count %}{{ n }} registered participant will lose access.{% plural %}{{ n }} registered participants will lose access.{% endblocktrans %}
         {% blocktrans asvar confirm_tables count n=table_count %}{{ n }} table is scheduled.{% plural %}{{ n }} tables are scheduled.{% endblocktrans %}
         <form method="post" action="{% url 'event-manage-unpublish' event.slug %}"
-              onsubmit="return confirm('{{ confirm_base|escapejs }}{% if participant_count %} {{ confirm_participants|escapejs }}{% endif %}{% if table_count %} {{ confirm_tables|escapejs }}{% endif %}')">
+              data-confirm="{{ confirm_base }}{% if participant_count %} {{ confirm_participants }}{% endif %}{% if table_count %} {{ confirm_tables }}{% endif %}" data-confirm-label="{% trans "Unpublish" %}">
           {% csrf_token %}
           <button type="submit"
                   class="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-divider px-4 py-2 text-xs font-semibold text-content-soft hover:bg-surface-alt transition-colors">

@@ -14,6 +14,8 @@ from django.views.generic.detail import DetailView
 
 from django.conf import settings as django_settings
 
+from meta.views import Meta
+
 from boardGames.settings import env
 from webapp.forms import UserProfileAvatarForm, UserProfileForm
 from webapp.models import UserProfile, Game, Player, Table, FavoriteUser
@@ -110,6 +112,7 @@ class UserProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
 
         context['has_usable_password'] = has_password
         context['connected_providers'] = connected
+        context['meta'] = Meta(title=_("Edit profile"))
 
         # password counts as a fallback login method only if the user also has an email
         # (Telegram users may have a password but no email, so they can't use email/password login)

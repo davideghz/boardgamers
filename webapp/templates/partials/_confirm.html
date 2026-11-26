@@ -1,0 +1,73 @@
+{% load i18n %}
+{% comment %}
+One confirmation dialog for every page, in place of the browser's native one.
+
+- Markup: data-confirm="Remove this area?" on a <form>, or on the submit button that needs it.
+  Optional: data-confirm-label="Remove" for the confirm button, data-confirm-safe on actions that
+  aren't destructive (a primary button instead of a red one).
+- JavaScript: `if (!(await window.confirmDialog(message, {label, safe}))) return;`
+
+Escape or Cancel close it and resolve to false; focus returns to the element that opened it.
+Opening it focuses its first button, Cancel, so Enter never confirms by mistake.
+{% endcomment %}
+<dialog id="confirm-dialog" aria-labelledby="confirm-dialog-message"
+        class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-divider bg-surface p-5 text-content shadow-xl backdrop:bg-black/60">
+  <p id="confirm-dialog-message" class="text-base font-bold"></p>
+  <div class="mt-5 flex flex-wrap justify-end gap-2">
+    <button type="button" data-confirm-cancel
+            class="rounded-full px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">{% trans "Cancel" %}</button>
+    <button type="button" data-confirm-ok
+            class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 bg-danger-fill hover:bg-danger-fill/90"></button>
+  </div>
+  {# The Tailwind CDN styles only classes it has seen: the safe variant's ones are listed here #}
+  <span hidden class="bg-primary hover:bg-primary/90"></span>
+</dialog>
+<script>
+  (function () {
+    const dialog = document.getElementById('confirm-dialog');
+    const message = document.getElementById('confirm-dialog-message');
+    const ok = dialog.querySelector('[data-confirm-ok]');
+    const DEFAULT_LABEL = '{% trans "Confirm"|escapejs %}';
+    const DANGER = 'bg-danger-fill hover:bg-danger-fill/90';
+    const SAFE = 'bg-primary hover:bg-primary/90';
+    let settle = null;
+
+    window.confirmDialog = function (text, options) {
+      options = options || {};
+      if (settle) settle(false);
+      const opener = document.activeElement;
+      message.textContent = text;
+      ok.textContent = options.label || DEFAULT_LABEL;
+      ok.classList.remove(...DANGER.split(' '), ...SAFE.split(' '));
+      ok.classList.add(...(options.safe ? SAFE : DANGER).split(' '));
+      return new Promise(function (resolve) {
+        settle = function (answer) {
+          settle = null;
+          if (dialog.open) dialog.close();
+          if (opener && opener.focus) opener.focus();
+          resolve(answer);
+        };
+        dialog.showModal();
+      });
+    };
+
+    ok.addEventListener('click', function () { if (settle) settle(true); });
+    dialog.querySelector('[data-confirm-cancel]').addEventListener('click', function () { if (settle) settle(false); });
+    dialog.addEventListener('cancel', function (event) { event.preventDefault(); if (settle) settle(false); });  // Escape
+
+    // Forms: ask before sending, then send again with the same submit button.
+    document.addEventListener('submit', async function (event) {
+      const form = event.target;
+      const source = (event.submitter && event.submitter.dataset.confirm !== undefined) ? event.submitter : form;
+      if (source.dataset.confirm === undefined) return;
+      if (form.dataset.confirmed) { delete form.dataset.confirmed; return; }
+      event.preventDefault();
+      const confirmed = await window.confirmDialog(source.dataset.confirm, {
+        label: source.dataset.confirmLabel, safe: source.dataset.confirmSafe !== undefined,
+      });
+      if (!confirmed) return;
+      form.dataset.confirmed = '1';
+      form.requestSubmit(event.submitter || undefined);
+    });
+  })();
+</script>

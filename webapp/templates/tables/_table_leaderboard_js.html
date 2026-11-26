@@ -47,6 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
     errCoop: '{{ _("Tell us whether you won or lost.")|escapejs }}',
     errGeneric: '{{ _("Something went wrong, please try again.")|escapejs }}',
     confirmReset: '{{ _("Changing the mode clears the saved leaderboard. Continue?")|escapejs }}',
+    confirmResetLabel: '{{ _("Change mode")|escapejs }}',
     report: '{{ _("Want to report a mistake or a better suggested mode for this game?")|escapejs }}',
     contactUs: '{{ _("Contact us")|escapejs }}',
   };
@@ -367,7 +368,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (a === 'enable') openEditor('ffa');
   });
 
-  editorEl.addEventListener('click', e => {
+  editorEl.addEventListener('click', async e => {
     const el = e.target.closest('[data-action]');
     if (!el || el.tagName === 'INPUT') return;
     S.error = null;
@@ -379,7 +380,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const m = el.dataset.mode;
         if (m === S.mode) return;
         const hasSaved = D.saved && D.saved.result_mode !== 'none';
-        if (hasSaved && !confirm(T.confirmReset)) return;
+        if (hasSaved && !(await window.confirmDialog(T.confirmReset, {label: T.confirmResetLabel}))) return;
         if (m === 'none') {
           // Nothing to fill in: the choice is saved right away.
           S.mode = 'none';
