@@ -62,8 +62,25 @@ def event_card(context, event, today=None):
     # Pages that pass `managed_event_ids` get a gear linking to the event's management
     return {
         'event': event,
+        'kind': 'event',
+        'subtitle': (event.organizer_location.name + ('' if event.is_at_organizer_location else f' · {event.venue_label}')
+                     if event.organizer_location_id else ''),
         'is_concluded': event.is_concluded(today),
-        'can_manage': event.pk in context.get('managed_event_ids', ()),
+        'manage_url': (reverse('event-manage', args=[event.slug])
+                       if event.pk in context.get('managed_event_ids', ()) else None),
+    }
+
+
+@register.inclusion_tag("tags/event_card.html")
+def festival_card(festival, today=None):
+    """A festival as the event card shows an event: cover, state or type, city, days.
+    Prefetch its `dates`."""
+    return {
+        'event': festival,
+        'kind': 'manifestation',
+        'subtitle': festival.venue_label,
+        'is_concluded': festival.is_concluded(today),
+        'manage_url': None,
     }
 
 

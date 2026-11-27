@@ -126,7 +126,7 @@ def homepage_view(request):
         'has_my_locations': bool(my_location_ids),
         'upcoming_events': upcoming_events_queryset(limit=6),
         'upcoming_manifestations': with_matching_day(
-            MasterEvent.objects.filter(status=Event.PUBLISHED).select_related('venue_location'),
+            MasterEvent.objects.filter(status=Event.PUBLISHED).select_related('venue_location').prefetch_related('dates'),
             MasterEventDate.objects.filter(master_event_id=OuterRef('pk'), date__gte=today),
             newest_first=False,
         ).order_by('matching_date', 'name', 'pk')[:6],

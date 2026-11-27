@@ -52,6 +52,7 @@ for something a component already does is a bug.
 | Buttons | `button` (primary, secondary, danger; two sizes) |
 | States, types, roles | `status_badge` (words of the glossary), `type_badge`, `role_badge`, `badge` |
 | A row in any list of tables, events, festivals | `appointment_row` (built on `result_row`) |
+| A card with a cover (home, location page) | `table_card`, `event_card`, `festival_card` |
 | Nothing to show | `empty_state`, with `access` when the reason is a permission |
 | Detail page actions | `action_bar`: Edit straight to the data form, Manage, More (Duplicate, Share) |
 | Creating things | `create_menu` ("+ Crea"), only with the entries the viewer may use |
@@ -86,6 +87,11 @@ for something a component already does is a bug.
 - **Management** is a panel by task: "In attesa di te" first (`services/manager_todo.py`), then the
   tools grouped by what one wants to do.
 - **Home** is made of modules by role: to-do, next activities, my locations, first steps, discover.
+- **Rows or cards, the same for every kind.** Lists to scan (Search, Tavoli, Eventi,
+  Manifestazioni, My activities, management lists) use `appointment_row`. Showcases with covers
+  (the home's discover sections, a location's events) use cards: `table_card` for tables,
+  `event_card` / `festival_card` for events and festivals (one template, `tags/event_card.html`).
+  Sections side by side use the same form: never rows for one kind and cards for another.
 - **Covers.** Everything listed with an image (locations, tables, events, festivals) has a
   `cover_url` that never comes back empty: its own image, else a fallback (an event uses its
   organizer location's cover, a table its game's), else the static default named in
@@ -98,8 +104,9 @@ for something a component already does is a bug.
   - The page renders it with `partials/_cover_field.html` (variant `location`, `crop_ratio` and
     `preview_ratio` of the place where it is shown: 16:9 / `video` for events and festivals,
     square for locations) and a help text saying which image is used without one.
-  - In lists the cover reaches the row through `appointment_row` / `result_row`; a new kind of
-    item gets a branch there, not a card of its own.
+  - The cover reaches the page through the shared row and card components; a new kind of item
+    gets a branch in them (as festivals did in `appointment_row` and `event_card`), not markup
+    of its own. Events and festivals share their days through `ScheduleMixin`.
 
 ## 4. Style, words and accessibility
 

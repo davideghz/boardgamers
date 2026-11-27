@@ -128,8 +128,9 @@ A1_QUERIES = {
 }
 
 
-# D2: the manager's to-do (one query) and the next activities (two).
-HOME_MODULES_QUERIES = 3
+# D2: the manager's to-do (one query) and the next activities (two); then the days of the
+# festival cards, prefetched once for all of them.
+HOME_MODULES_QUERIES = 3 + 1
 
 
 class PageQueriesTest(TestCase):

@@ -111,3 +111,34 @@ class ManagerTodoTest(TestCase):
 
     def test_nothing_to_do_without_locations(self):
         self.assertEqual(manager_todo(set()), [])
+
+
+class HomeDiscoverCardsTest(TestCase):
+    """Events and festivals on the home share one card: cover, type, city, name, days."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def section(self, html, heading):
+        start = html.index(f'>{heading}</h2>')
+        return html[start:html.index('</section>', start)]
+
+    def test_festivals_use_the_event_card(self):
+        from django.utils.formats import date_format
+        from django.utils.translation import override, pgettext
+
+        html = self.client.get(reverse('home')).content.decode()
+        with override('it'):
+            events, festivals = italian('Upcoming events'), italian('Festivals')
+            festival_type = pgettext('appointment type', 'Festival')
+            festival = self.data.manifestation
+            days = f"{date_format(festival.start_date, 'j M')} – {date_format(festival.end_date, 'j M Y')}"
+        events, festivals = self.section(html, events), self.section(html, festivals)
+        card = 'class="group flex flex-col h-full rounded-xl border border-divider'
+        self.assertIn(card, events)
+        self.assertIn(card, festivals)
+        self.assertIn(f'href="{festival.get_absolute_url()}"', festivals)
+        self.assertIn(f'src="{festival.cover_url}"', festivals)
+        self.assertIn(festival_type, festivals)
+        self.assertIn(days, festivals)

@@ -2007,7 +2007,44 @@ class EventQuerySet(models.QuerySet):
         )
 
 
-class Event(DateTimeModel, ModelMeta, SlugModel):
+class ScheduleMixin:
+    """The days of an event or a festival, read from its `dates` (prefetch them for lists)."""
+
+    @cached_property
+    def sorted_dates(self):
+        # Uses the prefetched `dates` cache when available (the date models already
+        # order by date, but sort defensively to stay correct without prefetch).
+        return sorted(self.dates.all(), key=lambda d: d.date)
+
+    @property
+    def start_date(self):
+        dates = self.sorted_dates
+        return dates[0].date if dates else None
+
+    @property
+    def end_date(self):
+        dates = self.sorted_dates
+        return dates[-1].date if dates else None
+
+    def is_upcoming(self, today=None):
+        """True if it has at least one date today or in the future."""
+        if today is None:
+            today = timezone.localdate()
+        return any(d.date >= today for d in self.sorted_dates)
+
+    def is_concluded(self, today=None):
+        """True if it has dates and all of them are in the past.
+
+        Without any date it is not considered concluded (it is simply
+        undated / still being set up).
+        """
+        if today is None:
+            today = timezone.localdate()
+        dates = self.sorted_dates
+        return bool(dates) and all(d.date < today for d in dates)
+
+
+class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
     objects = EventQuerySet.as_manager()
     # Managers publish their own events. Only an admin can block one, and a
     # blocked event can't be published again from the management pages.
@@ -2393,39 +2430,6 @@ class Event(DateTimeModel, ModelMeta, SlugModel):
             return True
         return user.is_authenticated and (user.is_superuser or self.is_manager(user.user_profile))
 
-    @cached_property
-    def sorted_dates(self):
-        # Uses the prefetched `dates` cache when available (EventDate.Meta already
-        # orders by date, but sort defensively to stay correct without prefetch).
-        return sorted(self.dates.all(), key=lambda d: d.date)
-
-    @property
-    def start_date(self):
-        dates = self.sorted_dates
-        return dates[0].date if dates else None
-
-    @property
-    def end_date(self):
-        dates = self.sorted_dates
-        return dates[-1].date if dates else None
-
-    def is_upcoming(self, today=None):
-        """True if the event has at least one date today or in the future."""
-        if today is None:
-            today = timezone.localdate()
-        return any(d.date >= today for d in self.sorted_dates)
-
-    def is_concluded(self, today=None):
-        """True if the event has dates and all of them are in the past.
-
-        An event without any date is not considered concluded (it is simply
-        undated / still being set up).
-        """
-        if today is None:
-            today = timezone.localdate()
-        dates = self.sorted_dates
-        return bool(dates) and all(d.date < today for d in dates)
-
     def __str__(self):
         return self.name
 
@@ -2475,7 +2479,7 @@ class Sponsor(DateTimeModel):
         return self.name
 
 
-class MasterEvent(DateTimeModel, SlugModel):
+class MasterEvent(ScheduleMixin, DateTimeModel, SlugModel):
     slug_field_name = 'name'
     regenerate_slug_on_rename = False
     reserved_slugs = ('new',)
@@ -2531,6 +2535,10 @@ class MasterEvent(DateTimeModel, SlugModel):
     @property
     def venue_label(self):
         return self.venue_location.name if self.venue_location_id else self.venue_name
+
+    @property
+    def venue(self):
+        return self.venue_location or self
 
     def validate_unused_dates(self, dates):
         if MasterEventDateParticipant.objects.filter(
