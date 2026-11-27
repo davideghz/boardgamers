@@ -35,5 +35,6 @@ games_prod.csv
 leaderboard_modes_prod.csv
 snapshot_*.json
 
-# Claude Code local config (permissions, launch.json)
-.claude/
+# Claude Code local config (permissions, launch.json); the project skills are shared
+.claude/*
+!.claude/skills/

@@ -20,6 +20,8 @@ game libraries, shops). Main concepts, all in `webapp/models.py`:
   hotfixes branch off `master` and target it.
 - `master` deploys to production on every commit. Never push to `dev` or `master`; PRs to
   `dev` need the maintainer's approval, and only the maintainer merges into `master`.
+- Any change to the interface follows the `ui-change` skill (`.claude/skills/ui-change/SKILL.md`):
+  personas, components, page patterns and the checks to run before calling it done.
 - The frontend is **Tailwind via the Play CDN**, not Bootstrap, and has no build step.
   Use the semantic color tokens so dark mode works. No Alpine.js: vanilla JS inline.
   Icons are inline SVG.
