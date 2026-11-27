@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
@@ -63,6 +64,8 @@ class CustomLoginView(LoginView):
             title=_("Login"),
             description=_("Access your account to manage your game tables and profile."),
         )
+        if settings.DEBUG:
+            context['demo_personas_url'] = reverse('dev-personas')
         return context
 
     def get_success_url(self):

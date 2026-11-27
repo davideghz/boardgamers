@@ -97,6 +97,13 @@
         <a href="{% url 'signup' %}" class="text-link font-semibold hover:underline">{% trans "Create one" %}</a>
       </p>
 
+      {# Developers only (DEBUG): the demo personas sign in with one click; not translated on purpose #}
+      {% if demo_personas_url %}
+        <p class="mt-4 rounded-xl border border-dashed border-divider px-4 py-3 text-center text-xs text-content-muted">
+          Demo: <a href="{{ demo_personas_url }}" class="font-semibold text-link hover:underline">sign in as a persona</a>
+        </p>
+      {% endif %}
+
     </div>
   </div>
 

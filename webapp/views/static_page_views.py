@@ -30,6 +30,7 @@ from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Play
     Membership, LocationAccess
 from webapp.services.appointments import with_matching_day
 from webapp.services.manager_todo import manager_todo
+from webapp.services import ui_personas
 from webapp.services.viewer import get_viewer
 from webapp.templatetags.custom_tags import STATUS_BADGES, TYPE_BADGES
 from webapp.views.event_views import upcoming_events_queryset
@@ -38,6 +39,8 @@ from webapp.views.event_views import upcoming_events_queryset
 import environ
 environ.Env.read_env()
 from django.conf import settings
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.models import User
 
 
 def homepage_view(request):
@@ -403,6 +406,49 @@ def select_language(request):
 
     return render(request, "staticpages/select_language.html", {
         "languages": languages,
+    })
+
+
+# Who each demo user is, for the persona switcher
+PERSONA_SUMMARIES = {
+    'newcomer': 'Signed up, no ties: follows nothing, member of nothing.',
+    'player': 'Follows the Negozio, plays two tables, attends an event and a festival day; membership pending at the Circolo.',
+    'member': 'Member of Circolo and Associazione; created a members-only table, proposed a draft event.',
+    'manager': 'Manages the Negozio, created Circolo and Associazione.',
+    'organizer': 'Runs the Manifestazione Demo only.',
+}
+
+
+def ui_personas_view(request):
+    """Sign in as a demo persona with one click, or sign out to look as a visitor. DEBUG only:
+    it signs in without a password, and only the users of `seed_ui_personas`."""
+    if not settings.DEBUG:
+        raise Http404
+    if request.method == 'POST':
+        persona = request.POST.get('persona')
+        if persona == 'visitor':
+            auth_logout(request)
+        elif persona in ui_personas.PERSONAS:
+            user = User.objects.filter(username=ui_personas.email_for(persona)).first()
+            if user is None:
+                messages.error(request, 'The demo data is missing: run "python manage.py seed_ui_personas".')
+                return redirect('dev-personas')
+            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        else:
+            raise Http404
+        return redirect('home')
+    users = {user.username: user for user in User.objects.filter(
+        username__in=[ui_personas.email_for(persona) for persona in ui_personas.PERSONAS]
+    ).select_related('user_profile')}
+    personas = [
+        {'key': persona, 'email': ui_personas.email_for(persona), 'summary': PERSONA_SUMMARIES[persona],
+         'user': users.get(ui_personas.email_for(persona))}
+        for persona in ui_personas.PERSONAS
+    ]
+    return render(request, 'dev/ui_personas.html', {
+        'personas': personas,
+        'seeded': bool(users),
+        'meta': Meta(title='Demo personas'),
     })
 
 

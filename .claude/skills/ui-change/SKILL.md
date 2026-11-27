@@ -25,8 +25,9 @@ touches and what each should see and be able to do afterwards.
 | Organizer | `organizer`, demo_organizzatore | Runs the Manifestazione Demo only: no location, table or membership. |
 
 The data comes from `webapp/services/ui_personas.py` (`seed_ui_personas`), on a DEBUG database:
-`python manage.py seed_ui_personas` (`--reset` to recreate it). The password is the `PASSWORD`
-constant there: never paste it in chat, commits or PRs. If the change needs a situation the demo
+`python manage.py seed_ui_personas` (`--reset` to recreate it). On the running demo, `/dev/personas/`
+(DEBUG only, linked from the login page) signs in as any persona with one click, or out as a visitor.
+The password is the `PASSWORD` constant there: never paste it in chat, commits or PRs. If the change needs a situation the demo
 data lacks, extend `seed_ui_personas` rather than building it by hand.
 
 Rules that hold for every persona:
@@ -113,8 +114,8 @@ for something a component already does is a bug.
    or fuzzy entry following the glossary, then `compilemessages`. Commit `.po` and `.mo`.
 3. **Look at it as each persona,** on the demo data, at 375 px and at desktop width, in the light
    and the dark theme. The demo server runs with `--noreload`: restart it after changing Python
-   code or templates. To see a page as a persona without typing the password, render it with the
-   test client and open the copy:
+   code or templates. In the browser, switch persona from `/dev/personas/`. To check a page from a
+   script, render it with the test client and open the copy:
 
    ```python
    # python manage.py shell, on the demo database

@@ -1,0 +1,52 @@
+{% extends "base_webapp.html" %}
+{% load custom_tags %}
+{% comment %}Developer page (DEBUG only): its texts are not translated on purpose.{% endcomment %}
+
+{% block content %}
+  <div class="max-w-2xl">
+    {% page_header "Demo personas" subtitle="Sign in as one of the demo users of seed_ui_personas, without a password, or sign out to look as a visitor." %}
+
+    {% if not seeded %}
+      {% empty_state "No demo users yet." detail="Run python manage.py seed_ui_personas on this database, then reload the page." icon="users" %}
+    {% else %}
+      <ul class="space-y-2">
+        <li>
+          <form method="post" class="flex items-center gap-3 rounded-xl border border-divider bg-surface px-4 py-3">
+            {% csrf_token %}
+            <input type="hidden" name="persona" value="visitor">
+            <div class="min-w-0 flex-1">
+              <p class="flex flex-wrap items-center gap-2 text-sm font-bold text-content">
+                Visitor
+                {% if not user.is_authenticated %}{% badge "Current" tone="success" %}{% endif %}
+              </p>
+              <p class="mt-0.5 text-xs text-content-muted">Not signed in: sees what is public, every action goes through the login.</p>
+            </div>
+            {% button "Sign out" variant="secondary" size="sm" %}
+          </form>
+        </li>
+        {% for persona in personas %}
+          <li>
+            <form method="post" class="flex items-center gap-3 rounded-xl border border-divider bg-surface px-4 py-3">
+              {% csrf_token %}
+              <input type="hidden" name="persona" value="{{ persona.key }}">
+              <div class="min-w-0 flex-1">
+                <p class="flex flex-wrap items-center gap-2 text-sm font-bold text-content">
+                  {{ persona.key|capfirst }}
+                  {% if persona.user %}<span class="font-medium text-content-muted">{{ persona.user.user_profile.nickname }}</span>{% endif %}
+                  {% if persona.user and persona.user == user %}{% badge "Current" tone="success" %}{% endif %}
+                </p>
+                <p class="mt-0.5 text-xs text-content-muted">{{ persona.summary }}</p>
+                <p class="mt-0.5 break-all text-xs text-content-muted">{{ persona.email }}</p>
+              </div>
+              {% if persona.user %}
+                {% button "Sign in" variant="secondary" size="sm" %}
+              {% else %}
+                {% badge "Missing" tone="warning" %}
+              {% endif %}
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endblock content %}
