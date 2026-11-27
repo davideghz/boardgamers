@@ -71,23 +71,16 @@
     </div>
   {% endif %}
 
-  {# ── Your locations ────────────────────────────────────────────────── #}
-  {% if user_created_locations %}
-    <section class="mb-8">
-      <h2 class="text-base font-bold text-content mb-3">{% trans "Your locations" %}</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {% for location in user_created_locations %}
-          {% location_card location %}
-        {% endfor %}
-      </div>
-    </section>
+  {# ── Your locations: the same list and rows as the home (viewer.my_locations) ── #}
+  {% if my_locations %}
+    <div class="mb-8">{% include "components/my_locations.html" with quick_locations=my_locations only %}</div>
   {% endif %}
 
   {# ── Nearby / all locations ────────────────────────────────────────── #}
-  <section class="mb-8"{% if user_created_locations %} aria-labelledby="all-locations-title"{% endif %}>
+  <section class="mb-8"{% if my_locations %} aria-labelledby="all-locations-title"{% endif %}>
     <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
       <div class="min-w-0">
-        {% if user_created_locations %}<h2 id="all-locations-title" class="text-base font-bold text-content">{% trans "All locations" %}</h2>{% endif %}
+        {% if my_locations %}<h2 id="all-locations-title" class="text-lg font-bold text-content">{% trans "All locations" %}</h2>{% endif %}
         {% if not user.is_authenticated %}
           <p class="text-xs text-content-muted">
             <a href="{% url 'login' %}" class="font-semibold text-link hover:underline">{% trans "Login" %}</a>

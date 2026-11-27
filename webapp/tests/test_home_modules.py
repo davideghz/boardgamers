@@ -142,3 +142,31 @@ class HomeDiscoverCardsTest(TestCase):
         self.assertIn(f'src="{festival.cover_url}"', festivals)
         self.assertIn(festival_type, festivals)
         self.assertIn(days, festivals)
+
+
+class MyLocationsEverywhereTest(TestCase):
+    """"Your locations" is one list, with the role, on the home and on the locations index."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def test_the_same_locations_and_roles_on_both_pages(self):
+        expected = {
+            'manager': [('Associazione Demo', 'creator'), ('Circolo Demo', 'creator'), ('Negozio Demo', 'manager')],
+            'member': [('Associazione Demo', 'member'), ('Circolo Demo', 'member')],
+            'player': [('Circolo Demo', 'pending'), ('Negozio Demo', None)],
+            'newcomer': [],
+        }
+        for persona, locations in expected.items():
+            with self.subTest(persona):
+                self.client.force_login(self.data.profile(persona).user)
+                home = self.client.get(reverse('home')).context['quick_locations']
+                index = self.client.get(reverse('locations-index'))
+                mine = [(location.name, role) for location, role in index.context['my_locations']]
+                self.assertEqual(mine, locations)
+                self.assertEqual([(location.name, role) for location, role in home], locations)
+                for name, _role in locations:  # the shortcut, and still in the directory below
+                    self.assertIn(name, [location.name for location in index.context['nearby_locations']])
+                if locations:
+                    self.assertContains(index, 'id="home-my-locations"')

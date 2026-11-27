@@ -41,5 +41,5 @@ class LocationIndexSearchTest(TestCase):
 
     def test_your_locations_step_aside_while_searching(self):
         self.client.force_login(self.owner.user)
-        self.assertTrue(self.locations()[0].context['user_created_locations'])
-        self.assertIsNone(self.locations({'q': 'Padova'})[0].context['user_created_locations'])
+        self.assertTrue(self.locations()[0].context['my_locations'])
+        self.assertEqual(self.locations({'q': 'Padova'})[0].context['my_locations'], [])

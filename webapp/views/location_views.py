@@ -70,7 +70,6 @@ def index_view(request, template_name="locations/location_index.html"):
     if request.GET.get('new_table'):
         return redirect('table-new')  # the old "New table" entry point (plan F2)
     user_location = None
-    user_created_locations = None
     location_message = None
     followed_location_ids = set()
     networks = list(Network.objects.filter(is_active=True).only('name', 'slug', 'logo', 'website'))
@@ -89,9 +88,10 @@ def index_view(request, template_name="locations/location_index.html"):
     elif network_unavailable:
         nearby_locations = nearby_locations.none()
 
+    viewer = get_viewer(request)
+    # "Your locations", as on the home: every location the user has a tie with, with the role
+    my_locations = viewer.my_locations if not network_slug and not query else []
     if request.user.is_authenticated:
-        if not network_slug and not query:
-            user_created_locations = request.user.user_profile.locations.all()
         followed_location_ids = get_viewer(request).followed_location_ids
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
@@ -101,8 +101,6 @@ def index_view(request, template_name="locations/location_index.html"):
             pass
 
     if user_location:
-        if user_created_locations is not None:
-            user_created_locations = user_created_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
         nearby_locations = nearby_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
     else:
         nearby_locations = nearby_locations.order_by('?')
@@ -111,8 +109,6 @@ def index_view(request, template_name="locations/location_index.html"):
     if networks:
         affiliations = Prefetch('network_affiliations', queryset=_public_affiliations(), to_attr='public_affiliations')
         nearby_locations = nearby_locations.prefetch_related(affiliations)
-        if user_created_locations is not None:
-            user_created_locations = user_created_locations.prefetch_related(affiliations)
 
     map_selected = request.GET.get('view') == 'map'
     kept = {'view': 'map'} if map_selected else {}
@@ -130,7 +126,7 @@ def index_view(request, template_name="locations/location_index.html"):
     context = {
         'nearby_locations': nearby_locations,
         'location_message': location_message,
-        'user_created_locations': user_created_locations,
+        'my_locations': my_locations,
         'followed_location_ids': followed_location_ids,
         'networks': networks,
         'selected_network': selected_network,
@@ -141,7 +137,7 @@ def index_view(request, template_name="locations/location_index.html"):
         'map_locations': map_locations,
         'map_selected': map_selected,
         # Who already runs a location doesn't need the invitation to add one.
-        'manages_locations': bool(get_viewer(request).managed_location_ids),
+        'manages_locations': bool(viewer.managed_location_ids),
         'meta': Meta(
             title=(selected_network.name
                    if selected_network else _("Game Locations")),

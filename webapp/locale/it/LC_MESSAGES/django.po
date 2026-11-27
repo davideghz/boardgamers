@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 13:20+0100\n"
+"POT-Creation-Date: 2026-11-27 14:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2374,6 +2374,27 @@ msgstr "Ci sei!"
 msgid "Close"
 msgstr "Chiudi"
 
+msgctxt "location"
+msgid "Created by you"
+msgstr "Creata da te"
+
+msgctxt "location"
+msgid "Managed by you"
+msgstr "Gestita da te"
+
+msgctxt "location role"
+msgid "Member"
+msgstr "Socio"
+
+msgid "Membership pending"
+msgstr "Adesione in attesa"
+
+msgid "Followed"
+msgstr "Seguita"
+
+msgid "Manage"
+msgstr "Gestione"
+
 msgid "You're attending"
 msgstr "Stai partecipando"
 
@@ -2811,9 +2832,6 @@ msgstr "Nessun gioco trovato."
 
 msgid "No games in the library yet."
 msgstr "Nessun gioco in ludoteca."
-
-msgid "Manage"
-msgstr "Gestione"
 
 msgid "Play areas"
 msgstr "Aree di gioco"
@@ -3519,9 +3537,6 @@ msgstr "Gestisci sede"
 msgid "My membership"
 msgstr "La mia adesione"
 
-msgid "Membership pending"
-msgstr "Adesione in attesa"
-
 msgid "Request membership"
 msgstr "Diventa socio"
 
@@ -3553,10 +3568,6 @@ msgstr "Richiesta di adesione in attesa"
 
 msgid "Membership request not accepted"
 msgstr "Richiesta di adesione non accolta"
-
-msgctxt "location role"
-msgid "Member"
-msgstr "Socio"
 
 #, python-format
 msgid "Active until %(date)s"
@@ -5391,17 +5402,6 @@ msgstr "Segui una sede che ti piace"
 
 msgid "Join your first table"
 msgstr "Iscriviti al tuo primo tavolo"
-
-msgctxt "location"
-msgid "Created by you"
-msgstr "Creata da te"
-
-msgctxt "location"
-msgid "Managed by you"
-msgstr "Gestita da te"
-
-msgid "Followed"
-msgstr "Seguita"
 
 msgid "Your next activities"
 msgstr "Le tue prossime attività"

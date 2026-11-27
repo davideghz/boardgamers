@@ -232,7 +232,7 @@ class LocationNetworksTest(TestCase):
 
         self.assertEqual(response.context['nearby_locations'][0], self.location)
         self.assertCountEqual(response.context['nearby_locations'], [self.location, without_coordinates])
-        self.assertIsNone(response.context['user_created_locations'])
+        self.assertEqual(response.context['my_locations'], [])
         self.assertEqual(response.context['map_locations'], [{
             'name': 'Magno Fato', 'lat': 45.0, 'lng': 9.0, 'url': self.detail_url,
             'affiliations': ['FederLudo', 'TdG Vicenza'],

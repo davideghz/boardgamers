@@ -99,6 +99,29 @@ class Viewer:
         """The locations the user has a tie with: run, joined as a member, or followed."""
         return self.managed_location_ids | self.member_location_ids | self.followed_location_ids
 
+    @cached_property
+    def my_locations(self):
+        """"Your locations" of the home and of the locations index: (location, role) for every
+        location the user has a tie with or waits to join, by role (created, managed, member,
+        pending membership, followed: role None), then by name."""
+        ids = self.own_location_ids | self.pending_location_ids
+        if not ids:
+            return []
+
+        def role(location):
+            if location.creator_id == self.profile.pk:
+                return 'creator'
+            if location.pk in self.managed_location_ids:
+                return 'manager'
+            if location.pk in self.member_location_ids:
+                return 'member'
+            return 'pending' if location.pk in self.pending_location_ids else None
+
+        roles = ['creator', 'manager', 'member', 'pending', None]
+        # sorted() keeps the query's order by name within each role
+        return sorted(((location, role(location)) for location in Location.objects.filter(pk__in=ids).order_by('name')),
+                      key=lambda item: roles.index(item[1]))
+
     @property
     def sees_as_visitor(self):
         """?as=visitor, honored only for managers: they preview their location as a visitor."""

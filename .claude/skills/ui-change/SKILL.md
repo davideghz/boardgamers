@@ -53,6 +53,7 @@ for something a component already does is a bug.
 | States, types, roles | `status_badge` (words of the glossary), `type_badge`, `role_badge`, `badge` |
 | A row in any list of tables, events, festivals | `appointment_row` (built on `result_row`) |
 | A card with a cover (home, location page) | `table_card`, `event_card`, `festival_card` |
+| "Your locations" (home, locations index) | `viewer.my_locations` rendered by `components/my_locations.html`: one list, one meaning, with the role |
 | Nothing to show | `empty_state`, with `access` when the reason is a permission |
 | Detail page actions | `action_bar`: Edit straight to the data form, Manage, More (Duplicate, Share) |
 | Creating things | `create_menu` ("+ Crea"), only with the entries the viewer may use |

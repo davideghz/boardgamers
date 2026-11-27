@@ -142,24 +142,8 @@ def homepage_view(request):
         )
     }
 
-    # Quick links for logged-in users: locations they created first, then the ones
-    # they manage, the ones where they are members, then the ones they follow.
-    # Each comes with the user's role.
-    quick_locations = []
-    quick_location_ids = my_location_ids | viewer.pending_location_ids
-    if quick_location_ids:
-        def role(location):
-            if location.creator_id == viewer.profile.pk:
-                return 'creator'
-            if location.pk in viewer.managed_location_ids:
-                return 'manager'
-            if location.pk in viewer.member_location_ids:
-                return 'member'
-            return 'pending' if location.pk in viewer.pending_location_ids else None
-        roles = ['creator', 'manager', 'member', 'pending', None]
-        quick_locations = sorted(  # by role, then by name (sorted() keeps the query's order)
-            ((location, role(location)) for location in Location.objects.filter(pk__in=quick_location_ids).order_by('name')),
-            key=lambda item: roles.index(item[1]))
+    # Quick links for logged-in users, each with the user's role (the same list as the locations index)
+    quick_locations = viewer.my_locations
     context['manages_locations'] = bool(viewer.managed_location_ids)
     context['quick_locations'] = quick_locations
     if viewer.is_authenticated:
