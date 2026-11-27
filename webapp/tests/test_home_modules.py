@@ -38,6 +38,7 @@ class HomeModulesTest(TestCase):
             'member': ['home-next', 'home-my-locations'],
             'player': ['home-next', 'home-my-locations'],
             'newcomer': ['home-start'],
+            'organizer': ['home-next'],  # the festival they run
         }
         for persona, modules in expected.items():
             with self.subTest(persona):

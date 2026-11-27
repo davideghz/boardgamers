@@ -239,7 +239,7 @@
       {% endif %}
 
       {# ── Your tables (agenda) ─────────────────────────── #}
-      {% if event.table_booking_enabled %}
+      {% if event.table_booking_enabled and not previewed_by_proposer %}
       <section>
         <h2 class="text-lg font-bold text-content mb-3">{% trans "Your tables" %}</h2>
 

@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from webapp.models import (
-    Event, EventParticipant, Location, LocationFollower, Membership, Player, Table,
+    Event, EventParticipant, Location, LocationFollower, MasterEventDateParticipant, Membership, Player, Table,
 )
 
 Participations = namedtuple('Participations', 'table_ids event_ids')
@@ -173,11 +173,16 @@ class Viewer:
         return bool(self.profile) and Event.objects.managed_by(self.profile).exists()
 
     @cached_property
+    def manages_festivals(self):
+        return bool(self.profile) and self.profile.managed_master_events.exists()
+
+    @cached_property
     def has_activity(self):
-        """Ever joined a table or an event."""
+        """Ever joined a table, an event or a festival day."""
         return bool(self.profile) and (
             Player.objects.filter(user_profile=self.profile).exists()
-            or EventParticipant.objects.filter(user_profile=self.profile).exists())
+            or EventParticipant.objects.filter(user_profile=self.profile).exists()
+            or MasterEventDateParticipant.objects.filter(user_profile=self.profile).exists())
 
 
 def get_viewer(request):

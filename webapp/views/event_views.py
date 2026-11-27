@@ -66,7 +66,8 @@ def organized_event_create(request, slug):
         messages.success(request, _('Event created as a draft.'))
         if can_manage:
             return redirect('event-manage', slug=event.slug)
-        return redirect('location-detail', slug=slug)
+        # A member's proposal: its page says it waits for the managers
+        return redirect('event_detail', slug=event.slug)
     return render(request, 'events/location_event_form.html', {
         'location': location, 'form': form, 'date_form': date_form, 'can_manage_location_events': can_manage,
         'meta': Meta(title=_('Create event')),
@@ -174,7 +175,9 @@ class EventSectionUnavailable(Http404):
 
 class EventPublicAccessMixin:
     """Resolve the event by slug, enforcing visibility (managers can preview
-    their own unpublished events)."""
+    their own unpublished events; with `proposer_preview`, so can the member who proposed a draft)."""
+    proposer_preview = False
+    previewed_by_proposer = False
 
     def get(self, request, *args, **kwargs):
         try:
@@ -197,8 +200,13 @@ class EventPublicAccessMixin:
         event = super().get_object(queryset)
         user_profile = self.request.user.user_profile if self.request.user.is_authenticated else None
         if not event.is_published:
-            if not user_profile or not (self.request.user.is_superuser or event.is_manager(user_profile)):
+            if not user_profile:
                 raise Http404
+            if not (self.request.user.is_superuser or event.is_manager(user_profile)):
+                if not (self.proposer_preview and event.status == Event.DRAFT
+                        and event.creator_id == user_profile.pk):
+                    raise Http404
+                self.previewed_by_proposer = True
         return event
 
 
@@ -208,6 +216,7 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
     template_name = 'events/event_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+    proposer_preview = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -217,9 +226,11 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
         is_participant = participant is not None
         today = timezone.localdate()
         is_concluded = event.is_concluded(today)
-        games = featured_games(event) if event.catalog_is_public else []
+        # The member who proposed a draft sees its page only: the program and the games wait for publishing
+        games = featured_games(event) if event.catalog_is_public and not self.previewed_by_proposer else []
         event_dates = _dates_with_gaps(event)
         context.update({
+            'previewed_by_proposer': self.previewed_by_proposer,
             'is_manager': bool(user_profile and event.is_manager(user_profile)),
             'is_participant': is_participant,
             'event_join': (event.organizer_location.event_join_access(user_profile)
@@ -232,12 +243,13 @@ class EventDetailView(EventPublicAccessMixin, DetailView):
             'today': today,
             'is_concluded': is_concluded,
             'featured_games': games,
-            'has_library': event.catalog_is_public and (bool(games) or effective_catalog(event).exists()),
+            'has_library': event.catalog_is_public and not self.previewed_by_proposer and (
+                bool(games) or effective_catalog(event).exists()),
             'can_view_program': event.can_view_program(self.request.user),
             # Public link to the program: only while table booking is on.
             'program_url': (
                 reverse('event-program', kwargs={'slug': event.slug})
-                if event.table_booking_enabled else None),
+                if event.table_booking_enabled and not self.previewed_by_proposer else None),
             'show_custom_button': bool(event.custom_button_title and event.custom_button_url),
         })
         if event.organizer_location_id:

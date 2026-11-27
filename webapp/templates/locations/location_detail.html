@@ -432,11 +432,12 @@
           </p>
         {% endif %}
 
-        {# Actions: manage / membership / follow #}
-        <div class="flex flex-col gap-2">
-          {% include "locations/_location_actions.html" with location=location is_manager=False is_active_member=is_active_member has_pending_membership=has_pending_membership hide_membership=membership only %}
-
-        </div>
+        {# The membership state; managers have Manage in the action bar and no membership to ask for #}
+        {% if not is_manager %}
+          <div class="flex flex-col gap-2">
+            {% include "locations/_location_actions.html" with location=location is_manager=False is_active_member=is_active_member has_pending_membership=has_pending_membership hide_membership=membership only %}
+          </div>
+        {% endif %}
 
         <hr class="border-divider-soft">
         </div>

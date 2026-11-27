@@ -190,6 +190,24 @@ def _home_modules(viewer, today):
             'meta': [event.venue_label],
             'status': 'upcoming',
         }))
+    # Festivals: the days the user signed up for, and the ones they run (drafts too)
+    attending_day = Q(dates__participants__user_profile=viewer.profile, dates__date__gte=today)
+    festivals = (MasterEvent.objects
+                 .filter(Q(status=Event.PUBLISHED, pk__in=MasterEvent.objects.filter(attending_day).values('pk'))
+                         | Q(managers=viewer.profile))
+                 .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)),
+                           next_attended=Min('dates__date', filter=attending_day))
+                 .filter(next_date__isnull=False)
+                 .select_related('venue_location').distinct())
+    for festival in festivals:
+        day = festival.next_attended or festival.next_date
+        activities.append((day, None, {
+            'url': festival.get_absolute_url(),
+            'kicker': f"{TYPE_BADGES['manifestation']} · {date_format(day, 'D j M')}",
+            'title': festival.name,
+            'meta': [festival.venue_label],
+            'status': 'upcoming' if festival.is_published else festival.status,
+        }))
     activities.sort(key=lambda item: (item[0], item[1] or datetime.time.min))
 
     profile = viewer.profile
@@ -198,7 +216,9 @@ def _home_modules(viewer, today):
         ('follow', bool(viewer.own_location_ids), reverse('locations-index')),
         ('join', viewer.has_activity, reverse('appointment-search') + '?type=tables'),
     ]
-    show_steps = not viewer.managed_location_ids and not all(done for _key, done, _url in steps)
+    # Who runs a location or a festival has their own work: no first steps for them
+    show_steps = (not viewer.managed_location_ids and not viewer.manages_festivals
+                  and not all(done for _key, done, _url in steps))
     return {
         'todo_items': manager_todo(viewer.managed_location_ids),
         'next_activities': [activity for _date, _time, activity in activities[:3]],

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 22:06+0100\n"
+"POT-Creation-Date: 2026-11-27 09:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2612,6 +2612,17 @@ msgstr "Scollega"
 
 msgid "Unlink event"
 msgstr "Scollega evento"
+
+msgid "Proposal waiting"
+msgstr "Proposta in attesa"
+
+#, python-format
+msgid ""
+"Only you and the managers of %(location)s can see this event until they "
+"publish it."
+msgstr ""
+"Finché i gestori di %(location)s non lo pubblicano, questo evento lo vedete "
+"solo tu e loro."
 
 msgid ""
 "This event is not visible to the public yet. Publish it when it's ready."

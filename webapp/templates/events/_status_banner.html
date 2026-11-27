@@ -1,6 +1,18 @@
 {% load i18n %}
-{# Shown on the event's public pages, which only its managers can open while it isn't published #}
-{% if event.status == 'draft' %}
+{# Shown on the event's public pages, which only its managers can open while it isn't published; #}
+{# the member who proposed a draft can open its page too (`previewed_by_proposer`) #}
+{% if event.status == 'draft' and previewed_by_proposer %}
+  <div class="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+         class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    </svg>
+    <div>
+      <p class="text-sm font-semibold text-amber-800">{% trans "Proposal waiting" %}</p>
+      <p class="text-xs text-amber-700 mt-0.5">{% blocktrans with location=event.organizer_location.name %}Only you and the managers of {{ location }} can see this event until they publish it.{% endblocktrans %}</p>
+    </div>
+  </div>
+{% elif event.status == 'draft' %}
   <div class="mb-5 flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
     <div class="flex items-start gap-3 flex-1 min-w-0">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"

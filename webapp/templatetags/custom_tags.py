@@ -272,6 +272,8 @@ def appointment_row(context, kind, item, past=False, status=None, mine=False, ur
     """A table, event or manifestation (kind 'table', 'event', 'manifestation') as a result_row:
     kicker "Type · date", title, where and who, and the state apart from the type.
 
+    Events and festivals not published yet show their state (draft, blocked).
+
     `mine` (My activities): upcoming rows say whether the user plays or attends, read from the
     `playing` / `attending` annotations, and the tables the user created offer edit and duplicate.
     `url` replaces the item's page (e.g. its management page)."""
@@ -301,12 +303,15 @@ def appointment_row(context, kind, item, past=False, status=None, mine=False, ur
         else:
             meta = [item.venue_label]
             image = item.venue_location.cover_url if item.venue_location_id else None
+        # Not published yet (a draft) or blocked: the state says so before the date does
+        if not status and item.status != 'published':
+            status = item.status
         status = status or ('past' if past else None)
     title = item.title if kind == 'table' else item.name
     participation, actions = None, []
     if mine:
         if not past and getattr(item, 'playing' if kind == 'table' else 'attending', False):
-            participation = kind
+            participation = 'table' if kind == 'table' else 'event'
         user = context.get('user')
         if kind == 'table' and not item.event_id and user and item.author_id == getattr(
                 getattr(user, 'user_profile', None), 'id', None):

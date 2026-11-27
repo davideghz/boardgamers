@@ -14,8 +14,8 @@ from webapp.api.search_views import location_result
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
     MemberPersonalDataForm, location_filter_picker
 from webapp.models import (
-    Event, EventDate, EventParticipant, EventParticipantDate, GuestProfile, Location, Member, Membership,
-    Notification, Player, Table,
+    Event, EventDate, EventParticipant, EventParticipantDate, GuestProfile, Location, MasterEvent, MasterEventDate,
+    MasterEventDateParticipant, Member, Membership, Notification, Player, Table,
 )
 from webapp.services.appointments import paginate_appointments, with_matching_day
 from webapp.services.viewer import get_viewer
@@ -135,10 +135,19 @@ def activities(request):
     if not user.is_superuser:
         my_events = my_events.filter(Q(status=Event.PUBLISHED) | Q(pk__in=Event.objects.managed_by(profile)))
 
+    # Festivals: the published ones the user signed up for, on their days, and the ones they run
+    # (drafts too), on every day. Few people run one, unlike events: they are listed without the filter.
+    festival_days = MasterEventDateParticipant.objects.filter(user_profile=profile)
+    attending_festival = Exists(festival_days.filter(master_event_date__master_event_id=OuterRef('pk')))
+    managed_festivals = MasterEvent.objects.filter(managers=profile)
+    runs_festival = Q(pk__in=managed_festivals.values('pk'))
+    my_festivals = MasterEvent.objects.filter(runs_festival | (Q(status=Event.PUBLISHED) & attending_festival))
+
     locations = Location.objects.filter(
         Q(pk__in=my_tables.order_by().values('location_id'))
         | Q(pk__in=my_tables.order_by().values('event__venue_location_id'))
-        | Q(pk__in=my_events.order_by().values('venue_location_id')),
+        | Q(pk__in=my_events.order_by().values('venue_location_id'))
+        | Q(pk__in=my_festivals.order_by().values('venue_location_id')),
     ).order_by('name', 'pk')
 
     tables = my_tables.filter(**period)
@@ -160,20 +169,31 @@ def activities(request):
         my_events, dates, newest_first=past,
         undated=None if past else undated.filter(event_id=OuterRef('pk'), event__dates__isnull=True),
     )
+    festivals = with_matching_day(my_festivals, MasterEventDate.objects.filter(
+        master_event_id=OuterRef('pk'), **period,
+    ).filter(Q(participants__user_profile=profile) | Q(master_event__managers=profile)), newest_first=past)
     if organizer:
-        # Organized by me: the tables I created, the events I run
+        # Organized by me: the tables I created, the events I run or proposed (a member's proposal
+        # waits as a draft for the location's managers), the festivals I run
         tables = tables.filter(author=profile)
+        proposed = Q(creator=profile) & ~Q(status=Event.BLOCKED)
         events = with_matching_day(
-            Event.objects.filter(pk__in=Event.objects.managed_by(profile).values('pk')),
+            Event.objects.filter(Q(pk__in=Event.objects.managed_by(profile).values('pk')) | proposed),
             EventDate.objects.filter(event_id=OuterRef('pk'), **period), newest_first=past,
+        )
+        festivals = with_matching_day(
+            managed_festivals, MasterEventDate.objects.filter(master_event_id=OuterRef('pk'), **period),
+            newest_first=past,
         )
     if venue:
         tables = tables.filter(Q(location__slug=venue) | Q(event__venue_location__slug=venue))
         events = events.filter(venue_location__slug=venue)
+        festivals = festivals.filter(venue_location__slug=venue)
     if query:
         tables = tables.filter(Q(title__icontains=query) | Q(description__icontains=query)
                                | Q(game__name__icontains=query) | Q(event__name__icontains=query))
         events = events.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        festivals = festivals.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
     sources = {}
     if activity_type != 'events':
@@ -183,6 +203,8 @@ def activities(request):
     if activity_type != 'tables':
         sources['event'] = events.annotate(attending=attending).select_related(
             'organizer_location', 'venue_location', 'master_event')
+        # Festivals go with the events: My activities has no tab of their own for them
+        sources['manifestation'] = festivals.annotate(attending=attending_festival).select_related('venue_location')
     page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=past)
 
     # The active filters as chips (the list pattern of Search, plan E2)
