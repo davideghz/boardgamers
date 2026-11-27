@@ -342,6 +342,26 @@ def validate_custom_cover_size(cover):
     return cover
 
 
+class CroppedCoverMixin:
+    """The `cover` of locations, events and festivals: optional, size-checked, picked through
+    partials/_cover_field.html (variant "location"), which crops it in the browser."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields['cover']
+        field.required = False
+        field.help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
+        field.widget = FileInput(attrs={
+            'class': 'sr-only peer',
+            'accept': 'image/*',
+            'aria-describedby': f'{self["cover"].auto_id}-help',
+            'data-crop-max-side': COVER_MAX_SIDE,
+        })
+
+    def clean_cover(self):
+        return validate_custom_cover_size(self.cleaned_data.get('cover'))
+
+
 def clean_table_seats(form, cleaned_data):
     """Validate min/max players, shared by TableForm and EventTableForm.
     The columns are NOT NULL but the fields are optional (blank=True), so a
@@ -720,7 +740,7 @@ class UserProfileAvatarForm(ModelForm, TailwindForm):
         fields = ['avatar']
 
 
-class LocationForm(ModelForm, TailwindForm):
+class LocationForm(CroppedCoverMixin, ModelForm, TailwindForm):
     city = CharField(widget=HiddenInput(), required=False)
     latitude = CharField(widget=HiddenInput(), required=False)
     longitude = CharField(widget=HiddenInput(), required=False)
@@ -750,18 +770,8 @@ class LocationForm(ModelForm, TailwindForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['cover'].required = False
-        self.fields['cover'].help_text = _("Max %(size)s") % {'size': filesizeformat(COVER_UPLOAD_MAX_BYTES)}
-        self.fields['cover'].widget = FileInput(attrs={
-            'class': 'sr-only peer',
-            'aria-describedby': f'{self["cover"].auto_id}-help',
-            'data-crop-max-side': COVER_MAX_SIDE,
-        })
         self.fields['opening_hours'].required = False
         self.fields['opening_hours'].widget = HiddenInput()
-
-    def clean_cover(self):
-        return validate_custom_cover_size(self.cleaned_data.get('cover'))
 
 
 class LocationManageDataForm(LocationForm):
@@ -1004,7 +1014,7 @@ class EventVenueForm(ModelForm):
         return data
 
 
-class OrganizedEventForm(EventVenueForm, EventManageDataForm):
+class OrganizedEventForm(CroppedCoverMixin, EventVenueForm, EventManageDataForm):
     class Meta(EventManageDataForm.Meta):
         fields = ['name', 'description', 'cover', 'venue_location', 'layout_mode', 'venue_name', 'address', 'city',
                   'latitude', 'longitude', 'phone', 'email', 'catalog_mode', 'leaderboard_enabled', 'table_booking_enabled',
@@ -1012,8 +1022,6 @@ class OrganizedEventForm(EventVenueForm, EventManageDataForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['cover'].widget.attrs = {
-            'class': 'sr-only peer', 'accept': 'image/*', 'data-crop-max-side': COVER_MAX_SIDE}
         if not self.instance.pk:
             for name in ('layout_mode', 'leaderboard_enabled', 'table_booking_enabled', 'custom_button_title',
                          'custom_button_subtitle', 'custom_button_url'):
@@ -1055,10 +1063,11 @@ class SponsorForm(ModelForm, TailwindForm):
         self.fields['logo'].widget.template_name = 'partials/_sponsor_logo_input.html'
 
 
-class MasterEventForm(EventVenueForm, TailwindForm):
+class MasterEventForm(CroppedCoverMixin, EventVenueForm, TailwindForm):
     class Meta:
         model = MasterEvent
-        fields = ('name', 'description', 'venue_location', 'venue_name', 'address', 'city', 'latitude', 'longitude')
+        fields = ('name', 'description', 'cover', 'venue_location', 'venue_name', 'address', 'city', 'latitude',
+                  'longitude')
 
 
 class EventDateForm(TailwindForm):

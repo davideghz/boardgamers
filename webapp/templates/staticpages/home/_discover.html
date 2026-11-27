@@ -109,7 +109,7 @@
       </div>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {% for master in upcoming_manifestations %}
-          {% include "search/_manifestation_result.html" with event=master only %}
+          {% appointment_row "manifestation" master %}
         {% endfor %}
       </div>
     </section>

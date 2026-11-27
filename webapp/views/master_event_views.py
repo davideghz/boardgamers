@@ -63,7 +63,7 @@ def detail(request, slug):
         'days': days, 'registration_open': registration_open, 'can_register': can_register,
         'unique_people': len(set().union(*attendance.values())),
         'person_days': sum(map(len, attendance.values())),
-        'meta': Meta(title=master.name),
+        'meta': Meta(title=master.name, image=request.build_absolute_uri(master.cover_url)),
     })
 
 
@@ -90,7 +90,7 @@ def catalog(request, slug):
 def edit(request, slug=None):
     """A new festival, or the data of one (master-event-manage-data)."""
     master = managed_master(request, slug, lock=request.method == 'POST') if slug else MasterEvent()
-    form = MasterEventForm(request.POST if request.method == 'POST' else None, instance=master)
+    form = MasterEventForm(request.POST if request.method == 'POST' else None, request.FILES or None, instance=master)
     if request.method == 'POST' and form.is_valid():
         master = form.save()
         if not slug:

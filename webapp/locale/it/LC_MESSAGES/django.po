@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 09:04+0100\n"
+"POT-Creation-Date: 2026-11-27 09:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -192,6 +192,10 @@ msgstr "L'immagine è troppo grande (max %(size)s)."
 msgid "The image has too many pixels (max %(max)s megapixels)."
 msgstr "L'immagine ha troppi pixel (max %(max)s megapixel)."
 
+#, python-format
+msgid "Max %(size)s"
+msgstr "Max %(size)s"
+
 msgid "This field is required."
 msgstr "Questo campo è obbligatorio."
 
@@ -200,10 +204,6 @@ msgstr "Il numero massimo di giocatori non può essere inferiore al minimo."
 
 msgid "The selected station does not belong to the selected area."
 msgstr "La postazione selezionata non appartiene all’area selezionata."
-
-#, python-format
-msgid "Max %(size)s"
-msgstr "Max %(size)s"
 
 msgid "e.g. Rulebook, Score sheet…"
 msgstr "es. Regolamento, Foglio punteggi…"
@@ -4750,6 +4750,13 @@ msgstr "Crea manifestazione"
 
 msgid "View festival"
 msgstr "Vedi manifestazione"
+
+msgid ""
+"Choose a landscape image. Without a cover, the festival uses the default "
+"image."
+msgstr ""
+"Scegli un’immagine orizzontale. In assenza di una copertina, la "
+"manifestazione usa l’immagine predefinita."
 
 msgid "Edit hours"
 msgstr "Modifica orari"

@@ -2482,6 +2482,9 @@ class MasterEvent(DateTimeModel, SlugModel):
     name = models.CharField(max_length=255, verbose_name=_('Name'))
     slug = models.SlugField(max_length=144, unique=True, blank=True)
     description = models.TextField(blank=True, verbose_name=_('Description'))
+    cover = ManagedImageField(
+        upload_to='master-event-covers', null=True, blank=True, max_side=COVER_MAX_SIDE,
+        verbose_name=_('Cover'))
     venue_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='master_events_at_venue',
                                        null=True, blank=True, verbose_name=_('Venue location'))
     venue_name = models.CharField(max_length=255, blank=True, verbose_name=_('Venue name'))
@@ -2507,6 +2510,12 @@ class MasterEvent(DateTimeModel, SlugModel):
 
     def get_absolute_url(self):
         return reverse('master-event-detail', args=[self.slug])
+
+    @cached_property
+    def cover_url(self):
+        if self.cover and hasattr(self.cover, 'url'):
+            return self.cover.url
+        return settings.STATIC_URL + settings.DEFAULT_FESTIVAL_COVER_URL
 
     def can_manage(self, user):
         return user.is_authenticated and (user.is_superuser or self.managers.filter(user=user).exists())

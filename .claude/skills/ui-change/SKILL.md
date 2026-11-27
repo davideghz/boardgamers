@@ -86,6 +86,20 @@ for something a component already does is a bug.
 - **Management** is a panel by task: "In attesa di te" first (`services/manager_todo.py`), then the
   tools grouped by what one wants to do.
 - **Home** is made of modules by role: to-do, next activities, my locations, first steps, discover.
+- **Covers.** Everything listed with an image (locations, tables, events, festivals) has a
+  `cover_url` that never comes back empty: its own image, else a fallback (an event uses its
+  organizer location's cover, a table its game's), else the static default named in
+  `settings.DEFAULT_*_COVER_URL` (`boardGames/static/images/*.webp`, flat illustrations in the
+  site's palette). Templates always use `cover_url`, never the field or a related object's cover.
+  - The field is a `ManagedImageField(..., max_side=COVER_MAX_SIDE)` on a model that inherits
+    `DateTimeModel`, so the file is normalized and removed when replaced.
+  - Forms use `CroppedCoverMixin` (optional, 5 MB limit, the file input the partial expects)
+    and the view passes `request.FILES`; the form tag has `enctype="multipart/form-data"`.
+  - The page renders it with `partials/_cover_field.html` (variant `location`, `crop_ratio` and
+    `preview_ratio` of the place where it is shown: 16:9 / `video` for events and festivals,
+    square for locations) and a help text saying which image is used without one.
+  - In lists the cover reaches the row through `appointment_row` / `result_row`; a new kind of
+    item gets a branch there, not a card of its own.
 
 ## 4. Style, words and accessibility
 

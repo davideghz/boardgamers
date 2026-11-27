@@ -302,7 +302,7 @@ def appointment_row(context, kind, item, past=False, status=None, mine=False, ur
             image = item.cover_url
         else:
             meta = [item.venue_label]
-            image = item.venue_location.cover_url if item.venue_location_id else None
+            image = item.cover_url
         # Not published yet (a draft) or blocked: the state says so before the date does
         if not status and item.status != 'published':
             status = item.status

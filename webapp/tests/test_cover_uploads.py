@@ -18,10 +18,11 @@ from PIL.JpegImagePlugin import JpegImageFile
 
 from webapp.factories import LocationFactory, TableFactory, UserProfileFactory
 from webapp.forms import (
-    EventForm, EventManageDataForm, EventTableForm, LocationForm, LocationManageDataForm,
+    EventForm, EventManageDataForm, EventTableForm, LocationForm, LocationManageDataForm, MasterEventForm,
     TableDuplicateForm, TableForm, validate_custom_cover_size,
 )
-from webapp.models import Event, EventDate, Location, Table
+from webapp.models import Event, EventDate, Location, MasterEvent, Table
+from webapp.services.ui_personas import seed_ui_personas
 from webapp.services.images import (
     COVER_MAX_SIDE, COVER_UPLOAD_MAX_BYTES, SMALL_ENOUGH_BYTES, shrink_image_bytes,
 )
@@ -111,6 +112,9 @@ class CoverUploadFormsTest(TestCase):
             'latitude': '45', 'longitude': '9', 'leaderboard_edit_days': 2, 'default_table_time': '21:00',
         }
         self.event_data = {'name': 'Convention', 'description': 'Play together'}
+        self.master = MasterEvent.objects.create(name='Festival', venue_location=self.location)
+        self.master.managers.add(self.owner)
+        self.master_data = {'name': 'Festival', 'description': 'Play together', 'venue_location': self.location.pk}
 
     def form_cases(self):
         return [
@@ -121,6 +125,7 @@ class CoverUploadFormsTest(TestCase):
             (LocationManageDataForm, self.location_data, self.location, 'cover', {}),
             (EventForm, self.event_data, self.event, 'cover', {}),
             (EventManageDataForm, self.event_data, self.event, 'cover', {}),
+            (MasterEventForm, self.master_data, self.master, 'cover', {}),
         ]
 
     def post_cases(self):
@@ -137,6 +142,8 @@ class CoverUploadFormsTest(TestCase):
             ('location-event-create', {'slug': self.location.slug},
              {**self.event_data, 'venue_location': self.location.pk, 'date': self.day.isoformat()}, 'cover', None),
             ('event-manage-data', {'slug': self.event.slug}, self.event_data, 'cover', self.event),
+            ('master-event-create', {}, self.master_data, 'cover', None),
+            ('master-event-manage-data', {'slug': self.master.slug}, self.master_data, 'cover', self.master),
         ]
 
     def test_all_forms_accept_new_images_up_to_five_mb(self):
@@ -202,6 +209,7 @@ class CoverUploadFormsTest(TestCase):
             'event-table-create': Table,
             'location-create': Location,
             'location-event-create': Event,
+            'master-event-create': MasterEvent,
         }
         for route, kwargs, data, field_name, instance in self.post_cases():
             if instance is not None:
@@ -283,3 +291,35 @@ class CoverUploadFormsTest(TestCase):
         self.assertFalse(self.table.custom_cover)
         self.assertEqual(copy.custom_cover.name, shared_name)
         self.assertTrue(copy.custom_cover.storage.exists(shared_name))
+
+
+class FestivalCoverTest(TestCase):
+    """A festival shows its cover, or the default festival image, wherever it is listed."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def pages(self):
+        festival = self.data.manifestation
+        return [reverse('home'), reverse('master-event-list'), reverse('appointment-search'),
+                festival.get_absolute_url()]
+
+    def test_the_default_image_then_its_own_cover(self):
+        festival = self.data.manifestation
+        default = settings.STATIC_URL + settings.DEFAULT_FESTIVAL_COVER_URL
+        self.assertTrue((Path(settings.BASE_DIR) / 'boardGames' / 'static' / settings.DEFAULT_FESTIVAL_COVER_URL).exists())
+        self.assertEqual(festival.cover_url, default)
+        for url in self.pages():
+            with self.subTest(url=url):
+                self.assertContains(self.client.get(url), f'src="{default}"')
+        self.client.force_login(self.data.player.user)
+        self.assertContains(self.client.get(reverse('account-activities')), f'src="{default}"')
+
+        festival.cover = 'master-event-covers/festa.png'
+        festival.save(update_fields=['cover'])
+        for url in self.pages():
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, 'master-event-covers/festa.png')
+                self.assertNotContains(response, f'src="{default}"')

@@ -21,6 +21,7 @@ they are ambiguous in English too; the URLs (`/locations/`, `/events/`, …) don
 | `Event` | **Evento** | | An event of a location, also over several days. |
 | `MasterEvent` | **Manifestazione** | | Groups events of different organizers. |
 | Home page | **Home** | Homepage | |
+| `cover` (the image of a location, table, event, festival) | **Copertina**, in forms «Immagine di copertina» | Cover | |
 
 ## States
 
