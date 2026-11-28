@@ -9,6 +9,11 @@ Every change a user can see follows this skill. It sits on top of the Frontend a
 sections of `CONTRIBUTING.md` and the words in `docs/ui-glossary.md`: read those too, they win
 on anything they cover.
 
+**Names.** The user reads «associazione» / location for a `Location`, «ritrovo» / gathering for an
+`Event` and «evento» / event for a `MasterEvent`. This skill talks about the code, so below
+"event" is an `Event` and "festival" a `MasterEvent`, as in the names of the tags and templates
+(`event_card`, `festival_card`).
+
 ## 1. Start from the personas
 
 Each page is seen by several audiences, and each must get the right actions, never an invite that
@@ -19,11 +24,11 @@ touches and what each should see and be able to do afterwards.
 |---|---|---|
 | Visitor | none (anonymous) | Sees what is public; every action goes through the login. |
 | Newcomer | `newcomer`, demo_nuovo | Signed up, city set, no ties: follows nothing, member of nothing. |
-| Player | `player`, demo_giocatore | Follows the Negozio, plays two tables, attends an event and a festival day, membership pending at the Circolo. |
-| Member | `member`, demo_socio | Active member of Circolo and Associazione, created a members-only table, attends the evenings, proposed a draft event. |
-| Manager | `manager`, demo_gestore | Manages the Negozio, created Circolo and Associazione; author of most demo tables and events. |
-| Organizer | `organizer`, demo_organizzatore | Runs the Manifestazione Demo only: no location, table or membership. |
-| Administrator | `admin`, demo_amministratore | Staff and superuser, with no ties: the Django admin, approves festivals, manages any event or table (not the locations). |
+| Player | `player`, demo_giocatore | Follows the Negozio, plays two tables, attends a gathering (Ritrovo Demo) and an event day, membership pending at the Circolo. |
+| Member | `member`, demo_socio | Active member of Circolo and Associazione, created a members-only table, attends the evenings (Serata Demo, a gathering), proposed a draft gathering. |
+| Manager | `manager`, demo_gestore | Manages the Negozio, created Circolo and Associazione; author of most demo tables and gatherings. |
+| Organizer | `organizer`, demo_organizzatore | Runs the event «Evento Demo» only: no location, table or membership. |
+| Administrator | `admin`, demo_amministratore | Staff and superuser, with no ties: the Django admin, approves events, manages any gathering or table (not the locations). |
 
 Everyone lives in Milano, as do the three locations; the Negozio belongs to the national network
 «Federazione Demo», Circolo and Associazione to «Rete Ludica Demo».
@@ -91,9 +96,9 @@ for something a component already does is a bug.
   "Applica" button and no separate list of active filters; "Azzera" closes the row when something
   is set and keeps the type and the period.
   - A yes/no filter is a toggle chip: a link, `aria-current="true"` and a check when on.
-  - A choice reads the filter's name when off («Sede ▾», «Luogo ▾») and the value when on
+  - A choice reads the filter's name when off («Associazione ▾», «Luogo ▾») and the value when on
     («Circolo Demo ▾»). Among a short list (the user's own locations) it opens a `popover` menu
-    of links, with a short title saying where the entries come from, "Tutte le sedi" first and a
+    of links, with a short title saying where the entries come from, "Tutte le associazioni" first and a
     check on the current one. Among many (every location) it is the search picker as a chip:
     `LocationPickerWidget(..., chip_label=...)`, with a × to remove it.
   - An order, not a filter, can be a chip too when it needs a choice: Where to play's «Vicino a

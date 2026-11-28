@@ -163,8 +163,8 @@ class HomeDiscoverCardsTest(TestCase):
 
         html = self.client.get(reverse('home')).content.decode()
         with override('it'):
-            events, festivals = italian('Events'), italian('Festivals')
-            festival_type = pgettext('appointment type', 'Festival')
+            events, festivals = italian('Gatherings'), italian('Events')
+            festival_type = pgettext('appointment type', 'Event')
             festival = self.data.manifestation
             days = f"{date_format(festival.start_date, 'j M')} – {date_format(festival.end_date, 'j M Y')}"
         events, festivals = self.section(html, events), self.section(html, festivals)
@@ -181,7 +181,7 @@ class HomeEventsTest(TestCase):
     """Events follow the tables' rule: those of the user's locations (organizing, hosting or
     sponsoring), else all the upcoming ones."""
 
-    ALL = ['Associazione Demo in fiera', 'Evento Demo', 'Negozio Demo in fiera', 'Serata Demo']
+    ALL = ['Associazione Demo in fiera', 'Negozio Demo in fiera', 'Ritrovo Demo', 'Serata Demo']
 
     @classmethod
     def setUpTestData(cls):
@@ -198,7 +198,7 @@ class HomeEventsTest(TestCase):
             None: self.ALL,
             'newcomer': self.ALL,
             'organizer': self.ALL,
-            'player': ['Evento Demo', 'Negozio Demo in fiera'],
+            'player': ['Negozio Demo in fiera', 'Ritrovo Demo'],
             'member': ['Associazione Demo in fiera', 'Serata Demo'],
             'manager': self.ALL,
         }
@@ -212,7 +212,7 @@ class HomeEventsTest(TestCase):
 
     def test_a_sponsored_event_counts(self):
         self.data.night.sponsor_locations.add(self.data.negozio)
-        self.assertEqual(self.events('player'), ['Evento Demo', 'Negozio Demo in fiera', 'Serata Demo'])
+        self.assertEqual(self.events('player'), ['Negozio Demo in fiera', 'Ritrovo Demo', 'Serata Demo'])
 
 
 class MyLocationsEverywhereTest(TestCase):

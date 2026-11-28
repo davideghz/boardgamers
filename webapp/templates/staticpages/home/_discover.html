@@ -86,8 +86,8 @@
   {% if upcoming_events %}
     <section class="mb-10">
       <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <h2 class="text-lg font-bold text-content">{% trans "Events" %}</h2>
-        <a href="{% url 'event-index' %}" aria-label="{% trans "See all events" %}" class="text-sm text-link font-semibold hover:underline">
+        <h2 class="text-lg font-bold text-content">{% trans "Gatherings" %}</h2>
+        <a href="{% url 'event-index' %}" aria-label="{% trans "See all gatherings" %}" class="text-sm text-link font-semibold hover:underline">
           {% trans "See all" %} →
         </a>
       </div>
@@ -102,8 +102,8 @@
   {% if upcoming_manifestations %}
     <section class="mb-10">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
-        <h2 class="text-lg font-bold text-content">{% translate "Festivals" %}</h2>
-        <a class="text-sm text-link font-semibold hover:underline" href="{% url 'master-event-list' %}" aria-label="{% translate "See all festivals" %}">
+        <h2 class="text-lg font-bold text-content">{% translate "Events" %}</h2>
+        <a class="text-sm text-link font-semibold hover:underline" href="{% url 'master-event-list' %}" aria-label="{% translate "See all events" %}">
           {% translate "See all" %} →
         </a>
       </div>

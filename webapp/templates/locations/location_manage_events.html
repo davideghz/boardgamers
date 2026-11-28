@@ -9,11 +9,11 @@ to each event's management.
 {% block content %}
   <div class="max-w-2xl">
     {% url 'location-manage' location.slug as manage_url %}
-    {% trans "Organized events" as page_title %}
-    {% if can_create %}{% url 'location-event-create' location.slug as create_url %}{% trans "Create event" as create_label %}{% endif %}
+    {% trans "Organized gatherings" as page_title %}
+    {% if can_create %}{% url 'location-event-create' location.slug as create_url %}{% trans "Create gathering" as create_label %}{% endif %}
     {% page_header page_title count=events|length action_label=create_label action_url=create_url back_url=manage_url back_label=_("Manage") %}
 
-    <nav aria-label="{% trans 'Which events' %}" class="mb-4 flex w-fit items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+    <nav aria-label="{% trans 'Which gatherings' %}" class="mb-4 flex w-fit items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
       {% for value, label in tabs %}
         <a href="{% if value == 'upcoming' %}?{% else %}?show={{ value }}{% endif %}"
            {% if show == value %}aria-current="page"{% endif %}
@@ -36,8 +36,8 @@ to each event's management.
       </ul>
     {% else %}
       {% if show == 'drafts' %}{% trans "No drafts." as empty_message %}
-      {% elif show == 'past' %}{% trans "No past events yet." as empty_message %}
-      {% else %}{% trans "No upcoming events." as empty_message %}{% endif %}
+      {% elif show == 'past' %}{% trans "No past gatherings yet." as empty_message %}
+      {% else %}{% trans "No upcoming gatherings." as empty_message %}{% endif %}
       {% empty_state empty_message icon="calendar" %}
     {% endif %}
   </div>

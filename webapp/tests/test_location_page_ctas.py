@@ -88,7 +88,7 @@ class LocationPageCtasTest(TestCase):
 
     def test_events_say_who_can_propose_them(self):
         create = reverse('location-event-create', args=[self.data.associazione.slug])
-        note = italian('Only members can propose events here.')
+        note = italian('Only members can propose gatherings here.')
 
         response = self.get(self.data.associazione, 'newcomer')
         self.assertContains(response, note)
@@ -153,7 +153,7 @@ class MembersOnlyEventsWithoutEventsTest(TestCase):
     def test_non_members_are_told_who_can_propose_events(self):
         response = self.client.get(self.url)
 
-        self.assertContains(response, italian('Only members can propose events here.'))
+        self.assertContains(response, italian('Only members can propose gatherings here.'))
         self.assertContains(response, reverse('location-request-membership', args=[self.location.slug]))
         self.assertNotContains(response, reverse('location-event-create', args=[self.location.slug]))
 
@@ -162,5 +162,5 @@ class MembersOnlyEventsWithoutEventsTest(TestCase):
 
         response = self.client.get(self.url)
 
-        self.assertContains(response, italian('Only members can propose events here.'))
+        self.assertContains(response, italian('Only members can propose gatherings here.'))
         self.assertContains(response, italian('Your membership request is pending.'))

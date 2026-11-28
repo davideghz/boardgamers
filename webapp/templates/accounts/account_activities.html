@@ -22,7 +22,7 @@
         <a href="{% querystring type='events' page=None %}"
            {% if activity_type == 'events' %}aria-current="true"{% endif %}
            class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if activity_type == 'events' %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
-          {% trans "Events" %}
+          {% trans "Gatherings" %}
         </a>
         <a href="{% querystring type='tables' page=None %}"
            {% if activity_type == 'tables' %}aria-current="true"{% endif %}

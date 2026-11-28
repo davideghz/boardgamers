@@ -164,7 +164,7 @@ class EventVenueLayoutTest(TestCase):
         self.event.refresh_from_db()
         self.assertEqual(self.event.layout_mode, Event.LayoutMode.VENUE)
         dashboard = self.client.get(manage)
-        self.assertContains(dashboard, 'Configurazione della sede')
+        self.assertContains(dashboard, 'Configurazione dell&#x27;associazione')
         for part in ('areas', 'stations'):
             event_url = reverse(f'event-manage-{part}', args=[self.event.slug])
             venue_url = reverse(f'location-manage-{part}', args=[self.venue.slug])
@@ -198,7 +198,7 @@ class EventVenueLayoutTest(TestCase):
         self.assertEqual(self.client.post(edit, data).status_code, 403)
         self.client.force_login(self.manager.user)
         response = self.client.post(edit, data)
-        self.assertContains(response, 'ottieni l’autorizzazione della sede esterna')
+        self.assertContains(response, 'ottieni l’autorizzazione dell’associazione esterna')
         self.event.refresh_from_db()
         self.assertEqual((self.event.layout_mode, self.event.venue_location), (Event.LayoutMode.EVENT, self.venue))
 

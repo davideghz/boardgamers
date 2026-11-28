@@ -527,7 +527,7 @@ def remove_layout_resource(request, queryset, success_message):
             if resource is not None:
                 resource.delete()
     except RestrictedError:
-        messages.error(request, _('Reassign upcoming event sessions before removing this play area or station.'))
+        messages.error(request, _('Reassign upcoming gathering sessions before removing this play area or station.'))
     else:
         messages.success(request, success_message)
 

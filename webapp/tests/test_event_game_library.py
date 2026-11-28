@@ -144,7 +144,7 @@ class BookingIndicatorTest(LibraryTestCase):
     def test_concluded_box_on_the_event_page(self):
         self.event.dates.all().delete()
         EventDate.objects.create(event=self.event, date=self.today - datetime.timedelta(days=1))
-        self.assertContains(self.client.get(self.detail_url), "Event concluded")
+        self.assertContains(self.client.get(self.detail_url), "Gathering concluded")
 
 
 class PublicLibraryTest(LibraryTestCase):

@@ -15,11 +15,11 @@ def select_event_days(event, profile, ids):
     try:
         selected = {int(value) for value in ids}
     except (TypeError, ValueError) as error:
-        raise ValidationError(_('Choose one of the event dates.')) from error
+        raise ValidationError(_('Choose one of the gathering dates.')) from error
     if not selected and len(eligible) == 1:
         selected = eligible
     if not selected or selected - eligible:
-        raise ValidationError(_('Choose one of the event dates.'))
+        raise ValidationError(_('Choose one of the gathering dates.'))
     participant, created = EventParticipant.objects.get_or_create(event=event, user_profile=profile)
     participant.selected_dates.filter(event_date_id__in=eligible - selected, inferred_from_booking=False).delete()
     EventParticipantDate.objects.bulk_create([

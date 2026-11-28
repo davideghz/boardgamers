@@ -2,7 +2,7 @@
 {% load i18n custom_tags %}
 
 {% block content %}
-  {% back_link 'master-event-list' label=_("Festivals") %}
+  {% back_link 'master-event-list' label=_("Events") %}
   <div class="max-w-3xl space-y-5">
     <header>
       {# Its cover, or the default festival image #}
@@ -42,7 +42,7 @@
     {% include "masters/_attendance.html" %}
 
     <section class="rounded-xl border border-divider bg-surface p-4 sm:p-5">
-      <h2 class="font-bold text-content">{% translate "Events" %}</h2>
+      <h2 class="font-bold text-content">{% translate "Gatherings" %}</h2>
       <ul class="mt-2 divide-y divide-divider">
         {% for event in events %}
           <li class="py-2 text-sm">
@@ -50,7 +50,7 @@
             <p class="text-content-muted">{{ event.organizer_location.name }}</p>
           </li>
         {% empty %}
-          <li class="py-2 text-sm text-content-muted">{% translate "No published events yet." %}</li>
+          <li class="py-2 text-sm text-content-muted">{% translate "No published gatherings yet." %}</li>
         {% endfor %}
       </ul>
     </section>

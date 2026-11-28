@@ -43,7 +43,7 @@ class EventNotFoundTest(TestCase):
                         path = reverse(view, args=[slug])
                         response = self.client.get(path)
                         self.assertTemplateUsed(response, 'events/event_not_found.html')
-                        self.assertContains(response, 'Evento non disponibile', status_code=404)
+                        self.assertContains(response, 'Ritrovo non disponibile', status_code=404)
                         self.assertContains(response, f'href="{events_url}"', status_code=404)
                         self.assertNotContains(response, self.draft.name, status_code=404)
                         self.assertNotContains(response, self.blocked.name, status_code=404)
@@ -60,7 +60,7 @@ class EventNotFoundTest(TestCase):
             with self.subTest(view=view):
                 response = self.client.get(reverse(view, args=[self.published.slug]))
                 self.assertContains(response, title, status_code=404)
-                self.assertContains(response, "Torna all'evento", status_code=404)
+                self.assertContains(response, "Torna al ritrovo", status_code=404)
                 self.assertContains(response, f'href="{self.published.get_absolute_url()}"',
                                     status_code=404)
         self.assertEqual(self.client.get(self.published.get_absolute_url()).status_code, 200)
@@ -68,7 +68,7 @@ class EventNotFoundTest(TestCase):
     def test_english_error_links_to_the_english_event_list(self):
         with override('en'):
             response = self.client.get(reverse('event_detail', args=['unknown-event']))
-            self.assertContains(response, 'Event unavailable', status_code=404)
+            self.assertContains(response, 'Gathering unavailable', status_code=404)
             self.assertContains(response, f'href="{reverse("event-index")}"', status_code=404)
 
     def test_managers_keep_access_to_previews_and_hidden_sections(self):

@@ -7,18 +7,18 @@
     <h1 id="event-not-found-title" class="text-2xl font-extrabold text-content sm:text-3xl">{{ title }}</h1>
     {% if public_event %}
       <p class="mt-3 text-sm leading-relaxed text-content-soft">
-        {% trans "Go back to the event page for the available information." %}
+        {% trans "Go back to the gathering page for the available information." %}
       </p>
     {% else %}
       <p class="mt-3 text-sm leading-relaxed text-content-soft">
-        {% trans "Check the link or look for the event in the list of public events." %}
+        {% trans "Check the link or look for the gathering in the list of public gatherings." %}
       </p>
     {% endif %}
 
     <div class="mt-6 flex flex-wrap gap-3">
       <a href="{% if public_event %}{{ public_event.get_absolute_url }}{% else %}{% url 'event-index' %}{% endif %}"
          class="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white hover:opacity-90">
-        {% if public_event %}{% trans "Back to the event" %}{% else %}{% trans "View events" %}{% endif %}
+        {% if public_event %}{% trans "Back to the gathering" %}{% else %}{% trans "View gatherings" %}{% endif %}
       </a>
       {% if not user.is_authenticated %}
         <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode:'' }}"

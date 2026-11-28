@@ -366,11 +366,11 @@ def select_language(request):
 # Who each demo user is, for the persona switcher
 PERSONA_SUMMARIES = {
     'newcomer': 'Signed up, no ties: follows nothing, member of nothing.',
-    'player': 'Follows the Negozio, plays two tables, attends an event and a festival day; membership pending at the Circolo.',
-    'member': 'Member of Circolo and Associazione; created a members-only table, proposed a draft event.',
+    'player': 'Follows the Negozio, plays two tables, attends a gathering and an event day; membership pending at the Circolo.',
+    'member': 'Member of Circolo and Associazione; created a members-only table, proposed a draft gathering.',
     'manager': 'Manages the Negozio, created Circolo and Associazione.',
-    'organizer': 'Runs the Manifestazione Demo only.',
-    'admin': 'Staff and superuser, with no ties: the Django admin, approves festivals, may manage any event or table.',
+    'organizer': 'Runs the Evento Demo (an event) only.',
+    'admin': 'Staff and superuser, with no ties: the Django admin, approves events, may manage any gathering or table.',
 }
 
 

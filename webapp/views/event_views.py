@@ -63,14 +63,14 @@ def organized_event_create(request, slug):
     if request.method == 'POST' and form.is_valid() and date_form.is_valid():
         event = form.save()
         EventDate.objects.create(event=event, **date_form.cleaned_data)
-        messages.success(request, _('Event created as a draft.'))
+        messages.success(request, _('Gathering created as a draft.'))
         if can_manage:
             return redirect('event-manage', slug=event.slug)
         # A member's proposal: its page says it waits for the managers
         return redirect('event_detail', slug=event.slug)
     return render(request, 'events/location_event_form.html', {
         'location': location, 'form': form, 'date_form': date_form, 'can_manage_location_events': can_manage,
-        'meta': Meta(title=_('Create event')),
+        'meta': Meta(title=_('Create gathering')),
     })
 
 
@@ -102,7 +102,7 @@ def location_manage_events(request, slug):
         'location': location, 'events': events, 'show': show, 'past': show == 'past', 'draft_count': drafts.count(),
         'tabs': [('drafts', _('Drafts')), ('upcoming', _('Upcoming')), ('past', pgettext_lazy('events', 'Past'))],
         'can_create': location.can_create_events(request.user),
-        'meta': Meta(title=_('Organized events – %(name)s') % {'name': location.name}),
+        'meta': Meta(title=_('Organized gatherings – %(name)s') % {'name': location.name}),
     })
 
 
@@ -183,7 +183,7 @@ class EventPublicAccessMixin:
         try:
             return super().get(request, *args, **kwargs)
         except Http404 as error:
-            title = _('Event unavailable')
+            title = _('Gathering unavailable')
             public_event = None
             if isinstance(error, EventSectionUnavailable) and error.event.is_published:
                 title = error.title
@@ -645,7 +645,7 @@ class EventJoinView(LoginRequiredMixin, View):
                 request.user.is_superuser or event.is_manager(user_profile)):
             raise Http404
         if event.is_concluded():
-            messages.info(request, _("This event has already ended, registration is closed."))
+            messages.info(request, _("This gathering has already ended, registration is closed."))
             return redirect('event_detail', slug=slug)
         if event.organizer_location_id and not event.organizer_location.can_join_events(user_profile):
             raise PermissionDenied
@@ -661,9 +661,9 @@ class EventJoinView(LoginRequiredMixin, View):
             # Shown once by the detail page as a confirmation modal with the share CTA
             request.session['event_just_joined'] = event.pk
         elif event.organizer_location_id:
-            messages.success(request, _('Your event dates were saved.'))
+            messages.success(request, _('Your gathering dates were saved.'))
         else:
-            messages.info(request, _("You are already registered for this event."))
+            messages.info(request, _("You are already registered for this gathering."))
         return redirect('event_detail', slug=slug)
 
 
@@ -677,15 +677,15 @@ class EventLeaveView(LoginRequiredMixin, View):
         if not event.is_published and not (request.user.is_superuser or event.is_manager(profile)):
             raise Http404
         if event.is_concluded():
-            messages.info(request, _("This event has already ended, you can't leave it."))
+            messages.info(request, _("This gathering has already ended, you can't leave it."))
             return redirect('event_detail', slug=slug)
         deleted, _rows = EventParticipant.objects.filter(
             event=event, user_profile=profile).delete()
         if deleted:
             if event.organizer_location_id:
-                messages.success(request, _('Your event registration was cancelled.'))
+                messages.success(request, _('Your gathering registration was cancelled.'))
             else:
-                messages.success(request, _("You are no longer attending this event."))
+                messages.success(request, _("You are no longer attending this gathering."))
         return redirect('event_detail', slug=slug)
 
 
@@ -763,11 +763,11 @@ def event_table_create_view(request, event_slug):
     user_profile = request.user.user_profile
 
     if not event.can_create_table(user_profile) and not request.user.is_superuser:
-        messages.error(request, _("You don't have permission to create tables at this event."), extra_tags="danger")
+        messages.error(request, _("You don't have permission to create tables at this gathering."), extra_tags="danger")
         return redirect('event_detail', slug=event_slug)
 
     if not event.dates.exists():
-        messages.error(request, _("You must define at least one date for the event before creating tables."), extra_tags="danger")
+        messages.error(request, _("You must define at least one date for the gathering before creating tables."), extra_tags="danger")
         return redirect('event_detail', slug=event_slug)
 
     initial = {'event': event}
@@ -863,7 +863,7 @@ class EventManageIndexView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
-        context['meta'] = Meta(title=f"{_('Manage event')} – {event.name}")
+        context['meta'] = Meta(title=f"{_('Manage gathering')} – {event.name}")
         context['catalog_count'] = effective_catalog(event).count()
         context['can_manage_venue_layout'] = (
             event.layout_mode == Event.LayoutMode.VENUE and event.can_manage_venue_layout(self.request.user)
@@ -907,10 +907,10 @@ class EventPublishView(EventManagerMixin, View):
     def post(self, request, slug):
         event = self._get_event()
         if event.status == Event.BLOCKED:
-            messages.error(request, _("This event was blocked by an admin and can't be published."),
+            messages.error(request, _("This gathering was blocked by an admin and can't be published."),
                            extra_tags="danger")
         elif event.is_published:
-            messages.info(request, _("This event is already published."))
+            messages.info(request, _("This gathering is already published."))
         elif missing := event.missing_publish_requirements():
             messages.error(request, _("Before publishing: %(missing)s.") % {
                 'missing': ', '.join(str(item).lower() for item in missing)}, extra_tags="danger")
@@ -922,7 +922,7 @@ class EventPublishView(EventManagerMixin, View):
                 emails.send_admin_notification_event_published(event, request.user.user_profile)
             except Exception:
                 logger.exception("Could not notify the admin about event %s", event.pk)
-            messages.success(request, _("Your event is published and visible to everyone."))
+            messages.success(request, _("Your gathering is published and visible to everyone."))
         return redirect('event-manage', slug=slug)
 
 
@@ -934,7 +934,7 @@ class EventUnpublishView(EventManagerMixin, View):
         if event.is_published:
             event.status = Event.DRAFT
             event.save(update_fields=['status', 'updated_at'])
-            messages.success(request, _("The event is back to draft and no longer visible to the public."))
+            messages.success(request, _("The gathering is back to draft and no longer visible to the public."))
         return redirect('event-manage', slug=slug)
 
 
@@ -945,10 +945,10 @@ class EventMasterUnlinkView(EventManagerMixin, View):
         event = self._get_event()
         # The page may be stale: only leave the manifestation it showed.
         if event.master_event_id is None or request.POST.get('master') != str(event.master_event_id):
-            messages.error(request, _('The event is no longer linked to this festival.'))
+            messages.error(request, _('The gathering is no longer linked to this event.'))
         else:
             set_master(event, event.master_event, request.user, unlink=True)
-            messages.success(request, _('Event unlinked.'))
+            messages.success(request, _('Gathering unlinked.'))
         return redirect('event-manage', slug=slug)
 
 
@@ -973,7 +973,7 @@ class EventManageDataView(EventManagerMixin, UpdateView):
         return super().get_context_data(meta=Meta(title=_('General info')), **kwargs)
 
     def get_success_url(self):
-        messages.success(self.request, _("Event updated successfully"))
+        messages.success(self.request, _("Gathering updated successfully"))
         return reverse('event-manage', kwargs={'slug': self.object.slug})
 
 
@@ -1167,11 +1167,11 @@ class EventManageGamesToggleView(EventManagerMixin, View):
         event.enable_public_games = request.POST.get('enabled') == 'on'
         event.save(update_fields=['enable_public_games'])
         if event.catalog_is_public:
-            messages.success(request, _("The game library is now visible on the event page."))
+            messages.success(request, _("The game library is now visible on the gathering page."))
         elif event.enable_public_games:
-            messages.info(request, _('The event catalog stays hidden while the organizing location library is private.'))
+            messages.info(request, _('The gathering catalog stays hidden while the organizing location library is private.'))
         else:
-            messages.success(request, _("The game library is now hidden from the event page."))
+            messages.success(request, _("The game library is now hidden from the gathering page."))
         return redirect('event-manage-games', slug=slug)
 
 

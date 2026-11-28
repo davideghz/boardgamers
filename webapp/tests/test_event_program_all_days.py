@@ -88,7 +88,7 @@ class EventProgramAllDaysTest(TestCase):
         first, _ = self.add_days(1, 2)
         response = self.client.get(self.url, {'date': first.isoformat()})
         self.assertFalse(response.context['event_has_tables'])
-        self.assertContains(response, 'Non ci sono ancora tavoli prenotabili per questo evento.')
+        self.assertContains(response, 'Non ci sono ancora tavoli prenotabili per questo ritrovo.')
 
     def test_filters_hiding_tables_offer_reset(self):
         first, _ = self.add_days(1, 2)

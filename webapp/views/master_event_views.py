@@ -97,7 +97,7 @@ def edit(request, slug=None):
             master.managers.add(request.user.user_profile)
         return redirect('master-event-manage', slug=master.slug)
     return render(request, 'masters/edit.html', {
-        'master': master, 'form': form, 'meta': Meta(title=master.name or _('Create festival')),
+        'master': master, 'form': form, 'meta': Meta(title=master.name or _('Create event')),
     })
 
 
@@ -110,9 +110,9 @@ def manage_index(request, slug):
     date_count = master.dates.count()
     pending = []
     if not date_count:
-        pending.append(_('Add at least one date: a festival is published with its calendar.'))
+        pending.append(_('Add at least one date: an event is published with its calendar.'))
     if not master.events.exists():
-        pending.append(_('Link the events that take place during the festival.'))
+        pending.append(_('Link the gatherings that take place during the event.'))
     return render(request, 'masters/manage_index.html', {
         'master': master, 'can_approve': MasterEvent.can_approve(request.user), 'pending': pending,
         'date_count': date_count, 'event_count': master.events.count(),
@@ -149,7 +149,7 @@ def manage_dates(request, slug):
 def manage_events(request, slug):
     master = managed_master(request, slug)
     return _manage_page(
-        request, master, 'masters/manage_events.html', _('Linked events'),
+        request, master, 'masters/manage_events.html', _('Linked gatherings'),
         linked_events=master.events.select_related('organizer_location').order_by('name', 'pk'),
         linkable_events=linkable_events(request.user, master).select_related('organizer_location').order_by('name', 'pk'),
     )
@@ -178,7 +178,7 @@ def register(request, slug):
     except ValueError:
         selected = None
     if selected is None or selected - eligible:
-        messages.error(request, _('Choose a date in the festival calendar.'))
+        messages.error(request, _('Choose a date in the event calendar.'))
         return redirect(destination)
 
     profile = request.user.user_profile
@@ -186,7 +186,7 @@ def register(request, slug):
     MasterEventDateParticipant.objects.bulk_create([
         MasterEventDateParticipant(user_profile=profile, master_event_date_id=pk) for pk in selected
     ], ignore_conflicts=True)
-    messages.success(request, _('Festival registration updated.'))
+    messages.success(request, _('Event registration updated.'))
     return redirect(destination)
 
 
@@ -262,7 +262,7 @@ def link(request, slug):
     except ValidationError as error:
         messages.error(request, error.messages[0])
     else:
-        messages.success(request, _('Event unlinked.') if unlink else _('Event linked.'))
+        messages.success(request, _('Gathering unlinked.') if unlink else _('Gathering linked.'))
     return redirect('master-event-manage-events', slug=slug)
 
 

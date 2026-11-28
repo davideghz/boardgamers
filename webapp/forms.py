@@ -1024,7 +1024,7 @@ class OrganizedEventForm(CroppedCoverMixin, EventVenueForm, EventManageDataForm)
         else:
             self.fields['layout_mode'].required = False
             self.fields['layout_mode'].help_text = _(
-                'Use the venue layout for on-site events or after approval from the external venue.')
+                'Use the venue layout for on-site gatherings or after approval from the external venue.')
         self.fields['description'].required = self.instance.is_published
 
     def clean(self):
@@ -1144,7 +1144,7 @@ class PhysicalTableForm(ModelForm, TailwindForm):
             if self.instance.pk:
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
-                raise ValidationError(_('A station with this name already exists for this event.'))
+                raise ValidationError(_('A station with this name already exists for this gathering.'))
         elif name and self.location is not None:
             qs = PhysicalTable.objects.filter(location=self.location, name=name)
             if self.instance.pk:

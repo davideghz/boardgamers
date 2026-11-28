@@ -241,17 +241,17 @@
       {% if organized_events or event_creation.allowed or event_creation.needs_membership %}
         <section>
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h2 class="text-lg font-bold text-content">{% trans "Organized events" %}</h2>
+            <h2 class="text-lg font-bold text-content">{% trans "Organized gatherings" %}</h2>
             {% if organized_events %}
               <a class="text-sm text-link font-semibold hover:underline"
-                 href="{% url 'event-index' %}?at={{ location.slug|urlencode }}">{% trans "See all events" %} →</a>
+                 href="{% url 'event-index' %}?at={{ location.slug|urlencode }}">{% trans "See all gatherings" %} →</a>
             {% endif %}
           </div>
           {% if event_creation.allowed %}
-            <a class="text-link font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create event" %}</a>
+            <a class="text-link font-semibold" href="{% url 'location-event-create' location.slug %}">{% trans "Create gathering" %}</a>
           {% elif event_creation.needs_membership %}
             <p class="mb-3 text-sm text-content-muted">
-              {% trans "Only members can propose events here." %}
+              {% trans "Only members can propose gatherings here." %}
               {% if event_creation.membership_pending %}{% trans "Your membership request is pending." %}
               {% elif location.enable_membership %}<a class="font-semibold text-link hover:underline" href="{% url 'location-request-membership' location.slug %}">{% trans "Become a member" %}</a>{% endif %}
             </p>
@@ -263,7 +263,7 @@
       {% endif %}
       {% if sponsored_events %}
         <section>
-          <h2 class="text-lg font-bold text-content mb-4">{% trans "Events we take part in" %}</h2>
+          <h2 class="text-lg font-bold text-content mb-4">{% trans "Gatherings we take part in" %}</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {% for event in sponsored_events %}{% event_card event today %}{% endfor %}
           </div>

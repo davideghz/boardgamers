@@ -210,7 +210,7 @@
       </div>
 
       {% if not event_has_tables %}
-        <p class="text-sm font-semibold text-content">{% trans "There are no bookable tables for this event yet." %}</p>
+        <p class="text-sm font-semibold text-content">{% trans "There are no bookable tables for this gathering yet." %}</p>
         {% if can_create_table %}
           <p class="text-sm text-content-muted mt-1">{% trans "Create the first table: it will show up here and participants will be able to book a seat." %}</p>
           <div class="flex flex-wrap justify-center gap-2 mt-5">
@@ -223,7 +223,7 @@
         {% else %}
           <p class="text-sm text-content-muted mt-1">{% trans "The organizers are still putting the program together: check back in a few days." %}</p>
           <div class="flex flex-wrap justify-center gap-2 mt-5">
-            <a href="{% url 'event_detail' event.slug %}" class="{{ secondary }}">{% trans "Back to the event" %}</a>
+            <a href="{% url 'event_detail' event.slug %}" class="{{ secondary }}">{% trans "Back to the gathering" %}</a>
           </div>
         {% endif %}
 

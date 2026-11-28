@@ -3,11 +3,11 @@
 
 {% block content %}
   {% if master.pk %}{% back_link 'master-event-manage' master.slug label=_("Manage") %}
-  {% else %}{% back_link 'master-event-list' label=_("Festivals") %}{% endif %}
+  {% else %}{% back_link 'master-event-list' label=_("Events") %}{% endif %}
   <header class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-    <h1 class="break-words text-2xl font-extrabold text-content">{% if master.pk %}{{ master.name }}{% else %}{% translate "Create festival" %}{% endif %}</h1>
+    <h1 class="break-words text-2xl font-extrabold text-content">{% if master.pk %}{{ master.name }}{% else %}{% translate "Create event" %}{% endif %}</h1>
     {% if master.pk %}
-      <a class="text-sm font-semibold text-link hover:underline " href="{{ master.get_absolute_url }}">{% translate "View festival" %}</a>
+      <a class="text-sm font-semibold text-link hover:underline " href="{{ master.get_absolute_url }}">{% translate "View event" %}</a>
     {% endif %}
   </header>
 
@@ -21,7 +21,7 @@
       <div>
         <p class="text-xs font-semibold text-content-soft mb-2">{% translate "Cover image" %} <span class="font-normal text-content-muted">({% translate "optional" %})</span></p>
         {% translate "Preview" as cover_preview %}
-        {% translate "Choose a landscape image. Without a cover, the festival uses the default image." as cover_help %}
+        {% translate "Choose a landscape image. Without a cover, the event uses the default image." as cover_help %}
         {% include "partials/_cover_field.html" with field=form.cover saved_image=form.initial.cover variant="location" crop_ratio="1.7777777777777777" preview_ratio="video" preview_caption=cover_preview help_text=cover_help only %}
       </div>
       {% for field in form %}

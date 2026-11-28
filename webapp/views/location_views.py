@@ -1787,7 +1787,7 @@ class LocationVenueLayoutDecisionView(LoginRequiredMixin, View):
         action = request.POST.get('action')
         if action == 'approve' and not event.venue_layout_approved:
             event.venue_layout_approved = True
-            message = _('Venue layout approved for this event.')
+            message = _('Venue layout approved for this gathering.')
         elif action == 'decline' and not event.venue_layout_approved:
             event.venue_layout_requested_from = None
             message = _('Venue layout request declined.')

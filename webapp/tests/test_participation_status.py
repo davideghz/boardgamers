@@ -54,7 +54,7 @@ class ParticipationStatusTest(TestCase):
         self.login('member')
         response = self.client.get(reverse('event_detail', args=[self.data.night.slug]))
         self.assertContains(response, ATTENDING)
-        self.assertContains(response, f'data-confirm="{italian("Leave the event?")}"')
+        self.assertContains(response, f'data-confirm="{italian("Leave the gathering?")}"')
 
     def test_my_activities_rows_carry_the_same_badges(self):
         self.login('member')

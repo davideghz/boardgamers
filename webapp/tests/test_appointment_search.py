@@ -163,8 +163,8 @@ class AppointmentSearchTest(TestCase):
             response = self.client.get(reverse('appointment-search'), HTTP_ACCEPT_LANGUAGE='it')
         self.assertContains(response, 'Tipo di risultato')
         self.assertContains(response, 'In programma')
-        self.assertContains(response, 'Sede organizzatrice')
-        self.assertContains(response, 'data-title="Cerca una sede organizzatrice"')
+        self.assertContains(response, 'Associazione organizzatrice')
+        self.assertContains(response, 'data-title="Cerca un&#x27;associazione organizzatrice"')
 
     def test_home_links_to_filtered_search_and_previews_only_upcoming_public_manifestations(self):
         draft = MasterEvent.objects.create(name='Hidden exhibition')

@@ -14,9 +14,9 @@ from webapp.services.appointments import paginate_appointments, with_matching_da
 
 SEARCH_TYPES = (
     ('all', pgettext_lazy('appointment search results', 'All')),
-    ('events', _('Events')),
+    ('events', _('Gatherings')),
     ('tables', _('Tables')),
-    ('master-events', _('Festivals')),
+    ('master-events', _('Events')),
 )
 
 
@@ -138,8 +138,8 @@ def _drafts(user, search_type):
 #: The old lists, now the search with the type preset: (URL name, title, description).
 PRESETS = {
     'tables': ('table-index', _('Game Tables'), _('Discover all available game tables and join the game!')),
-    'events': ('event-index', _('Events'), _('Conventions, tournaments and game days near you.')),
-    'master-events': ('master-event-list', _('Festivals'), _('Fairs and festivals that gather several events.')),
+    'events': ('event-index', _('Gatherings'), _('Conventions, tournaments and game days near you.')),
+    'master-events': ('master-event-list', _('Events'), _('Fairs and festivals that gather several gatherings.')),
 }
 
 
@@ -168,7 +168,7 @@ class AppointmentSearchView(View):
             title, description = PRESETS[self.preset][1:]
         else:
             title = pgettext_lazy('navigation', 'Activities')
-            description = _('Find events, game tables and festivals on Board Gamers.')
+            description = _('Find gatherings, game tables and events on Board Gamers.')
         context = {
             'search_form': form,
             # The filters are chips that apply at once and show their own state; "Clear all"

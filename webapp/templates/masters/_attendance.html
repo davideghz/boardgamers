@@ -19,7 +19,7 @@
     <form method="post" action="{% url 'master-event-register' master.slug %}" class="space-y-3">
       {% csrf_token %}
       <fieldset>
-        <legend class="text-sm font-semibold text-content">{% translate "Your festival dates" %}</legend>
+        <legend class="text-sm font-semibold text-content">{% translate "Your event dates" %}</legend>
   {% endif %}
   <ul class="divide-y divide-divider">
     {% for day in days %}

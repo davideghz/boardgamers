@@ -8,7 +8,7 @@ then its four pages, as the location's and the event's panels (G1, G2).
 
 {% block content %}
   <div class="max-w-xl">
-    {% trans "Manage festival" as page_title %}
+    {% trans "Manage event" as page_title %}
     {% page_header page_title subtitle=master.name back_url=master.get_absolute_url back_label=master.name %}
 
     {# ── Approval ─────────────────────────────────────────────────────── #}
@@ -21,9 +21,9 @@ then its four pages, as the location's and the event's panels (G1, G2).
             {% else %}{% trans "Waiting for approval" %}{% endif %}
           </h2>
           <p class="mt-0.5 text-xs text-content-soft">
-            {% if master.is_published %}{% trans "The festival is visible to everyone." %}
+            {% if master.is_published %}{% trans "The event is visible to everyone." %}
             {% elif master.status == 'blocked' %}{% trans "It is not visible to the public. Contact us if you think it's a mistake." %}
-            {% else %}{% trans "Only its managers see it until an admin approves it. Until then you can only link events you manage." %}{% endif %}
+            {% else %}{% trans "Only its managers see it until an admin approves it. Until then you can only link gatherings you manage." %}{% endif %}
           </p>
         </div>
         {% if can_approve and not master.is_published %}
@@ -42,13 +42,13 @@ then its four pages, as the location's and the event's panels (G1, G2).
     </section>
 
     <div class="space-y-2">
-      {% url 'master-event-manage-data' master.slug as url %}{% trans "Festival info" as title %}{% trans "Name, description, venue and cover image" as description %}
+      {% url 'master-event-manage-data' master.slug as url %}{% trans "Event info" as title %}{% trans "Name, description, venue and cover image" as description %}
       {% manage_tile url title description icon="pencil" %}
       {% url 'master-event-manage-dates' master.slug as url %}{% trans "Dates" as title %}
       {% blocktrans count n=date_count asvar description %}{{ n }} date configured{% plural %}{{ n }} dates configured{% endblocktrans %}
       {% manage_tile url title description icon="calendar" %}
-      {% url 'master-event-manage-events' master.slug as url %}{% trans "Linked events" as title %}
-      {% blocktrans count n=event_count asvar description %}{{ n }} event of the locations{% plural %}{{ n }} events of the locations{% endblocktrans %}
+      {% url 'master-event-manage-events' master.slug as url %}{% trans "Linked gatherings" as title %}
+      {% blocktrans count n=event_count asvar description %}{{ n }} gathering of the locations{% plural %}{{ n }} gatherings of the locations{% endblocktrans %}
       {% manage_tile url title description icon="link" %}
       {% url 'master-event-manage-people' master.slug as url %}{% trans "Sponsors and managers" as title %}
       {% blocktrans count n=sponsor_count asvar sponsors %}{{ n }} sponsor{% plural %}{{ n }} sponsors{% endblocktrans %}

@@ -28,7 +28,8 @@ EMAIL_DOMAIN = 'ui-demo.example.com'
 PERSONAS = ('newcomer', 'player', 'member', 'manager', 'organizer', 'admin')
 
 LOCATION_NAMES = ('Negozio Demo', 'Circolo Demo', 'Associazione Demo')
-MANIFESTATION_NAME = 'Manifestazione Demo'
+# The MasterEvent: «evento» in the interface, whose Event is a «ritrovo».
+MANIFESTATION_NAME = 'Evento Demo'
 # National networks: the shop in one, the two associations in the other.
 NETWORK_NAMES = ('Federazione Demo', 'Rete Ludica Demo')
 
@@ -161,7 +162,7 @@ def seed_ui_personas():
         event_join_permission=Location.PERM_MEMBERS_ONLY,
     )
 
-    event = _event('Evento Demo', negozio, manager, [today + timedelta(days=14)], venue_location=negozio)
+    event = _event('Ritrovo Demo', negozio, manager, [today + timedelta(days=14)], venue_location=negozio)
     nights = [today + timedelta(days=days) for days in (2, 9, 16)]
     # The association's weekly evenings run without tables: no table booking.
     night = _event('Serata Demo', associazione, manager, nights, venue_location=associazione,
@@ -178,7 +179,7 @@ def seed_ui_personas():
     venue = {'venue_name': 'Fiera Demo', 'address': 'Viale Fiera 1', 'city': 'Milano'}
     manifestation = MasterEvent.objects.create(
         name=MANIFESTATION_NAME, status=Event.PUBLISHED, latitude=lat, longitude=lng,
-        description='Manifestazione dei dati dimostrativi.', **venue)
+        description='Evento dei dati dimostrativi.', **venue)
     manifestation.managers.add(organizer)
     for day in manifestation_days:
         MasterEventDate.objects.create(master_event=manifestation, date=day)
@@ -200,7 +201,7 @@ def seed_ui_personas():
             title='Tavolo per soci', author=member, location=circolo,
             date=today + timedelta(days=5), time=time(21, 0)),
         'event': Table.objects.create(
-            title="Tavolo dell'evento", author=manager,
+            title="Tavolo del ritrovo", author=manager,
             event=event, date=event.dates.get().date, time=time(15, 0)),
     }
     for key, author in (('upcoming', manager), ('past', manager), ('members', member), ('event', manager)):

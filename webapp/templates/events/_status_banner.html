@@ -9,7 +9,7 @@
     </svg>
     <div>
       <p class="text-sm font-semibold text-amber-800">{% trans "Proposal waiting" %}</p>
-      <p class="text-xs text-amber-700 mt-0.5">{% blocktrans with location=event.organizer_location.name %}Only you and the managers of {{ location }} can see this event until they publish it.{% endblocktrans %}</p>
+      <p class="text-xs text-amber-700 mt-0.5">{% blocktrans with location=event.organizer_location.name %}Only you and the managers of {{ location }} can see this gathering until they publish it.{% endblocktrans %}</p>
     </div>
   </div>
 {% elif event.status == 'draft' %}
@@ -21,7 +21,7 @@
       </svg>
       <div>
         <p class="text-sm font-semibold text-amber-800">{% trans "Draft" %}</p>
-        <p class="text-xs text-amber-700 mt-0.5">{% trans "This event is not visible to the public yet. Publish it when it's ready." %}</p>
+        <p class="text-xs text-amber-700 mt-0.5">{% trans "This gathering is not visible to the public yet. Publish it when it's ready." %}</p>
       </div>
     </div>
     <a href="{% url 'event-manage' event.slug %}"
@@ -40,7 +40,7 @@
     </svg>
     <div>
       <p class="text-sm font-semibold text-red-700">{% trans "Blocked" %}</p>
-      <p class="text-xs text-red-700 mt-0.5">{% trans "An admin blocked this event: it is not visible to the public. Contact us if you think it's a mistake." %}</p>
+      <p class="text-xs text-red-700 mt-0.5">{% trans "An admin blocked this gathering: it is not visible to the public. Contact us if you think it's a mistake." %}</p>
     </div>
   </div>
 {% endif %}

@@ -7,7 +7,7 @@
   <div class="mb-6">
     {% back_link 'location-manage' location.slug label=_("Manage") %}
     <h1 class="text-2xl font-extrabold text-content">{% trans "Permissions" %}</h1>
-    <p class="text-sm text-content-muted mt-1">{% trans "Control who can create and join tables and events at this location." %}</p>
+    <p class="text-sm text-content-muted mt-1">{% trans "Control who can create and join tables and gatherings at this location." %}</p>
   </div>
 
   {% if not location.enable_membership %}
@@ -35,9 +35,9 @@
     </section>
 
     <section aria-labelledby="event-permissions-heading" class="space-y-4">
-      <h2 id="event-permissions-heading" class="text-base font-bold text-content">{% trans "Events" %}</h2>
-      {% include "locations/_permission_choices.html" with permission=form.event_creation_permission choices=form.instance.EVENT_CREATION_CHOICES label=_("Who can create events?") only %}
-      {% include "locations/_permission_choices.html" with permission=form.event_join_permission choices=form.instance.TABLE_JOIN_CHOICES label=_("Who can join events?") only %}
+      <h2 id="event-permissions-heading" class="text-base font-bold text-content">{% trans "Gatherings" %}</h2>
+      {% include "locations/_permission_choices.html" with permission=form.event_creation_permission choices=form.instance.EVENT_CREATION_CHOICES label=_("Who can create gatherings?") only %}
+      {% include "locations/_permission_choices.html" with permission=form.event_join_permission choices=form.instance.TABLE_JOIN_CHOICES label=_("Who can join gatherings?") only %}
     </section>
 
     <button type="submit"

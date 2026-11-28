@@ -45,7 +45,7 @@ class BadgeTest(TestCase):
 
     def test_types_are_outlined(self):
         html = render('{% type_badge "event" %}')
-        self.assertIn('Evento', html)
+        self.assertIn('Ritrovo', html)  # an Event is a «ritrovo»
         self.assertIn('border border-divider', html)
 
     def test_roles(self):

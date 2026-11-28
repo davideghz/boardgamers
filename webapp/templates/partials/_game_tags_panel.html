@@ -41,7 +41,7 @@
             <input type="checkbox" name="show_on_event_page" form="tag-update-{{ tag.pk }}"
                    class="w-4 h-4 rounded border-divider text-link focus:ring-focus"
                    onchange="this.form.requestSubmit()"{% if tag.show_on_event_page %} checked{% endif %}>
-            {% trans "Show on the event page" %}
+            {% trans "Show on the gathering page" %}
           </label>
         {% endif %}
       </li>
@@ -56,7 +56,7 @@
     {% if show_on_event_page %}
       <label class="flex items-center gap-2 text-xs text-content-soft cursor-pointer">
         {{ tag_form.show_on_event_page }}
-        {% trans "Show on the event page" %}
+        {% trans "Show on the gathering page" %}
       </label>
     {% endif %}
     <button type="submit"

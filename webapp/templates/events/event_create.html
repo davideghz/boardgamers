@@ -3,8 +3,8 @@
 
 {% block content %}
   <div class="mb-6">
-    {% back_link 'event-index' label=_("Events") %}
-    <h1 class="text-2xl font-extrabold text-content">{% translate "Create event" %}</h1>
+    {% back_link 'event-index' label=_("Gatherings") %}
+    <h1 class="text-2xl font-extrabold text-content">{% translate "Create gathering" %}</h1>
   </div>
 
   <div class="max-w-xl">
@@ -22,7 +22,7 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p class="mb-3 text-content-muted">{% translate "You have no locations where you can create an event." %}</p>
+      <p class="mb-3 text-content-muted">{% translate "You have no locations where you can create a gathering." %}</p>
       <a href="{% url 'location-create' %}" class="font-semibold text-link hover:underline">{% translate "Add location" %}</a>
     {% endif %}
   </div>

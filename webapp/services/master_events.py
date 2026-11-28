@@ -28,14 +28,14 @@ def set_master(event, master, user, *, unlink=False):
         raise PermissionDenied
     if unlink:
         if event.master_event_id != master.pk:
-            raise ValidationError(_('The event is no longer linked to this festival.'))
+            raise ValidationError(_('The gathering is no longer linked to this event.'))
         event.master_event = None
     else:
         if not linkable_events(user, master).filter(pk=event.pk).exists():
-            raise ValidationError(_('The event is no longer available to link.'))
+            raise ValidationError(_('The gathering is no longer available to link.'))
         missing_dates = list(event.dates.exclude(date__in=master.dates.values('date')).values_list('date', flat=True))
         if missing_dates:
-            raise ValidationError(_('Add these dates to the festival calendar before linking the event: %(dates)s.') % {
+            raise ValidationError(_('Add these dates to the event calendar before linking the gathering: %(dates)s.') % {
                 'dates': ', '.join(date_format(day) for day in missing_dates),
             })
         event.master_event = master

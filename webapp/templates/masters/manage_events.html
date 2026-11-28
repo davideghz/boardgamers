@@ -12,7 +12,7 @@ A page of the festival's management panel (plan G4, masters/manage_index.html).
     {% page_header page_title subtitle=master.name back_url=panel_url back_label=back_label %}
     <div class="space-y-5">
       <section id="master-event-events" class="scroll-mt-16 space-y-3 rounded-xl border border-divider bg-surface p-4 sm:p-5">
-        <h2 class="font-bold text-content">{% translate "Linked events" %}</h2>
+        <h2 class="font-bold text-content">{% translate "Linked gatherings" %}</h2>
         <ul class="divide-y divide-divider">
           {% for event in linked_events %}
             <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
@@ -26,32 +26,32 @@ A page of the festival's management panel (plan G4, masters/manage_index.html).
               </div>
               <form method="post" action="{% url 'master-event-link' master.slug %}">
                 {% csrf_token %}
-                <button type="submit" name="remove" value="{{ event.pk }}" class="font-semibold text-red-600 hover:underline dark:text-red-400">{% translate "Unlink event" %}</button>
+                <button type="submit" name="remove" value="{{ event.pk }}" class="font-semibold text-red-600 hover:underline dark:text-red-400">{% translate "Unlink gathering" %}</button>
               </form>
             </li>
           {% empty %}
-            <li class="py-2 text-sm text-content-muted">{% translate "No linked events yet." %}</li>
+            <li class="py-2 text-sm text-content-muted">{% translate "No linked gatherings yet." %}</li>
           {% endfor %}
         </ul>
         {% if linkable_events %}
           <form method="post" action="{% url 'master-event-link' master.slug %}" class="flex flex-col items-start gap-2 sm:flex-row sm:items-end">
             {% csrf_token %}
             <label class="flex w-full min-w-0 flex-col gap-1 text-sm text-content-muted sm:flex-1">
-              {% translate "Event to link" %}
+              {% translate "Gathering to link" %}
               <select name="event" required class="w-full rounded-lg border border-divider bg-surface px-3 py-2 text-sm text-content">
-                <option value="" selected disabled>{% translate "Select an event" %}</option>
+                <option value="" selected disabled>{% translate "Select a gathering" %}</option>
                 {% for event in linkable_events %}
                   <option value="{{ event.pk }}">{{ event.name }} · {{ event.organizer_location.name }}{% if not event.is_published %} · {{ event.get_status_display }}{% endif %}</option>
                 {% endfor %}
               </select>
             </label>
-            <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Link event" %}</button>
+            <button type="submit" class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">{% translate "Link gathering" %}</button>
           </form>
         {% else %}
-          <p class="text-sm text-content-muted">{% translate "No events available to link." %}</p>
+          <p class="text-sm text-content-muted">{% translate "No gatherings available to link." %}</p>
         {% endif %}
         {% if not master.is_published %}
-          <p class="text-xs text-content-muted">{% translate "Until the festival is approved, you can only link events you manage." %}</p>
+          <p class="text-xs text-content-muted">{% translate "Until the event is approved, you can only link gatherings you manage." %}</p>
         {% endif %}
       </section>
     </div>

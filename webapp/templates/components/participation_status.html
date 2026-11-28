@@ -11,7 +11,7 @@ opens that confirm_dialog. `compact` is the small version for cards.
   {% if leave_dialog %}
     <button type="button" onclick="document.getElementById('{{ leave_dialog }}').showModal()"
             class="rounded-full px-2 py-1 text-xs font-semibold text-danger hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
-      {% if kind == 'event' %}{% trans "Leave the event" %}{% else %}{% trans "Leave the table" %}{% endif %}
+      {% if kind == 'event' %}{% trans "Leave the gathering" %}{% else %}{% trans "Leave the table" %}{% endif %}
     </button>
   {% endif %}
 </span>

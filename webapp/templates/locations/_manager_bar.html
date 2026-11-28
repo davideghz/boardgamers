@@ -17,8 +17,8 @@ Top of the location page for its managers ("Manage" is in the action bar above, 
             <span class="font-extrabold">{{ item.count }}</span>
             {% if item.key == 'membership_requests' %}{% blocktrans count n=item.count %}membership request{% plural %}membership requests{% endblocktrans %}
             {% elif item.key == 'layout_requests' %}{% blocktrans count n=item.count %}layout request{% plural %}layout requests{% endblocktrans %}
-            {% elif item.key == 'draft_events' %}{% blocktrans count n=item.count %}draft event{% plural %}draft events{% endblocktrans %}
-            {% else %}{% blocktrans count n=item.count %}event without tables{% plural %}events without tables{% endblocktrans %}{% endif %}
+            {% elif item.key == 'draft_events' %}{% blocktrans count n=item.count %}draft gathering{% plural %}draft gatherings{% endblocktrans %}
+            {% else %}{% blocktrans count n=item.count %}gathering without tables{% plural %}gatherings without tables{% endblocktrans %}{% endif %}
           </a>
         </li>
       {% endfor %}

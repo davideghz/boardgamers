@@ -54,8 +54,8 @@ def events(request, template_name='accounts/account_events.html'):
         'managed_events': managed_events,
         'participating_events': participating_events,
         'meta': Meta(
-            title=_("My Events"),
-            description=_("Manage the events you created or coordinate."),
+            title=_("My Gatherings"),
+            description=_("Manage the gatherings you created or coordinate."),
         )
     })
 

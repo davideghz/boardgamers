@@ -43,10 +43,10 @@ msgid "National affiliations"
 msgstr "Affiliazioni nazionali"
 
 msgid "Affiliated locations"
-msgstr "Sedi affiliate"
+msgstr "Associazioni affiliate"
 
 msgid "View affiliated locations"
-msgstr "Vedi le sedi affiliate"
+msgstr "Vedi le associazioni affiliate"
 
 msgid "Merge the two selected games"
 msgstr "Unisci i due giochi selezionati"
@@ -62,15 +62,8 @@ msgstr ""
 "L’unione eliminerebbe una voce della ludoteca con uno storico dei prestiti."
 
 #, python-format
-msgid ""
-"Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library "
-"entries moved, %(merged)d library entries merged, %(event_moved)d event "
-"library entries moved, %(event_merged)d event library entries merged."
-msgstr ""
-"%(dup)s unito a %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di "
-"ludoteca spostate, %(merged)d voci di ludoteca unite, %(event_moved)d voci "
-"della ludoteca dell’evento spostate, %(event_merged)d voci della ludoteca "
-"dell’evento unite."
+msgid "Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library entries moved, %(merged)d library entries merged, %(event_moved)d gathering library entries moved, %(event_merged)d gathering library entries merged."
+msgstr "%(dup)s unito a %(keeper)s: %(tables)d tavoli spostati, %(moved)d voci di ludoteca spostate, %(merged)d voci di ludoteca unite, %(event_moved)d voci della ludoteca del ritrovo spostate, %(event_merged)d voci della ludoteca del ritrovo unite."
 
 msgid "Merge games"
 msgstr "Unisci giochi"
@@ -87,8 +80,8 @@ msgstr "Chiusura"
 msgid "Cover preview"
 msgstr "Anteprima della copertina"
 
-msgid "A published event needs at least one date."
-msgstr "Un evento pubblicato deve avere almeno una giornata."
+msgid "A published gathering needs at least one date."
+msgstr "Un ritrovo pubblicato deve avere almeno una giornata."
 
 msgid "Participants"
 msgstr "Partecipanti"
@@ -98,7 +91,7 @@ msgstr "Approva la pubblicazione"
 
 #, python-format
 msgid "%(name)s was published."
-msgstr "«%(name)s» è stata pubblicata."
+msgstr "«%(name)s» è stato pubblicato."
 
 msgid "Back to draft"
 msgstr "Torna in bozza"
@@ -149,25 +142,25 @@ msgid "Your favorites"
 msgstr "I tuoi preferiti"
 
 msgid "Select a location"
-msgstr "Seleziona una sede"
+msgstr "Seleziona un'associazione"
 
 msgid "Search by name or city…"
 msgstr "Cerca per nome o città…"
 
 msgid "No locations found."
-msgstr "Nessuna sede trovata."
+msgstr "Nessuna associazione trovata."
 
 msgid "Suggested locations"
-msgstr "Sedi suggerite"
+msgstr "Associazioni suggerite"
 
 msgid "Search another location"
-msgstr "Cerca un'altra sede"
+msgstr "Cerca un'altra associazione"
 
 msgid "Where do you play?"
 msgstr "Dove si gioca?"
 
 msgid "Your locations"
-msgstr "Le sedi che frequenti"
+msgstr "Le associazioni che frequenti"
 
 msgid "Select a member"
 msgstr "Seleziona un socio"
@@ -264,7 +257,7 @@ msgid "Custom affiliation logo"
 msgstr "Logo personalizzato dell’affiliazione"
 
 msgid "Choose a national network"
-msgstr "Scegli un’associazione nazionale"
+msgstr "Scegli una rete nazionale"
 
 msgid "A button with a link needs a title."
 msgstr "Un pulsante con un link deve avere un titolo."
@@ -276,7 +269,7 @@ msgid "Where does it take place?"
 msgstr "Dove si svolge?"
 
 msgid "Registered location"
-msgstr "Sede registrata su Board Gamers"
+msgstr "Associazione registrata su Board Gamers"
 
 msgid "Unregistered venue"
 msgstr "Luogo non registrato"
@@ -288,17 +281,13 @@ msgid "Longitude"
 msgstr "Longitudine"
 
 msgid "Find a venue"
-msgstr "Cerca una sede"
+msgstr "Cerca un'associazione"
 
 msgid "Choose a registered location."
-msgstr "Scegli una sede registrata."
+msgstr "Scegli un'associazione registrata."
 
-msgid ""
-"Use the venue layout for on-site events or after approval from the external "
-"venue."
-msgstr ""
-"Puoi usare la configurazione della sede per gli eventi in sede o dopo "
-"l’autorizzazione della sede esterna."
+msgid "Use the venue layout for on-site gatherings or after approval from the external venue."
+msgstr "Puoi usare la configurazione dell’associazione per i ritrovi che si tengono lì o dopo l’autorizzazione dell’associazione esterna."
 
 msgid "Required for a public venue."
 msgstr "Campo obbligatorio per pubblicare il luogo."
@@ -318,11 +307,11 @@ msgstr "Orario di chiusura"
 msgid "An area with this name already exists."
 msgstr "Esiste già un’area con questo nome."
 
-msgid "A station with this name already exists for this event."
-msgstr "Esiste già una postazione con questo nome per questo evento."
+msgid "A station with this name already exists for this gathering."
+msgstr "Esiste già una postazione con questo nome per questo ritrovo."
 
 msgid "A station with this name already exists for this location."
-msgstr "Esiste già una postazione con questo nome in questa sede."
+msgstr "Esiste già una postazione con questo nome in questa associazione."
 
 msgid "Manager"
 msgstr "Gestore"
@@ -337,7 +326,7 @@ msgid "Select a table creator"
 msgstr "Seleziona un admin tavoli"
 
 msgid "Location"
-msgstr "Sede"
+msgstr "Associazione"
 
 msgid "New Owner"
 msgstr "Nuovo titolare"
@@ -439,7 +428,7 @@ msgid "Members with a valid membership can confirm pickup themselves."
 msgstr "I soci con tessera valida possono registrare autonomamente il ritiro."
 
 msgid "Only members with a valid membership at this location see the nickname."
-msgstr "Il nickname è visibile ai soci con tessera valida per questa sede."
+msgstr "Il nickname è visibile ai soci con tessera valida per questa associazione."
 
 msgid "Tag for the imported games"
 msgstr "Tag per i giochi importati"
@@ -499,8 +488,8 @@ msgstr "Un tavolo è stato eliminato"
 msgid "A new player joined the table"
 msgstr "Nuovo giocatore al tavolo"
 
-msgid "New event published"
-msgstr "Nuovo evento pubblicato"
+msgid "New gathering published"
+msgstr "Nuovo ritrovo pubblicato"
 
 msgid "Check your email and follow the link to verify your account."
 msgstr "Controlla la tua email e segui il link per verificare il tuo account."
@@ -509,7 +498,7 @@ msgid "Please verify your email before proceeding"
 msgstr "Verifica la tua email prima di procedere."
 
 msgid "Insert your address to find near locations."
-msgstr "Inserisci il tuo indirizzo per trovare le sedi vicine."
+msgstr "Inserisci il tuo indirizzo per trovare le associazioni vicine."
 
 msgid "Message sent successfully!"
 msgstr "Messaggio inviato con successo!"
@@ -590,7 +579,7 @@ msgid "Default table time"
 msgstr "Orario default dei tavoli"
 
 msgid "Default start time used when creating new tables at this location."
-msgstr "Orario di inizio predefinito per i nuovi tavoli in questa sede."
+msgstr "Orario di inizio predefinito per i nuovi tavoli in questa associazione."
 
 msgid "Leaderboard editable for (days)"
 msgstr "Classifica modificabile per (giorni)"
@@ -611,11 +600,11 @@ msgstr "Solo i soci"
 msgid "Owners and managers only"
 msgstr "Solo i gestori"
 
-msgid "Who can create events"
-msgstr "Chi può creare eventi"
+msgid "Who can create gatherings"
+msgstr "Chi può creare ritrovi"
 
-msgid "Who can join events"
-msgstr "Chi può partecipare agli eventi"
+msgid "Who can join gatherings"
+msgstr "Chi può partecipare ai ritrovi"
 
 msgid "Who can create tables"
 msgstr "Chi può creare i tavoli"
@@ -631,19 +620,19 @@ msgid "Active"
 msgstr "Attivo"
 
 msgid "National network"
-msgstr "Associazione nazionale"
+msgstr "Rete nazionale"
 
 msgid "National networks"
-msgstr "Associazioni nazionali"
+msgstr "Reti nazionali"
 
 msgid "Local affiliation name"
 msgstr "Nome locale dell’affiliazione"
 
 msgid "Location affiliation"
-msgstr "Affiliazione della sede"
+msgstr "Affiliazione dell'associazione"
 
 msgid "Location affiliations"
-msgstr "Affiliazioni delle sedi"
+msgstr "Affiliazioni delle associazioni"
 
 msgid "Phone"
 msgstr "Telefono"
@@ -682,8 +671,8 @@ msgstr "Modificabile"
 msgid "Title"
 msgstr "Titolo"
 
-msgid "Event"
-msgstr "Evento"
+msgid "Gathering"
+msgstr "Ritrovo"
 
 msgid "Play Area"
 msgstr "Area di gioco"
@@ -797,10 +786,10 @@ msgid "System Comment"
 msgstr "Commento di Sistema"
 
 msgid "Location Follower"
-msgstr "Chi segue la sede"
+msgstr "Chi segue l'associazione"
 
 msgid "Location Followers"
-msgstr "Chi segue le sedi"
+msgstr "Chi segue le associazioni"
 
 msgid "Favorite User"
 msgstr "Utente preferito"
@@ -913,10 +902,10 @@ msgid "Order"
 msgstr "Ordine"
 
 msgid "Location Game Tag"
-msgstr "Tag dei giochi della sede"
+msgstr "Tag dei giochi dell'associazione"
 
 msgid "Location Game Tags"
-msgstr "Tag dei giochi delle sedi"
+msgstr "Tag dei giochi delle associazioni"
 
 msgid "Sold"
 msgstr "Venduto"
@@ -1021,7 +1010,7 @@ msgid "Active players"
 msgstr "Giocatori attivi"
 
 msgid "Location managers"
-msgstr "Gestori di sedi"
+msgstr "Gestori di associazioni"
 
 msgid "Users without activity"
 msgstr "Utenti senza attività"
@@ -1072,16 +1061,8 @@ msgstr "Un percorso interno che inizia con / oppure un indirizzo http(s)."
 msgid "Audience"
 msgstr "Destinatari"
 
-msgid ""
-"Active players: signed-in users with an upcoming table or event. Members: "
-"with a membership in force at some location. Location managers: owners and "
-"managers of a location. Users without activity: signed in, but never joined "
-"a table or an event."
-msgstr ""
-"Giocatori attivi: utenti collegati con un tavolo o un evento in programma. "
-"Soci: con un'adesione in corso in qualche sede. Gestori di sedi: titolari e "
-"gestori di una sede. Utenti senza attività: collegati, ma mai iscritti a un "
-"tavolo o a un evento."
+msgid "Active players: signed-in users with an upcoming table or gathering. Members: with a membership in force at some location. Location managers: owners and managers of a location. Users without activity: signed in, but never joined a table or a gathering."
+msgstr "Giocatori attivi: utenti collegati con un tavolo o un ritrovo in programma. Soci: con un'adesione in corso in qualche associazione. Gestori di associazioni: titolari e gestori di un'associazione. Utenti senza attività: collegati, ma mai iscritti a un tavolo o a un ritrovo."
 
 msgid "Display on"
 msgstr "Mostra in"
@@ -1150,34 +1131,34 @@ msgid "Automatic for the venue"
 msgstr "Automatica in base al luogo"
 
 msgid "Organizing location library"
-msgstr "Ludoteca della sede organizzatrice"
+msgstr "Ludoteca dell'associazione organizzatrice"
 
-msgid "Event selection"
-msgstr "Selezione per l'evento"
+msgid "Gathering selection"
+msgstr "Selezione per il ritrovo"
 
 msgid "Game catalog"
 msgstr "Catalogo dei giochi"
 
-msgid "Event layout"
-msgstr "Configurazione dell'evento"
+msgid "Gathering layout"
+msgstr "Configurazione del ritrovo"
 
 msgid "Venue layout"
-msgstr "Configurazione della sede"
+msgstr "Configurazione dell'associazione"
 
 msgid "Play areas and stations"
 msgstr "Aree di gioco e postazioni"
 
-msgid "Manifestation"
-msgstr "Manifestazione"
+msgid "Event"
+msgstr "Evento"
 
 msgid "Organizing location"
-msgstr "Sede organizzatrice"
+msgstr "Associazione organizzatrice"
 
 msgid "Venue location"
-msgstr "Sede ospitante"
+msgstr "Associazione ospitante"
 
 msgid "Layout requested from"
-msgstr "Sede destinataria della richiesta"
+msgstr "Associazione destinataria della richiesta"
 
 msgid "Venue layout approved"
 msgstr "Uso degli spazi autorizzato"
@@ -1200,8 +1181,8 @@ msgstr "Additional table creators"
 msgid "Leaderboard"
 msgstr "Classifica"
 
-msgid "When off, the tables of this event have no leaderboard."
-msgstr "Se disattivata, i tavoli di questo evento non hanno la classifica."
+msgid "When off, the tables of this gathering have no leaderboard."
+msgstr "Se disattivata, i tavoli di questo ritrovo non hanno la classifica."
 
 msgid "Public game library"
 msgstr "Ludoteca pubblica"
@@ -1219,12 +1200,11 @@ msgid "Button link"
 msgstr "Link del pulsante"
 
 #, python-format
-msgid "%(name)s — gaming event"
-msgstr "%(name)s – evento boardgames"
+msgid "%(name)s — gaming gathering"
+msgstr "%(name)s – ritrovo boardgames"
 
-msgid "Layout requests must go to the event’s current external venue."
-msgstr ""
-"La richiesta deve essere inviata alla sede esterna scelta per l’evento."
+msgid "Layout requests must go to the gathering’s current external venue."
+msgstr "La richiesta deve essere inviata all’associazione esterna scelta per il ritrovo."
 
 msgid "Venue approval requires a layout request."
 msgstr "Per autorizzare l’uso degli spazi occorre una richiesta."
@@ -1232,9 +1212,7 @@ msgstr "Per autorizzare l’uso degli spazi occorre una richiesta."
 msgid ""
 "Choose the organizing location or get approval from the external venue to "
 "use its layout."
-msgstr ""
-"Scegli la sede organizzatrice oppure ottieni l’autorizzazione della sede "
-"esterna per usarne gli spazi."
+msgstr "Scegli l’associazione organizzatrice oppure ottieni l’autorizzazione dell’associazione esterna per usarne gli spazi."
 
 #, python-format
 msgid ""
@@ -1243,14 +1221,14 @@ msgstr ""
 "Riassegna queste sessioni future prima di cambiare configurazione: "
 "%(sessions)s"
 
-msgid "A linked event needs an organizing location."
-msgstr "Un evento collegato deve avere una sede organizzatrice."
+msgid "A linked gathering needs an organizing location."
+msgstr "Un ritrovo collegato deve avere un'associazione organizzatrice."
 
-msgid "Choose one of the event dates."
-msgstr "Seleziona una delle giornate dell’evento."
+msgid "Choose one of the gathering dates."
+msgstr "Seleziona una delle giornate del ritrovo."
 
-msgid "Choose a date in the festival calendar."
-msgstr "Scegli una giornata del calendario della manifestazione."
+msgid "Choose a date in the event calendar."
+msgstr "Scegli una giornata del calendario dell'evento."
 
 msgid "Add at least one date"
 msgstr "Aggiungi almeno una data"
@@ -1264,8 +1242,8 @@ msgstr "Indica gli orari di apertura e chiusura di ogni giornata"
 msgid "Write a description"
 msgstr "Scrivi una descrizione"
 
-msgid "Events"
-msgstr "Eventi"
+msgid "Gatherings"
+msgstr "Ritrovi"
 
 msgid "Sponsor"
 msgstr "Sponsor"
@@ -1273,23 +1251,23 @@ msgstr "Sponsor"
 msgid "Sponsors"
 msgstr "Sponsor"
 
-msgid "Manifestations"
-msgstr "Manifestazioni"
+msgid "Events"
+msgstr "Eventi"
 
 msgid "This date has registrations."
 msgstr "Ci sono iscrizioni per questa giornata."
 
-msgid "A linked event uses this date."
-msgstr "Un evento collegato usa questa giornata."
+msgid "A linked gathering uses this date."
+msgstr "Un ritrovo collegato usa questa giornata."
 
 msgid "Publication requires a description and a complete venue."
 msgstr "Per pubblicare servono una descrizione e un luogo completo."
 
 msgid "Only drafts can be approved."
-msgstr "Puoi approvare solo le manifestazioni in bozza."
+msgstr "Puoi approvare solo gli eventi in bozza."
 
-msgid "A date cannot be moved to another festival."
-msgstr "Una giornata deve restare nella sua manifestazione."
+msgid "A date cannot be moved to another event."
+msgstr "Una giornata deve restare nel suo evento."
 
 msgid "Play Areas"
 msgstr "Aree di gioco"
@@ -1297,41 +1275,41 @@ msgstr "Aree di gioco"
 msgid "Move the tables scheduled on this date first."
 msgstr "Sposta prima i tavoli programmati per questa giornata."
 
-msgid "An event date cannot change event."
-msgstr "Una giornata non può essere trasferita a un altro evento."
+msgid "A gathering date cannot change gathering."
+msgstr "Una giornata non può essere trasferita a un altro ritrovo."
 
-msgid "Event Date"
-msgstr "Data Evento"
+msgid "Gathering Date"
+msgstr "Data Ritrovo"
 
-msgid "Event Dates"
-msgstr "Date Evento"
+msgid "Gathering Dates"
+msgstr "Date Ritrovo"
 
-msgid "Event Table Category"
-msgstr "Categoria tavolo evento"
+msgid "Gathering Table Category"
+msgstr "Categoria tavolo ritrovo"
 
-msgid "Event Table Categories"
-msgstr "Categorie tavolo evento"
+msgid "Gathering Table Categories"
+msgstr "Categorie tavolo ritrovo"
 
-msgid "Show on the event page"
-msgstr "Mostra nella pagina evento"
+msgid "Show on the gathering page"
+msgstr "Mostra nella pagina ritrovo"
 
-msgid "Event Game Tag"
-msgstr "Tag Gioco Evento"
+msgid "Gathering Game Tag"
+msgstr "Tag Gioco Ritrovo"
 
-msgid "Event Game Tags"
-msgstr "Tag Giochi Evento"
+msgid "Gathering Game Tags"
+msgstr "Tag Giochi Ritrovo"
 
 msgid "Source in the organizing library"
-msgstr "Titolo nella ludoteca della sede organizzatrice"
+msgstr "Titolo nella ludoteca dell'associazione organizzatrice"
 
 msgid "Choose this title from the organizing location."
-msgstr "Seleziona lo stesso titolo dalla ludoteca della sede organizzatrice."
+msgstr "Seleziona lo stesso titolo dalla ludoteca dell'associazione organizzatrice."
 
-msgid "Event Game"
-msgstr "Gioco Evento"
+msgid "Gathering Game"
+msgstr "Gioco Ritrovo"
 
-msgid "Event Games"
-msgstr "Giochi Evento"
+msgid "Gathering Games"
+msgstr "Giochi Ritrovo"
 
 msgid "On-site label, e.g. \"Table 1\""
 msgstr "Etichetta sul posto, es. \"Tavolo 1\""
@@ -1343,10 +1321,8 @@ msgid "Choose a play area from this station’s layout."
 msgstr ""
 "Scegli un'area di gioco appartenente alla configurazione della postazione."
 
-msgid "Reassign upcoming event sessions before transferring this station."
-msgstr ""
-"Riassegna le sessioni future degli eventi prima di trasferire questa "
-"postazione."
+msgid "Reassign upcoming gathering sessions before transferring this station."
+msgstr "Riassegna le sessioni future dei ritrovi prima di trasferire questa postazione."
 
 msgid "Stations"
 msgstr "Postazioni"
@@ -1354,11 +1330,11 @@ msgstr "Postazioni"
 msgid "User"
 msgstr "Utente"
 
-msgid "Event Participant"
-msgstr "Partecipante evento"
+msgid "Gathering Participant"
+msgstr "Partecipante ritrovo"
 
-msgid "Event Participants"
-msgstr "Partecipanti evento"
+msgid "Gathering Participants"
+msgstr "Partecipanti ritrovo"
 
 msgid "Push Subscription"
 msgstr "Push Subscription"
@@ -1396,21 +1372,19 @@ msgstr ""
 "più schede socio attive."
 
 msgid "Game loans are disabled for this location."
-msgstr "I prestiti sono disattivati per questa sede."
+msgstr "I prestiti sono disattivati per questa associazione."
 
 msgid "This game has been withdrawn from the library."
 msgstr "Questo gioco è uscito dalla ludoteca."
 
 msgid "Only games owned by the location and kept on site can be borrowed."
-msgstr ""
-"Si possono prendere in prestito solo i giochi di proprietà della sede e "
-"custoditi in sede."
+msgstr "Si possono prendere in prestito solo i giochi di proprietà dell'associazione e custoditi presso di essa."
 
 msgid "This game is already on loan."
 msgstr "Questo gioco è già in prestito."
 
 msgid "Select a member with a valid membership for this location."
-msgstr "Seleziona un socio con tessera valida per questa sede."
+msgstr "Seleziona un socio con tessera valida per questa associazione."
 
 msgid "This game is no longer in the library."
 msgstr "Questo gioco non è più in ludoteca."
@@ -1429,18 +1403,15 @@ msgstr "Il logo può misurare al massimo 2048 pixel per lato."
 msgid "Upload a valid PNG, JPEG or WebP logo."
 msgstr "Carica un logo PNG, JPEG o WebP valido."
 
-msgid "The event is no longer linked to this festival."
-msgstr "L’evento non è più collegato a questa manifestazione."
+msgid "The gathering is no longer linked to this event."
+msgstr "Il ritrovo non è più collegato a questo evento."
 
-msgid "The event is no longer available to link."
-msgstr "L’evento non è più disponibile per il collegamento."
+msgid "The gathering is no longer available to link."
+msgstr "Il ritrovo non è più disponibile per il collegamento."
 
 #, python-format
-msgid ""
-"Add these dates to the festival calendar before linking the event: %(dates)s."
-msgstr ""
-"Aggiungi queste giornate al calendario della manifestazione prima di "
-"collegare l’evento: %(dates)s."
+msgid "Add these dates to the event calendar before linking the gathering: %(dates)s."
+msgstr "Aggiungi queste giornate al calendario dell’evento prima di collegare il ritrovo: %(dates)s."
 
 msgid ""
 "Only active accounts without Django admin roles or permissions can be merged."
@@ -1538,8 +1509,8 @@ msgstr "Questo ospite è già al tavolo."
 msgid "You don't have permission to remove this guest."
 msgstr "Non hai il permesso di rimuovere questo ospite."
 
-msgid "A published festival needs at least one date."
-msgstr "Una manifestazione pubblicata deve avere almeno una giornata."
+msgid "A published event needs at least one date."
+msgstr "Un evento pubblicato deve avere almeno una giornata."
 
 msgid "Successfully logged out."
 msgstr "Disconnessione effettuata."
@@ -1644,13 +1615,13 @@ msgid "Filters"
 msgstr "Filtri"
 
 msgid "Filter by location"
-msgstr "Filtra per sede"
+msgstr "Filtra per associazione"
 
 msgid "Locations of your activities"
-msgstr "Sedi delle tue attività"
+msgstr "Associazioni delle tue attività"
 
 msgid "All locations"
-msgstr "Tutte le sedi"
+msgstr "Tutte le associazioni"
 
 msgid "Organized by me"
 msgstr "Organizzati da me"
@@ -1764,23 +1735,23 @@ msgstr "Imposta prima una password e un'email, o collega un altro account"
 msgid "Connect"
 msgstr "Collega"
 
-msgid "Create event"
-msgstr "Crea evento"
+msgid "Create gathering"
+msgstr "Crea ritrovo"
 
 msgid "Organized by you"
 msgstr "Organizzati da te"
 
-msgid "Events you're attending"
-msgstr "Eventi a cui partecipi"
+msgid "Gatherings you're attending"
+msgstr "Ritrovi a cui partecipi"
 
 msgid "Attending"
 msgstr "Partecipi"
 
-msgid "No events yet"
-msgstr "Ancora nessun evento."
+msgid "No gatherings yet"
+msgstr "Ancora nessun ritrovo."
 
-msgid "Create a GamesCon-style event and manage tables and play areas."
-msgstr "Crea un evento in stile GamesCon e gestisci i suoi tavoli."
+msgid "Create a GamesCon-style gathering and manage tables and play areas."
+msgstr "Crea un ritrovo in stile GamesCon e gestisci i suoi tavoli."
 
 msgid "My Guests"
 msgstr "I miei ospiti"
@@ -1841,13 +1812,13 @@ msgid "Management"
 msgstr "Gestione"
 
 msgid "Manage locations"
-msgstr "Gestisci le sedi"
+msgstr "Gestisci le associazioni"
 
 msgid "Edit the information of your locations and create new ones"
-msgstr "Modifica le sedi che gestisci e creane di nuove"
+msgstr "Modifica le associazioni che gestisci e creane di nuove"
 
-msgid "Manage the events you created or coordinate"
-msgstr "Gestisci gli eventi che hai creato o che coordini"
+msgid "Manage the gatherings you created or coordinate"
+msgstr "Gestisci i ritrovi che hai creato o che coordini"
 
 msgid "Manage tables"
 msgstr "Gestisci tavoli"
@@ -1880,16 +1851,16 @@ msgid "Do you run a club, an association or a game shop?"
 msgstr "Gestisci un club, un'associazione o un negozio di giochi?"
 
 msgid "Add your location"
-msgstr "Aggiungi la tua sede"
+msgstr "Aggiungi la tua associazione"
 
 msgid "My Locations"
-msgstr "Sedi che gestisci"
+msgstr "Associazioni che gestisci"
 
 msgid "Add location"
-msgstr "Aggiungi la tua sede"
+msgstr "Aggiungi la tua associazione"
 
 msgid "No locations yet"
-msgstr "Ancora nessuna sede"
+msgstr "Ancora nessuna associazione"
 
 msgid "Add your club, association or game shop."
 msgstr "Aggiungi il tuo club, associazione o negozio di giochi."
@@ -1968,7 +1939,7 @@ msgstr ""
 "background."
 
 msgid "A new table is created in a location you follow"
-msgstr "Viene creato un tavolo in una sede che segui"
+msgstr "Viene creato un tavolo in un'associazione che segui"
 
 msgid "A new player joins a table you created"
 msgstr "Un nuovo giocatore si unisce a un tuo tavolo"
@@ -2057,18 +2028,15 @@ msgstr[0] "%(n)s voce di ludoteca"
 msgstr[1] "%(n)s voci di ludoteca"
 
 #, python-format
-msgid "%(n)s event library entry"
-msgid_plural "%(n)s event library entries"
-msgstr[0] "%(n)s voce della ludoteca dell’evento"
-msgstr[1] "%(n)s voci della ludoteca dell’evento"
+msgid "%(n)s gathering library entry"
+msgid_plural "%(n)s gathering library entries"
+msgstr[0] "%(n)s voce della ludoteca del ritrovo"
+msgstr[1] "%(n)s voci della ludoteca del ritrovo"
 
 msgid ""
 "These locations have both games in their library. Merging combines their "
 "notes and tags and keeps the title in the library if either entry is active."
-msgstr ""
-"Queste sedi hanno entrambi i giochi in ludoteca. L’unione conserva note e "
-"tag di entrambe le voci e mantiene il titolo in ludoteca se almeno una voce "
-"è attiva."
+msgstr "Queste associazioni hanno entrambi i giochi in ludoteca. L’unione conserva note e tag di entrambe le voci e mantiene il titolo in ludoteca se almeno una voce è attiva."
 
 msgid "notes"
 msgstr "Note"
@@ -2156,7 +2124,7 @@ msgid "Tables created"
 msgstr "Tavoli creati"
 
 msgid "Locations created"
-msgstr "Sedi create"
+msgstr "Associazioni create"
 
 msgid "Confirm merge"
 msgstr "Conferma unione"
@@ -2398,7 +2366,7 @@ msgstr "Stai partecipando"
 msgid "You're in"
 msgstr "Sei iscritto"
 
-msgid "Leave the event"
+msgid "Leave the gathering"
 msgstr "Non partecipare più"
 
 msgid "Leave the table"
@@ -2410,8 +2378,8 @@ msgstr "Puoi gestire le tue preferenze di notifica email nel tuo profilo"
 msgid "at this link"
 msgstr "a questo link"
 
-msgid "A new event has been published"
-msgstr "È stato pubblicato un nuovo evento"
+msgid "A new gathering has been published"
+msgstr "È stato pubblicato un nuovo ritrovo"
 
 msgid "Created by"
 msgstr "Creato da"
@@ -2492,7 +2460,7 @@ msgid "Game:"
 msgstr "Gioco:"
 
 msgid "Location:"
-msgstr "Sede:"
+msgstr "Associazione:"
 
 msgid "Date and time:"
 msgstr "Data e ora:"
@@ -2585,20 +2553,20 @@ msgstr ""
 "Clicca sul pulsante qui sotto per confermare il tuo indirizzo email e "
 "completare la configurazione del tuo account."
 
-msgid "Your event dates"
+msgid "Your gathering dates"
 msgstr "Le tue giornate"
 
 msgid "Update dates"
 msgstr "Aggiorna giornate"
 
-msgid "Attend this event"
-msgstr "Partecipa all’evento"
+msgid "Attend this gathering"
+msgstr "Partecipa al ritrovo"
 
-msgid "Leave the event?"
-msgstr "Vuoi lasciare l'evento?"
+msgid "Leave the gathering?"
+msgstr "Vuoi lasciare il ritrovo?"
 
-msgid "Cancel event registration"
-msgstr "Annulla iscrizione all’evento"
+msgid "Cancel gathering registration"
+msgstr "Annulla iscrizione al ritrovo"
 
 msgid "Not assigned"
 msgstr "Da assegnare"
@@ -2607,29 +2575,22 @@ msgid "Venue"
 msgstr "Luogo"
 
 msgid "At the organizing location"
-msgstr "In sede"
+msgstr "In associazione"
 
 msgid "External venue"
-msgstr "Fuori sede"
+msgstr "Altro luogo"
 
-msgid "Festival"
-msgstr "Manifestazione"
+msgid "This gathering is linked to the event and its dates must be in the event calendar."
+msgstr "Questo ritrovo è collegato all'evento e le sue giornate devono essere nel calendario dell'evento."
 
-msgid ""
-"This event is linked to the festival and its dates must be in the festival "
-"calendar."
-msgstr ""
-"Questo evento è collegato alla manifestazione e le sue giornate devono "
-"essere nel calendario della manifestazione."
-
-msgid "Unlink this event from the festival?"
-msgstr "Scollegare questo evento dalla manifestazione?"
+msgid "Unlink this gathering from the event?"
+msgstr "Scollegare questo ritrovo dall'evento?"
 
 msgid "Unlink"
 msgstr "Scollega"
 
-msgid "Unlink event"
-msgstr "Scollega evento"
+msgid "Unlink gathering"
+msgstr "Scollega ritrovo"
 
 msgid "Remove filter"
 msgstr "Rimuovi filtro"
@@ -2638,57 +2599,41 @@ msgid "Proposal waiting"
 msgstr "Proposta in attesa"
 
 #, python-format
-msgid ""
-"Only you and the managers of %(location)s can see this event until they "
-"publish it."
-msgstr ""
-"Finché i gestori di %(location)s non lo pubblicano, questo evento lo vedete "
-"solo tu e loro."
+msgid "Only you and the managers of %(location)s can see this gathering until they publish it."
+msgstr "Finché i gestori di %(location)s non lo pubblicano, questo ritrovo lo vedete solo tu e loro."
 
-msgid ""
-"This event is not visible to the public yet. Publish it when it's ready."
-msgstr ""
-"Questo evento non è ancora visibile al pubblico. Pubblicalo quando è pronto."
+msgid "This gathering is not visible to the public yet. Publish it when it's ready."
+msgstr "Questo ritrovo non è ancora visibile al pubblico. Pubblicalo quando è pronto."
 
 msgid "Go to publishing"
 msgstr "Vai alla pubblicazione"
 
-msgid ""
-"An admin blocked this event: it is not visible to the public. Contact us if "
-"you think it's a mistake."
-msgstr ""
-"Un admin ha bloccato questo evento: non è visibile al pubblico. Contattaci "
-"se pensi sia un errore."
+msgid "An admin blocked this gathering: it is not visible to the public. Contact us if you think it's a mistake."
+msgstr "Un admin ha bloccato questo ritrovo: non è visibile al pubblico. Contattaci se pensi sia un errore."
 
-msgid "The venue has approved this event’s use of its play areas and stations."
-msgstr ""
-"La sede ha autorizzato questo evento a usare le sue aree di gioco e "
-"postazioni."
+msgid "The venue has approved this gathering’s use of its play areas and stations."
+msgstr "L'associazione ha autorizzato questo ritrovo a usare le sue aree di gioco e postazioni."
 
 msgid "Choose layout"
 msgstr "Scegli configurazione"
 
 msgid "Waiting for venue approval."
-msgstr "In attesa dell’autorizzazione della sede."
+msgstr "In attesa dell’autorizzazione dell’associazione."
 
 msgid "Withdraw request"
 msgstr "Ritira richiesta"
 
-msgid ""
-"Optional: by default the event uses its own play areas and stations. Ask the "
-"venue only if you want to use theirs."
-msgstr ""
-"Facoltativo: di norma l’evento usa le proprie aree e postazioni. Chiedi alla "
-"sede solo se vuoi usare le sue."
+msgid "Optional: by default the gathering uses its own play areas and stations. Ask the venue only if you want to use theirs."
+msgstr "Facoltativo: di norma il ritrovo usa le proprie aree e postazioni. Chiedi all’associazione solo se vuoi usare le sue."
 
 msgid "Request venue layout"
 msgstr "Richiedi uso degli spazi"
 
 msgid "Choose an organizing location"
-msgstr "Scegli la sede organizzatrice"
+msgstr "Scegli l'associazione organizzatrice"
 
-msgid "You have no locations where you can create an event."
-msgstr "Non ci sono sedi in cui puoi creare un evento."
+msgid "You have no locations where you can create a gathering."
+msgstr "Non ci sono associazioni in cui puoi creare un ritrovo."
 
 #, python-format
 msgid "Reserved for members of %(name)s"
@@ -2712,8 +2657,8 @@ msgstr "Riserva il tuo posto per il gioco che preferisci"
 msgid "View library"
 msgstr "Vedi la ludoteca"
 
-msgid "All the games available at the event"
-msgstr "Tutti i giochi disponibili all'evento"
+msgid "All the games available at the gathering"
+msgstr "Tutti i giochi disponibili al ritrovo"
 
 msgid "Your tables"
 msgstr "I tuoi tavoli"
@@ -2736,8 +2681,8 @@ msgstr "Sfoglia il programma e prendi posto a un tavolo."
 msgid "Log in to see your tables"
 msgstr "Accedi per vedere i tuoi tavoli"
 
-msgid "Sign in to keep track of the tables you join at this event."
-msgstr "Accedi per tenere traccia dei tavoli a cui partecipi a questo evento."
+msgid "Sign in to keep track of the tables you join at this gathering."
+msgstr "Accedi per tenere traccia dei tavoli a cui partecipi a questo ritrovo."
 
 msgid "Log in"
 msgstr "Accedi"
@@ -2766,8 +2711,8 @@ msgstr "Numero di telefono"
 msgid "Save number"
 msgstr "Salva numero"
 
-msgid "Event concluded"
-msgstr "Evento concluso"
+msgid "Gathering concluded"
+msgstr "Ritrovo concluso"
 
 #, python-format
 msgid "%(n)s person attending"
@@ -2790,12 +2735,11 @@ msgstr "Come arrivare"
 msgid "Map not available"
 msgstr "Mappa non disponibile"
 
-msgid "Games are better with friends: invite them to join you at the event!"
-msgstr ""
-"Si gioca meglio in compagnia: invita i tuoi amici a partecipare all'evento!"
+msgid "Games are better with friends: invite them to join you at the gathering!"
+msgstr "Si gioca meglio in compagnia: invita i tuoi amici a partecipare al ritrovo!"
 
-msgid "Share event"
-msgstr "Condividi evento"
+msgid "Share gathering"
+msgstr "Condividi ritrovo"
 
 msgid "Library"
 msgstr "Ludoteca"
@@ -2819,7 +2763,7 @@ msgid "All tags"
 msgstr "Tutti i tag"
 
 msgid "Sponsor location"
-msgstr "Sede sponsor"
+msgstr "Associazione sponsor"
 
 #, python-format
 msgid "%(counter)s game found"
@@ -2839,9 +2783,8 @@ msgstr "Nessun gioco in ludoteca."
 msgid "Play areas"
 msgstr "Aree di gioco"
 
-msgid "Drag to reorder. The order will be reflected on the event page."
-msgstr ""
-"Trascina per riordinare. L’ordine sarà riflesso nella pagina dell’evento."
+msgid "Drag to reorder. The order will be reflected on the gathering page."
+msgstr "Trascina per riordinare. L’ordine sarà riflesso nella pagina del ritrovo."
 
 msgid "Areas"
 msgstr "Aree"
@@ -2858,12 +2801,8 @@ msgstr "Aggiungi area"
 msgid "Table categories"
 msgstr "Categorie tavoli"
 
-msgid ""
-"Categories you can assign to the event's tables (e.g. wargames, RPG, "
-"retrogaming). Drag to reorder."
-msgstr ""
-"Categorie che puoi assegnare ai tavoli dell'evento (es. wargames, giochi di "
-"ruolo, retrogaming). Trascina per riordinare."
+msgid "Categories you can assign to the gathering's tables (e.g. wargames, RPG, retrogaming). Drag to reorder."
+msgstr "Categorie che puoi assegnare ai tavoli del ritrovo (es. wargames, giochi di ruolo, retrogaming). Trascina per riordinare."
 
 msgid "Categories"
 msgstr "Categorie"
@@ -2884,38 +2823,25 @@ msgid "Cover image"
 msgstr "Immagine di copertina"
 
 msgid "We'll use this to show the location on the map."
-msgstr "Lo useremo per mostrare la sede sulla mappa."
+msgstr "Lo useremo per mostrare l'associazione sulla mappa."
 
-msgid "Leaderboard in the event tables"
-msgstr "Classifica nei tavoli dell'evento"
+msgid "Leaderboard in the gathering tables"
+msgstr "Classifica nei tavoli del ritrovo"
 
-msgid ""
-"When off, the tables of this event don't show the leaderboard and nobody can "
-"fill it in."
-msgstr ""
-"Se disattivata, i tavoli di questo evento non mostrano la classifica e "
-"nessuno può compilarla."
+msgid "When off, the tables of this gathering don't show the leaderboard and nobody can fill it in."
+msgstr "Se disattivata, i tavoli di questo ritrovo non mostrano la classifica e nessuno può compilarla."
 
-msgid ""
-"When off, the program is visible only to the event managers and the event "
-"page doesn't show your tables."
-msgstr ""
-"Se disattivata, il programma è visibile solo ai gestori dell'evento e la "
-"pagina dell'evento non mostra la sezione con i tuoi tavoli."
+msgid "When off, the program is visible only to the gathering managers and the gathering page doesn't show your tables."
+msgstr "Se disattivata, il programma è visibile solo ai gestori del ritrovo e la pagina del ritrovo non mostra la sezione con i tuoi tavoli."
 
 msgid "Custom button"
 msgstr "Pulsante personalizzato"
 
-msgid ""
-"Shown first among the event page buttons, e.g. to link your own program or "
-"ticket shop. Without a title and a link the button is hidden."
-msgstr ""
-"Compare per primo tra i pulsanti della pagina dell'evento, ad esempio per "
-"linkare il vostro programma o la biglietteria. Senza titolo e link il "
-"pulsante viene nascosto."
+msgid "Shown first among the gathering page buttons, e.g. to link your own program or ticket shop. Without a title and a link the button is hidden."
+msgstr "Compare per primo tra i pulsanti della pagina del ritrovo, ad esempio per linkare il vostro programma o la biglietteria. Senza titolo e link il pulsante viene nascosto."
 
-msgid "Event dates"
-msgstr "Date evento"
+msgid "Gathering dates"
+msgstr "Date ritrovo"
 
 msgid "Remove this date?"
 msgstr "Rimuovi questa data?"
@@ -2942,10 +2868,10 @@ msgid "Create them on the library page."
 msgstr "Creali dalla pagina della ludoteca."
 
 msgid "Sponsor locations that have this game"
-msgstr "Sedi sponsor che hanno questo gioco"
+msgstr "Associazioni sponsor che hanno questo gioco"
 
-msgid "This event has no sponsor locations yet."
-msgstr "Questo evento non ha ancora sedi sponsor."
+msgid "This gathering has no sponsor locations yet."
+msgstr "Questo ritrovo non ha ancora associazioni sponsor."
 
 msgid "Add them."
 msgstr "Aggiungile."
@@ -2977,54 +2903,32 @@ msgctxt "game library"
 msgid "Hidden"
 msgstr "Nascosta"
 
-msgid ""
-"Visitors can browse the library from the event page, which also shows the "
-"games with a tag flagged for it."
-msgstr ""
-"I visitatori possono sfogliare la ludoteca dalla pagina evento, che mostra "
-"anche i giochi con un tag da mettere in evidenza."
+msgid "Visitors can browse the library from the gathering page, which also shows the games with a tag flagged for it."
+msgstr "I visitatori possono sfogliare la ludoteca dalla pagina ritrovo, che mostra anche i giochi con un tag da mettere in evidenza."
 
 msgid "View public page"
 msgstr "Vedi pagina pubblica"
 
-msgid ""
-"The event catalog stays hidden while the organizing location library is "
-"private."
-msgstr ""
-"Il catalogo dell'evento resta nascosto finché la ludoteca della sede "
-"organizzatrice è privata."
+msgid "The gathering catalog stays hidden while the organizing location library is private."
+msgstr "Il catalogo del ritrovo resta nascosto finché la ludoteca dell'associazione organizzatrice è privata."
 
-msgid ""
-"Turn this on to show the library on the event page. Until then only managers "
-"can see it."
-msgstr ""
-"Attivala per mostrare la ludoteca nella pagina evento. Fino ad allora può "
-"vederla solo chi gestisce l'evento."
+msgid "Turn this on to show the library on the gathering page. Until then only managers can see it."
+msgstr "Attivala per mostrare la ludoteca nella pagina ritrovo. Fino ad allora può vederla solo chi gestisce il ritrovo."
 
 msgid "Preview"
 msgstr "Anteprima"
 
-msgid ""
-"The event catalog uses the organizing location library, plus the event "
-"selection."
-msgstr ""
-"Il catalogo dell'evento usa la ludoteca della sede organizzatrice, più la "
-"selezione per l'evento."
+msgid "The gathering catalog uses the organizing location library, plus the gathering selection."
+msgstr "Il catalogo del ritrovo usa la ludoteca dell'associazione organizzatrice, più la selezione per il ritrovo."
 
-msgid "The event catalog uses the event selection."
-msgstr "Il catalogo dell'evento usa la selezione per l'evento."
+msgid "The gathering catalog uses the gathering selection."
+msgstr "Il catalogo del ritrovo usa la selezione per il ritrovo."
 
 msgid "Change catalog"
 msgstr "Cambia catalogo"
 
-msgid ""
-"These games, which include those of the event tables, are shown together "
-"with the organizing location library. Add a library game here to give it a "
-"tag."
-msgstr ""
-"Questi giochi, che comprendono quelli dei tavoli dell'evento, sono mostrati "
-"insieme alla ludoteca della sede organizzatrice. Aggiungi qui un gioco della "
-"ludoteca per assegnargli un tag."
+msgid "These games, which include those of the gathering tables, are shown together with the organizing location library. Add a library game here to give it a tag."
+msgstr "Questi giochi, che comprendono quelli dei tavoli del ritrovo, sono mostrati insieme alla ludoteca dell'associazione organizzatrice. Aggiungi qui un gioco della ludoteca per assegnargli un tag."
 
 msgid "No games yet"
 msgstr "Ancora nessun gioco"
@@ -3032,31 +2936,23 @@ msgstr "Ancora nessun gioco"
 msgid "Add the first game to the library."
 msgstr "Aggiungi il primo gioco alla ludoteca."
 
-msgid "Manage event"
-msgstr "Gestisci evento"
+msgid "Manage gathering"
+msgstr "Gestisci ritrovo"
 
-msgid ""
-"Only the managers can see this event. Publish it to make it visible to "
-"everyone."
-msgstr ""
-"Solo i gestori vedono questo evento. Pubblicalo per renderlo visibile a "
-"tutti."
+msgid "Only the managers can see this gathering. Publish it to make it visible to everyone."
+msgstr "Solo i gestori vedono questo ritrovo. Pubblicalo per renderlo visibile a tutti."
 
 msgid "Before publishing:"
 msgstr "Prima di pubblicare:"
 
-msgid "Publish event"
-msgstr "Pubblica evento"
+msgid "Publish gathering"
+msgstr "Pubblica ritrovo"
 
-msgid "The event is visible to everyone."
-msgstr "L'evento è visibile a tutti."
+msgid "The gathering is visible to everyone."
+msgstr "Il ritrovo è visibile a tutti."
 
-msgid ""
-"Back to draft? The event will disappear from the event list and its page "
-"will no longer be reachable."
-msgstr ""
-"Tornare in bozza? L'evento sparirà dalla lista eventi e la sua pagina non "
-"sarà più raggiungibile."
+msgid "Back to draft? The gathering will disappear from the gathering list and its page will no longer be reachable."
+msgstr "Tornare in bozza? Il ritrovo sparirà dalla lista ritrovi e la sua pagina non sarà più raggiungibile."
 
 #, python-format
 msgid "%(n)s registered participant will lose access."
@@ -3102,7 +2998,7 @@ msgid "Managed by %(name)s"
 msgstr "Gestito da %(name)s"
 
 msgid "Venue play areas"
-msgstr "Aree di gioco della sede"
+msgstr "Aree di gioco dell'associazione"
 
 #, python-format
 msgid "%(n)s area configured"
@@ -3111,7 +3007,7 @@ msgstr[0] "%(n)s area gestita"
 msgstr[1] "%(n)s aree gestite"
 
 msgid "Venue stations"
-msgstr "Postazioni della sede"
+msgstr "Postazioni dell'associazione"
 
 #, python-format
 msgid "%(n)s station configured"
@@ -3152,8 +3048,8 @@ msgstr[1] "%(n)s admin tavoli"
 #, python-format
 msgid "%(n)s location"
 msgid_plural "%(n)s locations"
-msgstr[0] "%(n)s sede"
-msgstr[1] "%(n)s sedi"
+msgstr[0] "%(n)s associazione"
+msgstr[1] "%(n)s associazioni"
 
 #, python-format
 msgid "%(n)s game in the library"
@@ -3162,13 +3058,13 @@ msgstr[0] "%(n)s gioco in ludoteca"
 msgstr[1] "%(n)s giochi in ludoteca"
 
 msgid "Locations"
-msgstr "Sedi"
+msgstr "Associazioni"
 
 msgid "No sponsor locations added yet."
 msgstr "Nessuno sponsor presente."
 
 msgid "Remove location?"
-msgstr "Rimuovere la sede?"
+msgstr "Rimuovere l'associazione?"
 
 msgid "Are you sure you want to remove"
 msgstr "Sei sicuro di voler rimuovere"
@@ -3213,9 +3109,8 @@ msgstr "Nessuna postazione aggiunta."
 msgid "Add station"
 msgstr "Aggiungi postazione"
 
-msgid "These users can create tables for this event, in addition to managers."
-msgstr ""
-"Questi utenti possono creare tavoli per questo evento, oltre ai gestori."
+msgid "These users can create tables for this gathering, in addition to managers."
+msgstr "Questi utenti possono creare tavoli per questo ritrovo, oltre ai gestori."
 
 msgid "No table creators assigned yet."
 msgstr "Ancora nessun admin tavoli assegnato."
@@ -3226,18 +3121,17 @@ msgstr "Aggiungi admin tavoli"
 msgid "Remove table creator?"
 msgstr "Rimuovere l'admin tavoli?"
 
-msgid "Go back to the event page for the available information."
-msgstr "Torna alla pagina dell'evento per le informazioni disponibili."
+msgid "Go back to the gathering page for the available information."
+msgstr "Torna alla pagina del ritrovo per le informazioni disponibili."
 
-msgid "Check the link or look for the event in the list of public events."
-msgstr ""
-"Controlla il link oppure cerca l'evento nell'elenco degli eventi pubblici."
+msgid "Check the link or look for the gathering in the list of public gatherings."
+msgstr "Controlla il link oppure cerca il ritrovo nell'elenco dei ritrovi pubblici."
 
-msgid "Back to the event"
-msgstr "Torna all'evento"
+msgid "Back to the gathering"
+msgstr "Torna al ritrovo"
 
-msgid "View events"
-msgstr "Vedi gli eventi"
+msgid "View gatherings"
+msgstr "Vedi i ritrovi"
 
 msgid "Create table"
 msgstr "Crea un tavolo qui"
@@ -3276,8 +3170,8 @@ msgstr ""
 "Alcuni tavoli condividono una postazione in orari sovrapposti. I tavoli in "
 "conflitto sono segnalati qui sotto."
 
-msgid "There are no bookable tables for this event yet."
-msgstr "Non ci sono ancora tavoli prenotabili per questo evento."
+msgid "There are no bookable tables for this gathering yet."
+msgstr "Non ci sono ancora tavoli prenotabili per questo ritrovo."
 
 msgid ""
 "Create the first table: it will show up here and participants will be able "
@@ -3430,18 +3324,14 @@ msgstr "Gestione a cura di %(venue)s."
 msgid "No resources available."
 msgstr "Nessuna risorsa disponibile."
 
-msgid "Organized events"
-msgstr "Eventi organizzati"
+msgid "Organized gatherings"
+msgstr "Ritrovi organizzati"
 
-msgid "Create location event"
-msgstr "Crea evento"
+msgid "Create location gathering"
+msgstr "Crea ritrovo"
 
-msgid ""
-"Choose a landscape image. Without a cover, the event uses the location image "
-"or the default image."
-msgstr ""
-"Scegli un’immagine orizzontale. In assenza di una copertina, l’evento usa "
-"l’immagine della sede oppure quella predefinita."
+msgid "Choose a landscape image. Without a cover, the gathering uses the location image or the default image."
+msgstr "Scegli un’immagine orizzontale. In assenza di una copertina, il ritrovo usa l’immagine dell’associazione oppure quella predefinita."
 
 #, python-format
 msgid "Library – %(name)s"
@@ -3532,7 +3422,7 @@ msgstr[0] "%(counter)s tavolo"
 msgstr[1] "%(counter)s tavoli"
 
 msgid "Manage location"
-msgstr "Gestisci sede"
+msgstr "Gestisci associazione"
 
 msgid "My membership"
 msgstr "La mia adesione"
@@ -3553,15 +3443,15 @@ msgid_plural "layout requests"
 msgstr[0] "richiesta di uso degli spazi"
 msgstr[1] "richieste di uso degli spazi"
 
-msgid "draft event"
-msgid_plural "draft events"
-msgstr[0] "evento in bozza"
-msgstr[1] "eventi in bozza"
+msgid "draft gathering"
+msgid_plural "draft gatherings"
+msgstr[0] "ritrovo in bozza"
+msgstr[1] "ritrovi in bozza"
 
-msgid "event without tables"
-msgid_plural "events without tables"
-msgstr[0] "evento senza tavoli"
-msgstr[1] "eventi senza tavoli"
+msgid "gathering without tables"
+msgid_plural "gatherings without tables"
+msgstr[0] "ritrovo senza tavoli"
+msgstr[1] "ritrovi senza tavoli"
 
 msgid "Membership request pending"
 msgstr "Richiesta di adesione in attesa"
@@ -3619,13 +3509,13 @@ msgstr[0] "%(n)s persona la segue"
 msgstr[1] "%(n)s persone la seguono"
 
 msgid "Edit location"
-msgstr "Modifica sede"
+msgstr "Modifica associazione"
 
 msgid "New location"
-msgstr "Nuova sede"
+msgstr "Nuova associazione"
 
 msgid "Create location"
-msgstr "Crea sede"
+msgstr "Crea associazione"
 
 msgid "Calendar"
 msgstr "Calendario"
@@ -3668,7 +3558,7 @@ msgid "Locations"
 msgstr "Dove giocare"
 
 msgid "You are seeing this location as a visitor does."
-msgstr "Stai vedendo la sede come la vede un visitatore."
+msgstr "Stai vedendo l'associazione come la vede un visitatore."
 
 msgid "Back to your view"
 msgstr "Torna alla tua vista"
@@ -3677,7 +3567,7 @@ msgid "Follow"
 msgstr "Segui"
 
 msgid "See new tables from this location on your homepage."
-msgstr "Vedi i nuovi tavoli di questa sede nella tua home."
+msgstr "Vedi i nuovi tavoli di questa associazione nella tua home."
 
 msgid "Get notified when a new table opens here and find it on your home page."
 msgstr ""
@@ -3687,13 +3577,13 @@ msgid "Log in to follow"
 msgstr "Accedi per seguire"
 
 msgid "Tables at this location"
-msgstr "Tavoli in questa sede"
+msgstr "Tavoli in questa associazione"
 
 msgid "Past"
 msgstr "Passati"
 
 msgid "Only members of this location can join its tables."
-msgstr "Ai tavoli di questa sede possono partecipare solo i soci."
+msgstr "Ai tavoli di questa associazione possono partecipare solo i soci."
 
 msgid "No upcoming tables."
 msgstr "Nessun tavolo in programma."
@@ -3717,20 +3607,20 @@ msgstr "Nessun tavolo passato."
 msgid "See all tables"
 msgstr "Vedi tutti i tavoli"
 
-msgid "See all events"
-msgstr "Vedi tutti gli eventi"
+msgid "See all gatherings"
+msgstr "Vedi tutti i ritrovi"
 
-msgid "Only members can propose events here."
-msgstr "Qui solo i soci possono proporre eventi."
+msgid "Only members can propose gatherings here."
+msgstr "Qui solo i soci possono proporre ritrovi."
 
-msgid "Events we take part in"
-msgstr "Eventi a cui partecipiamo"
+msgid "Gatherings we take part in"
+msgstr "Ritrovi a cui partecipiamo"
 
 msgid "Most played games"
 msgstr "Giochi più giocati"
 
 msgid "No games played at this location."
-msgstr "Nessun gioco giocato in questa sede."
+msgstr "Nessun gioco giocato in questa associazione."
 
 msgid "Games played"
 msgstr "Giochi giocati"
@@ -3751,10 +3641,10 @@ msgid "Top gamers"
 msgstr "Top gamers"
 
 msgid "No players registered for this location"
-msgstr "Nessun giocatore registrato in questa sede"
+msgstr "Nessun giocatore registrato in questa associazione"
 
 msgid "You follow this location"
-msgstr "Segui questa sede"
+msgstr "Segui questa associazione"
 
 msgid "New tables will appear on your homepage."
 msgstr "I nuovi tavoli compariranno nella tua home."
@@ -3790,13 +3680,13 @@ msgid "Sunday"
 msgstr "Domenica"
 
 msgid "Affiliations declared by this location."
-msgstr "Affiliazioni dichiarate da questa sede."
+msgstr "Affiliazioni dichiarate da questa associazione."
 
 #, python-format
 msgid "%(counter)s table at this location"
 msgid_plural "%(counter)s tables at this location"
-msgstr[0] "%(counter)s tavolo in questa sede"
-msgstr[1] "%(counter)s tavoli in questa sede"
+msgstr[0] "%(counter)s tavolo in questa associazione"
+msgstr[1] "%(counter)s tavoli in questa associazione"
 
 msgid "Game details"
 msgstr "Scheda del gioco"
@@ -3815,7 +3705,7 @@ msgid "Return by %(date)s."
 msgstr "Da restituire entro il %(date)s."
 
 msgid "Confirm once you have picked up the game at the location."
-msgstr "Conferma dopo aver ritirato il gioco in sede."
+msgstr "Conferma dopo aver ritirato il gioco presso l'associazione."
 
 msgid "Confirm pickup"
 msgstr "Conferma il ritiro"
@@ -3863,7 +3753,7 @@ msgid "At home"
 msgstr "A casa"
 
 msgid "On site"
-msgstr "In sede"
+msgstr "In associazione"
 
 #, python-format
 msgid "Loaned on %(loan_date)s · Due %(due_date)s"
@@ -3917,7 +3807,7 @@ msgid "Affiliation unavailable"
 msgstr "Affiliazione non disponibile"
 
 msgid "All networks"
-msgstr "Tutte le associazioni nazionali"
+msgstr "Tutte le reti nazionali"
 
 msgid "Official website"
 msgstr "Sito ufficiale"
@@ -3932,16 +3822,16 @@ msgid "This national affiliation is unavailable."
 msgstr "Questa affiliazione nazionale non è disponibile."
 
 msgid "No locations match your search."
-msgstr "Nessuna sede corrisponde alla ricerca."
+msgstr "Nessuna associazione corrisponde alla ricerca."
 
 msgid "Is it missing? Add it."
 msgstr "Manca? Aggiungila tu."
 
 msgid "No locations match this affiliation."
-msgstr "Nessuna sede corrisponde a questa affiliazione."
+msgstr "Nessuna associazione corrisponde a questa affiliazione."
 
 msgid "No locations available yet."
-msgstr "Nessuna sede disponibile al momento."
+msgstr "Nessuna associazione disponibile al momento."
 
 msgid ""
 "Is there a club, association or game shop near you? Be the first to add it."
@@ -3950,15 +3840,13 @@ msgstr ""
 "per primo."
 
 msgid "No locations to show on the map."
-msgstr "Nessuna sede da mostrare sulla mappa."
+msgstr "Nessuna associazione da mostrare sulla mappa."
 
 msgid "Drag to reorder. Areas can be assigned to the tables of this location."
-msgstr ""
-"Trascina per riordinare. Le aree si possono assegnare ai tavoli di questa "
-"sede."
+msgstr "Trascina per riordinare. Le aree si possono assegnare ai tavoli di questa associazione."
 
 msgid "Location info"
-msgstr "Info sulla sede"
+msgstr "Info sull'associazione"
 
 msgid ""
 "Used as the default start time when creating a new table here. You can still "
@@ -3979,7 +3867,7 @@ msgstr "Mostra i tavoli nella home"
 
 msgid ""
 "When enabled, upcoming tables from this location appear in the homepage feed."
-msgstr "Se attivo, i prossimi tavoli di questa sede compaiono nella home."
+msgstr "Se attivo, i prossimi tavoli di questa associazione compaiono nella home."
 
 msgid "Show most played games"
 msgstr "Mostra i giochi più giocati"
@@ -3987,15 +3875,13 @@ msgstr "Mostra i giochi più giocati"
 msgid ""
 "When enabled, the location page shows the most played games and their top "
 "winners."
-msgstr ""
-"Se attivato, la pagina della sede mostra i giochi più giocati e i relativi "
-"vincitori."
+msgstr "Se attivato, la pagina dell'associazione mostra i giochi più giocati e i relativi vincitori."
 
 msgid "Show stats"
 msgstr "Mostra statistiche"
 
 msgid "Show the total number of gamers and tables on the location page."
-msgstr "Mostra il numero totale di giocatori e tavoli nella pagina della sede."
+msgstr "Mostra il numero totale di giocatori e tavoli nella pagina dell'associazione."
 
 msgid "Show top gamers"
 msgstr "Mostra la classifica dei giocatori"
@@ -4003,24 +3889,22 @@ msgstr "Mostra la classifica dei giocatori"
 msgid ""
 "When enabled, the location page shows the ranking of the players with the "
 "most podiums."
-msgstr ""
-"Se attivato, la pagina della sede mostra la classifica dei giocatori con più "
-"podi."
+msgstr "Se attivato, la pagina dell'associazione mostra la classifica dei giocatori con più podi."
 
 msgid "+ Add time slot"
 msgstr "+ Aggiungi slot orario"
 
-msgid "Which events"
-msgstr "Quali eventi"
+msgid "Which gatherings"
+msgstr "Quali ritrovi"
 
 msgid "No drafts."
 msgstr "Nessuna bozza."
 
-msgid "No past events yet."
-msgstr "Ancora nessun evento passato."
+msgid "No past gatherings yet."
+msgstr "Ancora nessun ritrovo passato."
 
-msgid "No upcoming events."
-msgstr "Nessun evento in programma."
+msgid "No upcoming gatherings."
+msgstr "Nessun ritrovo in programma."
 
 msgid "Withdrawn games"
 msgstr "Giochi usciti"
@@ -4047,9 +3931,7 @@ msgstr "Apri la scheda nella ludoteca"
 msgid ""
 "To specify a member as the game owner, activate membership requests for your "
 "location."
-msgstr ""
-"Per indicare un socio come proprietario del gioco, attiva le richieste di "
-"adesione per la tua sede."
+msgstr "Per indicare un socio come proprietario del gioco, attiva le richieste di adesione per la tua associazione."
 
 msgid "Go to the Members page"
 msgstr "Vai alla pagina Soci"
@@ -4088,16 +3970,12 @@ msgstr "Giochi presenti"
 msgid ""
 "Visitors can browse your games from the location page. Owners, members and "
 "notes stay private."
-msgstr ""
-"I visitatori possono consultare i vostri giochi dalla pagina della sede. "
-"Proprietari, soci e note restano privati."
+msgstr "I visitatori possono consultare i vostri giochi dalla pagina dell'associazione. Proprietari, soci e note restano privati."
 
 msgid ""
 "Turn this on to show the list of your games on the location page. Owners, "
 "members and notes stay private."
-msgstr ""
-"Attivala per mostrare l'elenco dei vostri giochi nella pagina della sede. "
-"Proprietari, soci e note restano privati."
+msgstr "Attivala per mostrare l'elenco dei vostri giochi nella pagina dell'associazione. Proprietari, soci e note restano privati."
 
 msgid "Search by game, member or tag…"
 msgstr "Cerca per gioco, socio o tag…"
@@ -4202,14 +4080,14 @@ msgid "Control who can create and join tables"
 msgstr "Decidi chi può creare e unirsi ai tavoli"
 
 msgid "Manage this location's affiliations with national networks"
-msgstr "Gestisci le affiliazioni nazionali di questa sede"
+msgstr "Gestisci le affiliazioni nazionali di questa associazione"
 
 msgctxt "navigation"
 msgid "Activities"
 msgstr "Attività"
 
-msgid "Create events, publish drafts and follow their tables"
-msgstr "Crea eventi, pubblica le bozze e segui i loro tavoli"
+msgid "Create gatherings, publish drafts and follow their tables"
+msgstr "Crea ritrovi, pubblica le bozze e segui i loro tavoli"
 
 msgid "Table summary"
 msgstr "Riepilogo tavoli"
@@ -4226,8 +4104,8 @@ msgstr "Assegna le prossime partite alle tue postazioni"
 msgid "Venue layout requests"
 msgstr "Richieste di uso degli spazi"
 
-msgid "Events hosted here that ask for your areas and stations"
-msgstr "Eventi ospitati qui che chiedono le tue aree e postazioni"
+msgid "Gatherings hosted here that ask for your areas and stations"
+msgstr "Ritrovi ospitati qui che chiedono le tue aree e postazioni"
 
 msgid "People"
 msgstr "Persone"
@@ -4245,7 +4123,7 @@ msgid "The documents members fill in and sign"
 msgstr "I documenti che i soci compilano e firmano"
 
 msgid "Manage the location's library"
-msgstr "Gestisci la ludoteca della sede"
+msgstr "Gestisci la ludoteca dell'associazione"
 
 msgid "Loans"
 msgstr "Prestiti"
@@ -4269,7 +4147,7 @@ msgid "Transfer ownership"
 msgstr "Trasferisci la titolarità"
 
 msgid "You will no longer be the owner of this location."
-msgstr "Non sarai più il titolare di questa sede."
+msgstr "Non sarai più il titolare di questa associazione."
 
 msgid "Transfer ownership?"
 msgstr "Trasferire la titolarità?"
@@ -4277,9 +4155,7 @@ msgstr "Trasferire la titolarità?"
 msgid ""
 "You will no longer be the owner of this location. This action cannot be "
 "undone."
-msgstr ""
-"Non sarai più il titolare di questa sede. Questa azione non può essere "
-"annullata."
+msgstr "Non sarai più il titolare di questa associazione. Questa azione non può essere annullata."
 
 msgid "Transfer"
 msgstr "Trasferisci"
@@ -4320,17 +4196,12 @@ msgstr "Non attive"
 msgid ""
 "Visitors can request a membership from the location page, and members-only "
 "permissions are available."
-msgstr ""
-"I visitatori possono richiedere l'adesione dalla pagina della sede e i "
-"permessi riservati ai soci sono disponibili."
+msgstr "I visitatori possono richiedere l'adesione dalla pagina dell'associazione e i permessi riservati ai soci sono disponibili."
 
 msgid ""
 "You can already manage members here. Turn this on to let visitors request a "
 "membership from the location page and to enable members-only permissions."
-msgstr ""
-"Puoi già gestire i soci da qui. Attiva questa opzione per permettere ai "
-"visitatori di richiedere l'adesione dalla pagina della sede e per abilitare "
-"i permessi riservati ai soci."
+msgstr "Puoi già gestire i soci da qui. Attiva questa opzione per permettere ai visitatori di richiedere l'adesione dalla pagina dell'associazione e per abilitare i permessi riservati ai soci."
 
 msgid "Documents"
 msgstr "Documenti"
@@ -4464,16 +4335,16 @@ msgid "Add affiliation"
 msgstr "Aggiungi affiliazione"
 
 msgid "There are no national networks available yet."
-msgstr "Non ci sono ancora associazioni nazionali disponibili."
+msgstr "Non ci sono ancora reti nazionali disponibili."
 
 msgid "Can't find your national network?"
-msgstr "Non trovi la tua associazione nazionale?"
+msgstr "Non trovi la tua rete nazionale?"
 
 msgid "Write to us"
 msgstr "Scrivici"
 
-msgid "Control who can create and join tables and events at this location."
-msgstr "Decidi chi può creare tavoli ed eventi e chi può partecipare."
+msgid "Control who can create and join tables and gatherings at this location."
+msgstr "Decidi chi può creare tavoli e ritrovi e chi può partecipare."
 
 msgid "Membership not enabled"
 msgstr "Richieste di adesione non attive"
@@ -4493,11 +4364,11 @@ msgstr "Chi può creare i tavoli?"
 msgid "Who can join tables?"
 msgstr "Chi può unirsi ai tavoli?"
 
-msgid "Who can create events?"
-msgstr "Chi può creare eventi?"
+msgid "Who can create gatherings?"
+msgstr "Chi può creare ritrovi?"
 
-msgid "Who can join events?"
-msgstr "Chi può partecipare agli eventi?"
+msgid "Who can join gatherings?"
+msgstr "Chi può partecipare ai ritrovi?"
 
 msgid "Save permissions"
 msgstr "Salva permessi"
@@ -4512,9 +4383,7 @@ msgstr ""
 msgid ""
 "This location has no stations yet. Create them first (e.g. Table 1, Table "
 "2), then come back to assign the games."
-msgstr ""
-"Questa sede non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo 2), "
-"poi torna qui per assegnare le partite."
+msgstr "Questa associazione non ha ancora postazioni. Prima creale (es. Tavolo 1, Tavolo 2), poi torna qui per assegnare le partite."
 
 msgid "Create stations"
 msgstr "Crea postazioni"
@@ -4538,7 +4407,7 @@ msgid "All upcoming games have a station."
 msgstr "Tutte le prossime partite hanno una postazione."
 
 msgid "No upcoming games at this location."
-msgstr "Nessuna partita in programma in questa sede."
+msgstr "Nessuna partita in programma in questa associazione."
 
 msgid "Edit station"
 msgstr "Modifica postazione"
@@ -4546,9 +4415,7 @@ msgstr "Modifica postazione"
 msgid ""
 "Hidden stations can only be picked by location managers when creating or "
 "editing a game; they stay visible on the game."
-msgstr ""
-"Le postazioni nascoste possono essere scelte solo dai gestori della sede "
-"quando si crea o modifica una partita; restano visibili sulla partita."
+msgstr "Le postazioni nascoste possono essere scelte solo dai gestori dell'associazione quando si crea o modifica una partita; restano visibili sulla partita."
 
 msgid "Assign the upcoming games to the stations"
 msgstr "Assegna le prossime partite alle postazioni"
@@ -4658,12 +4525,10 @@ msgid "Available commands"
 msgstr "Comandi disponibili"
 
 msgid "Connect this group to a location (run once, with a valid token)."
-msgstr ""
-"Collega questo gruppo a una sede (esegui una sola volta, con un token "
-"valido)."
+msgstr "Collega questo gruppo a un'associazione (esegui una sola volta, con un token valido)."
 
 msgid "Show upcoming open tables for this location."
-msgstr "Mostra i prossimi tavoli aperti di questa sede."
+msgstr "Mostra i prossimi tavoli aperti di questa associazione."
 
 msgid "Post a button that opens the booking app."
 msgstr "Pubblica un bottone che apre l’app di prenotazione."
@@ -4684,7 +4549,7 @@ msgid "Network error. Please try again."
 msgstr "Network error. Si prega di riprovare."
 
 msgid "Embed the upcoming tables of your location on any website."
-msgstr "Incorpora i prossimi tavoli della tua sede su qualsiasi sito web."
+msgstr "Incorpora i prossimi tavoli della tua associazione su qualsiasi sito web."
 
 msgid "Basic snippet"
 msgstr "Snippet base"
@@ -4699,12 +4564,11 @@ msgid "Add data-lang to display the widget in English."
 msgstr "Aggiungi data-lang per mostrare il widget in inglese."
 
 msgid "The widget automatically shows upcoming open tables for your location."
-msgstr ""
-"Il widget mostra automaticamente i prossimi tavoli aperti della tua sede."
+msgstr "Il widget mostra automaticamente i prossimi tavoli aperti della tua associazione."
 
 #, python-format
 msgid "Your location slug is <strong>%(slug)s</strong> — do not change it."
-msgstr "Lo slug della tua sede è <strong>%(slug)s</strong> — non modificarlo."
+msgstr "Lo slug della tua associazione è <strong>%(slug)s</strong> — non modificarlo."
 
 msgid "Supported attributes: data-location, data-lang (default: it)."
 msgstr "Attributi supportati: data-location, data-lang (default: it)."
@@ -4731,7 +4595,7 @@ msgid "Send Request"
 msgstr "Invia richiesta"
 
 msgid "Back to location"
-msgstr "Torna alla sede"
+msgstr "Torna all'associazione"
 
 msgid "Revoke approval"
 msgstr "Revoca autorizzazione"
@@ -4751,8 +4615,8 @@ msgstr "Persone uniche previste"
 msgid "Expected daily attendances"
 msgstr "Presenze giornaliere previste"
 
-msgid "Your festival dates"
-msgstr "Le tue giornate alla manifestazione"
+msgid "Your event dates"
+msgstr "Le tue giornate all'evento"
 
 #, python-format
 msgid "%(count)s expected attendee"
@@ -4769,27 +4633,20 @@ msgstr "Per annullare un’adesione diretta, deseleziona la giornata e salva."
 msgid "Save registration"
 msgstr "Salva adesione"
 
-msgid "Festivals"
-msgstr "Manifestazioni"
-
-msgid "No published events yet."
-msgstr "Non ci sono ancora eventi pubblicati."
+msgid "No published gatherings yet."
+msgstr "Non ci sono ancora ritrovi pubblicati."
 
 msgid "No public sessions yet."
 msgstr "Non ci sono ancora tavoli pubblici."
 
-msgid "Create festival"
-msgstr "Crea manifestazione"
+msgid "Create event"
+msgstr "Crea evento"
 
-msgid "View festival"
-msgstr "Vedi manifestazione"
+msgid "View event"
+msgstr "Vedi evento"
 
-msgid ""
-"Choose a landscape image. Without a cover, the festival uses the default "
-"image."
-msgstr ""
-"Scegli un’immagine orizzontale. In assenza di una copertina, la "
-"manifestazione usa l’immagine predefinita."
+msgid "Choose a landscape image. Without a cover, the event uses the default image."
+msgstr "Scegli un’immagine orizzontale. In assenza di una copertina, l’evento usa l’immagine predefinita."
 
 msgid "Edit hours"
 msgstr "Modifica orari"
@@ -4797,35 +4654,33 @@ msgstr "Modifica orari"
 msgid "Save date"
 msgstr "Salva giornata"
 
-msgid "Linked events"
-msgstr "Eventi collegati"
+msgid "Linked gatherings"
+msgstr "Ritrovi collegati"
 
-msgid "No linked events yet."
-msgstr "Non ci sono ancora eventi collegati."
+msgid "No linked gatherings yet."
+msgstr "Non ci sono ancora ritrovi collegati."
 
-msgid "Event to link"
-msgstr "Evento da collegare"
+msgid "Gathering to link"
+msgstr "Ritrovo da collegare"
 
-msgid "Select an event"
-msgstr "Seleziona un evento"
+msgid "Select a gathering"
+msgstr "Seleziona un ritrovo"
 
-msgid "Link event"
-msgstr "Collega evento"
+msgid "Link gathering"
+msgstr "Collega ritrovo"
 
-msgid "No events available to link."
-msgstr "Non ci sono eventi disponibili da collegare."
+msgid "No gatherings available to link."
+msgstr "Non ci sono ritrovi disponibili da collegare."
 
-msgid "Until the festival is approved, you can only link events you manage."
-msgstr ""
-"Finché la manifestazione non è approvata puoi collegare solo eventi che "
-"gestisci."
+msgid "Until the event is approved, you can only link gatherings you manage."
+msgstr "Finché l'evento non è approvato puoi collegare solo ritrovi che gestisci."
 
-msgid "Manage festival"
-msgstr "Gestisci manifestazione"
+msgid "Manage event"
+msgstr "Gestisci evento"
 
 msgctxt "festival"
 msgid "Published"
-msgstr "Pubblicata"
+msgstr "Pubblicato"
 
 msgid "Hidden by an admin"
 msgstr "Nascosta da un amministratore"
@@ -4833,31 +4688,27 @@ msgstr "Nascosta da un amministratore"
 msgid "Waiting for approval"
 msgstr "In attesa di approvazione"
 
-msgid "The festival is visible to everyone."
-msgstr "La manifestazione è visibile a tutti."
+msgid "The event is visible to everyone."
+msgstr "L'evento è visibile a tutti."
 
 msgid ""
 "It is not visible to the public. Contact us if you think it's a mistake."
 msgstr "Non è visibile al pubblico. Contattaci se pensi che sia un errore."
 
-msgid ""
-"Only its managers see it until an admin approves it. Until then you can only "
-"link events you manage."
-msgstr ""
-"La vedono solo i suoi gestori finché un amministratore non la approva. Fino "
-"ad allora puoi collegare solo eventi che gestisci."
+msgid "Only its managers see it until an admin approves it. Until then you can only link gatherings you manage."
+msgstr "Lo vedono solo i suoi gestori finché un amministratore non lo approva. Fino ad allora puoi collegare solo ritrovi che gestisci."
 
-msgid "Festival info"
-msgstr "Dati della manifestazione"
+msgid "Event info"
+msgstr "Dati dell'evento"
 
 msgid "Name, description, venue and cover image"
 msgstr "Nome, descrizione, luogo e immagine di copertina"
 
 #, python-format
-msgid "%(n)s event of the locations"
-msgid_plural "%(n)s events of the locations"
-msgstr[0] "%(n)s evento delle sedi"
-msgstr[1] "%(n)s eventi delle sedi"
+msgid "%(n)s gathering of the locations"
+msgid_plural "%(n)s gatherings of the locations"
+msgstr[0] "%(n)s ritrovo delle associazioni"
+msgstr[1] "%(n)s ritrovi delle associazioni"
 
 msgid "Sponsors and managers"
 msgstr "Sponsor e gestori"
@@ -4885,13 +4736,13 @@ msgid "Is your club missing?"
 msgstr "Manca il tuo club?"
 
 msgid "Have a location to add?"
-msgstr "Hai una sede da aggiungere?"
+msgstr "Hai un'associazione da aggiungere?"
 
 msgid "Clubs, associations, game shops are welcome."
 msgstr "Club, associazioni e negozi di giochi sono i benvenuti."
 
-msgid "Tables and events in one place"
-msgstr "Tavoli ed eventi in un unico posto"
+msgid "Tables and gatherings in one place"
+msgstr "Tavoli e ritrovi in un unico posto"
 
 msgid "Member registry"
 msgstr "Gestione soci"
@@ -4907,7 +4758,7 @@ msgid "Back to %(label)s"
 msgstr "Torna a %(label)s"
 
 msgid "Preview in the location list"
-msgstr "Anteprima nell’elenco delle sedi"
+msgstr "Anteprima nell’elenco delle associazioni"
 
 msgid "Choose an image…"
 msgstr "Scegli un'immagine…"
@@ -5078,7 +4929,7 @@ msgstr "Ancora nessun tavolo giocato."
 
 #, python-format
 msgid "At: %(name)s"
-msgstr "Sede: %(name)s"
+msgstr "Associazione: %(name)s"
 
 msgid "Your drafts"
 msgstr "Le tue bozze"
@@ -5198,7 +5049,7 @@ msgstr ""
 "completo in CSV in qualsiasi momento."
 
 msgid "Live schedule on your website"
-msgstr "Calendario eventi in tempo reale sul tuo sito"
+msgstr "Calendario ritrovi in tempo reale sul tuo sito"
 
 msgid ""
 "Embed upcoming and past game sessions directly on your club's website with a "
@@ -5358,35 +5209,31 @@ msgid "Login"
 msgstr "Login"
 
 msgid "to see tables from locations you follow."
-msgstr "per vedere i tavoli delle sedi che segui."
+msgstr "per vedere i tavoli delle associazioni che segui."
 
 msgid "Follow new"
 msgstr "Segui nuove"
 
 msgid "locations"
-msgstr "sedi"
+msgstr "associazioni"
 
 msgid "to see their open tables here."
 msgstr "per vedere i loro tavoli."
 
 msgid ""
 "Your locations have no upcoming tables: here are the ones from all locations."
-msgstr ""
-"Nelle sedi che frequenti non ci sono tavoli in programma: ecco quelli di "
-"tutte le sedi."
+msgstr "Nelle associazioni che frequenti non ci sono tavoli in programma: ecco quelli di tutte le associazioni."
 
 msgid "Follow more locations"
-msgstr "Segui altre sedi"
+msgstr "Segui altre associazioni"
 
 msgid ""
 "Upcoming tables from all locations. Follow a location to see its tables here "
 "first."
-msgstr ""
-"Tavoli in programma in tutte le sedi. Segui una sede per vedere qui per "
-"primi i suoi tavoli."
+msgstr "Tavoli in programma in tutte le associazioni. Segui un'associazione per vedere qui per primi i suoi tavoli."
 
 msgid "Find locations to follow"
-msgstr "Trova sedi da seguire"
+msgstr "Trova associazioni da seguire"
 
 msgid "No upcoming tables right now."
 msgstr "Al momento non ci sono tavoli in programma."
@@ -5398,22 +5245,22 @@ msgid "Find a place to play"
 msgstr "Trova dove giocare"
 
 msgid "No past tables from the locations you follow."
-msgstr "Nessun tavolo passato nelle sedi che segui."
+msgstr "Nessun tavolo passato nelle associazioni che segui."
 
 msgid "No past tables yet."
 msgstr "Ancora nessun tavolo passato."
 
-msgid "See all festivals"
-msgstr "Vedi tutte le manifestazioni"
+msgid "See all events"
+msgstr "Vedi tutti gli eventi"
 
 msgid "See all game clubs"
 msgstr "Vedi tutti i club di gioco"
 
 msgid "to see nearby locations."
-msgstr "per vedere le sedi vicine."
+msgstr "per vedere le associazioni vicine."
 
 msgid "Locations near to"
-msgstr "Sedi vicine a"
+msgstr "Associazioni vicine a"
 
 msgid "Edit address"
 msgstr "Modifica indirizzo"
@@ -5431,7 +5278,7 @@ msgid "Set your city, to see what is near you"
 msgstr "Imposta la tua città, per vedere cosa c'è vicino a te"
 
 msgid "Follow a location you like"
-msgstr "Segui una sede che ti piace"
+msgstr "Segui un'associazione che ti piace"
 
 msgid "Join your first table"
 msgstr "Iscriviti al tuo primo tavolo"
@@ -5452,15 +5299,15 @@ msgid_plural "Venue layout requests"
 msgstr[0] "Richiesta di uso degli spazi"
 msgstr[1] "Richieste di uso degli spazi"
 
-msgid "Draft event to publish"
-msgid_plural "Draft events to publish"
-msgstr[0] "Evento in bozza da pubblicare"
-msgstr[1] "Eventi in bozza da pubblicare"
+msgid "Draft gathering to publish"
+msgid_plural "Draft gatherings to publish"
+msgstr[0] "Ritrovo in bozza da pubblicare"
+msgstr[1] "Ritrovi in bozza da pubblicare"
 
-msgid "Event without tables"
-msgid_plural "Events without tables"
-msgstr[0] "Evento senza tavoli"
-msgstr[1] "Eventi senza tavoli"
+msgid "Gathering without tables"
+msgid_plural "Gatherings without tables"
+msgstr[0] "Ritrovo senza tavoli"
+msgstr[1] "Ritrovi senza tavoli"
 
 msgid "Press kit"
 msgstr "Kit per la stampa"
@@ -5475,16 +5322,8 @@ msgstr ""
 msgid "In a few words"
 msgstr "In poche parole"
 
-msgid ""
-"Board-Gamers.com is a free, open source platform for board game clubs, game "
-"libraries and shops. It helps them organize game tables, events and members, "
-"and it helps players find a table near them. It is built by volunteers who "
-"love board games."
-msgstr ""
-"Board-Gamers.com è una piattaforma gratuita e open source per associazioni, "
-"ludoteche e negozi di giochi da tavolo. Li aiuta a organizzare tavoli, "
-"eventi e soci, e aiuta i giocatori a trovare un tavolo vicino a loro. È "
-"sviluppata da volontari appassionati di giochi da tavolo."
+msgid "Board-Gamers.com is a free, open source platform for board game clubs, game libraries and shops. It helps them organize game tables, gatherings and members, and it helps players find a table near them. It is built by volunteers who love board games."
+msgstr "Board-Gamers.com è una piattaforma gratuita e open source per associazioni, ludoteche e negozi di giochi da tavolo. Li aiuta a organizzare tavoli, ritrovi e soci, e aiuta i giocatori a trovare un tavolo vicino a loro. È sviluppata da volontari appassionati di giochi da tavolo."
 
 msgid "Copy text"
 msgstr "Copia il testo"
@@ -5916,9 +5755,7 @@ msgstr "Postazione assegnata dallo staff"
 msgid ""
 "The area and station of this game can only be changed by the location "
 "managers."
-msgstr ""
-"Area e postazione di questa partita possono essere modificate solo dai "
-"gestori della sede."
+msgstr "Area e postazione di questa partita possono essere modificate solo dai gestori dell'associazione."
 
 msgid ""
 "If you can't find the game, you can leave this field empty. We'll fill it "
@@ -5945,22 +5782,22 @@ msgid "ago"
 msgstr "fa"
 
 msgid "Pick the location where the table is played."
-msgstr "Scegli la sede dove si gioca."
+msgstr "Scegli l'associazione dove si gioca."
 
 msgid "You can't propose tables at any location yet."
-msgstr "Non puoi ancora proporre tavoli in nessuna sede."
+msgstr "Non puoi ancora proporre tavoli in nessuna associazione."
 
 msgid "Follow a location open to everyone, or add your own."
-msgstr "Cerca una sede aperta a tutti, oppure aggiungi la tua."
+msgstr "Cerca un'associazione aperta a tutti, oppure aggiungi la tua."
 
 msgid "Find a location"
-msgstr "Trova una sede"
+msgstr "Trova un'associazione"
 
 msgid "Somewhere else"
 msgstr "Altrove"
 
 msgid "Find the location"
-msgstr "Cerca la sede"
+msgstr "Cerca l'associazione"
 
 msgid "Manage players"
 msgstr "Gestisci giocatori"
@@ -5985,8 +5822,8 @@ msgid "Ended"
 msgstr "Concluso"
 
 msgctxt "appointment type"
-msgid "Festival"
-msgstr "Manifestazione"
+msgid "Event"
+msgstr "Evento"
 
 msgctxt "status"
 msgid "Draft"
@@ -6037,8 +5874,8 @@ msgid "Table"
 msgstr "Tavolo"
 
 msgctxt "appointment type"
-msgid "Event"
-msgstr "Evento"
+msgid "Gathering"
+msgstr "Ritrovo"
 
 msgctxt "location role"
 msgid "Owner"
@@ -6060,28 +5897,28 @@ msgid "A game night here"
 msgstr "Una serata di gioco qui"
 
 msgctxt "create menu"
-msgid "Event"
-msgstr "Evento"
+msgid "Gathering"
+msgstr "Ritrovo"
 
 msgid "One or more days of play here"
 msgstr "Uno o più giorni di gioco qui"
 
 msgid "A game night at a location"
-msgstr "Una serata di gioco in una sede"
+msgstr "Una serata di gioco in un'associazione"
 
 msgid "One or more days of play at a location"
-msgstr "Uno o più giorni di gioco in una sede"
+msgstr "Uno o più giorni di gioco in un'associazione"
 
 msgctxt "create menu"
-msgid "Festival"
-msgstr "Manifestazione"
+msgid "Event"
+msgstr "Evento"
 
-msgid "Gathers the events of several locations"
-msgstr "Raccoglie gli eventi di più sedi"
+msgid "Gathers the gatherings of several locations"
+msgstr "Raccoglie i ritrovi di più associazioni"
 
 msgctxt "create menu"
 msgid "Location"
-msgstr "Sede"
+msgstr "Associazione"
 
 msgid "A club, a game library or a shop"
 msgstr "Un circolo, una ludoteca o un negozio"
@@ -6094,11 +5931,11 @@ msgstr ""
 "Gestisci il tuo profilo: visualizza le tue attività, notifiche e "
 "impostazioni."
 
-msgid "My Events"
-msgstr "I miei Eventi"
+msgid "My Gatherings"
+msgstr "I miei Ritrovi"
 
-msgid "Manage the events you created or coordinate."
-msgstr "Gestisci gli eventi che hai creato o che coordini."
+msgid "Manage the gatherings you created or coordinate."
+msgstr "Gestisci i ritrovi che hai creato o che coordini."
 
 msgid "Edit Profile"
 msgstr "Modifica profilo"
@@ -6109,9 +5946,7 @@ msgstr "Modifica il tuo profilo: aggiorna foto, bio e preferenze di gioco."
 msgid ""
 "Manage your locations: create new locations, edit data and manage your game "
 "tables."
-msgstr ""
-"Gestisci le tue sedi: creane di nuove, modifica i dati e gestisci i tuoi "
-"tavoli di gioco."
+msgstr "Gestisci le tue associazioni: creane di nuove, modifica i dati e gestisci i tuoi tavoli di gioco."
 
 msgid ""
 "View your notifications: new tables, comments, invitations and community "
@@ -6165,7 +6000,7 @@ msgid "Guest deleted."
 msgstr "Ospite eliminato."
 
 msgid "Find an organizing location"
-msgstr "Cerca una sede organizzatrice"
+msgstr "Cerca un'associazione organizzatrice"
 
 msgid "Game Tables"
 msgstr "Tavoli di gioco"
@@ -6176,11 +6011,11 @@ msgstr "Scopri tutti i tavoli di gioco disponibili e unisciti alla partita!"
 msgid "Conventions, tournaments and game days near you."
 msgstr "Fiere, tornei e giornate di gioco vicino a te."
 
-msgid "Fairs and festivals that gather several events."
-msgstr "Fiere e festival che raccolgono più eventi."
+msgid "Fairs and festivals that gather several gatherings."
+msgstr "Fiere e festival che raccolgono più ritrovi."
 
-msgid "Find events, game tables and festivals on Board Gamers."
-msgstr "Trova eventi, tavoli di gioco e manifestazioni su Board Gamers."
+msgid "Find gatherings, game tables and events on Board Gamers."
+msgstr "Trova ritrovi, tavoli di gioco ed eventi su Board Gamers."
 
 msgid "Check the search filters and try again."
 msgstr "Controlla i filtri e riprova."
@@ -6206,8 +6041,8 @@ msgstr "Non è possibile modificare tavoli chiusi."
 msgid "You don't have permission to edit this table."
 msgstr "Non hai il permesso di modificare questo tavolo."
 
-msgid "Event created as a draft."
-msgstr "Evento creato in bozza."
+msgid "Gathering created as a draft."
+msgstr "Ritrovo creato in bozza."
 
 msgid "Drafts"
 msgstr "Bozze"
@@ -6217,11 +6052,11 @@ msgid "Past"
 msgstr "Passati"
 
 #, python-format
-msgid "Organized events – %(name)s"
-msgstr "Eventi organizzati – %(name)s"
+msgid "Organized gatherings – %(name)s"
+msgstr "Ritrovi organizzati – %(name)s"
 
-msgid "Event unavailable"
-msgstr "Evento non disponibile"
+msgid "Gathering unavailable"
+msgstr "Ritrovo non disponibile"
 
 msgid "Game catalog unavailable"
 msgstr "Catalogo non disponibile"
@@ -6236,24 +6071,23 @@ msgstr "Generale"
 msgid "Program unavailable"
 msgstr "Programma non disponibile"
 
-msgid "This event has already ended, registration is closed."
-msgstr "Questo evento è già terminato, le iscrizioni sono chiuse."
+msgid "This gathering has already ended, registration is closed."
+msgstr "Questo ritrovo è già terminato, le iscrizioni sono chiuse."
 
-msgid "Your event dates were saved."
+msgid "Your gathering dates were saved."
 msgstr "Le tue giornate sono state salvate."
 
-msgid "You are already registered for this event."
-msgstr "Sei già iscritto a questo evento."
+msgid "You are already registered for this gathering."
+msgstr "Sei già iscritto a questo ritrovo."
 
-msgid "This event has already ended, you can't leave it."
-msgstr ""
-"Questo evento è già terminato, non puoi più annullare la partecipazione."
+msgid "This gathering has already ended, you can't leave it."
+msgstr "Questo ritrovo è già terminato, non puoi più annullare la partecipazione."
 
-msgid "Your event registration was cancelled."
-msgstr "La tua iscrizione all’evento è stata annullata."
+msgid "Your gathering registration was cancelled."
+msgstr "La tua iscrizione al ritrovo è stata annullata."
 
-msgid "You are no longer attending this event."
-msgstr "Non partecipi più a questo evento."
+msgid "You are no longer attending this gathering."
+msgstr "Non partecipi più a questo ritrovo."
 
 msgid "Phone number saved."
 msgstr "Numero di telefono salvato."
@@ -6261,11 +6095,11 @@ msgstr "Numero di telefono salvato."
 msgid "Please enter a valid phone number."
 msgstr "Inserisci un numero di telefono valido."
 
-msgid "You don't have permission to create tables at this event."
-msgstr "Non hai i permessi necessari per creare tavoli a questo evento."
+msgid "You don't have permission to create tables at this gathering."
+msgstr "Non hai i permessi necessari per creare tavoli a questo ritrovo."
 
-msgid "You must define at least one date for the event before creating tables."
-msgstr "Devi definire almeno una data per l’evento prima di creare i tavoli."
+msgid "You must define at least one date for the gathering before creating tables."
+msgstr "Devi definire almeno una data per il ritrovo prima di creare i tavoli."
 
 msgid "Table was created successfully"
 msgstr "Tavolo creato con successo"
@@ -6274,33 +6108,32 @@ msgid "Table was updated successfully"
 msgstr "Tavolo aggiornato con successo"
 
 msgid "Layout request sent to the venue."
-msgstr "Richiesta inviata alla sede ospitante."
+msgstr "Richiesta inviata all'associazione ospitante."
 
 msgid "Layout request withdrawn."
 msgstr "Richiesta ritirata."
 
-msgid "This event was blocked by an admin and can't be published."
-msgstr ""
-"Questo evento è stato bloccato da un admin e non può essere pubblicato."
+msgid "This gathering was blocked by an admin and can't be published."
+msgstr "Questo ritrovo è stato bloccato da un admin e non può essere pubblicato."
 
-msgid "This event is already published."
-msgstr "Questo evento è già pubblicato."
+msgid "This gathering is already published."
+msgstr "Questo ritrovo è già pubblicato."
 
 #, python-format
 msgid "Before publishing: %(missing)s."
 msgstr "Prima di pubblicare: %(missing)s."
 
-msgid "Your event is published and visible to everyone."
-msgstr "Il tuo evento è pubblicato e visibile a tutti."
+msgid "Your gathering is published and visible to everyone."
+msgstr "Il tuo ritrovo è pubblicato e visibile a tutti."
 
-msgid "The event is back to draft and no longer visible to the public."
-msgstr "L'evento è tornato in bozza e non è più visibile al pubblico."
+msgid "The gathering is back to draft and no longer visible to the public."
+msgstr "Il ritrovo è tornato in bozza e non è più visibile al pubblico."
 
-msgid "Event unlinked."
-msgstr "Evento scollegato."
+msgid "Gathering unlinked."
+msgstr "Ritrovo scollegato."
 
-msgid "Event updated successfully"
-msgstr "Evento aggiornato con successo."
+msgid "Gathering updated successfully"
+msgstr "Ritrovo aggiornato con successo."
 
 msgid "Date added."
 msgstr "Data aggiunta."
@@ -6326,11 +6159,11 @@ msgstr "Categoria aggiunta."
 msgid "Category removed."
 msgstr "Categoria rimossa."
 
-msgid "The game library is now visible on the event page."
-msgstr "La ludoteca ora è visibile nella pagina evento."
+msgid "The game library is now visible on the gathering page."
+msgstr "La ludoteca ora è visibile nella pagina ritrovo."
 
-msgid "The game library is now hidden from the event page."
-msgstr "La ludoteca ora è nascosta dalla pagina evento."
+msgid "The game library is now hidden from the gathering page."
+msgstr "La ludoteca ora è nascosta dalla pagina ritrovo."
 
 #, python-format
 msgid "Game «%(name)s» added to the library."
@@ -6371,10 +6204,10 @@ msgid "Table creator removed."
 msgstr "Admin tavoli rimosso."
 
 msgid "Location added."
-msgstr "Sede aggiunta."
+msgstr "Associazione aggiunta."
 
 msgid "Location removed."
-msgstr "Sede rimossa."
+msgstr "Associazione rimossa."
 
 msgctxt "game loan filter"
 msgid "Open"
@@ -6431,10 +6264,10 @@ msgstr ""
 "per la tua prossima partita!"
 
 msgid "Location was created successfully"
-msgstr "Sede creata"
+msgstr "Associazione creata"
 
 msgid "Location was updated successfully"
-msgstr "Sede aggiornata"
+msgstr "Associazione aggiornata"
 
 #, python-format
 msgid "Management – %(name)s"
@@ -6447,9 +6280,7 @@ msgstr "Gestori – %(name)s"
 #, python-format
 msgid ""
 "Manage managers of %(name)s location: add, remove and transfer ownership."
-msgstr ""
-"Gestisci i gestori della sede %(name)s: aggiungili, rimuovili e trasferisci "
-"la titolarità."
+msgstr "Gestisci i gestori dell'associazione %(name)s: aggiungili, rimuovili e trasferisci la titolarità."
 
 #, python-format
 msgid "Edit – %(name)s"
@@ -6467,7 +6298,7 @@ msgid "You no longer follow %(name)s."
 msgstr "Hai smesso di seguire %(name)s."
 
 msgid "You don't have permission to manage this location."
-msgstr "Non hai il permesso di gestire questa sede."
+msgstr "Non hai il permesso di gestire questa associazione."
 
 #, python-format
 msgid "Members – %(name)s"
@@ -6475,7 +6306,7 @@ msgstr "Soci – %(name)s"
 
 #, python-format
 msgid "Manage members of %(name)s location."
-msgstr "Gestisci i soci della sede %(name)s."
+msgstr "Gestisci i soci dell'associazione %(name)s."
 
 msgid "Membership requests are now open to visitors."
 msgstr "Le richieste di adesione sono ora aperte ai visitatori."
@@ -6547,10 +6378,10 @@ msgid "The name cannot be empty."
 msgstr "Il nome non può essere vuoto."
 
 msgid "This location does not accept membership requests."
-msgstr "Questa sede non accetta richieste di adesione."
+msgstr "Questa associazione non accetta richieste di adesione."
 
 msgid "You already have a pending or active membership for this location."
-msgstr "Hai già un’adesione in attesa o attiva per questa sede."
+msgstr "Hai già un’adesione in attesa o attiva per questa associazione."
 
 #, python-format
 msgid "Request Membership – %(name)s"
@@ -6580,16 +6411,16 @@ msgid "Affiliation added."
 msgstr "Affiliazione aggiunta."
 
 msgid "This national network is no longer available."
-msgstr "Questa associazione nazionale non è più disponibile."
+msgstr "Questa rete nazionale non è più disponibile."
 
 msgid "Affiliation removed."
 msgstr "Affiliazione rimossa."
 
 msgid "The game library is now visible on the location page."
-msgstr "La ludoteca ora è visibile nella pagina della sede."
+msgstr "La ludoteca ora è visibile nella pagina dell'associazione."
 
 msgid "The game library is now hidden from the location page."
-msgstr "La ludoteca ora è nascosta dalla pagina della sede."
+msgstr "La ludoteca ora è nascosta dalla pagina dell'associazione."
 
 #, python-format
 msgid "Games played – %(name)s"
@@ -6641,8 +6472,8 @@ msgstr ""
 msgid "Play areas – %(name)s"
 msgstr "Aree di gioco – %(name)s"
 
-msgid "Venue layout approved for this event."
-msgstr "Uso degli spazi autorizzato per questo evento."
+msgid "Venue layout approved for this gathering."
+msgstr "Uso degli spazi autorizzato per questo ritrovo."
 
 msgid "Venue layout request declined."
 msgstr "Richiesta di uso degli spazi rifiutata."
@@ -6719,13 +6550,11 @@ msgstr "Calendario – %(name)s"
 msgid "Game catalog – %(name)s"
 msgstr "Catalogo dei giochi – %(name)s"
 
-msgid "Add at least one date: a festival is published with its calendar."
-msgstr ""
-"Aggiungi almeno una giornata: una manifestazione si pubblica con il suo "
-"calendario."
+msgid "Add at least one date: an event is published with its calendar."
+msgstr "Aggiungi almeno una giornata: un evento si pubblica con il suo calendario."
 
-msgid "Link the events that take place during the festival."
-msgstr "Collega gli eventi che si svolgono durante la manifestazione."
+msgid "Link the gatherings that take place during the event."
+msgstr "Collega i ritrovi che si svolgono durante l'evento."
 
 #, python-format
 msgid "Manage – %(name)s"
@@ -6734,8 +6563,8 @@ msgstr "Gestione – %(name)s"
 msgid "Registration is closed."
 msgstr "Le iscrizioni sono chiuse."
 
-msgid "Festival registration updated."
-msgstr "Adesione alla manifestazione aggiornata."
+msgid "Event registration updated."
+msgstr "Adesione all'evento aggiornata."
 
 msgid "Date saved."
 msgstr "Giornata salvata."
@@ -6746,8 +6575,8 @@ msgstr "Data o orari non validi."
 msgid "Keep at least one manager."
 msgstr "Mantieni almeno un gestore."
 
-msgid "Event linked."
-msgstr "Evento collegato."
+msgid "Gathering linked."
+msgstr "Ritrovo collegato."
 
 msgid "Sponsor removed."
 msgstr "Sponsor rimosso."
@@ -6930,11 +6759,8 @@ msgstr ""
 "Attenzione: questa postazione è già occupata da un altro tavolo in un orario "
 "sovrapposto."
 
-msgid ""
-"Reassign upcoming event sessions before removing this play area or station."
-msgstr ""
-"Riassegna le sessioni future degli eventi prima di rimuovere quest'area o "
-"postazione."
+msgid "Reassign upcoming gathering sessions before removing this play area or station."
+msgstr "Riassegna le sessioni future dei ritrovi prima di rimuovere quest'area o postazione."
 
 msgid "You don't have permission to duplicate this table."
 msgstr "Non hai il permesso di duplicare questo tavolo."
@@ -6952,10 +6778,10 @@ msgid "Open this page from Telegram to see the tables."
 msgstr "Apri questa pagina da Telegram per vedere i tavoli."
 
 msgid "This link does not specify a location."
-msgstr "Questo link non indica nessuna sede."
+msgstr "Questo link non indica nessuna associazione."
 
 msgid "Location not found."
-msgstr "Sede non trovata."
+msgstr "Associazione non trovata."
 
 msgid "Something went wrong. Try reopening the app."
 msgstr "Qualcosa è andato storto. Prova a riaprire l’app."

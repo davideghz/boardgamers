@@ -49,7 +49,7 @@ class ExternalVenueLayoutTest(TestCase):
         })
 
     def test_only_the_current_host_can_approve_a_request(self):
-        self.assertContains(self.choose_layout(), 'ottieni l’autorizzazione della sede esterna')
+        self.assertContains(self.choose_layout(), 'ottieni l’autorizzazione dell’associazione esterna')
         self.request_layout()
         self.assertEqual(self.event.venue_layout_requested_from, self.fair)
         self.assertFalse(self.event.can_use_venue_layout)

@@ -26,13 +26,13 @@
         </p>
         <p class="text-xs text-content-muted mt-0.5">
           {% if event.catalog_is_public %}
-            {% trans "Visitors can browse the library from the event page, which also shows the games with a tag flagged for it." %}
+            {% trans "Visitors can browse the library from the gathering page, which also shows the games with a tag flagged for it." %}
             <a href="{% url 'event-games' event.slug %}" class="text-link font-semibold hover:underline">{% trans "View public page" %} →</a>
           {% else %}
             {% if event.uses_location_library and not event.organizer_location.enable_public_games %}
-              {% translate "The event catalog stays hidden while the organizing location library is private." %}
+              {% translate "The gathering catalog stays hidden while the organizing location library is private." %}
             {% else %}
-              {% trans "Turn this on to show the library on the event page. Until then only managers can see it." %}
+              {% trans "Turn this on to show the library on the gathering page. Until then only managers can see it." %}
             {% endif %}
             <a href="{% url 'event-games' event.slug %}" class="text-link font-semibold hover:underline">{% trans "Preview" %} →</a>
           {% endif %}
@@ -56,7 +56,7 @@
   </form>
 
   {% if event.organizer_location_id %}
-    <p class="mb-4 text-sm text-content-muted">{% if event.uses_location_library %}{% translate "The event catalog uses the organizing location library, plus the event selection." %}{% else %}{% translate "The event catalog uses the event selection." %}{% endif %}
+    <p class="mb-4 text-sm text-content-muted">{% if event.uses_location_library %}{% translate "The gathering catalog uses the organizing location library, plus the gathering selection." %}{% else %}{% translate "The gathering catalog uses the gathering selection." %}{% endif %}
       <a class="text-link" href="{% url 'event-manage-data' event.slug %}">{% translate "Change catalog" %}</a></p>
   {% endif %}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -64,8 +64,8 @@
     {# ── Games ───────────────────────────────────────────────────────── #}
     <div class="lg:col-span-2 min-w-0">
       {% if event.uses_location_library %}
-        <h2 class="mb-2 text-sm font-semibold text-content">{% translate "Event selection" %}</h2>
-        <p class="mb-2 text-xs text-content-muted">{% translate "These games, which include those of the event tables, are shown together with the organizing location library. Add a library game here to give it a tag." %}</p>
+        <h2 class="mb-2 text-sm font-semibold text-content">{% translate "Gathering selection" %}</h2>
+        <p class="mb-2 text-xs text-content-muted">{% translate "These games, which include those of the gathering tables, are shown together with the organizing location library. Add a library game here to give it a tag." %}</p>
       {% endif %}
       <div class="flex gap-2 mb-3">
         <div class="relative flex-1">

@@ -90,7 +90,7 @@
         </div>
       {% else %}
         <p class="text-xs text-content-muted">
-          {% trans "This event has no sponsor locations yet." %}
+          {% trans "This gathering has no sponsor locations yet." %}
           <a href="{% url 'event-manage-locations' event.slug %}" class="text-link font-semibold hover:underline">{% trans "Add them." %}</a>
         </p>
       {% endif %}

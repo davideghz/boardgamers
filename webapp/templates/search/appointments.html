@@ -11,9 +11,9 @@ and shows its own state, like My activities.
 {% block content %}
 <div class="max-w-2xl">
   {% if preset == 'events' %}
-    {% url 'event-create' as create_url %}{% trans "Create event" as create_label %}
+    {% url 'event-create' as create_url %}{% trans "Create gathering" as create_label %}
   {% elif preset == 'master-events' and user.is_authenticated %}
-    {% url 'master-event-create' as create_url %}{% trans "Create festival" as create_label %}
+    {% url 'master-event-create' as create_url %}{% trans "Create event" as create_label %}
   {% endif %}
   {% page_header page_title count=paginator.count action_label=create_label action_url=create_url %}
 

@@ -304,8 +304,8 @@ class GameAdmin(admin.ModelAdmin):
                 return redirect('admin:webapp_game_changelist')
             keeper.refresh_from_db()
             summary = _("Merged %(dup)s into %(keeper)s: %(tables)d tables moved, %(moved)d library entries "
-                        "moved, %(merged)d library entries merged, %(event_moved)d event library entries moved, "
-                        "%(event_merged)d event library entries merged.") % {
+                        "moved, %(merged)d library entries merged, %(event_moved)d gathering library entries moved, "
+                        "%(event_merged)d gathering library entries merged.") % {
                 'dup': duplicate_repr, 'keeper': keeper, 'tables': result.tables_moved,
                 'moved': result.library_moved, 'merged': result.library_merged,
                 'event_moved': result.event_library_moved, 'event_merged': result.event_library_merged}
@@ -521,7 +521,7 @@ class EventDateInlineFormSet(BaseInlineFormSet):
                 old = EventDate.objects.get(pk=form.instance.pk)
                 old.check_removal(replacing=True)
         if self.instance.is_published and not days:
-            raise ValidationError(_('A published event needs at least one date.'))
+            raise ValidationError(_('A published gathering needs at least one date.'))
 
     @transaction.atomic
     def save(self, commit=True):
@@ -534,7 +534,7 @@ class EventDateInlineFormSet(BaseInlineFormSet):
             form.instance._defer_last_date_check = True
         dates = super().save()
         if event.is_published and not event.dates.exists():
-            raise ValidationError(_('A published event needs at least one date.'))
+            raise ValidationError(_('A published gathering needs at least one date.'))
         return dates
 
 

@@ -124,7 +124,7 @@ class FestivalManagePanelTest(TestCase):
         master = self.data.manifestation
         self.client.force_login(self.data.organizer.user)
         response = self.client.get(reverse('master-event-manage', args=[master.slug]))
-        self.assertContains(response, 'Pubblicata')
+        self.assertContains(response, 'Pubblicato')
         for name in ('master-event-manage-data', 'master-event-manage-dates', 'master-event-manage-events',
                      'master-event-manage-people'):
             with self.subTest(name):

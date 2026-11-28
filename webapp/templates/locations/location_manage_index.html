@@ -23,8 +23,8 @@ The location's management panel by task (plan G1): first what waits for an answe
           {% for item in todo %}
             {% if item.key == 'membership_requests' %}{% blocktrans count n=item.count asvar title %}membership request{% plural %}membership requests{% endblocktrans %}
             {% elif item.key == 'layout_requests' %}{% blocktrans count n=item.count asvar title %}layout request{% plural %}layout requests{% endblocktrans %}
-            {% elif item.key == 'draft_events' %}{% blocktrans count n=item.count asvar title %}draft event{% plural %}draft events{% endblocktrans %}
-            {% else %}{% blocktrans count n=item.count asvar title %}event without tables{% plural %}events without tables{% endblocktrans %}{% endif %}
+            {% elif item.key == 'draft_events' %}{% blocktrans count n=item.count asvar title %}draft gathering{% plural %}draft gatherings{% endblocktrans %}
+            {% else %}{% blocktrans count n=item.count asvar title %}gathering without tables{% plural %}gatherings without tables{% endblocktrans %}{% endif %}
             {% todo_card item.url title item.count %}
           {% endfor %}
         </div>
@@ -46,7 +46,7 @@ The location's management panel by task (plan G1): first what waits for an answe
     <section aria-labelledby="group-activities">
       <h2 id="group-activities" class="mb-3 text-xs font-bold uppercase tracking-wide text-content-muted">{% trans "Activities" context "navigation" %}</h2>
       <div class="space-y-2">
-        {% url 'location-manage-events' location.slug as url %}{% trans "Organized events" as title %}{% trans "Create events, publish drafts and follow their tables" as description %}
+        {% url 'location-manage-events' location.slug as url %}{% trans "Organized gatherings" as title %}{% trans "Create gatherings, publish drafts and follow their tables" as description %}
         {% manage_tile url title description icon="calendar" %}
         {% url 'location-manage-table-summary' location.slug as url %}{% trans "Table summary" as title %}{% trans "Generate a message with table status to share on chat" as description %}
         {% manage_tile url title description icon="chat" %}
@@ -64,7 +64,7 @@ The location's management panel by task (plan G1): first what waits for an answe
         {% manage_tile url title description icon="squares" %}
         {% url 'location-manage-station-assignment' location.slug as url %}{% trans "Assign stations" as title %}{% trans "Assign the upcoming games to your stations" as description %}
         {% manage_tile url title description icon="check" %}
-        {% url 'location-venue-layout-requests' location.slug as url %}{% trans "Venue layout requests" as title %}{% trans "Events hosted here that ask for your areas and stations" as description %}
+        {% url 'location-venue-layout-requests' location.slug as url %}{% trans "Venue layout requests" as title %}{% trans "Gatherings hosted here that ask for your areas and stations" as description %}
         {% manage_tile url title description icon="inbox" %}
       </div>
     </section>

@@ -192,8 +192,8 @@ STATUS_BADGES = {
 }
 TYPE_BADGES = {
     "table": pgettext_lazy("appointment type", "Table"),
-    "event": pgettext_lazy("appointment type", "Event"),
-    "manifestation": pgettext_lazy("appointment type", "Festival"),
+    "event": pgettext_lazy("appointment type", "Gathering"),
+    "manifestation": pgettext_lazy("appointment type", "Event"),
 }
 ROLE_BADGES = {
     "creator": (pgettext_lazy("location role", "Owner"), "info"),
@@ -359,7 +359,7 @@ def create_menu(context, menu_id, location=None, primary=False, trigger_id=None,
         items.append({'label': pgettext_lazy('create menu', 'Table'), 'hint': _('A game night here'), 'icon': 'bolt',
                       'url': reverse('location-table-create', args=[location.slug])})
         if viewer.event_creation_access(location).allowed:
-            items.append({'label': pgettext_lazy('create menu', 'Event'), 'hint': _('One or more days of play here'), 'icon': 'calendar',
+            items.append({'label': pgettext_lazy('create menu', 'Gathering'), 'hint': _('One or more days of play here'), 'icon': 'calendar',
                           'url': reverse('location-event-create', args=[location.slug])})
     else:
         # On a location's or an event's pages the table goes there (table_new_view checks it)
@@ -375,10 +375,10 @@ def create_menu(context, menu_id, location=None, primary=False, trigger_id=None,
         items.append({'label': pgettext_lazy('create menu', 'Table'), 'hint': _('A game night at a location'), 'icon': 'bolt',
                       'url': table_url})
         if viewer.can_create_events:
-            items.append({'label': pgettext_lazy('create menu', 'Event'), 'hint': _('One or more days of play at a location'),
+            items.append({'label': pgettext_lazy('create menu', 'Gathering'), 'hint': _('One or more days of play at a location'),
                           'icon': 'calendar', 'url': reverse('event-create')})
         if viewer.is_authenticated:
-            items.append({'label': pgettext_lazy('create menu', 'Festival'), 'hint': _('Gathers the events of several locations'),
+            items.append({'label': pgettext_lazy('create menu', 'Event'), 'hint': _('Gathers the gatherings of several locations'),
                           'icon': 'users', 'url': reverse('master-event-create')})
         if not viewer.managed_location_ids:
             items.append({'label': pgettext_lazy('create menu', 'Location'), 'hint': _('A club, a game library or a shop'),

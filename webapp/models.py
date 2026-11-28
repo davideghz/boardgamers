@@ -324,11 +324,11 @@ class Location(DateTimeModel, ModelMeta, SlugModel):
     ]
     event_creation_permission = models.CharField(
         max_length=20, choices=EVENT_CREATION_CHOICES, default=PERM_MANAGERS_ONLY, db_default=PERM_MANAGERS_ONLY,
-        verbose_name=_('Who can create events'),
+        verbose_name=_('Who can create gatherings'),
     )
     event_join_permission = models.CharField(
         max_length=20, choices=TABLE_JOIN_CHOICES, default=PERM_ANYONE, db_default=PERM_ANYONE,
-        verbose_name=_('Who can join events'),
+        verbose_name=_('Who can join gatherings'),
     )
 
     table_creation_permission = models.CharField(
@@ -767,7 +767,7 @@ class Table(DateTimeModel, ModelMeta, SlugModel):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, related_name='tables', null=True, blank=True, verbose_name=_('Location'))
     event = models.ForeignKey(
-        'Event', on_delete=models.CASCADE, related_name='tables', null=True, blank=True, verbose_name=_('Event'))
+        'Event', on_delete=models.CASCADE, related_name='tables', null=True, blank=True, verbose_name=_('Gathering'))
     play_area = models.ForeignKey(
         'PlayArea',
         on_delete=clear_unreserved_layout_assignment, related_name='tables', null=True, blank=True, verbose_name=_('Play Area'))
@@ -1905,9 +1905,9 @@ class Banner(DateTimeModel):
     is_active = models.BooleanField(_('Active'), default=False, db_index=True)
     audience = models.CharField(
         _('Audience'), max_length=20, choices=Audience.choices, default=Audience.EVERYONE,
-        help_text=_('Active players: signed-in users with an upcoming table or event. Members: with a '
+        help_text=_('Active players: signed-in users with an upcoming table or gathering. Members: with a '
                     'membership in force at some location. Location managers: owners and managers of a '
-                    'location. Users without activity: signed in, but never joined a table or an event.'))
+                    'location. Users without activity: signed in, but never joined a table or a gathering.'))
     placement = models.CharField(_('Display on'), max_length=10, choices=Placement.choices, default=Placement.HOME)
     priority = models.PositiveIntegerField(_('Priority'), default=0, help_text=_('Higher values are shown first.'))
     starts_at = models.DateTimeField(_('Visible from'), null=True, blank=True)
@@ -2072,13 +2072,13 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
         choices=[
             ('', _('Automatic for the venue')),
             (CATALOG_LOCATION, _('Organizing location library')),
-            (CATALOG_SELECTED, _('Event selection')),
+            (CATALOG_SELECTED, _('Gathering selection')),
         ],
         verbose_name=_('Game catalog'),
     )
 
     class LayoutMode(models.TextChoices):
-        EVENT = 'event', _('Event layout')
+        EVENT = 'event', _('Gathering layout')
         VENUE = 'venue', _('Venue layout')
 
     layout_mode = models.CharField(
@@ -2088,7 +2088,7 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
 
     master_event = models.ForeignKey(
         'MasterEvent', on_delete=models.SET_NULL, related_name='events', null=True, blank=True,
-        editable=False, verbose_name=_('Manifestation'),
+        editable=False, verbose_name=_('Event'),
     )
 
     # PROTECT also stops the deletion of the profile that created the location
@@ -2130,7 +2130,7 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
         verbose_name=_('Additional table creators'))
     leaderboard_enabled = models.BooleanField(
         default=True, verbose_name=_('Leaderboard'),
-        help_text=_('When off, the tables of this event have no leaderboard.'))
+        help_text=_('When off, the tables of this gathering have no leaderboard.'))
     # Lets visitors browse the game library (EventGame) from the event page.
     enable_public_games = models.BooleanField(
         # DB-level default too, so code that predates this column can still insert events
@@ -2161,7 +2161,7 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
         description = _plain_text(self.description)
         if description:
             return description
-        return _("%(name)s — gaming event") % {'name': self.name}
+        return _("%(name)s — gaming gathering") % {'name': self.name}
 
     @cached_property
     def cover_url(self):
@@ -2304,7 +2304,7 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
         requested_from = proposed('venue_layout_requested_from_id')
         approved = proposed('venue_layout_approved')
         if requested_from is not None and (organizer is None or organizer == venue or requested_from != venue):
-            raise ValidationError(_('Layout requests must go to the event’s current external venue.'))
+            raise ValidationError(_('Layout requests must go to the gathering’s current external venue.'))
         if approved and requested_from is None:
             raise ValidationError(_('Venue approval requires a layout request.'))
         if mode == self.LayoutMode.VENUE and (organizer is None or (organizer != venue and not approved)):
@@ -2328,7 +2328,7 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
     def clean(self):
         super().clean()
         if self.master_event_id and not self.organizer_location_id:
-            raise ValidationError({'organizer_location': _('A linked event needs an organizing location.')})
+            raise ValidationError({'organizer_location': _('A linked gathering needs an organizing location.')})
         previous = Event.objects.filter(pk=self.pk).only(*self._LAYOUT_FIELDS).first() if self.pk else None
         self._clear_layout_access_on_move(previous)
         self._validate_layout_change(previous)
@@ -2400,12 +2400,12 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
 
     def validate_table_date(self, date):
         if not self.dates.filter(date=date).exists():
-            raise ValidationError(_('Choose one of the event dates.'))
+            raise ValidationError(_('Choose one of the gathering dates.'))
 
     def validate_master_day(self, date):
         if self.master_event_id and not MasterEventDate.objects.filter(
                 master_event_id=self.master_event_id, date=date).exists():
-            raise ValidationError(_('Choose a date in the festival calendar.'))
+            raise ValidationError(_('Choose a date in the event calendar.'))
 
     def missing_publish_requirements(self):
         """What the event still lacks before it can be published: an undated event
@@ -2434,8 +2434,8 @@ class Event(ScheduleMixin, DateTimeModel, ModelMeta, SlugModel):
         return self.name
 
     class Meta:
-        verbose_name = _('Event')
-        verbose_name_plural = _('Events')
+        verbose_name = _('Gathering')
+        verbose_name_plural = _('Gatherings')
         ordering = ['-created_at']
         constraints = [
             models.CheckConstraint(
@@ -2505,8 +2505,8 @@ class MasterEvent(ScheduleMixin, DateTimeModel, SlugModel):
     approved_at = models.DateTimeField(null=True, blank=True, editable=False)
 
     class Meta:
-        verbose_name = _('Manifestation')
-        verbose_name_plural = _('Manifestations')
+        verbose_name = _('Event')
+        verbose_name_plural = _('Events')
         ordering = ['name', 'pk']
 
     def __str__(self):
@@ -2545,7 +2545,7 @@ class MasterEvent(ScheduleMixin, DateTimeModel, SlugModel):
                 master_event_date__master_event=self, master_event_date__date__in=dates).exists():
             raise ValidationError(_('This date has registrations.'))
         if self.events.filter(dates__date__in=dates).exists():
-            raise ValidationError(_('A linked event uses this date.'))
+            raise ValidationError(_('A linked gathering uses this date.'))
 
     def clean(self):
         super().clean()
@@ -2607,7 +2607,7 @@ class MasterEventDate(models.Model):
             previous = MasterEventDate.objects.only('master_event', 'date').filter(pk=self.pk).first() if self.pk else None
             if previous:
                 if previous.master_event_id != master.pk:
-                    raise ValidationError(_('A date cannot be moved to another festival.'))
+                    raise ValidationError(_('A date cannot be moved to another event.'))
                 if previous.date != self.date:
                     master.validate_unused_dates([previous.date])
             return super().save(*args, **kwargs)
@@ -2628,7 +2628,7 @@ class PlayArea(DateTimeModel):
     """A room or zone where tables are played, owned by an event or a location."""
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='play_areas',
-        null=True, blank=True, verbose_name=_('Event'))
+        null=True, blank=True, verbose_name=_('Gathering'))
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, related_name='play_areas',
         null=True, blank=True, verbose_name=_('Location'))
@@ -2657,7 +2657,7 @@ class PlayArea(DateTimeModel):
 
 class EventDate(DateTimeModel):
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='dates', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='dates', verbose_name=_('Gathering'))
     date = models.DateField(verbose_name=_('Date'))
     opening_time = models.TimeField(null=True, blank=True, verbose_name=_('Opening time'))
     closing_time = models.TimeField(null=True, blank=True, verbose_name=_('Closing time'))
@@ -2669,7 +2669,7 @@ class EventDate(DateTimeModel):
             raise ValidationError(_('Move the tables scheduled on this date first.'))
         if not replacing and self.event.is_published and not self.event.dates.exclude(
                 pk__in=removed if removed is not None else [self.pk]).exists():
-            raise ValidationError(_('A published event needs at least one date.'))
+            raise ValidationError(_('A published gathering needs at least one date.'))
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -2680,7 +2680,7 @@ class EventDate(DateTimeModel):
             if self.pk:
                 old = EventDate.objects.get(pk=self.pk)
                 if old.event_id != self.event_id:
-                    raise ValidationError(_('An event date cannot change event.'))
+                    raise ValidationError(_('A gathering date cannot change gathering.'))
                 if old.date != self.date and old.event.organizer_location_id:
                     old.check_removal(replacing=True)
             return super().save(*args, **kwargs)
@@ -2689,8 +2689,8 @@ class EventDate(DateTimeModel):
         return f"{self.event.name} — {self.date}"
 
     class Meta:
-        verbose_name = _('Event Date')
-        verbose_name_plural = _('Event Dates')
+        verbose_name = _('Gathering Date')
+        verbose_name_plural = _('Gathering Dates')
         ordering = ['date']
         unique_together = [('event', 'date')]
 
@@ -2699,7 +2699,7 @@ class EventTableCategory(DateTimeModel):
     """A per-event table category ("tipologia"), e.g. wargames, RPG, retrogaming.
     Defined by event managers and assigned to the event's tables."""
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='table_categories', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='table_categories', verbose_name=_('Gathering'))
     name = models.CharField(max_length=144, verbose_name=_('Name'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
@@ -2707,8 +2707,8 @@ class EventTableCategory(DateTimeModel):
         return f"{self.event.name} — {self.name}"
 
     class Meta:
-        verbose_name = _('Event Table Category')
-        verbose_name_plural = _('Event Table Categories')
+        verbose_name = _('Gathering Table Category')
+        verbose_name_plural = _('Gathering Table Categories')
         ordering = ['order', 'name']
         unique_together = [('event', 'name')]
 
@@ -2717,17 +2717,17 @@ class EventGameTag(DateTimeModel):
     """A label for the games of an event's library, defined by its managers.
     Games with a tag flagged `show_on_event_page` are featured on the event page."""
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='game_tags', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='game_tags', verbose_name=_('Gathering'))
     name = models.CharField(max_length=64, verbose_name=_('Name'))
-    show_on_event_page = models.BooleanField(default=False, verbose_name=_('Show on the event page'))
+    show_on_event_page = models.BooleanField(default=False, verbose_name=_('Show on the gathering page'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = _('Event Game Tag')
-        verbose_name_plural = _('Event Game Tags')
+        verbose_name = _('Gathering Game Tag')
+        verbose_name_plural = _('Gathering Game Tags')
         ordering = ['order', 'name']
         unique_together = [('event', 'name')]
 
@@ -2740,7 +2740,7 @@ class EventGame(DateTimeModel):
     )
 
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='games', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='games', verbose_name=_('Gathering'))
     game = models.ForeignKey(
         Game, on_delete=models.CASCADE, related_name='event_games', verbose_name=_('Game'))
     tags = models.ManyToManyField(
@@ -2764,8 +2764,8 @@ class EventGame(DateTimeModel):
         return f"{self.game.name} @ {self.event.name}"
 
     class Meta:
-        verbose_name = _('Event Game')
-        verbose_name_plural = _('Event Games')
+        verbose_name = _('Gathering Game')
+        verbose_name_plural = _('Gathering Games')
         unique_together = [('event', 'game')]
         ordering = ['game__name']
 
@@ -2788,7 +2788,7 @@ class PhysicalTable(DateTimeModel):
     """
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='physical_tables',
-        null=True, blank=True, verbose_name=_('Event'))
+        null=True, blank=True, verbose_name=_('Gathering'))
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, related_name='physical_tables',
         null=True, blank=True, verbose_name=_('Location'))
@@ -2806,7 +2806,7 @@ class PhysicalTable(DateTimeModel):
             raise ValidationError({'play_area': _('Choose a play area from this station’s layout.')})
         if self.pk and self.tables.filter(event__isnull=False, date__gte=timezone.localdate()).exists():
             if not PhysicalTable.objects.filter(pk=self.pk, event_id=self.event_id, location_id=self.location_id).exists():
-                raise ValidationError(_('Reassign upcoming event sessions before transferring this station.'))
+                raise ValidationError(_('Reassign upcoming gathering sessions before transferring this station.'))
 
     def save(self, *args, **kwargs):
         fields = kwargs.get('update_fields')
@@ -2846,7 +2846,7 @@ class EventParticipant(DateTimeModel):
     Explicit registrations keep their selected days. Older records may be undated.
     """
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='participants', verbose_name=_('Event'))
+        Event, on_delete=models.CASCADE, related_name='participants', verbose_name=_('Gathering'))
     user_profile = models.ForeignKey(
         UserProfile, on_delete=models.CASCADE, related_name='event_participations',
         verbose_name=_('User'))
@@ -2855,8 +2855,8 @@ class EventParticipant(DateTimeModel):
         return f"{self.user_profile.nickname} @ {self.event.name}"
 
     class Meta:
-        verbose_name = _('Event Participant')
-        verbose_name_plural = _('Event Participants')
+        verbose_name = _('Gathering Participant')
+        verbose_name_plural = _('Gathering Participants')
         ordering = ['-created_at']
         unique_together = [('event', 'user_profile')]
 
@@ -2872,7 +2872,7 @@ class EventParticipantDate(models.Model):
     def clean(self):
         super().clean()
         if self.participant_id and self.event_date_id and self.participant.event_id != self.event_date.event_id:
-            raise ValidationError(_('Choose one of the event dates.'))
+            raise ValidationError(_('Choose one of the gathering dates.'))
 
     def save(self, *args, **kwargs):
         self.clean()

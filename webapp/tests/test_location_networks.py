@@ -268,7 +268,7 @@ class LocationNetworksTest(TestCase):
 
         response = self.client.get(self.index_url, {'network': self.federludo.slug})
         self.assertContains(response, '<h2 class="text-base font-bold text-content">FederLudo</h2>', html=True)
-        self.assertContains(response, 'Associazione nazionale: </span>FederLudo')  # the chip, on
+        self.assertContains(response, 'Rete nazionale: </span>FederLudo')  # the chip, on
         self.assertContains(response, f'src="{self.federludo.logo.url}"')
         self.assertContains(response, f'href="{self.federludo.website}"')
         self.assertFalse(response.context['nearby_locations'])

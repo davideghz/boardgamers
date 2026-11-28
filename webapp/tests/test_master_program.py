@@ -108,7 +108,7 @@ class MasterProgramTest(TestCase):
         with self.settings(LANGUAGE_CODE='en'):
             self.client.cookies['django_language'] = 'en'
             response = self.client.post(self.link, {'event': self.event.pk}, follow=True)
-            self.assertContains(response, 'Add these dates to the festival calendar before linking the event')
+            self.assertContains(response, 'Add these dates to the event calendar before linking the gathering')
         self.assertFalse(self.master.events.exists())
         MasterEventDate.objects.create(master_event=self.master, date=outside.date)
         self.client.post(self.link, {'event': self.event.pk})

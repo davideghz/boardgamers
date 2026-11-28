@@ -3,11 +3,11 @@
 {% load i18n %}
 
 {% block title %}
-  {% trans "A new event has been published" %}
+  {% trans "A new gathering has been published" %}
 {% endblock title %}
 
 {% block main_content %}
-    <strong>{% trans "Event" %}</strong><br>
+    <strong>{% trans "Gathering" %}</strong><br>
     <a href="{{ event_href }}">{{ name }}</a>{% if city %} ({{ city }}){% endif %}<br><br>
 
     <strong>{% trans "Created by" %}</strong><br>

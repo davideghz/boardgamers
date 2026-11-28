@@ -6,7 +6,7 @@
 
   <div class="mb-6">
     {% back_link 'event_detail' event.slug label=event.name %}
-    <h1 class="text-2xl font-extrabold text-content">{% trans "Manage event" %}</h1>
+    <h1 class="text-2xl font-extrabold text-content">{% trans "Manage gathering" %}</h1>
   </div>
 
   <div class="max-w-xl mb-6">
@@ -23,7 +23,7 @@
           </svg>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-amber-800">{% trans "Draft" %}</p>
-            <p class="text-xs text-amber-700 mt-0.5">{% trans "Only the managers can see this event. Publish it to make it visible to everyone." %}</p>
+            <p class="text-xs text-amber-700 mt-0.5">{% trans "Only the managers can see this gathering. Publish it to make it visible to everyone." %}</p>
             {% if missing_publish_requirements %}
               <p class="text-xs font-semibold text-amber-800 mt-3">{% trans "Before publishing:" %}</p>
               <ul class="mt-1 space-y-1">
@@ -46,7 +46,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
             </svg>
-            {% trans "Publish event" %}
+            {% trans "Publish gathering" %}
           </button>
         </form>
       </div>
@@ -58,10 +58,10 @@
           </svg>
           <div>
             <p class="text-sm font-bold text-content">{% trans "Published" %}</p>
-            <p class="text-xs text-content-muted mt-0.5">{% trans "The event is visible to everyone." %}</p>
+            <p class="text-xs text-content-muted mt-0.5">{% trans "The gathering is visible to everyone." %}</p>
           </div>
         </div>
-        {% trans "Back to draft? The event will disappear from the event list and its page will no longer be reachable." as confirm_base %}
+        {% trans "Back to draft? The gathering will disappear from the gathering list and its page will no longer be reachable." as confirm_base %}
         {% blocktrans asvar confirm_participants count n=participant_count %}{{ n }} registered participant will lose access.{% plural %}{{ n }} registered participants will lose access.{% endblocktrans %}
         {% blocktrans asvar confirm_tables count n=table_count %}{{ n }} table is scheduled.{% plural %}{{ n }} tables are scheduled.{% endblocktrans %}
         <form method="post" action="{% url 'event-manage-unpublish' event.slug %}"
@@ -80,7 +80,7 @@
         </svg>
         <div>
           <p class="text-sm font-bold text-red-700">{% trans "Blocked" %}</p>
-          <p class="text-xs text-red-700 mt-0.5">{% trans "An admin blocked this event: it is not visible to the public. Contact us if you think it's a mistake." %}</p>
+          <p class="text-xs text-red-700 mt-0.5">{% trans "An admin blocked this gathering: it is not visible to the public. Contact us if you think it's a mistake." %}</p>
         </div>
       </div>
     {% endif %}
