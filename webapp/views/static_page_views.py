@@ -22,7 +22,8 @@ from webapp import emails
 from webapp.forms import CustomLoginForm, ContactForm
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
-from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate
+from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate, \
+    Membership
 from webapp.services.appointments import with_matching_day
 from webapp.views.event_views import upcoming_events_queryset
 
@@ -82,27 +83,39 @@ def homepage_view(request):
     followed_future_tables = []
     followed_past_tables = []
     followed_location_ids = set()
+    # The user's own locations: followed, run, or joined as a member.
+    my_location_ids = set()
     if request.user.is_authenticated:
-        followed_location_ids = set(request.user.user_profile.followed_locations.values_list('location_id', flat=True))
-        if followed_location_ids:
+        user_profile = request.user.user_profile
+        followed_location_ids = set(user_profile.followed_locations.values_list('location_id', flat=True))
+        my_location_ids = followed_location_ids | set(
+            Location.managed_by(user_profile).values_list('id', flat=True)) | set(
+            Membership.active_for(user_profile).values_list('member__location_id', flat=True))
+        if my_location_ids:
             followed_future_tables = (
                 Table.objects
                 .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
                 .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-                .filter(location__in=followed_location_ids, date__gte=today, event__isnull=True)
+                .filter(location__in=my_location_ids, date__gte=today, event__isnull=True)
                 .order_by('date')
             )
             followed_past_tables = (
                 Table.objects
                 .select_related('author', 'author__user', 'location', 'play_area', 'physical_table')
                 .prefetch_related(comments_prefetch, players_prefetch, games_prefetch)
-                .filter(location__in=followed_location_ids, date__lt=today, event__isnull=True)
+                .filter(location__in=my_location_ids, date__lt=today, event__isnull=True)
                 .order_by('-date')[:12]
             )
+
+    # Users see only their own locations' tables, even when those have none:
+    # tables from locations they don't follow would read as theirs.
+    if request.user.is_authenticated:
+        future_tables, past_tables = followed_future_tables, followed_past_tables
 
     context = {
         'future_tables': future_tables,
         'past_tables': past_tables,
+        'has_my_locations': bool(my_location_ids),
         'upcoming_events': upcoming_events_queryset(limit=6),
         'upcoming_manifestations': with_matching_day(
             MasterEvent.objects.filter(status=Event.PUBLISHED).select_related('venue_location'),
@@ -113,8 +126,6 @@ def homepage_view(request):
         'location_message': location_message,
         'login_form': CustomLoginForm(),
         'user_created_locations': user_created_locations,
-        'followed_future_tables': followed_future_tables,
-        'followed_past_tables': followed_past_tables,
         'followed_location_ids': followed_location_ids,
         'today': today,
         'meta': Meta(
@@ -124,20 +135,26 @@ def homepage_view(request):
     }
 
     # Quick links for logged-in users: locations they created first, then the ones
-    # they manage, then the ones they follow. Each comes with the user's role.
+    # they manage, the ones where they are members, then the ones they follow.
+    # Each comes with the user's role.
     quick_locations = []
     if request.user.is_authenticated:
         user_profile = request.user.user_profile
         created = list(Location.objects.filter(creator=user_profile).order_by('name'))
         managed = list(user_profile.managed_locations.exclude(
             id__in=[location.id for location in created]).order_by('name'))
+        member_of = list(Location.objects.filter(
+            id__in=Membership.active_for(user_profile).values('member__location_id'),
+        ).exclude(id__in=[location.id for location in created + managed]).order_by('name'))
         followed = Location.objects.filter(id__in=context['followed_location_ids']).exclude(
-            id__in=[location.id for location in created + managed]).order_by('name')
+            id__in=[location.id for location in created + managed + member_of]).order_by('name')
         quick_locations = (
             [(location, 'creator') for location in created]
             + [(location, 'manager') for location in managed]
+            + [(location, 'member') for location in member_of]
             + [(location, None) for location in followed]
         )
+        context['manages_locations'] = bool(created or managed)
     context['quick_locations'] = quick_locations
     return render(request, "staticpages/home.html", context)
 
