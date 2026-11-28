@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 07:35+0100\n"
+"POT-Creation-Date: 2026-11-26 10:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1977,7 +1977,7 @@ msgid "No past tables yet."
 msgstr "Ancora nessun tavolo passato."
 
 msgid "No upcoming tables."
-msgstr "Non ci sono nuovi tavoli."
+msgstr "Nessun tavolo in programma."
 
 msgid "Join or create a table to get started."
 msgstr "Unisciti o crea un tavolo per iniziare."
@@ -3405,6 +3405,18 @@ msgid_plural "%(counter)s tables"
 msgstr[0] "%(counter)s tavolo"
 msgstr[1] "%(counter)s tavoli"
 
+msgid "Manage location"
+msgstr "Gestisci sede"
+
+msgid "My membership"
+msgstr "La mia adesione"
+
+msgid "Membership pending"
+msgstr "Adesione in attesa"
+
+msgid "Request membership"
+msgstr "Diventa socio"
+
 msgid "Edit location"
 msgstr "Modifica sede"
 
@@ -3446,11 +3458,26 @@ msgstr "Segui"
 msgid "See new tables from this location on your homepage."
 msgstr "Vedi i nuovi tavoli di questa sede nella tua home."
 
+msgid "Get notified when a new table opens here and find it on your home page."
+msgstr "Ricevi un avviso quando si apre un nuovo tavolo e lo trovi nella tua home."
+
+msgid "Log in to follow"
+msgstr "Accedi per seguire"
+
 msgid "Tables at this location"
 msgstr "Tavoli in questa sede"
 
-msgid "No upcoming tables — why not create one?"
-msgstr "Nessun tavolo in programma — perché non crearne uno?"
+msgid "Only members of this location can join its tables."
+msgstr "Ai tavoli di questa sede possono partecipare solo i soci."
+
+msgid "Your membership request is pending: once it is approved you can propose tables here."
+msgstr "La tua richiesta di adesione è in attesa: quando sarà approvata potrai proporre tavoli qui."
+
+msgid "Become a member to propose tables"
+msgstr "Diventa socio per proporre tavoli"
+
+msgid "Only members can create tables here."
+msgstr "Solo i soci possono creare un tavolo."
 
 msgid "No past tables."
 msgstr "Nessun tavolo passato."
@@ -3460,6 +3487,15 @@ msgstr "Vedi tutti i tavoli"
 
 msgid "See all events"
 msgstr "Vedi tutti gli eventi"
+
+msgid "Only members can propose events here."
+msgstr "Qui solo i soci possono proporre eventi."
+
+msgid "Your membership request is pending."
+msgstr "La tua richiesta di adesione è in attesa."
+
+msgid "Become a member"
+msgstr "Diventa socio"
 
 msgid "Events we take part in"
 msgstr "Eventi a cui partecipiamo"
@@ -3503,23 +3539,8 @@ msgstr "Non seguire più"
 msgid "Create table here"
 msgstr "Crea un tavolo qui"
 
-msgid "Only members can create tables here."
-msgstr "Solo i soci possono creare un tavolo."
-
 msgid "Only owners and managers can create tables here."
 msgstr "Solo i gestori possono creare tavoli qui."
-
-msgid "Manage location"
-msgstr "Gestisci sede"
-
-msgid "My membership"
-msgstr "La mia adesione"
-
-msgid "Membership pending"
-msgstr "Adesione in attesa"
-
-msgid "Request membership"
-msgstr "Diventa socio"
 
 msgid "Opening hours"
 msgstr "Orari apertura"
@@ -5513,9 +5534,6 @@ msgstr "fa"
 msgid "Table reserved for members"
 msgstr "Tavolo riservato ai soci"
 
-msgid "Become a member"
-msgstr "Diventa socio"
-
 msgid "Edit table info"
 msgstr "Modifica tavolo"
 
@@ -5935,6 +5953,14 @@ msgstr "Modifica – %(name)s"
 
 msgid "Permissions updated successfully"
 msgstr "Permessi aggiornati con successo"
+
+#, python-format
+msgid "You are now following %(name)s."
+msgstr "Hai iniziato a seguire %(name)s."
+
+#, python-format
+msgid "You no longer follow %(name)s."
+msgstr "Hai smesso di seguire %(name)s."
 
 msgid "You don't have permission to manage this location."
 msgstr "Non hai il permesso di gestire questa sede."
@@ -6486,6 +6512,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "No upcoming tables — why not create one?"
+#~ msgstr "Nessun tavolo in programma — perché non crearne uno?"
 
 #, python-format
 #~ msgid "%(name)s - Board-Gamers.com"

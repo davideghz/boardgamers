@@ -222,6 +222,9 @@ class LocationDetailView(DetailView):
         context['has_pending_membership'] = table_creation.membership_pending
         context['is_active_member'] = table_creation.is_active_member
         context['table_creation'] = table_creation
+        context['table_join'] = location.table_join_access(user_profile)
+        context['create_table_url'] = reverse(
+            'location-calendar' if location.enable_calendar else 'location-table-create', args=[location.slug])
         context['organized_events'] = location.organized_events.filter(status=Event.PUBLISHED).select_related(
             'organizer_location', 'venue_location').prefetch_related('dates').order_by('-created_at')
         context['event_creation'] = location.event_creation_access(user_profile)
@@ -423,11 +426,11 @@ class FollowLocationView(LoginRequiredMixin, View):
 
         if created:
             # Nuovo follow
-            messages.success(request, f"Hai iniziato a seguire {location.name}.")
+            messages.success(request, _("You are now following %(name)s.") % {'name': location.name})
         else:
             # Già seguiva → unfollow
             follow.delete()
-            messages.success(request, f"Hai smesso di seguire {location.name}.")
+            messages.success(request, _("You no longer follow %(name)s.") % {'name': location.name})
 
         return redirect('location-detail', slug=location.slug)
 
