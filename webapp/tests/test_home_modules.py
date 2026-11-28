@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from webapp.models import Event, EventDate, LocationFollower, Table
+from webapp.models import Event, EventDate, EventParticipantDate, LocationFollower, Table
 from webapp.services.manager_todo import (
     DRAFT_EVENTS, EVENTS_WITHOUT_TABLES, LAYOUT_REQUESTS, MEMBERSHIP_REQUESTS, manager_todo,
 )
@@ -59,7 +59,8 @@ class HomeModulesTest(TestCase):
 
     def test_next_activities_are_the_users_with_their_state(self):
         response = self.get('member')
-        titles = [activity['title'] for activity in response.context['next_activities']]
+        titles = [activity.title if kind == 'table' else activity.name
+                  for kind, activity in response.context['next_activities']]
         self.assertEqual(sorted(titles), ['Serata Demo', 'Tavolo per soci'])
         self.assertContains(response, italian('Your next activities'))
 
@@ -76,6 +77,38 @@ class HomeModulesTest(TestCase):
         newcomer.followed_locations.create(location=self.data.negozio)
         self.data.tables['upcoming'].players.add(newcomer)
         self.assertIsNone(self.get('newcomer').context['getting_started'])
+
+
+class NextActivitiesTest(TestCase):
+    """"Your next activities" on the home are the first rows of My activities."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def home(self, persona):
+        self.client.force_login(self.data.profile(persona).user)
+        return self.client.get(reverse('home')).context
+
+    def test_the_first_three_of_my_activities_per_persona(self):
+        for persona in ('newcomer', 'player', 'member', 'manager', 'organizer'):
+            with self.subTest(persona):
+                home = self.home(persona)
+                mine = self.client.get(reverse('account-activities')).context['items']
+                self.assertEqual(home['next_activities'], mine[:3])
+                self.assertEqual(home['more_activities'], len(mine) > 3)
+
+    def test_an_event_shows_the_first_day_the_user_chose(self):
+        night = self.data.night
+        first, second = night.sorted_dates[:2]
+        EventParticipantDate.objects.filter(participant__user_profile=self.data.member, event_date=first).delete()
+        rows = dict(self.home('member')['next_activities'])
+        self.assertEqual(rows['event'].matching_date, second.date)
+
+    def test_a_table_created_and_left_stays_with_its_author(self):
+        table = self.data.tables['members']
+        table.player_set.filter(user_profile=self.data.member).delete()
+        self.assertIn(('table', table), self.home('member')['next_activities'])
 
 
 class ManagerTodoTest(TestCase):

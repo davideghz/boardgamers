@@ -34,6 +34,8 @@ Rules that hold for every persona:
 
 - Each one finds their own things: what they play, attend, organize, propose or manage shows
   up in Home ("Le tue prossime attività") and in My activities, drafts included for who made them.
+  Both read `webapp/services/my_activities.py`: change what counts as "mine" there, never in one
+  of the two pages.
 - No invite that makes no sense for the viewer: a manager is not asked to follow or join their own
   location, a member is not asked to become one, a visitor's action leads to the login and back.
 - When an action is not allowed, say why (sign in, members only, membership pending, managers

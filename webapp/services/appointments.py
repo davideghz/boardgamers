@@ -36,7 +36,7 @@ def with_matching_day(items, days, *, newest_first, undated=None):
     )
 
 
-def paginate_appointments(querysets, page_number, *, newest_first):
+def paginate_appointments(querysets, page_number, *, newest_first, per_page=15):
     """Page over dates and IDs, then load full cards for that page."""
     rows = []
     for kind, queryset in querysets.items():
@@ -51,7 +51,7 @@ def paginate_appointments(querysets, page_number, *, newest_first):
     ordering = (date.desc(nulls_last=True), time.desc(nulls_last=True)) if newest_first else (
         date.asc(nulls_last=True), time.asc(nulls_last=True),
     )
-    paginator = Paginator(results.order_by(*ordering, 'result_kind', 'pk'), 15)
+    paginator = Paginator(results.order_by(*ordering, 'result_kind', 'pk'), per_page)
     page = paginator.get_page(page_number)
     ids = {kind: [] for kind in querysets}
     for row in page.object_list:

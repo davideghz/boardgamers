@@ -128,9 +128,10 @@ A1_QUERIES = {
 }
 
 
-# D2: the manager's to-do (one query) and the next activities (two); then the days of the
-# festival cards, prefetched once for all of them.
-HOME_MODULES_QUERIES = 3 + 1
+# D2: the manager's to-do (one query); the next activities, the first rows of My activities
+# (the count, the rows, then one load per kind: tables, events, festivals); then the days of
+# the festival cards, prefetched once for all of them.
+HOME_MODULES_QUERIES = 1 + 5 + 1
 
 
 class PageQueriesTest(TestCase):

@@ -26,7 +26,7 @@ class OwnActivitiesTest(TestCase):
         festival = self.data.manifestation
         self.login('organizer')
         home = self.client.get(reverse('home')).context
-        self.assertEqual([activity['title'] for activity in home['next_activities']], [festival.name])
+        self.assertEqual(home['next_activities'], [('manifestation', festival)])
         self.assertIsNone(home['getting_started'])  # first steps are for players
 
         self.assertEqual(self.items(), [('manifestation', festival)])

@@ -1,4 +1,3 @@
-import datetime
 import json
 from types import SimpleNamespace
 
@@ -8,12 +7,11 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance as DbDistance
 from django.contrib.gis.measure import Distance
 
-from django.db.models import Count, Min, OuterRef, Prefetch, Q
+from django.db.models import Count, OuterRef, Prefetch, Q
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse, translate_url
 from django.utils import timezone
-from django.utils.formats import date_format, time_format
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import get_language_info, gettext, gettext_lazy as _
 
@@ -30,9 +28,10 @@ from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Play
     Membership, LocationAccess
 from webapp.services.appointments import with_matching_day
 from webapp.services.manager_todo import manager_todo
+from webapp.services.my_activities import next_activities
 from webapp.services import ui_personas
 from webapp.services.viewer import get_viewer
-from webapp.templatetags.custom_tags import STATUS_BADGES, TYPE_BADGES
+from webapp.templatetags.custom_tags import STATUS_BADGES
 from webapp.views.event_views import upcoming_events_queryset
 
 # for debug page
@@ -158,55 +157,15 @@ def homepage_view(request):
     context['manages_locations'] = bool(viewer.managed_location_ids)
     context['quick_locations'] = quick_locations
     if viewer.is_authenticated:
-        context.update(_home_modules(viewer, today))
+        context.update(_home_modules(viewer))
     return render(request, "staticpages/home.html", context)
 
 
-def _home_modules(viewer, today):
+def _home_modules(viewer):
     """The signed-in home's own modules, from the request's Viewer: what waits for a manager,
     the next activities, and the first steps of a new account."""
-    # The same tables and events as Viewer.upcoming_participations, fetched whole
-    activities = []
-    for table in (Table.objects.visible_to(viewer.user).filter(players=viewer.profile, date__gte=today)
-                  .select_related('location', 'event')):
-        activities.append((table.date, table.time, {
-            'url': table.get_absolute_url(),
-            'kicker': f"{TYPE_BADGES['table']} · {date_format(table.date, 'D j M')} · {time_format(table.time, 'H:i')}",
-            'title': table.title,
-            'meta': [table.location.name if table.location_id else table.event.name],
-            'status': table.status,
-        }))
-    events = (Event.objects.filter(participants__user_profile=viewer.profile, status=Event.PUBLISHED)
-              .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)))
-              .filter(next_date__isnull=False)
-              .select_related('organizer_location', 'venue_location'))
-    for event in events:
-        activities.append((event.next_date, None, {
-            'url': event.get_absolute_url(),
-            'kicker': f"{TYPE_BADGES['event']} · {date_format(event.next_date, 'D j M')}",
-            'title': event.name,
-            'meta': [event.venue_label],
-            'status': 'upcoming',
-        }))
-    # Festivals: the days the user signed up for, and the ones they run (drafts too)
-    attending_day = Q(dates__participants__user_profile=viewer.profile, dates__date__gte=today)
-    festivals = (MasterEvent.objects
-                 .filter(Q(status=Event.PUBLISHED, pk__in=MasterEvent.objects.filter(attending_day).values('pk'))
-                         | Q(managers=viewer.profile))
-                 .annotate(next_date=Min('dates__date', filter=Q(dates__date__gte=today)),
-                           next_attended=Min('dates__date', filter=attending_day))
-                 .filter(next_date__isnull=False)
-                 .select_related('venue_location').distinct())
-    for festival in festivals:
-        day = festival.next_attended or festival.next_date
-        activities.append((day, None, {
-            'url': festival.get_absolute_url(),
-            'kicker': f"{TYPE_BADGES['manifestation']} · {date_format(day, 'D j M')}",
-            'title': festival.name,
-            'meta': [festival.venue_label],
-            'status': 'upcoming' if festival.is_published else festival.status,
-        }))
-    activities.sort(key=lambda item: (item[0], item[1] or datetime.time.min))
+    # The first rows of My activities, from the same query
+    activities, more_activities = next_activities(viewer.user, 3)
 
     profile = viewer.profile
     steps = [
@@ -219,8 +178,8 @@ def _home_modules(viewer, today):
                   and not all(done for _key, done, _url in steps))
     return {
         'todo_items': manager_todo(viewer.managed_location_ids),
-        'next_activities': [activity for _date, _time, activity in activities[:3]],
-        'more_activities': len(activities) > 3,
+        'next_activities': activities,
+        'more_activities': more_activities,
         'getting_started': steps if show_steps else None,
     }
 
