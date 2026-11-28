@@ -16,7 +16,7 @@
 
   {# ── COVER IMAGE (mobile only) ─────────────────────────────────────── #}
   <div class="lg:hidden w-full h-48 rounded-2xl overflow-hidden mb-6 relative">
-    <img src="{{ table.cover_url }}" alt="{{ table.game }}"
+    <img src="{{ table.cover_url }}" alt="{{ table.game|default:'' }}"
          class="w-full h-full object-cover">
     <span class="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full
                  {% if table.status == table.OPEN %}bg-green-500 text-white
@@ -176,7 +176,7 @@
 
         {# Cover image — desktop only #}
         <div class="hidden lg:block rounded-xl overflow-hidden relative">
-          <img src="{{ table.cover_url }}" alt="{{ table.game }}"
+          <img src="{{ table.cover_url }}" alt="{{ table.game|default:'' }}"
                class="w-full h-40 object-cover">
           <span class="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full
                        {% if table.status == table.OPEN %}bg-green-500 text-white

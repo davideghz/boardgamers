@@ -143,16 +143,10 @@
       {% if not user.is_authenticated %}
         <a href="{% url 'login' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Login" %}</a>
         {% trans "to see tables from locations you follow." %}
-      {% elif shows_my_tables %}
+      {% else %}
         {% trans "Follow new" %}
         <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "locations" %}</a>
         {% trans "to see their open tables here." %}
-      {% elif has_my_locations %}
-        {% trans "Your locations have no upcoming tables: here are the ones from all locations." %}
-        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Follow more locations" %}</a>
-      {% else %}
-        {% trans "Upcoming tables from all locations. Follow a location to see its tables here first." %}
-        <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Find locations to follow" %}</a>
       {% endif %}
     </p>
 
@@ -168,10 +162,14 @@
         </div>
       {% else %}
         <p class="text-sm text-content-muted">
-          {% trans "No upcoming tables right now." %}
-          {% if user.is_authenticated %}
+          {% if has_my_locations %}
+            {% trans "Your locations have no upcoming tables." %}
             <a href="{% url 'locations-index' %}?new_table=1" class="font-semibold text-blue-600 hover:underline">{% trans "Create a table" %}</a>
+          {% elif user.is_authenticated %}
+            {% trans "Follow a location to see its tables here." %}
+            <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Find locations to follow" %}</a>
           {% else %}
+            {% trans "No upcoming tables right now." %}
             <a href="{% url 'locations-index' %}" class="font-semibold text-blue-600 hover:underline">{% trans "Find a place to play" %}</a>
           {% endif %}
         </p>
@@ -188,7 +186,7 @@
             {% endfor %}
           </div>
         </div>
-      {% elif shows_my_tables %}
+      {% elif user.is_authenticated %}
         <p class="text-sm text-content-muted italic">{% trans "No past tables from the locations you follow." %}</p>
       {% else %}
         <p class="text-sm text-content-muted italic">{% trans "No past tables yet." %}</p>
