@@ -64,7 +64,16 @@
 
         {# CTA 1 — attend (hidden once the event is over) #}
         {% if event.is_published and not is_concluded %}
-          {% if user.is_authenticated %}
+          {% if event_join.needs_membership and not is_participant %}
+            {# The way to become a member is in the sidebar #}
+            <span class="inline-flex items-center justify-center gap-2 font-bold px-6 py-3 rounded-full text-sm cursor-default
+                         {% if event.cover or event.organizer_location.cover %}border border-divider text-content lg:bg-slate-900/70 lg:backdrop-blur-sm lg:border-white/30 lg:text-white{% else %}bg-slate-900/70 backdrop-blur-sm border border-white/30 text-white{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+              {% blocktrans with name=event.organizer_location.name %}Reserved for members of {{ name }}{% endblocktrans %}
+            </span>
+          {% elif user.is_authenticated %}
             {% if event.organizer_location_id %}
               {% if is_participant or event_join.allowed and registration_dates %}
                 <a href="#event-attendance"
@@ -415,6 +424,8 @@
                   </svg>
                   {% trans "Event concluded" %}
                 </div>
+              {% elif event_join.needs_membership and not is_participant %}
+                {% include "partials/_members_only_notice.html" with location=event.organizer_location access=event_join bar=False %}
               {% elif user.is_authenticated %}
                 {% if event.organizer_location_id %}
                   {% include "events/_event_attendance_form.html" %}

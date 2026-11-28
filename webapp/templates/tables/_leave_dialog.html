@@ -1,0 +1,17 @@
+{% load i18n %}
+{# Confirmation before leaving a table, opened by the "Leave" buttons of tables/_join_actions.html #}
+<dialog id="leave-table-dialog" aria-labelledby="leave-table-dialog-title"
+        class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-divider bg-surface p-5 text-content shadow-xl backdrop:bg-black/60">
+  <form method="post" action="{% url 'leave_table' table.slug %}">
+    {% csrf_token %}
+    <h2 id="leave-table-dialog-title" class="text-lg font-bold">{% trans "Leave this table?" %}</h2>
+    <p class="mt-1 text-sm text-content-muted">{% trans "Your seat goes back to the other players." %}</p>
+    <div class="mt-5 flex flex-wrap justify-end gap-2">
+      {# formmethod="dialog" closes the dialog without sending the form #}
+      <button type="submit" formmethod="dialog" formnovalidate autofocus
+              class="rounded-full px-4 py-2 text-sm font-semibold text-content hover:bg-surface-alt">{% trans "Cancel" %}</button>
+      <button type="submit"
+              class="rounded-full bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700">{% trans "Leave the table" %}</button>
+    </div>
+  </form>
+</dialog>
