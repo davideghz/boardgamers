@@ -77,34 +77,34 @@ class HomeByPersonaTest(TestCase):
     def table_ids(self, response):
         return {table.pk for table in response.context['future_tables']}
 
-    def test_without_followed_locations_the_public_tables_show(self):
-        visitor, newcomer = self.get(), self.get('newcomer')
+    def test_without_own_locations_no_tables_show(self):
+        # Tables from locations the user doesn't follow would read as theirs.
+        self.assertTrue(self.table_ids(self.get()))
 
-        self.assertFalse(newcomer.context['shows_my_tables'])
-        self.assertTrue(self.table_ids(newcomer))
-        self.assertEqual(self.table_ids(newcomer), self.table_ids(visitor))
-        self.assertContains(newcomer, italian('Find locations to follow'))
+        response = self.get('newcomer')
 
-    def test_followed_locations_without_tables_fall_back_to_the_public_ones(self):
+        self.assertFalse(self.table_ids(response))
+        self.assertContains(response, italian('Follow a location to see its tables here.'))
+        self.assertContains(response, italian('Find locations to follow'))
+
+    def test_own_locations_without_tables_show_no_others(self):
         Table.objects.filter(location__in=[self.data.circolo, self.data.associazione]).delete()
 
         response = self.get('member')
 
-        self.assertFalse(response.context['shows_my_tables'])
-        self.assertTrue(self.table_ids(response))
-        self.assertContains(response, italian(
-            'Your locations have no upcoming tables: here are the ones from all locations.'))
+        self.assertFalse(self.table_ids(response))
+        self.assertFalse(response.context['past_tables'])
+        self.assertContains(response, italian('Your locations have no upcoming tables.'))
+        self.assertContains(response, f"{reverse('locations-index')}?new_table=1")
 
-    def test_followed_tables_come_first_when_there_are_some(self):
+    def test_members_see_the_tables_of_their_locations(self):
         response = self.get('member')
 
-        self.assertTrue(response.context['shows_my_tables'])
         self.assertEqual(self.table_ids(response), {self.data.tables['members'].pk})
 
     def test_managers_see_the_tables_of_their_locations(self):
         response = self.get('manager')
 
-        self.assertTrue(response.context['shows_my_tables'])
         self.assertEqual(self.table_ids(response), {self.data.tables['upcoming'].pk, self.data.tables['members'].pk})
 
     def test_add_location_invites_skip_who_runs_one(self):
@@ -122,4 +122,3 @@ class HomeByPersonaTest(TestCase):
         Table.objects.filter(date__gte=timezone.localdate()).delete()
 
         self.assertContains(self.get(), italian('Find a place to play'))
-        self.assertContains(self.get('newcomer'), f"{reverse('locations-index')}?new_table=1")
