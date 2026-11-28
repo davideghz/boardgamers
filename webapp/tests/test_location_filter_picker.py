@@ -25,7 +25,7 @@ class LocationFilterPickerTest(TestCase):
     def test_tables_index_restores_the_location_in_the_search_picker(self):
         response = self.client.get(reverse('table-index'), {'location': self.location.slug})
 
-        self.assertContains(response, 'class="js-search-picker"')
+        self.assertContains(response, 'class="js-search-picker inline-flex"')  # as a filter chip
         self.assertContains(response, 'data-value-key="slug"')
         self.assertContains(response, f'value="{self.location.slug}"')
         self.assertNotContains(response, 'location-filter-modal')

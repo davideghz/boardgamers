@@ -139,3 +139,4 @@ class UiGalleryTest(TestCase):
             response = ui_gallery(request)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'class="dark', response.content)
+        self.assertIn(b'class="js-search-picker inline-flex"', response.content)  # the filter chip

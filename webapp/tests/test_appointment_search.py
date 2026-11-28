@@ -43,10 +43,9 @@ class AppointmentSearchTest(TestCase):
         self.assertEqual(self.results({**params, 'type': 'master-events'}), [('manifestation', self.master)])
 
     def test_filters_actual_days_and_hides_drafts_and_disabled_program(self):
-        day = self.first + timedelta(days=1)
-        self.assertEqual(self.results({'when': 'range', 'date_from': day, 'date_to': day}), [])
-        items = self.results({'when': 'range', 'date_from': self.last, 'date_to': self.last})
-        self.assertEqual([item.matching_date for _, item in items], [self.last] * 3)
+        items = dict((kind, item) for kind, item in self.results())
+        self.assertEqual([items['manifestation'].matching_date, items['event'].matching_date,
+                          items['table'].date], [self.first, self.first, self.last])
         self.event.table_booking_enabled = False
         self.event.save()
         self.assertNotIn(('table', self.table), self.results())
@@ -54,7 +53,7 @@ class AppointmentSearchTest(TestCase):
         self.event.save()
         self.assertEqual(self.results(), [('manifestation', self.master)])
 
-    def test_combined_results_page_and_invalid_date_range(self):
+    def test_combined_results_page(self):
         for i in range(16):
             Table.objects.create(title=f'Serata {i}', location=self.club, date=self.last, time=time(23))
         first_page = self.client.get(self.url, {'location': self.club.slug, 'page': 1})
@@ -64,8 +63,6 @@ class AppointmentSearchTest(TestCase):
         self.assertTrue(set(first_page.context['items']).isdisjoint(second_page.context['items']))
         self.assertContains(first_page, f'location={self.club.slug}&amp;page=2')
         self.assertEqual(len(self.results({'page': 2})), 4)
-        invalid = self.client.get(self.url, {'when': 'range', 'date_from': self.last, 'date_to': self.first})
-        self.assertTrue(invalid.context['date_error'])
 
     def test_registered_venue_and_organizer_apply_to_the_right_results(self):
         standalone = Table.objects.create(title='Serata soci', location=self.club, date=self.last, time=time(12))
@@ -76,11 +73,9 @@ class AppointmentSearchTest(TestCase):
 
     def test_manifestation_organizer_filter_matches_only_its_event_days(self):
         self.event.dates.filter(date=self.first).delete()
-        filters = {'type': 'master-events', 'organizer': self.club.slug, 'when': 'range'}
-        self.assertEqual(self.results({**filters, 'date_from': self.first, 'date_to': self.first}), [])
-        self.assertEqual(self.results({**filters, 'date_from': self.last, 'date_to': self.last}), [
-            ('manifestation', self.master),
-        ])
+        filters = {'type': 'master-events', 'organizer': self.club.slug}
+        (kind, master), = self.results(filters)
+        self.assertEqual((kind, master, master.matching_date), ('manifestation', self.master, self.last))
 
     def test_public_child_does_not_disclose_its_draft_manifestation(self):
         self.master.status = Event.DRAFT
@@ -91,7 +86,7 @@ class AppointmentSearchTest(TestCase):
         self.assertContains(response, self.table.title)
         self.assertNotContains(response, self.master.name)
 
-    def test_past_uses_most_recent_actual_day_and_today_and_weekend_are_inclusive(self):
+    def test_past_uses_most_recent_actual_day_and_old_periods_mean_upcoming(self):
         saturday = date(2020, 11, 28)
         friday = saturday - timedelta(days=1)
         sunday = saturday + timedelta(days=1)
@@ -100,11 +95,11 @@ class AppointmentSearchTest(TestCase):
             EventDate.objects.create(event=self.event, date=day, opening_time=time(8))
         with patch('webapp.views.appointment_search.timezone.localdate', return_value=sunday):
             past, = self.results({'type': 'events', 'when': 'past'})
-            today, = self.results({'type': 'events', 'when': 'today'})
-            weekend, = self.results({'type': 'events', 'when': 'weekend'})
+            # Today, This weekend and the date range are gone: their old links list the upcoming
+            for when in ('today', 'weekend', 'range'):
+                upcoming, = self.results({'type': 'events', 'when': when, 'date_from': 'x'})
+                self.assertEqual(upcoming[1].matching_date, sunday)
         self.assertEqual(past[1].matching_date, saturday)
-        self.assertEqual(today[1].matching_date, sunday)
-        self.assertEqual(weekend[1].matching_date, saturday)
 
     def test_tabs_reset_page_and_keep_filters(self):
         response = self.client.get(self.url, {'type': 'events', 'q': 'Ludoteca', 'page': 2})
@@ -167,8 +162,9 @@ class AppointmentSearchTest(TestCase):
         with override('it'):
             response = self.client.get(reverse('appointment-search'), HTTP_ACCEPT_LANGUAGE='it')
         self.assertContains(response, 'Tipo di risultato')
-        self.assertContains(response, 'Intervallo di date')
-        self.assertContains(response, 'Cerca una sede organizzatrice')
+        self.assertContains(response, 'In programma')
+        self.assertContains(response, 'Sede organizzatrice')
+        self.assertContains(response, 'data-title="Cerca una sede organizzatrice"')
 
     def test_home_links_to_filtered_search_and_previews_only_upcoming_public_manifestations(self):
         draft = MasterEvent.objects.create(name='Hidden exhibition')
@@ -191,22 +187,21 @@ class AppointmentSearchTest(TestCase):
         self.assertNotContains(response, f'href="{reverse("event-index")}?at={self.venue.slug}"')
 
     def test_one_list_pattern(self):
-        """E2: header with the count, filters in one dialog/column, removable chips, result rows."""
-        params = {'type': 'events', 'q': 'Ludoteca', 'location': self.venue.slug, 'when': 'today'}
+        """E2, like My activities: type and period as segments, the keywords, the filters as
+        chips that show their own state, result rows. No filters dialog."""
+        params = {'type': 'events', 'q': 'Ludoteca', 'location': self.venue.slug, 'when': 'past'}
         response = self.client.get(self.url, params)
         self.assertEqual(response.context['paginator'].count, 0)
-        self.assertContains(response, 'id="search-filters"', count=1)
-        self.assertContains(response, italian('Filters (%(n)s)') % {'n': 2})  # the query is not a filter
-        with override('it'):
-            chips = {str(label): url for label, url in response.context['active_filters']}
-        venue = italian('Venue: %(name)s') % {'name': self.venue.name}
-        self.assertEqual(set(chips), {'«Ludoteca»', venue, italian('Today')})
-        self.assertEqual(chips[venue], '?type=events&q=Ludoteca&when=today')
-        self.assertEqual(chips[italian('Today')], f'?type=events&q=Ludoteca&location={self.venue.slug}')
-        self.assertEqual(response.context['reset_url'], '?type=events')
+        self.assertNotContains(response, 'id="search-filters"')
+        self.assertNotContains(response, italian('Apply filters'))
+        self.assertContains(response, f'href="?type=events&amp;q=Ludoteca&amp;location={self.venue.slug}"')  # Upcoming
+        # The venue chip is on, with the venue's name; the organizer chip is off
+        self.assertContains(response, f'<span data-picker-title class="max-w-[12rem] truncate">{self.venue.name}</span>')
+        self.assertContains(response, 'data-submit-on-select="1"', count=2)
+        self.assertEqual(response.context['reset_url'], '?type=events&when=past')  # keeps type and period
+        self.assertContains(response, italian('Clear all'))
 
         response = self.client.get(self.url, {'type': 'events'})
-        self.assertEqual(response.context['active_filters'], [])
         self.assertEqual(response.context['paginator'].count, 1)
         self.assertContains(response, self.event.get_absolute_url())
         self.assertNotContains(response, italian('Clear all'))
@@ -262,9 +257,8 @@ class PresetListsTest(TestCase):
         response = self.get('event-index', {'at': self.club.slug})
         self.assertEqual({item for _, item in response.context['items']}, {self.event, elsewhere})
         self.assertContains(response, f'<input type="hidden" name="at" value="{self.club.slug}">')
-        self.assertEqual(response.context['filter_count'], 0)
-        self.assertIn(italian('At: %(name)s') % {'name': self.club.name},
-                      [str(label) for label, _ in response.context['active_filters']])
+        self.assertContains(response, italian('At: %(name)s') % {'name': self.club.name})  # its chip
+        self.assertContains(response, 'href="?"')  # removes it
 
         tables = {item for _, item in self.get('table-index', {'at': self.club.slug}).context['items']}
         self.assertEqual(tables, {self.table, standalone})  # the event's table: organized here

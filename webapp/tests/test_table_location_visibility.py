@@ -91,6 +91,7 @@ class TableLocationVisibilityTest(TestCase):
                     reverse('table-index'), {'location': self.empty_location.slug, 'tab': tab},
                     headers={'Accept-Language': 'it'},
                 )
-                self.assertContains(response, 'Luogo: Club senza tavoli')
+                self.assertContains(  # the venue chip, on
+                    response, 'Luogo: </span><span data-picker-title class="max-w-[12rem] truncate">Club senza tavoli</span>')
                 self.assertContains(response, 'Nessun risultato.')
                 self.assertEqual(tables(response), [])

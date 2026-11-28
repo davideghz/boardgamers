@@ -21,7 +21,7 @@ import mistune
 import nh3
 
 from webapp import emails
-from webapp.forms import CustomLoginForm, ContactForm
+from webapp.forms import CustomLoginForm, ContactForm, LocationPickerWidget
 from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS, MSG_CONTACT_MESSAGE_SENT_SUCCESSFULLY, \
     MSG_CONTACT_MESSAGE_ERROR
 from webapp.models import Comment, UserProfile, Game, Table, Location, FAQ, Player, Event, MasterEvent, MasterEventDate, \
@@ -422,8 +422,11 @@ def ui_gallery(request):
         'statuses': list(STATUS_BADGES),
         'sample_table_meta': ['Circolo Demo', 'Organized by demo_socio'],
         'sample_event_meta': ['Fiera Demo'],
-        'icon_names': ['chevron-right', 'plus', 'check', 'bolt', 'clock', 'exclamation', 'map-pin', 'calendar',
-                       'lock', 'user-plus', 'users', 'cog'],
+        'icon_names': ['chevron-right', 'chevron-down', 'plus', 'check', 'bolt', 'clock', 'exclamation', 'map-pin',
+                       'calendar', 'lock', 'user-plus', 'users', 'cog'],
+        # A search picker as a filter chip (Search's venue filter), off; on, it reads the location
+        'filter_chip': LocationPickerWidget(button_label=_('Find a venue'), value_key='slug', scope='venue',
+                                            chip_label=_('Venue')).render('location', ''),
         'meta': Meta(title='UI components'),
     })
 

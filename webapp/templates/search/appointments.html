@@ -2,12 +2,14 @@
 {% load i18n custom_tags %}
 
 {% comment %}
-The list pattern (plan E2), also behind /tables/, /events/ and /master-events/ (E3), top to bottom: header with the count, the type control, the keywords
-and "Filters (n)", the active filters as removable chips, then the results. One form holds it
-all; the filters panel is a <dialog> below lg and a sidebar column from lg up (same markup).
+The list pattern (plan E2), also behind /tables/, /events/ and /master-events/ (E3), top to bottom:
+header with the count, the type and the period, the keywords, the filter chips (venue, organizing
+location, and "at" from a location page's links), then the results. Each chip applies at once
+and shows its own state, like My activities.
 {% endcomment %}
 
 {% block content %}
+<div class="max-w-2xl">
   {% if preset == 'events' %}
     {% url 'event-create' as create_url %}{% trans "Create event" as create_label %}
   {% elif preset == 'master-events' and user.is_authenticated %}
@@ -15,129 +17,93 @@ all; the filters panel is a <dialog> below lg and a sidebar column from lg up (s
   {% endif %}
   {% page_header page_title count=paginator.count action_label=create_label action_url=create_url %}
 
-  {# Each type has its own address: /tables/, /events/, /master-events/ (plan E3) #}
-  <nav aria-label="{% trans 'Result type' %}" class="mb-4 flex w-fit flex-wrap items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
-    {% querystring search_params type=None page=None as query %}
-    {% for value, label, base_url in search_types %}
-      <a href="{{ base_url }}{% if query != '?' %}{{ query }}{% endif %}"
-         {% if search_type == value %}aria-current="page"{% endif %}
-         class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 {% if search_type == value %}bg-surface text-content shadow-sm{% else %}text-content-soft hover:text-content{% endif %}">
-        {{ label }}
-      </a>
-    {% endfor %}
-  </nav>
+  {% with segment="rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3" segment_on="bg-surface text-content shadow-sm" segment_off="text-content-soft hover:text-content" %}
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+    {# Each type has its own address: /tables/, /events/, /master-events/ (plan E3) #}
+    <nav aria-label="{% trans 'Result type' %}" class="flex flex-wrap items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+      {% querystring search_params type=None page=None as query %}
+      {% for value, label, base_url in search_types %}
+        <a href="{{ base_url }}{% if query != '?' %}{{ query }}{% endif %}"
+           {% if search_type == value %}aria-current="page"{% endif %}
+           class="{{ segment }} {% if search_type == value %}{{ segment_on }}{% else %}{{ segment_off }}{% endif %}">
+          {{ label }}
+        </a>
+      {% endfor %}
+    </nav>
 
-  <form method="get" action="{{ request.path }}" role="search"
-        class="lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start lg:gap-8">
+    <nav aria-label="{% trans 'When' %}" class="ml-auto flex items-center gap-0.5 rounded-lg bg-surface-input p-0.5">
+      <a href="{% querystring search_params when=None page=None %}"
+         {% if not past %}aria-current="true"{% endif %}
+         class="whitespace-nowrap {{ segment }} {% if not past %}{{ segment_on }}{% else %}{{ segment_off }}{% endif %}">
+        {% trans "Upcoming" %}
+      </a>
+      <a href="{% querystring search_params when='past' page=None %}"
+         {% if past %}aria-current="true"{% endif %}
+         class="{{ segment }} {% if past %}{{ segment_on }}{% else %}{{ segment_off }}{% endif %}">
+        {% trans "Past" %}
+      </a>
+    </nav>
+  </div>
+  {% endwith %}
+
+  <form method="get" action="{{ request.path }}" role="search">
     {% if search_type != 'all' and not preset %}<input type="hidden" name="type" value="{{ search_type }}">{% endif %}
+    {% if past %}<input type="hidden" name="when" value="past">{% endif %}
     {% if selected_at %}<input type="hidden" name="at" value="{{ selected_at }}">{% endif %}
 
-    {# ── Filters: a dialog below lg, a column from lg up ──────────────── #}
-    <dialog id="search-filters" aria-labelledby="search-filters-title"
-            class="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-divider bg-surface p-5 text-content shadow-xl backdrop:bg-black/60
-                   lg:static lg:m-0 lg:block lg:w-auto lg:max-w-none lg:rounded-xl lg:p-4 lg:shadow-none">
-      <div class="mb-4 flex items-center justify-between">
-        <h2 id="search-filters-title" class="text-base font-bold">{% trans "Filters" %}</h2>
-        <button type="submit" formmethod="dialog" formnovalidate aria-label="{% trans 'Close' %}"
-                class="rounded-lg p-1.5 text-content-muted hover:bg-surface-alt lg:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-        </button>
-      </div>
-      <div class="space-y-4">
-        <fieldset class="min-w-0">
-          <legend class="mb-1 text-xs font-semibold">{{ search_form.location.label }}</legend>
-          {{ search_form.location }}
-        </fieldset>
-        <fieldset class="min-w-0">
-          <legend class="mb-1 text-xs font-semibold">{{ search_form.organizer.label }}</legend>
-          {{ search_form.organizer }}
-        </fieldset>
-        <label class="block text-xs font-semibold">{% translate "When" %}
-          <select class="mt-1 w-full rounded-xl border border-divider bg-surface p-2 text-sm" name="when" id="appointment-period">
-            {% for value, label in periods %}<option value="{{ value }}"{% if value == when %} selected{% endif %}>{{ label }}</option>{% endfor %}
-          </select>
-        </label>
-        <div class="grid grid-cols-2 gap-3" id="appointment-range">
-          <label class="text-xs font-semibold">{% translate "Start date" %}<input class="mt-1 block w-full rounded-xl border border-divider bg-surface p-2" type="date" name="date_from" value="{{ date_from }}"></label>
-          <label class="text-xs font-semibold">{% translate "End date" %}<input class="mt-1 block w-full rounded-xl border border-divider bg-surface p-2" type="date" name="date_to" value="{{ date_to }}"></label>
-        </div>
-        {% trans "Apply filters" as apply_label %}
-        {% button apply_label full=True %}
-      </div>
-    </dialog>
+    <label for="appointment-query" class="sr-only">{% trans "Keywords" %}</label>
+    {% trans "Search by name or game…" as search_placeholder %}
+    {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="appointment-query" max_length=200 %}
 
-    <div class="min-w-0">
-      {# ── Keywords and the filters button ─────────────────────────────── #}
-      <div class="flex gap-2">
-        <div class="min-w-0 flex-1">
-          <label for="appointment-query" class="sr-only">{% trans "Keywords" %}</label>
-          {% trans "Search by name or game…" as search_placeholder %}
-          {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="appointment-query" max_length=200 %}
-        </div>
-        <button type="button" onclick="document.getElementById('search-filters').showModal()"
-                aria-controls="search-filters"
-                class="flex-shrink-0 rounded-xl border border-divider bg-surface px-3 text-sm font-semibold text-content hover:bg-surface-alt lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
-          {% if filter_count %}{% blocktrans with n=filter_count %}Filters ({{ n }}){% endblocktrans %}{% else %}{% trans "Filters" %}{% endif %}
-        </button>
-      </div>
-
-      {# ── Active filters ─────────────────────────────────────────────── #}
-      {% if active_filters %}
-        <ul aria-label="{% trans 'Active filters' %}" class="mt-3 flex flex-wrap items-center gap-2">
-          {% for label, remove_url in active_filters %}
-            <li>
-              <a href="{{ remove_url }}" class="inline-flex items-center gap-1 rounded-full border border-primary bg-primary/10 py-1 pl-3 pr-2 text-xs font-semibold text-link hover:bg-primary/20">
-                {{ label }}
-                <span class="sr-only">{% trans "Remove filter" %}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-              </a>
-            </li>
-          {% endfor %}
-          <li><a href="{{ reset_url }}" class="text-xs font-semibold text-content-soft hover:underline">{% trans "Clear all" %}</a></li>
-        </ul>
+    {# Filter chips: the search pickers as chips, "at" from a location page's links #}
+    <div role="group" aria-label="{% trans 'Filters' %}" class="mt-3 flex flex-wrap items-center gap-2">
+      {{ search_form.location }}
+      {{ search_form.organizer }}
+      {% if selected_at %}
+        <a href="{% querystring search_params at=None page=None %}"
+           class="inline-flex items-center gap-1.5 rounded-full border border-primary bg-primary/10 px-3 py-1.5 text-xs font-semibold text-link hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+          {% blocktrans with name=at_name %}At: {{ name }}{% endblocktrans %}
+          <span class="sr-only">{% trans "Remove filter" %}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+        </a>
       {% endif %}
-
-      {# ── Results ─────────────────────────────────────────────────────── #}
-      <div class="mt-4">
-        {% if date_error or search_error %}
-          <p role="alert" class="text-sm font-semibold text-content">{{ date_error|default:search_error }}</p>
-        {% else %}
-          {% if drafts %}
-            <section aria-labelledby="search-drafts-title" class="mb-6">
-              <h2 id="search-drafts-title" class="mb-2 text-sm font-bold text-content">{% trans "Your drafts" %}</h2>
-              <ul class="space-y-2">
-                {% for kind, item in drafts %}
-                  <li>{% appointment_row kind item status=item.status %}</li>
-                {% endfor %}
-              </ul>
-            </section>
-          {% endif %}
-          {% if items %}
-            <ul class="space-y-2">
-              {% for kind, item in items %}
-                <li>{% appointment_row kind item past=past %}</li>
-              {% endfor %}
-            </ul>
-            {% include "partials/_pagination.html" %}
-          {% else %}
-            {% trans "No results found." as no_results %}
-            {% empty_state no_results icon="calendar" %}
-          {% endif %}
-        {% endif %}
-      </div>
+      {% if has_filters %}
+        <a href="{{ reset_url }}" class="ml-auto rounded text-xs font-semibold text-content-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">{% trans "Clear all" %}</a>
+      {% endif %}
     </div>
   </form>
+
+  {# ── Results ─────────────────────────────────────────────────────── #}
+  <div class="mt-4">
+    {% if search_error %}
+      <p role="alert" class="text-sm font-semibold text-content">{{ search_error }}</p>
+    {% else %}
+      {% if drafts %}
+        <section aria-labelledby="search-drafts-title" class="mb-6">
+          <h2 id="search-drafts-title" class="mb-2 text-sm font-bold text-content">{% trans "Your drafts" %}</h2>
+          <ul class="space-y-2">
+            {% for kind, item in drafts %}
+              <li>{% appointment_row kind item status=item.status %}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+      {% if items %}
+        <ul class="space-y-2">
+          {% for kind, item in items %}
+            <li>{% appointment_row kind item past=past %}</li>
+          {% endfor %}
+        </ul>
+        {% include "partials/_pagination.html" %}
+      {% else %}
+        {% trans "No results found." as no_results %}
+        {% empty_state no_results icon="calendar" %}
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
 
 {% block extrabodyjs %}
   {{ search_form.media.js }}
-  <script>
-    (() => {
-      const period = document.getElementById('appointment-period');
-      const dates = document.getElementById('appointment-range');
-      const update = () => dates.classList.toggle('hidden', period.value !== 'range');
-      period.addEventListener('change', update);
-      update();
-    })();
-  </script>
 {% endblock %}

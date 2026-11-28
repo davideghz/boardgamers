@@ -1,0 +1,50 @@
+{% load i18n %}
+{% comment %}
+SearchPickerWidget as a filter chip (chip=True): the filter's name when off, the picked item's
+name and a remove button when on. The same data-picker-* hooks as _search_picker_widget.html,
+so static/js/search_picker.js drives both; picking or removing sends the form at once.
+{% endcomment %}
+{% with chip="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" %}
+<div class="js-search-picker inline-flex"
+     data-search-url="{{ widget.search_url }}"
+     data-value-key="{{ widget.value_key }}"
+     data-min-length="{{ widget.min_length }}"
+     data-image-class="{{ widget.image_class }}"
+     data-title="{{ widget.dialog_title }}"
+     data-placeholder="{{ widget.placeholder }}"
+     data-hint="{{ widget.hint }}"
+     data-min-length-text="{% blocktrans count count=widget.min_length %}Type at least {{ count }} character{% plural %}Type at least {{ count }} characters{% endblocktrans %}"
+     data-searching-text="{% trans 'Searching...' %}"
+     data-search-error-text="{% trans 'Search is unavailable. Try again.' %}"
+     data-results-text="{% trans 'Search results available' %}"
+     data-close-text="{% trans 'Close' %}"
+     data-no-results-text="{{ widget.no_results_text }}"
+     data-badge-text="{{ widget.badge_text }}"
+     {% if widget.defaults_url %}data-defaults-url="{{ widget.defaults_url }}" data-defaults-title="{{ widget.defaults_title }}"{% endif %}
+     data-submit-on-select="1">
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.selected_value }}"{% include "django/forms/widgets/attrs.html" %}>
+
+  {# Off: the filter's name #}
+  <button type="button" data-picker-open{% if widget.item %} style="display:none"{% endif %}
+          class="{{ chip }} border-divider bg-surface text-content-soft hover:bg-surface-alt hover:text-content">
+    {% include "components/icon.html" with name="map-pin" class="w-3.5 h-3.5" only %}
+    {{ widget.button_label }}
+    {% include "components/icon.html" with name="chevron-down" class="w-3.5 h-3.5" only %}
+  </button>
+
+  {# On: the picked item, to change or remove #}
+  <span data-picker-selected class="{{ chip }} border-primary bg-primary/10 py-0 pr-1 text-link"{% if not widget.item %} style="display:none"{% endif %}>
+    <img data-picker-image src="{{ widget.item.image_url|default:'' }}" alt="" hidden>
+    <span data-picker-subtitle hidden></span>
+    <button type="button" data-picker-open class="inline-flex items-center gap-1.5 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded">
+      {% include "components/icon.html" with name="map-pin" class="w-3.5 h-3.5" only %}
+      <span class="sr-only">{{ widget.button_label }}: </span><span data-picker-title class="max-w-[12rem] truncate">{{ widget.item.title|default:'' }}</span>
+      {% include "components/icon.html" with name="chevron-down" class="w-3.5 h-3.5" only %}
+    </button>
+    <button type="button" data-picker-clear aria-label="{% blocktrans with name=widget.button_label %}Remove filter: {{ name }}{% endblocktrans %}"
+            class="rounded-full p-1 hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+    </button>
+  </span>
+</div>
+{% endwith %}

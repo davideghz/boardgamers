@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 12:26+0100\n"
+"POT-Creation-Date: 2026-11-28 12:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5023,6 +5023,10 @@ msgstr "La ricerca non è disponibile. Riprova."
 msgid "Search results available"
 msgstr "Risultati di ricerca disponibili"
 
+#, python-format
+msgid "Remove filter: %(name)s"
+msgstr "Rimuovi il filtro: %(name)s"
+
 msgid "Your email is not verified."
 msgstr "La tua email non è verificata."
 
@@ -5053,12 +5057,9 @@ msgstr "vittorie"
 msgid "No tables played yet."
 msgstr "Ancora nessun tavolo giocato."
 
-msgid "Apply filters"
-msgstr "Applica i filtri"
-
 #, python-format
-msgid "Filters (%(n)s)"
-msgstr "Filtri (%(n)s)"
+msgid "At: %(name)s"
+msgstr "Sede: %(name)s"
 
 msgid "Your drafts"
 msgstr "Le tue bozze"
@@ -6135,24 +6136,6 @@ msgstr "Ospite eliminato."
 msgid "Find an organizing location"
 msgstr "Cerca una sede organizzatrice"
 
-msgid "Enter both a start and an end date."
-msgstr "Inserisci una data di inizio e una di fine."
-
-msgid "The end date must be on or after the start date."
-msgstr "La data di fine deve essere uguale o successiva a quella di inizio."
-
-#, python-format
-msgid "Venue: %(name)s"
-msgstr "Luogo: %(name)s"
-
-#, python-format
-msgid "Organizer: %(name)s"
-msgstr "Sede organizzatrice: %(name)s"
-
-#, python-format
-msgid "At: %(name)s"
-msgstr "Sede: %(name)s"
-
 msgid "Game Tables"
 msgstr "Tavoli di gioco"
 
@@ -6164,15 +6147,6 @@ msgstr "Fiere, tornei e giornate di gioco vicino a te."
 
 msgid "Fairs and festivals that gather several events."
 msgstr "Fiere e festival che raccolgono più eventi."
-
-msgid "Today"
-msgstr "Oggi"
-
-msgid "This weekend"
-msgstr "Questo fine settimana"
-
-msgid "Custom date range"
-msgstr "Intervallo di date"
 
 msgid "Find events, game tables and festivals on Board Gamers."
 msgstr "Trova eventi, tavoli di gioco e manifestazioni su Board Gamers."
@@ -7009,6 +6983,36 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Apply filters"
+#~ msgstr "Applica i filtri"
+
+#, python-format
+#~ msgid "Filters (%(n)s)"
+#~ msgstr "Filtri (%(n)s)"
+
+#~ msgid "Enter both a start and an end date."
+#~ msgstr "Inserisci una data di inizio e una di fine."
+
+#~ msgid "The end date must be on or after the start date."
+#~ msgstr "La data di fine deve essere uguale o successiva a quella di inizio."
+
+#, python-format
+#~ msgid "Venue: %(name)s"
+#~ msgstr "Luogo: %(name)s"
+
+#, python-format
+#~ msgid "Organizer: %(name)s"
+#~ msgstr "Sede organizzatrice: %(name)s"
+
+#~ msgid "Today"
+#~ msgstr "Oggi"
+
+#~ msgid "This weekend"
+#~ msgstr "Questo fine settimana"
+
+#~ msgid "Custom date range"
+#~ msgstr "Intervallo di date"
 
 #~ msgid "Upcoming events"
 #~ msgstr "Prossimi eventi"

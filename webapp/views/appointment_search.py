@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django import forms
 from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import render
@@ -27,48 +25,15 @@ class AppointmentSearchForm(forms.Form):
     q = forms.CharField(max_length=200, required=False)
     location = forms.SlugField(
         label=_('Venue'), max_length=144, required=False,
-        widget=LocationPickerWidget(button_label=_('Find a venue'), value_key='slug', scope='venue'),
+        widget=LocationPickerWidget(button_label=_('Find a venue'), value_key='slug', scope='venue',
+                                    chip_label=_('Venue')),
     )
     organizer = forms.SlugField(
         label=_('Organizing location'), max_length=144, required=False,
-        widget=LocationPickerWidget(
-            button_label=_('Find an organizing location'), value_key='slug', scope='organizer',
-        ),
+        widget=LocationPickerWidget(button_label=_('Find an organizing location'), value_key='slug',
+                                    scope='organizer', chip_label=_('Organizing location')),
     )
     at = forms.SlugField(max_length=144, required=False)  # venue or organizer: the location page's links
-    when = forms.ChoiceField(
-        choices=[(key, key) for key in ('upcoming', 'today', 'weekend', 'past', 'range')], required=False,
-    )
-    date_from = forms.DateField(required=False, input_formats=['%Y-%m-%d'])
-    date_to = forms.DateField(required=False, input_formats=['%Y-%m-%d'])
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if cleaned_data.get('when') != 'range' or 'date_from' in self.errors or 'date_to' in self.errors:
-            return cleaned_data
-
-        start = cleaned_data.get('date_from')
-        end = cleaned_data.get('date_to')
-        if not start or not end:
-            self.add_error('date_from', _('Enter both a start and an end date.'))
-        elif end < start:
-            self.add_error('date_to', _('The end date must be on or after the start date.'))
-        return cleaned_data
-
-
-def _date_filters(when, today, start, end):
-    if when == 'range':
-        return {'date__range': (start, end)}
-    if when == 'today':
-        return {'date': today}
-    if when == 'weekend':
-        weekday = today.weekday()
-        days_to_saturday = -1 if weekday == 6 else 5 - weekday
-        saturday = today + timedelta(days=days_to_saturday)
-        return {'date__range': (saturday, saturday + timedelta(days=1))}
-    if when == 'past':
-        return {'date__lt': today}
-    return {'date__gte': today}
 
 
 def _search_tables(query, venue, organizer, at, date_filters):
@@ -139,31 +104,11 @@ def _search_manifestations(query, venue, organizer, at, date_filters, newest_fir
 
 
 def _without(params, *keys):
-    """The current query string without `keys` (and the page), for a chip's remove link."""
+    """The current query string without `keys` (and the page)."""
     remaining = params.copy()
     for key in (*keys, 'page'):
         remaining.pop(key, None)
     return f'?{remaining.urlencode()}' if remaining else '?'
-
-
-def _active_filters(params, query, places, when, period_labels):
-    """The chips of the active filters, (label, remove URL), and how many of them sit in the
-    filters panel (the keywords have their own field; "at" comes only from links)."""
-    names = dict(Location.objects.filter(slug__in=[slug for slug in places.values() if slug])
-                 .values_list('slug', 'name'))
-    labels = {'location': _('Venue: %(name)s'), 'organizer': _('Organizer: %(name)s'), 'at': _('At: %(name)s')}
-    chips = []
-    if query:
-        chips.append((f'«{query}»', _without(params, 'q')))
-    for key, slug in places.items():
-        if slug:
-            chips.append((labels[key] % {'name': names.get(slug, slug)}, _without(params, key)))
-    if when != 'upcoming':
-        label = period_labels.get(when, when)
-        if when == 'range' and params.get('date_from') and params.get('date_to'):
-            label = f"{params['date_from']} – {params['date_to']}"
-        chips.append((label, _without(params, 'when', 'date_from', 'date_to')))
-    return chips, len(chips) - bool(query) - bool(places['at'])
 
 
 def _legacy_params(params):
@@ -208,20 +153,17 @@ class AppointmentSearchView(View):
         if self.preset:
             params = _legacy_params(params)
             params.pop('type', None)
-        if params.get('when') != 'range':
-            params.pop('date_from', None)
-            params.pop('date_to', None)
+        if params.get('when') != 'past':  # upcoming, and the periods of old links (today, weekend, range)
+            params.pop('when', None)
+        for key in ('date_from', 'date_to'):
+            params.pop(key, None)
         form = AppointmentSearchForm(params)
         valid = form.is_valid()
         search_type = self.preset or form.cleaned_data.get('type') or 'all'
-        when = form.cleaned_data.get('when') or 'upcoming'
+        past = params.get('when') == 'past'
         query = form.cleaned_data.get('q', '')
         places = {key: form.cleaned_data.get(key, '') for key in ('location', 'organizer', 'at')}
-        date_errors = form.errors.get('date_from') or form.errors.get('date_to')
 
-        periods = [('upcoming', _('Upcoming')), ('today', _('Today')), ('weekend', _('This weekend')),
-                   ('past', _('Past')), ('range', _('Custom date range'))]
-        chips, filter_count = _active_filters(params, request.GET.get('q', '').strip(), places, when, dict(periods))
         if self.preset:
             title, description = PRESETS[self.preset][1:]
         else:
@@ -229,31 +171,28 @@ class AppointmentSearchView(View):
             description = _('Find events, game tables and festivals on Board Gamers.')
         context = {
             'search_form': form,
-            'active_filters': chips,
-            'filter_count': filter_count,
-            'reset_url': f"?type={search_type}" if search_type != 'all' and not self.preset else '?',
+            # The filters are chips that apply at once and show their own state; "Clear all"
+            # keeps the type and the period
+            'has_filters': bool(request.GET.get('q', '').strip() or any(places.values())),
+            'reset_url': _without(params, 'q', 'location', 'organizer', 'at'),
+            'at_name': (Location.objects.filter(slug=places['at']).values_list('name', flat=True).first()
+                        or places['at']) if places['at'] else '',
             'search_type': search_type,
             'search_types': [(value, label, reverse(PRESETS[value][0]) if value in PRESETS
                               else reverse('appointment-search')) for value, label in SEARCH_TYPES],
             'search_params': params,
             'preset': self.preset,
             'page_title': dict(SEARCH_TYPES)[self.preset] if self.preset else title,  # as the type control
-            'when': when,
+            'when': 'past' if past else 'upcoming',
             'q': request.GET.get('q', '').strip(),
             'selected_at': places['at'],
-            'periods': periods,
-            'past': when == 'past',
-            'date_from': request.GET.get('date_from', ''),
-            'date_to': request.GET.get('date_to', ''),
-            'date_error': date_errors[0] if date_errors else '',
-            'search_error': _("Check the search filters and try again.") if not valid and not date_errors else '',
+            'past': past,
+            'search_error': '' if valid else _("Check the search filters and try again."),
             'meta': Meta(title=title, description=description),
         }
         if valid:
-            date_filters = _date_filters(
-                when, timezone.localdate(), form.cleaned_data.get('date_from'), form.cleaned_data.get('date_to'),
-            )
-            newest_first = when == 'past'
+            date_filters = {'date__lt' if past else 'date__gte': timezone.localdate()}
+            newest_first = past
             sources = {}
             if search_type in ('all', 'tables'):
                 sources['table'] = _search_tables(query, *places.values(), date_filters)

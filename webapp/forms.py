@@ -207,8 +207,14 @@ class LocationPickerWidget(SearchPickerWidget):
     placeholder = _('Search by name or city…')
     no_results_text = _('No locations found.')
 
-    def __init__(self, attrs=None, button_label=None, *, value_key='id', scope=None, suggested=False):
+    def __init__(self, attrs=None, button_label=None, *, value_key='id', scope=None, suggested=False,
+                 chip_label=None):
         super().__init__(attrs, button_label)
+        if chip_label:
+            # A filter chip of a list page: the filter's name, the search titled by button_label
+            self.template_name = 'partials/_search_picker_chip.html'
+            self.dialog_title, self.button_label = self.button_label, chip_label
+            self.submit_on_select = True
         self.value_key = value_key
         self.scope = scope
         #: List the user's locations (or the busiest ones) while the search is empty.
