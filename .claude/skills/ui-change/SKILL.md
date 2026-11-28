@@ -82,6 +82,13 @@ for something a component already does is a bug.
   chips for the active filters with remove and "Azzera", `appointment_row`, pagination with
   `{% querystring %}`. Filters are plain GET forms: the page works without JavaScript and the URL
   keeps the state.
+- **Few filters** (My activities): no "Filtri" dialog, a row of filter chips under the text field,
+  each applied at once and showing its own state, so no separate list of active filters. A yes/no
+  filter is a toggle chip (a link, `aria-current="true"` when on); a choice among a short list is a
+  chip with a chevron that opens a `popover` menu of links. The chip reads the filter's name when
+  off («Sede ▾») and the value when on («Circolo Demo ▾»); the menu opens with a short title that
+  says where its entries come from, then "Tutte le sedi" and a check on the current one. "Azzera" closes the row when something is set. Segmented controls stay for the
+  2–5 exclusive values of one dimension (type, upcoming/past). See `accounts/account_activities.html`.
 - **Detail pages** have one `action_bar` with only the allowed actions. The page's main action
   (join, create a table here, attend) sits in the side column on desktop and in the one fixed bar on
   phones: never twice on the same screen.

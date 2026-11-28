@@ -1,3 +1,4 @@
+import re
 from datetime import time, timedelta
 
 from django.test import TestCase
@@ -114,13 +115,13 @@ class AccountActivitiesTest(TestCase):
         self.client.force_login(self.profile.user)
         response = self.client.get(self.url)
         self.assertEqual(response.context['items'], [])
-        self.assertEqual(response.context['location_filter_items'], [])
+        self.assertEqual(response.context['locations'], [])
         self.assertNotContains(response, table.title)
 
         self.client.force_login(other.user)
         response = self.client.get(self.url, {'type': 'tables', 'q': 'booking'})
         self.assertEqual(response.context['items'], [('table', table)])
-        self.assertEqual([item['slug'] for item in response.context['location_filter_items']], [self.venue.slug])
+        self.assertEqual(response.context['locations'], [self.venue])
         self.assertContains(response, table.get_absolute_url())
 
     def test_null_characters_in_the_filters_are_ignored(self):
@@ -171,8 +172,11 @@ class MyTablesInMyActivitiesTest(TestCase):
     def test_organized_by_me(self):
         response = self.client.get(self.url, {'role': 'organizer'})
         self.assertEqual(response.context['items'], [('table', self.created)])
-        self.assertContains(response, 'name="role" value="organizer" checked')
-        self.assertIn((italian('Organized by me'), '?'), [(str(label), url) for label, url in response.context['active_filters']])
+        # The chip is on, and turns the filter off
+        chip = re.search(r'<a href="([^"]*)"\s+aria-current="true"[^>]*>[^<]*(?:<svg.*?</svg>)?\s*'
+                         + re.escape(italian('Organized by me')), response.content.decode(), re.S)
+        self.assertEqual(chip.group(1), '?')
+        self.assertEqual(response.context['reset_url'], '?')
 
         everything = self.client.get(self.url).context['items']
         self.assertEqual(everything, [('table', self.created), ('table', self.joined)])

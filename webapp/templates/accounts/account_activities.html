@@ -45,42 +45,54 @@
       </nav>
     </div>
 
-    <form method="get" action="{% url 'account-activities' %}" role="search" class="mb-3 flex flex-wrap items-center gap-2">
+    <form method="get" action="{% url 'account-activities' %}" role="search" class="mb-3">
       {% if tab == 'past' %}<input type="hidden" name="tab" value="past">{% endif %}
       {% if activity_type != 'all' %}<input type="hidden" name="type" value="{{ activity_type }}">{% endif %}
-      <div class="min-w-0 basis-full sm:basis-0 sm:flex-1">
-        <label for="activity-query" class="sr-only">{% trans "Keywords" %}</label>
-        {% trans "Search by name or game…" as search_placeholder %}
-        {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="activity-query" max_length=200 %}
-      </div>
-      {% if location_filter_items %}
-        <div class="min-w-0 basis-full sm:basis-auto sm:w-60 sm:flex-none">{{ location_picker }}</div>
-      {% endif %}
-      <label class="inline-flex items-center gap-2 rounded-xl border border-divider bg-surface px-3 py-2.5 text-sm font-semibold text-content">
-        <input type="checkbox" name="role" value="organizer"{% if organizer %} checked{% endif %} class="h-4 w-4 rounded border-divider accent-primary">
-        {% trans "Organized by me" %}
-      </label>
-      {% trans "Search" as search_label %}
-      {% button search_label variant="secondary" extra_class="flex-shrink-0" %}
+      {% if selected_location %}<input type="hidden" name="location" value="{{ selected_location }}">{% endif %}
+      {% if organizer %}<input type="hidden" name="role" value="organizer">{% endif %}
+      <label for="activity-query" class="sr-only">{% trans "Keywords" %}</label>
+      {% trans "Search by name or game…" as search_label %}
+      {% include "partials/_search_input.html" with placeholder=search_label input_id="activity-query" max_length=200 %}
     </form>
 
-    {% if active_filters %}
-      <ul aria-label="{% trans 'Active filters' %}" class="mb-3 flex flex-wrap items-center gap-2">
-        {% for label, remove_url in active_filters %}
-          <li>
-            <a href="{{ remove_url }}" class="inline-flex items-center gap-1 rounded-full border border-primary bg-primary/10 py-1 pl-3 pr-2 text-xs font-semibold text-link hover:bg-primary/20">
-              {{ label }}
-              <span class="sr-only">{% trans "Remove filter" %}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+    {% comment %}
+    Filter chips: each applies at once and shows its own state (no separate list of active filters).
+    A chip with a menu reads the filter's name when off, its value when on.
+    {% endcomment %}
+    {% with chip="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" off="border-divider bg-surface text-content-soft hover:bg-surface-alt hover:text-content" on="border-primary bg-primary/10 text-link hover:bg-primary/20" item="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-content hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" %}
+    <div role="group" aria-label="{% trans 'Filters' %}" class="mb-3 flex flex-wrap items-center gap-2">
+      {% if locations or selected_location %}
+        <button type="button" popovertarget="activity-location-menu" class="{{ chip }} {% if selected_location %}{{ on }}{% else %}{{ off }}{% endif %}">
+          {% include "components/icon.html" with name="map-pin" class="w-3.5 h-3.5" only %}
+          <span class="max-w-[12rem] truncate">{% if selected_location %}<span class="sr-only">{% trans "Location" %}: </span>{{ selected_location_name }}{% else %}{% trans "Location" %}{% endif %}</span>
+          {% include "components/icon.html" with name="chevron-down" class="w-3.5 h-3.5" only %}
+        </button>
+        <div id="activity-location-menu" popover data-popover-menu aria-label="{% trans 'Filter by location' %}"
+             class="max-h-72 w-64 overflow-y-auto rounded-xl border border-divider bg-surface p-1.5 text-content shadow-xl"
+             style="position: fixed; inset: auto; margin: 0;">
+          <p class="px-3 pb-1.5 pt-1 text-xs font-semibold text-content-muted">{% trans "Locations of your activities" %}</p>
+          <a href="{% querystring location=None page=None %}" class="{{ item }}"{% if not selected_location %} aria-current="true"{% endif %}>
+            <span class="w-4">{% if not selected_location %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+            {% trans "All locations" %}
+          </a>
+          {% for location in locations %}
+            <a href="{% querystring location=location.slug page=None %}" class="{{ item }}"{% if location.slug == selected_location %} aria-current="true"{% endif %}>
+              <span class="w-4">{% if location.slug == selected_location %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+              <span class="truncate">{{ location.name }}</span>
             </a>
-          </li>
-        {% endfor %}
-        {% if active_filters|length > 1 %}
-          <li><a href="{{ reset_url }}" class="text-xs font-semibold text-content-soft hover:underline">{% trans "Clear all" %}</a></li>
-        {% endif %}
-      </ul>
-    {% endif %}
-
+          {% endfor %}
+        </div>
+      {% endif %}
+      <a href="{% if organizer %}{% querystring role=None page=None %}{% else %}{% querystring role='organizer' page=None %}{% endif %}"
+         {% if organizer %}aria-current="true"{% endif %} class="{{ chip }} {% if organizer %}{{ on }}{% else %}{{ off }}{% endif %}">
+        {% if organizer %}{% include "components/icon.html" with name="check" class="w-3.5 h-3.5" only %}{% endif %}
+        {% trans "Organized by me" %}
+      </a>
+      {% if has_filters %}
+        <a href="{{ reset_url }}" class="ml-auto text-xs font-semibold text-content-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded">{% trans "Clear all" %}</a>
+      {% endif %}
+    </div>
+    {% endwith %}
     <div class="mt-4">
       {% if items %}
         <ul class="space-y-2">
@@ -102,8 +114,4 @@
     </div>
   </div>
 
-{% if location_filter_items %}
-  {{ location_filter_items|json_script:"location-filter-items" }}
-  <script src="{% static 'js/search_picker.js' %}" defer></script>
-{% endif %}
 {% endblock content %}

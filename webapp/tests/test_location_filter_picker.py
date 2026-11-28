@@ -9,7 +9,8 @@ from webapp.models import LocationFollower, Player, Table
 
 
 class LocationFilterPickerTest(TestCase):
-    """The location filters of Tables, My tables and My activities use the shared search picker."""
+    """The location filter of Tables uses the shared search picker; My tables and My activities,
+    with only the user's own locations, a menu of them."""
 
     @classmethod
     def setUpTestData(cls):
@@ -29,20 +30,17 @@ class LocationFilterPickerTest(TestCase):
         self.assertContains(response, f'value="{self.location.slug}"')
         self.assertNotContains(response, 'location-filter-modal')
 
-    def test_my_tables_filters_the_locations_of_the_users_tables(self):
+    def test_my_tables_and_activities_offer_the_users_locations_in_a_menu(self):
         self.client.force_login(self.profile.user)
         response = self.client.get(reverse('account-tables'), follow=True)
+        self.assertEqual(response.context['locations'], [self.location])
+        self.assertContains(response, 'popovertarget="activity-location-menu"')
+        self.assertContains(response, f'?type=tables&amp;role=organizer&amp;location={self.location.slug}')
+        self.assertNotContains(response, self.other.name)
 
-        self.assertContains(response, 'data-local-items="location-filter-items"')
-        self.assertEqual([item['slug'] for item in response.context['location_filter_items']], [self.location.slug])
-
-    def test_my_activities_uses_the_picker_instead_of_a_select(self):
-        self.client.force_login(self.profile.user)
         response = self.client.get(reverse('account-activities'), {'location': self.location.slug})
-
-        self.assertContains(response, 'data-local-items="location-filter-items"')
-        self.assertContains(response, f'value="{self.location.slug}"')
-        self.assertNotContains(response, '<select class="mt-1 w-full rounded-xl border border-divider bg-surface px-3 py-2.5 text-sm" name="location">')
+        self.assertEqual(response.context['selected_location_name'], self.location.name)
+        self.assertContains(response, f'<input type="hidden" name="location" value="{self.location.slug}">')
 
     def test_suggestions_are_the_users_locations_else_the_busiest(self):
         url = reverse('location-search')

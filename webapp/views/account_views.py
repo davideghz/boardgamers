@@ -8,9 +8,8 @@ from django.utils.translation import gettext_lazy as _
 
 from meta.views import Meta
 
-from webapp.api.search_views import location_result
 from webapp.forms import UserProfileForm, UserNotificationPreferencesForm, GuestProfileForm, \
-    MemberPersonalDataForm, location_filter_picker
+    MemberPersonalDataForm
 from webapp.models import (
     Event, GuestProfile, Member, Membership, Notification, Table,
 )
@@ -124,33 +123,21 @@ def activities(request):
         user, past=past, organizer=organizer, activity_type=activity_type, venue=venue, query=query)
     page, items = paginate_appointments(sources, request.GET.get('page'), newest_first=past)
 
-    # The active filters as chips (the list pattern of Search, plan E2)
+    # The filters are chips that apply at once and show their own state (the ui-change skill:
+    # a few filters are a row of chips, many go in Search's "Filters" dialog)
     params = request.GET.copy()
     params.pop('page', None)
-
-    def without(*keys):
-        remaining = params.copy()
-        for key in keys:
-            remaining.pop(key, None)
-        return f'?{remaining.urlencode()}' if remaining else '?'
-
-    active_filters = []
-    if query:
-        active_filters.append((f'«{query}»', without('q')))
-    if venue:
-        name = next((location.name for location in locations if location.slug == venue), venue)
-        active_filters.append((_('Venue: %(name)s') % {'name': name}, without('location')))
-    if organizer:
-        active_filters.append((_('Organized by me'), without('role')))
+    for key in ('q', 'location', 'role'):
+        params.pop(key, None)
+    locations = list(locations)
     return render(request, 'accounts/account_activities.html', {
         'activity_type': activity_type, 'tab': 'past' if past else 'upcoming', 'past': past, 'organizer': organizer,
         'items': items, 'page_obj': page, 'paginator': page.paginator, 'is_paginated': page.has_other_pages(),
         'q': query, 'selected_location': venue,
-        'location_filter_items': [location_result(location) for location in locations],
-        'location_picker': location_filter_picker(venue, local_items_id='location-filter-items'),
-        'active_filters': active_filters,
-        'reset_url': without('q', 'location', 'role'),
-        'has_filters': bool(active_filters),
+        'selected_location_name': next((location.name for location in locations if location.slug == venue), venue),
+        'locations': locations,
+        'reset_url': f'?{params.urlencode()}' if params else '?',
+        'has_filters': bool(query or venue or organizer),
         'meta': Meta(title=_('My activities')),
     })
 

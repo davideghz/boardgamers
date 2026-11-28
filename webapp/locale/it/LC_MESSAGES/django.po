@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 10:10+0100\n"
+"POT-Creation-Date: 2026-11-28 12:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -168,12 +168,6 @@ msgstr "Dove si gioca?"
 
 msgid "Your locations"
 msgstr "Le sedi che frequenti"
-
-msgid "All locations"
-msgstr "Tutte le sedi"
-
-msgid "Filter by location"
-msgstr "Filtra per sede"
 
 msgid "Select a member"
 msgstr "Seleziona un socio"
@@ -1646,17 +1640,20 @@ msgstr "Parole chiave"
 msgid "Search by name or game…"
 msgstr "Cerca per nome o gioco…"
 
+msgid "Filters"
+msgstr "Filtri"
+
+msgid "Filter by location"
+msgstr "Filtra per sede"
+
+msgid "Locations of your activities"
+msgstr "Sedi delle tue attività"
+
+msgid "All locations"
+msgstr "Tutte le sedi"
+
 msgid "Organized by me"
 msgstr "Organizzati da me"
-
-msgid "Search"
-msgstr "Cerca"
-
-msgid "Active filters"
-msgstr "Filtri attivi"
-
-msgid "Remove filter"
-msgstr "Rimuovi filtro"
 
 msgid "Clear all"
 msgstr "Rimuovi tutti"
@@ -2634,6 +2631,9 @@ msgstr "Scollega"
 msgid "Unlink event"
 msgstr "Scollega evento"
 
+msgid "Remove filter"
+msgstr "Rimuovi filtro"
+
 msgid "Proposal waiting"
 msgstr "Proposta in attesa"
 
@@ -2808,6 +2808,9 @@ msgstr[1] "%(counter)s giochi in ludoteca"
 
 msgid "Search by game name…"
 msgstr "Cerca per nome…"
+
+msgid "Search"
+msgstr "Cerca"
 
 msgid "Tag"
 msgstr "Tag"
@@ -3265,9 +3268,6 @@ msgstr "Agenda"
 
 msgid "Grid"
 msgstr "Griglia"
-
-msgid "Filters"
-msgstr "Filtri"
 
 msgid ""
 "Some tables share a station at overlapping times. Conflicting tables are "
@@ -3881,6 +3881,9 @@ msgstr "Tutte le associazioni nazionali"
 
 msgid "Affiliation unavailable"
 msgstr "Affiliazione non disponibile"
+
+msgid "Active filters"
+msgstr "Filtri attivi"
 
 msgid "Official website"
 msgstr "Sito ufficiale"
@@ -6078,10 +6081,6 @@ msgstr ""
 "Gestisci le tue sedi: creane di nuove, modifica i dati e gestisci i tuoi "
 "tavoli di gioco."
 
-#, python-format
-msgid "Venue: %(name)s"
-msgstr "Luogo: %(name)s"
-
 msgid ""
 "View your notifications: new tables, comments, invitations and community "
 "updates."
@@ -6141,6 +6140,10 @@ msgstr "Inserisci una data di inizio e una di fine."
 
 msgid "The end date must be on or after the start date."
 msgstr "La data di fine deve essere uguale o successiva a quella di inizio."
+
+#, python-format
+msgid "Venue: %(name)s"
+msgstr "Luogo: %(name)s"
 
 #, python-format
 msgid "Organizer: %(name)s"
@@ -7113,9 +7116,6 @@ msgstr "Collega account"
 
 #~ msgid "Explore locations"
 #~ msgstr "Scopri dove giocare"
-
-#~ msgid "Locations of your tables"
-#~ msgstr "Sedi dei tuoi tavoli"
 
 #~ msgid "Most active locations"
 #~ msgstr "Sedi più attive"

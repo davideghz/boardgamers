@@ -249,17 +249,6 @@ class CreatableLocationPickerWidget(LocationPickerWidget):
         return reverse(self.search_url_name, query={'suggested': '1'})
 
 
-def location_filter_picker(value, *, local_items_id='', suggested=False):
-    """The location filter of a list page (?location=<slug>): the shared search picker,
-    applied as soon as a location is picked or cleared. With `local_items_id` it filters a
-    json_script list of location results instead of searching every location."""
-    widget = LocationPickerWidget(button_label=_('All locations'), value_key='slug', suggested=suggested)
-    widget.dialog_title = _('Filter by location')
-    widget.submit_on_select = True
-    widget.local_items_id = local_items_id
-    return widget.render('location', value or '')
-
-
 class MemberPickerWidget(SearchPickerWidget):
     """Picks a Member of `location` by name or linked nickname (managers only)."""
     min_length = 1

@@ -90,3 +90,28 @@ class OwnActivitiesTest(TestCase):
         self.assertContains(self.client.get(page, {'as': 'visitor'}), request_membership)  # the preview
         self.login('newcomer')
         self.assertContains(self.client.get(page), request_membership)
+
+    def test_the_filters_are_chips_with_the_users_own_locations(self):
+        expected = {
+            'newcomer': [],
+            'organizer': [],
+            'player': ['Negozio Demo'],
+            'member': ['Associazione Demo', 'Circolo Demo'],
+            'manager': ['Negozio Demo'],
+        }
+        for persona, names in expected.items():
+            with self.subTest(persona):
+                self.login(persona)
+                response = self.client.get(reverse('account-activities'))
+                self.assertEqual([location.name for location in response.context['locations']], names)
+                menu = 'popovertarget="activity-location-menu"'
+                self.assertContains(response, menu) if names else self.assertNotContains(response, menu)
+                if names:  # the chip names the filter, the menu says where its locations come from
+                    self.assertContains(response, f'<span class="max-w-[12rem] truncate">{italian("Location")}</span>')
+                    self.assertContains(response, italian('Locations of your activities'))
+                    chosen = response.context['locations'][0]
+                    on = self.client.get(reverse('account-activities'), {'location': chosen.slug})
+                    self.assertContains(on, f'{italian("Location")}: </span>{chosen.name}</span>')
+                self.assertContains(response, 'role=organizer')  # the "Organized by me" chip
+                self.assertNotContains(response, italian('Clear all'))  # nothing to clear yet
+                self.assertNotContains(response, '{#')  # no template comment leaks into the page
