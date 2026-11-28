@@ -5,7 +5,8 @@ Used by the ``seed_ui_personas`` command, to look at the pages as each audience,
 
 Audiences: the anonymous visitor (no user), the newcomer with no ties, the active player
 (tables, events and a manifestation day), the member of two associations, the manager of the
-three locations and the organizer of a manifestation, who manages no location.
+three locations, the organizer of a manifestation, who manages no location, and the site
+administrator (staff and superuser, with no ties either).
 """
 from dataclasses import dataclass
 from datetime import time, timedelta
@@ -24,7 +25,7 @@ from webapp.models import (
 # Shared by every demo user: the data only exists on DEBUG databases.
 PASSWORD = 'boardgamers-demo'
 EMAIL_DOMAIN = 'ui-demo.example.com'
-PERSONAS = ('newcomer', 'player', 'member', 'manager', 'organizer')
+PERSONAS = ('newcomer', 'player', 'member', 'manager', 'organizer', 'admin')
 
 LOCATION_NAMES = ('Negozio Demo', 'Circolo Demo', 'Associazione Demo')
 MANIFESTATION_NAME = 'Manifestazione Demo'
@@ -42,6 +43,8 @@ class UiPersonas:
     manager: UserProfile
     # Manages the manifestation only: no location, membership or table.
     organizer: UserProfile
+    # Staff and superuser: the Django admin, approves festivals, may manage any event or table.
+    admin: UserProfile
     # Game shop open to everyone, managed through Location.managers.
     negozio: Location
     # Association that runs its nights with tables: only members create and join them.
@@ -87,10 +90,10 @@ def delete_ui_personas():
     User.objects.filter(pk__in=profiles.values('user_id')).delete()
 
 
-def _profile(persona, nickname):
+def _profile(persona, nickname, *, admin=False):
     user = User.objects.create_user(
         username=email_for(persona), email=email_for(persona), password=PASSWORD,
-        first_name=nickname, last_name='Demo')
+        first_name=nickname, last_name='Demo', is_staff=admin, is_superuser=admin)
     lat, lng = MILAN
     # Verified and without mail notifications: the demo must not send emails.
     return UserProfile.objects.create(
@@ -141,6 +144,7 @@ def seed_ui_personas():
     member = _profile('member', 'demo_socio')
     manager = _profile('manager', 'demo_gestore')
     organizer = _profile('organizer', 'demo_organizzatore')
+    admin = _profile('admin', 'demo_amministratore', admin=True)
 
     negozio_name, circolo_name, associazione_name = LOCATION_NAMES
     negozio = _location(negozio_name, creator=None)
@@ -221,7 +225,7 @@ def seed_ui_personas():
     _member(circolo, player, 'Giocatore', Membership.PENDING)
 
     return UiPersonas(
-        newcomer=newcomer, player=player, member=member, manager=manager, organizer=organizer,
+        newcomer=newcomer, player=player, member=member, manager=manager, organizer=organizer, admin=admin,
         negozio=negozio, circolo=circolo, associazione=associazione, manifestation=manifestation,
         event=event, night=night, draft_event=draft_event, tables=tables,
     )

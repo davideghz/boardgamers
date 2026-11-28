@@ -370,6 +370,7 @@ PERSONA_SUMMARIES = {
     'member': 'Member of Circolo and Associazione; created a members-only table, proposed a draft event.',
     'manager': 'Manages the Negozio, created Circolo and Associazione.',
     'organizer': 'Runs the Manifestazione Demo only.',
+    'admin': 'Staff and superuser, with no ties: the Django admin, approves festivals, may manage any event or table.',
 }
 
 

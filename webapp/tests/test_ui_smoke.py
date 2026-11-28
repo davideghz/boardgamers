@@ -72,6 +72,9 @@ class UiSmokeTest(TestCase):
                 'organizer', reverse('master-event-manage', kwargs={'slug': data.manifestation.slug})),
         }
 
+    #: The management pages the administrator opens too: events and festivals, not locations.
+    ADMIN_PAGES = {'organized_events', 'manage_event', 'manage_draft_event', 'manage_manifestation'}
+
     def _login(self, persona):
         if persona == 'anonymous':
             self.client.logout()
@@ -125,11 +128,18 @@ class UiSmokeTest(TestCase):
         for persona in ('anonymous', *PERSONAS):
             self._login(persona)
             for page, (owner, url) in self._manage_pages().items():
-                if persona == owner:
+                if persona == owner or (persona == 'admin' and page in self.ADMIN_PAGES):
                     continue
                 with self.subTest(persona=persona, page=page):
                     response = self.client.get(url)
                     self.assertNotEqual(response.status_code, 200)
+
+    def test_the_administrator_manages_events_and_festivals(self):
+        self._login('admin')
+        for page, (_owner, url) in self._manage_pages().items():
+            if page in self.ADMIN_PAGES:
+                with self.subTest(page=page):
+                    self._assert_renders(page, url)
 
 
 class SeedUiPersonasCommandTest(TestCase):
@@ -193,9 +203,16 @@ class PersonaSwitcherTest(TestCase):
         self.assertNotIn('_auth_user_id', self.client.session)
 
     @WITH_DEBUG
+    def test_the_administrator_is_staff_and_links_to_the_admin(self):
+        admin = self.data.admin.user
+        self.assertTrue(admin.is_staff and admin.is_superuser)
+        self.assertFalse(any(self.data.profile(persona).user.is_staff for persona in PERSONAS if persona != 'admin'))
+        self.assertContains(self.client.get(self.url), f'href="{reverse("admin:index")}"', count=1)
+
+    @WITH_DEBUG
     def test_only_demo_users(self):
         other = UserProfileFactory()
-        for value in (other.user.username, 'admin', ''):
+        for value in (other.user.username, 'root', ''):
             with self.subTest(value):
                 self.assertEqual(self.client.post(self.url, {'persona': value}).status_code, 404)
         self.assertNotIn('_auth_user_id', self.client.session)

@@ -37,6 +37,9 @@
                 </p>
                 <p class="mt-0.5 text-xs text-content-muted">{{ persona.summary }}</p>
                 <p class="mt-0.5 break-all text-xs text-content-muted">{{ persona.email }}</p>
+                {% if persona.user.is_staff %}
+                  <p class="mt-0.5 text-xs"><a href="{% url 'admin:index' %}" class="font-semibold text-link hover:underline">Django admin →</a></p>
+                {% endif %}
               </div>
               {% if persona.user %}
                 {% button "Sign in" variant="secondary" size="sm" %}

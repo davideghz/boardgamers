@@ -23,6 +23,7 @@ touches and what each should see and be able to do afterwards.
 | Member | `member`, demo_socio | Active member of Circolo and Associazione, created a members-only table, attends the evenings, proposed a draft event. |
 | Manager | `manager`, demo_gestore | Manages the Negozio, created Circolo and Associazione; author of most demo tables and events. |
 | Organizer | `organizer`, demo_organizzatore | Runs the Manifestazione Demo only: no location, table or membership. |
+| Administrator | `admin`, demo_amministratore | Staff and superuser, with no ties: the Django admin, approves festivals, manages any event or table (not the locations). |
 
 Everyone lives in Milano, as do the three locations; the Negozio belongs to the national network
 «Federazione Demo», Circolo and Associazione to «Rete Ludica Demo».
