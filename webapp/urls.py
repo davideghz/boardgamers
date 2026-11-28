@@ -51,6 +51,7 @@ urlpatterns = [
 
     # LOCATIONS
     path("locations/", location_views.index_view, name="locations-index"),
+    path("near-me/", location_views.locations_near_view, name="locations-near"),
     path("locations/<slug:slug>/", location_views.LocationDetailView.as_view(), name="location-detail"),
     path("locations/<slug:slug>/calendar/", location_views.LocationCalendarView.as_view(), name="location-calendar"),
     path("locations/new", location_views.LocationCreateView.as_view(), name="location-create"),

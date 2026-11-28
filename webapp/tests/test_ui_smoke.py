@@ -1,9 +1,11 @@
 import re
 from io import StringIO
 
+from django.conf import settings
 from django.core.management import CommandError, call_command
 from django.test import TestCase, modify_settings, override_settings
 from django.urls import reverse
+from django.utils import translation
 
 from webapp.factories import UserProfileFactory
 from webapp.models import Event, Location, MasterEvent, Table, UserProfile
@@ -166,7 +168,10 @@ class PersonaSwitcherTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.data = seed_ui_personas()
-        cls.url = reverse('dev-personas')
+        # In the default language: a test before may leave another one active, and the demo users
+        # would be sent from /en/ back to their own language
+        with translation.override(settings.LANGUAGE_CODE):
+            cls.url = reverse('dev-personas')
 
     @override_settings(DEBUG=False)
     def test_closed_without_debug(self):

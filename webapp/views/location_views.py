@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.utils.translation import gettext, ngettext, gettext_lazy as _
 from django.views import generic, View
 from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, CreateView
 
 from meta.views import Meta
@@ -29,7 +30,6 @@ from meta.views import Meta
 from webapp.forms import LocationForm, LocationManageDataForm, AddLocationManagerForm, TransferOwnershipForm, MemberForm, ApproveMembershipForm, \
     MembershipRequestForm, MembershipEditForm, MembershipDocumentForm, LocationGameForm, LocationPermissionsForm, PlayAreaForm, \
     PhysicalTableForm, LocationGameTagForm, LocationGameWithdrawalForm, BGGCollectionImportForm, AddLocationNetworkForm, LocationNetworkForm
-from webapp.messages import MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
 from webapp.models import Location, Table, UserProfile, Comment, Game, LocationFollower, Member, Membership, \
     MembershipDocument, LocationGame, LocationGameTag, TelegramGroupConfig, Player, Event, PlayArea, \
     PhysicalTable, LocationNetwork, Network, GuestProfile, ResultMode
@@ -66,11 +66,39 @@ def _location_map_data(locations):
     return markers
 
 
+#: Where "Near me" measures from when the user picked "Where I am now": rounded to about a
+#: kilometre, and kept in the session, never in the URL (links get shared and logged).
+NEAR_SESSION_KEY = 'locations_near_point'
+#: The params of the locations list kept across its filters.
+INDEX_PARAMS = ('q', 'network', 'view')
+
+
+def _session_point(request):
+    try:
+        lat, lng = request.session.get(NEAR_SESSION_KEY) or (None, None)
+        return Point(float(lng), float(lat), srid=4326)
+    except (TypeError, ValueError):
+        return None
+
+
+@require_POST
+def locations_near_view(request):
+    """Keep the browser's position for "Near me", then show the locations nearest to it."""
+    try:
+        lat, lng = float(request.POST['lat']), float(request.POST['lng'])
+    except (KeyError, ValueError):
+        return redirect('locations-index')
+    query = {key: request.POST[key] for key in INDEX_PARAMS if request.POST.get(key)}
+    if -90 <= lat <= 90 and -180 <= lng <= 180:
+        request.session[NEAR_SESSION_KEY] = [round(lat, 2), round(lng, 2)]
+        query['near'] = 'here'
+    return redirect(reverse('locations-index', query=query))
+
+
 def index_view(request, template_name="locations/location_index.html"):
     if request.GET.get('new_table'):
         return redirect('table-new')  # the old "New table" entry point (plan F2)
     user_location = None
-    location_message = None
     followed_location_ids = set()
     networks = list(Network.objects.filter(is_active=True).only('name', 'slug', 'logo', 'website'))
     network_slug = request.GET.get('network', '')
@@ -92,7 +120,7 @@ def index_view(request, template_name="locations/location_index.html"):
     # "Your locations", as on the home: every location the user has a tie with, with the role
     my_locations = viewer.my_locations if not network_slug and not query else []
     if request.user.is_authenticated:
-        followed_location_ids = get_viewer(request).followed_location_ids
+        followed_location_ids = viewer.followed_location_ids
         try:
             profile = UserProfile.objects.only('latitude', 'longitude', 'point').filter(user=request.user).first()
             if profile and profile.latitude and profile.longitude:
@@ -100,39 +128,39 @@ def index_view(request, template_name="locations/location_index.html"):
         except (TypeError, ValueError):
             pass
 
-    if user_location:
-        nearby_locations = nearby_locations.annotate(distance=DbDistance('point', user_location)).order_by('distance')
+    # "Near": the user's address, where the browser says they are now, or anywhere (by name).
+    # By default the address, else the position picked earlier in this session.
+    origins = {'address': user_location, 'here': _session_point(request)}
+    near = request.GET.get('near')
+    if near != 'anywhere' and not origins.get(near):
+        near = 'address' if origins['address'] else 'here' if origins['here'] else 'anywhere'
+    origin = origins.get(near)
+    if origin:
+        nearby_locations = nearby_locations.annotate(distance=DbDistance('point', origin)).order_by('distance', 'pk')
     else:
-        nearby_locations = nearby_locations.order_by('?')
-        location_message = MSG_INSERT_ADDRESS_TO_FIND_NEAR_LOCATIONS
+        nearby_locations = nearby_locations.order_by('name', 'pk')
 
     if networks:
         affiliations = Prefetch('network_affiliations', queryset=_public_affiliations(), to_attr='public_affiliations')
         nearby_locations = nearby_locations.prefetch_related(affiliations)
 
     map_selected = request.GET.get('view') == 'map'
-    kept = {'view': 'map'} if map_selected else {}
-    # The active filters as chips (plan E4), each one removable on its own
-    active_filters = []
-    if query:
-        active_filters.append(
-            (f'«{query}»', reverse('locations-index', query={**kept, **({'network': network_slug} if network_slug else {})})))
-    if network_slug:
-        label = selected_network.name if selected_network else _('Affiliation unavailable')
-        active_filters.append((_('Network: %(name)s') % {'name': label},
-                               reverse('locations-index', query={**kept, **({'q': query} if query else {})})))
     map_locations = _location_map_data(nearby_locations)
+    kept = {key: request.GET[key] for key in ('view', 'near') if request.GET.get(key)}
 
     context = {
         'nearby_locations': nearby_locations,
-        'location_message': location_message,
+        'near': near,
+        'near_address': user_location and (request.user.user_profile.city or request.user.user_profile.address),
         'my_locations': my_locations,
         'followed_location_ids': followed_location_ids,
         'networks': networks,
         'selected_network': selected_network,
         'network_unavailable': network_unavailable,
         'q': query,
-        'active_filters': active_filters,
+        # The filters are chips that apply at once and show their own state; "Clear all" keeps
+        # the view and where "near" measures from
+        'has_filters': bool(query or network_slug),
         'reset_url': reverse('locations-index', query=kept),
         'map_locations': map_locations,
         'map_selected': map_selected,

@@ -17,8 +17,8 @@ from django.db.models import Q
 from django.utils import timezone
 
 from webapp.models import (
-    Event, EventDate, EventParticipant, Location, LocationFollower, MasterEvent, MasterEventDate,
-    MasterEventDateParticipant, Member, Membership, Player, Table, UserProfile,
+    Event, EventDate, EventParticipant, Location, LocationFollower, LocationNetwork, MasterEvent, MasterEventDate,
+    MasterEventDateParticipant, Member, Membership, Network, Player, Table, UserProfile,
 )
 
 # Shared by every demo user: the data only exists on DEBUG databases.
@@ -28,6 +28,8 @@ PERSONAS = ('newcomer', 'player', 'member', 'manager', 'organizer')
 
 LOCATION_NAMES = ('Negozio Demo', 'Circolo Demo', 'Associazione Demo')
 MANIFESTATION_NAME = 'Manifestazione Demo'
+# National networks: the shop in one, the two associations in the other.
+NETWORK_NAMES = ('Federazione Demo', 'Rete Ludica Demo')
 
 MILAN = (45.4642, 9.19)
 
@@ -81,6 +83,7 @@ def delete_ui_personas():
     MasterEvent.objects.filter(managers__in=profiles, name=MANIFESTATION_NAME).delete()
     Location.objects.filter(
         Q(creator__in=profiles) | Q(managers__in=profiles), name__in=LOCATION_NAMES).delete()
+    Network.objects.filter(name__in=NETWORK_NAMES, affiliations__isnull=True).delete()
     User.objects.filter(pk__in=profiles.values('user_id')).delete()
 
 
@@ -202,6 +205,11 @@ def seed_ui_personas():
         Player.objects.create(table=tables[key], user_profile=player)
     _join_event(event, player, [event.dates.get().date])
     _join_event(night, member, nights[:2])
+
+    federazione, rete = (Network.objects.get_or_create(name=name)[0] for name in NETWORK_NAMES)
+    LocationNetwork.objects.create(location=negozio, network=federazione)
+    for location in (circolo, associazione):
+        LocationNetwork.objects.create(location=location, network=rete)
 
     LocationFollower.objects.create(user_profile=player, location=negozio)
     LocationFollower.objects.create(user_profile=member, location=circolo)

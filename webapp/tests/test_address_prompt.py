@@ -26,7 +26,10 @@ class AddressPromptTest(TestCase):
                                      latitude='45.44', longitude='11.98')
 
                 self.assertNotContains(response, 'Set your address')
-                self.assertContains(response, '<strong>Via Roma 1, Vigonza</strong>', html=True)
+                if url_name == 'home':
+                    self.assertContains(response, '<strong>Via Roma 1, Vigonza</strong>', html=True)
+                else:  # the "Near" chip names it
+                    self.assertContains(response, 'Near Via Roma 1, Vigonza')
 
     def test_located_profile_shows_the_city(self):
         response = self._get('home', address='Via Roma 1, Padova', city='Padova',

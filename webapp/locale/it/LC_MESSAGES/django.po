@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 12:40+0100\n"
+"POT-Creation-Date: 2026-11-28 12:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3876,32 +3876,51 @@ msgstr "In prestito a %(nickname)s"
 msgid "Name or city"
 msgstr "Nome o città"
 
-msgid "All networks"
-msgstr "Tutte le associazioni nazionali"
+#, python-format
+msgid "Near %(place)s"
+msgstr "Vicino a %(place)s"
 
-msgid "Affiliation unavailable"
-msgstr "Affiliazione non disponibile"
+msgid "Near you"
+msgstr "Vicino a te"
 
-msgid "Active filters"
-msgstr "Filtri attivi"
+msgctxt "locations near"
+msgid "Anywhere"
+msgstr "Ovunque"
 
-msgid "Official website"
-msgstr "Sito ufficiale"
+msgid "Sort by distance from"
+msgstr "Ordina per distanza da"
 
-msgid "Login"
-msgstr "Login"
-
-msgid "to see nearby locations."
-msgstr "per vedere le sedi vicine."
+#, python-format
+msgid "My address (%(place)s)"
+msgstr "Il mio indirizzo (%(place)s)"
 
 msgid "Set your address"
 msgstr "Inserisci un indirizzo"
 
-msgid "Locations near to"
-msgstr "Sedi vicine a"
+msgid "Finding your position…"
+msgstr "Cerco la tua posizione…"
 
-msgid "Edit address"
-msgstr "Modifica indirizzo"
+msgid ""
+"Your position is not available: allow it in the browser, or pick another "
+"option."
+msgstr ""
+"La tua posizione non è disponibile: consentila nel browser o scegli un’altra "
+"opzione."
+
+msgid "Where I am now"
+msgstr "Dove sono ora"
+
+msgid "Anywhere, by name"
+msgstr "Ovunque, per nome"
+
+msgid "Affiliation unavailable"
+msgstr "Affiliazione non disponibile"
+
+msgid "All networks"
+msgstr "Tutte le associazioni nazionali"
+
+msgid "Official website"
+msgstr "Sito ufficiale"
 
 msgid "List"
 msgstr "Lista"
@@ -5335,6 +5354,9 @@ msgstr "Iscriviti gratis"
 msgid "Discover more"
 msgstr "Più info"
 
+msgid "Login"
+msgstr "Login"
+
 msgid "to see tables from locations you follow."
 msgstr "per vedere i tavoli delle sedi che segui."
 
@@ -5386,6 +5408,15 @@ msgstr "Vedi tutte le manifestazioni"
 
 msgid "See all game clubs"
 msgstr "Vedi tutti i club di gioco"
+
+msgid "to see nearby locations."
+msgstr "per vedere le sedi vicine."
+
+msgid "Locations near to"
+msgstr "Sedi vicine a"
+
+msgid "Edit address"
+msgstr "Modifica indirizzo"
 
 msgid "Get started"
 msgstr "Per iniziare"
@@ -6389,10 +6420,6 @@ msgid "Discover all available board games and create new game tables!"
 msgstr ""
 "Scopri tutti i giochi da tavolo disponibili e crea nuovi tavoli di gioco!"
 
-#, python-format
-msgid "Network: %(name)s"
-msgstr "Associazione nazionale: %(name)s"
-
 msgid "Game Locations"
 msgstr "Dove giocare"
 
@@ -6983,6 +7010,13 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Active filters"
+#~ msgstr "Filtri attivi"
+
+#, python-format
+#~ msgid "Network: %(name)s"
+#~ msgstr "Associazione nazionale: %(name)s"
 
 #~ msgid "Apply filters"
 #~ msgstr "Applica i filtri"

@@ -10,44 +10,99 @@
   {% page_header page_title count=nearby_locations|length action_label=add_location_label action_url=location_create_url %}
 
 
-  {# ── Search: name or city, and the national network ─────────────────── #}
-  <form method="get" action="{% url 'locations-index' %}" role="search" class="mb-4 flex flex-wrap items-center gap-2">
+  {# ── Search: name or city; then "near" and the national network as chips ── #}
+  <form method="get" action="{% url 'locations-index' %}" role="search" class="mb-3">
     <input type="hidden" name="view" id="locations-view-field" value="{% if map_selected %}map{% endif %}">
-    <div class="min-w-0 flex-1{% if networks or network_unavailable %} basis-full sm:basis-0{% endif %}">
-      <label for="locations-query" class="sr-only">{% trans "Name or city" %}</label>
-      {% trans "Search by name or city…" as search_placeholder %}
-      {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="locations-query" max_length=100 %}
-    </div>
-    {% if networks or network_unavailable %}
-      <label for="network-filter" class="sr-only">{% trans "National network" %}</label>
-      <select id="network-filter" name="network" class="min-w-0 flex-1 rounded-xl border border-divider bg-surface px-3 py-2.5 text-sm text-content sm:max-w-xs sm:flex-none">
-        <option value="">{% trans "All networks" %}</option>
-        {% if network_unavailable %}<option value="" disabled selected>{% trans "Affiliation unavailable" %}</option>{% endif %}
-        {% for network in networks %}
-          <option value="{{ network.slug }}"{% if network.pk == selected_network.pk %} selected{% endif %}>{{ network.name }}</option>
-        {% endfor %}
-      </select>
-    {% endif %}
-    {% trans "Search" as search_label %}
-    {% button search_label variant="secondary" size="md" extra_class="flex-shrink-0" %}
+    {% if request.GET.near %}<input type="hidden" name="near" value="{{ near }}">{% endif %}
+    {% if request.GET.network %}<input type="hidden" name="network" value="{{ request.GET.network }}">{% endif %}
+    <label for="locations-query" class="sr-only">{% trans "Name or city" %}</label>
+    {% trans "Search by name or city…" as search_placeholder %}
+    {% include "partials/_search_input.html" with placeholder=search_placeholder input_id="locations-query" max_length=100 %}
   </form>
 
-  {% if active_filters %}
-    <ul aria-label="{% trans 'Active filters' %}" class="mb-4 flex flex-wrap items-center gap-2">
-      {% for label, remove_url in active_filters %}
-        <li>
-          <a href="{{ remove_url }}" data-keep-view class="inline-flex items-center gap-1 rounded-full border border-primary bg-primary/10 py-1 pl-3 pr-2 text-xs font-semibold text-link hover:bg-primary/20">
-            {{ label }}
-            <span class="sr-only">{% trans "Remove filter" %}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </a>
-        </li>
-      {% endfor %}
-      {% if active_filters|length > 1 %}
-        <li><a href="{{ reset_url }}" data-keep-view class="text-xs font-semibold text-content-soft hover:underline">{% trans "Clear all" %}</a></li>
+  {% comment %}
+  Filter chips (the ui-change skill): each applies at once and shows its own state. "Near" is
+  where the order by distance starts: the address, where the browser says the user is now, or
+  anywhere (by name). The position goes through a POST to the session, never into the URL.
+  {% endcomment %}
+  {% with chip="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" off="border-divider bg-surface text-content-soft hover:bg-surface-alt hover:text-content" on="border-primary bg-primary/10 text-link hover:bg-primary/20" item="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-content hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" menu_title="px-3 pb-1.5 pt-1 text-xs font-semibold text-content-muted" %}
+  <div role="group" aria-label="{% trans 'Filters' %}" class="mb-4 flex flex-wrap items-center gap-2">
+    <button type="button" popovertarget="locations-near-menu" class="{{ chip }} {{ off }}">
+      {% include "components/icon.html" with name="map-pin" class="w-3.5 h-3.5" only %}
+      <span class="max-w-[12rem] truncate">
+        {% if near == 'address' %}{% blocktrans with place=near_address %}Near {{ place }}{% endblocktrans %}
+        {% elif near == 'here' %}{% trans "Near you" %}
+        {% else %}{% trans "Anywhere" context "locations near" %}{% endif %}
+      </span>
+      {% include "components/icon.html" with name="chevron-down" class="w-3.5 h-3.5" only %}
+    </button>
+    <div id="locations-near-menu" popover data-popover-menu aria-label="{% trans 'Sort by distance from' %}"
+         class="w-72 rounded-xl border border-divider bg-surface p-1.5 text-content shadow-xl"
+         style="position: fixed; inset: auto; margin: 0;">
+      <p class="{{ menu_title }}">{% trans "Sort by distance from" %}</p>
+      {% if near_address %}
+        <a href="{% querystring near='address' %}" data-keep-view class="{{ item }}"{% if near == 'address' %} aria-current="true"{% endif %}>
+          <span class="w-4">{% if near == 'address' %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+          <span class="truncate">{% blocktrans with place=near_address %}My address ({{ place }}){% endblocktrans %}</span>
+        </a>
+      {% elif user.is_authenticated %}
+        <a href="{% url 'user-profile-edit' %}" class="{{ item }}">
+          <span class="w-4"></span>{% trans "Set your address" %}
+        </a>
       {% endif %}
-    </ul>
-  {% endif %}
+      <button type="button" data-near-here hidden class="{{ item }}"
+              data-locating-text="{% trans 'Finding your position…' %}" data-error-text="{% trans 'Your position is not available: allow it in the browser, or pick another option.' %}"{% if near == 'here' %} aria-current="true"{% endif %}>
+        <span class="w-4">{% if near == 'here' %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+        <span>{% trans "Where I am now" %}</span>
+      </button>
+      <p data-near-status role="status" class="px-3 pb-1 text-xs text-content-muted empty:hidden"></p>
+      <a href="{% querystring near='anywhere' %}" data-keep-view class="{{ item }}"{% if near == 'anywhere' %} aria-current="true"{% endif %}>
+        <span class="w-4">{% if near == 'anywhere' %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+        {% trans "Anywhere, by name" %}
+      </a>
+    </div>
+
+    {% if networks or network_unavailable %}
+      <button type="button" popovertarget="locations-network-menu" class="{{ chip }} {% if request.GET.network %}{{ on }}{% else %}{{ off }}{% endif %}">
+        <span class="max-w-[14rem] truncate">
+          {% if selected_network %}<span class="sr-only">{% trans "National network" %}: </span>{{ selected_network.name }}
+          {% elif network_unavailable %}{% trans "Affiliation unavailable" %}
+          {% else %}{% trans "National network" %}{% endif %}
+        </span>
+        {% include "components/icon.html" with name="chevron-down" class="w-3.5 h-3.5" only %}
+      </button>
+      <div id="locations-network-menu" popover data-popover-menu aria-label="{% trans 'National networks' %}"
+           class="max-h-80 w-72 overflow-y-auto rounded-xl border border-divider bg-surface p-1.5 text-content shadow-xl"
+           style="position: fixed; inset: auto; margin: 0;">
+        <p class="{{ menu_title }}">{% trans "National networks" %}</p>
+        <a href="{% querystring network=None %}" data-keep-view class="{{ item }}"{% if not request.GET.network %} aria-current="true"{% endif %}>
+          <span class="w-4">{% if not request.GET.network %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+          {% trans "All networks" %}
+        </a>
+        {% for network in networks %}
+          <a href="{% querystring network=network.slug %}" data-keep-view class="{{ item }}"{% if network.pk == selected_network.pk %} aria-current="true"{% endif %}>
+            <span class="w-4">{% if network.pk == selected_network.pk %}{% include "components/icon.html" with name="check" class="w-4 h-4 text-link" only %}{% endif %}</span>
+            {% if network.logo %}<img src="{{ network.logo.url }}" alt="" width="20" height="20" class="size-5 shrink-0 rounded object-contain">{% endif %}
+            <span class="truncate">{{ network.name }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if has_filters %}
+      <a href="{{ reset_url }}" data-keep-view class="ml-auto rounded text-xs font-semibold text-content-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">{% trans "Clear all" %}</a>
+    {% endif %}
+  </div>
+  {% endwith %}
+
+  {# "Where I am now": the browser's position, posted to the session (see locations_near_view) #}
+  <form method="post" action="{% url 'locations-near' %}" id="locations-near-form" hidden>
+    {% csrf_token %}
+    <input type="hidden" name="lat"><input type="hidden" name="lng">
+    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+    {% if request.GET.network %}<input type="hidden" name="network" value="{{ request.GET.network }}">{% endif %}
+    <input type="hidden" name="view" value="{% if map_selected %}map{% endif %}">
+  </form>
 
   {# The selected network introduces itself: logo and official website #}
   {% if selected_network %}
@@ -81,23 +136,6 @@
     <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
       <div class="min-w-0">
         {% if my_locations %}<h2 id="all-locations-title" class="text-lg font-bold text-content">{% trans "All locations" %}</h2>{% endif %}
-        {% if not user.is_authenticated %}
-          <p class="text-xs text-content-muted">
-            <a href="{% url 'login' %}" class="font-semibold text-link hover:underline">{% trans "Login" %}</a>
-            {% trans "to see nearby locations." %}
-          </p>
-        {% elif location_message %}
-          <p class="text-xs text-content-muted">
-            <a href="{% url 'user-profile-edit' %}" class="font-semibold text-link hover:underline">{% trans "Set your address" %}</a>
-            {% trans "to see nearby locations." %}
-          </p>
-        {% else %}
-          <p class="text-xs text-content-muted">
-            {% trans "Locations near to" %} <strong>{{ user.user_profile.city|default:user.user_profile.address }}</strong>
-            &nbsp;·&nbsp;
-            <a href="{% url 'user-profile-edit' %}" class="text-link hover:underline">{% trans "Edit address" %}</a>
-          </p>
-        {% endif %}
       </div>
       <div class="flex items-center bg-surface-input rounded-lg p-0.5 gap-0.5">
         <button id="btn-loc-list"
@@ -185,6 +223,7 @@
 
       const viewField = document.getElementById('locations-view-field');
       if (viewField) viewField.value = isList ? '' : 'map';
+      document.querySelector('#locations-near-form [name=view]').value = isList ? '' : 'map';
       document.querySelectorAll('[data-keep-view]').forEach(link => {
         const url = new URL(link.href);
         if (isList) url.searchParams.delete('view');
@@ -193,6 +232,23 @@
       });
       if (!isList) renderLocationsMap();
     }
+
+    // "Where I am now": only where the browser can tell; the position goes to the session
+    (() => {
+      const button = document.querySelector('[data-near-here]');
+      if (!button || !('geolocation' in navigator)) return;
+      const status = document.querySelector('[data-near-status]');
+      const form = document.getElementById('locations-near-form');
+      button.hidden = false;
+      button.addEventListener('click', () => {
+        status.textContent = button.dataset.locatingText;
+        navigator.geolocation.getCurrentPosition(position => {
+          form.elements.lat.value = position.coords.latitude;
+          form.elements.lng.value = position.coords.longitude;
+          form.submit();
+        }, () => { status.textContent = button.dataset.errorText; }, {maximumAge: 600000, timeout: 15000});
+      });
+    })();
 
     let locationsMapInitialized = false;
 

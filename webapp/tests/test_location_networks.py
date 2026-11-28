@@ -237,8 +237,9 @@ class LocationNetworksTest(TestCase):
             'name': 'Magno Fato', 'lat': 45.0, 'lng': 9.0, 'url': self.detail_url,
             'affiliations': ['FederLudo', 'TdG Vicenza'],
         }])
-        self.assertContains(response, 'id="network-filter"')
-        self.assertContains(response, f'value="{self.network.slug}" selected')
+        self.assertContains(response, 'popovertarget="locations-network-menu"')  # the network chip, on
+        self.assertRegex(response.content.decode(),
+                         rf'href="\?network={self.network.slug}&amp;view=map"[^>]*aria-current="true"')
         self.assertContains(response, 'id="locations-list" hidden')
         self.assertContains(response, 'TdG Vicenza')
         self.assertNotContains(response, self.other_location.name)
@@ -267,13 +268,13 @@ class LocationNetworksTest(TestCase):
 
         response = self.client.get(self.index_url, {'network': self.federludo.slug})
         self.assertContains(response, '<h2 class="text-base font-bold text-content">FederLudo</h2>', html=True)
-        self.assertIn('Associazione nazionale: FederLudo', [str(label) for label, _ in response.context['active_filters']])
+        self.assertContains(response, 'Associazione nazionale: </span>FederLudo')  # the chip, on
         self.assertContains(response, f'src="{self.federludo.logo.url}"')
         self.assertContains(response, f'href="{self.federludo.website}"')
         self.assertFalse(response.context['nearby_locations'])
 
         response = self.client.get(self.index_url)
-        self.assertNotContains(response, self.federludo.logo.url)
+        self.assertContains(response, self.federludo.logo.url, count=1)  # only in the network chip's menu
         self.assertNotContains(response, self.federludo.website)
 
         self.federludo.is_active = False
@@ -332,7 +333,7 @@ class LocationNetworksTest(TestCase):
         response = self.client.get(self.index_url, {'network': self.network.slug})
         self.assertFalse(response.context['network_unavailable'])
         self.assertFalse(response.context['nearby_locations'])
-        self.assertEqual(response.context['active_filters'][0][1], self.index_url)  # the chip clears the filter
+        self.assertEqual(response.context['reset_url'], self.index_url)  # Clear all removes the network
 
         Network.objects.all().update(is_active=False)
         self.client.force_login(self.manager.user)

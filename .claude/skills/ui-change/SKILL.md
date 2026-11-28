@@ -24,6 +24,9 @@ touches and what each should see and be able to do afterwards.
 | Manager | `manager`, demo_gestore | Manages the Negozio, created Circolo and Associazione; author of most demo tables and events. |
 | Organizer | `organizer`, demo_organizzatore | Runs the Manifestazione Demo only: no location, table or membership. |
 
+Everyone lives in Milano, as do the three locations; the Negozio belongs to the national network
+«Federazione Demo», Circolo and Associazione to «Rete Ludica Demo».
+
 The data comes from `webapp/services/ui_personas.py` (`seed_ui_personas`), on a DEBUG database:
 `python manage.py seed_ui_personas` (`--reset` to recreate it). On the running demo, `/dev/personas/`
 (DEBUG only, linked from the login page) signs in as any persona with one click, or out as a visitor.
@@ -91,6 +94,10 @@ for something a component already does is a bug.
     of links, with a short title saying where the entries come from, "Tutte le sedi" first and a
     check on the current one. Among many (every location) it is the search picker as a chip:
     `LocationPickerWidget(..., chip_label=...)`, with a × to remove it.
+  - An order, not a filter, can be a chip too when it needs a choice: Where to play's «Vicino a
+    Milano ▾» picks where the distance starts (the address, «Dove sono ora», «Ovunque, per
+    nome»). "Azzera" leaves it alone. The browser's position goes to the session through a POST,
+    rounded to about a kilometre, never into the URL.
 - **Detail pages** have one `action_bar` with only the allowed actions. The page's main action
   (join, create a table here, attend) sits in the side column on desktop and in the one fixed bar on
   phones: never twice on the same screen.
