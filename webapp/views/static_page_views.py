@@ -119,12 +119,23 @@ def homepage_view(request):
     if shows_my_tables:
         future_tables, past_tables = followed_future_tables, followed_past_tables
 
+    # Events follow the same rule: those organized, hosted or sponsored by the user's
+    # locations, else the public ones
+    upcoming_events = []
+    if my_location_ids:
+        at_my_locations = Event.objects.filter(
+            Q(organizer_location__in=my_location_ids) | Q(venue_location__in=my_location_ids)
+            | Q(sponsor_locations__in=my_location_ids))
+        upcoming_events = list(upcoming_events_queryset().filter(pk__in=at_my_locations.values('pk'))[:6])
+    if not upcoming_events:
+        upcoming_events = upcoming_events_queryset(limit=6)
+
     context = {
         'future_tables': future_tables,
         'past_tables': past_tables,
         'shows_my_tables': shows_my_tables,
         'has_my_locations': bool(my_location_ids),
-        'upcoming_events': upcoming_events_queryset(limit=6),
+        'upcoming_events': upcoming_events,
         'upcoming_manifestations': with_matching_day(
             MasterEvent.objects.filter(status=Event.PUBLISHED).select_related('venue_location').prefetch_related('dates'),
             MasterEventDate.objects.filter(master_event_id=OuterRef('pk'), date__gte=today),

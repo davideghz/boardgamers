@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from webapp.models import Event, EventDate, Table
+from webapp.models import Event, EventDate, LocationFollower, Table
 from webapp.services.manager_todo import (
     DRAFT_EVENTS, EVENTS_WITHOUT_TABLES, LAYOUT_REQUESTS, MEMBERSHIP_REQUESTS, manager_todo,
 )
@@ -130,7 +130,7 @@ class HomeDiscoverCardsTest(TestCase):
 
         html = self.client.get(reverse('home')).content.decode()
         with override('it'):
-            events, festivals = italian('Upcoming events'), italian('Festivals')
+            events, festivals = italian('Events'), italian('Festivals')
             festival_type = pgettext('appointment type', 'Festival')
             festival = self.data.manifestation
             days = f"{date_format(festival.start_date, 'j M')} – {date_format(festival.end_date, 'j M Y')}"
@@ -142,6 +142,44 @@ class HomeDiscoverCardsTest(TestCase):
         self.assertIn(f'src="{festival.cover_url}"', festivals)
         self.assertIn(festival_type, festivals)
         self.assertIn(days, festivals)
+
+
+class HomeEventsTest(TestCase):
+    """Events follow the tables' rule: those of the user's locations (organizing, hosting or
+    sponsoring), else all the upcoming ones."""
+
+    ALL = ['Associazione Demo in fiera', 'Evento Demo', 'Negozio Demo in fiera', 'Serata Demo']
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = seed_ui_personas()
+
+    def events(self, persona=None):
+        self.client.logout()
+        if persona:
+            self.client.force_login(self.data.profile(persona).user)
+        return sorted(event.name for event in self.client.get(reverse('home')).context['upcoming_events'])
+
+    def test_events_per_persona(self):
+        expected = {
+            None: self.ALL,
+            'newcomer': self.ALL,
+            'organizer': self.ALL,
+            'player': ['Evento Demo', 'Negozio Demo in fiera'],
+            'member': ['Associazione Demo in fiera', 'Serata Demo'],
+            'manager': self.ALL,
+        }
+        for persona, names in expected.items():
+            with self.subTest(persona):
+                self.assertEqual(self.events(persona), names)
+
+    def test_locations_without_events_fall_back_to_all(self):
+        LocationFollower.objects.create(user_profile=self.data.newcomer, location=self.data.circolo)
+        self.assertEqual(self.events('newcomer'), self.ALL)
+
+    def test_a_sponsored_event_counts(self):
+        self.data.night.sponsor_locations.add(self.data.negozio)
+        self.assertEqual(self.events('player'), ['Evento Demo', 'Negozio Demo in fiera', 'Serata Demo'])
 
 
 class MyLocationsEverywhereTest(TestCase):

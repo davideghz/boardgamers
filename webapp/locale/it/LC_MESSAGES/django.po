@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 14:39+0100\n"
+"POT-Creation-Date: 2026-11-28 10:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5376,9 +5376,6 @@ msgstr "Nessun tavolo passato nelle sedi che segui."
 msgid "No past tables yet."
 msgstr "Ancora nessun tavolo passato."
 
-msgid "Upcoming events"
-msgstr "Prossimi eventi"
-
 msgid "See all festivals"
 msgstr "Vedi tutte le manifestazioni"
 
@@ -7008,6 +7005,9 @@ msgstr ""
 
 msgid "Connect account"
 msgstr "Collega account"
+
+#~ msgid "Upcoming events"
+#~ msgstr "Prossimi eventi"
 
 #~ msgid "Invite/Remove Gamers"
 #~ msgstr "Invita/Rimuovi Gamers"
