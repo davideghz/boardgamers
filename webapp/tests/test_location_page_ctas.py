@@ -23,9 +23,10 @@ class LocationPageCtasTest(TestCase):
             self.client.force_login(self.data.profile(persona).user)
         return self.client.get(reverse('location-detail', args=[location.slug]) + query)
 
-    def test_follow_box_is_not_offered_to_managers(self):
+    def test_follow_box_is_offered_to_managers_too(self):
+        # Following brings the new-table notifications, which managers don't otherwise get.
         follow = reverse('follow-location', args=[self.data.negozio.slug])
-        self.assertNotContains(self.get(self.data.negozio, 'manager'), follow)
+        self.assertContains(self.get(self.data.negozio, 'manager'), follow)
         self.assertContains(self.get(self.data.negozio, 'newcomer'), follow)
 
     def test_visitors_are_asked_to_log_in_to_follow(self):
@@ -120,6 +121,22 @@ class MembersOnlyEmptyStateTest(TestCase):
         self.assertContains(
             response, italian('Your membership request is pending: once it is approved you can propose tables here.'))
         self.assertNotContains(response, italian('Become a member to propose tables'))
+
+
+class ManagersOnlyEmptyStateTest(TestCase):
+    def test_pending_members_are_not_promised_tables(self):
+        location = LocationFactory(
+            creator=UserProfileFactory(), enable_membership=True,
+            table_creation_permission=Location.PERM_MANAGERS_ONLY)
+        profile = UserProfileFactory()
+        add_membership(location, profile, Membership.PENDING)
+        self.client.force_login(profile.user)
+
+        response = self.client.get(reverse('location-detail', args=[location.slug]))
+
+        self.assertContains(response, italian('No upcoming tables.'))
+        self.assertNotContains(
+            response, italian('Your membership request is pending: once it is approved you can propose tables here.'))
 
 
 class MembersOnlyEventsWithoutEventsTest(TestCase):

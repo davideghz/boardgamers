@@ -1849,6 +1849,9 @@ msgstr "Modifica le sedi che gestisci e creane di nuove"
 msgid "Manage the events you created or coordinate"
 msgstr "Gestisci gli eventi che hai creato o che coordini"
 
+msgid "Manage the events you created or coordinate"
+msgstr "Gestisci gli eventi che hai creato o che coordini"
+
 msgid "Manage tables"
 msgstr "Gestisci tavoli"
 
@@ -2693,6 +2696,15 @@ msgstr "Non ci sono sedi in cui puoi creare un evento."
 #, python-format
 msgid "Reserved for members of %(name)s"
 msgstr "Riservato ai soci di %(name)s"
+#, python-format
+msgid "Reserved for members of %(name)s"
+msgstr "Riservato ai soci di %(name)s"
+
+msgid "You're attending"
+msgstr "Stai partecipando"
+
+msgid "Leave the event"
+msgstr "Non partecipare più"
 
 msgid "Log in to attend"
 msgstr "Accedi per partecipare"
@@ -3927,6 +3939,33 @@ msgstr "Lista"
 
 msgid "Map"
 msgstr "Mappa"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "to see nearby locations."
+msgstr "per vedere le sedi vicine."
+
+msgid "Set your address"
+msgstr "Inserisci un indirizzo"
+
+msgid "Tables near to"
+msgstr "Tavoli vicini a"
+
+msgid "Edit address"
+msgstr "Modifica indirizzo"
+
+msgid "All"
+msgstr "Tutte"
+
+msgid "Affiliation unavailable"
+msgstr "Affiliazione non disponibile"
+
+msgid "Apply filter"
+msgstr "Applica filtro"
+
+msgid "Clear filter"
+msgstr "Azzera filtro"
 
 msgid "This national affiliation is unavailable."
 msgstr "Questa affiliazione nazionale non è disponibile."
@@ -5290,6 +5329,27 @@ msgstr "Invia messaggio"
 msgid "Join us on Telegram"
 msgstr "Unisciti a noi su Telegram"
 
+msgctxt "location"
+msgid "Created by you"
+msgstr "Creata da te"
+
+msgctxt "location"
+msgid "Managed by you"
+msgstr "Gestita da te"
+
+msgctxt "location role"
+msgid "Member"
+msgstr "Socio"
+
+msgid "Followed"
+msgstr "Seguita"
+
+msgid "You don't follow any location yet."
+msgstr "Non segui ancora nessuna sede."
+
+msgid "Explore locations"
+msgstr "Scopri dove giocare"
+
 msgid "For board game clubs and associations"
 msgstr "Per APS e club di giochi da tavolo"
 
@@ -5327,6 +5387,48 @@ msgstr "Tieni viva la community"
 msgid "Telegram bot, rankings and your schedule on your website."
 msgstr ""
 "Bot Telegram, classifiche e il calendario sul sito della tua associazione."
+
+msgid "to see tables from locations you follow."
+msgstr "per vedere i tavoli delle sedi che segui."
+
+msgid "Follow new"
+msgstr "Segui nuove"
+
+msgid "locations"
+msgstr "sedi"
+
+msgid "to see their open tables here."
+msgstr "per vedere i loro tavoli."
+
+msgid "Your locations have no upcoming tables."
+msgstr "Le tue sedi non hanno tavoli in programma."
+
+msgid "Create a table"
+msgstr "Crea un tavolo"
+
+msgid "Follow a location to see its tables here."
+msgstr "Segui una sede per vedere qui i suoi tavoli."
+
+msgid "Find locations to follow"
+msgstr "Trova sedi da seguire"
+
+msgid "No upcoming tables right now."
+msgstr "Al momento non ci sono tavoli in programma."
+
+msgid "Find a place to play"
+msgstr "Trova dove giocare"
+
+msgid "No past tables from the locations you follow."
+msgstr "Nessun tavolo passato nelle sedi che segui."
+
+msgid "See all manifestations"
+msgstr "Vedi tutte le manifestazioni"
+
+msgid "Locations near to"
+msgstr "Sedi vicine a"
+
+msgid "See all game clubs"
+msgstr "Vedi tutti i club di gioco"
 
 msgid "The project"
 msgstr "Il progetto"
@@ -5616,6 +5718,30 @@ msgstr[1] "%(counter)s giocatori"
 #, python-format
 msgid "%(min)s–%(max)s players"
 msgstr "%(min)s–%(max)s giocatori"
+
+msgid "This table is closed"
+msgstr "Questo tavolo è chiuso"
+
+msgid "You're in"
+msgstr "Sei iscritto"
+
+msgid "Leave"
+msgstr "Esci"
+
+msgid "Leave the table"
+msgstr "Lascia il tavolo"
+
+msgid "Login to join table"
+msgstr "Accedi per unirti al tavolo"
+
+msgid "Join this table"
+msgstr "Unisciti a questo tavolo"
+
+msgid "Leave this table?"
+msgstr "Vuoi lasciare il tavolo?"
+
+msgid "Your seat goes back to the other players."
+msgstr "Il tuo posto torna libero per gli altri giocatori."
 
 msgid "This table is closed"
 msgstr "Questo tavolo è chiuso"
@@ -5949,6 +6075,8 @@ msgstr "Scegli la sede dove si gioca."
 
 msgid "You can't propose tables at any location yet."
 msgstr "Non puoi ancora proporre tavoli in nessuna sede."
+msgid "Edit table info"
+msgstr "Modifica tavolo"
 
 msgid "Follow a location open to everyone, or add your own."
 msgstr "Cerca una sede aperta a tutti, oppure aggiungi la tua."
@@ -7157,6 +7285,34 @@ msgstr "Collega account"
 
 #~ msgid "Most active locations"
 #~ msgstr "Sedi più attive"
+
+#~ msgid "No open tables from the locations you follow."
+#~ msgstr "Nessun tavolo aperto nelle sedi che segui."
+
+#~ msgid "to see their tables here."
+#~ msgstr "per vedere i loro tavoli."
+
+#~ msgid "No open tables right now — why not create one?"
+#~ msgstr "Nessun tavolo aperto al momento — perché non crearne uno?"
+
+#~ msgid "Leave this Table"
+#~ msgstr "Abbandona questo tavolo"
+
+#~ msgid ""
+#~ "Your locations have no upcoming tables: here are the ones from all "
+#~ "locations."
+#~ msgstr ""
+#~ "Le tue sedi non hanno tavoli in programma: ecco quelli di tutte le sedi."
+
+#~ msgid ""
+#~ "Upcoming tables from all locations. Follow a location to see its tables "
+#~ "here first."
+#~ msgstr ""
+#~ "Tavoli in programma in tutte le sedi. Segui una sede per vedere qui per "
+#~ "primi i suoi tavoli."
+
+#~ msgid "Follow more locations"
+#~ msgstr "Segui altre sedi"
 
 #~ msgid "No open tables from the locations you follow."
 #~ msgstr "Nessun tavolo aperto nelle sedi che segui."
