@@ -107,16 +107,14 @@ def homepage_view(request):
                 .order_by('-date')[:12]
             )
 
-    # Users see their own locations' tables; when those have none, the public ones,
-    # so a new account never gets a poorer home page than a visitor.
-    shows_my_tables = bool(my_location_ids) and followed_future_tables.exists()
-    if shows_my_tables:
+    # Users see only their own locations' tables, even when those have none:
+    # tables from locations they don't follow would read as theirs.
+    if request.user.is_authenticated:
         future_tables, past_tables = followed_future_tables, followed_past_tables
 
     context = {
         'future_tables': future_tables,
         'past_tables': past_tables,
-        'shows_my_tables': shows_my_tables,
         'has_my_locations': bool(my_location_ids),
         'upcoming_events': upcoming_events_queryset(limit=6),
         'upcoming_manifestations': with_matching_day(

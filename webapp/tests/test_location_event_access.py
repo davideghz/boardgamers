@@ -7,9 +7,7 @@ from django.utils import timezone
 
 from webapp.factories import LocationFactory, UserProfileFactory
 from webapp.models import Event, EventDate, Location, LocationAccess, Membership
-from webapp.tests.test_location_table_access import AccessMatrixMixin, add_membership
-
-ANYONE, MEMBERS, MANAGERS = Location.PERM_ANYONE, Location.PERM_MEMBERS_ONLY, Location.PERM_MANAGERS_ONLY
+from webapp.tests.access_matrix import ANYONE, MANAGERS, MEMBERS, AccessMatrixMixin, add_membership
 
 
 class EventAccessTest(AccessMatrixMixin, TestCase):
