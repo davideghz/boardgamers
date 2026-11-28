@@ -8,6 +8,7 @@ they are ambiguous in English too; the URLs (`/locations/`, `/events/`, …) don
 | Concept (code) | Italian | Avoid | Notes |
 |---|---|---|---|
 | `Location` | **Sede**, plural **Sedi** | Location, locations, luogo | The place registered on Board Gamers: association, game library, shop. |
+| The viewer's locations (`viewer.my_locations`) | **Le sedi che frequenti** | Le tue sedi | Every tie: created, managed, member, pending, followed. The account page of the ones created or managed is «Sedi che gestisci». |
 | Menu entry and index of the locations | **Dove giocare** | Locations | `{% trans "Locations" context "navigation" %}`. The plain "Locations" msgid is «Sedi». |
 | Where an event takes place (`venue_*`) | **Luogo** | Sede, when it is not a registered one | A registered location is «Sede ospitante». |
 | `organizer_location` | **Sede organizzatrice** | | |

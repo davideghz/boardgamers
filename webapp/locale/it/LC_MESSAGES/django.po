@@ -167,7 +167,7 @@ msgid "Where do you play?"
 msgstr "Dove si gioca?"
 
 msgid "Your locations"
-msgstr "Le tue sedi"
+msgstr "Le sedi che frequenti"
 
 msgid "All locations"
 msgstr "Tutte le sedi"
@@ -1847,7 +1847,7 @@ msgid "Manage locations"
 msgstr "Gestisci le sedi"
 
 msgid "Edit the information of your locations and create new ones"
-msgstr "Modifica le informazioni delle tue sedi e creane di nuove"
+msgstr "Modifica le sedi che gestisci e creane di nuove"
 
 msgid "Manage the events you created or coordinate"
 msgstr "Gestisci gli eventi che hai creato o che coordini"
@@ -1886,7 +1886,7 @@ msgid "Add your location"
 msgstr "Aggiungi la tua sede"
 
 msgid "My Locations"
-msgstr "Le mie sedi"
+msgstr "Sedi che gestisci"
 
 msgid "Add location"
 msgstr "Aggiungi la tua sede"
@@ -5346,7 +5346,8 @@ msgstr "per vedere i loro tavoli."
 msgid ""
 "Your locations have no upcoming tables: here are the ones from all locations."
 msgstr ""
-"Le tue sedi non hanno tavoli in programma: ecco quelli di tutte le sedi."
+"Nelle sedi che frequenti non ci sono tavoli in programma: ecco quelli di "
+"tutte le sedi."
 
 msgid "Follow more locations"
 msgstr "Segui altre sedi"
