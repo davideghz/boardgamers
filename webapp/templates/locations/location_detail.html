@@ -63,8 +63,8 @@
         {% include "locations/_visitor_intro.html" %}
       {% endif %}
 
-      {# ── Follow box (top — only when not following; managers already get the location in their quick links) ── #}
-      {% if not is_following and not is_manager %}
+      {# ── Follow box (top — only when not following; managers too: following brings the new-table notifications) ── #}
+      {% if not is_following %}
       {% with follow_requested=request.GET.follow %}
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border rounded-xl bg-surface px-5 py-4 {% if follow_requested and user.is_authenticated %}border-primary ring-2 ring-primary/30{% else %}border-divider{% endif %}">
         <div>
@@ -202,7 +202,7 @@
               <p class="text-sm text-content-muted">{% trans "No upcoming tables." %}</p>
               {% if table_creation.allowed or table_creation.needs_login %}
                 <a href="{{ create_table_url }}" class="mt-2 inline-block text-sm font-semibold text-link hover:underline">{% trans "Create the first table" %} →</a>
-              {% elif table_creation.membership_pending %}
+              {% elif table_creation.needs_membership and table_creation.membership_pending %}
                 <p class="mt-1 text-xs text-content-muted">{% trans "Your membership request is pending: once it is approved you can propose tables here." %}</p>
               {% elif table_creation.needs_membership and location.enable_membership %}
                 <a href="{% url 'location-request-membership' location.slug %}" class="mt-2 inline-block text-sm font-semibold text-link hover:underline">{% trans "Become a member to propose tables" %} →</a>
